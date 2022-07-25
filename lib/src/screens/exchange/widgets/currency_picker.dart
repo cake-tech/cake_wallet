@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker_item_widget.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_utils.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,45 +34,33 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   CurrencyPickerState(this.items)
       : isSearchBarActive = false,
         textFieldValue = '',
-        subPickerItemsList = [],
+        subPickerItemsList = items,
         appBarTextStyle =
-            TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white);
+        TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white);
 
-  @override
-  void initState() {
-    pickerItemsList = CryptoCurrency.all
-        .map((CryptoCurrency cur) => PickerItem<CryptoCurrency>(cur,
-            title: CurrencyUtils.titleForCurrency(cur),
-            iconPath: CurrencyUtils.iconPathForCurrency(cur),
-            tag: CurrencyUtils.tagForCurrency(cur),
-            description: CurrencyUtils.descriptionForCurrency(cur)))
-        .toList();
-    cleanSubPickerItemsList();
-    super.initState();
-  }
+
 
   List<PickerItem<CryptoCurrency>> pickerItemsList;
   List<CryptoCurrency> items;
   bool isSearchBarActive;
   String textFieldValue;
-  List<PickerItem<CryptoCurrency>> subPickerItemsList;
+  List<CryptoCurrency> subPickerItemsList;
   TextStyle appBarTextStyle;
 
-  void cleanSubPickerItemsList() {
-    subPickerItemsList = pickerItemsList.where((element) => items.contains(element.original)).toList();
-  }
+  void cleanSubPickerItemsList() => subPickerItemsList = items;
 
-  void currencySearchBySubstring(String subString, List<PickerItem<CryptoCurrency>> list) {
+  void currencySearchBySubstring(String subString) {
     setState(() {
       if (subString.isNotEmpty) {
-        subPickerItemsList = subPickerItemsList
+        subPickerItemsList = items
             .where((element) =>
-                element.title.contains(subString.toUpperCase()) ||
-                element.description.contains(subString.toLowerCase()))
+        (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
+            (element.tag != null ? element.tag.toLowerCase().contains(subString.toLowerCase()) : false) ||
+            (element.name != null ? element.name.toLowerCase().contains(subString.toLowerCase()) : false))
             .toList();
-      } else {
-        cleanSubPickerItemsList();
+        return;
       }
+      cleanSubPickerItemsList();
     });
   }
 
@@ -140,7 +127,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                 onChanged: (value) {
                                   this.textFieldValue = value;
                                   cleanSubPickerItemsList();
-                                  currencySearchBySubstring(textFieldValue, subPickerItemsList);
+                                  currencySearchBySubstring(textFieldValue);
                                 },
                               ),
                             ),
@@ -152,10 +139,10 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             AspectRatio(
                               aspectRatio: 6,
                               child: PickerItemWidget(
-                                title: pickerItemsList[widget.selectedAtIndex].title,
-                                iconPath: pickerItemsList[widget.selectedAtIndex].iconPath,
+                                title: items[widget.selectedAtIndex].title,
+                                iconPath: items[widget.selectedAtIndex].iconPath,
                                 isSelected: true,
-                                tag: pickerItemsList[widget.selectedAtIndex].tag,
+                                tag: items[widget.selectedAtIndex].tag,
                               ),
                             ),
                           Flexible(
@@ -167,10 +154,10 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                 setState(() {
                                   widget.selectedAtIndex = index;
                                 });
-                                widget.onItemSelected(subPickerItemsList[index].original);
+                                widget.onItemSelected(subPickerItemsList[index]);
                                 if (widget.isConvertFrom &&
                                     !widget.isMoneroWallet &&
-                                    (subPickerItemsList[index].original == CryptoCurrency.xmr)) {
+                                    (subPickerItemsList[index] == CryptoCurrency.xmr)) {
                                 } else {
                                   Navigator.of(context).pop();
                                 }

@@ -173,85 +173,129 @@ class SendCardState extends State<SendCard>
                     Observer(
                         builder: (_) => Padding(
                             padding: const EdgeInsets.only(top: 20),
-                            child: Stack(
-                                children: [
-                                  BaseTextFormField(
-                                      focusNode: cryptoAmountFocus,
-                                      controller: cryptoAmountController,
-                                      keyboardType:
-                                      TextInputType.numberWithOptions(
-                                          signed: false, decimal: true),
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
-                                      ],
-                                      prefixIcon: Padding(
-                                        padding: EdgeInsets.only(top: 9),
-                                        child: Text(
-                                            sendViewModel.selectedCryptoCurrency.title +
-                                                ':',
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                          sendViewModel.selectedCryptoCurrency.title,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          )),
+                                      sendViewModel.selectedCryptoCurrency.tag != null ? Padding(
+                                        padding: const EdgeInsets.fromLTRB(3.0,0,3.0,0),
+                                        child: Container(
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .display1
+                                                  .color,
+                                              borderRadius:
+                                              BorderRadius.all(Radius.circular(6))),
+                                          child: Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(6.0),
+                                              child: Text( sendViewModel.selectedCryptoCurrency.tag,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Theme.of(context)
+                                                          .primaryTextTheme
+                                                          .display1
+                                                          .decorationColor)),
+                                            ),
+                                          ),
+                                        ),
+                                      ) : Container(),
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 10.0),
+                                        child: Text(':',
                                             style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            )),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                                color: Colors.white)),
                                       ),
-                                      suffixIcon: SizedBox(
-                                        width: prefixIconWidth,
-                                      ),
-                                      hintText: '0.0000',
-                                      borderColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline
-                                          .color,
-                                      textStyle: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white),
-                                      placeholderTextStyle: TextStyle(
-                                          color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .headline
-                                              .decorationColor,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14),
-                                      validator: output.sendAll
-                                          ? sendViewModel.allAmountValidator
-                                          : sendViewModel
-                                          .amountValidator),
-                                  if (!sendViewModel.isBatchSending) Positioned(
-                                      top: 2,
-                                      right: 0,
-                                      child: Container(
-                                          width: prefixIconWidth,
-                                          height: prefixIconHeight,
-                                          child: InkWell(
-                                              onTap: () async =>
-                                                  output.setSendAll(),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .display1
-                                                        .color,
-                                                    borderRadius:
-                                                    BorderRadius.all(
-                                                        Radius.circular(6))),
-                                                child: Center(
-                                                    child: Text(
-                                                        S.of(context).all,
-                                                        textAlign:
-                                                        TextAlign.center,
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                            FontWeight.bold,
-                                                            color:
-                                                            Theme.of(context)
-                                                                .primaryTextTheme
-                                                                .display1
-                                                                .decorationColor))),
-                                              ))))])
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Stack(
+                                      children: [
+                                        BaseTextFormField(
+                                            focusNode: cryptoAmountFocus,
+                                            controller: cryptoAmountController,
+                                            keyboardType:
+                                            TextInputType.numberWithOptions(
+                                                signed: false, decimal: true),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                            ],
+                                            suffixIcon: SizedBox(
+                                              width: prefixIconWidth,
+                                            ),
+                                            hintText: '0.0000',
+                                            borderColor: Colors.transparent,
+                                            textStyle: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white),
+                                            placeholderTextStyle: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .headline
+                                                    .decorationColor,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14),
+                                            validator: output.sendAll
+                                                ? sendViewModel.allAmountValidator
+                                                : sendViewModel
+                                                .amountValidator),
+                                        if (!sendViewModel.isBatchSending) Positioned(
+                                            top: 2,
+                                            right: 0,
+                                            child: Container(
+                                                width: prefixIconWidth,
+                                                height: prefixIconHeight,
+                                                child: InkWell(
+                                                    onTap: () async =>
+                                                        output.setSendAll(),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          color: Theme.of(context)
+                                                              .primaryTextTheme
+                                                              .display1
+                                                              .color,
+                                                          borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(6))),
+                                                      child: Center(
+                                                          child: Text(
+                                                              S.of(context).all,
+                                                              textAlign:
+                                                              TextAlign.center,
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                  FontWeight.bold,
+                                                                  color:
+                                                                  Theme.of(context)
+                                                                      .primaryTextTheme
+                                                                      .display1
+                                                                      .decorationColor))),
+                                                    ))))]),
+                                ),
+                              ],
+                            )
                         )),
+                    Divider(height: 1,color: Theme.of(context)
+                        .primaryTextTheme
+                        .headline
+                        .decorationColor),
                     Observer(
                         builder: (_) => Padding(
                           padding: EdgeInsets.only(top: 10),

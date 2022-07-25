@@ -14,7 +14,7 @@ class CurrencyPickerWidget extends StatelessWidget {
   final int crossAxisCount;
   final int selectedAtIndex;
   final Function pickListItem;
-  final List<PickerItem<CryptoCurrency>> pickerItemsList;
+  final List<CryptoCurrency> pickerItemsList;
 
   final ScrollController _scrollController = ScrollController();
 

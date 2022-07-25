@@ -1,9 +1,9 @@
+import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/core/key_service.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -16,7 +16,7 @@ class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(this._walletInfoSource, this._appStore,
-      this._keyService) {
+      this._walletLoadingService) {
     wallets = ObservableList<WalletListItem>();
     _updateList();
   }
@@ -26,17 +26,14 @@ abstract class WalletListViewModelBase with Store {
 
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
-  final KeyService _keyService;
+  final WalletLoadingService _walletLoadingService;
 
   WalletType get currentWalletType => _appStore.wallet.type;
 
   @action
-  Future<void> loadWallet(WalletListItem wallet) async {
-    final password =
-        await _keyService.getWalletPassword(walletName: wallet.name);
-    final walletService = getIt.get<WalletService>(param1: wallet.type);
-    final loadedWallet = await walletService.openWallet(wallet.name, password);
-    _appStore.changeCurrentWallet(loadedWallet);
+  Future<void> loadWallet(WalletListItem walletItem) async {
+    final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
+    _appStore.changeCurrentWallet(wallet);
     _updateList();
   }
 
