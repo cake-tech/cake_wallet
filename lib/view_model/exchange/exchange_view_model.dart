@@ -195,28 +195,46 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
-    final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
+    this.provider = null;
     double tempAmount;
     for (var provider in selectedProviders) {
       provider
           .calculateAmount(
               from: receiveCurrency,
               to: depositCurrency,
-              amount: _amount,
+              amount: _enteredAmount,
               isFixedRateMode: isFixedRateMode,
               isReceiveAmount: true)
           .then((amount) {
-        /// if the deposit amount for this provider is less than the others show this amount
-        if (tempAmount == null || tempAmount > amount) {
-          this.provider = provider;
-          tempAmount = amount;
-        }
-        return _cryptoNumberFormat
-            .format(tempAmount)
+
+        final from = isFixedRateMode
+            ? receiveCurrency
+            : depositCurrency;
+        final to = isFixedRateMode
+            ? depositCurrency
+            : receiveCurrency;
+
+        provider.fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        ).then((limits) {
+          /// if the entered amount doesn't exceed the limits for this provider
+          /// and the deposit amount is less than the others then select this provider
+          if ((limits.max ?? double.maxFinite) >= _enteredAmount
+              && (limits.min ?? 0) <= _enteredAmount
+              && (tempAmount == null || tempAmount > amount)) {
+            this.provider = provider;
+            tempAmount = amount;
+          }
+          return amount;
+        }).then((amount) => depositAmount = _cryptoNumberFormat
+            .format(amount)
             .toString()
-            .replaceAll(RegExp('\\,'), '');
-      }).then((amount) => depositAmount = amount);
+            .replaceAll(RegExp('\\,'), ''));
+      });
     }
   }
 
@@ -231,28 +249,48 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
-    final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
+    this.provider = null;
     double tempAmount;
     for (var provider in selectedProviders) {
       provider
           .calculateAmount(
               from: depositCurrency,
               to: receiveCurrency,
-              amount: _amount,
+              amount: _enteredAmount,
               isFixedRateMode: isFixedRateMode,
               isReceiveAmount: false)
           .then((amount) {
-        /// if the receive amount for this provider is more than the others show this amount
-        if (tempAmount == null || tempAmount < amount) {
-          this.provider = provider;
-          tempAmount = amount;
-        }
-        return _cryptoNumberFormat
-            .format(tempAmount)
+
+        final from = isFixedRateMode
+            ? receiveCurrency
+            : depositCurrency;
+        final to = isFixedRateMode
+            ? depositCurrency
+            : receiveCurrency;
+
+        provider.fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        ).then((limits) {
+
+          /// if the entered amount doesn't exceed the limits for this provider and
+          /// the received amount is more than the other providers then select this provider
+          if ((limits.max ?? double.maxFinite) >= _enteredAmount
+              && (limits.min ?? 0) <= _enteredAmount
+              && (tempAmount == null || tempAmount < amount)) {
+            this.provider = provider;
+            tempAmount = amount;
+          }
+          return amount;
+        }).then((amount) => receiveAmount =
+            receiveAmount = _cryptoNumberFormat
+            .format(amount)
             .toString()
-            .replaceAll(RegExp('\\,'), '');
-      }).then((amount) => receiveAmount = amount);
+            .replaceAll(RegExp('\\,'), ''));
+      });
     }
   }
 
@@ -305,6 +343,12 @@ abstract class ExchangeViewModelBase with Store {
     TradeRequest request;
     String amount;
     CryptoCurrency currency;
+
+    if (provider == null) {
+      tradeState = TradeIsCreatedFailure(
+        title: S.current.trade_not_created,
+        error: S.current.non_of_selected_providers_can_exchange);
+    }
 
      if (provider is SideShiftExchangeProvider) {
       request = SideShiftRequest(
@@ -459,27 +503,8 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   void _onPairChange() {
-    final isPairExist = provider.pairList
-        .where((pair) =>
-            pair.from == depositCurrency && pair.to == receiveCurrency)
-        .isNotEmpty;
-
-    if (isPairExist) {
-      final provider =
-          _providerForPair(from: depositCurrency, to: receiveCurrency);
-
-      if (provider != null) {
-        // changeProvider(provider: provider);
-      }
-    } else {
-      depositAmount = '';
-      receiveAmount = '';
-    }
-  }
-
-  ExchangeProvider _providerForPair({CryptoCurrency from, CryptoCurrency to}) {
-    final providers = _providersForPair(from: from, to: to);
-    return providers.isNotEmpty ? providers[0] : null;
+    depositAmount = '';
+    receiveAmount = '';
   }
 
   void _initialPairBasedOnWallet() {
