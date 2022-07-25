@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
+import 'package:cw_haven/api/structs/ut8_box.dart';
 import 'package:cw_haven/api/convert_utf8_to_string.dart';
 import 'package:cw_haven/api/signatures.dart';
 import 'package:cw_haven/api/types.dart';
@@ -66,6 +67,9 @@ final setRecoveringFromSeedNative = havenApi
 
 final storeNative =
     havenApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
+
+final setPasswordNative =
+    havenApi.lookup<NativeFunction<set_password>>('set_password').asFunction<SetPassword>();
 
 final setListenerNative = havenApi
     .lookup<NativeFunction<set_listener>>('set_listener')
@@ -191,6 +195,21 @@ void storeSync() {
   final pathPointer = Utf8.toUtf8('');
   storeNative(pathPointer);
   free(pathPointer);
+}
+
+void setPasswordSync(String password) {
+  final passwordPointer = Utf8.toUtf8(password);
+  final errorMessagePointer = allocate<Utf8Box>();
+  final changed = setPasswordNative(passwordPointer, errorMessagePointer) != 0;
+  free(passwordPointer);
+  
+  if (!changed) {
+    final message = errorMessagePointer.ref.getValue();
+    free(errorMessagePointer);
+    throw Exception(message);
+  }
+
+  free(errorMessagePointer);
 }
 
 void closeCurrentWallet() => closeCurrentWalletNative();
