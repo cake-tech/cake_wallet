@@ -538,5 +538,5 @@
   "automatic": "Automatic",
   "fixed_pair_not_supported": "This fixed pair is not supported with the selected exchanges",
   "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
-  "non_of_selected_providers_can_exchange": "Non of the selected providers can make this exchange"
+  "none_of_selected_providers_can_exchange": "None of the selected providers can make this exchange"
 }
