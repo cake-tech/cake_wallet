@@ -1,19 +1,6 @@
 import 'dart:convert';
-
+import 'package:cake_wallet/ionia/ionia_gift_card_instruction.dart';
 import 'package:flutter/foundation.dart';
-
-class IoniaGiftCardInstruction {
-    IoniaGiftCardInstruction(this.header, this.body);
-
-    factory IoniaGiftCardInstruction.fromJsonMap(Map<String, dynamic> element) {
-        return IoniaGiftCardInstruction(
-            element['header'] as String,
-            element['body'] as String);
-    }
-
-    final String header;
-    final String body;
-}
 
 class IoniaGiftCard {
     IoniaGiftCard({
@@ -24,10 +11,7 @@ class IoniaGiftCard {
         @required this.barcodeUrl,
         @required this.cardNumber,
         @required this.cardPin,
-        @required this.usageInstructions,
-        @required this.balanceInstructions,
-        @required this.paymentInstructions,
-        @required this.cardImageUrl,
+        @required this.instructions,
         @required this.tip,
         @required this.purchaseAmount,
         @required this.actualAmount,
@@ -41,11 +25,6 @@ class IoniaGiftCard {
         @required this.logoUrl});
 
     factory IoniaGiftCard.fromJsonMap(Map<String, dynamic> element) {
-        final decodedInstructions = json.decode(element['UsageInstructions'] as String) as Map<String, dynamic>;
-        final instruction = decodedInstructions['instruction'] as List<dynamic>;
-        final instructions = instruction
-                .map((dynamic e) =>IoniaGiftCardInstruction.fromJsonMap(e as Map<String, dynamic>))
-                .toList();
         return IoniaGiftCard(
             id: element['Id'] as int,
             merchantId: element['MerchantId'] as int,
@@ -65,7 +44,7 @@ class IoniaGiftCard {
             logoUrl: element['LogoUrl'] as String,
             createdDateFormatted: element['CreatedDate'] as String,
             lastTransactionDateFormatted: element['LastTransactionDate'] as String,
-            usageInstructions: instructions);
+            instructions: IoniaGiftCardInstruction.parseListOfInstructions(element['PaymentInstructions'] as String));
     }
 
     final int id;
@@ -75,10 +54,7 @@ class IoniaGiftCard {
     final String barcodeUrl;
     final String cardNumber;
     final String cardPin;
-    final List<IoniaGiftCardInstruction> usageInstructions;
-    final Map<String, dynamic> balanceInstructions;
-    final Map<String, dynamic> paymentInstructions;
-    final String cardImageUrl;
+    final List<IoniaGiftCardInstruction> instructions;
     final double tip;
     final double purchaseAmount;
     final double actualAmount;

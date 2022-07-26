@@ -159,7 +159,7 @@ class IoniaGiftCardDetailPage extends BasePage {
             title: S.of(context).how_to_use_card,
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-                children: viewModel.giftCard.usageInstructions
+                children: viewModel.giftCard.instructions
                     .map((instruction) {
                       return [
                         Padding(

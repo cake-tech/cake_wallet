@@ -1,12 +1,10 @@
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_payment_status_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -44,7 +42,6 @@ class _IoniaPaymentStatusPageBody extends StatefulWidget {
 }
 
 class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPageBody> {
-  ReactionDisposer _onErrorReaction;
   ReactionDisposer _onGiftCardReaction;
 
   @override
@@ -55,34 +52,6 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
           .pushReplacementNamed(Routes.ioniaGiftCardDetailPage, arguments: [widget.viewModel.giftCard]);
       });
     }
- 
-    if (widget.viewModel.error != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.of(context).error,
-                alertContent: widget.viewModel.error,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-      });
-    }
-
-    _onErrorReaction = reaction((_) => widget.viewModel.error, (String error) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.of(context).error,
-                alertContent: error,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-      });
-    });
 
     _onGiftCardReaction = reaction((_) => widget.viewModel.giftCard, (IoniaGiftCard giftCard) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,7 +65,6 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
 
   @override
   void dispose() {
-    _onErrorReaction?.reaction?.dispose();
     _onGiftCardReaction?.reaction?.dispose();
     widget.viewModel.timer.cancel();
     super.dispose();

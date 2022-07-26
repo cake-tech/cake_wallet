@@ -258,15 +258,29 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
           builder: (BuildContext context) {
         return  IoniaAlertModal(
           title: S.of(context).how_to_use_card,
-          content: Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              merchant.usageInstructionsBak,
-              style: textMedium(
-                color: Theme.of(context).textTheme.display2.color,
-              ),
-            ),
-          ), 
+          content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+                children: merchant.instructions
+                    .map((instruction) {
+                      return [
+                        Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              instruction.header,
+                              style: textLargeSemiBold(
+                                color: Theme.of(context).textTheme.display2.color,
+                              ),
+                            )),
+                        Text(
+                          instruction.body,
+                          style: textMedium(
+                            color: Theme.of(context).textTheme.display2.color,
+                          ),
+                        )
+                      ];
+                    })
+                    .expand((e) => e)
+                    .toList()), 
           actionTitle: S.current.send_got_it,
         ); 
     });

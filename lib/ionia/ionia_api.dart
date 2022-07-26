@@ -159,9 +159,14 @@ class IoniaApi {
 
 		final data = decodedBody['Data'] as List<dynamic>;
 		return data.map((dynamic e) {
-			final element = e as Map<String, dynamic>;
-			return IoniaMerchant.fromJsonMap(element);
-		}).toList();
+			try {
+				final element = e as Map<String, dynamic>;
+				return IoniaMerchant.fromJsonMap(element);
+			} catch(_) {
+				return null;
+			} 
+		}).where((e) => e != null)
+		.toList();
 	}
 
 	// Get Merchants By Filter
@@ -208,9 +213,14 @@ class IoniaApi {
 
 		final data = decodedBody['Data'] as List<dynamic>;
 		return data.map((dynamic e) {
-			final element = e['Merchant'] as Map<String, dynamic>;
-			return IoniaMerchant.fromJsonMap(element);
-		}).toList();
+			try {
+				final element = e['Merchant'] as Map<String, dynamic>;
+				return IoniaMerchant.fromJsonMap(element);
+			} catch(_) {
+				return null;
+			}
+		}).where((e) => e != null)
+		.toList();
 	}
 
 	// Purchase Gift Card
@@ -273,9 +283,14 @@ class IoniaApi {
 
 		final data = decodedBody['Data'] as List<dynamic>;
 		return data.map((dynamic e) {
-			final element = e as Map<String, dynamic>;
-			return IoniaGiftCard.fromJsonMap(element);
-		}).toList();
+			try {
+				final element = e as Map<String, dynamic>;
+				return IoniaGiftCard.fromJsonMap(element);
+			} catch(e) {
+				return null;
+			}
+		}).where((e) => e != null)
+		.toList();
 	}
 
 	// Charge Gift Card
