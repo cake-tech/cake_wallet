@@ -198,7 +198,7 @@ abstract class ExchangeViewModelBase with Store {
     final _enteredAmount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
     this.provider = null;
-    double tempAmount;
+    double minDepositAmount;
     for (var provider in selectedProviders) {
       provider
           .calculateAmount(
@@ -225,11 +225,11 @@ abstract class ExchangeViewModelBase with Store {
           /// and the deposit amount is less than the others then select this provider
           if ((limits.max ?? double.maxFinite) >= _enteredAmount
               && (limits.min ?? 0) <= _enteredAmount
-              && (tempAmount == null || tempAmount > amount)) {
+              && (minDepositAmount == null || minDepositAmount > amount)) {
             this.provider = provider;
-            tempAmount = amount;
+            minDepositAmount = amount;
           }
-          return amount;
+          return _truncateAmount(amount);
         }).then((amount) => depositAmount = _cryptoNumberFormat
             .format(amount)
             .toString()
@@ -252,7 +252,7 @@ abstract class ExchangeViewModelBase with Store {
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
     this.provider = null;
-    double tempAmount;
+    double maxReceiveAmount;
     for (var provider in selectedProviders) {
       provider
           .calculateAmount(
@@ -280,11 +280,11 @@ abstract class ExchangeViewModelBase with Store {
           /// the received amount is more than the other providers then select this provider
           if ((limits.max ?? double.maxFinite) >= _enteredAmount
               && (limits.min ?? 0) <= _enteredAmount
-              && (tempAmount == null || tempAmount < amount)) {
+              && (maxReceiveAmount == null || maxReceiveAmount < amount)) {
             this.provider = provider;
-            tempAmount = amount;
+            maxReceiveAmount = amount;
           }
-          return amount;
+          return _truncateAmount(amount);
         }).then((amount) => receiveAmount =
             receiveAmount = _cryptoNumberFormat
             .format(amount)
@@ -535,7 +535,7 @@ abstract class ExchangeViewModelBase with Store {
       isReceiveAmountEditable = false;
     }*/
     //isReceiveAmountEditable = false;
-    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
+    isReceiveAmountEditable = selectedProviders.any((provider) => provider is ChangeNowExchangeProvider);
   }
 
   @action
@@ -573,5 +573,27 @@ abstract class ExchangeViewModelBase with Store {
   bool get isAvailableInSelected {
     final providersForPair = providersForCurrentPair();
     return selectedProviders.any((element) => element.isAvailable && providersForPair.contains(element));
+  }
+
+  double _truncateAmount(double amount) {
+    /// if it has no fraction
+    if (amount == amount.roundToDouble()) {
+      return amount;
+    }
+
+    if (wallet.type != WalletType.monero && wallet.type != WalletType.bitcoin) {
+      return amount;
+    }
+
+    final String temp = amount.toStringAsFixed(wallet.type == WalletType.monero ? 12 : 8);
+
+    /// remove extra 0s after the decimal point
+    int i=temp.length - 1;
+    while (temp[i] == "0") {
+      i--;
+    }
+    temp.replaceRange(i, temp.length, "");
+
+    return double.tryParse(temp) ?? 0;
   }
 }
