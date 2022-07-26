@@ -217,7 +217,7 @@ class DashboardPage extends BasePage {
     if (_isEffectsInstalled) {
       return;
     }
-    pages.add(MarketPlacePage());
+    pages.add(MarketPlacePage(dashboardViewModel: walletViewModel));
     pages.add(balancePage);
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;

@@ -631,5 +631,6 @@
   "order_id": "ID narudžbe",
   "gift_card_is_generated": "Poklon kartica je generirana",
   "open_gift_card": "Otvori darovnu karticu",
-  "contact_support": "Kontaktirajte podršku"
+  "contact_support": "Kontaktirajte podršku",
+  "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina"
 }
