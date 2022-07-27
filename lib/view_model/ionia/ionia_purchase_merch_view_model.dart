@@ -58,6 +58,9 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   @computed
   double get giftCardAmount => double.parse((amount + tipAmount).toStringAsFixed(2));
 
+  @computed
+  double get billAmount => double.parse((giftCardAmount * (1 - (ioniaMerchant.discount / 100))).toStringAsFixed(2));
+
   @observable
   double tipAmount;
 

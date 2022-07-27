@@ -168,5 +168,7 @@ class IoniaMerchant  {
     final String acceptedCurrency;
     final String deepLink;
     final bool isPayLater;
+
+    double get discount => level3;
   
 }

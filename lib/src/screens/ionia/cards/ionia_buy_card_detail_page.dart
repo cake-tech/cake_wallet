@@ -35,8 +35,8 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context)
-    => ioniaPurchaseViewModel.ioniaMerchant.minimumDiscount > 0
-      ? DiscountBadge(percentage: ioniaPurchaseViewModel.ioniaMerchant.minimumDiscount)
+    => ioniaPurchaseViewModel.ioniaMerchant.discount > 0
+      ? DiscountBadge(percentage: ioniaPurchaseViewModel.ioniaMerchant.discount)
       : null;
 
   @override
@@ -130,7 +130,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '\$${ioniaPurchaseViewModel.amount.toStringAsFixed(2)}',
+                                '\$${ioniaPurchaseViewModel.billAmount.toStringAsFixed(2)}',
                                 style: textLargeSemiBold(),
                               ),
                             ],

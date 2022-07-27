@@ -146,7 +146,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                 child: CardItem(
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
-                  discount: merchant.minimumDiscount,
+                  discount: merchant.discount,
                   titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
