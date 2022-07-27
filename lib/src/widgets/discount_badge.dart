@@ -16,7 +16,7 @@ class DiscountBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Text(
-        S.of(context).discount(percentage.toString()),
+        S.of(context).discount(percentage.toStringAsFixed(2)),
         style: TextStyle(
           color: Colors.white,
           fontSize: 12,
