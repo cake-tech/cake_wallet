@@ -90,7 +90,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                 horizontal: 24.0,
                 vertical: 24,
               ),
-              child: SizedBox(height: 96, width: double.infinity, child: Image.network(viewModel.giftCard.barcodeUrl)),
+              child: Image.network(viewModel.giftCard.barcodeUrl),
             ),
           SizedBox(height: 24),
           buildIoniaTile(
@@ -98,12 +98,13 @@ class IoniaGiftCardDetailPage extends BasePage {
             title: S.of(context).gift_card_number,
             subTitle: viewModel.giftCard.cardNumber,
           ),
-          Divider(height: 30),
-          buildIoniaTile(
-            context,
-            title: S.of(context).pin_number,
-            subTitle: viewModel.giftCard.cardPin ?? '',
-          ),
+          if (viewModel.giftCard.cardPin?.isNotEmpty ?? false)
+            ...[Divider(height: 30),
+            buildIoniaTile(
+              context,
+              title: S.of(context).pin_number,
+              subTitle: viewModel.giftCard.cardPin,
+            )],
           Divider(height: 30),
           Observer(builder: (_) =>
             buildIoniaTile(
