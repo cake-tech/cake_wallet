@@ -240,7 +240,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
               titleColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
               subtitleColor: Theme.of(context).accentTextTheme.display2.backgroundColor,
-              discount: merchant.discount.toStringAsFixed(2),
+              discount: merchant.discount,
             );
           },
         ),
