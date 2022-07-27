@@ -9,16 +9,17 @@ class IoniaAuthViewModel  = IoniaAuthViewModelBase with _$IoniaAuthViewModel;
 abstract class IoniaAuthViewModelBase with Store {
 
   IoniaAuthViewModelBase({this.ioniaService}):
-  createUserState = IoniaCreateStateSuccess(),
-        otpState = IoniaOtpSendDisabled(){
-    
-
-  }
+    createUserState = IoniaInitialCreateState(),
+    signInState = IoniaInitialCreateState(),
+    otpState = IoniaOtpSendDisabled();
 
   final IoniaService ioniaService;
 
   @observable
   IoniaCreateAccountState createUserState;
+
+  @observable
+  IoniaCreateAccountState signInState;
 
   @observable
   IoniaOtpState otpState;
@@ -42,13 +43,24 @@ abstract class IoniaAuthViewModelBase with Store {
 
   @action
   Future<void> createUser(String email) async {
-    createUserState = IoniaCreateStateLoading();
     try {
+      createUserState = IoniaCreateStateLoading();
       await ioniaService.createUser(email);
-
       createUserState = IoniaCreateStateSuccess();
-    } on Exception catch (e) {
+    } catch (e) {
       createUserState = IoniaCreateStateFailure(error: e.toString());
+    }
+  }
+
+
+  @action
+  Future<void> signIn(String email) async {
+    try {
+      signInState = IoniaCreateStateLoading();
+      await ioniaService.signIn(email);
+      signInState = IoniaCreateStateSuccess();
+    } catch (e) {
+      signInState = IoniaCreateStateFailure(error: e.toString());
     }
   }
 

@@ -32,8 +32,18 @@ class IoniaService {
 
 	Future<void> verifyEmail(String code) async {
 		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final credentials = await ioniaApi.verifyEmail(username: username, code: code, clientId: clientId);
+		final email = await secureStorage.read(key: ioniaEmailStorageKey);
+		final credentials = await ioniaApi.verifyEmail(email: email, username: username, code: code, clientId: clientId);
 		await secureStorage.write(key: ioniaPasswordStorageKey, value: credentials.password);
+		await secureStorage.write(key: ioniaUsernameStorageKey, value: credentials.username);
+	}
+
+	// Sign In
+
+	Future<void> signIn(String email) async {
+		final username = await ioniaApi.signIn(email, clientId: clientId);
+		await secureStorage.write(key: ioniaEmailStorageKey, value: email);
+		await secureStorage.write(key: ioniaUsernameStorageKey, value: username);
 	}
 
 	Future<String> getUserEmail() async {

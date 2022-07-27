@@ -705,9 +705,9 @@ Future setup(
 
   getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List, void>((List args, _) {
     final email = args.first as String;
-    final ioniaAuthViewModel = args[1] as IoniaAuthViewModel;
+    final isSignIn = args[1] as bool;
 
-    return IoniaVerifyIoniaOtp(ioniaAuthViewModel, email);
+    return IoniaVerifyIoniaOtp(getIt.get<IoniaAuthViewModel>(), email, isSignIn);
   });
 
   getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaGiftCardsListViewModel>()));

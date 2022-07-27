@@ -13,6 +13,7 @@ class IoniaApi {
 	static const pathPrefix = 'cake';
 	static final createUserUri = Uri.https(baseUri, '/$pathPrefix/CreateUser');
 	static final verifyEmailUri = Uri.https(baseUri, '/$pathPrefix/VerifyEmail');
+	static final signInUri = Uri.https(baseUri, '/$pathPrefix/SignIn');
 	static final createCardUri = Uri.https(baseUri, '/$pathPrefix/CreateCard');
 	static final getCardsUri = Uri.https(baseUri, '/$pathPrefix/GetCards');
 	static final getMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchants');
@@ -51,11 +52,13 @@ class IoniaApi {
 
 	Future<IoniaUserCredentials> verifyEmail({
 		@required String username,
+		@required String email,
 		@required String code,
 		@required String clientId}) async {
 		final headers = <String, String>{
 			'clientId': clientId,
-			'username': username};
+			'username': username,
+			'EmailAddress': email};
 		final query = <String, String>{'verificationCode': code};
 		final uri = verifyEmailUri.replace(queryParameters: query);
 		final response = await put(uri, headers: headers);
@@ -70,11 +73,36 @@ class IoniaApi {
 		final isSuccessful = bodyJson['Successful'] as bool;
 
 		if (!isSuccessful) {
-			throw Exception(data['ErrorMessage'] as String);
+			throw Exception(bodyJson['ErrorMessage'] as String);
 		}
 		
 		final password = data['password'] as String;
+		username = data['username'] as String;
 		return IoniaUserCredentials(username, password);
+	}
+
+	// Sign In
+
+	Future<String> signIn(String email, {@required String clientId}) async {
+		final headers = <String, String>{'clientId': clientId};
+		final query = <String, String>{'emailAddress': email};
+		final uri = signInUri.replace(queryParameters: query);
+		final response = await put(uri, headers: headers);
+		
+		if (response.statusCode != 200) {
+			// throw exception
+			return null;
+		}
+
+		final bodyJson = json.decode(response.body) as Map<String, Object>;
+		final data = bodyJson['Data'] as Map<String, Object>;
+		final isSuccessful = bodyJson['Successful'] as bool;
+
+		if (!isSuccessful) {
+			throw Exception(data['ErrorMessage'] as String);
+		}
+
+		return data['username'] as String;
 	}
 
 	// Get virtual card

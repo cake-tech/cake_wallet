@@ -43,7 +43,7 @@ class IoniaLoginPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _authViewModel.createUserState, (IoniaCreateAccountState state) {
+    reaction((_) => _authViewModel.signInState, (IoniaCreateAccountState state) {
       if (state is IoniaCreateStateFailure) {
         _onLoginUserFailure(context, state.error);
       }
@@ -75,9 +75,9 @@ class IoniaLoginPage extends BasePage {
                     if (!_formKey.currentState.validate()) {
                       return;
                     }
-                    await _authViewModel.createUser(_emailController.text);
+                    await _authViewModel.signIn(_emailController.text);
                   },
-                  isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
+                  isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white,
                 ),
@@ -107,6 +107,6 @@ class IoniaLoginPage extends BasePage {
   void _onLoginSuccessful(BuildContext context, IoniaAuthViewModel authViewModel) => Navigator.pushNamed(
         context,
         Routes.ioniaVerifyIoniaOtpPage,
-        arguments: [authViewModel.email, authViewModel],
+        arguments: [authViewModel.email, true],
       );
 }

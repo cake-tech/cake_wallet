@@ -17,7 +17,7 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaVerifyIoniaOtp extends BasePage {
-  IoniaVerifyIoniaOtp(this._authViewModel, this._email)
+  IoniaVerifyIoniaOtp(this._authViewModel, this._email, this.isSignIn)
       : _codeController = TextEditingController(),
         _codeFocus = FocusNode() {
     _codeController.addListener(() {
@@ -32,6 +32,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
   }
 
   final IoniaAuthViewModel _authViewModel;
+  final bool isSignIn;
 
   final String _email;
 
@@ -94,7 +95,9 @@ class IoniaVerifyIoniaOtp extends BasePage {
                   Text(S.of(context).dont_get_code),
                   SizedBox(width: 20),
                   InkWell(
-                    onTap: () => _authViewModel.createUser(_email),
+                    onTap: () => isSignIn
+                      ? _authViewModel.signIn(_email)
+                      : _authViewModel.createUser(_email),
                     child: Text(
                       S.of(context).resend_code,
                       style: textSmallSemiBold(color: Palette.blueCraiola),

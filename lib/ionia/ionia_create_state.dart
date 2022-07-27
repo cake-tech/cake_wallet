@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 abstract class IoniaCreateAccountState {}
 
+class IoniaInitialCreateState extends IoniaCreateAccountState {}
+
 class IoniaCreateStateSuccess extends IoniaCreateAccountState {}
 
 class IoniaCreateStateLoading extends IoniaCreateAccountState {}

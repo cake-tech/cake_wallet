@@ -149,6 +149,6 @@ class IoniaCreateAccountPage extends BasePage {
   void _onCreateSuccessful(BuildContext context, IoniaAuthViewModel authViewModel) => Navigator.pushNamed(
         context,
         Routes.ioniaVerifyIoniaOtpPage,
-        arguments: [authViewModel.email, authViewModel],
+        arguments: [authViewModel.email, false],
       );
 }
