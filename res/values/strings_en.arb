@@ -631,5 +631,6 @@
   "order_id": "Order ID",
   "gift_card_is_generated": "Gift Card is generated",
   "open_gift_card": "Open Gift Card",
-  "contact_support": "Contact Support"
+  "contact_support": "Contact Support",
+  "gift_cards_unavailable": "Gift cards are available to purchase only through Monero, Bitcoin, and Litecoin at this time"
 }

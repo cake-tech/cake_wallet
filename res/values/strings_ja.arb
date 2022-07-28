@@ -631,5 +631,6 @@
   "order_id": "注文ID",
   "gift_card_is_generated": "ギフトカードが生成されます",
   "open_gift_card": "オープンギフトカード",
-  "contact_support": "サポートに連絡する"
+  "contact_support": "サポートに連絡する",
+  "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。"
 }

@@ -631,5 +631,6 @@
   "order_id": "Identyfikator zamówienia",
   "gift_card_is_generated": "Karta podarunkowa jest generowana",
   "open_gift_card": "Otwórz kartę podarunkową",
-  "contact_support": "Skontaktuj się z pomocą techniczną"
+  "contact_support": "Skontaktuj się z pomocą techniczną",
+  "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin"
 }

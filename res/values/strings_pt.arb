@@ -631,5 +631,6 @@
   "order_id": "ID do pedido",
   "gift_card_is_generated": "Cartão presente é gerado",
   "open_gift_card": "Abrir vale-presente",
-  "contact_support": "Contatar Suporte"
+  "contact_support": "Contatar Suporte",
+  "gift_cards_unavailable": "Os cartões-presente estão disponíveis para compra apenas através do Monero, Bitcoin e Litecoin no momento"
 }
