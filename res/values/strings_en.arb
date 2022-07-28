@@ -591,8 +591,8 @@
   "upto": "up to ${value}",
   "discount": "Save ${value}%",
   "gift_card_amount": "Gift Card Amount",
-  "bill_amount": "Bill amount",
-  "you_pay": "You pay",
+  "bill_amount": "Bill Amount",
+  "you_pay": "You Pay",
   "tip": "Tip:",
   "custom": "custom",
   "by_cake_pay": "by Cake Pay",
@@ -605,7 +605,7 @@
   "pin_number": "PIN number",
   "total_saving": "Total Savings",
   "last_30_days": "Last 30 days",
-  "avg_savings": "Avg. savings",
+  "avg_savings": "Avg. Savings",
   "view_all": "View all",
   "active_cards": "Active cards",
   "delete_account": "Delete Account",
@@ -621,7 +621,7 @@
   "search_category": "Search category",
   "mark_as_redeemed": "Mark As Redeemed",
   "more_options": "More Options",
-  "awaiting_payment_confirmation": "Awaiting payment confirmation",
+  "awaiting_payment_confirmation": "Awaiting Payment Confirmation",
   "transaction_sent_notice": "If the screen doesn’t proceed after 1 minute, check a block explorer and your email.",
   "agree": "Agree",
   "in_store": "In Store",
@@ -632,5 +632,5 @@
   "gift_card_is_generated": "Gift Card is generated",
   "open_gift_card": "Open Gift Card",
   "contact_support": "Contact Support",
-  "gift_cards_unavailable": "Gift cards are available to purchase only through Monero, Bitcoin, and Litecoin at this time"
+  "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time"
 }
