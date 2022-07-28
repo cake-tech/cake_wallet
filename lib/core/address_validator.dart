@@ -70,6 +70,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xnzd:
       case CryptoCurrency.xusd:
         return '[0-9a-zA-Z]';
+      case  CryptoCurrency.hbar:
+        return '[0-9a-zA-Z.]';
       case CryptoCurrency.zaddr:
         return '^zs[0-9a-zA-Z]{75}\&|^zc[0-9a-zA-Z]{93}\$';
       case CryptoCurrency.zec:
@@ -144,6 +146,20 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xnzd:
       case CryptoCurrency.xusd:
         return [98, 99, 106];
+      case CryptoCurrency.btt:
+        return [34];
+      case CryptoCurrency.bttbsc:
+        return [34];
+      case CryptoCurrency.doge:
+        return [34];
+      case CryptoCurrency.firo:
+        return [34];
+      case CryptoCurrency.hbar:
+        return [4, 5, 6, 7, 8, 9, 10, 11];
+      case  CryptoCurrency.xvg:
+        return [34];
+      case  CryptoCurrency.zen:
+        return [35];
       case CryptoCurrency.zaddr:
         return null;
       case CryptoCurrency.zec:
