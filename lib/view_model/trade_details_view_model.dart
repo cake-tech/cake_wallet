@@ -4,6 +4,7 @@ import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
@@ -34,6 +35,9 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();
+        break;
+      case  ExchangeProviderDescription.simpleSwap:
+        _provider = SimpleSwapExchangeProvider();
         break;
     }
 
@@ -108,6 +112,12 @@ abstract class TradeDetailsViewModelBase with Store {
 
     if (trade.provider == ExchangeProviderDescription.sideShift) {
       final buildURL = 'https://sideshift.ai/orders/${trade.id.toString()}';
+      items.add(TrackTradeListItem(
+          title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+    }
+
+    if (trade.provider == ExchangeProviderDescription.simpleSwap) {
+      final buildURL = 'https://simpleswap.io/exchange?id=${trade.id.toString()}';
       items.add(TrackTradeListItem(
           title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
     }
