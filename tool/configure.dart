@@ -77,7 +77,8 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, TransactionPriority priority);
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {TransactionPriority priority, int feeRate});
+  Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority priority, int feeRate});
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
@@ -146,6 +147,7 @@ import 'package:cw_monero/mnemonics/spanish.dart';
 import 'package:cw_monero/mnemonics/portuguese.dart';
 import 'package:cw_monero/mnemonics/french.dart';
 import 'package:cw_monero/mnemonics/italian.dart';
+import 'package:cw_monero/pending_monero_transaction.dart';
 """;
   const moneroCwPart = "part 'cw_monero.dart';";
   const moneroContent = """
@@ -229,6 +231,7 @@ abstract class Monero {
   WalletCredentials createMoneroNewWalletCredentials({String name, String password, String language});
   Map<String, String> getKeys(Object wallet);
   Object createMoneroTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority});
+  Object createMoneroTransactionCreationCredentialsRaw({List<OutputInfo> outputs, TransactionPriority priority});
   String formatterMoneroAmountToString({int amount});
   double formatterMoneroAmountToDouble({int amount});
   int formatterMoneroParseAmount({String amount});
@@ -237,6 +240,7 @@ abstract class Monero {
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource);
+  Map<String, String> pendingTransactionInfo(Object transaction);
 }
 
 abstract class MoneroSubaddressList {

@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/yat/yat_popup.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -14,19 +14,15 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -85,7 +81,7 @@ class DashboardPage extends BasePage {
 
   final DashboardViewModel walletViewModel;
   final WalletAddressListViewModel addressListViewModel;
-  final controller = PageController(initialPage: 0);
+  final controller = PageController(initialPage: 1);
 
   var pages = <Widget>[];
   bool _isEffectsInstalled = false;
@@ -221,7 +217,7 @@ class DashboardPage extends BasePage {
     if (_isEffectsInstalled) {
       return;
     }
-
+    pages.add(MarketPlacePage(dashboardViewModel: walletViewModel));
     pages.add(balancePage);
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;

@@ -57,6 +57,8 @@ PODS:
     - Flutter
   - cw_shared_external/Sodium (0.0.1):
     - Flutter
+  - device_display_brightness (0.0.1):
+    - Flutter
   - devicelocale (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.2):
@@ -134,6 +136,7 @@ DEPENDENCIES:
   - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
+  - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - esys_flutter_share (from `.symlinks/plugins/esys_flutter_share/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
@@ -174,6 +177,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cw_monero/ios"
   cw_shared_external:
     :path: ".symlinks/plugins/cw_shared_external/ios"
+  device_display_brightness:
+    :path: ".symlinks/plugins/device_display_brightness/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
   esys_flutter_share:
@@ -211,6 +216,7 @@ SPEC CHECKSUMS:
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 88c5e7aa596c6848330750f5f8bcf05fb9c66375
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
+  device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   devicelocale: b22617f40038496deffba44747101255cee005b0
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
