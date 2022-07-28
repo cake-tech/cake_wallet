@@ -216,27 +216,13 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
           separatorBuilder: (_, __) => SizedBox(height: 4),
           itemBuilder: (_, index) {
             final merchant = merchantsList[index];
-            var subTitle = '';
-            
-            if (merchant.isOnline) {
-              subTitle += S.of(context).online;
-            }
-
-            if (merchant.isPhysical) {
-              if (subTitle.isNotEmpty) {
-                subTitle = '$subTitle & ';
-              }
-
-              subTitle = '${subTitle}${S.of(context).in_store}';
-            }
-
             return CardItem(
               logoUrl: merchant.logoUrl,
               onTap: () {
                 Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage, arguments: [merchant]);
               },
               title: merchant.legalName,
-              subTitle: subTitle,
+              subTitle: merchant.avaibilityStatus,
               backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
               titleColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
               subtitleColor: Theme.of(context).accentTextTheme.display2.backgroundColor,
