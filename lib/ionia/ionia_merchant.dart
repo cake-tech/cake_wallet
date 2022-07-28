@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card_instruction.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaMerchant  {
 	IoniaMerchant({
@@ -172,5 +173,23 @@ class IoniaMerchant  {
     final double savingsPercentage;
 
     double get discount => savingsPercentage;
+
+    String get avaibilityStatus {
+        var status = '';
+
+        if (isOnline) {
+          status += S.current.online;
+        }
+
+        if (isPhysical) {
+          if (status.isNotEmpty) {
+            status = '$status & ';
+          }
+
+          status = '${status}${S.current.in_store}';
+        }
+
+        return status;
+    }
   
 }
