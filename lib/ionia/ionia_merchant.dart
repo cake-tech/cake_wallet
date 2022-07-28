@@ -55,8 +55,8 @@ class IoniaMerchant  {
 		@required this.ngcSku,
 		@required this.acceptedCurrency,
 		@required this.deepLink,
-		@required this.isPayLater
-		});
+		@required this.isPayLater,
+        @required this.savingsPercentage});
 
 	factory IoniaMerchant.fromJsonMap(Map<String, dynamic> element) {
 		return IoniaMerchant(
@@ -112,7 +112,8 @@ class IoniaMerchant  {
             ngcSku: element["NgcSku"] as String,
             acceptedCurrency: element["AcceptedCurrency"] as String,
             deepLink: element["DeepLink"] as String,
-            isPayLater: element["IsPayLater"] as bool);
+            isPayLater: element["IsPayLater"] as bool,
+            savingsPercentage: element["SavingsPercentage"] as double);
 	}
 
     final int id;
@@ -168,7 +169,8 @@ class IoniaMerchant  {
     final String acceptedCurrency;
     final String deepLink;
     final bool isPayLater;
+    final double savingsPercentage;
 
-    double get discount => level3;
+    double get discount => savingsPercentage;
   
 }
