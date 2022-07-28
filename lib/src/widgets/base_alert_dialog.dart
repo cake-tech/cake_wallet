@@ -46,30 +46,28 @@ class BaseAlertDialog extends StatelessWidget {
       children: <Widget>[
         Flexible(
             child: Container(
-              height: 52,
-              padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body2.decorationColor,
-              child: ButtonTheme(
-                minWidth: double.infinity,
-                child: FlatButton(
-                    onPressed: actionLeft,
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: Text(
-                      leftActionButtonText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryTextTheme.body2
-                            .backgroundColor,
-                        decoration: TextDecoration.none,
-                      ),
-                    )),
-              ),
-            )
-        ),
+          height: 52,
+          padding: EdgeInsets.only(left: 6, right: 6),
+          color: Theme.of(context).accentTextTheme.body2.decorationColor,
+          child: ButtonTheme(
+            minWidth: double.infinity,
+            child: FlatButton(
+                onPressed: actionLeft,
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                child: Text(
+                  leftActionButtonText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).primaryTextTheme.body2.backgroundColor,
+                    decoration: TextDecoration.none,
+                  ),
+                )),
+          ),
+        )),
         Container(
           width: 1,
           height: 52,
@@ -77,30 +75,28 @@ class BaseAlertDialog extends StatelessWidget {
         ),
         Flexible(
             child: Container(
-              height: 52,
-              padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body1.backgroundColor,
-              child: ButtonTheme(
-                minWidth: double.infinity,
-                child: FlatButton(
-                    onPressed: actionRight,
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: Text(
-                      rightActionButtonText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryTextTheme.body1
-                            .backgroundColor,
-                        decoration: TextDecoration.none,
-                      ),
-                    )),
-              ),
-            )
-        ),
+          height: 52,
+          padding: EdgeInsets.only(left: 6, right: 6),
+          color: Theme.of(context).accentTextTheme.body1.backgroundColor,
+          child: ButtonTheme(
+            minWidth: double.infinity,
+            child: FlatButton(
+                onPressed: actionRight,
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                child: Text(
+                  rightActionButtonText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).primaryTextTheme.body1.backgroundColor,
+                    decoration: TextDecoration.none,
+                  ),
+                )),
+          ),
+        )),
       ],
     );
   }
@@ -108,9 +104,7 @@ class BaseAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => barrierDismissible
-      ? Navigator.of(context).pop()
-      : null,
+      onTap: () => barrierDismissible ? Navigator.of(context).pop() : null,
       child: Container(
         color: Colors.transparent,
         child: BackdropFilter(
@@ -136,14 +130,14 @@ class BaseAlertDialog extends StatelessWidget {
                               child: title(context),
                             ),
                             isDividerExists
-                            ? Padding(
-                                padding: EdgeInsets.only(top: 16, bottom: 8),
-                                child: Container(
-                                  height: 1,
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                            )
-                            : Offstage(),
+                                ? Padding(
+                                    padding: EdgeInsets.only(top: 16, bottom: 8),
+                                    child: Container(
+                                      height: 1,
+                                      color: Theme.of(context).dividerColor,
+                                    ),
+                                  )
+                                : Offstage(),
                             Padding(
                               padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
                               child: content(context),

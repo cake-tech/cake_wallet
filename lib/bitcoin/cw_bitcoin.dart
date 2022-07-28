@@ -55,7 +55,7 @@ class CWBitcoin extends Bitcoin {
 	}
 	
 	@override
-	Object createBitcoinTransactionCredentials(List<Output> outputs, TransactionPriority priority)
+	Object createBitcoinTransactionCredentials(List<Output> outputs, {TransactionPriority priority, int feeRate})
 		=> BitcoinTransactionCredentials(
 			outputs.map((out) => OutputInfo(
 					fiatAmount: out.fiatAmount,
@@ -67,7 +67,15 @@ class CWBitcoin extends Bitcoin {
 					isParsedAddress: out.isParsedAddress,
 					formattedCryptoAmount: out.formattedCryptoAmount))
 			.toList(),
-			priority as BitcoinTransactionPriority);
+			priority: priority != null ? priority as BitcoinTransactionPriority : null,
+			feeRate: feeRate);
+
+	@override
+	Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority priority, int feeRate})
+		=> BitcoinTransactionCredentials(
+				outputs,
+				priority: priority != null ? priority as BitcoinTransactionPriority : null,
+				feeRate: feeRate);
 
 	@override
 	List<String> getAddresses(Object wallet) {
