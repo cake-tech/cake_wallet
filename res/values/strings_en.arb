@@ -534,7 +534,7 @@
   "search_currency": "Search currency",
   "new_template" : "New Template",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
-  "wallet_name_exists": "Wallet with that name has already existed",
+  "wallet_name_exists": "A wallet with that name already exists. Please choose a different name or rename the other wallet first.",
   "market_place": "Marketplace",
   "cake_pay_title": "Cake Pay Gift Cards",
   "cake_pay_subtitle": "Buy gift cards and redeem instantly",
