@@ -394,8 +394,8 @@ class TipButtonGroup extends StatelessWidget {
             child: TipButton(
                 isSelected: _isSelected(tip.percentage),
                 onTap: () => onSelect(tip),
-                caption: '${tip.percentage}%',
-                subTitle: '\$${tip.additionalAmount}',
+                caption: '${tip.percentage.toStringAsFixed(0)}%',
+                subTitle: '\$${tip.additionalAmount.toStringAsFixed(2)}',
               ));
         }));
   }
