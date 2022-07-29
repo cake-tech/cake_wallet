@@ -39,7 +39,10 @@ late WalletCreationService _walletCreationService;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final appDir = await getApplicationDocumentsDirectory();
+  Directory appDir = (await getApplicationDocumentsDirectory());
+  if (Platform.isIOS) {
+    appDir = (await getLibraryDirectory());
+  }
   await Hive.close();
   Hive.init(appDir.path);
 
@@ -139,7 +142,10 @@ String toStringForinfo(WalletInfo info) {
 
 Future<String> pathForWalletDir(
     {required String name, required WalletType type}) async {
-  final root = await getApplicationDocumentsDirectory();
+  Directory root = (await getApplicationDocumentsDirectory());
+  if (Platform.isIOS) {
+    root = (await getLibraryDirectory());
+  }
   final prefix = walletTypeToString(type).toLowerCase();
   final walletsDir = Directory('${root.path}/wallets');
   final walletDire = Directory('${walletsDir.path}/$prefix/$name');
