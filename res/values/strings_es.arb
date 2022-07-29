@@ -534,5 +534,9 @@
   "search_currency": "Moneda de búsqueda",
   "new_template" : "Nueva plantilla",
   "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando",
-  "wallet_name_exists": "Wallet con ese nombre ya ha existido"
+  "wallet_name_exists": "Wallet con ese nombre ya ha existido",
+  "automatic": "Automático",
+  "fixed_pair_not_supported": "Este par fijo no es compatible con los intercambios seleccionados",
+  "variable_pair_not_supported": "Este par de variables no es compatible con los intercambios seleccionados",
+  "none_of_selected_providers_can_exchange": "Ninguno de los proveedores seleccionados puede realizar este intercambio"
 }

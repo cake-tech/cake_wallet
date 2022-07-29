@@ -534,5 +534,9 @@
   "search_currency": "Wyszukaj walutę",
   "new_template" : "Nowy szablon",
   "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają",
-  "wallet_name_exists": "Portfel o tej nazwie już istnieje"
+  "wallet_name_exists": "Portfel o tej nazwie już istnieje",
+  "automatic": "Automatyczny",
+  "fixed_pair_not_supported": "Ta stała para nie jest obsługiwana na wybranych giełdach",
+  "variable_pair_not_supported": "Ta para zmiennych nie jest obsługiwana na wybranych giełdach",
+  "none_of_selected_providers_can_exchange": "Żaden z wybranych dostawców nie może dokonać tej wymiany"
 }

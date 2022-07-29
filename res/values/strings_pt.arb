@@ -534,5 +534,9 @@
   "search_currency": "Pesquisar moeda",
   "new_template" : "Novo modelo",
   "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
-  "wallet_name_exists": "A carteira com esse nome já existe"
+  "wallet_name_exists": "A carteira com esse nome já existe",
+  "automatic": "Automático",
+  "fixed_pair_not_supported": "Este par fixo não é compatível com as exchanges selecionadas",
+  "variable_pair_not_supported": "Este par de variáveis não é compatível com as trocas selecionadas",
+  "none_of_selected_providers_can_exchange": "Nenhum dos provedores selecionados pode fazer esta troca"
 }

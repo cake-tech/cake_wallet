@@ -534,5 +534,9 @@
   "search_currency": "통화 검색",
   "new_template" : "새 템플릿",
   "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다.",
-  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다."
+  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다.",
+  "automatic": "자동적 인",
+  "fixed_pair_not_supported": "이 고정 쌍은 선택한 교환에서 지원되지 않습니다.",
+  "variable_pair_not_supported": "이 변수 쌍은 선택한 교환에서 지원되지 않습니다.",
+  "none_of_selected_providers_can_exchange": "선택한 공급자 중 누구도 이 교환을 할 수 없습니다."
 }
