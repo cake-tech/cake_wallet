@@ -8,7 +8,9 @@ import 'package:cw_monero/api/signatures.dart';
 import 'package:cw_monero/api/types.dart';
 import 'package:ffi/ffi.dart';
 import 'package:ffi/ffi.dart' as pkgffi;
-import 'package:flutter/foundation.dart'? 1 : 0;
+import 'package:flutter/foundation.dart'?
+
+int _boolToInt(bool value) => value ? 1 : 0;
 
 final getFileNameNative = moneroApi
     .lookup<NativeFunction<get_filename>>('get_filename')
