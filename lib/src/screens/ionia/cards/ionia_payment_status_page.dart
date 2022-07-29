@@ -104,10 +104,12 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                     .committedInfo
                     .transactions
                     .map((transaction) => buildDescriptionTileWithCopy(context, S.of(context).transaction_details_transaction_id, transaction.id)),
-                  Divider(height: 30),
-                  buildDescriptionTileWithCopy(context, S.of(context).order_id, widget.viewModel.paymentInfo.ioniaOrder.id),
-                  Divider(height: 30),
-                  buildDescriptionTileWithCopy(context, S.of(context).payment_id, widget.viewModel.paymentInfo.ioniaOrder.paymentId),
+                  if (widget.viewModel.paymentInfo.ioniaOrder.id != null)
+                    ...[Divider(height: 30),
+                    buildDescriptionTileWithCopy(context, S.of(context).order_id, widget.viewModel.paymentInfo.ioniaOrder.id)],
+                  if (widget.viewModel.paymentInfo.ioniaOrder.paymentId != null)
+                    ...[Divider(height: 30),
+                    buildDescriptionTileWithCopy(context, S.of(context).payment_id, widget.viewModel.paymentInfo.ioniaOrder.paymentId)],
                   ]))
                 ]),
           SizedBox(height: 40),

@@ -46,6 +46,7 @@ class IoniaAnyPay {
 								isParsedAddress: false,
 								address: out.address,
 								cryptoAmount: moneroAmountToString(amount: out.amount),
+								formattedCryptoAmount: out.amount,
 								sendAll: false)).toList(),
 							priority: MoneroTransactionPriority.medium); // FIXME: HARDCODED PRIORITY
 					case AnyPayChain.btc:
