@@ -355,7 +355,7 @@ abstract class ExchangeViewModelBase with Store {
       if (provider == null) {
         tradeState = TradeIsCreatedFailure(
             title: S.current.trade_not_created,
-            error: S.current.non_of_selected_providers_can_exchange);
+            error: S.current.none_of_selected_providers_can_exchange);
       }
 
       if (provider is SideShiftExchangeProvider) {
