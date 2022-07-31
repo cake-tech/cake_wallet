@@ -12,6 +12,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 part 'trade_details_view_model.g.dart';
 
@@ -80,14 +81,20 @@ abstract class TradeDetailsViewModelBase with Store {
 
     items?.clear();
 
-    items.addAll([
-      StandartListItem(title: S.current.trade_details_id, value: trade.id),
+    items.add(
       StandartListItem(
           title: S.current.trade_details_state,
           value: trade.state != null
               ? trade.state.toString()
               : S.current.trade_details_fetching)
-    ]);
+    );
+
+    items.add(DetailsListCardItem(
+      id: '${S.current.trade_details_id}  ' + trade.id ?? '',
+      create: dateFormat.format(trade.createdAt).toString() ?? '',
+      pair: '${trade.from.toString() ?? ''} → ${trade.to.toString() ?? ''}',
+      onTap: () {},
+    ));
 
     if (trade.provider != null) {
       items.add(StandartListItem(
@@ -110,18 +117,6 @@ abstract class TradeDetailsViewModelBase with Store {
       final buildURL = 'https://sideshift.ai/orders/${trade.id.toString()}';
       items.add(TrackTradeListItem(
           title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
-    }
-
-    if (trade.createdAt != null) {
-      items.add(StandartListItem(
-          title: S.current.trade_details_created_at,
-          value: dateFormat.format(trade.createdAt).toString()));
-    }
-
-    if (trade.from != null && trade.to != null) {
-      items.add(StandartListItem(
-          title: S.current.trade_details_pair,
-          value: '${trade.from.toString()} → ${trade.to.toString()}'));
     }
   }
 }
