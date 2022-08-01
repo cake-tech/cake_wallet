@@ -276,7 +276,7 @@
 
   "trade_details_title" : "व्यापार विवरण",
   "trade_details_id" : "आईडी",
-  "trade_details_state" : "राज्य",
+  "trade_details_state" : "दर्जा",
   "trade_details_fetching" : "ला रहा है",
   "trade_details_provider" : "प्रदाता",
   "trade_details_created_at" : "पर बनाया गया",

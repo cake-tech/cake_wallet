@@ -274,7 +274,7 @@
 
   "trade_details_title" : "Détails de l'échange",
   "trade_details_id" : "ID",
-  "trade_details_state" : "État",
+  "trade_details_state" : "Statut",
   "trade_details_fetching" : "Récupération",
   "trade_details_provider" : "Fournisseur",
   "trade_details_created_at" : "Créé le",
