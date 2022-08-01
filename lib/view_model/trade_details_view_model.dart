@@ -13,6 +13,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:url_launcher/url_launcher.dart';
 part 'trade_details_view_model.g.dart';
 
@@ -82,7 +83,7 @@ abstract class TradeDetailsViewModelBase with Store {
     items?.clear();
 
     items.add(
-      StandartListItem(
+        DetailsListStatusItem(
           title: S.current.trade_details_state,
           value: trade.state != null
               ? trade.state.toString()

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standart_list_card.dart';
+import 'package:cake_wallet/src/widgets/standart_list_status_row.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 
 class TradeDetailsPage extends BasePage {
   TradeDetailsPage(this.tradeDetailsViewModel);
@@ -60,6 +62,12 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   onTap: item.onTap,
                   child: StandartListRow(
                       title: '${item.title}', value: '${item.value}'));
+            }
+
+            if (item is DetailsListStatusItem) {
+              return StandartListStatusRow(
+                  title: item.title,
+                  value: item.value);
             }
 
             if (item is DetailsListCardItem) {
