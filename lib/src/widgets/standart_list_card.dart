@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 
 class StandartListCard extends StatelessWidget {
-  StandartListCard({this.id, this.create, this.pair, this.onTap});
+  StandartListCard(
+      {this.id, this.create, this.pair, this.onTap, this.currentTheme});
 
   final String id;
   final String create;
   final String pair;
+  final ThemeType currentTheme;
   final Function onTap;
 
   @override
   Widget build(BuildContext context) {
-
-    final darkTheme = ThemeType.dark;
+    final darkTheme = currentTheme == ThemeType.dark;
 
     final baseGradient = LinearGradient(colors: [
       Theme.of(context).primaryTextTheme.subtitle.color,
@@ -35,7 +36,7 @@ class StandartListCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
-              gradient: gradient),
+              gradient: darkTheme ? gradient : baseGradient),
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),

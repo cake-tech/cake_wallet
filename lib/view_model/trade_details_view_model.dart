@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dar
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +25,7 @@ class TradeDetailsViewModel = TradeDetailsViewModelBase
     with _$TradeDetailsViewModel;
 
 abstract class TradeDetailsViewModelBase with Store {
-  TradeDetailsViewModelBase({Trade tradeForDetails, this.trades}) {
+  TradeDetailsViewModelBase({Trade tradeForDetails, this.trades, this.settingsStore}) {
     trade = tradeForDetails;
 
     switch (trade.provider) {
@@ -62,6 +63,8 @@ abstract class TradeDetailsViewModelBase with Store {
   ExchangeProvider _provider;
 
   Timer timer;
+
+  final SettingsStore settingsStore;
 
   @action
   Future<void> _updateTrade() async {

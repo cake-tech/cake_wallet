@@ -75,7 +75,8 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   id: item.id,
                   create: item.create,
                   pair: item.pair,
-                  onTap: item.onTap);
+                  currentTheme: tradeDetailsViewModel.settingsStore.currentTheme.type,
+                  onTap: item.onTap,);
             }
 
               return GestureDetector(
