@@ -7,6 +7,9 @@ import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart'
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -78,7 +81,7 @@ abstract class TradeDetailsViewModelBase with Store {
   }
 
   void _updateItems() {
-    final dateFormat = DateFormatter.withCurrentLocal();
+    final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
 
     items?.clear();
 
@@ -94,7 +97,10 @@ abstract class TradeDetailsViewModelBase with Store {
       id: '${S.current.trade_details_id}  ' + trade.id ?? '',
       create: dateFormat.format(trade.createdAt).toString() ?? '',
       pair: '${trade.from.toString() ?? ''} → ${trade.to.toString() ?? ''}',
-      onTap: () {},
+      onTap: (BuildContext context) {
+        Clipboard.setData(ClipboardData(text: '${trade.id}'));
+        showBar<void>(context, S.of(context).copied_to_clipboard);
+      },
     ));
 
     if (trade.provider != null) {

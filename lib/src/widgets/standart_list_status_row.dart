@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class StandartListStatusRow extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: Theme.of(context).accentTextTheme.display2.color,
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: Padding(

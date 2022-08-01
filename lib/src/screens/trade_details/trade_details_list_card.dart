@@ -7,5 +7,5 @@ class DetailsListCardItem extends StandartListItem {
   final String id;
   final String create;
   final String pair;
-  final Function() onTap;
+  final Function onTap;
 }
