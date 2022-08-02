@@ -9,7 +9,7 @@ import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 
 class IoniaApi {
-	static const baseUri = 'apistaging.ionia.io';
+	static const baseUri = 'api.ionia.io';
 	static const pathPrefix = 'cake';
 	static final createUserUri = Uri.https(baseUri, '/$pathPrefix/CreateUser');
 	static final verifyEmailUri = Uri.https(baseUri, '/$pathPrefix/VerifyEmail');
