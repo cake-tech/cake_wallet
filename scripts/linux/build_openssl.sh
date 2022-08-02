@@ -11,23 +11,27 @@ ZLIB_DIR=$WORKDIR/zlib
 ZLIB_TAG=v1.2.11
 ZLIB_COMMIT_HASH="cacf7f1d4e3d44d871b605da3b647f07d718623f"
 
-if [ ! -d "$ZLIB_DIR" ] ; then
-  git clone -b $ZLIB_TAG --depth 1 https://github.com/madler/zlib $ZLIB_DIR
-fi
+
+rm -rf $ZLIB_DIR
+git clone -b $ZLIB_TAG --depth 1 https://github.com/madler/zlib $ZLIB_DIR
 cd $ZLIB_DIR
 git reset --hard $ZLIB_COMMIT_HASH
 ./configure --static
 make
 
-curl https://www.openssl.org/source/$OPENSSL_FILENAME -o $OPENSSL_FILE_PATH
+if [ ! -e "$OPENSSL_FILE_PATH" ]; then
+  curl https://www.openssl.org/source/$OPENSSL_FILENAME -o $OPENSSL_FILE_PATH
+fi
+
 echo $OPENSSL_SHA256 $OPENSSL_FILE_PATH | sha256sum -c - || exit 1
 
-for arch in "x86_64"
+for arch in $TYPES_OF_BUILD
 do
 PREFIX=$WORKDIR/prefix_${arch}
 
 case $arch in
 	"x86_64")  X_ARCH="linux-x86_64";;
+	"aarch64")  X_ARCH="linux-aarch64";;
 	*)	   X_ARCH="linux-x86_64";;
 esac
 

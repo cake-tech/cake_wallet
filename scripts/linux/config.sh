@@ -9,3 +9,10 @@ export TOOLCHAIN_DIR="${WORKDIR}/toolchain"
 export TOOLCHAIN_BASE_DIR=$TOOLCHAIN_DIR
 export ORIGINAL_PATH=$PATH
 export THREADS=16
+export TYPES_OF_BUILD="x86_64"
+
+if [ -z "$IS_ARM" ]; then
+  export TYPES_OF_BUILD="x86_64"
+else
+  export TYPES_OF_BUILD="aarch64"
+fi

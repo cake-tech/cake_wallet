@@ -4,9 +4,9 @@ set(CMAKE_CXX_STANDARD 14)
 add_library( cw_monero
              SHARED
 #             ../../cw_monero/android/jni/monero_jni.cpp
-             ../../cw_monero/ios/Classes/monero_api.cpp)
+             ../../../../cw_monero/ios/Classes/monero_api.cpp)
 
-set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/build)
+             set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../build)
 
 ############
 # libsodium
@@ -14,7 +14,7 @@ set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/build)
 
 add_library(sodium STATIC IMPORTED)
 set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/prefix_aarch64/lib/libsodium.a)
+        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/libsodium.a)
 
 ############
 # OpenSSL
@@ -172,13 +172,13 @@ add_library(rpc_base STATIC IMPORTED)
 set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_aarch64/lib/monero/librpc_base.a)
 
-#add_library(wallet-crypto STATIC IMPORTED)
-#set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
-#        ${EXTERNAL_LIBS_DIR}/prefix_aarch64/lib/monero/libwallet-crypto.a)
+add_library(wallet-crypto STATIC IMPORTED)
+set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/libwallet-crypto.a)
 
-#set(WALLET_CRYPTO "wallet-crypto")
+set(WALLET_CRYPTO "wallet-crypto")
 
-include_directories( ${EXTERNAL_LIBS_DIR}/prefix_aarch64/include )
+include_directories( ${EXTERNAL_LIBS_DIR}/prefix_x86_64/include )
 
 target_link_libraries(  cw_monero
                        

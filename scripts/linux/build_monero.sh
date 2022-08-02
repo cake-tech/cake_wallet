@@ -9,7 +9,7 @@ cd $MONERO_SRC_DIR
 git submodule init
 git submodule update
 
-for arch in "x86_64"
+for arch in $TYPES_OF_BUILD
 do
 FLAGS=""
 PREFIX=${WORKDIR}/prefix_${arch}
@@ -27,6 +27,11 @@ case $arch in
 		TAG="linux-x86_64"
 		ARCH="x86-64"
 		ARCH_ABI="x86_64";;
+	"aarch64"	)
+		BUILD_64=ON
+		TAG="linux-aarch64"
+		ARCH="aarch64"
+		ARCH_ABI="aarch64";;
 esac
 
 cd $MONERO_SRC_DIR
@@ -40,4 +45,8 @@ find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
 
 cp -r ./lib/* $DEST_LIB_DIR
 cp ../../src/wallet/api/wallet2_api.h  $DEST_INCLUDE_DIR
+
+CW_DIR="$(pwd)"/../../../flutter_libmonero
+CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
+cp ../../src/wallet/api/wallet2_api.h ${CW_MONERO_EXTERNAL_DIR}/include
 done
