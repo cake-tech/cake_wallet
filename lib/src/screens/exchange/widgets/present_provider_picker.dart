@@ -30,14 +30,16 @@ class PresentProviderPicker extends StatelessWidget {
                 Text(S.of(context).exchange,
                     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600, color: Colors.white)),
                 Observer(
-                    builder: (_) => exchangeViewModel.selectedProviders.isNotEmpty
-                        ? Text(
-                            '${exchangeViewModel.selectedProviders.length > 1 ? S.of(context).automatic : exchangeViewModel.selectedProviders.first.title}',
+                    builder: (_) => Text(
+                        exchangeViewModel.selectedProviders.isEmpty
+                            ? S.of(context).choose_one
+                            : exchangeViewModel.selectedProviders.length > 1
+                              ? S.of(context).automatic
+                              : exchangeViewModel.selectedProviders.first.title,
                             style: TextStyle(
                                 fontSize: 10.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).textTheme.headline.color))
-                        : const SizedBox())
+                                color: Theme.of(context).textTheme.headline.color)))
               ],
             ),
             SizedBox(width: 5),

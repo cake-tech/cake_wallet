@@ -538,5 +538,6 @@
   "automatic": "Automatski",
   "fixed_pair_not_supported": "Ovaj fiksni par nije podržan s odabranim burzama",
   "variable_pair_not_supported": "Ovaj par varijabli nije podržan s odabranim burzama",
-  "none_of_selected_providers_can_exchange": "Niti jedan od odabranih pružatelja usluga ne može izvršiti ovu razmjenu"
+  "none_of_selected_providers_can_exchange": "Niti jedan od odabranih pružatelja usluga ne može izvršiti ovu razmjenu",
+  "choose_one": "Izaberi jedan"
 }

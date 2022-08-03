@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class CheckBoxPicker extends StatefulWidget {
   CheckBoxPicker({
@@ -68,6 +69,19 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (!items.any((element) => element.value))
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                S.of(context).choose_one,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                ),
+                              ),
+                            ),
                           Flexible(
                             child: Stack(
                               alignment: Alignment.center,

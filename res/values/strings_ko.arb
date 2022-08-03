@@ -538,5 +538,6 @@
   "automatic": "자동적 인",
   "fixed_pair_not_supported": "이 고정 쌍은 선택한 교환에서 지원되지 않습니다.",
   "variable_pair_not_supported": "이 변수 쌍은 선택한 교환에서 지원되지 않습니다.",
-  "none_of_selected_providers_can_exchange": "선택한 공급자 중 누구도 이 교환을 할 수 없습니다."
+  "none_of_selected_providers_can_exchange": "선택한 공급자 중 누구도 이 교환을 할 수 없습니다.",
+  "choose_one": "하나 선택"
 }

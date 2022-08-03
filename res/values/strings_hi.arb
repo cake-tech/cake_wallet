@@ -538,5 +538,6 @@
   "automatic": "स्वचालित",
   "fixed_pair_not_supported": "यह निश्चित जोड़ी चयनित एक्सचेंजों के साथ समर्थित नहीं है",
   "variable_pair_not_supported": "यह परिवर्तनीय जोड़ी चयनित एक्सचेंजों के साथ समर्थित नहीं है",
-  "none_of_selected_providers_can_exchange": "चयनित प्रदाताओं में से कोई भी इस एक्सचेंज को नहीं बना सकता"
+  "none_of_selected_providers_can_exchange": "चयनित प्रदाताओं में से कोई भी इस एक्सचेंज को नहीं बना सकता",
+  "choose_one": "एक का चयन"
 }

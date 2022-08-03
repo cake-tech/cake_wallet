@@ -537,5 +537,6 @@
   "automatic": "Автоматичний",
   "fixed_pair_not_supported": "Ця фіксована пара не підтримується вибраними біржами",
   "variable_pair_not_supported": "Ця пара змінних не підтримується вибраними біржами",
-  "none_of_selected_providers_can_exchange": "Жоден із вибраних провайдерів не може здійснити цей обмін"
+  "none_of_selected_providers_can_exchange": "Жоден із вибраних провайдерів не може здійснити цей обмін",
+  "choose_one": "Вибери один"
 }
