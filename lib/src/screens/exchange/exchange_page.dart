@@ -610,7 +610,9 @@ class ExchangePage extends BasePage {
     });
 
     _receiveAmountFocus.addListener(() {
-      exchangeViewModel.isFixedRateMode = true;
+      if (_receiveAmountFocus.hasFocus) {
+        exchangeViewModel.isFixedRateMode = true;
+      }
       exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
     });
 
