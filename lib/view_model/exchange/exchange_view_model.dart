@@ -532,7 +532,8 @@ abstract class ExchangeViewModelBase with Store {
       isReceiveAmountEditable = false;
     }*/
     //isReceiveAmountEditable = false;
-    isReceiveAmountEditable = selectedProviders.any((provider) => provider is ChangeNowExchangeProvider);
+    // isReceiveAmountEditable = selectedProviders.any((provider) => provider is ChangeNowExchangeProvider);
+    isReceiveAmountEditable = true;
   }
 
   @action
