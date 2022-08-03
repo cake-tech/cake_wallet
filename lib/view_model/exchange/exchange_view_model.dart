@@ -349,13 +349,10 @@ abstract class ExchangeViewModelBase with Store {
   Future createTrade() async {
     TradeRequest request;
     String amount;
-    CryptoCurrency currency;
 
     for (var provider in currentTradeAvailableProviders.values) {
-      if (provider == null) {
-        tradeState = TradeIsCreatedFailure(
-            title: S.current.trade_not_created,
-            error: S.current.none_of_selected_providers_can_exchange);
+      if (!(await provider.checkIsAvailable())) {
+        continue;
       }
 
       if (provider is SideShiftExchangeProvider) {
@@ -367,7 +364,6 @@ abstract class ExchangeViewModelBase with Store {
           refundAddress: depositAddress,
         );
         amount = depositAmount;
-        currency = depositCurrency;
       }
 
       if (provider is XMRTOExchangeProvider) {
@@ -380,7 +376,6 @@ abstract class ExchangeViewModelBase with Store {
             refundAddress: depositAddress,
             isBTCRequest: isReceiveAmountEntered);
         amount = depositAmount;
-        currency = depositCurrency;
       }
 
       if (provider is ChangeNowExchangeProvider) {
@@ -393,7 +388,6 @@ abstract class ExchangeViewModelBase with Store {
             address: receiveAddress,
             isReverse: isReverse);
         amount = isReverse ? receiveAmount : depositAmount;
-        currency = depositCurrency;
       }
 
       if (provider is MorphTokenExchangeProvider) {
@@ -404,22 +398,15 @@ abstract class ExchangeViewModelBase with Store {
             refundAddress: depositAddress,
             address: receiveAddress);
         amount = depositAmount;
-        currency = depositCurrency;
       }
 
       amount = amount.replaceAll(',', '.');
 
       if (limitsState is LimitsLoadedSuccessfully && amount != null) {
         if (double.parse(amount) < limits.min) {
-          tradeState = TradeIsCreatedFailure(
-              title: provider.title,
-              error: S.current.error_text_minimal_limit('${provider.description}',
-                  '${limits.min}', currency.toString()));
+          continue;
         } else if (limits.max != null && double.parse(amount) > limits.max) {
-          tradeState = TradeIsCreatedFailure(
-              title: provider.title,
-              error: S.current.error_text_maximum_limit('${provider.description}',
-                  '${limits.max}', currency.toString()));
+          continue;
         } else {
           try {
             tradeState = TradeIsCreating();
@@ -429,20 +416,19 @@ abstract class ExchangeViewModelBase with Store {
             tradesStore.setTrade(trade);
             await trades.add(trade);
             tradeState = TradeIsCreatedSuccessfully(trade: trade);
-            /// after the first successful trade, break from the loop
-            break;
+            /// return after the first successful trade
+            return;
           } catch (e) {
-            tradeState =
-                TradeIsCreatedFailure(title: provider.title, error: e.toString());
+            continue;
           }
         }
-      } else {
-        tradeState = TradeIsCreatedFailure(
-            title: provider.title,
-            error: S.current
-                .error_text_limits_loading_failed('${provider.description}'));
       }
     }
+
+    /// if the code reached here then none of the providers succeeded
+    tradeState = TradeIsCreatedFailure(
+        title: S.current.trade_not_created,
+        error: S.current.none_of_selected_providers_can_exchange);
   }
 
   @action
