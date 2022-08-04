@@ -32,6 +32,7 @@ PODS:
     - cw_monero/Monero (= 0.0.2)
     - cw_monero/OpenSSL (= 0.0.2)
     - cw_monero/Sodium (= 0.0.2)
+    - cw_monero/Unbound (= 0.0.2)
     - cw_shared_external
     - Flutter
   - cw_monero/Boost (0.0.2):
@@ -44,6 +45,9 @@ PODS:
     - cw_shared_external
     - Flutter
   - cw_monero/Sodium (0.0.2):
+    - cw_shared_external
+    - Flutter
+  - cw_monero/Unbound (0.0.2):
     - cw_shared_external
     - Flutter
   - cw_shared_external (0.0.1):
@@ -214,7 +218,7 @@ SPEC CHECKSUMS:
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
-  cw_monero: 88c5e7aa596c6848330750f5f8bcf05fb9c66375
+  cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   devicelocale: b22617f40038496deffba44747101255cee005b0

@@ -4,7 +4,7 @@
 
 MONERO_URL="https://github.com/cake-tech/monero.git"
 MONERO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/monero"
-MONERO_VERSION=release-v0.17.3.2
+MONERO_VERSION=release-v0.18.0.0
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
 DEST_LIB_DIR=${EXTERNAL_IOS_LIB_DIR}/monero
@@ -17,6 +17,9 @@ git checkout $MONERO_VERSION
 git submodule update --init --force
 mkdir -p build
 cd ..
+
+mkdir -p $DEST_LIB_DIR
+mkdir -p $DEST_INCLUDE_DIR
 
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -z $INSTALL_PREFIX ]; then
@@ -46,20 +49,14 @@ cmake -D IOS=ON \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DSTATIC=ON \
 	-DBUILD_GUI_DEPS=ON \
-	-DINSTALL_VENDORED_LIBUNBOUND=ON \
+	-DUNBOUND_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR} \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}  \
     -DUSE_DEVICE_TREZOR=OFF \
 	../..
-make -j4 && make install
-cp external/randomx/librandomx.a ${DEST_LIB}/
-cp src/cryptonote_basic/libcryptonote_basic.a ${DEST_LIB}/
-cp src/cryptonote_basic/libcryptonote_format_utils_basic.a ${DEST_LIB}/
+make wallet_api -j4
+find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
+cp -r ./lib/* $DEST_LIB_DIR
+cp ../../src/wallet/api/wallet2_api.h  $DEST_INCLUDE_DIR
 popd
 
 done
-
-#only for arm64
-mkdir -p $DEST_LIB_DIR
-mkdir -p $DEST_INCLUDE_DIR
-cp ${MONERO_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
-cp ${MONERO_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR
