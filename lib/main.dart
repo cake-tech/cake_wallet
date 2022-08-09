@@ -202,12 +202,49 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     super.initState();
     //_handleIncomingLinks();
     //_handleInitialUri();
+
+    initUniLinks();
   }
 
   @override
   void dispose() {
     stream?.cancel();
     super.dispose();
+  }
+
+  /// handle app links while the app is already started - be it in
+  /// the foreground or in the background.
+  Future<void> initUniLinks() async {
+    try {
+      stream = getLinksStream().listen((String link) {
+        handleDeepLinking(link);
+      });
+
+      final String initialLink = await getInitialLink();
+
+      handleDeepLinking(initialLink);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void handleDeepLinking(String link) async {
+    if (link == null || !mounted) return;
+
+    final List<String> urlComponents = link.split(":");
+
+    switch (urlComponents.first) {
+      case "bitcoin":
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        print("Bitcoin QR Code: \n${link}");
+        break;
+      case "litecoin":
+      case "haven":
+      case "monero":
+      default:
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        print(link);
+    }
   }
 
   Future<void> _handleInitialUri() async {

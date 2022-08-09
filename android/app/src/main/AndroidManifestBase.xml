@@ -38,6 +38,15 @@
                     android:scheme="cakewallet"
                     android:host="y.at" />
             </intent-filter>
+            <!-- bitcoin qr code scheme -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bitcoin" />
+                <data android:scheme="monero" />
+                <data android:scheme="litecoin" />
+            </intent-filter>
         </activity>
         <meta-data
                 android:name="flutterEmbedding"
