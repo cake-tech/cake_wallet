@@ -5,6 +5,7 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -216,34 +217,32 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   /// the foreground or in the background.
   Future<void> initUniLinks() async {
     try {
-      stream = getLinksStream().listen((String link) {
-        handleDeepLinking(link);
+      stream = getUriLinksStream().listen((Uri uri) {
+        handleDeepLinking(uri);
       });
 
-      final String initialLink = await getInitialLink();
+      final Uri initialUri = await getInitialUri();
 
-      handleDeepLinking(initialLink);
+      handleDeepLinking(initialUri);
     } catch (e) {
       print(e);
     }
   }
 
-  void handleDeepLinking(String link) async {
-    if (link == null || !mounted) return;
+  void handleDeepLinking(Uri uri) {
+    if (uri == null || !mounted) return;
 
-    final List<String> urlComponents = link.split(":");
-
-    switch (urlComponents.first) {
+    switch (uri.scheme) {
       case "bitcoin":
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        print("Bitcoin QR Code: \n${link}");
-        break;
       case "litecoin":
       case "haven":
       case "monero":
       default:
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        print(link);
+        Navigator.pushNamed(
+          navigatorKey.currentContext,
+          Routes.send,
+          arguments: PaymentRequest.fromUri(uri),
+        );
     }
   }
 

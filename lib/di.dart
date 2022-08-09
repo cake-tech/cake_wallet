@@ -5,6 +5,7 @@ import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
@@ -372,9 +373,12 @@ Future setup(
       getIt.get<BalanceViewModel>(),
       _transactionDescriptionBox));
 
-  getIt.registerFactory(
-      () => SendPage(sendViewModel: getIt.get<SendViewModel>(),
-          settingsViewModel: getIt.get<SettingsViewModel>()));
+  getIt.registerFactoryParam<SendPage, PaymentRequest, void>(
+      (PaymentRequest initialPaymentRequest, _) => SendPage(
+        sendViewModel: getIt.get<SendViewModel>(),
+        settingsViewModel: getIt.get<SettingsViewModel>(),
+        initialPaymentRequest: initialPaymentRequest,
+      ));
 
   getIt.registerFactory(() => SendTemplatePage(
       sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));

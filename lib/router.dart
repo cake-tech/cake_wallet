@@ -16,6 +16,7 @@ import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -207,8 +208,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
+      final initialPaymentRequest = settings.arguments as PaymentRequest;
+
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<SendPage>());
+        fullscreenDialog: true, builder: (_) => getIt.get<SendPage>(
+          param1: initialPaymentRequest,
+        ));
 
     case Routes.sendTemplate:
       return CupertinoPageRoute<void>(

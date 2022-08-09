@@ -19,23 +19,35 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class SendCard extends StatefulWidget {
-  SendCard({Key key, @required this.output, @required this.sendViewModel}) : super(key: key);
+  SendCard({
+    Key key,
+    @required this.output,
+    @required this.sendViewModel,
+    this.initialPaymentRequest,
+  }) : super(key: key);
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentRequest initialPaymentRequest;
 
   @override
-  SendCardState createState() => SendCardState(
+  SendCardState createState() {
+    return SendCardState(
     output: output,
-    sendViewModel: sendViewModel
+    sendViewModel: sendViewModel,
+    initialPaymentRequest: initialPaymentRequest,
   );
+  }
 }
 
 class SendCardState extends State<SendCard>
     with AutomaticKeepAliveClientMixin<SendCard> {
-  SendCardState({@required this.output, @required this.sendViewModel})
-      : addressController = TextEditingController(),
-        cryptoAmountController = TextEditingController(),
+  SendCardState({
+    @required this.output,
+    @required this.sendViewModel,
+    PaymentRequest initialPaymentRequest})
+      : addressController = TextEditingController(text: initialPaymentRequest?.address),
+        cryptoAmountController = TextEditingController(text: initialPaymentRequest?.amount),
         fiatAmountController = TextEditingController(),
         noteController = TextEditingController(),
         extractedAddressController = TextEditingController(),
@@ -110,6 +122,11 @@ class SendCardState extends State<SendCard>
                       final validator = output.isParsedAddress
                           ? sendViewModel.textValidator
                           : sendViewModel.addressValidator;
+
+                      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                      print("444444444444444444444444444444");
+                      print(addressController.text);
+                      print(cryptoAmountController.text);
 
                       return AddressTextField(
                         focusNode: addressFocusNode,
@@ -509,8 +526,12 @@ class SendCardState extends State<SendCard>
   }
 
   void _setEffects(BuildContext context) {
-    addressController.text = output.address;
-    cryptoAmountController.text = output.cryptoAmount;
+    if (output.address.isNotEmpty) {
+      addressController.text = output.address;
+    }
+    if (output.cryptoAmount.isNotEmpty) {
+      cryptoAmountController.text = output.cryptoAmount;
+    }
     fiatAmountController.text = output.fiatAmount;
     noteController.text = output.note;
     extractedAddressController.text = output.extractedAddress;
