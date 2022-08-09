@@ -2,17 +2,16 @@
 
 . ./config.sh
 
-UNBOUND_VERSION=1.13.2
-UNBOUND_HASH=0a13b547f3b92a026b5ebd0423f54c991e5718037fd9f72445817f6a040e1a83
+UNBOUND_VERSION=release-1.16.2
+UNBOUND_HASH="cbed768b8ff9bfcf11089a5f1699b7e5707f1ea5"
 UNBOUND_URL="https://www.nlnetlabs.nl/downloads/unbound/unbound-${UNBOUND_VERSION}.tar.gz"
-UNBOUND_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/unbound-${UNBOUND_VERSION}"
-UNBOUND_ARCH_PATH=${EXTERNAL_IOS_SOURCE_DIR}/unbound-${UNBOUND_VERSION}.tar.gz
+UNBOUND_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/unbound-1.16.2"
 
-echo $UNBOUND_DIR_PATH
 echo "============================ Unbound ============================"
-curl $UNBOUND_URL -L -o $UNBOUND_ARCH_PATH
-tar -xzf $UNBOUND_ARCH_PATH -C $EXTERNAL_IOS_SOURCE_DIR
+rm -rf ${UNBOUND_DIR_PATH}
+git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_DIR_PATH}
 cd $UNBOUND_DIR_PATH
+test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
 export IOS_SDK=iPhone
 export IOS_CPU=arm64
@@ -22,6 +21,6 @@ export AUTOTOOLS_BUILD="$(./config.guess)"
 source ./contrib/ios/setenv_ios.sh
 ./contrib/ios/install_tools.sh
 ./contrib/ios/install_expat.sh
-./configure --build="$AUTOTOOLS_BUILD" --host="$AUTOTOOLS_HOST" --prefix="$IOS_PREFIX" --with-ssl="$IOS_PREFIX" --disable-gost --with-libexpat="$IOS_PREFIX"
+./configure --build="$AUTOTOOLS_BUILD" --host="$AUTOTOOLS_HOST" --prefix="$IOS_PREFIX" --with-ssl="$IOS_PREFIX" --with-libexpat="$IOS_PREFIX"
 make
 make install
