@@ -632,5 +632,6 @@
   "gift_card_is_generated": "ギフトカードが生成されます",
   "open_gift_card": "オープンギフトカード",
   "contact_support": "サポートに連絡する",
-  "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。"
+  "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。",
+  "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません"
 }

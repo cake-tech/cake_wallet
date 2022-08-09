@@ -632,5 +632,6 @@
   "gift_card_is_generated": "Geschenkkarte wird generiert",
   "open_gift_card": "Geschenkkarte öffnen",
   "contact_support": "Support kontaktieren",
-  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden"
+  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden",
+  "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein"
 }

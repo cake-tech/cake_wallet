@@ -157,6 +157,8 @@ abstract class SendViewModelBase with Store {
 
   WalletType get walletType => _wallet.type;
 
+  String get walletCurrencyName => _wallet.currency.name.toLowerCase();
+
   bool get hasCurrecyChanger => walletType == WalletType.haven;
 
   final WalletBase _wallet;

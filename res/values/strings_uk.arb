@@ -631,5 +631,6 @@
   "gift_card_is_generated": "Подарункова картка створена",
   "open_gift_card": "Відкрити подарункову картку",
   "contact_support": "Звернутися до служби підтримки",
-  "gift_cards_unavailable": "Наразі подарункові картки можна придбати лише через Monero, Bitcoin і Litecoin"
+  "gift_cards_unavailable": "Наразі подарункові картки можна придбати лише через Monero, Bitcoin і Litecoin",
+  "unmatched_currencies": "Валюта вашого гаманця не збігається з валютою сканованого QR-коду"
 }

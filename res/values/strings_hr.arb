@@ -632,5 +632,6 @@
   "gift_card_is_generated": "Poklon kartica je generirana",
   "open_gift_card": "Otvori darovnu karticu",
   "contact_support": "Kontaktirajte podršku",
-  "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina"
+  "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina",
+  "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u"
 }

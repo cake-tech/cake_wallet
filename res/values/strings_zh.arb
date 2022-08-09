@@ -630,5 +630,6 @@
   "gift_card_is_generated": "礼品卡生成",
   "open_gift_card": "打开礼品卡",
   "contact_support": "联系支持",
-  "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡"
+  "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡",
+  "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配"
 }

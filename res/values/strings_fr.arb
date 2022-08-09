@@ -630,5 +630,6 @@
   "gift_card_is_generated": "La carte-cadeau est générée",
   "open_gift_card": "Ouvrir la carte-cadeau",
   "contact_support": "Contacter l'assistance",
-  "gift_cards_unavailable": "Les cartes-cadeaux ne sont disponibles à l'achat que via Monero, Bitcoin et Litecoin pour le moment"
+  "gift_cards_unavailable": "Les cartes-cadeaux ne sont disponibles à l'achat que via Monero, Bitcoin et Litecoin pour le moment",
+  "unmatched_currencies": "La devise de votre portefeuille actuel ne correspond pas à celle du QR scanné"
 }

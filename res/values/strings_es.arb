@@ -632,5 +632,6 @@
   "gift_card_is_generated": "Se genera la tarjeta de regalo",
   "open_gift_card": "Abrir tarjeta de regalo",
   "contact_support": "Contactar con Soporte",
-  "gift_cards_unavailable": "Las tarjetas de regalo están disponibles para comprar solo a través de Monero, Bitcoin y Litecoin en este momento"
+  "gift_cards_unavailable": "Las tarjetas de regalo están disponibles para comprar solo a través de Monero, Bitcoin y Litecoin en este momento",
+  "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado"
 }

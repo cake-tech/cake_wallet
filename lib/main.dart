@@ -232,18 +232,11 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   void handleDeepLinking(Uri uri) {
     if (uri == null || !mounted) return;
 
-    switch (uri.scheme) {
-      case "bitcoin":
-      case "litecoin":
-      case "haven":
-      case "monero":
-      default:
-        Navigator.pushNamed(
-          navigatorKey.currentContext,
-          Routes.send,
-          arguments: PaymentRequest.fromUri(uri),
-        );
-    }
+    Navigator.pushNamed(
+      navigatorKey.currentContext,
+      Routes.send,
+      arguments: PaymentRequest.fromUri(uri),
+    );
   }
 
   Future<void> _handleInitialUri() async {
