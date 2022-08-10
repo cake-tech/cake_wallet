@@ -5,13 +5,19 @@ class CakeScrollbar extends StatelessWidget {
     @required this.backgroundHeight,
     @required this.thumbHeight,
     @required this.fromTop,
-    this.rightOffset = 6
+    this.rightOffset = 6,
+    this.backgroundColor,
+    this.thumbColor,
+    this.width = 6,
   });
 
   final double backgroundHeight;
   final double thumbHeight;
   final double fromTop;
+  final double width;
   final double rightOffset;
+  final Color backgroundColor;
+  final Color thumbColor;
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +25,10 @@ class CakeScrollbar extends StatelessWidget {
         right: rightOffset,
         child: Container(
           height: backgroundHeight,
-          width: 6,
+          width: width,
           decoration: BoxDecoration(
-            color: Theme.of(context).textTheme.body1.decorationColor,
-            borderRadius: BorderRadius.all(Radius.circular(3))
-          ),
+              color: backgroundColor ?? Theme.of(context).textTheme.body1.decorationColor,
+              borderRadius: BorderRadius.all(Radius.circular(3))),
           child: Stack(
             children: <Widget>[
               AnimatedPositioned(
@@ -31,16 +36,14 @@ class CakeScrollbar extends StatelessWidget {
                 top: fromTop,
                 child: Container(
                   height: thumbHeight,
-                  width: 6.0,
+                  width: width,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).textTheme.body1.color,
-                    borderRadius: BorderRadius.all(Radius.circular(3))
-                  ),
+                      color: thumbColor ?? Theme.of(context).textTheme.body1.color,
+                      borderRadius: BorderRadius.all(Radius.circular(3))),
                 ),
               )
             ],
           ),
-        )
-    );
+        ));
   }
 }

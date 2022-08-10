@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -174,7 +176,8 @@ Future<void> initialSetup(
       exchangeTemplates: exchangeTemplates,
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
-      unspentCoinsInfoSource: unspentCoinsInfoSource);
+      unspentCoinsInfoSource: unspentCoinsInfoSource,
+      );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
