@@ -4,6 +4,10 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -63,6 +67,10 @@ import 'package:flutter/services.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/src/screens/ionia/ionia.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -400,6 +408,58 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param1: args['qrData'] as String,
                 param2: args['isLight'] as bool,
               ));
+
+    case Routes.ioniaWelcomePage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaWelcomePage>());  
+    
+    case Routes.ioniaLoginPage:
+      return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaLoginPage>());
+
+    case Routes.ioniaCreateAccountPage:
+      return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaCreateAccountPage>());
+
+    case Routes.ioniaManageCardsPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
+
+    case Routes.ioniaBuyGiftCardPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardPage>(param1: args));
+    
+    case Routes.ioniaBuyGiftCardDetailPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardDetailPage>(param1: args));
+
+    case Routes.ioniaVerifyIoniaOtpPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) =>getIt.get<IoniaVerifyIoniaOtp>(param1: args));
+
+    case Routes.ioniaDebitCardPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaDebitCardPage>());
+
+    case Routes.ioniaActivateDebitCardPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaActivateDebitCardPage>());
+
+    case Routes.ioniaAccountPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountPage>());
+    
+    case Routes.ioniaAccountCardsPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());
+
+    case Routes.ioniaCustomTipPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) =>getIt.get<IoniaCustomTipPage>(param1: args));
+
+    case Routes.ioniaGiftCardDetailPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
+
+    case Routes.ioniaPaymentStatusPage:
+      final args = settings.arguments as List;
+      final paymentInfo = args.first as IoniaAnyPayPaymentInfo;
+      final commitedInfo = args[1] as AnyPayPaymentCommittedInfo;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaPaymentStatusPage>(
+        param1: paymentInfo,
+        param2: commitedInfo));
 
     default:
       return MaterialPageRoute<void>(

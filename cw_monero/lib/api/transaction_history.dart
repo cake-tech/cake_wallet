@@ -104,6 +104,8 @@ PendingTransactionDescription createTransactionSync(
       amount: pendingTransactionRawPointer.ref.amount,
       fee: pendingTransactionRawPointer.ref.fee,
       hash: pendingTransactionRawPointer.ref.getHash(),
+      hex: pendingTransactionRawPointer.ref.getHex(),
+      txKey: pendingTransactionRawPointer.ref.getKey(),
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
@@ -157,6 +159,8 @@ PendingTransactionDescription createTransactionMultDestSync(
       amount: pendingTransactionRawPointer.ref.amount,
       fee: pendingTransactionRawPointer.ref.fee,
       hash: pendingTransactionRawPointer.ref.getHash(),
+      hex: pendingTransactionRawPointer.ref.getHex(),
+      txKey: pendingTransactionRawPointer.ref.getKey(),
       pointerAddress: pendingTransactionRawPointer.address);
 }
 

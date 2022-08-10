@@ -23,6 +23,9 @@ class PendingHavenTransaction with PendingTransaction {
   String get id => pendingTransactionDescription.hash;
 
   @override
+  String get hex => '';
+
+  @override
   String get amountFormatted => AmountConverter.amountIntToString(
       cryptoCurrency, pendingTransactionDescription.amount);
 
