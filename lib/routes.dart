@@ -60,4 +60,18 @@ class Routes {
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const addressPage = '/address_page';
   static const fullscreenQR = '/fullscreen_qr';
+  static const ioniaWelcomePage = '/cake_pay_welcome_page';
+  static const ioniaCreateAccountPage = '/cake_pay_create_account_page';
+  static const ioniaLoginPage = '/cake_pay_login_page';
+  static const ioniaManageCardsPage = '/manage_cards_page';
+  static const ioniaBuyGiftCardPage = '/buy_gift_card_page';
+  static const ioniaBuyGiftCardDetailPage = '/buy_gift_card_detail_page';
+  static const ioniaVerifyIoniaOtpPage = '/cake_pay_verify_otp_page';
+  static const ioniaDebitCardPage = '/debit_card_page';
+  static const ioniaActivateDebitCardPage = '/activate_debit_card_page';
+  static const ioniaAccountPage = 'ionia_account_page';
+  static const ioniaAccountCardsPage = 'ionia_account_cards_page';
+  static const ioniaCustomTipPage = 'ionia_custom_tip_page';
+  static const ioniaGiftCardDetailPage = '/ionia_gift_card_detail_page';
+  static const ioniaPaymentStatusPage = '/ionia_payment_status_page';
 }
