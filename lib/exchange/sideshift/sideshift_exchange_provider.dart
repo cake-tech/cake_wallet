@@ -25,14 +25,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
                 .expand((i) => i)
                 .toList());
 
-  static const apiKey = secrets.sideShiftApiKey;
   static const affiliateId = secrets.sideShiftAffiliateId;
   static const apiBaseUrl = 'https://sideshift.ai/api';
   static const rangePath = '/v1/pairs';
   static const orderPath = '/v1/orders';
   static const quotePath = '/v1/quotes';
   static const permissionPath = '/v1/permissions';
-  static const apiHeaderKey = 'x-sideshift-secret';
 
   @override
   ExchangeProviderDescription get description =>
@@ -96,7 +94,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final _request = request as SideShiftRequest;
     final quoteId = await _createQuote(_request);
     final url = apiBaseUrl + orderPath;
-    final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
+    final headers = {'Content-Type': 'application/json'};
     final body = {
       'type': 'fixed',
       'quoteId': quoteId,
@@ -137,7 +135,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   Future<String> _createQuote(SideShiftRequest request) async {
     final url = apiBaseUrl + quotePath;
-    final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
+    final headers = {'Content-Type': 'application/json'};
     final depositMethod = normalizeCryptoCurrency(request.depositMethod);
     final settleMethod = normalizeCryptoCurrency(request.settleMethod);
     final body = {
