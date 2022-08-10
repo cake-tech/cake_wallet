@@ -25,6 +25,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
       IoniaTip(percentage: 15, originalAmount: amount),
       IoniaTip(percentage: 18, originalAmount: amount),
       IoniaTip(percentage: 20, originalAmount: amount),
+      IoniaTip(percentage: 0, originalAmount: amount, isCustom: true),
     ];
     selectedTip = tips.first;
   }
