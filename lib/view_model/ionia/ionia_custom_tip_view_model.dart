@@ -23,7 +23,9 @@ abstract class IoniaCustomTipViewModelBase with Store {
 
   @action
   void onTipChanged(String value){
-    percentage = (double.parse(value)/amount) * 100;
+   
+    final _amount = value.isEmpty ? 0 : double.parse(value.replaceAll(',', '.'));
+    percentage = _amount/amount * 100;
     customTip = IoniaTip(percentage: percentage, originalAmount: amount);
   }
 }

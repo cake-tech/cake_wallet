@@ -129,8 +129,8 @@ class IoniaCustomTipPage extends BasePage {
                           ),
                           children: [
                             TextSpan(text: ' ${S.of(context).is_percentage} '),
-                            TextSpan(text: '${customTipViewModel.percentage}%'),
-                            TextSpan(text: ' ${S.of(context).percentageOf(customTipViewModel.amount.toString())} '),
+                            TextSpan(text: '${customTipViewModel.percentage.toStringAsFixed(2)}%'),
+                            TextSpan(text: ' ${S.of(context).percentageOf(customTipViewModel.amount.toStringAsFixed(2))} '),
                           ],
                         ),
                       );
