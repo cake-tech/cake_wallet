@@ -56,3 +56,11 @@ class IoniaCardSuccess extends IoniaFetchCardState {
 
   final IoniaVirtualCard card;
 }
+
+abstract class IoniaMerchantState {}
+
+class IoniaLoadingMerchantState extends IoniaMerchantState {}
+
+class IoniaLoadedMerchantState extends IoniaMerchantState {}
+
+
