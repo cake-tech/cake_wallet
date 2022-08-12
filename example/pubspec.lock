@@ -445,6 +445,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.4"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.0"
   shared_preferences:
     dependency: transitive
     description:
@@ -520,6 +527,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.0"
+  stack_wallet_backup:
+    dependency: transitive
+    description:
+      path: "."
+      ref: c30259e4539d66912f66862cd87d915660fca718
+      resolved-ref: c30259e4539d66912f66862cd87d915660fca718
+      url: "https://github.com/cypherstack/stack_wallet_backup.git"
+    source: git
+    version: "0.0.1"
   stream_channel:
     dependency: transitive
     description:
@@ -548,6 +564,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.9"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   typed_data:
     dependency: transitive
     description:
@@ -591,5 +614,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.17.0 <3.0.0"
+  dart: ">=2.17.5 <3.0.0"
   flutter: ">=3.0.0"
