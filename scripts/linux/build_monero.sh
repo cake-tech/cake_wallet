@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . ./config.sh
-MONERO_BRANCH=v0.17.3.0-android
+MONERO_BRANCH=release-v0.18.0.0-android
 MONERO_SRC_DIR=${WORKDIR}/monero
 
 git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
@@ -20,6 +20,10 @@ export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
 mkdir -p $DEST_LIB_DIR
 mkdir -p $DEST_INCLUDE_DIR
+LIBUNBOUND_PATH=${PREFIX}/lib/libunbound.a
+if [ -f "$LIBUNBOUND_PATH" ]; then
+  cp $LIBUNBOUND_PATH $DEST_LIB_DIR
+fi
 
 case $arch in
 	"x86_64"	)
