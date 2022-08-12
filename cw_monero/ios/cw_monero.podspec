@@ -41,6 +41,13 @@ Pod::Spec.new do |s|
     boost.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/include/**" }
   end
 
+  s.subspec 'Unbound' do |unbound|
+    unbound.preserve_paths = '../../../../../cw_shared_external/ios/External/ios/include/**/*.h'
+    unbound.vendored_libraries = '../../../../../cw_shared_external/ios/External/ios/lib/libunbound.a'
+    unbound.libraries = 'unbound'
+    unbound.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/include/**" }
+  end
+
   s.subspec 'Monero' do |monero|
     monero.preserve_paths = 'External/ios/include/**/*.h'
     monero.vendored_libraries = 'External/ios/lib/libmonero.a'

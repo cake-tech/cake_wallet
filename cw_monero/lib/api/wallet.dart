@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
+
 import 'package:cw_monero/api/convert_utf8_to_string.dart';
+import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
+import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/signatures.dart';
 import 'package:cw_monero/api/types.dart';
-import 'package:cw_monero/api/monero_api.dart';
-import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:ffi/ffi.dart';
 import 'package:ffi/ffi.dart' as pkgffi;
+import 'package:flutter/foundation.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
@@ -333,13 +333,13 @@ Future<bool> store({bool prioritySave = false}) async {
   }
   print(
       "${DateTime.now().millisecondsSinceEpoch} $prioritySave $priorityInQueue");
-  if (DateTime.now().millisecondsSinceEpoch < storeTime + 60000 &&
+  if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
       prioritySave) {
     priorityInQueue = true;
     await Future.delayed(Duration(seconds: 1));
     priorityInQueue = false;
     return store(prioritySave: prioritySave);
-  } else if (DateTime.now().millisecondsSinceEpoch < storeTime + 60000 &&
+  } else if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
       !prioritySave) {
     return false;
   }
