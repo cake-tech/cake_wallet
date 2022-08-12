@@ -35,5 +35,6 @@ ln ./libboost.a ${CW_MONERO_EXTERNAL_LIB}/libboost.a
 ln ./libcrypto.a ${CW_MONERO_EXTERNAL_LIB}/libcrypto.a
 ln ./libssl.a ${CW_MONERO_EXTERNAL_LIB}/libssl.a
 ln ./libsodium.a ${CW_MONERO_EXTERNAL_LIB}/libsodium.a
+ln ./libunbound.a ${CW_MONERO_EXTERNAL_LIB}/libunbound.a
 cp ./libmonero.a $CW_MONERO_EXTERNAL_LIB
 cp ../include/monero/* $CW_MONERO_EXTERNAL_INCLUDE

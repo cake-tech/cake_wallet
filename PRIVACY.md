@@ -1,6 +1,6 @@
 Privacy Policy
 
-Last modified: April 29, 2022
+Last modified: July 21, 2022
 
 Introduction
 ============
@@ -42,7 +42,7 @@ Information We May Receive But Do Not Retain
 
 	We receive but do NOT store information from and about users of our App, including:
 		- The device IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to supported cryptocurrency networks.
-	We receive this infoirmation:
+	We receive this information:
 		- Automatically as you use the App.
 
 	This data is provided by connecting to the Nodes and price API maintained by Cake Labs. You have the right to choose not to provide synchronization data to Cake Labs by choosing a different Node. We provide a list of Nodes in the app that include our own and third party Nodes, or you can use your own Node (which we recommend).
