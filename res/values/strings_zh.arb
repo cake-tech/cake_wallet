@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "交易 ${title} 未创建.",
-  "trade_not_created" : "未建立交易.",
+  "trade_not_created" : "未建立交易",
   "trade_id_not_found" : "交易方式 ${tradeId} 的 ${title} 未找到.",
   "trade_not_found" : "找不到交易.",
 

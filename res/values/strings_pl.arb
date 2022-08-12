@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Zamienić się za ${title} nie jest tworzony.",
-  "trade_not_created" : "Handel nie utworzony.",
+  "trade_not_created" : "Handel nie utworzony",
   "trade_id_not_found" : "Handel ${tradeId} of ${title} nie znaleziono.",
   "trade_not_found" : "Nie znaleziono handlu.",
 

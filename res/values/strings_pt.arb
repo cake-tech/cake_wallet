@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "A troca por ${title} não foi criada.",
-  "trade_not_created" : "Troca não criada.",
+  "trade_not_created" : "Troca não criada",
   "trade_id_not_found" : "A troca ${tradeId} de ${title} não foi encontrada.",
   "trade_not_found" : "Troca não encontrada.",
 

@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Handel für ${title} wird nicht erstellt.",
-  "trade_not_created" : "Handel nicht erstellt.",
+  "trade_not_created" : "Handel nicht erstellt",
   "trade_id_not_found" : "Handel ${tradeId} von ${title} nicht gefunden.",
   "trade_not_found" : "Handel nicht gefunden.",
 
@@ -632,7 +632,7 @@
   "gift_card_is_generated": "Geschenkkarte wird generiert",
   "open_gift_card": "Geschenkkarte öffnen",
   "contact_support": "Support kontaktieren",
-  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden"
+  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden",
   "automatic": "Automatisch",
   "fixed_pair_not_supported": "Dieses feste Paar wird von den ausgewählten Vermittlungsstellen nicht unterstützt",
   "variable_pair_not_supported": "Dieses Variablenpaar wird von den ausgewählten Börsen nicht unterstützt",

@@ -365,7 +365,7 @@
 
 
   "trade_for_not_created" : "Операція для ${title} не створена.",
-  "trade_not_created" : "Операція не створена.",
+  "trade_not_created" : "Операція не створена",
   "trade_id_not_found" : "Операція ${tradeId} ${title} не знайдена.",
   "trade_not_found" : "Операція не знайдена.",
 

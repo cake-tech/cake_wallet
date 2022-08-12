@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Ruilen voor ${title} is niet gemaakt.",
-  "trade_not_created" : "Handel niet gecreëerd.",
+  "trade_not_created" : "Handel niet gecreëerd",
   "trade_id_not_found" : "Handel ${tradeId} van ${title} niet gevonden.",
   "trade_not_found" : "Handel niet gevonden.",
 

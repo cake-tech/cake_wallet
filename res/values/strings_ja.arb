@@ -632,7 +632,7 @@
   "gift_card_is_generated": "ギフトカードが生成されます",
   "open_gift_card": "オープンギフトカード",
   "contact_support": "サポートに連絡する",
-  "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。"
+  "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。",
   "automatic": "自動",
   "fixed_pair_not_supported": "この固定ペアは、選択したエクスチェンジではサポートされていません",
   "variable_pair_not_supported": "この変数ペアは、選択した取引所ではサポートされていません",
