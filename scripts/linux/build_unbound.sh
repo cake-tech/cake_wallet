@@ -6,7 +6,7 @@ EXPAT_VERSION=R_2_4_8
 EXPAT_HASH="3bab6c09bbe8bf42d84b81563ddbcf4cca4be838"
 EXPAT_SRC_DIR=$WORKDIR/libexpat
 
-for arch in "x86_64"
+for arch in $TYPES_OF_BUILD
 do
 PREFIX=$WORKDIR/prefix_${arch}
 TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
@@ -33,7 +33,7 @@ UNBOUND_VERSION=release-1.16.2
 UNBOUND_HASH="cbed768b8ff9bfcf11089a5f1699b7e5707f1ea5"
 UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
 
-for arch in "x86_64"
+for arch in $TYPES_OF_BUILD
 do
 PREFIX=$WORKDIR/prefix_${arch}
 TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64

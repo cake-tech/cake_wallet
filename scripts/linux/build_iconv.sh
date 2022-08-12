@@ -30,7 +30,7 @@ cd $WORKDIR
 rm -rf $ICONV_SRC_DIR
 tar -xzf $ICONV_FILE_PATH -C $WORKDIR
 cd $ICONV_SRC_DIR
-./configure --build=x${HOST} --host=${HOST} --prefix=${PREFIX} --disable-rpath
+./configure --build=${HOST} --host=${HOST} --prefix=${PREFIX} --disable-rpath
 make -j$THREADS
 make install
 
