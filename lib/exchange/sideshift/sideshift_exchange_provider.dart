@@ -136,8 +136,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<String> _createQuote(SideShiftRequest request) async {
     final url = apiBaseUrl + quotePath;
     final headers = {'Content-Type': 'application/json'};
-    final depositMethod = normalizeCryptoCurrency(request.depositMethod);
-    final settleMethod = normalizeCryptoCurrency(request.settleMethod);
+    final depositMethod = _normalizeCryptoCurrency(request.depositMethod);
+    final settleMethod = _normalizeCryptoCurrency(request.settleMethod);
     final body = {
       'depositMethod': depositMethod,
       'settleMethod': settleMethod,
