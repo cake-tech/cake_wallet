@@ -22,7 +22,7 @@
 * Select your own custom nodes/servers
 * Address book
 * Backup to external location or iCloud
-* Send to OpenAlias, Unstoppable Domains, and Yats
+* Send to OpenAlias, Unstoppable Domains, Yats, and FIO Crypto Handles
 * Set custom fee levels
 * Store local transaction notes
 * Extremely simple user experience
@@ -40,12 +40,15 @@
 * Bitcoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
+* Buy BTC with over a dozen fiat currencies
+* Sell BTC for USD
 
 ### Litecoin Specific Features
 
 * Litecoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
+* Buy LTC with over a dozen fiat currencies
 
 ### Haven Specific Features
 

@@ -118,6 +118,7 @@ class SendCardState extends State<SendCard>
                           final paymentRequest = PaymentRequest.fromUri(uri);
                           addressController.text = paymentRequest.address;
                           cryptoAmountController.text = paymentRequest.amount;
+                          noteController.text = paymentRequest.note;
                         },
                         options: [
                           AddressTextFieldOption.paste,
