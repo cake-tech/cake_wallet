@@ -48,10 +48,15 @@ class BalancePage extends StatelessWidget{
                       textAlign: TextAlign.center);
                 })),
           Observer(builder: (_) {
-            return IntroducingCard(borderColor: settingsStore.currentTheme.type
-                == ThemeType.bright
+            return dashboardViewModel.balanceViewModel.showIntroCakePayCard
+                ? IntroducingCard(
+              title: 'Introducing Cake Pay!',
+              subTitle: 'instantly purchase and redeem cards in the app!\nSwipe right to learn more!',
+              borderColor: settingsStore.currentTheme.type == ThemeType.bright
                 ? Color.fromRGBO(255, 255, 255, 0.2)
-                : Colors.transparent,);
+                : Colors.transparent,
+              closeCard: dashboardViewModel.balanceViewModel.disableIntroCakePayCard)
+                : Container ();
           }),
           Observer(builder: (_) {
             return ListView.separated(

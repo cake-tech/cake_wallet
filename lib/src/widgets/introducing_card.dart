@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class IntroducingCard extends StatelessWidget {
-  IntroducingCard({this.borderColor});
+  IntroducingCard({this.borderColor, this.closeCard, this.title, this.subTitle});
 
+  final String title;
+  final String subTitle;
   final Color borderColor;
+  final Function() closeCard;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class IntroducingCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AutoSizeText('Introducing Cake Pay!',
+                  AutoSizeText(title??'',
                       style: TextStyle(
                           fontSize: 24,
                           fontFamily: 'Lato',
@@ -43,7 +46,7 @@ class IntroducingCard extends StatelessWidget {
                       maxLines: 1,
                       textAlign: TextAlign.center),
                   GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: closeCard,
                     child: Container(
                       height: 23,
                       width: 23,
@@ -62,7 +65,7 @@ class IntroducingCard extends StatelessWidget {
               ),
               SizedBox(height: 14),
               Text(
-                  'instantly purchase and redeem cards in the app!\nSwipe right to learn more!',
+                  subTitle??'',
                   textAlign: TextAlign.left,
                   style: TextStyle(
                       fontSize: 12,

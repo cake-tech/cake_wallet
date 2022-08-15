@@ -39,6 +39,7 @@ abstract class BalanceViewModelBase with Store {
       @required this.fiatConvertationStore}) {
     isReversing = false;
     wallet ??= appStore.wallet;
+    showIntroCakePayCard = true;
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
@@ -50,6 +51,9 @@ abstract class BalanceViewModelBase with Store {
 
   @observable
   bool isReversing;
+
+  @observable
+  bool showIntroCakePayCard;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
@@ -245,6 +249,9 @@ abstract class BalanceViewModelBase with Store {
      this.wallet = wallet;
     _onCurrentWalletChangeReaction?.reaction?.dispose();
   }
+
+  @action
+  void disableIntroCakePayCard () => showIntroCakePayCard = false;
 
   String _getFiatBalance({double price, String cryptoAmount}) {
     if (cryptoAmount == null) {
