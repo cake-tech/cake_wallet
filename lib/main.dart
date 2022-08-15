@@ -45,90 +45,13 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
-    Hive.init(appDir.path);
 
-    if (!Hive.isAdapterRegistered(Contact.typeId)) {
-      Hive.registerAdapter(ContactAdapter());
-    }
+    await initializeAppConfigs();
 
-    if (!Hive.isAdapterRegistered(Node.typeId)) {
-      Hive.registerAdapter(NodeAdapter());
-    }
+    await bootstrap(navigatorKey);
+    monero?.onStartup();
 
-    if (!Hive.isAdapterRegistered(TransactionDescription.typeId)) {
-      Hive.registerAdapter(TransactionDescriptionAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Trade.typeId)) {
-      Hive.registerAdapter(TradeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
-      Hive.registerAdapter(WalletInfoAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
-      Hive.registerAdapter(WalletTypeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Template.typeId)) {
-      Hive.registerAdapter(TemplateAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(ExchangeTemplate.typeId)) {
-      Hive.registerAdapter(ExchangeTemplateAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Order.typeId)) {
-      Hive.registerAdapter(OrderAdapter());
-    }
-
-    if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
-      Hive.registerAdapter(UnspentCoinsInfoAdapter());
-    }
-
-    final secureStorage = FlutterSecureStorage();
-    final transactionDescriptionsBoxKey = await getEncryptionKey(
-        secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(
-        secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(
-        secureStorage: secureStorage, forKey: Order.boxKey);
-    final contacts = await Hive.openBox<Contact>(Contact.boxName);
-    final nodes = await Hive.openBox<Node>(Node.boxName);
-    final transactionDescriptions = await Hive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-    final trades =
-        await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders =
-        await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-    final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
-    final templates = await Hive.openBox<Template>(Template.boxName);
-    final exchangeTemplates =
-        await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-    
-    if (!isMoneroOnly) {
-      unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-    }
-    
-    await initialSetup(
-        sharedPreferences: await SharedPreferences.getInstance(),
-        nodes: nodes,
-        walletInfoSource: walletInfoSource,
-        contactSource: contacts,
-        tradesSource: trades,
-        ordersSource: orders,
-        unspentCoinsInfoSource: unspentCoinsInfoSource,
-        // fiatConvertationService: fiatConvertationService,
-        templates: templates,
-        exchangeTemplates: exchangeTemplates,
-        transactionDescriptions: transactionDescriptions,
-        secureStorage: secureStorage,
-        initialMigrationVersion: 17);
     runApp(App());
   } catch (e) {
     runApp(MaterialApp(
@@ -142,6 +65,92 @@ Future<void> main() async {
                   style: TextStyle(fontSize: 22),
                 )))));
   }
+}
+
+Future<void> initializeAppConfigs() async {
+  final appDir = await getApplicationDocumentsDirectory();
+  Hive.init(appDir.path);
+
+  if (!Hive.isAdapterRegistered(Contact.typeId)) {
+    Hive.registerAdapter(ContactAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(Node.typeId)) {
+    Hive.registerAdapter(NodeAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(TransactionDescription.typeId)) {
+    Hive.registerAdapter(TransactionDescriptionAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(Trade.typeId)) {
+    Hive.registerAdapter(TradeAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
+    Hive.registerAdapter(WalletInfoAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
+    Hive.registerAdapter(WalletTypeAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(Template.typeId)) {
+    Hive.registerAdapter(TemplateAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(ExchangeTemplate.typeId)) {
+    Hive.registerAdapter(ExchangeTemplateAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(Order.typeId)) {
+    Hive.registerAdapter(OrderAdapter());
+  }
+
+  if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+    Hive.registerAdapter(UnspentCoinsInfoAdapter());
+  }
+
+  final secureStorage = FlutterSecureStorage();
+  final transactionDescriptionsBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  final tradesBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: Trade.boxKey);
+  final ordersBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: Order.boxKey);
+  final contacts = await Hive.openBox<Contact>(Contact.boxName);
+  final nodes = await Hive.openBox<Node>(Node.boxName);
+  final transactionDescriptions = await Hive.openBox<TransactionDescription>(
+      TransactionDescription.boxName,
+      encryptionKey: transactionDescriptionsBoxKey);
+  final trades =
+      await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders =
+      await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
+  final templates = await Hive.openBox<Template>(Template.boxName);
+  final exchangeTemplates =
+      await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+
+  if (!isMoneroOnly) {
+    unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+  }
+
+  await initialSetup(
+      sharedPreferences: await SharedPreferences.getInstance(),
+  nodes: nodes,
+  walletInfoSource: walletInfoSource,
+  contactSource: contacts,
+  tradesSource: trades,
+  ordersSource: orders,
+  unspentCoinsInfoSource: unspentCoinsInfoSource,
+  // fiatConvertationService: fiatConvertationService,
+  templates: templates,
+  exchangeTemplates: exchangeTemplates,
+  transactionDescriptions: transactionDescriptions,
+  secureStorage: secureStorage,
+  initialMigrationVersion: 17);
 }
 
 Future<void> initialSetup(
@@ -178,8 +187,6 @@ Future<void> initialSetup(
       ordersSource: ordersSource,
       unspentCoinsInfoSource: unspentCoinsInfoSource,
       );
-  await bootstrap(navigatorKey);
-  monero?.onStartup();
 }
 
 class App extends StatefulWidget {
