@@ -66,4 +66,8 @@ class IoniaGiftCard {
     final bool isActive;
     final bool isEmpty;
     final String logoUrl;
+
+    set remainingAmount(double amount){
+      this.remainingAmount = amount;
+    }
 }

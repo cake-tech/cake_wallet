@@ -110,7 +110,7 @@ class IoniaGiftCardDetailPage extends BasePage {
             buildIoniaTile(
               context,
               title: S.of(context).amount,
-              subTitle: viewModel.giftCard.remainingAmount.toStringAsFixed(2) ?? '0.00',
+              subTitle: viewModel.remainingAmount.toStringAsFixed(2) ?? '0.00',
             )),
           Divider(height: 50),
           TextIconButton(
@@ -127,7 +127,10 @@ class IoniaGiftCardDetailPage extends BasePage {
                 children: [
                   PrimaryButton(
                   onPressed: () async {
-                    final amount = await  Navigator.of(context).pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]);
+                    final amount = await  Navigator.of(context).pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as double;
+                    if(amount != null){
+                      viewModel.updateRemaining(amount);
+                    }
                   },
                   text: S.of(context).more_options,
                   color: Theme.of(context).accentTextTheme.caption.color,
