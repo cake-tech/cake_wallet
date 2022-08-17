@@ -14,20 +14,8 @@ dependencies:
   ffi: ^1.1.2
   flutter_secure_storage: ^5.0.2
   shared_preferences: ^2.0.15
-  cryptography: ^2.0.5
-  cryptography_flutter: ^2.0.2
   archive: ^3.1.6
-  uuid: ^3.0.6
-#  password: ^1.0.0
-  devicelocale: ^0.5.2
-  yaml: ^3.1.1
-  basic_utils: ^4.2.2
 #  mobx: ^2.0.7
-  password:
-    git:
-      url: https://github.com/truongduy2611/password-dart.git
-  get_it: ^7.2.0
-  connectivity: ^3.0.6
   cw_core:
     path: ./cw_core
 
