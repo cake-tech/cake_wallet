@@ -632,5 +632,7 @@
   "gift_card_is_generated": "Cartão presente é gerado",
   "open_gift_card": "Abrir vale-presente",
   "contact_support": "Contatar Suporte",
-  "gift_cards_unavailable": "Os cartões-presente estão disponíveis para compra apenas através do Monero, Bitcoin e Litecoin no momento"
+  "gift_cards_unavailable": "Os cartões-presente estão disponíveis para compra apenas através do Monero, Bitcoin e Litecoin no momento",
+  "introducing_cake_pay":  "Apresentando o Cake Pay!",
+  "cake_pay_learn_more": "Compre e resgate cartões instantaneamente no aplicativo!\nDeslize para a direita para saber mais!"
 }

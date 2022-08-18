@@ -630,5 +630,7 @@
   "gift_card_is_generated": "礼品卡生成",
   "open_gift_card": "打开礼品卡",
   "contact_support": "联系支持",
-  "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡"
+  "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡",
+  "introducing_cake_pay":  "介绍 Cake Pay!",
+  "cake_pay_learn_more": "立即在应用程序中购买和兑换卡！\n向右滑动了解更多！"
 }

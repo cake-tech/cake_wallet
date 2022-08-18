@@ -632,5 +632,7 @@
   "gift_card_is_generated": "Karta podarunkowa jest generowana",
   "open_gift_card": "Otwórz kartę podarunkową",
   "contact_support": "Skontaktuj się z pomocą techniczną",
-  "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin"
+  "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin",
+  "introducing_cake_pay":  "Przedstawiamy Ciasto Pay!",
+  "cake_pay_learn_more": "Natychmiast kupuj i realizuj karty w aplikacji!\nPrzesuń w prawo, aby dowiedzieć się więcej!"
 }

@@ -631,5 +631,7 @@
   "gift_card_is_generated": "Подарункова картка створена",
   "open_gift_card": "Відкрити подарункову картку",
   "contact_support": "Звернутися до служби підтримки",
-  "gift_cards_unavailable": "Наразі подарункові картки можна придбати лише через Monero, Bitcoin і Litecoin"
+  "gift_cards_unavailable": "Наразі подарункові картки можна придбати лише через Monero, Bitcoin і Litecoin",
+  "introducing_cake_pay":  "Представляємо Cake Pay!",
+  "cake_pay_learn_more": "Миттєва купівля та погашення карток в додатку!\nПроведіть праворуч, щоб дізнатися більше!"
 }

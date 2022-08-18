@@ -632,5 +632,7 @@
   "gift_card_is_generated": "Geschenkkarte wird generiert",
   "open_gift_card": "Geschenkkarte öffnen",
   "contact_support": "Support kontaktieren",
-  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden"
+  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden",
+  "introducing_cake_pay":  "Einführung von Cake Pay!",
+  "cake_pay_learn_more": "Karten sofort in der App kaufen und einlösen!\nWischen Sie nach rechts, um mehr zu erfahren!"
 }
