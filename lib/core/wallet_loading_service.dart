@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -23,10 +25,15 @@ void callbackDispatcher() {
 					/// thus we initialize app configs first; hive, getIt, etc...
 					await initializeAppConfigs();
 
-					final name = (inputData['name'] as String) ?? '';
 					final walletLoadingService = getIt.get<WalletLoadingService>();
 
-					await walletLoadingService.load(WalletType.monero, name);
+					final List<WalletListItem> moneroWallets = getIt.get<WalletListViewModel>()
+							.wallets.where((element) => element.type == WalletType.monero).toList();
+
+					for (int i=0;i<moneroWallets.length;i++) {
+						await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
+					}
+
 					break;
 			}
 
@@ -59,12 +66,9 @@ class WalletLoadingService {
 
 		if (type == WalletType.monero) {
 			await upateMoneroWalletPassword(wallet);
-			if (Platform.isAndroid) {
-				registerSyncTask(name);
-			}
-		} else { /// if wallet is not monero, cancel scheduled tasks
-			cancelSyncTask();
 		}
+
+		registerSyncTask();
 
 		return wallet;
 	}
@@ -88,8 +92,14 @@ class WalletLoadingService {
 		await sharedPreferences.setBool(key, isPasswordUpdated);
 	}
 
-	void registerSyncTask(String name) async {
+	void registerSyncTask() async {
 		try {
+			/// if its not android or the user has no monero wallets
+			if (!Platform.isAndroid ||
+					!getIt.get<WalletListViewModel>().wallets.any((element) => element.type == WalletType.monero)) {
+				return;
+			}
+
 			await Workmanager().initialize(
 				callbackDispatcher,
 				isInDebugMode: kDebugMode,
@@ -101,8 +111,7 @@ class WalletLoadingService {
 				// TODO: change duration to the desired intervals to run this task
 				initialDelay: const Duration(hours: 1),
 				frequency: Duration(hours: 1),
-				inputData: <String, dynamic> {"name": name},
-				existingWorkPolicy: ExistingWorkPolicy.replace,
+				existingWorkPolicy: ExistingWorkPolicy.keep,
 			);
 		} catch (error, stackTrace) {
 			print(error);
