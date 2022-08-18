@@ -3,6 +3,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'balance_view_model.g.dart';
@@ -39,7 +41,6 @@ abstract class BalanceViewModelBase with Store {
       @required this.fiatConvertationStore}) {
     isReversing = false;
     wallet ??= appStore.wallet;
-    showIntroCakePayCard = true;
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
@@ -51,9 +52,6 @@ abstract class BalanceViewModelBase with Store {
 
   @observable
   bool isReversing;
-
-  @observable
-  bool showIntroCakePayCard;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
@@ -239,6 +237,12 @@ abstract class BalanceViewModelBase with Store {
   @computed
   CryptoCurrency get currency => appStore.wallet.currency;
 
+  @observable
+  bool isShowCard = true;
+
+  @computed
+  bool get showIntroCakePayCard => wallet.walletInfo.showIntroCakePayCard && isShowCard;
+
   ReactionDisposer _onCurrentWalletChangeReaction;
 
   @action
@@ -251,7 +255,14 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @action
-  void disableIntroCakePayCard () => showIntroCakePayCard = false;
+  Future<void> disableIntroCakePayCard () async {
+    final value = wallet.walletInfo;
+    final  box = Hive.box<WalletInfo>('WalletInfo');
+    final  currentWallet = box.get(value.key);
+    currentWallet.showIntroCakePayCard = false;
+    await box.put(value.key, currentWallet);
+    isShowCard = false;
+  }
 
   String _getFiatBalance({double price, String cryptoAmount}) {
     if (cryptoAmount == null) {
