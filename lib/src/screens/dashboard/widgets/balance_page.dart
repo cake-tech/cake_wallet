@@ -8,6 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 import '../../../../palette.dart';
 
@@ -50,8 +51,8 @@ class BalancePage extends StatelessWidget{
           Observer(builder: (_) {
             if (dashboardViewModel.balanceViewModel.showIntroCakePayCard){
               return IntroducingCard(
-                  title: 'Introducing Cake Pay!',
-                  subTitle: 'instantly purchase and redeem cards in the app!\nSwipe right to learn more!',
+                  title:  S.of(context).introducing_cake_pay,
+                  subTitle: S.of(context).cake_pay_learn_more,
                   borderColor: settingsStore.currentTheme.type == ThemeType.bright
                       ? Color.fromRGBO(255, 255, 255, 0.2)
                       : Colors.transparent,
