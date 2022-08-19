@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -210,8 +211,15 @@ abstract class SettingsViewModelBase with Store {
         ChoicesListItem(
           title: S.current.color_theme,
           items: ThemeList.all,
-          selectedItem: theme,
+          selectedItem: () => theme,
           onItemSelected: (ThemeBase theme) => _settingsStore.currentTheme = theme,
+        ),
+        ChoicesListItem<SyncMode>(
+          title: S.current.sync_modes,
+          items: SyncMode.all,
+          selectedItem: () => syncMode,
+          displayItem: (SyncMode syncMode) => syncMode.name,
+          onItemSelected: (SyncMode syncMode) => _settingsStore.currentSyncMode = syncMode,
         ),
       ],
       //[
@@ -273,6 +281,9 @@ abstract class SettingsViewModelBase with Store {
 
   @computed
   ThemeBase get theme => _settingsStore.currentTheme;
+
+  @computed
+  SyncMode get syncMode => _settingsStore.currentSyncMode;
 
   bool get isBitcoinBuyEnabled => _settingsStore.isBitcoinBuyEnabled;
 

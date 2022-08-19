@@ -1,5 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -40,12 +42,14 @@ abstract class SettingsStoreBase with Store {
       @required TransactionPriority initialMoneroTransactionPriority,
       @required this.shouldShowYatPopup,
       @required this.isBitcoinBuyEnabled,
+      @required SyncMode initialSyncMode,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
     balanceDisplayMode = initialBalanceDisplayMode;
     shouldSaveRecipientAddress = initialSaveRecipientAddress;
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
     currentTheme = initialTheme;
+    currentSyncMode = initialSyncMode;
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
     priority = ObservableMap<WalletType, TransactionPriority>.of({
@@ -105,6 +109,14 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction(
+        (_) => currentSyncMode,
+        (SyncMode syncMode) {
+          sharedPreferences.setInt(PreferencesKey.currentSyncMode, syncMode.type.index);
+
+          getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
+        });
+
     this
         .nodes
         .observe((change) => _saveCurrentNode(change.newValue, change.key));
@@ -145,6 +157,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   ObservableMap<WalletType, TransactionPriority> priority;
+
+  @observable
+  SyncMode currentSyncMode;
 
   String appVersion;
 
@@ -237,6 +252,10 @@ abstract class SettingsStoreBase with Store {
     final shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
 
+    final savedSyncMode = SyncMode.all.firstWhere((element) {
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.currentSyncMode) ?? 1);
+    });
+
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         nodes: {
@@ -257,7 +276,9 @@ abstract class SettingsStoreBase with Store {
         initialLanguageCode: savedLanguageCode,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
-        shouldShowYatPopup: shouldShowYatPopup);
+        shouldShowYatPopup: shouldShowYatPopup,
+        initialSyncMode: savedSyncMode,
+    );
   }
 
   Future<void> reload(
