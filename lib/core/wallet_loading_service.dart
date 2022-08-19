@@ -1,7 +1,5 @@
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -29,8 +27,6 @@ class WalletLoadingService {
 		if (type == WalletType.monero) {
 			await upateMoneroWalletPassword(wallet);
 		}
-
-		getIt.get<BackgroundTasks>().registerSyncTask();
 
 		return wallet;
 	}

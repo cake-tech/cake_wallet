@@ -67,7 +67,6 @@ class BackgroundTasks {
       await Workmanager().registerPeriodicTask(
           moneroSyncTaskKey,
           moneroSyncTaskKey,
-          // TODO: change duration to the desired intervals to run this task
           initialDelay: syncMode.frequency,
           frequency: syncMode.frequency,
           existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
