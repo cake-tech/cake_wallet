@@ -107,15 +107,27 @@ class IoniaManageCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final filterIcon = InkWell(
+    final filterButton = InkWell(
         onTap: () async {
           final selectedFilters = await showCategoryFilter(context, _cardsListViewModel);
           _cardsListViewModel.setSelectedFilter(selectedFilters);
         },
-        child: Image.asset(
-          'assets/images/filter.png',
-          color: Theme.of(context).textTheme.caption.decorationColor,
-        ));
+        child: Container(
+          width: 32,
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Image.asset(
+            'assets/images/filter.png',
+            color: Theme.of(context).textTheme.caption.decorationColor,
+          ),
+        )
+    );
 
     return Padding(
       padding: const EdgeInsets.all(14.0),
@@ -131,18 +143,7 @@ class IoniaManageCardsPage extends BasePage {
                   controller: _searchController,
                 )),
                 SizedBox(width: 10),
-                Container(
-                  width: 32,
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: filterIcon,
-                )
+                filterButton
               ],
             ),
           ),
