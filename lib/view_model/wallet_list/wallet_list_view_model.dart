@@ -51,8 +51,8 @@ abstract class WalletListViewModelBase with Store {
         name: info.name,
         type: info.type,
         key: info.key,
-        isCurrent: info.name == _appStore.wallet.name &&
-            info.type == _appStore.wallet.type,
+        isCurrent: info.name == (_appStore.wallet?.name ?? false) &&
+            (info.type == _appStore.wallet?.type ?? false),
         isEnabled: availableWalletTypes.contains(info.type))));
   }
 }

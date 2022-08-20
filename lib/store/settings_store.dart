@@ -43,6 +43,7 @@ abstract class SettingsStoreBase with Store {
       @required this.shouldShowYatPopup,
       @required this.isBitcoinBuyEnabled,
       @required SyncMode initialSyncMode,
+      @required bool initialSyncAll,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
     balanceDisplayMode = initialBalanceDisplayMode;
@@ -50,6 +51,7 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
     currentTheme = initialTheme;
     currentSyncMode = initialSyncMode;
+    currentSyncAll = initialSyncAll;
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
     priority = ObservableMap<WalletType, TransactionPriority>.of({
@@ -112,7 +114,15 @@ abstract class SettingsStoreBase with Store {
     reaction(
         (_) => currentSyncMode,
         (SyncMode syncMode) {
-          sharedPreferences.setInt(PreferencesKey.currentSyncMode, syncMode.type.index);
+          sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
+
+          getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
+        });
+
+    reaction(
+        (_) => currentSyncAll,
+        (bool syncAll) {
+          sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
           getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
         });
@@ -160,6 +170,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   SyncMode currentSyncMode;
+
+  @observable
+  bool currentSyncAll;
 
   String appVersion;
 
@@ -253,8 +266,9 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
-      return element.type.index == (sharedPreferences.getInt(PreferencesKey.currentSyncMode) ?? 1);
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
     });
+    final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
     return SettingsStore(
         sharedPreferences: sharedPreferences,
@@ -278,6 +292,7 @@ abstract class SettingsStoreBase with Store {
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         shouldShowYatPopup: shouldShowYatPopup,
         initialSyncMode: savedSyncMode,
+        initialSyncAll: savedSyncAll,
     );
   }
 

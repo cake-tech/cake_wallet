@@ -634,5 +634,6 @@
   "contact_support": "サポートに連絡する",
   "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。",
 
-  "sync_modes": "同期モード"
+  "background_sync_mode": "バックグラウンド同期モード",
+  "sync_all_wallets": "すべてのウォレットを同期"
 }

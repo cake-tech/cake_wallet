@@ -23,7 +23,8 @@ class PreferencesKey {
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
-  static const currentSyncMode = 'current_sync_mode';
+  static const syncModeKey = 'sync_mode';
+  static const syncAllKey = 'sync_all';
 
   static String moneroWalletUpdateV1Key(String name)
     => '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

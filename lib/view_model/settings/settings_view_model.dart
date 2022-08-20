@@ -214,12 +214,17 @@ abstract class SettingsViewModelBase with Store {
           selectedItem: () => theme,
           onItemSelected: (ThemeBase theme) => _settingsStore.currentTheme = theme,
         ),
-        ChoicesListItem<SyncMode>(
-          title: S.current.sync_modes,
+        PickerListItem<SyncMode>(
+          title: S.current.background_sync_mode,
           items: SyncMode.all,
           selectedItem: () => syncMode,
-          displayItem: (SyncMode syncMode) => syncMode.name,
+          displayItem: (dynamic syncMode) => (syncMode as SyncMode).name,
           onItemSelected: (SyncMode syncMode) => _settingsStore.currentSyncMode = syncMode,
+        ),
+        SwitcherListItem(
+          title: S.current.sync_all_wallets,
+          value: () => syncAll,
+          onValueChange: (_, bool value) => _settingsStore.currentSyncAll = value,
         ),
       ],
       //[
@@ -284,6 +289,9 @@ abstract class SettingsViewModelBase with Store {
 
   @computed
   SyncMode get syncMode => _settingsStore.currentSyncMode;
+
+  @computed
+  bool get syncAll => _settingsStore.currentSyncAll;
 
   bool get isBitcoinBuyEnabled => _settingsStore.isBitcoinBuyEnabled;
 

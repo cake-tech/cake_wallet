@@ -633,5 +633,6 @@
   "contact_support": "Звернутися до служби підтримки",
   "gift_cards_unavailable": "Наразі подарункові картки можна придбати лише через Monero, Bitcoin і Litecoin",
 
-  "sync_modes": "Режими синхронізації"
+  "background_sync_mode": "Фоновий режим синхронізації",
+  "sync_all_wallets": "Синхронізувати всі гаманці"
 }

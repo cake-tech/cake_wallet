@@ -632,5 +632,6 @@
   "contact_support": "Contacter l'assistance",
   "gift_cards_unavailable": "Les cartes-cadeaux ne sont disponibles à l'achat que via Monero, Bitcoin et Litecoin pour le moment",
 
-  "sync_modes": "Modes de synchronisation"
+  "background_sync_mode": "Mode de synchronisation en arrière-plan",
+  "sync_all_wallets": "Synchroniser tous les portefeuilles"
 }

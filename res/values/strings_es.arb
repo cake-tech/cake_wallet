@@ -634,5 +634,6 @@
   "contact_support": "Contactar con Soporte",
   "gift_cards_unavailable": "Las tarjetas de regalo están disponibles para comprar solo a través de Monero, Bitcoin y Litecoin en este momento",
 
-  "sync_modes": "Modos de sincronización"
+  "background_sync_mode": "Modo de sincronización en segundo plano",
+  "sync_all_wallets": "Sincronizar todas las billeteras"
 }

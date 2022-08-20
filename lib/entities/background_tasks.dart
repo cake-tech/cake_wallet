@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:flutter/foundation.dart';
@@ -18,16 +20,32 @@ void callbackDispatcher() {
     try {
       switch (task) {
         case moneroSyncTaskKey:
-        /// The work manager runs on a separate isolate from the main flutter isolate.
-        /// thus we initialize app configs first; hive, getIt, etc...
+
+          /// The work manager runs on a separate isolate from the main flutter isolate.
+          /// thus we initialize app configs first; hive, getIt, etc...
           await initializeAppConfigs();
 
           final walletLoadingService = getIt.get<WalletLoadingService>();
 
-          final List<WalletListItem> moneroWallets = getIt.get<WalletListViewModel>()
-              .wallets.where((element) => element.type == WalletType.monero).toList();
+          final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
 
-          for (int i=0;i<moneroWallets.length;i++) {
+          /// if the user chose to sync only active wallet
+          if (!(inputData['sync_all'] as bool ?? true)) {
+            /// if the current wallet is monero; sync it only
+            if (typeRaw == WalletType.monero.index) {
+              final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+
+              await walletLoadingService.load(WalletType.monero, name);
+            }
+
+            break;
+          }
+
+          /// else get all Monero wallets of the user and sync them
+          final List<WalletListItem> moneroWallets =
+              getIt.get<WalletListViewModel>().wallets.where((element) => element.type == WalletType.monero).toList();
+
+          for (int i = 0; i < moneroWallets.length; i++) {
             await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
           }
 
@@ -52,7 +70,10 @@ class BackgroundTasks {
         return;
       }
 
-      final SyncMode syncMode = getIt.get<SettingsViewModel>().syncMode;
+      final settingsViewModel = getIt.get<SettingsViewModel>();
+
+      final SyncMode syncMode = settingsViewModel.syncMode;
+      final bool syncAll = settingsViewModel.syncAll;
 
       if (syncMode.type == SyncType.disabled) {
         cancelSyncTask();
@@ -65,17 +86,18 @@ class BackgroundTasks {
       );
 
       await Workmanager().registerPeriodicTask(
-          moneroSyncTaskKey,
-          moneroSyncTaskKey,
-          initialDelay: syncMode.frequency,
-          frequency: syncMode.frequency,
-          existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
-          constraints: Constraints(
-            networkType: NetworkType.connected,
-            requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
-            requiresCharging: syncMode.type == SyncType.unobtrusive,
-            requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
-          )
+        moneroSyncTaskKey,
+        moneroSyncTaskKey,
+        initialDelay: syncMode.frequency,
+        frequency: syncMode.frequency,
+        existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
+        inputData: <String, dynamic>{"sync_all": syncAll},
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+          requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
+          requiresCharging: syncMode.type == SyncType.unobtrusive,
+          requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
+        ),
       );
     } catch (error, stackTrace) {
       print(error);

@@ -632,5 +632,6 @@
   "contact_support": "联系支持",
   "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡",
 
-  "sync_modes": "同步模式"
+  "background_sync_mode": "后台同步模式",
+  "sync_all_wallets": "同步所有钱包"
 }

@@ -634,5 +634,6 @@
   "contact_support": "Support kontaktieren",
   "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden",
 
-  "sync_modes": "Sync-Modi"
+  "background_sync_mode": "Hintergrundsynchronisierungsmodus",
+  "sync_all_wallets": "Alle Wallets synchronisieren"
 }

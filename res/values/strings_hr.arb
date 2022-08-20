@@ -634,5 +634,6 @@
   "contact_support": "Kontaktirajte podršku",
   "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina",
 
-  "sync_modes": "Načini sinkronizacije"
+  "background_sync_mode": "Sinkronizacija u pozadini",
+  "sync_all_wallets": "Sinkronizirajte sve novčanike"
 }

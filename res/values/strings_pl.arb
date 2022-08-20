@@ -634,5 +634,6 @@
   "contact_support": "Skontaktuj się z pomocą techniczną",
   "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin",
 
-  "sync_modes": "Tryby synchronizacji"
+  "background_sync_mode": "Tryb synchronizacji w tle",
+  "sync_all_wallets": "Synchronizuj wszystkie portfele"
 }

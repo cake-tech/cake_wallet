@@ -634,5 +634,6 @@
   "contact_support": "Contatar Suporte",
   "gift_cards_unavailable": "Os cartões-presente estão disponíveis para compra apenas através do Monero, Bitcoin e Litecoin no momento",
 
-  "sync_modes": "Modos de sincronização"
+  "background_sync_mode": "Modo de sincronização em segundo plano",
+  "sync_all_wallets": "Sincronize todas as carteiras"
 }

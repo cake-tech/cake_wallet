@@ -634,5 +634,6 @@
   "contact_support": "Связаться со службой поддержки",
   "gift_cards_unavailable": "В настоящее время подарочные карты можно приобрести только через Monero, Bitcoin и Litecoin.",
 
-  "sync_modes": "Режимы синхронизации"
+  "background_sync_mode": "Режим фоновой синхронизации",
+  "sync_all_wallets": "Синхронизировать все кошельки"
 }

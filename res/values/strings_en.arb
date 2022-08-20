@@ -634,5 +634,6 @@
   "contact_support": "Contact Support",
   "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time",
 
-  "sync_modes": "Sync Modes"
+  "background_sync_mode": "Background sync mode",
+  "sync_all_wallets": "Sync all wallets"
 }
