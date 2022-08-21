@@ -130,7 +130,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   }
 
   @action
-  void resetIoniaCategorys() {
+  void resetIoniaCategories() {
     ioniaCategories = IoniaCategory.allCategories;
   }
 

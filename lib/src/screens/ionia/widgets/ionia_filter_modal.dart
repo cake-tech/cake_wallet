@@ -5,10 +5,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/palette.dart';
 
 class IoniaFilterModal extends StatelessWidget {
   IoniaFilterModal({@required this.ioniaGiftCardsListViewModel}){
-    ioniaGiftCardsListViewModel.resetIoniaCategorys();
+    ioniaGiftCardsListViewModel.resetIoniaCategories();
   }
 
   final IoniaGiftCardsListViewModel ioniaGiftCardsListViewModel;
@@ -115,7 +116,7 @@ class IoniaFilterModal extends StatelessWidget {
                 child: CircleAvatar(
                   child: Icon(
                     Icons.close,
-                    color: Colors.black,
+                    color: Palette.darkBlueCraiola,
                   ),
                   backgroundColor: Colors.white,
                 ),
