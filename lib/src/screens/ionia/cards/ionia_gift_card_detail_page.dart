@@ -25,12 +25,8 @@ class IoniaGiftCardDetailPage extends BasePage {
   IoniaGiftCardDetailPage(this.viewModel);
 
   final IoniaGiftCardDetailsViewModel viewModel;
-  double _brightness;
 
-  void increaseBrightness () async {
-    _brightness = await DeviceDisplayBrightness.getBrightness();
-    DeviceDisplayBrightness.setBrightness(1.0);
-  }
+
 
   @override
   Widget leading(BuildContext context) {
@@ -56,7 +52,7 @@ class IoniaGiftCardDetailPage extends BasePage {
               padding: EdgeInsets.all(0),
               onPressed: () {
                 onClose(context);
-                DeviceDisplayBrightness.setBrightness(_brightness);
+                DeviceDisplayBrightness.setBrightness(viewModel.brightness);
               },
               child: _backButton),
         ),
@@ -74,7 +70,7 @@ class IoniaGiftCardDetailPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    increaseBrightness ();
+    viewModel.increaseBrightness ();
     reaction((_) => viewModel.redeemState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
