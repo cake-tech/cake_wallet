@@ -4,7 +4,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 class DiscountBadge extends StatelessWidget {
   const DiscountBadge({
     Key key,
-    this.isAmount,
+    this.isAmount = false,
     @required this.percentage,
     this.discountBackground,
   }) : super(key: key);

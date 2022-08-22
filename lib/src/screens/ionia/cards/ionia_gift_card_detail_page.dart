@@ -127,9 +127,9 @@ class IoniaGiftCardDetailPage extends BasePage {
                 children: [
                   PrimaryButton(
                   onPressed: () async {
-                    final amount = await  Navigator.of(context).pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as double;
+                    final amount = await  Navigator.of(context).pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as String;
                     if(amount != null){
-                      viewModel.updateRemaining(amount);
+                      viewModel.updateRemaining(double.parse(amount));
                     }
                   },
                   text: S.of(context).more_options,

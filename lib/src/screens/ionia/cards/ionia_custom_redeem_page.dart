@@ -127,7 +127,7 @@ class IoniaCustomRedeemPage extends BasePage {
                   ],
                 ),
               ),
-             Observer(builder: (_)=> Padding(
+              Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: giftCard.legalName,
@@ -140,7 +140,7 @@ class IoniaCustomRedeemPage extends BasePage {
                   subTitle: S.of(context).online,
                   logoUrl: giftCard.logoUrl,
                 ),
-              ), ),
+              ), 
             ],
           ),
           bottomSection: Column(
