@@ -141,37 +141,37 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   .decorationColor,
                               width: 1.0),
                         ),
+                        suffixIcon: IconButton(
+                          onPressed: () async {
+                            final rName = await generateName();
+                            FocusManager.instance.primaryFocus?.unfocus();
+
+                            setState(() {
+                              _controller.text = rName;
+                              _walletNewVM.name = rName;
+                              _controller.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: _controller.text.length));
+                            });
+                          },
+                          icon: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6.0),
+                              color: Theme.of(context).hintColor,
+                            ),
+                            width: 34,
+                            height: 34,
+                            child: Image.asset(
+                              'assets/images/refresh_icon.png',
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .display1
+                                  .decorationColor,
+                            ),
+                          ),
+                        ),
                       ),
                       validator: WalletNameValidator(),
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        final rName = await generateName();
-                        FocusManager.instance.primaryFocus?.unfocus();
-
-                        setState(() {
-                          _controller.text = rName;
-                          _walletNewVM.name = rName;
-                          _controller.selection = TextSelection.fromPosition(
-                              TextPosition(offset: _controller.text.length));
-                        });
-                      },
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: Theme.of(context).hintColor,
-                        ),
-                        width: 34,
-                        height: 34,
-                        child: Image.asset(
-                          'assets/images/refresh_icon.png',
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .display1
-                              .decorationColor,
-                        ),
-                      ),
                     ),
                   ],
                 ),
