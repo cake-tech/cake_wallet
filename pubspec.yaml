@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ffi: ^1.1.2
+  ffi: ^2.0.1
   flutter_secure_storage: ^5.0.2
   shared_preferences: ^2.0.15
   archive: ^3.1.6
