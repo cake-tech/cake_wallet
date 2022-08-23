@@ -137,8 +137,10 @@ class IoniaGiftCardDetailPage extends BasePage {
                   textColor: Theme.of(context).primaryTextTheme.title.color),
                   SizedBox(height: 12),
                   LoadingPrimaryButton(
-                    isLoading: true,
-                    onPressed: () {},
+                      isLoading: viewModel.redeemState is IsExecutingState,
+                      onPressed: () => viewModel.redeem().then((_){
+                      Navigator.of(context).pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
+                    }),
                     text: S.of(context).mark_as_redeemed,
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Colors.white),
