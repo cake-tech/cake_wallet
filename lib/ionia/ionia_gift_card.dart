@@ -60,14 +60,11 @@ class IoniaGiftCard {
     final double actualAmount;
     final double totalTransactionAmount;
     final double totalDashTransactionAmount;
-    final double remainingAmount;
+    double remainingAmount;
     final String createdDateFormatted;
     final String lastTransactionDateFormatted;
     final bool isActive;
     final bool isEmpty;
     final String logoUrl;
 
-    set remainingAmount(double amount){
-      this.remainingAmount = amount;
-    }
 }
