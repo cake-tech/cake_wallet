@@ -241,7 +241,7 @@ abstract class BalanceViewModelBase with Store {
   bool isShowCard = true;
 
   @computed
-  bool get showIntroCakePayCard => wallet.walletInfo.showIntroCakePayCard && isShowCard;
+  bool get showIntroCakePayCard => wallet.walletInfo.isShowIntroCakePayCard && isShowCard;
 
   ReactionDisposer _onCurrentWalletChangeReaction;
 

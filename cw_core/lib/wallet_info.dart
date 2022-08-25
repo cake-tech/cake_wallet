@@ -24,7 +24,7 @@ class WalletInfo extends HiveObject {
       @required String address,
       String yatEid ='',
       String yatLastUsedAddressRaw = '',
-      bool showIntroCakePayCard = true}) {
+      bool showIntroCakePayCard}) {
     return WalletInfo(id, name, type, isRecovery, restoreHeight,
         date.millisecondsSinceEpoch ?? 0, dirPath, path, address,
         yatEid, yatLastUsedAddressRaw, showIntroCakePayCard);
