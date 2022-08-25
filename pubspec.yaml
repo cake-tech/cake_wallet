@@ -11,23 +11,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ffi: ^1.1.2
+  ffi: ^2.0.1
   flutter_secure_storage: ^5.0.2
   shared_preferences: ^2.0.15
-  cryptography: ^2.0.5
-  cryptography_flutter: ^2.0.2
   archive: ^3.1.6
-  uuid: ^3.0.6
-#  password: ^1.0.0
-  devicelocale: ^0.5.2
-  yaml: ^3.1.1
-  basic_utils: ^4.2.2
 #  mobx: ^2.0.7
-  password:
-    git:
-      url: https://github.com/truongduy2611/password-dart.git
-  get_it: ^7.2.0
-  connectivity: ^3.0.6
   cw_core:
     path: ./cw_core
 
@@ -40,7 +28,7 @@ dependencies:
   stack_wallet_backup:
     git:
       url: https://github.com/cypherstack/stack_wallet_backup.git
-      ref: c30259e4539d66912f66862cd87d915660fca718
+      ref: b7b184ec36466f2a24104a7056de88881cb0c1e9
 
 dev_dependencies:
   flutter_test:
