@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/amount_converter.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -83,10 +84,7 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFiatAmount {
     try {
       if (pendingTransaction != null) {
-        final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency],
-            cryptoAmount: pendingTransaction.amountFormatted);
-        return fiat;
+        return _calculateFiatAmount(pendingTransaction.amountFormatted);
       } else {
         return '0.00';
       }
@@ -99,16 +97,19 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
-        final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency],
-            cryptoAmount: pendingTransaction.feeFormatted);
-        return fiat;
+        return _calculateFiatAmount(pendingTransaction.feeFormatted);
       } else {
         return '0.00';
       }
     } catch (_) {
       return '0.00';
     }
+  }
+
+  String _calculateFiatAmount(String cryptoAmount) {
+    return calculateFiatAmount(
+          price: _fiatConversationStore.prices[selectedCryptoCurrency],
+          cryptoAmount: cryptoAmount);
   }
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
@@ -158,6 +159,16 @@ abstract class SendViewModelBase with Store {
   WalletType get walletType => _wallet.type;
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
+
+  int estimatedFee(String amount) {
+    return _wallet.calculateEstimatedFee(_settingsStore.priority[_wallet.type], AmountConverter.amountStringToInt(
+        selectedCryptoCurrency, amount));
+  }
+
+  String estimatedFiatFee(String amount) {
+    return _calculateFiatAmount(AmountConverter.amountIntToString(
+        selectedCryptoCurrency, estimatedFee(amount)));
+  }
 
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
@@ -254,6 +265,6 @@ abstract class SendViewModelBase with Store {
     return priority.toString();
   }
 
-  bool _isEqualCurrency(String currency) => 
+  bool _isEqualCurrency(String currency) =>
       currency.toLowerCase() == _wallet.currency.title.toLowerCase();
 }
