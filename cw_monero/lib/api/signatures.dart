@@ -126,3 +126,7 @@ typedef rescan_blockchain = Void Function();
 typedef get_subaddress_label = Pointer<Utf8> Function(
     Int32 accountIndex,
     Int32 addressIndex);
+
+typedef estimate_transaction_fee = Int64 Function(
+    Int32 outputs,
+    Int8 priorityRaw);

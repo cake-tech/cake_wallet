@@ -296,6 +296,7 @@ class SendPage extends BasePage {
                     child: PrimaryButton(
                       onPressed: () {
                         sendViewModel.addOutput();
+                        sendViewModel.estimateFee();
                         Future.delayed(const Duration(milliseconds: 250), () {
                           controller.jumpToPage(sendViewModel.outputs.length - 1);
                         });
@@ -333,7 +334,7 @@ class SendPage extends BasePage {
                         showErrorValidationAlert(context);
                         return;
                       }
-                      
+
                       await sendViewModel.createTransaction();
 
                     },

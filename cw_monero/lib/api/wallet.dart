@@ -120,6 +120,10 @@ final getSubaddressLabelNative = moneroApi
     .lookup<NativeFunction<get_subaddress_label>>('get_subaddress_label')
     .asFunction<GetSubaddressLabel>();
 
+final estimateTransactionFeeNative = moneroApi
+    .lookup<NativeFunction<estimate_transaction_fee>>('estimate_transaction_fee')
+    .asFunction<EstimateTransactionFee>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -206,7 +210,7 @@ void setPasswordSync(String password) {
   final errorMessagePointer = allocate<Utf8Box>();
   final changed = setPasswordNative(passwordPointer, errorMessagePointer) != 0;
   free(passwordPointer);
-  
+
   if (!changed) {
     final message = errorMessagePointer.ref.getValue();
     free(errorMessagePointer);
@@ -353,4 +357,19 @@ void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
 
 String getSubaddressLabel(int accountIndex, int addressIndex) {
   return convertUTF8ToString(pointer: getSubaddressLabelNative(accountIndex, addressIndex));
+}
+
+int estimateTransactionFeeSync(int outputs, int priorityRaw) {
+  return estimateTransactionFeeNative(outputs, priorityRaw);
+}
+
+int _estimateTransactionFee(Map args) {
+  final priorityRaw = args['priorityRaw'] as int;
+  final outputsCount = args['outputsCount'] as int;
+
+  return estimateTransactionFeeSync(outputsCount, priorityRaw);
+}
+
+Future<int> estimateTransactionFee({int priorityRaw, int outputsCount}) {
+  return compute(_estimateTransactionFee, {'priorityRaw': priorityRaw, 'outputsCount': outputsCount});
 }

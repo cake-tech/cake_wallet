@@ -16,8 +16,9 @@ import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
-import 'package:cw_core/monero_wallet_keys.dart';
-import 'package:cw_core/monero_balance.dart';
+import 'package:cw_monero/monero_wallet_keys.dart';
+import 'package:cw_monero/monero_balance.dart';
+import 'package:cw_monero/monero_fee_estimate.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -58,6 +59,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         });
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
+    feeEstimate = MoneroFeeEstimate();
   }
 
   static const int _autoSaveInterval = 30;
@@ -72,6 +74,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   @observable
   ObservableMap<CryptoCurrency, MoneroBalance> balance;
+
+  @override
+  MoneroFeeEstimate feeEstimate;
 
   @override
   String get seed => monero_wallet.getSeed();
@@ -227,28 +232,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     return PendingMoneroTransaction(pendingTransactionDescription);
-  }
-
-  @override
-  int calculateEstimatedFee(TransactionPriority priority, int amount) {
-    // FIXME: hardcoded value;
-
-    if (priority is MoneroTransactionPriority) {
-      switch (priority) {
-        case MoneroTransactionPriority.slow:
-          return 24590000;
-        case MoneroTransactionPriority.regular:
-          return 123050000;
-        case MoneroTransactionPriority.medium:
-          return 245029999;
-        case MoneroTransactionPriority.fast:
-          return 614530000;
-        case MoneroTransactionPriority.fastest:
-          return 26021600000;
-      }
-    }
-
-    return 0;
   }
 
   @override
