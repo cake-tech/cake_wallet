@@ -60,7 +60,7 @@ abstract class WalletCreationVMBase with Store {
           date: DateTime.now(),
           path: path,
           dirPath: dirPath,
-          showIntroCakePayCard: !walletCreationService.typeExists(type));
+          showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
       credentials.walletInfo = walletInfo;
       final wallet = await process(credentials);
       walletInfo.address = wallet.walletAddresses.address;

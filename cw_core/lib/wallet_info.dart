@@ -81,7 +81,15 @@ class WalletInfo extends HiveObject {
 
   String get yatEmojiId => yatEid ?? '';
 
-  bool get isShowIntroCakePayCard => showIntroCakePayCard ?? true;
+  bool get isShowIntroCakePayCard {
+    if(showIntroCakePayCard == null) {
+      if (type == WalletType.haven) {
+        return false;
+      }
+      return true;
+    }
+    return showIntroCakePayCard;
+    }
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 
