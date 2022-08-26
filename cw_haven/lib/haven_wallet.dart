@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_haven/haven_transaction_creation_credentials.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_haven/haven_transaction_creation_exception.dart';
@@ -26,8 +25,8 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_haven/haven_balance.dart';
+import 'package:cw_haven/haven_fee_estimate.dart';
 
 part 'haven_wallet.g.dart';
 
@@ -49,9 +48,13 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       balance.addAll(getHavenBalance(accountIndex: account.id));
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
+    feeEstimate = HavenFeeEstimate();
   }
 
   static const int _autoSaveInterval = 30;
+
+  @override
+  HavenFeeEstimate feeEstimate;
 
   @override
   HavenWalletAddresses walletAddresses;
@@ -209,28 +212,6 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     }
 
     return PendingHavenTransaction(pendingTransactionDescription, assetType);
-  }
-
-  @override
-  int calculateEstimatedFee(TransactionPriority priority, int amount) {
-    // FIXME: hardcoded value;
-
-    if (priority is MoneroTransactionPriority) {
-      switch (priority) {
-        case MoneroTransactionPriority.slow:
-          return 24590000;
-        case MoneroTransactionPriority.regular:
-          return 123050000;
-        case MoneroTransactionPriority.medium:
-          return 245029999;
-        case MoneroTransactionPriority.fast:
-          return 614530000;
-        case MoneroTransactionPriority.fastest:
-          return 26021600000;
-      }
-    }
-
-    return 0;
   }
 
   @override

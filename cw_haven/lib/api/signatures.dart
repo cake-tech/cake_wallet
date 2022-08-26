@@ -138,3 +138,7 @@ typedef get_rate = Pointer<Int64> Function();
 typedef size_of_rate = Int32 Function();
 
 typedef update_rate = Void Function();
+
+typedef estimate_transaction_fee = Int64 Function(
+    Int32 outputs,
+    Int8 priorityRaw);

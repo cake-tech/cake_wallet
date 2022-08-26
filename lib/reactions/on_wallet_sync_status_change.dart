@@ -2,17 +2,14 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/monero_transaction_priority.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:flutter/services.dart';
 
 ReactionDisposer _onWalletSyncStatusChangeReaction;
 

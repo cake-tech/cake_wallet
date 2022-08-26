@@ -136,3 +136,5 @@ typedef GetRate = Pointer<Int64> Function();
 typedef SizeOfRate = int Function();
 
 typedef UpdateRate = void Function();
+
+typedef EstimateTransactionFee = int Function(int, int);

@@ -1,5 +1,3 @@
-import 'package:cake_wallet/core/amount_converter.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/format_amount.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -58,6 +56,8 @@ abstract class SendViewModelBase with Store {
     _settingsStore.priority.observe((change) async {
       _wallet.feeEstimate.update(priority: change.newValue, outputsCount: outputs.length);
     });
+
+    estimateFee();
   }
 
   @observable
@@ -165,16 +165,6 @@ abstract class SendViewModelBase with Store {
   WalletType get walletType => _wallet.type;
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
-
-  int estimatedFee(String amount) {
-    return _wallet.calculateEstimatedFee(_settingsStore.priority[_wallet.type], AmountConverter.amountStringToInt(
-        selectedCryptoCurrency, amount));
-  }
-
-  String estimatedFiatFee(String amount) {
-    return _calculateFiatAmount(AmountConverter.amountIntToString(
-        selectedCryptoCurrency, estimatedFee(amount)));
-  }
 
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
@@ -286,7 +276,11 @@ abstract class SendViewModelBase with Store {
         totalFormattedCryptoAmount += output.formattedCryptoAmount;
       }
 
-      final fee = _wallet.feeEstimate.get(priority: _settingsStore.priority[_wallet.type], amount: totalFormattedCryptoAmount, outputsCount: outputs.length);
+      final fee = _wallet.feeEstimate.get(
+        priority: _settingsStore.priority[_wallet.type],
+        amount: totalFormattedCryptoAmount,
+        outputsCount: outputs.length,
+      );
 
       return formatAmountToDouble(type: _wallet.type, amount: fee);
     } catch (e) {

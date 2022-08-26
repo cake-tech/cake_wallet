@@ -15,7 +15,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 
 ReactionDisposer _onCurrentWalletChangeReaction;
 ReactionDisposer _onCurrentWalletChangeFiatRateUpdateReaction;
@@ -53,7 +52,7 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       wallet) async {
     try {
       final node = settingsStore.getCurrentNode(wallet.type);
-      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
+      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore, settingsStore);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt
           .get<SharedPreferences>()

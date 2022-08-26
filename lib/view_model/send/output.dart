@@ -193,7 +193,7 @@ abstract class OutputBase with Store {
 
   int _estimateAmountAll() {
     final fee = _wallet.feeEstimate.get(priority: _settingsStore.priority[_wallet.type], outputsCount: 1);
-    return max(0, _wallet.balance.available - fee);
+    return max(0, _wallet.balance[cryptoCurrencyHandler()].available - fee);
   }
 
   Future<void> fetchParsedAddress(BuildContext context) async {
