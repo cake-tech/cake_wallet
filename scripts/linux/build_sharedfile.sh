@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/bin/sh
+
+. ./config.sh
 cd build
-cmake ..
-make
+cmake ../cmakefiles/${TYPES_OF_BUILD}
+make -j$(nproc)
+
+

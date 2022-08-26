@@ -9,3 +9,4 @@ mkdir build
 ./build_zmq.sh
 ./build_monero.sh
 ./copy_monero_deps.sh
+./build_sharedfile.sh
