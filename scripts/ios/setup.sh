@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . ./config.sh
-
+printf $(git log -1 --pretty=format:"%h") >> build/git_commit_version.txt
 cd $EXTERNAL_IOS_LIB_DIR
 libtool -static -o libboost.a ./libboost_*.a
 

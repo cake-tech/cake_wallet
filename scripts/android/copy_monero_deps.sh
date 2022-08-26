@@ -1,5 +1,6 @@
 #!/bin/bash
 
+printf $(git log -1 --pretty=format:"%h") >> build/git_commit_version.txt
 WORKDIR="$(pwd)/"build
 CW_DIR="$(pwd)"/../../../flutter_libmonero
 CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
