@@ -5,6 +5,7 @@ import 'package:cw_monero/api/convert_utf8_to_string.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/signatures.dart';
+import 'package:cw_monero/api/structs/ut8_box.dart';
 import 'package:cw_monero/api/types.dart';
 import 'package:ffi/ffi.dart';
 import 'package:ffi/ffi.dart' as pkgffi;
@@ -68,6 +69,10 @@ final setRecoveringFromSeedNative = moneroApi
 final storeNative =
     moneroApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
 
+final setPasswordNative = moneroApi
+    .lookup<NativeFunction<set_password>>('set_password')
+    .asFunction<SetPassword>();
+
 final setListenerNative = moneroApi
     .lookup<NativeFunction<set_listener>>('set_listener')
     .asFunction<SetListener>();
@@ -112,6 +117,10 @@ final onStartupNative = moneroApi
 final rescanBlockchainAsyncNative = moneroApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
+
+final getSubaddressLabelNative = moneroApi
+    .lookup<NativeFunction<get_subaddress_label>>('get_subaddress_label')
+    .asFunction<GetSubaddressLabel>();
 
 int getSyncingHeight() => getSyncingHeightNative();
 
@@ -197,6 +206,23 @@ void storeSync() {
   pkgffi.calloc.free(pathPointer);
 }
 
+void setPasswordSync(String password) {
+  final passwordPointer = password.toNativeUtf8();
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
+  // final errorMessagePointer = allocate<Utf8Box>();
+  final changed = setPasswordNative(passwordPointer, errorMessagePointer) != 0;
+  pkgffi.calloc.free(passwordPointer);
+
+  if (!changed) {
+    final message = errorMessagePointer.ref.getValue();
+    pkgffi.calloc.free(errorMessagePointer);
+    throw Exception(message);
+  }
+
+  pkgffi.calloc.free(errorMessagePointer);
+}
+
 void closeCurrentWallet() => closeCurrentWalletNative();
 
 String getSecretViewKey() =>
@@ -244,7 +270,7 @@ class SyncListener {
         onNewTransaction.call();
       }
 
-      var syncHeight = getSyncingHeight();
+      var syncHeight = await getSyncingHeight();
 
       if (syncHeight <= 0) {
         syncHeight = getCurrentHeight();
@@ -354,3 +380,8 @@ Future<bool> isConnected() => compute(_isConnected, 0);
 Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
 
 void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
+
+String getSubaddressLabel(int accountIndex, int addressIndex) {
+  return convertUTF8ToString(
+      pointer: getSubaddressLabelNative(accountIndex, addressIndex));
+}

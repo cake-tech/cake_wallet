@@ -1,32 +1,32 @@
 import 'dart:async';
-import 'package:cw_core/transaction_priority.dart';
+
+import 'package:cw_core/account.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_monero/monero_transaction_creation_exception.dart';
-import 'package:cw_monero/monero_transaction_info.dart';
-import 'package:cw_monero/monero_wallet_addresses.dart';
+import 'package:cw_core/monero_balance.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:flutter/foundation.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cw_monero/api/transaction_history.dart'
     as monero_transaction_history;
+import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
-import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
-import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
-import 'package:cw_monero/pending_monero_transaction.dart';
-import 'package:cw_core/monero_wallet_keys.dart';
-import 'package:cw_core/monero_balance.dart';
+import 'package:cw_monero/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
-import 'package:cw_core/account.dart';
-import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/monero_transaction_priority.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_monero/monero_transaction_info.dart';
+import 'package:cw_monero/monero_wallet_addresses.dart';
+import 'package:cw_monero/pending_monero_transaction.dart';
+import 'package:mobx/mobx.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -118,7 +118,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   void close() {
     _listener?.stop();
-    _onAccountChangeReaction?.reaction?.dispose();
+    _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
@@ -258,6 +258,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return await monero_wallet.store(prioritySave: prioritySave);
   }
 
+  @override
+  Future<void> changePassword(String password) async {
+    monero_wallet.setPasswordSync(password);
+  }
+
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
 
   Future<bool> isConnected() async => monero_wallet.isConnected();
@@ -311,6 +316,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       print(e);
       _isTransactionUpdating = false;
     }
+  }
+
+  String getSubaddressLabel(int accountIndex, int addressIndex) {
+    return monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
   }
 
   List<MoneroTransactionInfo> _getAllTransactions(dynamic _) =>
@@ -401,7 +410,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           await setAsRecovered();
         }
       } else {
-        syncStatus = SyncingSyncStatus(blocksLeft, ptc);
+        syncStatus = SyncingSyncStatus(blocksLeft, ptc, height);
       }
     } catch (e) {
       print(e.toString());

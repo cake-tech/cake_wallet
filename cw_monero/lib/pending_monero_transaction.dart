@@ -1,10 +1,9 @@
+import 'package:cw_core/amount_converter.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart'
     as monero_transaction_history;
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/amount_converter.dart';
-
-import 'package:cw_core/pending_transaction.dart';
 
 class DoubleSpendException implements Exception {
   DoubleSpendException();
@@ -21,6 +20,11 @@ class PendingMoneroTransaction with PendingTransaction {
 
   @override
   String get id => pendingTransactionDescription.hash!;
+
+  @override
+  String get hex => pendingTransactionDescription.hex!;
+
+  String get txKey => pendingTransactionDescription.txKey!;
 
   @override
   String get amountFormatted => AmountConverter.amountIntToString(

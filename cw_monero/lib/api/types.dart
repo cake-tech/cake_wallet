@@ -1,4 +1,5 @@
 import 'dart:ffi';
+
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
@@ -54,6 +55,9 @@ typedef SetRefreshFromBlockHeight = void Function(int?);
 typedef SetRecoveringFromSeed = void Function(int);
 
 typedef Store = void Function(Pointer<Utf8>);
+
+typedef SetPassword = int Function(
+    Pointer<Utf8> password, Pointer<Utf8Box> error);
 
 typedef SetListener = void Function();
 
@@ -128,3 +132,6 @@ typedef CloseCurrentWallet = void Function();
 typedef OnStartup = void Function();
 
 typedef RescanBlockchainAsync = void Function();
+
+typedef GetSubaddressLabel = Pointer<Utf8> Function(
+    int accountIndex, int addressIndex);

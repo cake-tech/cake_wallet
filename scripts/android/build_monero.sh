@@ -70,6 +70,6 @@ buildmoneroarch () {
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
-  buildmoneroarch "$arch" &
+  buildmoneroarch "$arch"
 done
 wait

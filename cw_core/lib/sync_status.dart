@@ -4,10 +4,11 @@ abstract class SyncStatus {
 }
 
 class SyncingSyncStatus extends SyncStatus {
-  SyncingSyncStatus(this.blocksLeft, this.ptc);
+  SyncingSyncStatus(this.blocksLeft, this.ptc, this.height);
 
   final double ptc;
   final int blocksLeft;
+  final int height;
 
   @override
   double progress() => ptc;

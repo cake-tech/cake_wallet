@@ -1,16 +1,17 @@
 import 'dart:ffi';
+
 import 'package:cw_monero/api/convert_utf8_to_string.dart';
-import 'package:cw_monero/api/monero_output.dart';
-import 'package:cw_monero/api/structs/ut8_box.dart';
-import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
-import 'package:cw_monero/api/signatures.dart';
-import 'package:cw_monero/api/types.dart';
-import 'package:cw_monero/api/monero_api.dart';
-import 'package:cw_monero/api/structs/transaction_info_row.dart';
-import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
+import 'package:cw_monero/api/monero_api.dart';
+import 'package:cw_monero/api/monero_output.dart';
+import 'package:cw_monero/api/signatures.dart';
+import 'package:cw_monero/api/structs/pending_transaction.dart';
+import 'package:cw_monero/api/structs/transaction_info_row.dart';
+import 'package:cw_monero/api/structs/ut8_box.dart';
+import 'package:cw_monero/api/types.dart';
+import 'package:ffi/ffi.dart';
 import 'package:ffi/ffi.dart' as pkgffi;
+import 'package:flutter/foundation.dart';
 
 final transactionsRefreshNative = moneroApi
     .lookup<NativeFunction<transactions_refresh>>('transactions_refresh')
@@ -109,6 +110,8 @@ PendingTransactionDescription createTransactionSync(
       amount: pendingTransactionRawPointer.ref.amount,
       fee: pendingTransactionRawPointer.ref.fee,
       hash: pendingTransactionRawPointer.ref.getHash(),
+      hex: pendingTransactionRawPointer.ref.getHex(),
+      txKey: pendingTransactionRawPointer.ref.getKey(),
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
@@ -165,6 +168,8 @@ PendingTransactionDescription createTransactionMultDestSync(
       amount: pendingTransactionRawPointer.ref.amount,
       fee: pendingTransactionRawPointer.ref.fee,
       hash: pendingTransactionRawPointer.ref.getHash(),
+      hex: pendingTransactionRawPointer.ref.getHex(),
+      txKey: pendingTransactionRawPointer.ref.getKey(),
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
