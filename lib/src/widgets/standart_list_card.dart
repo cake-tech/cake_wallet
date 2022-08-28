@@ -45,7 +45,6 @@ class StandartListCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(id,
-                      textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 16,
                           fontFamily: 'Lato',
@@ -55,7 +54,6 @@ class StandartListCard extends StatelessWidget {
                     height: 8,
                   ),
                   Text(create,
-                      textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 12,
                           fontFamily: 'Lato',
@@ -65,7 +63,6 @@ class StandartListCard extends StatelessWidget {
                     height: 35,
                   ),
                   Text(pair,
-                      textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 24,
                           fontFamily: 'Lato',

@@ -5,13 +5,19 @@ class SyncIndicatorIcon extends StatelessWidget {
   SyncIndicatorIcon(
       {this.boolMode = true,
       this.isSynced = false,
-      this.value = 'Waiting',
+      this.value = waiting,
       this.size = 4.0});
 
   final bool boolMode;
   final bool isSynced;
   final String value;
   final double size;
+
+  static const String waiting = 'waiting';
+  static const String actionRequired = 'action required';
+  static const String created = 'created';
+  static const String fetching = 'fetching';
+  static const String finished = 'finished';
 
   @override
   Widget build(BuildContext context) {
@@ -22,20 +28,20 @@ class SyncIndicatorIcon extends StatelessWidget {
           ? PaletteDark.brightGreen
           : Theme.of(context).textTheme.caption.color;
     } else {
-      switch (value) {
-        case 'Waiting':
+      switch (value.toLowerCase()) {
+        case waiting:
           indicatorColor = Colors.red;
           break;
-        case 'Action required':
+        case actionRequired:
           indicatorColor = Theme.of(context).textTheme.display3.decorationColor;
           break;
-        case 'Created':
+        case created:
           indicatorColor = PaletteDark.brightGreen;
           break;
-        case 'Fetching':
+        case fetching:
           indicatorColor = Colors.red;
           break;
-        case 'Finished':
+        case finished:
           indicatorColor = PaletteDark.brightGreen;
           break;
         default:

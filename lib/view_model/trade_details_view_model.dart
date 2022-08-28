@@ -54,6 +54,9 @@ abstract class TradeDetailsViewModelBase with Store {
 
   final Box<Trade> trades;
 
+  static String formatAsText<T>(T value) => value == null
+      ? '' : value.toString();
+
   @observable
   Trade trade;
 
@@ -97,9 +100,9 @@ abstract class TradeDetailsViewModelBase with Store {
     );
 
     items.add(DetailsListCardItem(
-      id: '${S.current.trade_details_id}  ' + trade.id ?? '',
-      create: dateFormat.format(trade.createdAt).toString() ?? '',
-      pair: '${trade.from.toString() ?? ''} → ${trade.to.toString() ?? ''}',
+      id: '${S.current.trade_details_id}  ${formatAsText(trade.id)}',
+      create: formatAsText(dateFormat.format(trade.createdAt)),
+      pair: '${formatAsText(trade.from)} → ${formatAsText(trade.to)}',
       onTap: (BuildContext context) {
         Clipboard.setData(ClipboardData(text: '${trade.id}'));
         showBar<void>(context, S.of(context).copied_to_clipboard);
