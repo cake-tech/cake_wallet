@@ -35,7 +35,7 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
     }
   }
 
-  void increaseBrightness () async {
+  void increaseBrightness() async {
     brightness = await DeviceDisplayBrightness.getBrightness();
     await DeviceDisplayBrightness.setBrightness(1.0);
   }

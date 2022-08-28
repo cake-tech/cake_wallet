@@ -70,7 +70,7 @@ class IoniaGiftCardDetailPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    viewModel.increaseBrightness ();
+    viewModel.increaseBrightness();
     reaction((_) => viewModel.redeemState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
