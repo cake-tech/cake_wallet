@@ -83,13 +83,13 @@ class WalletInfo extends HiveObject {
 
   bool get isShowIntroCakePayCard {
     if(showIntroCakePayCard == null) {
-      if (type == WalletType.haven) {
-        return false;
+      if (type != WalletType.haven) {
+        return true;
       }
-      return true;
+      return false;
     }
     return showIntroCakePayCard;
-    }
+  }
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 

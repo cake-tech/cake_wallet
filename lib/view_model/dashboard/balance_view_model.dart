@@ -38,15 +38,18 @@ abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
       {@required this.appStore,
       @required this.settingsStore,
-      @required this.fiatConvertationStore}) {
+      @required this.fiatConvertationStore,
+      @required this.walletInfoSource}) {
     isReversing = false;
     wallet ??= appStore.wallet;
+    isShowCard = true;
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
   final AppStore appStore;
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConvertationStore;
+  final Box<WalletInfo> walletInfoSource;
 
   bool get canReverse => false;
 
@@ -238,7 +241,7 @@ abstract class BalanceViewModelBase with Store {
   CryptoCurrency get currency => appStore.wallet.currency;
 
   @observable
-  bool isShowCard = true;
+  bool isShowCard;
 
   @computed
   bool get showIntroCakePayCard => wallet.walletInfo.isShowIntroCakePayCard && isShowCard;
@@ -257,10 +260,10 @@ abstract class BalanceViewModelBase with Store {
   @action
   Future<void> disableIntroCakePayCard () async {
     final value = wallet.walletInfo;
-    final  box = Hive.box<WalletInfo>('WalletInfo');
+    final  box = walletInfoSource;
     final  currentWallet = box.get(value.key);
     currentWallet.showIntroCakePayCard = false;
-    await box.put(value.key, currentWallet);
+    await currentWallet.save();
     isShowCard = false;
   }
 

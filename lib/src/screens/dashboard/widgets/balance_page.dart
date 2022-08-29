@@ -10,7 +10,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-import '../../../../palette.dart';
 
 class BalancePage extends StatelessWidget{
   BalancePage({@required this.dashboardViewModel, @required this.settingsStore});

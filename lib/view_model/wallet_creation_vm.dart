@@ -38,7 +38,7 @@ abstract class WalletCreationVMBase with Store {
     => walletCreationService.exists(name);
 
   bool typeExists(WalletType type)
-  => walletCreationService.typeExists(type);
+    => walletCreationService.typeExists(type);
 
   Future<void> create({dynamic options}) async {
     try {
