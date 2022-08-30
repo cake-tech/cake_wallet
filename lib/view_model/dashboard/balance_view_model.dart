@@ -3,7 +3,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -12,7 +11,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'balance_view_model.g.dart';
@@ -38,18 +36,16 @@ abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
       {@required this.appStore,
       @required this.settingsStore,
-      @required this.fiatConvertationStore,
-      @required this.walletInfoSource}) {
+      @required this.fiatConvertationStore}) {
     isReversing = false;
     wallet ??= appStore.wallet;
-    isShowCard = true;
+    isShowCard = wallet.walletInfo.isShowIntroCakePayCard;
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
   final AppStore appStore;
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConvertationStore;
-  final Box<WalletInfo> walletInfoSource;
 
   bool get canReverse => false;
 
@@ -243,9 +239,6 @@ abstract class BalanceViewModelBase with Store {
   @observable
   bool isShowCard;
 
-  @computed
-  bool get showIntroCakePayCard => wallet.walletInfo.isShowIntroCakePayCard && isShowCard;
-
   ReactionDisposer _onCurrentWalletChangeReaction;
 
   @action
@@ -255,16 +248,15 @@ abstract class BalanceViewModelBase with Store {
           wallet) {
      this.wallet = wallet;
     _onCurrentWalletChangeReaction?.reaction?.dispose();
+    isShowCard = wallet.walletInfo.isShowIntroCakePayCard;
   }
 
   @action
   Future<void> disableIntroCakePayCard () async {
-    final value = wallet.walletInfo;
-    final  box = walletInfoSource;
-    final  currentWallet = box.get(value.key);
-    currentWallet.showIntroCakePayCard = false;
-    await currentWallet.save();
-    isShowCard = false;
+    const cardDisplayStatus = false;
+    wallet.walletInfo.showIntroCakePayCard = cardDisplayStatus;
+    await wallet.walletInfo.save();
+    isShowCard = cardDisplayStatus;
   }
 
   String _getFiatBalance({double price, String cryptoAmount}) {

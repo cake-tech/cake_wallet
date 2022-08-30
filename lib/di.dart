@@ -282,8 +282,7 @@ Future setup(
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      fiatConvertationStore: getIt.get<FiatConversionStore>(),
-      walletInfoSource: _walletInfoSource));
+      fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
       balanceViewModel: getIt.get<BalanceViewModel>(),

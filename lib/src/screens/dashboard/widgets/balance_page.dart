@@ -48,7 +48,7 @@ class BalancePage extends StatelessWidget{
                       textAlign: TextAlign.center);
                 })),
           Observer(builder: (_) {
-            if (dashboardViewModel.balanceViewModel.showIntroCakePayCard){
+            if (dashboardViewModel.balanceViewModel.isShowCard){
               return IntroducingCard(
                   title:  S.of(context).introducing_cake_pay,
                   subTitle: S.of(context).cake_pay_learn_more,
