@@ -88,8 +88,10 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
     }
   }
 
+
   void getMerchants() {
     ioniaService.getMerchantsByFilter(categories: selectedIndices).then((value) {
+      value.sort((a, b) => a.legalName.toLowerCase().compareTo(b.legalName.toLowerCase()));
       ioniaMerchants = ioniaMerchantList = value;
     });
   }

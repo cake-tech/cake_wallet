@@ -630,5 +630,7 @@
   "gift_card_is_generated": "La carte-cadeau est générée",
   "open_gift_card": "Ouvrir la carte-cadeau",
   "contact_support": "Contacter l'assistance",
-  "gift_cards_unavailable": "Les cartes-cadeaux ne sont disponibles à l'achat que via Monero, Bitcoin et Litecoin pour le moment"
+  "gift_cards_unavailable": "Les cartes-cadeaux ne sont disponibles à l'achat que via Monero, Bitcoin et Litecoin pour le moment",
+  "introducing_cake_pay":  "Présentation de Cake Pay!",
+  "cake_pay_learn_more": "Achetez et échangez instantanément des cartes dans l'application !\nBalayez vers la droite pour en savoir plus !"
 }
