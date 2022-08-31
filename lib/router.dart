@@ -456,11 +456,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
     
     case Routes.ioniaCustomRedeemPage:
-    final args = settings.arguments as List;
+      final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCustomRedeemPage>(param1: args));
  
-   case Routes.ioniaMoreOptionsPage:
-    final args = settings.arguments as List;
+    case Routes.ioniaMoreOptionsPage:
+      final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaMoreOptionsPage>(param1: args));
 
     case Routes.ioniaPaymentStatusPage:

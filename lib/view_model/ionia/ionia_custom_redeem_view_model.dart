@@ -20,7 +20,7 @@ abstract class IoniaCustomRedeemViewModelBase with Store {
   bool get disableRedeem => amount > giftCard.remainingAmount;
 
   @action
-  void onAmountChange(String text){
+  void updateAmount(String text){
       amount = text.isEmpty ? 0 : (double.parse(text.replaceAll(',', '.')) ?? 0);
   }
 

@@ -18,7 +18,7 @@ class IoniaCustomRedeemPage extends BasePage {
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
     _amountController.addListener(() {
-     ioniaCustomRedeemViewModel.onAmountChange(_amountController.text);
+     ioniaCustomRedeemViewModel.updateAmount(_amountController.text);
     });
   }
 

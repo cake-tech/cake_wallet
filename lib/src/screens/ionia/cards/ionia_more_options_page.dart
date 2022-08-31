@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 
 
 class IoniaMoreOptionsPage extends BasePage {
-IoniaMoreOptionsPage(this.giftCard);
+  IoniaMoreOptionsPage(this.giftCard);
 
-final IoniaGiftCard giftCard;
+  final IoniaGiftCard giftCard;
 
   @override
   Widget middle(BuildContext context) {

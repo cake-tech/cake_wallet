@@ -120,36 +120,45 @@ class IoniaGiftCardDetailPage extends BasePage {
         ],
       ),
       bottomSection: Padding(
-          padding: EdgeInsets.only(bottom: 12),
-          child: Observer(builder: (_) {
-             if (!viewModel.giftCard.isEmpty) {
+        padding: EdgeInsets.only(bottom: 12),
+        child: Observer(
+          builder: (_) {
+            if (!viewModel.giftCard.isEmpty) {
               return Column(
                 children: [
                   PrimaryButton(
-                  onPressed: () async {
-                    final amount = await  Navigator.of(context).pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as String;
-                    if(amount != null){
-                      viewModel.updateRemaining(double.parse(amount));
-                    }
-                  },
-                  text: S.of(context).more_options,
-                  color: Theme.of(context).accentTextTheme.caption.color,
-                  textColor: Theme.of(context).primaryTextTheme.title.color),
+                    onPressed: () async {
+                      final amount = await Navigator.of(context)
+                          .pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as String;
+                      if (amount != null) {
+                        viewModel.updateRemaining(double.parse(amount));
+                      }
+                    },
+                    text: S.of(context).more_options,
+                    color: Theme.of(context).accentTextTheme.caption.color,
+                    textColor: Theme.of(context).primaryTextTheme.title.color,
+                  ),
                   SizedBox(height: 12),
                   LoadingPrimaryButton(
-                      isLoading: viewModel.redeemState is IsExecutingState,
-                      onPressed: () => viewModel.redeem().then((_){
-                      Navigator.of(context).pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
-                    }),
+                    isLoading: viewModel.redeemState is IsExecutingState,
+                    onPressed: () => viewModel.redeem().then(
+                      (_) {
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
+                      },
+                    ),
                     text: S.of(context).mark_as_redeemed,
                     color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Colors.white),
+                    textColor: Colors.white,
+                  ),
                 ],
               );
-              }
+            }
 
-              return Container();
-            })),
+            return Container();
+          },
+        ),
+      ),
     );
   }
 
