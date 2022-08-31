@@ -632,5 +632,9 @@
   "contact_support": "联系支持",
   "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡",
   "introducing_cake_pay":  "介绍 Cake Pay!",
-  "cake_pay_learn_more": "立即在应用程序中购买和兑换卡！\n向右滑动了解更多！"
+  "cake_pay_learn_more": "立即在应用程序中购买和兑换卡！\n向右滑动了解更多！",
+  "choose_from_available_options": "从可用选项中选择：",
+  "custom_redeem_amount": "自定义兑换金额",
+  "add_custom_redemption": "添加自定义兑换",
+  "remaining": "剩余"
 }

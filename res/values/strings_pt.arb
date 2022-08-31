@@ -634,5 +634,9 @@
   "contact_support": "Contatar Suporte",
   "gift_cards_unavailable": "Os cartões-presente estão disponíveis para compra apenas através do Monero, Bitcoin e Litecoin no momento",
   "introducing_cake_pay":  "Apresentando o Cake Pay!",
-  "cake_pay_learn_more": "Compre e resgate cartões instantaneamente no aplicativo!\nDeslize para a direita para saber mais!"
+  "cake_pay_learn_more": "Compre e resgate cartões instantaneamente no aplicativo!\nDeslize para a direita para saber mais!",
+  "choose_from_available_options": "Escolha entre as opções disponíveis:",
+  "custom_redeem_amount": "Valor de resgate personalizado",
+  "add_custom_redemption": "Adicionar resgate personalizado",
+  "remaining": "restante"
 }

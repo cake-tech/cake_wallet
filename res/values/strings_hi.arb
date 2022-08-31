@@ -634,5 +634,9 @@
   "contact_support": "सहायता से संपर्क करें",
   "gift_cards_unavailable": "उपहार कार्ड इस समय केवल मोनेरो, बिटकॉइन और लिटकोइन के माध्यम से खरीदने के लिए उपलब्ध हैं",
   "introducing_cake_pay":  "परिचय Cake Pay!",
-  "cake_pay_learn_more": "ऐप में तुरंत कार्ड खरीदें और रिडीम करें!\nअधिक जानने के लिए दाएं स्वाइप करें!"
+  "cake_pay_learn_more": "ऐप में तुरंत कार्ड खरीदें और रिडीम करें!\nअधिक जानने के लिए दाएं स्वाइप करें!",
+  "choose_from_available_options": "उपलब्ध विकल्पों में से चुनें:",
+  "custom_redeem_amount": "कस्टम रिडीम राशि",
+  "add_custom_redemption": "कस्टम रिडेम्पशन जोड़ें",
+  "remaining": "शेष"
 }

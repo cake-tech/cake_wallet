@@ -632,5 +632,9 @@
   "contact_support": "Contacter l'assistance",
   "gift_cards_unavailable": "Les cartes-cadeaux ne sont disponibles à l'achat que via Monero, Bitcoin et Litecoin pour le moment",
   "introducing_cake_pay":  "Présentation de Cake Pay!",
-  "cake_pay_learn_more": "Achetez et échangez instantanément des cartes dans l'application !\nBalayez vers la droite pour en savoir plus !"
+  "cake_pay_learn_more": "Achetez et échangez instantanément des cartes dans l'application !\nBalayez vers la droite pour en savoir plus !",
+  "choose_from_available_options": "Choisissez parmi les options disponibles :",
+  "custom_redeem_amount": "Montant d'échange personnalisé",
+  "add_custom_redemption": "Ajouter un remboursement personnalisé",
+  "remaining": "restant"
 }

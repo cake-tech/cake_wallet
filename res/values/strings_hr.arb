@@ -634,5 +634,9 @@
   "contact_support": "Kontaktirajte podršku",
   "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina",
   "introducing_cake_pay":  "Predstavljamo Cake Pay!",
-  "cake_pay_learn_more": "Odmah kupite i iskoristite kartice u aplikaciji!\nPrijeđite prstom udesno da biste saznali više!"
+  "cake_pay_learn_more": "Odmah kupite i iskoristite kartice u aplikaciji!\nPrijeđite prstom udesno da biste saznali više!",
+  "choose_from_available_options": "Odaberite neku od dostupnih opcija:",
+  "custom_redeem_amount": "Prilagođeni iznos otkupa",
+  "add_custom_redemption": "Dodaj prilagođeni otkup",
+  "remaining": "preostalo"
 }

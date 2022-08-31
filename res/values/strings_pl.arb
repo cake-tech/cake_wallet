@@ -634,5 +634,9 @@
   "contact_support": "Skontaktuj się z pomocą techniczną",
   "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin",
   "introducing_cake_pay":  "Przedstawiamy Ciasto Pay!",
-  "cake_pay_learn_more": "Natychmiast kupuj i realizuj karty w aplikacji!\nPrzesuń w prawo, aby dowiedzieć się więcej!"
+  "cake_pay_learn_more": "Natychmiast kupuj i realizuj karty w aplikacji!\nPrzesuń w prawo, aby dowiedzieć się więcej!",
+  "choose_from_available_options": "Wybierz z dostępnych opcji:",
+  "custom_redeem_amount": "Niestandardowa kwota wykorzystania",
+  "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
+  "remaining": "pozostałe"
 }

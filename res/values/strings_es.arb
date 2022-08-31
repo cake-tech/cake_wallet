@@ -634,5 +634,9 @@
   "contact_support": "Contactar con Soporte",
   "gift_cards_unavailable": "Las tarjetas de regalo están disponibles para comprar solo a través de Monero, Bitcoin y Litecoin en este momento",
   "introducing_cake_pay":  "¡Presentamos Cake Pay!",
-  "cake_pay_learn_more": "¡Compre y canjee tarjetas al instante en la aplicación!\n¡Desliza hacia la derecha para obtener más información!"
+  "cake_pay_learn_more": "¡Compre y canjee tarjetas al instante en la aplicación!\n¡Desliza hacia la derecha para obtener más información!",
+  "choose_from_available_options": "Elija entre las opciones disponibles:",
+  "custom_redeem_amount": "Cantidad de canje personalizada",
+  "add_custom_redemption": "Agregar redención personalizada",
+  "remaining": "restante"
 }
