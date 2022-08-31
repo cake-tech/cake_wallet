@@ -124,7 +124,7 @@ class IoniaAccountPage extends BasePage {
           //),
           SizedBox(height: 40),
           Observer(
-            builder: (_) => IoniaTile(title: S.of(context).email_address, subTitle: ioniaAccountViewModel.email),
+            builder: (_) => IoniaTile(title: S.of(context).email_address, subTitle: ioniaAccountViewModel.email ?? ''),
           ),
           Divider()
         ],
