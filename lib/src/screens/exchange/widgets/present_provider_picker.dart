@@ -13,7 +13,10 @@ class PresentProviderPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final arrowBottom = Image.asset('assets/images/arrow_bottom_purple_icon.png', color: Colors.white, height: 6);
+    final arrowBottom = Image.asset(
+        'assets/images/arrow_bottom_purple_icon.png',
+        color: Colors.white,
+        height: 6);
 
     return FlatButton(
         onPressed: () => _presentProviderPicker(context),
@@ -28,7 +31,10 @@ class PresentProviderPicker extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(S.of(context).exchange,
-                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600, color: Colors.white)),
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white)),
                 Observer(
                     builder: (_) => Text(
                         exchangeViewModel.selectedProviders.isEmpty

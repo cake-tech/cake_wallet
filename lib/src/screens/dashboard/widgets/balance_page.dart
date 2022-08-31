@@ -7,6 +7,9 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/introducing_card.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+
 
 class BalancePage extends StatelessWidget{
   BalancePage({@required this.dashboardViewModel, @required this.settingsStore});
@@ -44,6 +47,19 @@ class BalancePage extends StatelessWidget{
                       maxLines: 1,
                       textAlign: TextAlign.center);
                 })),
+          Observer(builder: (_) {
+            if (dashboardViewModel.balanceViewModel.isShowCard){
+              return IntroducingCard(
+                  title:  S.of(context).introducing_cake_pay,
+                  subTitle: S.of(context).cake_pay_learn_more,
+                  borderColor: settingsStore.currentTheme.type == ThemeType.bright
+                      ? Color.fromRGBO(255, 255, 255, 0.2)
+                      : Colors.transparent,
+                  closeCard: dashboardViewModel.balanceViewModel.disableIntroCakePayCard
+              );
+            }
+            return Container ();
+          }),
           Observer(builder: (_) {
             return ListView.separated(
               physics: NeverScrollableScrollPhysics(),
@@ -180,3 +196,4 @@ class BalancePage extends StatelessWidget{
     );
   }
 }
+

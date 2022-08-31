@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
@@ -36,6 +38,12 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.morphToken:
         _provider = MorphTokenExchangeProvider(trades: trades);
+        break;
+      case ExchangeProviderDescription.sideShift:
+        _provider = SideShiftExchangeProvider();
+        break;
+      case ExchangeProviderDescription.simpleSwap:
+        _provider = SimpleSwapExchangeProvider();
         break;
     }
 

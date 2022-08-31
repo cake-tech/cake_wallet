@@ -17,6 +17,9 @@ class ExchangeProviderDescription extends EnumerableItem<int>
    static const sideShift =
       ExchangeProviderDescription(title: 'SideShift', raw: 3, image: 'assets/images/sideshift.png');
 
+  static const simpleSwap =
+      ExchangeProviderDescription(title: 'SimpleSwap', raw: 4, image: 'assets/images/simpleSwap.png');
+
   static ExchangeProviderDescription deserialize({int raw}) {
     switch (raw) {
       case 0:
@@ -27,6 +30,8 @@ class ExchangeProviderDescription extends EnumerableItem<int>
         return morphToken;
       case 3:
         return sideShift;
+      case 4:
+        return simpleSwap;
       default:
         return null;
     }
