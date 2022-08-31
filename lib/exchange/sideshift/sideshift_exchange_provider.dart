@@ -47,8 +47,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       if (amount == 0) {
         return 0.0;
       }
-      final fromCurrency = normalizeCryptoCurrency(from);
-      final toCurrency = normalizeCryptoCurrency(to);
+      final fromCurrency = _normalizeCryptoCurrency(from);
+      final toCurrency = _normalizeCryptoCurrency(to);
       final url =
           apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
       final response = await get(url);
@@ -136,8 +136,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<String> _createQuote(SideShiftRequest request) async {
     final url = apiBaseUrl + quotePath;
     final headers = {'Content-Type': 'application/json'};
-    final depositMethod = normalizeCryptoCurrency(request.depositMethod);
-    final settleMethod = normalizeCryptoCurrency(request.settleMethod);
+    final depositMethod = _normalizeCryptoCurrency(request.depositMethod);
+    final settleMethod = _normalizeCryptoCurrency(request.settleMethod);
     final body = {
       'depositMethod': depositMethod,
       'settleMethod': settleMethod,
@@ -166,8 +166,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   Future<Limits> fetchLimits(
       {CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
-    final fromCurrency = normalizeCryptoCurrency(from);
-    final toCurrency = normalizeCryptoCurrency(to);
+    final fromCurrency = _normalizeCryptoCurrency(from);
+    final toCurrency = _normalizeCryptoCurrency(to);
     final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
     final response = await get(url);
 
@@ -247,7 +247,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   String get title => 'SideShift';
 
-  static String normalizeCryptoCurrency(CryptoCurrency currency) {
+  static String _normalizeCryptoCurrency(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.zaddr:
         return 'zaddr';

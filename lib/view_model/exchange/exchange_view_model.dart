@@ -1,5 +1,7 @@
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
+import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -35,7 +37,7 @@ abstract class ExchangeViewModelBase with Store {
       this.tradesStore, this._settingsStore) {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
-    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
+    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()];
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -267,6 +269,18 @@ abstract class ExchangeViewModelBase with Store {
       currency = depositCurrency;
     }
 
+    if (provider is SimpleSwapExchangeProvider) {
+      request = SimpleSwapRequest(
+          from: depositCurrency,
+          to: receiveCurrency,
+          amount: depositAmount?.replaceAll(',', '.'),
+          address: receiveAddress,
+          refundAddress: depositAddress,
+          );
+      amount = depositAmount;
+      currency = depositCurrency;
+    }
+
     if (provider is XMRTOExchangeProvider) {
       request = XMRTOTradeRequest(
           from: depositCurrency,
@@ -459,6 +473,6 @@ abstract class ExchangeViewModelBase with Store {
       isReceiveAmountEditable = false;
     }*/
     //isReceiveAmountEditable = false;
-    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
+    isReceiveAmountEditable = provider is ChangeNowExchangeProvider ||  provider is SimpleSwapExchangeProvider;
   }
 }
