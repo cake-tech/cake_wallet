@@ -214,7 +214,7 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          if (row is StandartListStatusRow || row is StandartListCard) {
+          if (row is StandartListStatusRow || row is TradeDatailsStandartListCard) {
             return Container();
           }
 

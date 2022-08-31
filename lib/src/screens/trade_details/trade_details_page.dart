@@ -70,10 +70,10 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   value: item.value);
             }
 
-            if (item is DetailsListCardItem) {
-              return StandartListCard(
+            if (item is TradeDetailsListCardItem) {
+              return TradeDatailsStandartListCard(
                   id: item.id,
-                  create: item.create,
+                  create: item.createdAt,
                   pair: item.pair,
                   currentTheme: tradeDetailsViewModel.settingsStore.currentTheme.type,
                   onTap: item.onTap,);

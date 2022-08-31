@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 
-class StandartListCard extends StatelessWidget {
-  StandartListCard(
+class TradeDatailsStandartListCard extends StatelessWidget {
+  TradeDatailsStandartListCard(
       {this.id, this.create, this.pair, this.onTap, this.currentTheme});
 
   final String id;
