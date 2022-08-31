@@ -632,5 +632,7 @@
   "gift_card_is_generated": "Il buono regalo è stato generato",
   "open_gift_card": "Apri carta regalo",
   "contact_support": "Contatta l'assistenza",
-  "gift_cards_unavailable": "Le carte regalo sono disponibili per l'acquisto solo tramite Monero, Bitcoin e Litecoin in questo momento"
+  "gift_cards_unavailable": "Le carte regalo sono disponibili per l'acquisto solo tramite Monero, Bitcoin e Litecoin in questo momento",
+  "introducing_cake_pay":  "Presentazione di Cake Pay!",
+  "cake_pay_learn_more": "Acquista e riscatta istantaneamente le carte nell'app!\nScorri verso destra per saperne di più!"
 }

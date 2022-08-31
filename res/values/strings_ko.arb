@@ -632,5 +632,7 @@
   "gift_card_is_generated": "기프트 카드가 생성되었습니다",
   "open_gift_card": "기프트 카드 열기",
   "contact_support": "지원팀에 문의",
-  "gift_cards_unavailable": "기프트 카드는 현재 Monero, Bitcoin 및 Litecoin을 통해서만 구매할 수 있습니다."
+  "gift_cards_unavailable": "기프트 카드는 현재 Monero, Bitcoin 및 Litecoin을 통해서만 구매할 수 있습니다.",
+  "introducing_cake_pay":  "소개 Cake Pay!",
+  "cake_pay_learn_more": "앱에서 즉시 카드를 구매하고 사용하세요!\n자세히 알아보려면 오른쪽으로 스와이프하세요!"
 }

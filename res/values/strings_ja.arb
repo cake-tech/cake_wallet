@@ -632,5 +632,7 @@
   "gift_card_is_generated": "ギフトカードが生成されます",
   "open_gift_card": "オープンギフトカード",
   "contact_support": "サポートに連絡する",
-  "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。"
+  "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。",
+  "introducing_cake_pay":  "序章Cake Pay！",
+  "cake_pay_learn_more": "アプリですぐにカードを購入して引き換えましょう！\n右にスワイプして詳細をご覧ください。"
 }

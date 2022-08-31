@@ -633,6 +633,8 @@
   "open_gift_card": "Open Gift Card",
   "contact_support": "Contact Support",
   "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time",
+  "introducing_cake_pay":  "Introducing Cake Pay!",
+  "cake_pay_learn_more": "Instantly purchase and redeem cards in the app!\nSwipe right to learn more!",
   "choose_from_available_options": "Choose from the available options:",
   "custom_redeem_amount": "Custom Redeem Amount",
   "add_custom_redemption": "Add Custom Redemption",

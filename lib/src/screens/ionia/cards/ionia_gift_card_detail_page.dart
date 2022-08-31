@@ -13,6 +13,7 @@ import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -24,6 +25,8 @@ class IoniaGiftCardDetailPage extends BasePage {
   IoniaGiftCardDetailPage(this.viewModel);
 
   final IoniaGiftCardDetailsViewModel viewModel;
+
+
 
   @override
   Widget leading(BuildContext context) {
@@ -47,7 +50,10 @@ class IoniaGiftCardDetailPage extends BasePage {
               highlightColor: Colors.transparent,
               splashColor: Colors.transparent,
               padding: EdgeInsets.all(0),
-              onPressed: () => onClose(context),
+              onPressed: () {
+                onClose(context);
+                DeviceDisplayBrightness.setBrightness(viewModel.brightness);
+              },
               child: _backButton),
         ),
       ),
@@ -64,6 +70,7 @@ class IoniaGiftCardDetailPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    viewModel.increaseBrightness();
     reaction((_) => viewModel.redeemState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

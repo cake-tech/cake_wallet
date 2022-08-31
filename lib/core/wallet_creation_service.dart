@@ -46,6 +46,12 @@ class WalletCreationService {
       .any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
   }
 
+  bool typeExists(WalletType type) {
+    return walletInfoSource
+        .values
+        .any((walletInfo) => walletInfo.type == type);
+  }
+
   void checkIfExists(String name) {
     if (exists(name)) {
       throw Exception('Wallet with name ${name} already exists!');

@@ -135,7 +135,7 @@ class IoniaManageCardsPage extends BasePage {
                   width: 32,
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Theme.of(context).textTheme.title.backgroundColor,
                     border: Border.all(
                       color: Colors.white.withOpacity(0.2),
                     ),
@@ -264,7 +264,7 @@ class _SearchWidget extends StatelessWidget {
     );
 
     return TextField(
-      style: TextStyle(color: Colors.white),
+      style: TextStyle(color: Theme.of(context).accentTextTheme.display3.backgroundColor),
       controller: controller,
       decoration: InputDecoration(
           filled: true,
@@ -272,10 +272,10 @@ class _SearchWidget extends StatelessWidget {
             top: 10,
             left: 10,
           ),
-          fillColor: Colors.white.withOpacity(0.15),
+          fillColor: Theme.of(context).textTheme.title.backgroundColor,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.6),
+            color: Theme.of(context).accentTextTheme.display2.backgroundColor,
           ),
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,
