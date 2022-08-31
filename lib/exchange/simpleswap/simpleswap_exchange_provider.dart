@@ -55,9 +55,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final response = await get(uri);
 
       if (response.body == null) return 0.00;
-      final responseJson = json.decode(response.body) as String;
+      final data = json.decode(response.body) as String;
     
-      return double.parse(responseJson);
+      return double.parse(data);
     } catch (_) {
       return 0.00;
     }
@@ -74,7 +74,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
     final _request = request as SimpleSwapRequest;
-      final headers = {
+    final headers = {
       'Content-Type': 'application/json'};
     final params = <String, String>{
       'api_key': apiKey,

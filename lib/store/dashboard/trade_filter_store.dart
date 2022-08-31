@@ -41,6 +41,7 @@ abstract class TradeFilterStoreBase with Store {
         break;
       case ExchangeProviderDescription.simpleSwap:
         displaySimpleSwap = !displaySimpleSwap;
+        break;
     }
   }
 
