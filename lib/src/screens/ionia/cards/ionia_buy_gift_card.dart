@@ -100,9 +100,6 @@ class IoniaBuyGiftCardPage extends BasePage {
                         color: Colors.white,
                         fontSize: 36,
                       ),
-                      suffixIcon: SizedBox(
-                        width: _width / 6,
-                      ),
                       prefixIcon: Padding(
                         padding: EdgeInsets.only(
                           top: 5.0,

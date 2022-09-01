@@ -7,6 +7,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 
 class IoniaService {
 	IoniaService(this.secureStorage, this.ioniaApi);
@@ -114,7 +115,9 @@ class IoniaService {
 		@required String currency}) async {
 		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
 		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		final deviceId = await PlatformDeviceId.getDeviceId;
 		return ioniaApi.purchaseGiftCard(
+			requestedUUID: deviceId,
 			merchId: merchId,
 			amount: amount,
 			currency: currency,

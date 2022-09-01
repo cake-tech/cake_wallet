@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Zamienić się za ${title} nie jest tworzony.",
-  "trade_not_created" : "Handel nie utworzony.",
+  "trade_not_created" : "Handel nie utworzony",
   "trade_id_not_found" : "Handel ${tradeId} of ${title} nie znaleziono.",
   "trade_not_found" : "Nie znaleziono handlu.",
 
@@ -539,7 +539,7 @@
   "cake_pay_title": "Karty podarunkowe Cake Pay",
   "cake_pay_subtitle": "Kup karty podarunkowe i wykorzystaj je natychmiast",
   "about_cake_pay": "Cake Pay umożliwia łatwe kupowanie kart podarunkowych z wirtualnymi aktywami, które można natychmiast wydać u ponad 150 000 sprzedawców w Stanach Zjednoczonych.",
-  "cake_pay_account_note": "Załóż konto, aby zobaczyć dostępne karty. Niektóre są nawet dostępne ze zniżką!",
+  "cake_pay_account_note": "Zarejestruj się, używając tylko adresu e-mail, aby przeglądać i kupować karty. Niektóre są nawet dostępne ze zniżką!",
   "already_have_account": "Masz już konto?",
   "create_account": "Utwórz konto",
   "privacy_policy": "Polityka prywatności",
@@ -632,5 +632,12 @@
   "gift_card_is_generated": "Karta podarunkowa jest generowana",
   "open_gift_card": "Otwórz kartę podarunkową",
   "contact_support": "Skontaktuj się z pomocą techniczną",
-  "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin"
+  "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin",
+  "introducing_cake_pay":  "Przedstawiamy Ciasto Pay!",
+  "cake_pay_learn_more": "Natychmiast kupuj i realizuj karty w aplikacji!\nPrzesuń w prawo, aby dowiedzieć się więcej!",
+  "automatic": "Automatyczny",
+  "fixed_pair_not_supported": "Ta stała para nie jest obsługiwana na wybranych giełdach",
+  "variable_pair_not_supported": "Ta para zmiennych nie jest obsługiwana na wybranych giełdach",
+  "none_of_selected_providers_can_exchange": "Żaden z wybranych dostawców nie może dokonać tej wymiany",
+  "choose_one": "Wybierz jeden"
 }
