@@ -365,7 +365,7 @@
 
 
   "trade_for_not_created" : "Операція для ${title} не створена.",
-  "trade_not_created" : "Операція не створена.",
+  "trade_not_created" : "Операція не створена",
   "trade_id_not_found" : "Операція ${tradeId} ${title} не знайдена.",
   "trade_not_found" : "Операція не знайдена.",
 
@@ -633,5 +633,10 @@
   "contact_support": "Звернутися до служби підтримки",
   "gift_cards_unavailable": "Наразі подарункові картки можна придбати лише через Monero, Bitcoin і Litecoin",
   "introducing_cake_pay":  "Представляємо Cake Pay!",
-  "cake_pay_learn_more": "Миттєва купівля та погашення карток в додатку!\nПроведіть праворуч, щоб дізнатися більше!"
+  "cake_pay_learn_more": "Миттєва купівля та погашення карток в додатку!\nПроведіть праворуч, щоб дізнатися більше!",
+  "automatic": "Автоматичний",
+  "fixed_pair_not_supported": "Ця фіксована пара не підтримується вибраними біржами",
+  "variable_pair_not_supported": "Ця пара змінних не підтримується вибраними біржами",
+  "none_of_selected_providers_can_exchange": "Жоден із вибраних провайдерів не може здійснити цей обмін",
+  "choose_one": "Вибери один"
 }

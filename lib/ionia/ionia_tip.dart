@@ -1,7 +1,8 @@
 class IoniaTip {
-  const IoniaTip({this.originalAmount, this.percentage});
+  const IoniaTip({this.originalAmount, this.percentage, this.isCustom = false});
   final double originalAmount;
   final double percentage;
+  final bool isCustom;
   double get additionalAmount => double.parse((originalAmount * percentage / 100).toStringAsFixed(2));
 
   static const tipList = [

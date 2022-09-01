@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Zamienić się za ${title} nie jest tworzony.",
-  "trade_not_created" : "Handel nie utworzony.",
+  "trade_not_created" : "Handel nie utworzony",
   "trade_id_not_found" : "Handel ${tradeId} of ${title} nie znaleziono.",
   "trade_not_found" : "Nie znaleziono handlu.",
 
@@ -634,5 +634,10 @@
   "contact_support": "Skontaktuj się z pomocą techniczną",
   "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin",
   "introducing_cake_pay":  "Przedstawiamy Ciasto Pay!",
-  "cake_pay_learn_more": "Natychmiast kupuj i realizuj karty w aplikacji!\nPrzesuń w prawo, aby dowiedzieć się więcej!"
+  "cake_pay_learn_more": "Natychmiast kupuj i realizuj karty w aplikacji!\nPrzesuń w prawo, aby dowiedzieć się więcej!",
+  "automatic": "Automatyczny",
+  "fixed_pair_not_supported": "Ta stała para nie jest obsługiwana na wybranych giełdach",
+  "variable_pair_not_supported": "Ta para zmiennych nie jest obsługiwana na wybranych giełdach",
+  "none_of_selected_providers_can_exchange": "Żaden z wybranych dostawców nie może dokonać tej wymiany",
+  "choose_one": "Wybierz jeden"
 }

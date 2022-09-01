@@ -1,7 +1,6 @@
-import 'dart:ffi';
 
+import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -106,6 +105,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_balance_note,
                     merchList: viewModel.activeMechs,
+                    isLoading: viewModel.merchantState is IoniaLoadingMerchantState,
                     onTap: (giftCard) {
                       Navigator.pushNamed(
                         context,
@@ -116,6 +116,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_redeemed_note,
                     merchList: viewModel.redeemedMerchs,
+                    isLoading: viewModel.merchantState is IoniaLoadingMerchantState,
                     onTap: (giftCard) {
                       Navigator.pushNamed(
                         context,
@@ -139,14 +140,24 @@ class _IoniaCardListView extends StatelessWidget {
     @required this.emptyText,
     @required this.merchList,
     @required this.onTap,
+    this.isLoading = false,
   }) : super(key: key);
 
   final String emptyText;
   final List<IoniaGiftCard> merchList;
   final void Function(IoniaGiftCard giftCard) onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    if(isLoading){
+      return Center(
+          child: CircularProgressIndicator(
+          backgroundColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme.body1.color),
+        ),
+      );
+    }
     return merchList.isEmpty
         ? Center(
             child: Text(

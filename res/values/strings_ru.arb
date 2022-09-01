@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Сделка для ${title} не создана.",
-  "trade_not_created" : "Сделка не создана.",
+  "trade_not_created" : "Сделка не создана",
   "trade_id_not_found" : "Сделка ${tradeId} ${title} не найдена.",
   "trade_not_found" : "Trade not found.",
 
@@ -634,5 +634,10 @@
   "contact_support": "Связаться со службой поддержки",
   "gift_cards_unavailable": "В настоящее время подарочные карты можно приобрести только через Monero, Bitcoin и Litecoin.",
   "introducing_cake_pay":  "Представляем Cake Pay!",
-  "cake_pay_learn_more": "Мгновенно покупайте и погашайте карты в приложении!\nПроведите вправо, чтобы узнать больше!"
+  "cake_pay_learn_more": "Мгновенно покупайте и погашайте карты в приложении!\nПроведите вправо, чтобы узнать больше!",
+  "automatic": "автоматический",
+  "fixed_pair_not_supported": "Эта фиксированная пара не поддерживается выбранными биржами.",
+  "variable_pair_not_supported": "Эта пара переменных не поддерживается выбранными биржами.",
+  "none_of_selected_providers_can_exchange": "Ни один из выбранных провайдеров не может совершить этот обмен",
+  "choose_one": "Выбери один"
 }

@@ -37,6 +37,9 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaFetchCardState cardState;
 
   @observable
+  IoniaMerchantState merchantState;
+
+  @observable
   List<IoniaMerchant> ioniaMerchants;
 
   @observable
@@ -88,12 +91,15 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
     }
   }
 
-
+  
   void getMerchants() {
+    merchantState = IoniaLoadingMerchantState();
     ioniaService.getMerchantsByFilter(categories: selectedIndices).then((value) {
       value.sort((a, b) => a.legalName.toLowerCase().compareTo(b.legalName.toLowerCase()));
       ioniaMerchants = ioniaMerchantList = value;
+      merchantState = IoniaLoadedMerchantState();
     });
+    
   }
 
   @action

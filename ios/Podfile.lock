@@ -63,6 +63,8 @@ PODS:
     - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
+  - device_info (0.0.1):
+    - Flutter
   - devicelocale (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.2):
@@ -113,6 +115,8 @@ PODS:
     - Flutter
   - "permission_handler (5.1.0+2)":
     - Flutter
+  - platform_device_id (0.0.1):
+    - Flutter
   - Reachability (3.2)
   - SDWebImage (5.9.1):
     - SDWebImage/Core (= 5.9.1)
@@ -141,6 +145,7 @@ DEPENDENCIES:
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
+  - device_info (from `.symlinks/plugins/device_info/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - esys_flutter_share (from `.symlinks/plugins/esys_flutter_share/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
@@ -150,6 +155,7 @@ DEPENDENCIES:
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - platform_device_id (from `.symlinks/plugins/platform_device_id/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
@@ -183,6 +189,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cw_shared_external/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
+  device_info:
+    :path: ".symlinks/plugins/device_info/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
   esys_flutter_share:
@@ -201,6 +209,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider/ios"
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
+  platform_device_id:
+    :path: ".symlinks/plugins/platform_device_id/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences:
@@ -221,6 +231,7 @@ SPEC CHECKSUMS:
   cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
+  device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   devicelocale: b22617f40038496deffba44747101255cee005b0
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
@@ -233,6 +244,7 @@ SPEC CHECKSUMS:
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
+  platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SDWebImage: a990c053fff71e388a10f3357edb0be17929c9c5
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
