@@ -4,9 +4,11 @@ import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_api.dart';
@@ -731,16 +733,21 @@ Future setup(
       ioniaService: getIt.get<IoniaService>(),
       giftCard: giftCard);
   });
-
+ 
+ getIt.registerFactoryParam<IoniaCustomTipViewModel, List, void>((List args, _) {
+     final amount = args[0] as double;
+     final merchant = args[1] as IoniaMerchant;
+     final tip = args[2] as IoniaTip;
+     
+     return IoniaCustomTipViewModel(amount: amount, tip: tip, ioniaMerchant: merchant);
+  });
+  
   getIt.registerFactoryParam<IoniaGiftCardDetailPage, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
      return IoniaGiftCardDetailPage(getIt.get<IoniaGiftCardDetailsViewModel>(param1: giftCard));
   });
 
   getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {
-    final amount = args.first as String;
-    final merchant = args.last as IoniaMerchant;
-
-    return IoniaCustomTipPage(getIt.get<IoniaMerchPurchaseViewModel>(param1: amount, param2: merchant));
+    return IoniaCustomTipPage(getIt.get<IoniaCustomTipViewModel>(param1: args));
   });
 
   getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaGiftCardsListViewModel>()));
