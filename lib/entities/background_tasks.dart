@@ -82,7 +82,8 @@ class BackgroundTasks {
 
       await Workmanager().initialize(
         callbackDispatcher,
-        isInDebugMode: kDebugMode,
+        // isInDebugMode: kDebugMode,
+        isInDebugMode: true, // TODO: remove after testing
       );
 
       await Workmanager().registerPeriodicTask(
