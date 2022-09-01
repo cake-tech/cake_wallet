@@ -1,3 +1,7 @@
+import 'dart:collection';
+import 'dart:convert';
+
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
@@ -27,6 +31,7 @@ import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dar
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_request.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'exchange_view_model.g.dart';
 
@@ -34,10 +39,24 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore) {
+      this.tradesStore, this._settingsStore, this.sharedPreferences) {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()];
+
+    currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>();
+
+    final Map<String, dynamic> exchangeProvidersSelection = json
+        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
+
+    /// if the provider is not in the user settings (user's first time or newly added provider)
+    /// then use its default value decided by us
+    selectedProviders = ObservableList.of(providerList.where(
+            (element) => exchangeProvidersSelection[element.title] == null
+            ? element.isEnabled
+            : (exchangeProvidersSelection[element.title] as bool))
+        .toList());
+
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -48,7 +67,7 @@ abstract class ExchangeViewModelBase with Store {
         ? wallet.walletAddresses.address : '';
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
-    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
+    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = wallet.type == WalletType.bitcoin ? 8 : 12;
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider.checkIsAvailable().then((bool isAvailable) {
@@ -79,9 +98,19 @@ abstract class ExchangeViewModelBase with Store {
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
+  final SharedPreferences sharedPreferences;
 
   @observable
   ExchangeProvider provider;
+
+  /// Maps in dart are not sorted by default
+  /// SplayTreeMap is a map sorted by keys
+  /// will use it to sort available providers
+  /// depending on the amount they yield for the current trade
+  SplayTreeMap<double, ExchangeProvider> currentTradeAvailableProviders;
+
+  @observable
+  ObservableList<ExchangeProvider> selectedProviders;
 
   @observable
   List<ExchangeProvider> providerList;
@@ -147,17 +176,7 @@ abstract class ExchangeViewModelBase with Store {
 
   NumberFormat _cryptoNumberFormat;
 
-  SettingsStore _settingsStore;
-
-  @action
-  void changeProvider({ExchangeProvider provider}) {
-    this.provider = provider;
-    depositAmount = '';
-    receiveAmount = '';
-    isFixedRateMode = false;
-    _defineIsReceiveAmountEditable();
-    loadLimits();
-  }
+  final SettingsStore _settingsStore;
 
   @action
   void changeDepositCurrency({CryptoCurrency currency}) {
@@ -188,20 +207,46 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
-    final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
-    provider
-        .calculateAmount(
-            from: receiveCurrency,
-            to: depositCurrency,
-            amount: _amount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: true)
-        .then((amount) => _cryptoNumberFormat
+    currentTradeAvailableProviders.clear();
+    for (var provider in selectedProviders) {
+      provider
+          .calculateAmount(
+              from: receiveCurrency,
+              to: depositCurrency,
+              amount: _enteredAmount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: true)
+          .then((amount) {
+
+        final from = isFixedRateMode
+            ? receiveCurrency
+            : depositCurrency;
+        final to = isFixedRateMode
+            ? depositCurrency
+            : receiveCurrency;
+
+        provider.fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        ).then((limits) {
+          /// if the entered amount doesn't exceed the limits of this provider
+          if ((limits.max ?? double.maxFinite) >= _enteredAmount
+              && (limits.min ?? 0) <= _enteredAmount) {
+            /// add this provider as its valid for this trade
+            /// will be sorted ascending already since
+            /// we seek the least deposit amount
+            currentTradeAvailableProviders[amount] = provider;
+          }
+          return amount;
+        }).then((amount) => depositAmount = _cryptoNumberFormat
             .format(amount)
             .toString()
-            .replaceAll(RegExp('\\,'), ''))
-        .then((amount) => depositAmount = amount);
+            .replaceAll(RegExp('\\,'), ''));
+      });
+    }
   }
 
   @action
@@ -215,23 +260,56 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
-    final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
-    provider
-        .calculateAmount(
-            from: depositCurrency,
-            to: receiveCurrency,
-            amount: _amount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: false)
-        .then((amount) => _cryptoNumberFormat
+    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
+
+    currentTradeAvailableProviders.clear();
+    for (var provider in selectedProviders) {
+      provider
+          .calculateAmount(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: _enteredAmount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: false)
+          .then((amount) {
+
+        final from = isFixedRateMode
+            ? receiveCurrency
+            : depositCurrency;
+        final to = isFixedRateMode
+            ? depositCurrency
+            : receiveCurrency;
+
+        provider.fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        ).then((limits) {
+
+          /// if the entered amount doesn't exceed the limits of this provider
+          if ((limits.max ?? double.maxFinite) >= _enteredAmount
+              && (limits.min ?? 0) <= _enteredAmount) {
+            /// add this provider as its valid for this trade
+            /// subtract from maxFinite so the provider
+            /// with the largest amount would be sorted ascending
+            currentTradeAvailableProviders[double.maxFinite - amount] = provider;
+          }
+          return amount;
+        }).then((amount) => receiveAmount =
+            receiveAmount = _cryptoNumberFormat
             .format(amount)
             .toString()
-            .replaceAll(RegExp('\\,'), ''))
-        .then((amount) => receiveAmount = amount);
+            .replaceAll(RegExp('\\,'), ''));
+      });
+    }
   }
 
   @action
   Future loadLimits() async {
+    if (selectedProviders.isEmpty) {
+      return;
+    }
+
     limitsState = LimitsIsLoading();
 
     try {
@@ -241,10 +319,29 @@ abstract class ExchangeViewModelBase with Store {
       final to = isFixedRateMode
         ? depositCurrency
         : receiveCurrency;
-      limits = await provider.fetchLimits(
+
+      limits = await selectedProviders.first.fetchLimits(
           from: from,
           to: to,
           isFixedRateMode: isFixedRateMode);
+
+      /// if the first provider limits is bounded then check with other providers
+      /// for the highest maximum limit
+      if (limits.max != null) {
+        for (int i = 1;i < selectedProviders.length;i++) {
+          final Limits tempLimits = await selectedProviders[i].fetchLimits(
+              from: from,
+              to: to,
+              isFixedRateMode: isFixedRateMode);
+
+          /// set the limits with the maximum provider limit
+          /// if there is a provider with null max then it's the maximum limit
+          if ((tempLimits.max ?? double.maxFinite) > limits.max) {
+            limits = tempLimits;
+          }
+        }
+      }
+
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
       limitsState = LimitsLoadedFailure(error: e.toString());
@@ -255,102 +352,97 @@ abstract class ExchangeViewModelBase with Store {
   Future createTrade() async {
     TradeRequest request;
     String amount;
-    CryptoCurrency currency;
 
-     if (provider is SideShiftExchangeProvider) {
-      request = SideShiftRequest(
+    for (var provider in currentTradeAvailableProviders.values) {
+      if (!(await provider.checkIsAvailable())) {
+        continue;
+      }
+
+      if (provider is SideShiftExchangeProvider) {
+        request = SideShiftRequest(
           depositMethod: depositCurrency,
           settleMethod: receiveCurrency,
           depositAmount: depositAmount?.replaceAll(',', '.'),
           settleAddress: receiveAddress,
           refundAddress: depositAddress,
-          );
-      amount = depositAmount;
-      currency = depositCurrency;
-    }
+        );
+        amount = depositAmount;
+      }
 
-    if (provider is SimpleSwapExchangeProvider) {
-      request = SimpleSwapRequest(
+      if (provider is SimpleSwapExchangeProvider) {
+        request = SimpleSwapRequest(
           from: depositCurrency,
           to: receiveCurrency,
           amount: depositAmount?.replaceAll(',', '.'),
           address: receiveAddress,
           refundAddress: depositAddress,
-          );
-      amount = depositAmount;
-      currency = depositCurrency;
-    }
+        );
+        amount = depositAmount;
+      }
 
-    if (provider is XMRTOExchangeProvider) {
-      request = XMRTOTradeRequest(
-          from: depositCurrency,
-          to: receiveCurrency,
-          amount: depositAmount?.replaceAll(',', '.'),
-          receiveAmount: receiveAmount?.replaceAll(',', '.'),
-          address: receiveAddress,
-          refundAddress: depositAddress,
-          isBTCRequest: isReceiveAmountEntered);
-      amount = depositAmount;
-      currency = depositCurrency;
-    }
+      if (provider is XMRTOExchangeProvider) {
+        request = XMRTOTradeRequest(
+            from: depositCurrency,
+            to: receiveCurrency,
+            amount: depositAmount?.replaceAll(',', '.'),
+            receiveAmount: receiveAmount?.replaceAll(',', '.'),
+            address: receiveAddress,
+            refundAddress: depositAddress,
+            isBTCRequest: isReceiveAmountEntered);
+        amount = depositAmount;
+      }
 
-    if (provider is ChangeNowExchangeProvider) {
-      request = ChangeNowRequest(
-          from: depositCurrency,
-          to: receiveCurrency,
-          fromAmount: depositAmount?.replaceAll(',', '.'),
-          toAmount: receiveAmount?.replaceAll(',', '.'),
-          refundAddress: depositAddress,
-          address: receiveAddress,
-          isReverse: isReverse);
-      amount = isReverse ? receiveAmount : depositAmount;
-      currency = depositCurrency;
-    }
+      if (provider is ChangeNowExchangeProvider) {
+        request = ChangeNowRequest(
+            from: depositCurrency,
+            to: receiveCurrency,
+            fromAmount: depositAmount?.replaceAll(',', '.'),
+            toAmount: receiveAmount?.replaceAll(',', '.'),
+            refundAddress: depositAddress,
+            address: receiveAddress,
+            isReverse: isReverse);
+        amount = isReverse ? receiveAmount : depositAmount;
+      }
 
-    if (provider is MorphTokenExchangeProvider) {
-      request = MorphTokenRequest(
-          from: depositCurrency,
-          to: receiveCurrency,
-          amount: depositAmount?.replaceAll(',', '.'),
-          refundAddress: depositAddress,
-          address: receiveAddress);
-      amount = depositAmount;
-      currency = depositCurrency;
-    }
+      if (provider is MorphTokenExchangeProvider) {
+        request = MorphTokenRequest(
+            from: depositCurrency,
+            to: receiveCurrency,
+            amount: depositAmount?.replaceAll(',', '.'),
+            refundAddress: depositAddress,
+            address: receiveAddress);
+        amount = depositAmount;
+      }
 
-    amount = amount.replaceAll(',', '.');
+      amount = amount.replaceAll(',', '.');
 
-    if (limitsState is LimitsLoadedSuccessfully && amount != null) {
-      if (double.parse(amount) < limits.min) {
-        tradeState = TradeIsCreatedFailure(
-            title: provider.title,
-            error: S.current.error_text_minimal_limit('${provider.description}',
-                '${limits.min}', currency.toString()));
-      } else if (limits.max != null && double.parse(amount) > limits.max) {
-        tradeState = TradeIsCreatedFailure(
-            title: provider.title,
-            error: S.current.error_text_maximum_limit('${provider.description}',
-                '${limits.max}', currency.toString()));
-      } else {
-        try {
-          tradeState = TradeIsCreating();
-          final trade = await provider.createTrade(
-              request: request, isFixedRateMode: isFixedRateMode);
-          trade.walletId = wallet.id;
-          tradesStore.setTrade(trade);
-          await trades.add(trade);
-          tradeState = TradeIsCreatedSuccessfully(trade: trade);
-        } catch (e) {
-          tradeState =
-              TradeIsCreatedFailure(title: provider.title, error: e.toString());
+      if (limitsState is LimitsLoadedSuccessfully && amount != null) {
+        if (double.parse(amount) < limits.min) {
+          continue;
+        } else if (limits.max != null && double.parse(amount) > limits.max) {
+          continue;
+        } else {
+          try {
+            tradeState = TradeIsCreating();
+            final trade = await provider.createTrade(
+                request: request, isFixedRateMode: isFixedRateMode);
+            trade.walletId = wallet.id;
+            tradesStore.setTrade(trade);
+            await trades.add(trade);
+            tradeState = TradeIsCreatedSuccessfully(trade: trade);
+            /// return after the first successful trade
+            return;
+          } catch (e) {
+            continue;
+          }
         }
       }
-    } else {
-      tradeState = TradeIsCreatedFailure(
-          title: provider.title,
-          error: S.current
-              .error_text_limits_loading_failed('${provider.description}'));
     }
+
+    /// if the code reached here then none of the providers succeeded
+    tradeState = TradeIsCreatedFailure(
+        title: S.current.trade_not_created,
+        error: S.current.none_of_selected_providers_can_exchange);
   }
 
   @action
@@ -414,7 +506,7 @@ abstract class ExchangeViewModelBase with Store {
     final providers = providerList
         .where((provider) => provider.pairList
             .where((pair) =>
-                pair.from == depositCurrency && pair.to == receiveCurrency)
+                pair.from == (from ?? depositCurrency) && pair.to == (to ?? receiveCurrency))
             .isNotEmpty)
         .toList();
 
@@ -422,27 +514,8 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   void _onPairChange() {
-    final isPairExist = provider.pairList
-        .where((pair) =>
-            pair.from == depositCurrency && pair.to == receiveCurrency)
-        .isNotEmpty;
-
-    if (isPairExist) {
-      final provider =
-          _providerForPair(from: depositCurrency, to: receiveCurrency);
-
-      if (provider != null) {
-        changeProvider(provider: provider);
-      }
-    } else {
-      depositAmount = '';
-      receiveAmount = '';
-    }
-  }
-
-  ExchangeProvider _providerForPair({CryptoCurrency from, CryptoCurrency to}) {
-    final providers = _providersForPair(from: from, to: to);
-    return providers.isNotEmpty ? providers[0] : null;
+    depositAmount = '';
+    receiveAmount = '';
   }
 
   void _initialPairBasedOnWallet() {
@@ -473,6 +546,45 @@ abstract class ExchangeViewModelBase with Store {
       isReceiveAmountEditable = false;
     }*/
     //isReceiveAmountEditable = false;
-    isReceiveAmountEditable = provider is ChangeNowExchangeProvider ||  provider is SimpleSwapExchangeProvider;
+    // isReceiveAmountEditable = selectedProviders.any((provider) => provider is ChangeNowExchangeProvider);
+    // isReceiveAmountEditable = provider is ChangeNowExchangeProvider ||  provider is SimpleSwapExchangeProvider;
+    isReceiveAmountEditable = true;
+  }
+
+  @action
+  void addExchangeProvider(ExchangeProvider provider) {
+    selectedProviders.add(provider);
+  }
+
+  @action
+  void removeExchangeProvider(ExchangeProvider provider) {
+    selectedProviders.remove(provider);
+  }
+
+  @action
+  void saveSelectedProviders() {
+    depositAmount = '';
+    receiveAmount = '';
+    isFixedRateMode = false;
+    _defineIsReceiveAmountEditable();
+    loadLimits();
+
+    final Map<String, dynamic> exchangeProvidersSelection = json
+        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
+
+    exchangeProvidersSelection.updateAll((key, dynamic value) => false);
+    for (var provider in selectedProviders) {
+      exchangeProvidersSelection[provider.title] = true;
+    }
+
+    sharedPreferences.setString(
+      PreferencesKey.exchangeProvidersSelection,
+      json.encode(exchangeProvidersSelection),
+    );
+  }
+
+  bool get isAvailableInSelected {
+    final providersForPair = providersForCurrentPair();
+    return selectedProviders.any((element) => element.isAvailable && providersForPair.contains(element));
   }
 }

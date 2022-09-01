@@ -485,7 +485,9 @@ Future setup(
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore));
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+  ));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,

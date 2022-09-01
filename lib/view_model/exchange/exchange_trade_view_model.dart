@@ -116,7 +116,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     items?.clear();
 
     items.add(ExchangeTradeItem(
-        title: S.current.id, data: '${trade.id}', isCopied: true));
+        title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
 
     if (trade.extraId != null) {
       final title = trade.from == CryptoCurrency.xrp

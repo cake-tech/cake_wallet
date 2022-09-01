@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Trade for ${title} is not created.",
-  "trade_not_created" : "Trade not created.",
+  "trade_not_created" : "Trade not created",
   "trade_id_not_found" : "Trade ${tradeId} of ${title} not found.",
   "trade_not_found" : "Trade not found.",
 
@@ -634,5 +634,10 @@
   "contact_support": "Contact Support",
   "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time",
   "introducing_cake_pay":  "Introducing Cake Pay!",
-  "cake_pay_learn_more": "Instantly purchase and redeem cards in the app!\nSwipe right to learn more!"
+  "cake_pay_learn_more": "Instantly purchase and redeem cards in the app!\nSwipe right to learn more!",
+  "automatic": "Automatic",
+  "fixed_pair_not_supported": "This fixed pair is not supported with the selected exchanges",
+  "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
+  "none_of_selected_providers_can_exchange": "None of the selected providers can make this exchange",
+  "choose_one": "Choose one"
 }

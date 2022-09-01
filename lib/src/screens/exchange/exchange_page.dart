@@ -354,8 +354,12 @@ class ExchangePage extends BasePage {
                     padding: EdgeInsets.only(bottom: 15),
                     child: Observer(builder: (_) {
                       final description = exchangeViewModel.isFixedRateMode
+                          ? exchangeViewModel.isAvailableInSelected
                               ? S.of(context).amount_is_guaranteed
-                              : S.of(context).amount_is_estimate;
+                              : S.of(context).fixed_pair_not_supported
+                          : exchangeViewModel.isAvailableInSelected
+                              ? S.of(context).amount_is_estimate
+                              : S.of(context).variable_pair_not_supported;
                       return Center(
                         child: Text(
                           description,
@@ -399,8 +403,8 @@ class ExchangePage extends BasePage {
                           },
                           color: Theme.of(context).accentTextTheme.body2.color,
                           textColor: Colors.white,
-                          isLoading:
-                              exchangeViewModel.tradeState is TradeIsCreating)),
+                          isDisabled: exchangeViewModel.selectedProviders.isEmpty,
+                          isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
                 ]),
               )),
         ));
@@ -517,13 +521,6 @@ class ExchangePage extends BasePage {
         currency: CryptoCurrency.fromString(template.depositCurrency));
     exchangeViewModel.changeReceiveCurrency(
         currency: CryptoCurrency.fromString(template.receiveCurrency));
-
-    switch (template.provider) {
-      case 'ChangeNOW':
-        exchangeViewModel.changeProvider(
-            provider: exchangeViewModel.providerList[0]);
-        break;
-    }
 
     exchangeViewModel.changeDepositAmount(amount: template.amount);
     exchangeViewModel.depositAddress = template.depositAddress;
@@ -744,11 +741,10 @@ class ExchangePage extends BasePage {
     });
 
     _receiveAmountFocus.addListener(() {
-     if(receiveAmountController.text.isNotEmpty){  
-      exchangeViewModel.isFixedRateMode = true;
-     }
-      exchangeViewModel.changeReceiveAmount(
-        amount: receiveAmountController.text);
+      if (_receiveAmountFocus.hasFocus) {
+        exchangeViewModel.isFixedRateMode = true;
+      }
+      exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
     });
 
     _depositAmountFocus.addListener(() {

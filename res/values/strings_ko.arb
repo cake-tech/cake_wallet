@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "거래 ${title} 생성되지 않습니다.",
-  "trade_not_created" : "거래가 생성되지 않았습니다.",
+  "trade_not_created" : "거래가 생성되지 않았습니다",
   "trade_id_not_found" : "무역 ${tradeId} 의 ${title} 찾을 수 없습니다.",
   "trade_not_found" : "거래를 찾을 수 없습니다.",
 
@@ -634,5 +634,10 @@
   "contact_support": "지원팀에 문의",
   "gift_cards_unavailable": "기프트 카드는 현재 Monero, Bitcoin 및 Litecoin을 통해서만 구매할 수 있습니다.",
   "introducing_cake_pay":  "소개 Cake Pay!",
-  "cake_pay_learn_more": "앱에서 즉시 카드를 구매하고 사용하세요!\n자세히 알아보려면 오른쪽으로 스와이프하세요!"
+  "cake_pay_learn_more": "앱에서 즉시 카드를 구매하고 사용하세요!\n자세히 알아보려면 오른쪽으로 스와이프하세요!",
+  "automatic": "자동적 인",
+  "fixed_pair_not_supported": "이 고정 쌍은 선택한 교환에서 지원되지 않습니다.",
+  "variable_pair_not_supported": "이 변수 쌍은 선택한 교환에서 지원되지 않습니다.",
+  "none_of_selected_providers_can_exchange": "선택한 공급자 중 누구도 이 교환을 할 수 없습니다.",
+  "choose_one": "하나 선택"
 }

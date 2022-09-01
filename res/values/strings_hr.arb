@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Razmjena za ${title} nije izrađena.",
-  "trade_not_created" : "Razmjena nije izrađena.",
+  "trade_not_created" : "Razmjena nije izrađena",
   "trade_id_not_found" : "Razmjena ${tradeId} za ${title} nije pronađena.",
   "trade_not_found" : "Razmjena nije pronađena.",
 
@@ -634,5 +634,10 @@
   "contact_support": "Kontaktirajte podršku",
   "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina",
   "introducing_cake_pay":  "Predstavljamo Cake Pay!",
-  "cake_pay_learn_more": "Odmah kupite i iskoristite kartice u aplikaciji!\nPrijeđite prstom udesno da biste saznali više!"
+  "cake_pay_learn_more": "Odmah kupite i iskoristite kartice u aplikaciji!\nPrijeđite prstom udesno da biste saznali više!",
+  "automatic": "Automatski",
+  "fixed_pair_not_supported": "Ovaj fiksni par nije podržan s odabranim burzama",
+  "variable_pair_not_supported": "Ovaj par varijabli nije podržan s odabranim burzama",
+  "none_of_selected_providers_can_exchange": "Niti jedan od odabranih pružatelja usluga ne može izvršiti ovu razmjenu",
+  "choose_one": "Izaberi jedan"
 }

@@ -40,6 +40,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   bool get isAvailable => true;
 
   @override
+  bool get isEnabled => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.changeNow;
 

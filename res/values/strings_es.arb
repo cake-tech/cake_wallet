@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Comercio por ${title} no se crea.",
-  "trade_not_created" : "Comercio no se crea.",
+  "trade_not_created" : "Comercio no se crea",
   "trade_id_not_found" : "Comercio ${tradeId} de ${title} no encontrado.",
   "trade_not_found" : "Comercio no encontrado.",
 
@@ -634,5 +634,10 @@
   "contact_support": "Contactar con Soporte",
   "gift_cards_unavailable": "Las tarjetas de regalo están disponibles para comprar solo a través de Monero, Bitcoin y Litecoin en este momento",
   "introducing_cake_pay":  "¡Presentamos Cake Pay!",
-  "cake_pay_learn_more": "¡Compre y canjee tarjetas al instante en la aplicación!\n¡Desliza hacia la derecha para obtener más información!"
+  "cake_pay_learn_more": "¡Compre y canjee tarjetas al instante en la aplicación!\n¡Desliza hacia la derecha para obtener más información!",
+  "automatic": "Automático",
+  "fixed_pair_not_supported": "Este par fijo no es compatible con los intercambios seleccionados",
+  "variable_pair_not_supported": "Este par de variables no es compatible con los intercambios seleccionados",
+  "none_of_selected_providers_can_exchange": "Ninguno de los proveedores seleccionados puede realizar este intercambio",
+  "choose_one": "Elige uno"
 }

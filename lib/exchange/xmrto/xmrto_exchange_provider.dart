@@ -45,6 +45,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   bool get isAvailable => _isAvailable;
 
   @override
+  bool get isEnabled => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.xmrto;
 
