@@ -40,10 +40,10 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore, this.sharedPreferences) {
-    const excludeDepositCurrencies = [CryptoCurrency.xhv];
-    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
+    const excludeDepositCurrencies = <CryptoCurrency>[];
+    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()];
-
+    _initialPairBasedOnWallet();
     currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>();
 
     final Map<String, dynamic> exchangeProvidersSelection = json
@@ -51,13 +51,12 @@ abstract class ExchangeViewModelBase with Store {
 
     /// if the provider is not in the user settings (user's first time or newly added provider)
     /// then use its default value decided by us
-    selectedProviders = ObservableList.of(providerList.where(
+    selectedProviders = ObservableList.of(providersForCurrentPair().where(
             (element) => exchangeProvidersSelection[element.title] == null
             ? element.isEnabled
             : (exchangeProvidersSelection[element.title] as bool))
         .toList());
 
-    _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     depositAmount = '';
@@ -531,6 +530,10 @@ abstract class ExchangeViewModelBase with Store {
       case WalletType.litecoin:
         depositCurrency = CryptoCurrency.ltc;
         receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.haven:
+        depositCurrency = CryptoCurrency.xhv;
+        receiveCurrency = CryptoCurrency.btc;
         break;
       default:
         break;
