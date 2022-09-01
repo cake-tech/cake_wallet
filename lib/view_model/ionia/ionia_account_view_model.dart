@@ -1,4 +1,4 @@
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
@@ -23,6 +23,9 @@ abstract class IoniaAccountViewModelBase with Store {
   @observable
   List<IoniaGiftCard> giftCards;
 
+  @observable
+  IoniaMerchantState merchantState;
+
   @computed
   int get countOfMerch => giftCards.where((giftCard) => !giftCard.isEmpty).length;
 
@@ -39,6 +42,8 @@ abstract class IoniaAccountViewModelBase with Store {
 
   @action
   Future<void> updateUserGiftCards() async {
+    merchantState = IoniaLoadingMerchantState();
     giftCards = await ioniaService.getCurrentUserGiftCardSummaries();
+    merchantState = IoniaLoadedMerchantState();
   }
 }
