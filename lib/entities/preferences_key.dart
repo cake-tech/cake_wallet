@@ -26,4 +26,6 @@ class PreferencesKey {
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static String moneroWalletUpdateV1Key(String name)
     => '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
+
+  static const exchangeProvidersSelection = 'exchange-providers-selection';
 }

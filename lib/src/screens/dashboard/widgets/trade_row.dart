@@ -90,6 +90,9 @@ class TradeRow extends StatelessWidget {
       case ExchangeProviderDescription.sideShift:
         image = Image.asset('assets/images/sideshift.png', width: 36, height: 36);
         break;
+      case ExchangeProviderDescription.simpleSwap:
+        image = Image.asset('assets/images/simpleSwap.png', width: 36, height: 36);
+        break;
       default:
         image = null;
     }

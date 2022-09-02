@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Lo scambio per ${title} non è stato creato.",
-  "trade_not_created" : "Scambio non creato.",
+  "trade_not_created" : "Scambio non creato",
   "trade_id_not_found" : "Scambio ${tradeId} di ${title} not trovato.",
   "trade_not_found" : "Scambio non trovato.",
 
@@ -540,7 +540,7 @@
   "cake_pay_title": "Carte regalo Cake Pay",
   "cake_pay_subtitle": "Acquista carte regalo e riscattale all'istante",
   "about_cake_pay": "Cake Pay ti consente di acquistare facilmente buoni regalo con asset virtuali, spendibili istantaneamente presso oltre 150.000 commercianti negli Stati Uniti.",
-  "cake_pay_account_note": "Crea un account per vedere le carte disponibili. Alcune sono anche disponibili con uno sconto!",
+  "cake_pay_account_note": "Iscriviti con solo un indirizzo email per vedere e acquistare le carte. Alcune sono anche disponibili con uno sconto!",
   "already_have_account": "Hai già un account?",
   "create_account": "Crea account",
   "privacy_policy": "Informativa sulla privacy",
@@ -633,5 +633,12 @@
   "gift_card_is_generated": "Il buono regalo è stato generato",
   "open_gift_card": "Apri carta regalo",
   "contact_support": "Contatta l'assistenza",
-  "gift_cards_unavailable": "Le carte regalo sono disponibili per l'acquisto solo tramite Monero, Bitcoin e Litecoin in questo momento"
+  "gift_cards_unavailable": "Le carte regalo sono disponibili per l'acquisto solo tramite Monero, Bitcoin e Litecoin in questo momento",
+  "introducing_cake_pay":  "Presentazione di Cake Pay!",
+  "cake_pay_learn_more": "Acquista e riscatta istantaneamente le carte nell'app!\nScorri verso destra per saperne di più!",
+  "automatic": "Automatico",
+  "fixed_pair_not_supported": "Questa coppia fissa non è supportata con gli scambi selezionati",
+  "variable_pair_not_supported": "Questa coppia di variabili non è supportata con gli scambi selezionati",
+  "none_of_selected_providers_can_exchange": "Nessuno dei fornitori selezionati può effettuare questo scambio",
+  "choose_one": "Scegline uno"
 }

@@ -11,6 +11,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 class IoniaApi {
 	static const baseUri = 'api.ionia.io';
 	static const pathPrefix = 'cake';
+	static const requestedUUIDHeader = 'requestedUUID';
 	static final createUserUri = Uri.https(baseUri, '/$pathPrefix/CreateUser');
 	static final verifyEmailUri = Uri.https(baseUri, '/$pathPrefix/VerifyEmail');
 	static final signInUri = Uri.https(baseUri, '/$pathPrefix/SignIn');
@@ -254,6 +255,7 @@ class IoniaApi {
 	// Purchase Gift Card
 
 	Future<IoniaOrder> purchaseGiftCard({
+		@required String requestedUUID,
 		@required String merchId,
 		@required double amount,
 		@required String currency,
@@ -264,6 +266,7 @@ class IoniaApi {
 			'clientId': clientId,
 			'username': username,
 			'password': password,
+			requestedUUIDHeader: requestedUUID,
 			'Content-Type': 'application/json'};
 		final body = <String, dynamic>{
 			'Amount': amount,

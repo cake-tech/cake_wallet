@@ -276,7 +276,7 @@
 
   "trade_details_title" : "Handelsgegevens",
   "trade_details_id" : "ID",
-  "trade_details_state" : "Staat",
+  "trade_details_state" : "Toestand",
   "trade_details_fetching" : "Ophalen",
   "trade_details_provider" : "Leverancier",
   "trade_details_created_at" : "Gemaakt bij",
@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Ruilen voor ${title} is niet gemaakt.",
-  "trade_not_created" : "Handel niet gecreëerd.",
+  "trade_not_created" : "Handel niet gecreëerd",
   "trade_id_not_found" : "Handel ${tradeId} van ${title} niet gevonden.",
   "trade_not_found" : "Handel niet gevonden.",
 
@@ -533,14 +533,14 @@
   "search_language": "Zoektaal",
   "search_currency": "Zoek valuta",
   "new_template" : "Nieuwe sjabloon",
-  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
+  "electrum_address_disclaimer": "We genereren nieuwe adressen elke keer dat u er een gebruikt, maar eerdere adressen blijven werken",
   "wallet_name_exists": "Portemonnee met die naam bestaat al",
   "disable_fiat": "Schakel fiat uit",
   "market_place": "Marktplaats",
   "cake_pay_title": "Cake Pay-cadeaubonnen",
   "cake_pay_subtitle": "Koop cadeaubonnen en wissel ze direct in",
   "about_cake_pay": "Met Cake Pay kunt u eenvoudig cadeaubonnen kopen met virtuele activa, die direct kunnen worden uitgegeven bij meer dan 150.000 handelaren in de Verenigde Staten.",
-  "cake_pay_account_note": "Maak een account aan om de beschikbare kaarten te zien. Sommige zijn zelfs met korting verkrijgbaar!",
+  "cake_pay_account_note": "Meld u aan met alleen een e-mailadres om kaarten te bekijken en te kopen. Sommige zijn zelfs met korting verkrijgbaar!",
   "already_have_account": "Heb je al een account?",
   "create_account": "Account aanmaken",
   "privacy_policy": "Privacybeleid",
@@ -633,5 +633,12 @@
   "gift_card_is_generated": "Cadeaukaart is gegenereerd",
   "open_gift_card": "Geschenkkaart openen",
   "contact_support": "Contact opnemen met ondersteuning",
-  "gift_cards_unavailable": "Cadeaubonnen kunnen momenteel alleen worden gekocht via Monero, Bitcoin en Litecoin"
+  "gift_cards_unavailable": "Cadeaubonnen kunnen momenteel alleen worden gekocht via Monero, Bitcoin en Litecoin",
+  "introducing_cake_pay":  "Introductie van Cake Pay!",
+  "cake_pay_learn_more": "Koop en wissel direct kaarten in de app!\nSwipe naar rechts voor meer informatie!",
+  "automatic": "automatisch",
+  "fixed_pair_not_supported": "Dit vaste paar wordt niet ondersteund bij de geselecteerde exchanges",
+  "variable_pair_not_supported": "Dit variabelenpaar wordt niet ondersteund met de geselecteerde uitwisselingen",
+  "none_of_selected_providers_can_exchange": "Geen van de geselecteerde providers kan deze uitwisseling maken",
+  "choose_one": "Kies er een"
 }

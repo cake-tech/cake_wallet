@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:mobx/mobx.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 
 part 'ionia_gift_card_details_view_model.g.dart';
 
@@ -14,6 +15,7 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
   }
 
   final IoniaService ioniaService;
+  double brightness;
   
   @observable
   IoniaGiftCard giftCard;
@@ -31,5 +33,10 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
     } catch(e) {
       redeemState = FailureState(e.toString());
     }
+  }
+
+  void increaseBrightness() async {
+    brightness = await DeviceDisplayBrightness.getBrightness();
+    await DeviceDisplayBrightness.setBrightness(1.0);
   }
 }

@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Handel für ${title} wird nicht erstellt.",
-  "trade_not_created" : "Handel nicht erstellt.",
+  "trade_not_created" : "Handel nicht erstellt",
   "trade_id_not_found" : "Handel ${tradeId} von ${title} nicht gefunden.",
   "trade_not_found" : "Handel nicht gefunden.",
 
@@ -540,7 +540,7 @@
   "cake_pay_title": "Cake Pay-Geschenkkarten",
   "cake_pay_subtitle": "Geschenkkarten kaufen und sofort einlösen",
   "about_cake_pay": "Mit Cake Pay können Sie ganz einfach Geschenkkarten mit virtuellen Vermögenswerten kaufen, die Sie sofort bei über 150.000 Händlern in den Vereinigten Staaten ausgeben können.",
-  "cake_pay_account_note": "Erstellen Sie ein Konto, um die verfügbaren Karten zu sehen. Einige sind sogar mit Rabatt erhältlich!",
+  "cake_pay_account_note": "Melden Sie sich nur mit einer E-Mail-Adresse an, um Karten anzuzeigen und zu kaufen. Einige sind sogar mit Rabatt erhältlich!",
   "already_have_account": "Sie haben bereits ein Konto?",
   "create_account": "Konto erstellen",
   "privacy_policy": "Datenschutzrichtlinie",
@@ -587,7 +587,7 @@
   "use_card_info_two": "Tegoeden worden omgezet naar USD wanneer ze op de prepaid-rekening staan, niet in digitale valuta.",
   "use_card_info_three": "Gebruik de digitale kaart online of met contactloze betaalmethoden.",
   "optionally_order_card": "Optioneel een fysieke kaart bestellen.",
-  "hide_details" : "Details verbergen", 
+  "hide_details" : "Details verbergen",
   "show_details" : "Toon details",
   "upto": "tot ${value}",
   "discount": "Bespaar ${value}%",
@@ -633,5 +633,12 @@
   "gift_card_is_generated": "Geschenkkarte wird generiert",
   "open_gift_card": "Geschenkkarte öffnen",
   "contact_support": "Support kontaktieren",
-  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden"
+  "gift_cards_unavailable": "Geschenkkarten können derzeit nur über Monero, Bitcoin und Litecoin erworben werden",
+  "introducing_cake_pay":  "Einführung von Cake Pay!",
+  "cake_pay_learn_more": "Karten sofort in der App kaufen und einlösen!\nWischen Sie nach rechts, um mehr zu erfahren!",
+  "automatic": "Automatisch",
+  "fixed_pair_not_supported": "Dieses feste Paar wird von den ausgewählten Vermittlungsstellen nicht unterstützt",
+  "variable_pair_not_supported": "Dieses Variablenpaar wird von den ausgewählten Börsen nicht unterstützt",
+  "none_of_selected_providers_can_exchange": "Keiner der ausgewählten Anbieter kann diesen Austausch vornehmen",
+  "choose_one": "Wähle ein"
 }
