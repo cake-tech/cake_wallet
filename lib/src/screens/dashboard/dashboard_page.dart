@@ -314,22 +314,6 @@ class DashboardPage extends BasePage {
   }
 
   Future<void> _onClickExchangeButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.haven:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: 'Exchange',
-                  alertContent: 'Exchange for this asset is not supported yet.',
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-        break;
-      default:
-        await Navigator.of(context).pushNamed(Routes.exchange);
-    }
+    await Navigator.of(context).pushNamed(Routes.exchange);
   }
 }

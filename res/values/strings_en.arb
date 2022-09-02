@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Trade for ${title} is not created.",
-  "trade_not_created" : "Trade not created.",
+  "trade_not_created" : "Trade not created",
   "trade_id_not_found" : "Trade ${tradeId} of ${title} not found.",
   "trade_not_found" : "Trade not found.",
 
@@ -541,7 +541,7 @@
   "cake_pay_title": "Cake Pay Gift Cards",
   "cake_pay_subtitle": "Buy gift cards and redeem instantly",
   "about_cake_pay": "Cake Pay allows you to easily buy gift cards with virtual assets, spendable instantly at over 150,000 merchants in the United States.",
-  "cake_pay_account_note": "Make an account to see the available cards. Some are even available at a discount!",
+  "cake_pay_account_note": "Sign up with just an email address to see and purchase cards. Some are even available at a discount!",
   "already_have_account": "Already have an account?",
   "create_account": "Create Account",
   "privacy_policy": "Privacy Policy",
@@ -634,5 +634,12 @@
   "gift_card_is_generated": "Gift Card is generated",
   "open_gift_card": "Open Gift Card",
   "contact_support": "Contact Support",
-  "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time"
+  "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time",
+  "introducing_cake_pay":  "Introducing Cake Pay!",
+  "cake_pay_learn_more": "Instantly purchase and redeem cards in the app!\nSwipe right to learn more!",
+  "automatic": "Automatic",
+  "fixed_pair_not_supported": "This fixed pair is not supported with the selected exchanges",
+  "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
+  "none_of_selected_providers_can_exchange": "None of the selected providers can make this exchange",
+  "choose_one": "Choose one"
 }

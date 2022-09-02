@@ -156,7 +156,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.fromLTRB(24.0, 24.0, 0, 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -174,6 +174,8 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                         selectedTip: ioniaPurchaseViewModel.selectedTip.percentage,
                         tipsList: ioniaPurchaseViewModel.tips,
                         onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
+                        amount: ioniaPurchaseViewModel.amount,
+                        merchant: ioniaPurchaseViewModel.ioniaMerchant,
                       ),
                     )
                   ],
@@ -372,13 +374,19 @@ class TipButtonGroup extends StatelessWidget {
     @required this.selectedTip,
     @required this.onSelect,
     @required this.tipsList,
+    @required this.amount,
+    @required this.merchant,
   }) : super(key: key);
 
   final Function(IoniaTip) onSelect;
   final double selectedTip;
   final List<IoniaTip> tipsList;
+  final double amount;
+  final IoniaMerchant merchant;
 
   bool _isSelected(double value) => selectedTip == value;
+  Set<double> get filter => tipsList.map((e) => e.percentage).toSet();
+  bool get _isCustomSelected => !filter.contains(selectedTip);
 
   @override
   Widget build(BuildContext context) {
@@ -392,10 +400,17 @@ class TipButtonGroup extends StatelessWidget {
           return Padding(
             padding: EdgeInsets.only(right: 5),
             child: TipButton(
-                isSelected: _isSelected(tip.percentage),
-                onTap: () => onSelect(tip),
-                caption: '${tip.percentage.toStringAsFixed(0)}%',
-                subTitle: '\$${tip.additionalAmount.toStringAsFixed(2)}',
+                isSelected: tip.isCustom ? _isCustomSelected :  _isSelected(tip.percentage),
+                onTap: () async {
+                    IoniaTip ioniaTip = tip;
+                    if(tip.isCustom){
+                      final customTip = await Navigator.pushNamed(context, Routes.ioniaCustomTipPage, arguments: [amount, merchant, tip]) as IoniaTip;
+                      ioniaTip =  customTip ?? tip;
+                    }
+                    onSelect(ioniaTip);
+                },
+                caption: tip.isCustom ? S.of(context).custom : '${tip.percentage.toStringAsFixed(0)}%',
+                subTitle: tip.isCustom ? null : '\$${tip.additionalAmount.toStringAsFixed(2)}',
               ));
         }));
   }

@@ -2,19 +2,24 @@ import 'package:cw_core/enumerable_item.dart';
 
 class ExchangeProviderDescription extends EnumerableItem<int>
     with Serializable<int> {
-  const ExchangeProviderDescription({String title, int raw})
+  const ExchangeProviderDescription({String title, int raw, this.horizontalLogo = false, this.image})
       : super(title: title, raw: raw);
 
-  static const xmrto = ExchangeProviderDescription(title: 'XMR.TO', raw: 0);
-  static const changeNow =
-      ExchangeProviderDescription(title: 'ChangeNOW', raw: 1);
-  static const morphToken =
-      ExchangeProviderDescription(title: 'MorphToken', raw: 2);
+  final bool horizontalLogo;
+  final String image;
 
-   static const sideShift =
-      ExchangeProviderDescription(title: 'SideShift', raw: 3);
+  static const xmrto = ExchangeProviderDescription(title: 'XMR.TO', raw: 0, image: 'assets/images/xmrto.png');
+  static const changeNow =
+      ExchangeProviderDescription(title: 'ChangeNOW', raw: 1, image: 'assets/images/changenow.png');
+  static const morphToken =
+      ExchangeProviderDescription(title: 'MorphToken', raw: 2, image: 'assets/images/morph.png');
+  static const sideShift =
+      ExchangeProviderDescription(title: 'SideShift', raw: 3, image: 'assets/images/sideshift.png');
+  static const simpleSwap =
+      ExchangeProviderDescription(title: 'SimpleSwap', raw: 4, image: 'assets/images/simpleSwap.png');
   static const all =
-  ExchangeProviderDescription(title: 'All trades', raw: 4);
+      ExchangeProviderDescription(title: 'All trades', raw: 5);
+
 
   static ExchangeProviderDescription deserialize({int raw}) {
     switch (raw) {
@@ -27,6 +32,8 @@ class ExchangeProviderDescription extends EnumerableItem<int>
       case 3:
         return sideShift;
       case 4:
+        return simpleSwap;
+      case 5:
         return all;
       default:
         return null;

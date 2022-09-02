@@ -13,6 +13,7 @@ abstract class ExchangeProvider {
   List<ExchangePair> pairList;
   ExchangeProviderDescription description;
   bool get isAvailable;
+  bool get isEnabled;
 
   @override
   String toString() => title;

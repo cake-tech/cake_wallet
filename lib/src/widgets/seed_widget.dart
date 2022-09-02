@@ -103,10 +103,10 @@ class SeedWidgetState extends State<SeedWidget> {
                 )),
             Positioned(
                 top: 0,
-                right: 0,
+                right: 8,
                 child: Container(
-                    width: 34,
-                    height: 34,
+                    width: 32,
+                    height: 32,
                     child: InkWell(
                       onTap: () async => _pasteText(),
                       child: Container(
