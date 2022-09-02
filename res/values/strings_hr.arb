@@ -276,7 +276,7 @@
 
   "trade_details_title" : "Detalji razmjene",
   "trade_details_id" : "ID",
-  "trade_details_state" : "Stanje",
+  "trade_details_state" : "Status",
   "trade_details_fetching" : "Dohvaćanje",
   "trade_details_provider" : "Pružatelj",
   "trade_details_created_at" : "Stvoreno u",

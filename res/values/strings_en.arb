@@ -276,7 +276,7 @@
 
   "trade_details_title" : "Trade Details",
   "trade_details_id" : "ID",
-  "trade_details_state" : "State",
+  "trade_details_state" : "Status",
   "trade_details_fetching" : "Fetching",
   "trade_details_provider" : "Provider",
   "trade_details_created_at" : "Created at",

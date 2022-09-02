@@ -574,7 +574,8 @@ Future setup(
       (WalletType type, _) => PreSeedPage(type));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
-      TradeDetailsViewModel(tradeForDetails: trade, trades: _tradesSource));
+      TradeDetailsViewModel(tradeForDetails: trade, trades: _tradesSource,
+          settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => BackupService(
       getIt.get<FlutterSecureStorage>(),

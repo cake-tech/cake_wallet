@@ -276,7 +276,7 @@
 
   "trade_details_title" : "Handelsgegevens",
   "trade_details_id" : "ID",
-  "trade_details_state" : "Staat",
+  "trade_details_state" : "Toestand",
   "trade_details_fetching" : "Ophalen",
   "trade_details_provider" : "Leverancier",
   "trade_details_created_at" : "Gemaakt bij",
