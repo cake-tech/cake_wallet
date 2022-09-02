@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Este par fijo no es compatible con los intercambios seleccionados",
   "variable_pair_not_supported": "Este par de variables no es compatible con los intercambios seleccionados",
   "none_of_selected_providers_can_exchange": "Ninguno de los proveedores seleccionados puede realizar este intercambio",
-  "choose_one": "Elige uno"
+  "choose_one": "Elige uno",
+  "choose_from_available_options": "Elija entre las opciones disponibles:",
+  "custom_redeem_amount": "Cantidad de canje personalizada",
+  "add_custom_redemption": "Agregar redención personalizada",
+  "remaining": "restante"
 }

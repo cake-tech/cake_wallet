@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "This fixed pair is not supported with the selected exchanges",
   "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
   "none_of_selected_providers_can_exchange": "None of the selected providers can make this exchange",
-  "choose_one": "Choose one"
+  "choose_one": "Choose one",
+  "choose_from_available_options": "Choose from the available options:",
+  "custom_redeem_amount": "Custom Redeem Amount",
+  "add_custom_redemption": "Add Custom Redemption",
+  "remaining": "remaining"
 }

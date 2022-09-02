@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "この固定ペアは、選択したエクスチェンジではサポートされていません",
   "variable_pair_not_supported": "この変数ペアは、選択した取引所ではサポートされていません",
   "none_of_selected_providers_can_exchange": "選択したプロバイダーはいずれもこの交換を行うことができません",
-  "choose_one": "1 つ選択してください"
+  "choose_one": "1 つ選択してください",
+  "choose_from_available_options": "利用可能なオプションから選択してください:",
+  "custom_redeem_amount": "カスタム交換金額",
+  "add_custom_redemption": "カスタム引き換えを追加",
+  "remaining": "残り"
 }

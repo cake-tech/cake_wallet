@@ -637,5 +637,9 @@
   "fixed_pair_not_supported": "所选交易所不支持此固定货币对",
   "variable_pair_not_supported": "所选交易所不支持此变量对",
   "none_of_selected_providers_can_exchange": "选定的供应商都不能进行此交换",
-  "choose_one": "选一个"
+  "choose_one": "选一个",
+  "choose_from_available_options": "从可用选项中选择：",
+  "custom_redeem_amount": "自定义兑换金额",
+  "add_custom_redemption": "添加自定义兑换",
+  "remaining": "剩余"
 }

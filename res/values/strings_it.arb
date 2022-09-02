@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Questa coppia fissa non è supportata con gli scambi selezionati",
   "variable_pair_not_supported": "Questa coppia di variabili non è supportata con gli scambi selezionati",
   "none_of_selected_providers_can_exchange": "Nessuno dei fornitori selezionati può effettuare questo scambio",
-  "choose_one": "Scegline uno"
+  "choose_one": "Scegline uno",
+  "choose_from_available_options": "Scegli tra le opzioni disponibili:",
+  "custom_redeem_amount": "Importo di riscatto personalizzato",
+  "add_custom_redemption": "Aggiungi riscatto personalizzato",
+  "remaining": "rimanente"
 }

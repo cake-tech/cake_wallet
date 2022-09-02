@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Dit vaste paar wordt niet ondersteund bij de geselecteerde exchanges",
   "variable_pair_not_supported": "Dit variabelenpaar wordt niet ondersteund met de geselecteerde uitwisselingen",
   "none_of_selected_providers_can_exchange": "Geen van de geselecteerde providers kan deze uitwisseling maken",
-  "choose_one": "Kies er een"
+  "choose_one": "Kies er een",
+  "choose_from_available_options": "Kies uit de beschikbare opties:",
+  "custom_redeem_amount": "Aangepast inwisselbedrag",
+  "add_custom_redemption": "Voeg aangepaste inwisseling toe",
+  "remaining": "resterende"
 }

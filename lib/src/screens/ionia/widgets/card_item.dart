@@ -12,6 +12,7 @@ class CardItem extends StatelessWidget {
     this.onTap,
     this.logoUrl,
     this.discount,
+    this.isAmount = false,
   });
 
   final VoidCallback onTap;
@@ -19,6 +20,7 @@ class CardItem extends StatelessWidget {
   final String subTitle;
   final String logoUrl;
   final double discount;
+  final bool isAmount;
   final Color backgroundColor;
   final Color titleColor;
   final Color subtitleColor;
@@ -100,6 +102,7 @@ class CardItem extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: DiscountBadge(
                   percentage: discount,
+                  isAmount: isAmount,
                   discountBackground: discountBackground,
                 ),
               ),

@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "यह निश्चित जोड़ी चयनित एक्सचेंजों के साथ समर्थित नहीं है",
   "variable_pair_not_supported": "यह परिवर्तनीय जोड़ी चयनित एक्सचेंजों के साथ समर्थित नहीं है",
   "none_of_selected_providers_can_exchange": "चयनित प्रदाताओं में से कोई भी इस एक्सचेंज को नहीं बना सकता",
-  "choose_one": "एक का चयन"
+  "choose_one": "एक का चयन",
+  "choose_from_available_options": "उपलब्ध विकल्पों में से चुनें:",
+  "custom_redeem_amount": "कस्टम रिडीम राशि",
+  "add_custom_redemption": "कस्टम रिडेम्पशन जोड़ें",
+  "remaining": "शेष"
 }

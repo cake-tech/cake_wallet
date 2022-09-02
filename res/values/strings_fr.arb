@@ -637,5 +637,9 @@
   "fixed_pair_not_supported": "Cette paire fixe n'est pas prise en charge avec les échanges sélectionnés",
   "variable_pair_not_supported": "Cette paire de variables n'est pas prise en charge avec les échanges sélectionnés",
   "none_of_selected_providers_can_exchange": "Aucun des prestataires sélectionnés ne peut effectuer cet échange",
-  "choose_one": "Choisissez-en un"
+  "choose_one": "Choisissez-en un",
+  "choose_from_available_options": "Choisissez parmi les options disponibles :",
+  "custom_redeem_amount": "Montant d'échange personnalisé",
+  "add_custom_redemption": "Ajouter un remboursement personnalisé",
+  "remaining": "restant"
 }

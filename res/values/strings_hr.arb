@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Ovaj fiksni par nije podržan s odabranim burzama",
   "variable_pair_not_supported": "Ovaj par varijabli nije podržan s odabranim burzama",
   "none_of_selected_providers_can_exchange": "Niti jedan od odabranih pružatelja usluga ne može izvršiti ovu razmjenu",
-  "choose_one": "Izaberi jedan"
+  "choose_one": "Izaberi jedan",
+  "choose_from_available_options": "Odaberite neku od dostupnih opcija:",
+  "custom_redeem_amount": "Prilagođeni iznos otkupa",
+  "add_custom_redemption": "Dodaj prilagođeni otkup",
+  "remaining": "preostalo"
 }
