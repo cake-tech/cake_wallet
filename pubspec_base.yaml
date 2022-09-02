@@ -55,6 +55,7 @@ dependencies:
   unorm_dart: ^0.2.0
   permission_handler: ^5.0.1+1
   device_display_brightness: ^0.0.6
+  platform_device_id: ^0.2.1
 
 dev_dependencies:
   flutter_test:

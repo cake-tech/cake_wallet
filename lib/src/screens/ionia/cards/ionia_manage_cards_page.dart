@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -208,7 +209,10 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) => Stack(children: [
+      builder: (_) {
+        final merchantState = widget.cardsListViewModel.merchantState;
+        if (merchantState is IoniaLoadedMerchantState) {
+        return Stack(children: [
         ListView.separated(
           padding: EdgeInsets.only(left: 2, right: 22),
           controller: _scrollController,
@@ -241,7 +245,15 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
                 fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
               )
             : Offstage()
-      ]),
+          ]);
+         } 
+         return Center(
+          child: CircularProgressIndicator(
+            backgroundColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme.body1.color),
+          ),
+        );
+      }
     );
   }
 }
