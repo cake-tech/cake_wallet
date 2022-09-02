@@ -159,7 +159,7 @@ class IoniaManageCardsPage extends BasePage {
     );
   }
 
-    Future <void> showCategoryFilter(BuildContext context) async {
+  Future <void> showCategoryFilter(BuildContext context) async {
     return showPopUp<void>(
       context: context,
       builder: (BuildContext context) {

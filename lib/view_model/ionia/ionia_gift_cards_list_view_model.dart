@@ -104,26 +104,25 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
 
   @action
   void setSelectedFilter(IoniaCategory category) {
-
-    if (category == IoniaCategory.all){
+    if (category == IoniaCategory.all) {
       selectedIndices.clear();
       selectedIndices.add(category);
       return;
     }
 
-    if(category != IoniaCategory.all) {
+    if (category != IoniaCategory.all) {
       selectedIndices.remove(IoniaCategory.all);
     }
 
-    if (selectedIndices.contains(category)){
+    if (selectedIndices.contains(category)) {
       selectedIndices.remove(category);
 
-      if(selectedIndices.isEmpty){
+      if (selectedIndices.isEmpty) {
         selectedIndices.add(IoniaCategory.all);
       }
       return;
     }
-   selectedIndices.add(category);
+    selectedIndices.add(category);
   }
 
   @action
