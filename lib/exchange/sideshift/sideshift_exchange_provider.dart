@@ -19,7 +19,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider()
       : super(
             pairList: CryptoCurrency.all
+                .where((i) => i != CryptoCurrency.xhv)
                 .map((i) => CryptoCurrency.all
+                    .where((i) => i != CryptoCurrency.xhv)
                     .map((k) => ExchangePair(from: i, to: k, reverse: true))
                     .where((c) => c != null))
                 .expand((i) => i)

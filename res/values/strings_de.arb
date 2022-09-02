@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Dieses feste Paar wird von den ausgewählten Vermittlungsstellen nicht unterstützt",
   "variable_pair_not_supported": "Dieses Variablenpaar wird von den ausgewählten Börsen nicht unterstützt",
   "none_of_selected_providers_can_exchange": "Keiner der ausgewählten Anbieter kann diesen Austausch vornehmen",
-  "choose_one": "Wähle ein"
+  "choose_one": "Wähle ein",
+  "choose_from_available_options": "Wähle aus verfügbaren Optionen:",
+  "custom_redeem_amount": "Benutzerdefinierter Einlösungsbetrag",
+  "add_custom_redemption": "Benutzerdefinierte Einlösung hinzufügen",
+  "remaining": "Rest"
 }

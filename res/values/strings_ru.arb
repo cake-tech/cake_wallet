@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Эта фиксированная пара не поддерживается выбранными биржами.",
   "variable_pair_not_supported": "Эта пара переменных не поддерживается выбранными биржами.",
   "none_of_selected_providers_can_exchange": "Ни один из выбранных провайдеров не может совершить этот обмен",
-  "choose_one": "Выбери один"
+  "choose_one": "Выбери один",
+  "choose_from_available_options": "Выберите из доступных вариантов:",
+  "custom_redeem_amount": "Пользовательская сумма погашения",
+  "add_custom_redemption": "Добавить пользовательское погашение",
+  "remaining": "осталось"
 }

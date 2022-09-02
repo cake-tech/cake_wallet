@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Ta stała para nie jest obsługiwana na wybranych giełdach",
   "variable_pair_not_supported": "Ta para zmiennych nie jest obsługiwana na wybranych giełdach",
   "none_of_selected_providers_can_exchange": "Żaden z wybranych dostawców nie może dokonać tej wymiany",
-  "choose_one": "Wybierz jeden"
+  "choose_one": "Wybierz jeden",
+  "choose_from_available_options": "Wybierz z dostępnych opcji:",
+  "custom_redeem_amount": "Niestandardowa kwota wykorzystania",
+  "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
+  "remaining": "pozostałe"
 }

@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "이 고정 쌍은 선택한 교환에서 지원되지 않습니다.",
   "variable_pair_not_supported": "이 변수 쌍은 선택한 교환에서 지원되지 않습니다.",
   "none_of_selected_providers_can_exchange": "선택한 공급자 중 누구도 이 교환을 할 수 없습니다.",
-  "choose_one": "하나 선택"
+  "choose_one": "하나 선택",
+  "choose_from_available_options": "사용 가능한 옵션에서 선택:",
+  "custom_redeem_amount": "사용자 지정 상환 금액",
+  "add_custom_redemption": "사용자 지정 상환 추가",
+  "remaining": "남은"
 }

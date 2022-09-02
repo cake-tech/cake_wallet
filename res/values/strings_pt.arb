@@ -639,5 +639,9 @@
   "fixed_pair_not_supported": "Este par fixo não é compatível com as exchanges selecionadas",
   "variable_pair_not_supported": "Este par de variáveis não é compatível com as trocas selecionadas",
   "none_of_selected_providers_can_exchange": "Nenhum dos provedores selecionados pode fazer esta troca",
-  "choose_one": "Escolha um"
+  "choose_one": "Escolha um",
+  "choose_from_available_options": "Escolha entre as opções disponíveis:",
+  "custom_redeem_amount": "Valor de resgate personalizado",
+  "add_custom_redemption": "Adicionar resgate personalizado",
+  "remaining": "restante"
 }
