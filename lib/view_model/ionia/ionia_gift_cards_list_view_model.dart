@@ -12,14 +12,13 @@ class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase with _$Ionia
 abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaGiftCardsListViewModelBase({
     @required this.ioniaService,
-  })  : 
+  })  :
         cardState = IoniaNoCardState(),
         ioniaMerchants = [],
+        ioniaCategories = IoniaCategory.allCategories,
+        selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
         scrollOffsetFromTop = 0.0 {
-    selectedFilters = [];
         _getAuthStatus().then((value) => isLoggedIn = value);
-
-    _getMerchants();
   }
 
   final IoniaService ioniaService;
@@ -27,8 +26,6 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   List<IoniaMerchant> ioniaMerchantList;
 
   String searchString;
-
-  List<IoniaCategory> selectedFilters;
 
   @observable
   double scrollOffsetFromTop;
@@ -47,6 +44,12 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
 
   @observable
   bool isLoggedIn;
+
+  @observable
+  List<IoniaCategory> ioniaCategories;
+
+  @observable
+  ObservableList<IoniaCategory> selectedIndices;
 
   Future<bool> _getAuthStatus() async {
     return await ioniaService.isLogined();
@@ -88,9 +91,10 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
     }
   }
 
-  void _getMerchants() {
+  
+  void getMerchants() {
     merchantState = IoniaLoadingMerchantState();
-    ioniaService.getMerchantsByFilter(categories: selectedFilters).then((value) {
+    ioniaService.getMerchantsByFilter(categories: selectedIndices).then((value) {
       value.sort((a, b) => a.legalName.toLowerCase().compareTo(b.legalName.toLowerCase()));
       ioniaMerchants = ioniaMerchantList = value;
       merchantState = IoniaLoadedMerchantState();
@@ -99,9 +103,42 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   }
 
   @action
-  void setSelectedFilter(List<IoniaCategory> filters) {
-    selectedFilters = filters;
-    _getMerchants();
+  void setSelectedFilter(IoniaCategory category) {
+    if (category == IoniaCategory.all) {
+      selectedIndices.clear();
+      selectedIndices.add(category);
+      return;
+    }
+
+    if (category != IoniaCategory.all) {
+      selectedIndices.remove(IoniaCategory.all);
+    }
+
+    if (selectedIndices.contains(category)) {
+      selectedIndices.remove(category);
+
+      if (selectedIndices.isEmpty) {
+        selectedIndices.add(IoniaCategory.all);
+      }
+      return;
+    }
+    selectedIndices.add(category);
+  }
+
+  @action
+  void onSearchFilter(String text) {
+    if (text.isEmpty) {
+      ioniaCategories = IoniaCategory.allCategories;
+    } else {
+      ioniaCategories = IoniaCategory.allCategories
+          .where((e) => e.title.toLowerCase().contains(text.toLowerCase()),)
+          .toList();
+    }
+  }
+
+  @action
+  void resetIoniaCategories() {
+    ioniaCategories = IoniaCategory.allCategories;
   }
 
   void setScrollOffsetFromTop(double scrollOffset) {

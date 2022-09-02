@@ -1,5 +1,3 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
@@ -13,7 +11,6 @@ import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -28,6 +25,9 @@ class IoniaManageCardsPage extends BasePage {
         });
       }
     });
+
+    _cardsListViewModel.getMerchants();
+
   }
   final IoniaGiftCardsListViewModel _cardsListViewModel;
 
@@ -108,15 +108,27 @@ class IoniaManageCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final filterIcon = InkWell(
+    final filterButton = InkWell(
         onTap: () async {
-          final selectedFilters = await showCategoryFilter(context, _cardsListViewModel);
-          _cardsListViewModel.setSelectedFilter(selectedFilters);
+          await showCategoryFilter(context);
+          _cardsListViewModel.getMerchants();
         },
-        child: Image.asset(
-          'assets/images/filter.png',
-          color: Theme.of(context).textTheme.caption.decorationColor,
-        ));
+        child: Container(
+          width: 32,
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Image.asset(
+            'assets/images/filter.png',
+            color: Theme.of(context).textTheme.caption.decorationColor,
+          ),
+        )
+    );
 
     return Padding(
       padding: const EdgeInsets.all(14.0),
@@ -132,18 +144,7 @@ class IoniaManageCardsPage extends BasePage {
                   controller: _searchController,
                 )),
                 SizedBox(width: 10),
-                Container(
-                  width: 32,
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).textTheme.title.backgroundColor,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: filterIcon,
-                )
+                filterButton
               ],
             ),
           ),
@@ -158,16 +159,12 @@ class IoniaManageCardsPage extends BasePage {
     );
   }
 
-  Future<List<IoniaCategory>> showCategoryFilter(
-    BuildContext context,
-    IoniaGiftCardsListViewModel viewModel,
-  ) async {
-    return await showPopUp<List<IoniaCategory>>(
+  Future <void> showCategoryFilter(BuildContext context) async {
+    return showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
         return IoniaFilterModal(
-          filterViewModel: getIt.get<IoniaFilterViewModel>(),
-          selectedCategories: viewModel.selectedFilters,
+          ioniaGiftCardsListViewModel: _cardsListViewModel,
         );
       },
     );
