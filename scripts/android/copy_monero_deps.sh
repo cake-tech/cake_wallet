@@ -4,6 +4,7 @@ printf $(git log -1 --pretty=format:"%h %ad") >> build/git_commit_version.txt
 WORKDIR="$(pwd)/"build
 CW_DIR="$(pwd)"/../../../flutter_libmonero
 CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
+CW_WOWNERO_EXTERNAL_DIR=${CW_DIR}/cw_wownero/ios/External/android
 CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
@@ -39,5 +40,8 @@ fi
 done
 
 mkdir -p ${CW_MONERO_EXTERNAL_DIR}/include
+mkdir -p ${CW_WOWNERO_EXTERNAL_DIR}/include
 
 cp $CW_EXRTERNAL_DIR/x86/include/monero/wallet2_api.h ${CW_MONERO_EXTERNAL_DIR}/include
+cp $CW_EXRTERNAL_DIR/x86/include/wownero/wallet2_api.h ${CW_WOWNERO_EXTERNAL_DIR}/include
+cp -R $CW_EXRTERNAL_DIR/x86/include/wownero_seed ${CW_WOWNERO_EXTERNAL_DIR}/include
