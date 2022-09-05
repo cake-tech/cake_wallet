@@ -37,20 +37,20 @@ void callbackDispatcher() {
 
               await walletLoadingService.load(WalletType.monero, name);
             }
+          } else {
+            /// else get all Monero wallets of the user and sync them
+            final List<WalletListItem> moneroWallets =
+                getIt.get<WalletListViewModel>().wallets.where((element) => element.type == WalletType.monero).toList();
 
-            break;
-          }
-
-          /// else get all Monero wallets of the user and sync them
-          final List<WalletListItem> moneroWallets =
-              getIt.get<WalletListViewModel>().wallets.where((element) => element.type == WalletType.monero).toList();
-
-          for (int i = 0; i < moneroWallets.length; i++) {
-            await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
+            for (int i = 0; i < moneroWallets.length; i++) {
+              await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
+            }
           }
 
           break;
       }
+
+      await Future<void>.delayed(Duration(minutes: 10));
 
       return Future.value(true);
     } catch (error, stackTrace) {
@@ -91,8 +91,8 @@ class BackgroundTasks {
         moneroSyncTaskKey,
         // initialDelay: syncMode.frequency,
         // frequency: syncMode.frequency,
-        initialDelay: Duration(hours: 1),
-        frequency: Duration(hours: 1),
+        initialDelay: Duration(minutes: 1),
+        frequency: Duration(minutes: 15),
         existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
         inputData: <String, dynamic>{"sync_all": syncAll},
         // constraints: Constraints(
