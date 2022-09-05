@@ -6,6 +6,7 @@ import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -29,13 +30,16 @@ void callbackDispatcher() {
 
           final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
 
+          WalletBase wallet;
+
           /// if the user chose to sync only active wallet
           if (!(inputData['sync_all'] as bool ?? true)) {
             /// if the current wallet is monero; sync it only
             if (typeRaw == WalletType.monero.index) {
               final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
 
-              await walletLoadingService.load(WalletType.monero, name);
+              wallet = await walletLoadingService.load(WalletType.monero, name);
+              await wallet.startSync();
             }
           } else {
             /// else get all Monero wallets of the user and sync them
@@ -43,7 +47,8 @@ void callbackDispatcher() {
                 getIt.get<WalletListViewModel>().wallets.where((element) => element.type == WalletType.monero).toList();
 
             for (int i = 0; i < moneroWallets.length; i++) {
-              await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
+              wallet = await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
+              await wallet.startSync();
             }
           }
 
