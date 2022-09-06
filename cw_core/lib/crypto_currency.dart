@@ -42,7 +42,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.sol,
     CryptoCurrency.usdc,
     CryptoCurrency.usdcsol,
-    CryptoCurrency.ust,
     CryptoCurrency.zaddr,
     CryptoCurrency.zec,
     CryptoCurrency.zen,
@@ -93,11 +92,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const sol = CryptoCurrency(title: 'SOL', iconPath: 'assets/images/sol_icon.png', raw: 39);
   static const usdc = CryptoCurrency(title: 'USDC', iconPath: 'assets/images/usdc_icon.png', raw: 40);
   static const usdcsol = CryptoCurrency(title: 'USDCSOL', iconPath: 'assets/images/usdcsol_icon.png', raw: 41);
-  static const ust = CryptoCurrency(title: 'UST', iconPath: 'assets/images/ust_icon.png', raw: 42);
-  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', name: 'Shielded Zcash', iconPath: 'assets/images/zaddr_icon.png', raw: 43);
-  static const zec = CryptoCurrency(title: 'TZEC', tag: 'ZEC', name: 'Transparent Zcash', iconPath: 'assets/images/zec_icon.png', raw: 44);
-  static const zen = CryptoCurrency(title: 'ZEN', iconPath: 'assets/images/zen_icon.png', raw: 45);
-  static const xvg = CryptoCurrency(title: 'XVG', name: 'Verge', iconPath: 'assets/images/xvg_icon.png', raw: 46);
+  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', name: 'Shielded Zcash', iconPath: 'assets/images/zaddr_icon.png', raw: 42);
+  static const zec = CryptoCurrency(title: 'TZEC', tag: 'ZEC', name: 'Transparent Zcash', iconPath: 'assets/images/zec_icon.png', raw: 43);
+  static const zen = CryptoCurrency(title: 'ZEN', iconPath: 'assets/images/zen_icon.png', raw: 44);
+  static const xvg = CryptoCurrency(title: 'XVG', name: 'Verge', iconPath: 'assets/images/xvg_icon.png', raw: 45);
 
 
 
@@ -189,14 +187,12 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
       case 41:
         return CryptoCurrency.usdcsol;
       case 42:
-        return CryptoCurrency.ust;
-      case 43:
         return CryptoCurrency.zaddr;
-      case 44:
+      case 43:
         return CryptoCurrency.zec;
-      case 45:
+      case 44:
         return CryptoCurrency.zen;
-      case 46:
+      case 45:
         return CryptoCurrency.xvg;
       default:
         return null;
@@ -289,8 +285,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.usdt;
       case 'usdcsol':
         return CryptoCurrency.usdcsol;
-      case 'ust':
-        return CryptoCurrency.ust;
       case 'zaddr':
         return CryptoCurrency.zaddr;
       case 'zec':
