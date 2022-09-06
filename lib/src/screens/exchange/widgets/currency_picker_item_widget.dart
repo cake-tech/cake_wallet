@@ -69,6 +69,5 @@ class PickerItemWidget extends StatelessWidget {
         ),
       ),
     );
-    ;
   }
 }
