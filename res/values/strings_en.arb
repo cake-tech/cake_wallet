@@ -276,7 +276,7 @@
 
   "trade_details_title" : "Trade Details",
   "trade_details_id" : "ID",
-  "trade_details_state" : "State",
+  "trade_details_state" : "Status",
   "trade_details_fetching" : "Fetching",
   "trade_details_provider" : "Provider",
   "trade_details_created_at" : "Created at",
@@ -641,5 +641,9 @@
   "fixed_pair_not_supported": "This fixed pair is not supported with the selected exchanges",
   "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
   "none_of_selected_providers_can_exchange": "None of the selected providers can make this exchange",
-  "choose_one": "Choose one"
+  "choose_one": "Choose one",
+  "choose_from_available_options": "Choose from the available options:",
+  "custom_redeem_amount": "Custom Redeem Amount",
+  "add_custom_redemption": "Add Custom Redemption",
+  "remaining": "remaining"
 }

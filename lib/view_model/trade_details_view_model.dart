@@ -7,12 +7,18 @@ import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart'
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:url_launcher/url_launcher.dart';
 part 'trade_details_view_model.g.dart';
 
@@ -20,7 +26,7 @@ class TradeDetailsViewModel = TradeDetailsViewModelBase
     with _$TradeDetailsViewModel;
 
 abstract class TradeDetailsViewModelBase with Store {
-  TradeDetailsViewModelBase({Trade tradeForDetails, this.trades}) {
+  TradeDetailsViewModelBase({Trade tradeForDetails, this.trades, this.settingsStore}) {
     trade = tradeForDetails;
 
     switch (trade.provider) {
@@ -62,6 +68,8 @@ abstract class TradeDetailsViewModelBase with Store {
 
   Timer timer;
 
+  final SettingsStore settingsStore;
+
   @action
   Future<void> _updateTrade() async {
     try {
@@ -80,18 +88,28 @@ abstract class TradeDetailsViewModelBase with Store {
   }
 
   void _updateItems() {
-    final dateFormat = DateFormatter.withCurrentLocal();
+    final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
 
     items?.clear();
 
-    items.addAll([
-      StandartListItem(title: S.current.trade_details_id, value: trade.id),
-      StandartListItem(
+    items.add(
+        DetailsListStatusItem(
           title: S.current.trade_details_state,
           value: trade.state != null
               ? trade.state.toString()
               : S.current.trade_details_fetching)
-    ]);
+    );
+
+    items.add(TradeDetailsListCardItem.tradeDetails(
+      id: trade.id,
+      createdAt: dateFormat.format(trade.createdAt),
+      from: trade.from,
+      to: trade.to,
+      onTap: (BuildContext context) {
+        Clipboard.setData(ClipboardData(text: '${trade.id}'));
+        showBar<void>(context, S.of(context).copied_to_clipboard);
+      },
+    ));
 
     if (trade.provider != null) {
       items.add(StandartListItem(

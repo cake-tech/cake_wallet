@@ -12,6 +12,7 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
 
   IoniaGiftCardDetailsViewModelBase({this.ioniaService, this.giftCard}) {
     redeemState = InitialExecutionState();
+    remainingAmount = giftCard.remainingAmount;
   }
 
   final IoniaService ioniaService;
@@ -21,10 +22,14 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
   IoniaGiftCard giftCard;
 
   @observable
+  double remainingAmount;
+
+  @observable
   ExecutionState redeemState;
 
   @action
   Future<void> redeem() async {
+    giftCard.remainingAmount = remainingAmount;
     try {
       redeemState = IsExecutingState();
       await ioniaService.redeem(giftCard);
@@ -33,6 +38,11 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
     } catch(e) {
       redeemState = FailureState(e.toString());
     }
+  }
+
+  @action
+  void updateRemaining(double amount){
+    remainingAmount = amount;
   }
 
   void increaseBrightness() async {
