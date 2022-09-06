@@ -169,8 +169,11 @@ class _GradiantContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).accentColor,
+            Theme.of(context)
+                            .primaryTextTheme
+                            .subhead
+                            .decorationColor,
+            Theme.of(context).primaryTextTheme.subhead.color,           
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

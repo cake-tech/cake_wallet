@@ -179,6 +179,7 @@ class _IoniaCardListView extends StatelessWidget {
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
                   discount: 0,
+                  hideBorder: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
                   titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
                   subtitleColor: Theme.of(context).hintColor,
