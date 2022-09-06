@@ -52,10 +52,22 @@ void callbackDispatcher() {
             }
           }
 
+          if (wallet?.syncStatus?.progress() == null) {
+            return Future.error("No Monero wallet found");
+          }
+
+          for (int i = 0;; i++) {
+            await Future<void>.delayed(const Duration(seconds: 1));
+            if (wallet.syncStatus.progress() == 1.0) {
+              break;
+            }
+            if (i > 600) {
+              return Future.error("Synchronization Timed out");
+            }
+          }
+
           break;
       }
-
-      await Future<void>.delayed(Duration(minutes: 10));
 
       return Future.value(true);
     } catch (error, stackTrace) {
