@@ -210,6 +210,10 @@ abstract class ExchangeViewModelBase with Store {
 
     currentTradeAvailableProviders.clear();
     for (var provider in selectedProviders) {
+      /// if this provider is not valid for the current pair, skip it
+      if (!providersForCurrentPair().contains(provider)) {
+        continue;
+      }
       provider
           .calculateAmount(
               from: receiveCurrency,
@@ -232,8 +236,8 @@ abstract class ExchangeViewModelBase with Store {
           isFixedRateMode: isFixedRateMode,
         ).then((limits) {
           /// if the entered amount doesn't exceed the limits of this provider
-          if ((limits.max ?? double.maxFinite) >= _enteredAmount
-              && (limits.min ?? 0) <= _enteredAmount) {
+          if ((limits?.max ?? double.maxFinite) >= _enteredAmount
+              && (limits?.min ?? 0) <= _enteredAmount) {
             /// add this provider as its valid for this trade
             /// will be sorted ascending already since
             /// we seek the least deposit amount
@@ -263,6 +267,10 @@ abstract class ExchangeViewModelBase with Store {
 
     currentTradeAvailableProviders.clear();
     for (var provider in selectedProviders) {
+      /// if this provider is not valid for the current pair, skip it
+      if (!providersForCurrentPair().contains(provider)) {
+        continue;
+      }
       provider
           .calculateAmount(
               from: depositCurrency,
@@ -286,8 +294,8 @@ abstract class ExchangeViewModelBase with Store {
         ).then((limits) {
 
           /// if the entered amount doesn't exceed the limits of this provider
-          if ((limits.max ?? double.maxFinite) >= _enteredAmount
-              && (limits.min ?? 0) <= _enteredAmount) {
+          if ((limits?.max ?? double.maxFinite) >= _enteredAmount
+              && (limits?.min ?? 0) <= _enteredAmount) {
             /// add this provider as its valid for this trade
             /// subtract from maxFinite so the provider
             /// with the largest amount would be sorted ascending
