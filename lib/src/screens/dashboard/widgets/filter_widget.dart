@@ -15,17 +15,13 @@ class FilterWidget extends StatelessWidget {
   FilterWidget({@required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
-  final backVector = Image.asset('assets/images/close.png',
+  final closeIcon = Image.asset('assets/images/close.png',
     color: Palette.darkBlueCraiola
   );
 
   @override
   Widget build(BuildContext context) {
-
-    final sectionDivider = Container(
-      height: 1,
-      color: Theme.of(context).accentTextTheme.subhead.backgroundColor,
-    );
+    const sectionDivider = SectionDivider();
 
     return AlertBackground(
       child: Stack(
@@ -152,9 +148,21 @@ class FilterWidget extends StatelessWidget {
               ),
             ],
           ),
-          AlertCloseButton(image: backVector)
+          AlertCloseButton(image: closeIcon)
         ],
       ),
+    );
+  }
+}
+
+class SectionDivider extends StatelessWidget {
+  const SectionDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 1,
+      color: Theme.of(context).accentTextTheme.subhead.backgroundColor,
     );
   }
 }
