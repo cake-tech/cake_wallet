@@ -26,9 +26,6 @@ class IoniaLoginPage extends BasePage {
 
   final IoniaAuthViewModel _authViewModel;
 
-  @override
-  Color get titleColor => Colors.black;
-
   final TextEditingController _emailController;
 
   @override
