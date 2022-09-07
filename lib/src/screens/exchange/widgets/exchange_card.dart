@@ -176,13 +176,47 @@ class ExchangeCardState extends State<ExchangeCard> {
                             padding: EdgeInsets.only(right: 5),
                             child: widget.imageArrow,
                           ),
-                          Text(_selectedCurrency.toString() + ':',
+                          Text(_selectedCurrency.toString(),
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
                                   color: Colors.white))
                         ]),
                   ),
+                ),
+                _selectedCurrency.tag != null ? Padding(
+                  padding: const EdgeInsets.only(right:3.0),
+                  child: Container(
+                    height: 32,
+                    decoration: BoxDecoration(
+                        color: widget.addressButtonsColor ?? Theme.of(context)
+                            .primaryTextTheme
+                            .display1
+                            .color,
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(6))),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Text(_selectedCurrency.tag,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .display1
+                                    .decorationColor)),
+                      ),
+                    ),
+                  ),
+                ) : Container(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: Text(':',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Colors.white)),
                 ),
                 Expanded(
                   child: Row(
@@ -316,9 +350,10 @@ class ExchangeCardState extends State<ExchangeCard> {
 
                       if (amountController.text.isNotEmpty) {
                         _showAmountPopup(context, paymentRequest);
-                      } else {
-                        amountController.text = paymentRequest.amount;
+                        return;
                       }
+                      widget.amountFocusNode.requestFocus();
+                        amountController.text = paymentRequest.amount;
                     },
                     placeholder: widget.hasRefundAddress
                         ? S.of(context).refund_address
@@ -445,7 +480,7 @@ class ExchangeCardState extends State<ExchangeCard> {
         builder: (_) => CurrencyPicker(
             selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
             items: widget.currencies,
-            title: S.of(context).change_currency,
+            hintText: S.of(context).search_currency,
             isMoneroWallet: _isMoneroWallet,
             isConvertFrom: widget.hasRefundAddress,
             onItemSelected: (CryptoCurrency item) =>
@@ -465,6 +500,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               rightButtonText: S.of(context).ok,
               leftButtonText: S.of(context).cancel,
               actionRightButton: () {
+                widget.amountFocusNode.requestFocus();
                 amountController.text = paymentRequest.amount;
                 Navigator.of(context).pop();
               },

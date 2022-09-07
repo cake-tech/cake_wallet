@@ -1,4 +1,6 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/standart_list_card.dart';
+import 'package:cake_wallet/src/widgets/standart_list_status_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -37,11 +39,15 @@ class StandardListRow extends StatelessWidget {
     return Expanded(
         child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
       if (hasLeftOffset) SizedBox(width: 10),
-      Text(title,
-          style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.normal,
-              color: titleColor(context)))
+      Expanded(
+        child: Text(title,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                color: titleColor(context),
+            ),
+        ),
+      )
     ]));
   }
 
@@ -205,6 +211,10 @@ class SectionStandardList extends StatelessWidget {
           final row = totalRows[index];
 
           if (row is StandardListSeparator || row is SectionHeaderListRow) {
+            return Container();
+          }
+
+          if (row is StandartListStatusRow || row is TradeDatailsStandartListCard) {
             return Container();
           }
 

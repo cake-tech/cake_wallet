@@ -9,7 +9,7 @@ part 'wallet_info.g.dart';
 class WalletInfo extends HiveObject {
   WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
       this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
-        this.yatLastUsedAddressRaw)
+        this.yatLastUsedAddressRaw, this.showIntroCakePayCard)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
@@ -23,10 +23,11 @@ class WalletInfo extends HiveObject {
       @required String path,
       @required String address,
       String yatEid ='',
-      String yatLastUsedAddressRaw = ''}) {
+      String yatLastUsedAddressRaw = '',
+      bool showIntroCakePayCard}) {
     return WalletInfo(id, name, type, isRecovery, restoreHeight,
         date.millisecondsSinceEpoch ?? 0, dirPath, path, address,
-        yatEid, yatLastUsedAddressRaw);
+        yatEid, yatLastUsedAddressRaw, showIntroCakePayCard);
   }
 
   static const typeId = 4;
@@ -68,6 +69,9 @@ class WalletInfo extends HiveObject {
   @HiveField(12)
   String yatLastUsedAddressRaw;
 
+  @HiveField(13)
+  bool showIntroCakePayCard;
+
   String get yatLastUsedAddress => yatLastUsedAddressRaw;
 
   set yatLastUsedAddress(String address) {
@@ -76,6 +80,13 @@ class WalletInfo extends HiveObject {
   }
 
   String get yatEmojiId => yatEid ?? '';
+
+  bool get isShowIntroCakePayCard {
+    if(showIntroCakePayCard == null) {
+      return type != WalletType.haven;
+    }
+    return showIntroCakePayCard;
+  }
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 

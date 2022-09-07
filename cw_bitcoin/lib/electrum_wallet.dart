@@ -109,7 +109,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   BitcoinWalletKeys get keys => BitcoinWalletKeys(
       wif: hd.wif, privateKey: hd.privKey, publicKey: hd.pubKey);
 
-  final String _password;
+  String _password;
   List<BitcoinUnspent> unspentCoins;
   List<int> _feeRates;
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
@@ -208,8 +208,14 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
 
       amount = credentialsAmount;
-      fee = calculateEstimatedFee(transactionCredentials.priority, amount,
-          outputsCount: outputs.length + 1);
+
+      if (transactionCredentials.feeRate != null) {
+        fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate, amount,
+            outputsCount: outputs.length + 1);
+      } else {
+        fee = calculateEstimatedFee(transactionCredentials.priority, amount,
+            outputsCount: outputs.length + 1);
+      }
     } else {
       final output = outputs.first;
       credentialsAmount = !output.sendAll
@@ -223,9 +229,14 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       amount = output.sendAll || allAmount - credentialsAmount < minAmount
           ? allAmount
           : credentialsAmount;
-      fee = output.sendAll || amount == allAmount
-          ? allAmountFee
-          : calculateEstimatedFee(transactionCredentials.priority, amount);
+
+      if (output.sendAll || amount == allAmount) {
+        fee = allAmountFee;
+      } else if (transactionCredentials.feeRate != null) {
+        fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate, amount);
+      } else {
+        fee = calculateEstimatedFee(transactionCredentials.priority, amount);
+      }
     }
 
     if (fee == 0) {
@@ -296,7 +307,14 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
     final estimatedSize =
       estimatedTransactionSize(inputs.length, outputs.length + 1);
-    final feeAmount = feeRate(transactionCredentials.priority) * estimatedSize;
+    var feeAmount = 0;
+
+    if (transactionCredentials.feeRate != null) {
+      feeAmount = transactionCredentials.feeRate * estimatedSize;
+    } else {
+      feeAmount = feeRate(transactionCredentials.priority) * estimatedSize;
+    }
+    
     final changeValue = totalInputAmount - amount - feeAmount;
 
     if (changeValue > minAmount) {
@@ -346,43 +364,55 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
           int outputsCount) =>
       feeRate(priority) * estimatedTransactionSize(inputsCount, outputsCount);
 
+  int feeAmountWithFeeRate(int feeRate, int inputsCount,
+          int outputsCount) =>
+      feeRate * estimatedTransactionSize(inputsCount, outputsCount);
+
   @override
   int calculateEstimatedFee(TransactionPriority priority, int amount,
   {int outputsCount}) {
     if (priority is BitcoinTransactionPriority) {
-      int inputsCount = 0;
-
-      if (amount != null) {
-        int totalValue = 0;
-
-        for (final input in unspentCoins) {
-          if (totalValue >= amount) {
-            break;
-          }
-
-          if (input.isSending) {
-            totalValue += input.value;
-            inputsCount += 1;
-          }
-        }
-
-        if (totalValue < amount) return 0;
-      } else {
-        for (final input in unspentCoins) {
-          if (input.isSending) {
-            inputsCount += 1;
-          }
-        }
-      }
-
-      // If send all, then we have no change value
-      final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
-
-      return feeAmountForPriority(
-          priority, inputsCount, _outputsCount);
+      return calculateEstimatedFeeWithFeeRate(
+        feeRate(priority),
+        amount,
+        outputsCount: outputsCount);
     }
 
     return 0;
+  }
+
+  int calculateEstimatedFeeWithFeeRate(int feeRate, int amount,
+  {int outputsCount}) {
+    int inputsCount = 0;
+
+    if (amount != null) {
+      int totalValue = 0;
+
+      for (final input in unspentCoins) {
+        if (totalValue >= amount) {
+          break;
+        }
+
+        if (input.isSending) {
+          totalValue += input.value;
+          inputsCount += 1;
+        }
+      }
+
+      if (totalValue < amount) return 0;
+    } else {
+      for (final input in unspentCoins) {
+        if (input.isSending) {
+          inputsCount += 1;
+        }
+      }
+    }
+
+    // If send all, then we have no change value
+    final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
+
+    return feeAmountWithFeeRate(
+        feeRate, inputsCount, _outputsCount);
   }
 
   @override
@@ -390,6 +420,13 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
+  }
+
+  @override
+  Future<void> changePassword(String password) async {
+    _password = password;
+    await save();
+    await transactionHistory.changePassword(password);
   }
 
   bitcoin.ECPair keyPairFor({@required int index}) =>
@@ -518,10 +555,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final addressHashes = <String, BitcoinAddressRecord>{};
     final normalizedHistories = <Map<String, dynamic>>[];
     walletAddresses.addresses.forEach((addressRecord) {
-      if (addressRecord.isHidden) {
-        return;
-      }
-
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       addressHashes[sh] = addressRecord;
     });

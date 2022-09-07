@@ -54,6 +54,7 @@ abstract class BuyViewModelBase with Store {
 
   double get doubleAmount => buyAmountViewModel.doubleAmount;
 
+  @computed
   FiatCurrency get fiatCurrency => buyAmountViewModel.fiatCurrency;
 
   CryptoCurrency get cryptoCurrency => walletTypeToCryptoCurrency(type);

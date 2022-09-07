@@ -19,20 +19,20 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider()
       : super(
             pairList: CryptoCurrency.all
+                .where((i) => i != CryptoCurrency.xhv)
                 .map((i) => CryptoCurrency.all
+                    .where((i) => i != CryptoCurrency.xhv)
                     .map((k) => ExchangePair(from: i, to: k, reverse: true))
                     .where((c) => c != null))
                 .expand((i) => i)
                 .toList());
 
-  static const apiKey = secrets.sideShiftApiKey;
   static const affiliateId = secrets.sideShiftAffiliateId;
   static const apiBaseUrl = 'https://sideshift.ai/api';
   static const rangePath = '/v1/pairs';
   static const orderPath = '/v1/orders';
   static const quotePath = '/v1/quotes';
   static const permissionPath = '/v1/permissions';
-  static const apiHeaderKey = 'x-sideshift-secret';
 
   @override
   ExchangeProviderDescription get description =>
@@ -49,8 +49,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       if (amount == 0) {
         return 0.0;
       }
-      final fromCurrency = normalizeCryptoCurrency(from);
-      final toCurrency = normalizeCryptoCurrency(to);
+      final fromCurrency = _normalizeCryptoCurrency(from);
+      final toCurrency = _normalizeCryptoCurrency(to);
       final url =
           apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
       final response = await get(url);
@@ -96,7 +96,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final _request = request as SideShiftRequest;
     final quoteId = await _createQuote(_request);
     final url = apiBaseUrl + orderPath;
-    final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
+    final headers = {'Content-Type': 'application/json'};
     final body = {
       'type': 'fixed',
       'quoteId': quoteId,
@@ -137,9 +137,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   Future<String> _createQuote(SideShiftRequest request) async {
     final url = apiBaseUrl + quotePath;
-    final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
-    final depositMethod = normalizeCryptoCurrency(request.depositMethod);
-    final settleMethod = normalizeCryptoCurrency(request.settleMethod);
+    final headers = {'Content-Type': 'application/json'};
+    final depositMethod = _normalizeCryptoCurrency(request.depositMethod);
+    final settleMethod = _normalizeCryptoCurrency(request.settleMethod);
     final body = {
       'depositMethod': depositMethod,
       'settleMethod': settleMethod,
@@ -168,8 +168,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   Future<Limits> fetchLimits(
       {CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
-    final fromCurrency = normalizeCryptoCurrency(from);
-    final toCurrency = normalizeCryptoCurrency(to);
+    final fromCurrency = _normalizeCryptoCurrency(from);
+    final toCurrency = _normalizeCryptoCurrency(to);
     final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
     final response = await get(url);
 
@@ -247,17 +247,21 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   bool get isAvailable => true;
 
   @override
+  bool get isEnabled => true;
+
+  @override
   String get title => 'SideShift';
 
-  static String normalizeCryptoCurrency(CryptoCurrency currency) {
-    const bnbTitle = 'bsc';
-    const usdterc20 = 'usdtErc20';
-
+  static String _normalizeCryptoCurrency(CryptoCurrency currency) {
     switch (currency) {
+      case CryptoCurrency.zaddr:
+        return 'zaddr';
+      case CryptoCurrency.zec:
+        return 'zec';
       case CryptoCurrency.bnb:
-        return bnbTitle;
+        return currency.tag.toLowerCase();
       case CryptoCurrency.usdterc20:
-        return usdterc20;
+        return 'usdtErc20';
       default:
         return currency.title.toLowerCase();
     }

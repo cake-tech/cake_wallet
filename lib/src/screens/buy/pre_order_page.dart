@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -27,7 +29,6 @@ class PreOrderPage extends BasePage {
   PreOrderPage({@required this.buyViewModel})
       : _amountFocus = FocusNode(),
         _amountController = TextEditingController() {
-
     _amountController.addListener(() {
       final amount = _amountController.text;
 
@@ -110,52 +111,70 @@ class PreOrderPage extends BasePage {
                             .decorationColor,
                       ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     ),
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 100, bottom: 65),
-                        child: Center(
-                            child: Container(
-                                width: 210,
-                                child: BaseTextFormField(
-                                  focusNode: _amountFocus,
-                                  controller: _amountController,
-                                  keyboardType:
-                                  TextInputType.numberWithOptions(
-                                      signed: false, decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter
-                                        .allow(RegExp(_amountPattern))
-                                  ],
-                                  prefixIcon: Padding(
-                                    padding: EdgeInsets.only(top: 2),
-                                    child:
-                                    Text(buyViewModel.fiatCurrency.title + ': ',
-                                        style: TextStyle(
-                                          fontSize: 36,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                        )),
-                                  ),
-                                  hintText: '0.00',
-                                  borderColor: Theme.of(context)
-                                      .primaryTextTheme
-                                      .body2
-                                      .decorationColor,
-                                  borderWidth: 0.5,
-                                  textStyle: TextStyle(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 100, bottom: 65),
+                    child: Center(
+                      child: Container(
+                        width: 210,
+                        child: BaseTextFormField(
+                          focusNode: _amountFocus,
+                          controller: _amountController,
+                          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(_amountPattern))],
+                          prefixIcon: GestureDetector(
+                            onTap: () {
+                              showPopUp<void>(
+                                context: context,
+                                builder: (_) => Picker(
+                                  hintText: S.current.search_currency,
+                                  items: FiatCurrency.currenciesAvailableToBuyWith,
+                                  selectedAtIndex:
+                                      FiatCurrency.currenciesAvailableToBuyWith.indexOf(buyViewModel.fiatCurrency),
+                                  onItemSelected: (FiatCurrency selectedCurrency) {
+                                    buyViewModel.buyAmountViewModel.fiatCurrency = selectedCurrency;
+                                  },
+                                  images: FiatCurrency.currenciesAvailableToBuyWith
+                                      .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                                      .toList(),
+                                  isGridView: true,
+                                  matchingCriteria: (FiatCurrency currency, String searchText) {
+                                    return currency.title.toLowerCase().contains(searchText) ||
+                                        currency.fullName.toLowerCase().contains(searchText);
+                                  },
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                                  Text(
+                                    buyViewModel.fiatCurrency.title + ': ',
+                                    style: TextStyle(
                                       fontSize: 36,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
-                                  placeholderTextStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline
-                                          .decorationColor,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 36),
-                                )
-                            )
-                        )
-                    )
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          hintText: '0.00',
+                          borderColor: Theme.of(context).primaryTextTheme.body2.decorationColor,
+                          borderWidth: 0.5,
+                          textStyle: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.white),
+                          placeholderTextStyle: TextStyle(
+                            color: Theme.of(context).primaryTextTheme.headline.decorationColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 36,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 if (buyViewModel.isShowProviderButtons) Padding(
                     padding: EdgeInsets.only(top: 38, bottom: 18),
@@ -273,7 +292,7 @@ class PreOrderPage extends BasePage {
 
     buyViewModel.isRunning = true;
     final url = await buyViewModel.fetchUrl();
-    
+
     if (url.isNotEmpty) {
       if (buyViewModel.selectedProvider is MoonPayBuyProvider) {
          if (await canLaunch(url)) await launch(url);
