@@ -6,9 +6,9 @@ import 'package:cw_core/crypto_currency.dart';
 class AddressValidator extends TextValidator {
   AddressValidator({@required CryptoCurrency type})
       : super(
-      errorMessage: S.current.error_text_address,
-      pattern: getPattern(type),
-      length: getLength(type));
+            errorMessage: S.current.error_text_address,
+            pattern: getPattern(type),
+            length: getLength(type));
 
   static String getPattern(CryptoCurrency type) {
     switch (type) {
