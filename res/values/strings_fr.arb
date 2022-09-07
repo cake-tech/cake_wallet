@@ -1,13 +1,13 @@
 {
   "welcome" : "Bienvenue sur",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Super portefeuille pour Monero, Bitcoin, Litecoin, et Haven",
-  "please_make_selection" : "Merci de faire un choix ci-dessous pour créer ou restaurer votre portefeuille.",
-  "create_new" : "Créer un Nouveau Portefeuille",
-  "restore_wallet" : "Restaurer un Portefeuille",
+  "first_wallet_text" : "Super portefeuille (wallet) pour Monero, Bitcoin, Litecoin et Haven",
+  "please_make_selection" : "Merci de faire un choix ci-dessous pour créer ou restaurer votre portefeuille (wallet).",
+  "create_new" : "Créer un Nouveau Portefeuille (Wallet)",
+  "restore_wallet" : "Restaurer un Portefeuille (Wallet)",
 
   "monero_com": "Monero.com par Cake Wallet",
-  "monero_com_wallet_text": "Super portefeuille pour Monero",
+  "monero_com_wallet_text": "Super portefeuille (wallet) pour Monero",
 
 
   "accounts" : "Comptes",
@@ -54,9 +54,9 @@
   "pending" : " (en attente)",
   "rescan" : "Analyser la blockchain",
   "reconnect" : "Reconnecter",
-  "wallets" : "Portefeuilles",
-  "show_seed" : "Visualiser la graine",
-  "show_keys" : "Visualiser graine/clefs",
+  "wallets" : "Portefeuilles (Wallets)",
+  "show_seed" : "Visualiser la phrase secrète (seed)",
+  "show_keys" : "Visualiser les /clefs",
   "address_book_menu" : "Carnet d'Adresses",
   "reconnection" : "Reconnexion",
   "reconnect_alert_text" : "Êtes vous certain de vouloir vous reconnecter ?",
@@ -77,7 +77,7 @@
   "max_value" : "Max: ${value} ${currency}",
   "change_currency" : "Changer de Devise",
   "overwrite_amount" : "Écraser montant",
-  "qr_payment_amount" : "Ce QR code contient un montant de paiement. Voulez-vous écraser la valeur actuelle?",
+  "qr_payment_amount" : "Ce QR code contient un montant de paiement. Voulez-vous écraser la valeur actuelle ?",
 
   "copy_id" : "Copier l'ID",
   "exchange_result_write_down_trade_id" : "Merci de copier ou d'écrire l'ID d'échange pour continuer.",
@@ -92,7 +92,7 @@
   "offer_expires_in" : "L'Offre expire dans : ",
   "trade_is_powered_by" : "Cet échange est proposé par ${provider}",
   "copy_address" : "Copier l'Adresse",
-  "exchange_result_confirm" : "En pressant confirmer, vous enverrez ${fetchingLabel} ${from} depuis votre portefeuille nommé ${walletName} vers l'adresse ci-dessous. Vous pouvez aussi envoyer depuis votre portefeuille externe vers l'adresse/QR code ci-dessous.\n\nMerci d'appuyer sur confirmer pour continuer ou retournez en arrière pour modifier les montants.",
+  "exchange_result_confirm" : "En pressant confirmer, vous enverrez ${fetchingLabel} ${from} depuis votre portefeuille (wallet) nommé ${walletName} vers l'adresse ci-dessous. Vous pouvez aussi envoyer depuis votre portefeuille externe vers l'adresse/QR code ci-dessous.\n\nMerci d'appuyer sur confirmer pour continuer ou retournez en arrière pour modifier les montants.",
   "exchange_result_description" : "Vous devez envoyer un minimum de ${fetchingLabel} ${from} à l'adresse indiquée page suivante. Si vous envoyez un montant inférieur à ${fetchingLabel} ${from} il pourrait ne pas être converti et ne pas être remboursé.",
   "exchange_result_write_down_ID" : "*Merci de copier ou écrire votre ID présenté ci-dessus.",
   "confirm" : "Confirmer",
@@ -109,13 +109,13 @@
 
 
   "enter_your_pin" : "Entrez votre code PIN",
-  "loading_your_wallet" : "Chargement de votre portefeuille",
+  "loading_your_wallet" : "Chargement de votre portefeuille (wallet)",
 
 
-  "new_wallet" : "Nouveau Portefeuille",
-  "wallet_name" : "Nom du Portefeuille",
+  "new_wallet" : "Nouveau Portefeuille (Wallet)",
+  "wallet_name" : "Nom du Portefeuille (Wallet)",
   "continue_text" : "Continuer",
-  "choose_wallet_currency" : "Merci de choisir la devise du portefeuille :",
+  "choose_wallet_currency" : "Merci de choisir la devise du portefeuille (wallet) :",
 
 
   "node_new" : "Nouveau Nœud",
@@ -126,7 +126,7 @@
   "nodes" : "Nœuds",
   "node_reset_settings_title" : "Réinitialisation des réglages",
   "nodes_list_reset_to_default_message" : "Êtes vous certain de vouloir revenir aux réglages par défaut ?",
-  "change_current_node" : "Êtes vous certain de vouloir changer le nœud actuel vers ${node}?",
+  "change_current_node" : "Êtes vous certain de vouloir changer le nœud actuel vers ${node} ?",
   "change" : "Changer",
   "remove_node" : "Supprimer le nœud",
   "remove_node_message" : "Êtes vous certain de vouloir supprimer le nœud sélectionné ?",
@@ -156,39 +156,39 @@
   "accounts_subaddresses" : "Comptes et sous-adresses",
 
 
-  "restore_restore_wallet" : "Restaurer le Portefeuille",
-  "restore_title_from_seed_keys" : "Restaurer depuis une graine ou des clefs",
-  "restore_description_from_seed_keys" : "Restaurez votre portefeuille depuis une graine ou des clefs que vous avez stockés en lieu sûr",
+  "restore_restore_wallet" : "Restaurer le Portefeuille (Wallet)",
+  "restore_title_from_seed_keys" : "Restaurer depuis une phrase secrète (seed) ou des clefs",
+  "restore_description_from_seed_keys" : "Restaurez votre portefeuille (wallet) depuis une phrase secrète (seed) ou des clefs que vous avez stockées en lieu sûr",
   "restore_next" : "Suivant",
   "restore_title_from_backup" : "Restaurer depuis une sauvegarde",
   "restore_description_from_backup" : "Vous pouvez restaurer l'intégralité de l'application Cake Wallet depuis un fichier de sauvegarde",
-  "restore_seed_keys_restore" : "Restaurer depuis Graine/Clefs",
-  "restore_title_from_seed" : "Restaurer depuis graine",
-  "restore_description_from_seed" : "Restaurez votre portefeuille depuis une combinaison de 25 ou 13 mots",
+  "restore_seed_keys_restore" : "Restaurer depuis Phrase secrète (seed)/Clefs",
+  "restore_title_from_seed" : "Restaurer depuis une phrase secrète (seed)",
+  "restore_description_from_seed" : "Restaurer votre portefeuille (wallet) depuis une phrase secrète (seed) de 25 ou 13 mots",
   "restore_title_from_keys" : "Restaurer depuis des clefs",
-  "restore_description_from_keys" : "Restaurer votre portefeuille d'après les séquences de touches générées d'après vos clefs privées",
-  "restore_wallet_name" : "Nom du portefeuille",
+  "restore_description_from_keys" : "Restaurer votre portefeuille (wallet) d'après les séquences de touches générées d'après vos clefs privées",
+  "restore_wallet_name" : "Nom du portefeuille (wallet)",
   "restore_address" : "Adresse",
   "restore_view_key_private" : "Clef d'audit (view key) (privée)",
   "restore_spend_key_private" : "Clef de dépense (spend key) (privée)",
   "restore_recover" : "Restaurer",
-  "restore_wallet_restore_description" : "Description de la restauration de portefeuille",
-  "restore_new_seed" : "Nouvelle graine",
-  "restore_active_seed" : "Graine actif",
-  "restore_bitcoin_description_from_seed" : "Restaurer votre portefeuille à l'aide d'une combinaison de 24 mots",
-  "restore_bitcoin_description_from_keys" : "Restaurer votre portefeuille d'après la chaîne WIF générée d'après vos clefs privées",
+  "restore_wallet_restore_description" : "Description de la restauration de portefeuille (wallet)",
+  "restore_new_seed" : "Nouvelle phrase secrète (seed)",
+  "restore_active_seed" : "Phrase secrète (seed) active",
+  "restore_bitcoin_description_from_seed" : "Restaurer votre portefeuille (wallet) à l'aide d'une phrase secrète (seed) de 24 mots",
+  "restore_bitcoin_description_from_keys" : "Restaurer votre portefeuille (wallet) d'après la chaîne WIF générée d'après vos clefs privées",
   "restore_bitcoin_title_from_keys" : "Restaurer depuis la chaîne WIF",
-  "restore_from_date_or_blockheight" : "Merci d'entrer une date antérieure de quelques jours à la date de création de votre portefeuille. Ou si vous connaissez la hauteur de bloc, merci de la spécifier plutôt qu'une date",
+  "restore_from_date_or_blockheight" : "Merci d'entrer une date antérieure de quelques jours à la date de création de votre portefeuille (wallet). Ou si vous connaissez la hauteur de bloc, merci de la spécifier plutôt qu'une date",
 
 
-  "seed_reminder" : "Merci d'écrire votre graine au cas où vous perdriez ou effaceriez votre téléphone",
-  "seed_title" : "Graine",
-  "seed_share" : "Partager la graine",
+  "seed_reminder" : "Merci d'écrire votre phrase secrète (seed) au cas où vous perdriez ou effaceriez votre téléphone",
+  "seed_title" : "Phrase secrète (seed)",
+  "seed_share" : "Partager la phrase secrète (seed)",
   "copy" : "Copier",
 
 
-  "seed_language_choose" : "Merci de choisir la langue de la graine :",
-  "seed_choose" : "Choisissez la langue de la graine",
+  "seed_language_choose" : "Merci de choisir la langue de la phrase secrète (seed) :",
+  "seed_choose" : "Choisissez la langue de la phrase secrète (seed)",
   "seed_language_next" : "Suivant",
   "seed_language_english" : "Anglais",
   "seed_language_chinese" : "Chinois",
@@ -203,7 +203,7 @@
 
 
   "send_title" : "Envoyer",
-  "send_your_wallet" : "Votre portefeuille",
+  "send_your_wallet" : "Votre portefeuille (wallet)",
   "send_address" : "adresse ${cryptoCurrency}",
   "send_payment_id" : "ID de paiement (optionnel)",
   "all" : "TOUT",
@@ -225,8 +225,8 @@
   "settings_title" : "Réglages",
   "settings_nodes" : "Nœuds",
   "settings_current_node" : "Nœud actuel",
-  "settings_wallets" : "Portefeuilles",
-  "settings_display_balance" : "Afficher le solde",
+  "settings_wallets" : "Portefeuilles (Wallets)",
+  "settings_display_balance_as" : "Affichage du solde",
   "settings_currency" : "Devise",
   "settings_fee_priority" : "Priorité des frais",
   "settings_save_recipient_address" : "Sauvegarder l'adresse du bénéficiaire",
@@ -252,8 +252,8 @@
   "setup_successful" : "Votre code PIN a été configuré avec succès !",
 
 
-  "wallet_keys" : "Graine/Clefs du portefeuille",
-  "wallet_seed" : "Graine du portefeuille",
+  "wallet_keys" : "Phrase secrète (seed)/Clefs du portefeuille (wallet)",
+  "wallet_seed" : "Phrase secrète (seed) du portefeuille (wallet)",
   "private_key" : "Clef privée",
   "public_key" : "Clef publique",
   "view_key_private" : "Clef d'audit (view key) (privée)",
@@ -295,21 +295,21 @@
   "transaction_details_recipient_address" : "Adresse du bénéficiaire",
 
 
-  "wallet_list_title" : "Portefeuille Monero",
-  "wallet_list_create_new_wallet" : "Créer un Nouveau Portefeuille",
-  "wallet_list_restore_wallet" : "Restaurer un Portefeuille",
-  "wallet_list_load_wallet" : "Charger Portefeuille",
-  "wallet_list_loading_wallet" : "Chargement du portefeuille ${wallet_name}",
-  "wallet_list_failed_to_load" : "Échec de chargement du portefeuille ${wallet_name}. ${error}",
-  "wallet_list_removing_wallet" : "Suppression du portefeuille ${wallet_name}",
-  "wallet_list_failed_to_remove" : "Échec de la suppression du portefeuille ${wallet_name}. ${error}",
+  "wallet_list_title" : "Portefeuille (Wallet) Monero",
+  "wallet_list_create_new_wallet" : "Créer un Nouveau Portefeuille (Wallet)",
+  "wallet_list_restore_wallet" : "Restaurer un Portefeuille (Wallet)",
+  "wallet_list_load_wallet" : "Charger un Portefeuille (Wallet)",
+  "wallet_list_loading_wallet" : "Chargement du portefeuille (wallet) ${wallet_name}",
+  "wallet_list_failed_to_load" : "Échec de chargement du portefeuille (wallet) ${wallet_name}. ${error}",
+  "wallet_list_removing_wallet" : "Suppression du portefeuille (wallet) ${wallet_name}",
+  "wallet_list_failed_to_remove" : "Échec de la suppression du portefeuille (wallet) ${wallet_name}. ${error}",
 
 
   "widgets_address" : "Adresse",
   "widgets_restore_from_blockheight" : "Restaurer depuis une hauteur de bloc",
   "widgets_restore_from_date" : "Restaurer depuis une date",
   "widgets_or" : "ou",
-  "widgets_seed" : "Graine",
+  "widgets_seed" : "Phrase secrète (seed)",
 
 
   "router_no_route" : "Aucune route définie pour ${name}",
@@ -317,7 +317,7 @@
 
   "error_text_account_name" : "Le nom de compte ne peut contenir que des lettres et des chiffres\net sa longueur doit être comprise entre 1 et 15 caractères",
   "error_text_contact_name" : "Un nom de contact ne peut pas contenir les symboles ` , ' \"\net doit faire entre 1 et 32 caractères",
-  "error_text_address" : "L'adresse du portefeuille doit correspondre au type de\ncryptomonnaie",
+  "error_text_address" : "L'adresse du portefeuille (wallet) doit correspondre au type de\ncryptomonnaie",
   "error_text_node_address" : "Merci d'entrer une adresse IPv4",
   "error_text_node_port" : "Le port d'un nœud doit être un nombre compris entre 0 et 65535",
   "error_text_payment_id" : "Un ID de paiement ne peut être constitué que de 16 à 64 caractères hexadécimaux",
@@ -325,8 +325,8 @@
   "error_text_fiat" : "La valeur du montant ne peut dépasser le solde disponible.\nLa partie décimale doit comporter au plus 2 chiffres",
   "error_text_subaddress_name" : "Le nom de sous-adresse ne peut contenir les symboles ` , ' \"\net sa longueur doit être comprise entre 1 et 20 caractères",
   "error_text_amount" : "Le montant ne peut comporter que des nombres",
-  "error_text_wallet_name" : "Le nom du portefeuille ne peut contenir que des lettres, des chiffres, des symboles _ -\net sa longueur doit être comprise entre 1 et 33 caractères",
-  "error_text_keys" : "Les clefs du portefeuille ne peuvent être constituées que de 64 caractères hexadécimaux",
+  "error_text_wallet_name" : "Le nom du portefeuille (wallet) ne peut contenir que des lettres et des chiffres\net sa longueur doit être comprise entre 1 et 15 caractères",
+  "error_text_keys" : "Les clefs du portefeuille (wallet) ne peuvent être constituées que de 64 caractères hexadécimaux",
   "error_text_crypto_currency" : "La partie décimale\ndoit comporter au plus 12 chiffres",
   "error_text_minimal_limit" : "Échange pour ${provider} non créé. Le montant est inférieur au minimum : ${min} ${currency}",
   "error_text_maximum_limit" : "Échange pour ${provider} non créé. Le montant est supérieur au maximum : ${max} ${currency}",
@@ -338,8 +338,8 @@
   "auth_store_banned_for" : "Banni pour ",
   "auth_store_banned_minutes" : " minutes",
   "auth_store_incorrect_password" : "Mauvais code PIN",
-  "wallet_store_monero_wallet" : "Portefeuille Monero",
-  "wallet_restoration_store_incorrect_seed_length" : "Longueur de graine incorrecte",
+  "wallet_store_monero_wallet" : "Portefeuille (Wallet) Monero",
+  "wallet_restoration_store_incorrect_seed_length" : "Longueur de phrase secrète (seed) incorrecte",
 
 
   "full_balance" : "Solde Complet",
@@ -385,10 +385,10 @@
   "trade_state_finished" : "Terminé",
 
   "change_language" : "Changer de langue",
-  "change_language_to" : "Changer la langue vers ${language}?",
+  "change_language_to" : "Changer la langue vers ${language} ?",
 
   "paste" : "Coller",
-  "restore_from_seed_placeholder" : "Merci d'entrer ou de coller votre graine ici",
+  "restore_from_seed_placeholder" : "Merci d'entrer ou de coller votre phrase secrète (seed) ici",
   "add_new_word" : "Ajouter un nouveau mot",
   "incorrect_seed" : "Le texte entré est invalide.",
 
@@ -407,26 +407,26 @@
 
   "template" : "Modèle",
   "confirm_delete_template" : "Cette action va supprimer ce modèle. Souhaitez-vous continuer ?",
-  "confirm_delete_wallet" : "Cette action va supprimer ce portefeuille. Souhaitez-vous contnuer ?",
+  "confirm_delete_wallet" : "Cette action va supprimer ce portefeuille (wallet). Souhaitez-vous contnuer ?",
 
   "picker_description" : "Pour choisir ChangeNOW ou MorphToken, merci de modifier d'abord la paire de votre échange",
 
-  "change_wallet_alert_title" : "Changer le portefeuille actuel",
-  "change_wallet_alert_content" : "Souhaitez-vous changer le portefeuille actuel vers ${wallet_name}?",
+  "change_wallet_alert_title" : "Changer le portefeuille (wallet) actuel",
+  "change_wallet_alert_content" : "Souhaitez-vous changer le portefeuille (wallet) actuel vers ${wallet_name} ?",
 
-  "creating_new_wallet" : "Création d'un nouveau portefeuille",
+  "creating_new_wallet" : "Création d'un nouveau portefeuille (wallet)",
   "creating_new_wallet_error" : "Erreur : ${description}",
 
   "seed_alert_title" : "Attention",
-  "seed_alert_content" : "La graine est la seule façon de restaurer votre portefeuille. L'avez-vous correctement écrit ?",
+  "seed_alert_content" : "La phrase secrète (seed) est la seule façon de restaurer votre portefeuille (wallet). L'avez-vous correctement écrite ?",
   "seed_alert_back" : "Retour",
   "seed_alert_yes" : "Oui, je suis sûr",
 
-  "exchange_sync_alert_content" : "Merci d'attendre que votre portefeuille soit synchronisé",
+  "exchange_sync_alert_content" : "Merci d'attendre que votre portefeuille (wallet) soit synchronisé",
 
   "pre_seed_title" : "IMPORTANT",
-  "pre_seed_description" : "Sur la page suivante vous allez voir une série de ${words} mots. Ils constituent votre graine unique et privé et sont le SEUL moyen de restaurer votre portefeuille en cas de perte ou de dysfonctionnement. Il est de VOTRE responsabilité d'écrire cette série de mots et de les stocker dans un lieu sûr en dehors de l'application Cake Wallet.",
-  "pre_seed_button_text" : "J'ai compris. Montrez moi ma graine",
+  "pre_seed_description" : "Sur la page suivante vous allez voir une série de ${words} mots. Ils constituent votre phrase secrète (seed) unique et privé et sont le SEUL moyen de restaurer votre portefeuille (wallet) en cas de perte ou de dysfonctionnement. Il est de VOTRE responsabilité d'écrire cette série de mots et de les stocker dans un lieu sûr en dehors de l'application Cake Wallet.",
+  "pre_seed_button_text" : "J'ai compris. Montrez moi ma phrase secrète (seed)",
 
   "xmr_to_error" : "Erreur XMR.TO",
   "xmr_to_error_description" : "Montant invalide. La partie décimale doit contenir au plus 8 chiffres",
@@ -475,17 +475,17 @@
   "xlm_extra_info" : "Merci de ne pas oublier de spécifier l'ID de mémo lors de l'envoi de la transaction XLM de l'échange",
   "xrp_extra_info" : "Merci de ne pas oublier de spécifier le tag de destination lors de l'envoi de la transaction XRP de l'échange",
 
-  "exchange_incorrect_current_wallet_for_xmr" : "Si vous souhaitez échanger des XMR du solde Monero de votre Cake Wallet, merci de sélectionner votre portefeuille Monero au préalable.",
+  "exchange_incorrect_current_wallet_for_xmr" : "Si vous souhaitez échanger des XMR du solde Monero de votre Cake Wallet, merci de sélectionner votre portefeuille (wallet) Monero au préalable.",
   "confirmed" : "Confirmé",
   "unconfirmed" : "Non confirmé",
   "displayable" : "Visible",
 
   "submit_request" : "soumettre une requête",
 
-  "buy_alert_content" : "Pour le moment nous ne supportons que l'achat de Bitcoin et Litecoin. Pour acheter du Bitcoin ou du Litecoin, merci de créer ou de sélectionner votre portefeuille Bitcoin ou Litecoin.",
-  "sell_alert_content": "Pour le moment nous ne supportons que la vente de Bitcoin. Pour vendre du Bitcoin, merci de créer ou de sélectionner votre portefeuille Bitcoint.",
+  "buy_alert_content" : "Pour le moment nous ne supportons que l'achat de Bitcoin et Litecoin. Pour acheter du Bitcoin ou du Litecoin, merci de créer ou de sélectionner votre portefeuille (wallet) Bitcoin ou Litecoin.",
+  "sell_alert_content": "Pour le moment nous ne supportons que la vente de Bitcoin. Pour vendre du Bitcoin, merci de créer ou de sélectionner votre portefeuille (wallet) Bitcoin.",
 
-  "outdated_electrum_wallet_description" : "Les nouveaux portefeuilles Bitcoin créés dans Cake ont dorénavant une graine de 24 mots. Il est impératif que vous créiez un nouveau portefeuille Bitcoin, que vous y transfériez tous vos fonds puis que vous cessiez d'utiliser le portefeuille avec une graine de 12 mots. Merci de faire cela immédiatement pour assurer la sécurité de vos avoirs.",
+  "outdated_electrum_wallet_description" : "Les nouveaux portefeuilles (wallets) Bitcoin créés dans Cake ont dorénavant une phrase secrète (seed) de 24 mots. Il est impératif que vous créiez un nouveau portefeuille Bitcoin, que vous y transfériez tous vos fonds puis que vous cessiez d'utiliser le portefeuille avec une phrase secrète de 12 mots. Merci de faire cela immédiatement pour assurer la sécurité de vos avoirs.",
   "understand" : "J'ai compris",
 
   "apk_update" : "Mise à jour d'APK",
@@ -494,7 +494,7 @@
   "buy_with" : "Acheter avec",
   "moonpay_alert_text" : "Le montant doit être au moins égal à ${minAmount} ${fiatCurrency}",
 
-  "outdated_electrum_wallet_receive_warning": "Si ce portefeuille a une graine de 12 mots et a été créé dans Cake, NE PAS y déposer de Bitcoin. Tous les BTC transférés vers ce portefeuille seront perdus. Créez un nouveau portefeuille avec graine de 24 mots (appuyez sur le menu en haut à droite, sélectionnez Portefeuilles puis Créer un Nouveau Portefeuille et enfin Bitcoin) et transférez y IMMÉDIATEMENT vos BTC. Les nouveaux portefeuilles BTC Cake (avec graine de 24 mots) sont sécurisés",
+  "outdated_electrum_wallet_receive_warning": "Si ce portefeuille (wallet) a une phrase secrète (seed) de 12 mots et a été créé dans Cake, NE PAS y déposer de Bitcoin. Tous les BTC transférés vers ce portefeuille seront perdus. Créez un nouveau portefeuille avec phrase secrète de 24 mots (appuyez sur le menu en haut à droite, sélectionnez Portefeuilles puis Créer un Nouveau Portefeuille et enfin Bitcoin) et transférez y IMMÉDIATEMENT vos BTC. Les nouveaux portefeuilles BTC Cake (avec phrase secrète de 24 mots) sont sécurisés",
   "do_not_show_me": "Ne plus me montrer ceci à l'avenir",
 
   "unspent_coins_title" : "Pièces (coins) non dépensées",
@@ -520,7 +520,7 @@
   "yat_error" : "Erreur Yat",
   "yat_error_content" : "Aucune adresse associée à ce Yat. Essayez un autre Yat",
   "choose_address" : "\n\nMerci de choisir l'adresse :",
-  "yat_popup_title" : "L'adresse de votre portefeuille peut être emojifiée.",
+  "yat_popup_title" : "L'adresse de votre portefeuille (wallet) peut être emojifiée.",
   "yat_popup_content" : "Vous pouvez à présent envoyer et recevoir des cryptos dans Cake Wallet à l'aide de votre Yat - un nom d'utilisateur court à base d'emoji. Gérér les Yats à tout moment depuis l'écran de paramétrage",
   "second_intro_title" : "Une adresse emoji pour les gouverner tous",
   "second_intro_content" : "Votre Yat est une seule et unique adresse emoji qui remplace toutes vos longues adresses hexadécimales pour toutes vos cryptomonnaies.",
