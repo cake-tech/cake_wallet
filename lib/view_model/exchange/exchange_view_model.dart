@@ -42,7 +42,7 @@ abstract class ExchangeViewModelBase with Store {
       this.tradesStore, this._settingsStore, this.sharedPreferences) {
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
-      CryptoCurrency.bnb, CryptoCurrency.xhv, CryptoCurrency.btt, CryptoCurrency.nano];
+      CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()];
     _initialPairBasedOnWallet();
     currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>();
