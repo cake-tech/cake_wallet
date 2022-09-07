@@ -634,7 +634,7 @@
   "contact_support": "Contact Support",
   "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time",
   "introducing_cake_pay":  "Introducing Cake Pay!",
-  "cake_pay_learn_more": "Instantly purchase and redeem cards in the app!\nSwipe right to learn more!",
+  "cake_pay_learn_more": "Instantly purchase and redeem gift cards in the app!\nSwipe left to right to learn more.",
   "automatic": "Automatic",
   "fixed_pair_not_supported": "This fixed pair is not supported with the selected exchanges",
   "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
