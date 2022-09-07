@@ -634,7 +634,7 @@
   "contact_support": "サポートに連絡する",
   "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。",
   "introducing_cake_pay":  "序章Cake Pay！",
-  "cake_pay_learn_more": "アプリですぐにカードを購入して引き換えましょう！\n右にスワイプして詳細をご覧ください。",
+  "cake_pay_learn_more": "アプリですぐにギフトカードを購入して引き換えましょう!\n左から右にスワイプして詳細をご覧ください。",
   "automatic": "自動",
   "fixed_pair_not_supported": "この固定ペアは、選択したエクスチェンジではサポートされていません",
   "variable_pair_not_supported": "この変数ペアは、選択した取引所ではサポートされていません",
