@@ -96,12 +96,12 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'Content-Type': 'application/json'};
     final flow = getFlow(isFixedRateMode);
     final body = <String, String>{
-      'fromCurrency': normalizeCryptoCurrency(_request.from), 
+      'fromCurrency': normalizeCryptoCurrency(_request.from),
       'toCurrency': normalizeCryptoCurrency(_request.to),
       'fromNetwork': networkFor(_request.from),
       'toNetwork': networkFor(_request.to),
-      'fromAmount': _request.fromAmount, 
-      'toAmount': _request.toAmount, 
+      'fromAmount': _request.fromAmount,
+      'toAmount': _request.toAmount,
       'address': _request.address,
       'flow': flow,
       'refundAddress': _request.refundAddress

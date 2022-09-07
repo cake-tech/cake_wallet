@@ -40,8 +40,9 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore, this.sharedPreferences) {
-    const excludeDepositCurrencies = <CryptoCurrency>[];
-    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb];
+    const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
+    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
+      CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()];
     _initialPairBasedOnWallet();
     currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>();
