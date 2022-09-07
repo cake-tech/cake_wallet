@@ -22,7 +22,7 @@ class PickerItemWidget extends StatelessWidget {
             children: [
               Container(
                 child: Image.asset(
-                  iconPath,
+                  iconPath ?? '',
                   height: 20.0,
                   width: 20.0,
                 ),
