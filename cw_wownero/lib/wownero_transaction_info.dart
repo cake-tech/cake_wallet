@@ -1,14 +1,22 @@
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_wownero/wownero_amount_format.dart';
-import 'package:cw_wownero/api/structs/transaction_info_row.dart';
+import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_wownero/api/structs/transaction_info_row.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
+import 'package:cw_wownero/wownero_amount_format.dart';
 
 class WowneroTransactionInfo extends TransactionInfo {
-  WowneroTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
+  WowneroTransactionInfo(
+      this.id,
+      this.height,
+      this.direction,
+      this.date,
+      this.isPending,
+      this.amount,
+      this.accountIndex,
+      this.addressIndex,
+      this.fee);
 
   WowneroTransactionInfo.fromMap(Map map)
       : id = (map['hash'] ?? '') as String,
@@ -17,38 +25,38 @@ class WowneroTransactionInfo extends TransactionInfo {
             parseTransactionDirectionFromNumber(map['direction'] as String) ??
                 TransactionDirection.incoming,
         date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
+            (int.parse(map['timestamp'] as String)) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int?,
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int?,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int? ?? 0 {
-          additionalInfo = {
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+    additionalInfo = {
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   WowneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
         height = row.blockHeight,
         direction = parseTransactionDirectionFromInt(row.direction) ??
             TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime()! * 1000),
+        date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
         isPending = row.isPending != 0,
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
         key = getTxKey(row.getHash()),
         fee = row.fee {
-          additionalInfo = {
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+    additionalInfo = {
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   final String id;
   final int? height;

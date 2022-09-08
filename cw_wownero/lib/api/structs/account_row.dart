@@ -8,5 +8,5 @@ class AccountRow extends Struct {
   external Pointer<Utf8> label;
 
   String getLabel() => label.toDartString();
-  int? getId() => id;
+  int getId() => id;
 }

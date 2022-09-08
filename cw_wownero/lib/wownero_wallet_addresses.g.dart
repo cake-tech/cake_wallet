@@ -9,7 +9,8 @@ part of 'wownero_wallet_addresses.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$WowneroWalletAddresses on WowneroWalletAddressesBase, Store {
-  final _$addressAtom = Atom(name: 'WowneroWalletAddressesBase.address');
+  late final _$addressAtom =
+      Atom(name: 'WowneroWalletAddressesBase.address', context: context);
 
   @override
   String? get address {
@@ -24,7 +25,8 @@ mixin _$WowneroWalletAddresses on WowneroWalletAddressesBase, Store {
     });
   }
 
-  final _$accountAtom = Atom(name: 'WowneroWalletAddressesBase.account');
+  late final _$accountAtom =
+      Atom(name: 'WowneroWalletAddressesBase.account', context: context);
 
   @override
   Account? get account {
@@ -39,7 +41,8 @@ mixin _$WowneroWalletAddresses on WowneroWalletAddressesBase, Store {
     });
   }
 
-  final _$subaddressAtom = Atom(name: 'WowneroWalletAddressesBase.subaddress');
+  late final _$subaddressAtom =
+      Atom(name: 'WowneroWalletAddressesBase.subaddress', context: context);
 
   @override
   Subaddress? get subaddress {

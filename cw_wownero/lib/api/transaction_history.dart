@@ -110,11 +110,13 @@ PendingTransactionDescription createTransactionSync(
       amount: pendingTransactionRawPointer.ref.amount,
       fee: pendingTransactionRawPointer.ref.fee,
       hash: pendingTransactionRawPointer.ref.getHash(),
+      hex: pendingTransactionRawPointer.ref.getHex(),
+      txKey: pendingTransactionRawPointer.ref.getKey(),
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
 PendingTransactionDescription createTransactionMultDestSync(
-    {required List<MoneroOutput> outputs,
+    {required List<WowneroOutput> outputs,
     required String paymentId,
     int? priorityRaw,
     int? accountIndex = 0}) {
@@ -166,6 +168,8 @@ PendingTransactionDescription createTransactionMultDestSync(
       amount: pendingTransactionRawPointer.ref.amount,
       fee: pendingTransactionRawPointer.ref.fee,
       hash: pendingTransactionRawPointer.ref.getHash(),
+      hex: pendingTransactionRawPointer.ref.getHex(),
+      txKey: pendingTransactionRawPointer.ref.getKey(),
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
@@ -203,7 +207,7 @@ PendingTransactionDescription _createTransactionSync(Map args) {
 }
 
 PendingTransactionDescription _createTransactionMultDestSync(Map args) {
-  final outputs = args['outputs'] as List<MoneroOutput>;
+  final outputs = args['outputs'] as List<WowneroOutput>;
   final paymentId = args['paymentId'] as String;
   final priorityRaw = args['priorityRaw'] as int?;
   final accountIndex = args['accountIndex'] as int?;
@@ -230,7 +234,7 @@ Future<PendingTransactionDescription> createTransaction(
     });
 
 Future<PendingTransactionDescription> createTransactionMultDest(
-        {List<MoneroOutput>? outputs,
+        {List<WowneroOutput>? outputs,
         String paymentId = '',
         int? priorityRaw,
         int? accountIndex = 0}) =>
