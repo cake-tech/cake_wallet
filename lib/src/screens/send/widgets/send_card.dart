@@ -153,6 +153,7 @@ class SendCardState extends State<SendCard>
                           await output.fetchParsedAddress(context);
                         },
                         validator: validator,
+                        selectedCurrency: sendViewModel.currency,
                       );
                     }),
                     if (output.isParsedAddress) Padding(

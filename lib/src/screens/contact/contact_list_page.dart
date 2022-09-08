@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -16,18 +17,26 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
-  ContactListPage(this.contactListViewModel, {this.isEditable = true, this.selectedCurrency}) {
-    contacts = (!isEditable && selectedCurrency != null)
-        ? contactListViewModel.contacts.where((element) =>
-    element.type == selectedCurrency).toList()
-        : contactListViewModel.contacts;
-
+  ContactListPage(this.contactListViewModel,
+      {this.isEditable = true, this.selectedCurrency}) {
+    if (!isEditable && selectedCurrency != null) {
+      contacts = contactListViewModel.contacts
+          .where((element) => element.type == selectedCurrency)
+          .toList();
+      walletContacts = contactListViewModel.walletContacts
+          .where((element) => element.type == selectedCurrency)
+          .toList();
+    } else {
+      contacts = contactListViewModel.contacts;
+      walletContacts = contactListViewModel.walletContacts;
+    }
   }
 
   final ContactListViewModel contactListViewModel;
   final bool isEditable;
   final CryptoCurrency selectedCurrency;
   List <ContactRecord> contacts;
+  List <WalletContact> walletContacts;
 
 
   @override
@@ -90,11 +99,11 @@ class ContactListPage extends BasePage {
                     child: Text(title, style: TextStyle(fontSize: 36)));
               },
               itemCounter: (int sectionIndex) => sectionIndex == 0
-                  ? contactListViewModel.walletContacts.length
+                  ? walletContacts.length
                   : contacts.length,
               itemBuilder: (_, sectionIndex, index) {
                 if (sectionIndex == 0) {
-                  final walletInfo = contactListViewModel.walletContacts[index];
+                  final walletInfo = walletContacts[index];
                   return generateRaw(context, walletInfo);
                 }
 
