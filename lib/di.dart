@@ -25,6 +25,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -461,9 +462,14 @@ Future setup(
   getIt.registerFactory(
       () => ContactListViewModel(_contactSource, _walletInfoSource));
 
-  getIt.registerFactoryParam<ContactListPage, bool, void>(
-      (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
-          isEditable: isEditable));
+  getIt.registerFactoryParam<ContactListPage, List, void>((args, _) {
+    final isEditable = args.first as bool;
+    final selectedCurrency = args[1] as CryptoCurrency;
+    return ContactListPage(getIt.get<ContactListViewModel>(),
+          isEditable: isEditable,
+          selectedCurrency: selectedCurrency);
+  });
+
 
   getIt.registerFactoryParam<ContactPage, ContactRecord, void>(
       (ContactRecord contact, _) =>

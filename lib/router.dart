@@ -19,6 +19,7 @@ import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -297,11 +298,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: true));
+          builder: (_) => getIt.get<ContactListPage>(param1: [true, CryptoCurrency.btc]));
 
     case Routes.pickerAddressBook:
+      final selectedCurrency = settings.arguments as CryptoCurrency;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: false));
+          builder: (_) => getIt.get<ContactListPage>(param1: [false, selectedCurrency]));
 
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(

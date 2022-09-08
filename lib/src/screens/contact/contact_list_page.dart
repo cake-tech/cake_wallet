@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +16,19 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
-  ContactListPage(this.contactListViewModel, {this.isEditable = true});
+  ContactListPage(this.contactListViewModel, {this.isEditable = true, this.selectedCurrency}) {
+    contacts = (!isEditable && selectedCurrency != null)
+        ? contactListViewModel.contacts.where((element) =>
+    element.type == selectedCurrency).toList()
+        : contactListViewModel.contacts;
+
+  }
 
   final ContactListViewModel contactListViewModel;
   final bool isEditable;
+  final CryptoCurrency selectedCurrency;
+  List <ContactRecord> contacts;
+
 
   @override
   String get title => S.current.address_book;
@@ -81,14 +91,14 @@ class ContactListPage extends BasePage {
               },
               itemCounter: (int sectionIndex) => sectionIndex == 0
                   ? contactListViewModel.walletContacts.length
-                  : contactListViewModel.contacts.length,
+                  : contacts.length,
               itemBuilder: (_, sectionIndex, index) {
                 if (sectionIndex == 0) {
                   final walletInfo = contactListViewModel.walletContacts[index];
                   return generateRaw(context, walletInfo);
                 }
 
-                final contact = contactListViewModel.contacts[index];
+                final contact = contacts[index];
                 final content = generateRaw(context, contact);
 
                 return !isEditable
