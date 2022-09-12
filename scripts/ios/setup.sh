@@ -1,7 +1,15 @@
 #!/bin/sh
 
 . ./config.sh
-printf $(git log -1 --pretty=format:"%h %ad") >> build/git_commit_version.txt
+echo ''$(git log -1 --pretty=format:"%h")' '$(date) >> build/git_commit_version.txt
+VERSIONS_FILE=../../lib/git_versions.dart
+EXAMPLE_VERSIONS_FILE=../../lib/git_versions_example.dart
+if [ ! -f "$VERSIONS_FILE" ]; then
+    cp $EXAMPLE_VERSIONS_FILE $VERSIONS_FILE
+fi
+COMMIT=$(git log -1 --pretty=format:"%h")
+OS="IOS"
+sed -i '' "/\/\*${OS}_VERSION/c\\/\*${OS}_VERSION\*\/ const ${OS}_VERSION = \"$COMMIT\";" $VERSIONS_FILE
 cd $EXTERNAL_IOS_LIB_DIR
 libtool -static -o libboost.a ./libboost_*.a
 
