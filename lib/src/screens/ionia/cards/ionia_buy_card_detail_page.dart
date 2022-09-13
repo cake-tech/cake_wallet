@@ -155,6 +155,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                   ],
                 ),
               ),
+              if(ioniaPurchaseViewModel.ioniaMerchant.acceptsTips)
               Padding(
                 padding: const EdgeInsets.fromLTRB(24.0, 24.0, 0, 24.0),
                 child: Column(
