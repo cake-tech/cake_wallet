@@ -643,5 +643,7 @@
   "choose_from_available_options": "Kies uit de beschikbare opties:",
   "custom_redeem_amount": "Aangepast inwisselbedrag",
   "add_custom_redemption": "Voeg aangepaste inwisseling toe",
-  "remaining": "resterende"
+  "remaining": "resterende",
+  "low_fee": "Lage vergoeding",
+  "low_fee_alert": "U gebruikt momenteel een lage prioriteit voor netwerkkosten. Dit kan lange wachttijden, andere tarieven of geannuleerde transacties veroorzaken. We raden aan een hogere vergoeding in te stellen voor een betere ervaring."
 }

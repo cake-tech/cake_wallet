@@ -643,5 +643,7 @@
   "choose_from_available_options": "Choose from the available options:",
   "custom_redeem_amount": "Custom Redeem Amount",
   "add_custom_redemption": "Add Custom Redemption",
-  "remaining": "remaining"
+  "remaining": "remaining",
+  "low_fee": "Low fee",
+  "low_fee_alert": "You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience."
 }

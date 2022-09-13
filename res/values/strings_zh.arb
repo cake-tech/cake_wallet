@@ -641,5 +641,7 @@
   "choose_from_available_options": "从可用选项中选择：",
   "custom_redeem_amount": "自定义兑换金额",
   "add_custom_redemption": "添加自定义兑换",
-  "remaining": "剩余"
+  "remaining": "剩余",
+  "low_fee": "费用低",
+  "low_fee_alert": "您当前正在使用低网络费用优先级。这可能会导致长时间等待、不同的费率或取消交易。我们建议设置更高的费用以获得更好的体验。"
 }

@@ -111,7 +111,7 @@ class ExchangePage extends BasePage {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
-    _setEffects(context);
+    _showFeeAlert(context);
 
     return KeyboardActions(
         disableScroll: true,
@@ -795,7 +795,7 @@ class ExchangePage extends BasePage {
     return address;
   }
 
-  void _setEffects(BuildContext context) async {
+  void _showFeeAlert(BuildContext context) async {
     await Future<void>.delayed(Duration(seconds: 1));
     final confirmed = await showPopUp<bool>(
         context: context,

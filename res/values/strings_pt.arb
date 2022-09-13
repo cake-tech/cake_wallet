@@ -643,5 +643,7 @@
   "choose_from_available_options": "Escolha entre as opções disponíveis:",
   "custom_redeem_amount": "Valor de resgate personalizado",
   "add_custom_redemption": "Adicionar resgate personalizado",
-  "remaining": "restante"
+  "remaining": "restante",
+  "low_fee": "Taxa baixa",
+  "low_fee_alert": "No momento, você está usando uma prioridade de taxa de rede baixa. Isso pode causar longas esperas, taxas diferentes ou negociações canceladas. Recomendamos definir uma taxa mais alta para uma melhor experiência."
 }
