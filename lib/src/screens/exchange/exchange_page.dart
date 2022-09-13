@@ -111,6 +111,8 @@ class ExchangePage extends BasePage {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
+    _setEffects(context);
+
     return KeyboardActions(
         disableScroll: true,
         config: KeyboardActionsConfig(
@@ -791,5 +793,20 @@ class ExchangePage extends BasePage {
     final parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
+  }
+
+  void _setEffects(BuildContext context) async {
+    await Future<void>.delayed(Duration(seconds: 1));
+    final confirmed = await showPopUp<bool>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertWithTwoActions(
+              alertTitle: 'Low fee',
+              alertContent: 'You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience.',
+              leftButtonText: S.of(context).cancel,
+              rightButtonText: S.of(context).ok,
+              actionLeftButton: () => Navigator.of(context).pop(false),
+              actionRightButton: () => Navigator.of(context).pop(true));
+        });
   }
 }
