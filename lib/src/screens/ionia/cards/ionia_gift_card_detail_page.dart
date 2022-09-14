@@ -133,19 +133,19 @@ class IoniaGiftCardDetailPage extends BasePage {
             if (!viewModel.giftCard.isEmpty) {
               return Column(
                 children: [
-                  PrimaryButton(
-                    onPressed: () async {
-                      final amount = await Navigator.of(context)
-                          .pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as String;
-                      if (amount != null) {
-                        viewModel.updateRemaining(double.parse(amount));
-                      }
-                    },
-                    text: S.of(context).more_options,
-                    color: Theme.of(context).accentTextTheme.caption.color,
-                    textColor: Theme.of(context).primaryTextTheme.title.color,
-                  ),
-                  SizedBox(height: 12),
+                  //PrimaryButton(
+                  //  onPressed: () async {
+                  //    final amount = await Navigator.of(context)
+                  //        .pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as String;
+                  //    if (amount != null) {
+                  //      viewModel.updateRemaining(double.parse(amount));
+                  //    }
+                  //  },
+                  //  text: S.of(context).more_options,
+                  //  color: Theme.of(context).accentTextTheme.caption.color,
+                  //  textColor: Theme.of(context).primaryTextTheme.title.color,
+                  //),
+                  //SizedBox(height: 12),
                   LoadingPrimaryButton(
                     isLoading: viewModel.redeemState is IsExecutingState,
                     onPressed: () => viewModel.redeem().then(
