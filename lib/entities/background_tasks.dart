@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -28,6 +29,8 @@ void callbackDispatcher() {
 
           final walletLoadingService = getIt.get<WalletLoadingService>();
 
+          final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.monero);
+
           final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
 
           WalletBase wallet;
@@ -39,6 +42,8 @@ void callbackDispatcher() {
               final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
 
               wallet = await walletLoadingService.load(WalletType.monero, name);
+
+              await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
           } else {
@@ -48,6 +53,8 @@ void callbackDispatcher() {
 
             for (int i = 0; i < moneroWallets.length; i++) {
               wallet = await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
+
+              await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
           }
