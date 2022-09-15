@@ -490,6 +490,7 @@ Future setup(
       getIt.get<TradesStore>(),
       getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
+      getIt.get<SettingsViewModel>(),
   ));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(

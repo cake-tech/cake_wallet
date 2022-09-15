@@ -111,7 +111,9 @@ class ExchangePage extends BasePage {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
-    _showFeeAlert(context);
+    if (exchangeViewModel.isLowFee) {
+      _showFeeAlert(context);
+    }
 
     return KeyboardActions(
         disableScroll: true,
@@ -801,12 +803,15 @@ class ExchangePage extends BasePage {
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-              alertTitle: 'Low fee',
-              alertContent: 'You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience.',
+              alertTitle: S.of(context).low_fee,
+              alertContent: S.of(context).low_fee_alert,
               leftButtonText: S.of(context).cancel,
               rightButtonText: S.of(context).ok,
               actionLeftButton: () => Navigator.of(context).pop(false),
               actionRightButton: () => Navigator.of(context).pop(true));
         });
+    if (confirmed) {
+      exchangeViewModel.setDefaultTransactionPriority();
+    }
   }
 }
