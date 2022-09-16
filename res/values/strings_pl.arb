@@ -645,5 +645,7 @@
   "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
   "remaining": "pozostałe",
   "low_fee": "Niska opłata",
-  "low_fee_alert": "Obecnie korzystasz z niskiego priorytetu opłaty sieciowej. Może to spowodować długie oczekiwanie, różne stawki lub anulowane transakcje. Zalecamy ustawienie wyższej opłaty, aby zapewnić lepsze wrażenia."
+  "low_fee_alert": "Obecnie korzystasz z niskiego priorytetu opłaty sieciowej. Może to spowodować długie oczekiwanie, różne stawki lub anulowane transakcje. Zalecamy ustawienie wyższej opłaty, aby zapewnić lepsze wrażenia.",
+  "ignor": "Ignorować",
+  "use_suggested": "Użyj sugerowane"
 }

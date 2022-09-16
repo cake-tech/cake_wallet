@@ -645,5 +645,7 @@
   "add_custom_redemption": "Add Custom Redemption",
   "remaining": "remaining",
   "low_fee": "Low fee",
-  "low_fee_alert": "You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience."
+  "low_fee_alert": "You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience.",
+  "ignor": "Ignore",
+  "use_suggested": "Use Suggested"
 }

@@ -645,5 +645,7 @@
   "add_custom_redemption": "Agregar redención personalizada",
   "remaining": "restante",
   "low_fee": "Tarifa baja",
-  "low_fee_alert": "Actualmente está utilizando una prioridad de tarifa de red baja. Esto podría causar largas esperas, tarifas diferentes o transacciones canceladas. Recomendamos establecer una tarifa más alta para una mejor experiencia."
+  "low_fee_alert": "Actualmente está utilizando una prioridad de tarifa de red baja. Esto podría causar largas esperas, tarifas diferentes o transacciones canceladas. Recomendamos establecer una tarifa más alta para una mejor experiencia.",
+  "ignor": "Pasar por alto",
+  "use_suggested": "Usar sugerido"
 }

@@ -645,5 +645,7 @@
   "add_custom_redemption": "Aggiungi riscatto personalizzato",
   "remaining": "rimanente",
   "low_fee": "Tariffa bassa",
-  "low_fee_alert": "Attualmente stai utilizzando una priorità a tariffa di rete bassa. Ciò potrebbe causare lunghe attese, tariffe diverse o operazioni annullate. Ti consigliamo di impostare una tariffa più alta per un'esperienza migliore."
+  "low_fee_alert": "Attualmente stai utilizzando una priorità a tariffa di rete bassa. Ciò potrebbe causare lunghe attese, tariffe diverse o operazioni annullate. Ti consigliamo di impostare una tariffa più alta per un'esperienza migliore.",
+  "ignor": "Ignorare",
+  "use_suggested": "Usa suggerito"
 }

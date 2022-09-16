@@ -805,8 +805,8 @@ class ExchangePage extends BasePage {
           return AlertWithTwoActions(
               alertTitle: S.of(context).low_fee,
               alertContent: S.of(context).low_fee_alert,
-              leftButtonText: S.of(context).cancel,
-              rightButtonText: S.of(context).ok,
+              leftButtonText: S.of(context).ignor,
+              rightButtonText: S.of(context).use_suggested,
               actionLeftButton: () => Navigator.of(context).pop(false),
               actionRightButton: () => Navigator.of(context).pop(true));
         });
