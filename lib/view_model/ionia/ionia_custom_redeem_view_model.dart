@@ -17,6 +17,9 @@ abstract class IoniaCustomRedeemViewModelBase with Store {
   double get remaining =>  amount <= giftCard.remainingAmount ? giftCard.remainingAmount  - amount : 0;
 
   @computed
+  String get formattedRemaining =>  remaining.toStringAsFixed(2);
+
+  @computed
   bool get disableRedeem => amount > giftCard.remainingAmount;
 
   @action
