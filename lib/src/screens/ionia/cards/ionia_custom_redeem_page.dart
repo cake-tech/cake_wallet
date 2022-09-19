@@ -117,7 +117,7 @@ class IoniaCustomRedeemPage extends BasePage {
                     Observer(builder: (_)=>
                       !ioniaCustomRedeemViewModel.disableRedeem  ? 
                        Center(
-                        child: Text('\$${giftCard.remainingAmount} - \$${ioniaCustomRedeemViewModel.amount} = \$${ioniaCustomRedeemViewModel.remaining} ${S.of(context).remaining}', 
+                        child: Text('\$${giftCard.remainingAmount} - \$${ioniaCustomRedeemViewModel.amount} = \$${ioniaCustomRedeemViewModel.formattedRemaining} ${S.of(context).remaining}', 
                         style: TextStyle(
                                 color: Theme.of(context).primaryTextTheme.headline.color,
                               ),),
