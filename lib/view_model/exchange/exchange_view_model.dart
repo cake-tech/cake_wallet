@@ -197,7 +197,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  void changeReceiveAmount({String amount}) {
+  void changeReceiveAmount({String amount}) async {
     receiveAmount = amount;
     isReverse = true;
 
@@ -207,9 +207,11 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
+    depositAmount = S.current.fetching;
+
     final _enteredAmount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
-    double lowestDepositAmount = double.infinity;
+    double lowestDepositAmount = double.maxFinite;
 
     currentTradeAvailableProviders.clear();
     for (var provider in selectedProviders) {
@@ -217,51 +219,50 @@ abstract class ExchangeViewModelBase with Store {
       if (!providersForCurrentPair().contains(provider)) {
         continue;
       }
-      provider
+
+      final calculatedAmount = await provider
           .calculateAmount(
               from: receiveCurrency,
               to: depositCurrency,
               amount: _enteredAmount,
               isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: true)
-          .then((amount) {
+              isReceiveAmount: true);
 
-        final from = isFixedRateMode
-            ? receiveCurrency
-            : depositCurrency;
-        final to = isFixedRateMode
-            ? depositCurrency
-            : receiveCurrency;
+      final from = isFixedRateMode
+          ? receiveCurrency
+          : depositCurrency;
+      final to = isFixedRateMode
+          ? depositCurrency
+          : receiveCurrency;
 
-        provider.fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode,
-        ).then((limits) {
-          /// if the entered amount doesn't exceed the limits of this provider
-          if ((limits?.max ?? double.maxFinite) >= _enteredAmount
-              && (limits?.min ?? 0) <= _enteredAmount) {
-            /// add this provider as its valid for this trade
-            /// will be sorted ascending already since
-            /// we seek the least deposit amount
-            currentTradeAvailableProviders[amount] = provider;
-          }
-          return amount;
-        }).then((amount) {
-          if (amount <= lowestDepositAmount) {
-            lowestDepositAmount = amount;
-            depositAmount = _cryptoNumberFormat
-                .format(amount)
-                .toString()
-                .replaceAll(RegExp('\\,'), '');
-          }
-        });
-      });
+      final limits = await provider.fetchLimits(
+        from: from,
+        to: to,
+        isFixedRateMode: isFixedRateMode,
+      );
+
+      /// if the entered amount doesn't exceed the limits of this provider
+      if ((limits?.max ?? double.maxFinite) >= _enteredAmount
+          && (limits?.min ?? 0) <= _enteredAmount) {
+        /// add this provider as its valid for this trade
+        /// will be sorted ascending already since
+        /// we seek the least deposit amount
+        currentTradeAvailableProviders[calculatedAmount] = provider;
+
+        if (calculatedAmount <= lowestDepositAmount && calculatedAmount != 0) {
+          lowestDepositAmount = calculatedAmount;
+        }
+      }
     }
+
+    depositAmount = _cryptoNumberFormat
+        .format(lowestDepositAmount == double.maxFinite ? 0 : lowestDepositAmount)
+        .toString()
+        .replaceAll(RegExp('\\,'), '');
   }
 
   @action
-  void changeDepositAmount({String amount}) {
+  void changeDepositAmount({String amount}) async {
     depositAmount = amount;
     isReverse = false;
 
@@ -270,6 +271,8 @@ abstract class ExchangeViewModelBase with Store {
       receiveAmount = '';
       return;
     }
+
+    receiveAmount = S.current.fetching;
 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
@@ -281,48 +284,47 @@ abstract class ExchangeViewModelBase with Store {
       if (!providersForCurrentPair().contains(provider)) {
         continue;
       }
-      provider
+
+      final calculatedAmount = await provider
           .calculateAmount(
               from: depositCurrency,
               to: receiveCurrency,
               amount: _enteredAmount,
               isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: false)
-          .then((amount) {
+              isReceiveAmount: false);
 
-        final from = isFixedRateMode
-            ? receiveCurrency
-            : depositCurrency;
-        final to = isFixedRateMode
-            ? depositCurrency
-            : receiveCurrency;
+      final from = isFixedRateMode
+          ? receiveCurrency
+          : depositCurrency;
+      final to = isFixedRateMode
+          ? depositCurrency
+          : receiveCurrency;
 
-        provider.fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode,
-        ).then((limits) {
+      final limits = await provider.fetchLimits(
+        from: from,
+        to: to,
+        isFixedRateMode: isFixedRateMode,
+      );
 
-          /// if the entered amount doesn't exceed the limits of this provider
-          if ((limits?.max ?? double.maxFinite) >= _enteredAmount
-              && (limits?.min ?? 0) <= _enteredAmount) {
-            /// add this provider as its valid for this trade
-            /// subtract from maxFinite so the provider
-            /// with the largest amount would be sorted ascending
-            currentTradeAvailableProviders[double.maxFinite - amount] = provider;
-          }
-          return amount;
-        }).then((amount) {
-          if (amount >= highestReceivedAmount) {
-            highestReceivedAmount = amount;
-            receiveAmount = _cryptoNumberFormat
-              .format(amount)
-              .toString()
-              .replaceAll(RegExp('\\,'), '');
-          }
-        });
-      });
+
+      /// if the entered amount doesn't exceed the limits of this provider
+      if ((limits?.max ?? double.maxFinite) >= _enteredAmount
+          && (limits?.min ?? 0) <= _enteredAmount) {
+        /// add this provider as its valid for this trade
+        /// subtract from maxFinite so the provider
+        /// with the largest amount would be sorted ascending
+        currentTradeAvailableProviders[double.maxFinite - calculatedAmount] = provider;
+
+        if (calculatedAmount >= highestReceivedAmount) {
+          highestReceivedAmount = calculatedAmount;
+        }
+      }
     }
+
+    receiveAmount = _cryptoNumberFormat
+        .format(highestReceivedAmount)
+        .toString()
+        .replaceAll(RegExp('\\,'), '');
   }
 
   @action
