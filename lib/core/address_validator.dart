@@ -71,7 +71,7 @@ class AddressValidator extends TextValidator {
       case  CryptoCurrency.hbar:
         return '[0-9a-zA-Z.]';
       case CryptoCurrency.zaddr:
-        return '^zs[0-9a-zA-Z]{75}\&|^zc[0-9a-zA-Z]{93}\$';
+        return '^zs[0-9a-zA-Z]{75}';
       case CryptoCurrency.zec:
         return '^t1[0-9a-zA-Z]{33}\$|^t3[0-9a-zA-Z]{33}\$';
       default:
