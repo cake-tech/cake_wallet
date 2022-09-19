@@ -197,7 +197,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  void changeReceiveAmount({String amount}) async {
+  Future<void> changeReceiveAmount({String amount}) async {
     receiveAmount = amount;
     isReverse = true;
 
@@ -220,38 +220,42 @@ abstract class ExchangeViewModelBase with Store {
         continue;
       }
 
-      final calculatedAmount = await provider
-          .calculateAmount(
-              from: receiveCurrency,
-              to: depositCurrency,
-              amount: _enteredAmount,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: true);
+      try {
+        final calculatedAmount = await provider
+            .calculateAmount(
+            from: receiveCurrency,
+            to: depositCurrency,
+            amount: _enteredAmount,
+            isFixedRateMode: isFixedRateMode,
+            isReceiveAmount: true);
 
-      final from = isFixedRateMode
-          ? receiveCurrency
-          : depositCurrency;
-      final to = isFixedRateMode
-          ? depositCurrency
-          : receiveCurrency;
+        final from = isFixedRateMode
+            ? receiveCurrency
+            : depositCurrency;
+        final to = isFixedRateMode
+            ? depositCurrency
+            : receiveCurrency;
 
-      final limits = await provider.fetchLimits(
-        from: from,
-        to: to,
-        isFixedRateMode: isFixedRateMode,
-      );
+        final limits = await provider.fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        );
 
-      /// if the entered amount doesn't exceed the limits of this provider
-      if ((limits?.max ?? double.maxFinite) >= _enteredAmount
-          && (limits?.min ?? 0) <= _enteredAmount) {
-        /// add this provider as its valid for this trade
-        /// will be sorted ascending already since
-        /// we seek the least deposit amount
-        currentTradeAvailableProviders[calculatedAmount] = provider;
+        /// if the entered amount doesn't exceed the limits of this provider
+        if ((limits?.max ?? double.maxFinite) >= _enteredAmount
+            && (limits?.min ?? 0) <= _enteredAmount) {
+          /// add this provider as its valid for this trade
+          /// will be sorted ascending already since
+          /// we seek the least deposit amount
+          currentTradeAvailableProviders[calculatedAmount] = provider;
 
-        if (calculatedAmount <= lowestDepositAmount && calculatedAmount != 0) {
-          lowestDepositAmount = calculatedAmount;
+          if (calculatedAmount <= lowestDepositAmount && calculatedAmount != 0) {
+            lowestDepositAmount = calculatedAmount;
+          }
         }
+      } catch (e) {
+        print(e);
       }
     }
 
@@ -262,7 +266,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  void changeDepositAmount({String amount}) async {
+  Future<void> changeDepositAmount({String amount}) async {
     depositAmount = amount;
     isReverse = false;
 
@@ -285,39 +289,43 @@ abstract class ExchangeViewModelBase with Store {
         continue;
       }
 
-      final calculatedAmount = await provider
-          .calculateAmount(
-              from: depositCurrency,
-              to: receiveCurrency,
-              amount: _enteredAmount,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: false);
+      try {
+        final calculatedAmount = await provider
+            .calculateAmount(
+            from: depositCurrency,
+            to: receiveCurrency,
+            amount: _enteredAmount,
+            isFixedRateMode: isFixedRateMode,
+            isReceiveAmount: false);
 
-      final from = isFixedRateMode
-          ? receiveCurrency
-          : depositCurrency;
-      final to = isFixedRateMode
-          ? depositCurrency
-          : receiveCurrency;
+        final from = isFixedRateMode
+            ? receiveCurrency
+            : depositCurrency;
+        final to = isFixedRateMode
+            ? depositCurrency
+            : receiveCurrency;
 
-      final limits = await provider.fetchLimits(
-        from: from,
-        to: to,
-        isFixedRateMode: isFixedRateMode,
-      );
+        final limits = await provider.fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        );
 
 
-      /// if the entered amount doesn't exceed the limits of this provider
-      if ((limits?.max ?? double.maxFinite) >= _enteredAmount
-          && (limits?.min ?? 0) <= _enteredAmount) {
-        /// add this provider as its valid for this trade
-        /// subtract from maxFinite so the provider
-        /// with the largest amount would be sorted ascending
-        currentTradeAvailableProviders[double.maxFinite - calculatedAmount] = provider;
+        /// if the entered amount doesn't exceed the limits of this provider
+        if ((limits?.max ?? double.maxFinite) >= _enteredAmount
+            && (limits?.min ?? 0) <= _enteredAmount) {
+          /// add this provider as its valid for this trade
+          /// subtract from maxFinite so the provider
+          /// with the largest amount would be sorted ascending
+          currentTradeAvailableProviders[double.maxFinite - calculatedAmount] = provider;
 
-        if (calculatedAmount >= highestReceivedAmount) {
-          highestReceivedAmount = calculatedAmount;
+          if (calculatedAmount >= highestReceivedAmount) {
+            highestReceivedAmount = calculatedAmount;
+          }
         }
+      } catch (e) {
+        print(e);
       }
     }
 
