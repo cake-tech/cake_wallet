@@ -209,6 +209,8 @@ abstract class ExchangeViewModelBase with Store {
 
     final _enteredAmount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
+    double lowestDepositAmount = double.infinity;
+
     currentTradeAvailableProviders.clear();
     for (var provider in selectedProviders) {
       /// if this provider is not valid for the current pair, skip it
@@ -245,10 +247,15 @@ abstract class ExchangeViewModelBase with Store {
             currentTradeAvailableProviders[amount] = provider;
           }
           return amount;
-        }).then((amount) => depositAmount = _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''));
+        }).then((amount) {
+          if (amount <= lowestDepositAmount) {
+            lowestDepositAmount = amount;
+            depositAmount = _cryptoNumberFormat
+                .format(amount)
+                .toString()
+                .replaceAll(RegExp('\\,'), '');
+          }
+        });
       });
     }
   }
@@ -265,6 +272,8 @@ abstract class ExchangeViewModelBase with Store {
     }
 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
+
+    double highestReceivedAmount = 0.0;
 
     currentTradeAvailableProviders.clear();
     for (var provider in selectedProviders) {
@@ -303,11 +312,15 @@ abstract class ExchangeViewModelBase with Store {
             currentTradeAvailableProviders[double.maxFinite - amount] = provider;
           }
           return amount;
-        }).then((amount) => receiveAmount =
+        }).then((amount) {
+          if (amount >= highestReceivedAmount) {
+            highestReceivedAmount = amount;
             receiveAmount = _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''));
+              .format(amount)
+              .toString()
+              .replaceAll(RegExp('\\,'), '');
+          }
+        });
       });
     }
   }
