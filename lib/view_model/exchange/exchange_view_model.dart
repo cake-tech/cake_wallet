@@ -584,9 +584,8 @@ abstract class ExchangeViewModelBase with Store {
     final Map<String, dynamic> exchangeProvidersSelection = json
         .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
 
-    exchangeProvidersSelection.updateAll((key, dynamic value) => false);
-    for (var provider in selectedProviders) {
-      exchangeProvidersSelection[provider.title] = true;
+    for (var provider in providerList) {
+      exchangeProvidersSelection[provider.title] = selectedProviders.contains(provider);
     }
 
     sharedPreferences.setString(
