@@ -462,14 +462,11 @@ Future setup(
   getIt.registerFactory(
       () => ContactListViewModel(_contactSource, _walletInfoSource));
 
-  getIt.registerFactoryParam<ContactListPage, List, void>((args, _) {
-    final isEditable = args.first as bool;
-    final selectedCurrency = args[1] as CryptoCurrency;
-    return ContactListPage(getIt.get<ContactListViewModel>(),
-          isEditable: isEditable,
-          selectedCurrency: selectedCurrency);
-  });
-
+  getIt.registerFactoryParam<ContactListPage, bool, CryptoCurrency>((bool isEditable, CryptoCurrency cur)
+    => ContactListPage(
+        getIt.get<ContactListViewModel>(),
+        isEditable: false,
+        selectedCurrency: cur));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord, void>(
       (ContactRecord contact, _) =>

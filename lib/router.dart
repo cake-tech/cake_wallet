@@ -298,12 +298,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: [true, CryptoCurrency.btc]));
+          builder: (_) => getIt.get<ContactListPage>(param1: true, param2: null));
 
     case Routes.pickerAddressBook:
       final selectedCurrency = settings.arguments as CryptoCurrency;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: [false, selectedCurrency]));
+          builder: (_) => getIt.get<ContactListPage>(param1: false, param2: selectedCurrency));
 
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(
