@@ -1,6 +1,4 @@
 import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -18,26 +16,11 @@ import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
   ContactListPage(this.contactListViewModel,
-      {this.isEditable = true, this.selectedCurrency}) {
-    if (!isEditable && selectedCurrency != null) {
-      contacts = contactListViewModel.contacts
-          .where((element) => element.type == selectedCurrency)
-          .toList();
-      walletContacts = contactListViewModel.walletContacts
-          .where((element) => element.type == selectedCurrency)
-          .toList();
-    } else {
-      contacts = contactListViewModel.contacts;
-      walletContacts = contactListViewModel.walletContacts;
-    }
-  }
+      {this.isEditable = true, this.selectedCurrency});
 
   final ContactListViewModel contactListViewModel;
   final bool isEditable;
   final CryptoCurrency selectedCurrency;
-  List <ContactRecord> contacts;
-  List <WalletContact> walletContacts;
-
 
   @override
   String get title => S.current.address_book;
@@ -77,6 +60,10 @@ class ContactListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final contacts =
+    contactListViewModel.getContacts(isEditable, selectedCurrency);
+    final walletContacts =
+    contactListViewModel.getWallets(isEditable, selectedCurrency);
     return Container(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(

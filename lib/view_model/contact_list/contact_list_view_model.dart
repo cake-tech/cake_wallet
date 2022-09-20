@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -44,4 +45,20 @@ abstract class ContactListViewModelBase with Store {
   StreamSubscription<BoxEvent> _subscription;
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
+
+  List<ContactRecord> getContacts(bool isEditable, CryptoCurrency cur) {
+    if (!isEditable && cur != null) {
+      return contacts.where((element) => element.type == cur).toList();
+    }
+
+    return contacts;
+  }
+
+  List<WalletContact> getWallets(bool isEditable, CryptoCurrency cur) {
+    if (!isEditable && cur != null) {
+      return walletContacts.where((element) => element.type == cur).toList();
+    }
+
+    return walletContacts;
+  }
 }
