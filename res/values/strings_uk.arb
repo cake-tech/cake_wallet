@@ -642,5 +642,6 @@
   "choose_from_available_options": "Виберіть із доступних варіантів:",
   "custom_redeem_amount": "Власна сума викупу",
   "add_custom_redemption": "Додати спеціальне погашення",
-  "remaining": "залишилося"
+  "remaining": "залишилося",
+  "help": "Допомога"
 }

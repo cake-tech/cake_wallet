@@ -643,5 +643,6 @@
   "choose_from_available_options": "Elija entre las opciones disponibles:",
   "custom_redeem_amount": "Cantidad de canje personalizada",
   "add_custom_redemption": "Agregar redención personalizada",
-  "remaining": "restante"
+  "remaining": "restante",
+  "help": "Ayuda"
 }

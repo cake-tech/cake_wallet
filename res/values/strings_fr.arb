@@ -641,5 +641,6 @@
   "choose_from_available_options": "Choisissez parmi les options disponibles :",
   "custom_redeem_amount": "Montant d'échange personnalisé",
   "add_custom_redemption": "Ajouter un remboursement personnalisé",
-  "remaining": "restant"
+  "remaining": "restant",
+  "help": "Aider"
 }

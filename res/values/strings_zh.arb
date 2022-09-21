@@ -641,5 +641,6 @@
   "choose_from_available_options": "从可用选项中选择：",
   "custom_redeem_amount": "自定义兑换金额",
   "add_custom_redemption": "添加自定义兑换",
-  "remaining": "剩余"
+  "remaining": "剩余",
+  "help": "帮助"
 }

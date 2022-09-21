@@ -643,5 +643,6 @@
   "choose_from_available_options": "Odaberite neku od dostupnih opcija:",
   "custom_redeem_amount": "Prilagođeni iznos otkupa",
   "add_custom_redemption": "Dodaj prilagođeni otkup",
-  "remaining": "preostalo"
+  "remaining": "preostalo",
+  "help": "Pomozite"
 }

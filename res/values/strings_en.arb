@@ -643,5 +643,6 @@
   "choose_from_available_options": "Choose from the available options:",
   "custom_redeem_amount": "Custom Redeem Amount",
   "add_custom_redemption": "Add Custom Redemption",
-  "remaining": "remaining"
+  "remaining": "remaining",
+  "help": "Help"
 }

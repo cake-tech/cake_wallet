@@ -643,5 +643,6 @@
   "choose_from_available_options": "Escolha entre as opções disponíveis:",
   "custom_redeem_amount": "Valor de resgate personalizado",
   "add_custom_redemption": "Adicionar resgate personalizado",
-  "remaining": "restante"
+  "remaining": "restante",
+  "help": "Ajuda"
 }

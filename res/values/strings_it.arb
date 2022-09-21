@@ -643,5 +643,6 @@
   "choose_from_available_options": "Scegli tra le opzioni disponibili:",
   "custom_redeem_amount": "Importo di riscatto personalizzato",
   "add_custom_redemption": "Aggiungi riscatto personalizzato",
-  "remaining": "rimanente"
+  "remaining": "rimanente",
+  "help": "Aiuto"
 }

@@ -643,5 +643,6 @@
   "choose_from_available_options": "Wybierz z dostępnych opcji:",
   "custom_redeem_amount": "Niestandardowa kwota wykorzystania",
   "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
-  "remaining": "pozostałe"
+  "remaining": "pozostałe",
+  "help": "Pomoc"
 }

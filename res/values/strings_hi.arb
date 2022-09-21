@@ -643,5 +643,6 @@
   "choose_from_available_options": "उपलब्ध विकल्पों में से चुनें:",
   "custom_redeem_amount": "कस्टम रिडीम राशि",
   "add_custom_redemption": "कस्टम रिडेम्पशन जोड़ें",
-  "remaining": "शेष"
+  "remaining": "शेष",
+  "help": "मदद करना"
 }
