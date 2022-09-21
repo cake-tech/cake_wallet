@@ -555,6 +555,7 @@ abstract class ExchangeViewModelBase with Store {
   void _onPairChange() {
     depositAmount = '';
     receiveAmount = '';
+    loadLimits();
   }
 
   void _initialPairBasedOnWallet() {
