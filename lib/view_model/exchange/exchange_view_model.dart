@@ -225,11 +225,11 @@ abstract class ExchangeViewModelBase with Store {
       try {
         final calculatedAmount = await provider
             .calculateAmount(
-            from: receiveCurrency,
-            to: depositCurrency,
-            amount: _enteredAmount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: true);
+              from: receiveCurrency,
+              to: depositCurrency,
+              amount: _enteredAmount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: true);
 
         final from = isFixedRateMode
             ? receiveCurrency
@@ -288,6 +288,7 @@ abstract class ExchangeViewModelBase with Store {
     /// re-initialize with descending comparator
     /// since we want largest receive amount
     _currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>((double a, double b) => b.compareTo(a));
+
     for (var provider in selectedProviders) {
       /// if this provider is not valid for the current pair, skip it
       if (!providersForCurrentPair().contains(provider)) {
@@ -297,11 +298,11 @@ abstract class ExchangeViewModelBase with Store {
       try {
         final calculatedAmount = await provider
             .calculateAmount(
-            from: depositCurrency,
-            to: receiveCurrency,
-            amount: _enteredAmount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: false);
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: _enteredAmount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: false);
 
         final from = isFixedRateMode
             ? receiveCurrency
@@ -347,32 +348,36 @@ abstract class ExchangeViewModelBase with Store {
     limitsState = LimitsIsLoading();
 
     try {
-      final from = isFixedRateMode
-        ? receiveCurrency
-        : depositCurrency;
-      final to = isFixedRateMode
-        ? depositCurrency
-        : receiveCurrency;
+      double highestRate = 0.0;
 
-      limits = await selectedProviders.first.fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode);
+      for (var provider in selectedProviders) {
+        /// if this provider is not valid for the current pair, skip it
+        if (!providersForCurrentPair().contains(provider)) {
+          continue;
+        }
 
-      /// if the first provider limits is bounded then check with other providers
-      /// for the highest maximum limit
-      if (limits.max != null) {
-        for (int i = 1;i < selectedProviders.length;i++) {
-          final Limits tempLimits = await selectedProviders[i].fetchLimits(
+        final calculatedAmount = await provider
+            .calculateAmount(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: 1,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: false);
+
+        if (calculatedAmount >= highestRate) {
+          highestRate = calculatedAmount;
+
+          final from = isFixedRateMode
+              ? receiveCurrency
+              : depositCurrency;
+          final to = isFixedRateMode
+              ? depositCurrency
+              : receiveCurrency;
+
+          limits = await provider.fetchLimits(
               from: from,
               to: to,
               isFixedRateMode: isFixedRateMode);
-
-          /// set the limits with the maximum provider limit
-          /// if there is a provider with null max then it's the maximum limit
-          if ((tempLimits.max ?? double.maxFinite) > limits.max) {
-            limits = tempLimits;
-          }
         }
       }
 
