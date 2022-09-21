@@ -45,7 +45,7 @@ abstract class ExchangeViewModelBase with Store {
       CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()];
     _initialPairBasedOnWallet();
-    currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>();
+    _currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>();
 
     final Map<String, dynamic> exchangeProvidersSelection = json
         .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
@@ -107,7 +107,7 @@ abstract class ExchangeViewModelBase with Store {
   /// SplayTreeMap is a map sorted by keys
   /// will use it to sort available providers
   /// depending on the amount they yield for the current trade
-  SplayTreeMap<double, ExchangeProvider> currentTradeAvailableProviders;
+  SplayTreeMap<double, ExchangeProvider> _currentTradeAvailableProviders;
 
   @observable
   ObservableList<ExchangeProvider> selectedProviders;
@@ -213,7 +213,9 @@ abstract class ExchangeViewModelBase with Store {
 
     double lowestDepositAmount = double.maxFinite;
 
-    currentTradeAvailableProviders.clear();
+    _currentTradeAvailableProviders.clear();
+    /// re-initialize with the default comparator
+    _currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>();
     for (var provider in selectedProviders) {
       /// if this provider is not valid for the current pair, skip it
       if (!providersForCurrentPair().contains(provider)) {
@@ -248,7 +250,7 @@ abstract class ExchangeViewModelBase with Store {
           /// add this provider as its valid for this trade
           /// will be sorted ascending already since
           /// we seek the least deposit amount
-          currentTradeAvailableProviders[calculatedAmount] = provider;
+          _currentTradeAvailableProviders[calculatedAmount] = provider;
 
           if (calculatedAmount <= lowestDepositAmount && calculatedAmount != 0) {
             lowestDepositAmount = calculatedAmount;
@@ -282,7 +284,10 @@ abstract class ExchangeViewModelBase with Store {
 
     double highestReceivedAmount = 0.0;
 
-    currentTradeAvailableProviders.clear();
+    _currentTradeAvailableProviders.clear();
+    /// re-initialize with descending comparator
+    /// since we want largest receive amount
+    _currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>((double a, double b) => b.compareTo(a));
     for (var provider in selectedProviders) {
       /// if this provider is not valid for the current pair, skip it
       if (!providersForCurrentPair().contains(provider)) {
@@ -316,9 +321,7 @@ abstract class ExchangeViewModelBase with Store {
         if ((limits?.max ?? double.maxFinite) >= _enteredAmount
             && (limits?.min ?? 0) <= _enteredAmount) {
           /// add this provider as its valid for this trade
-          /// subtract from maxFinite so the provider
-          /// with the largest amount would be sorted ascending
-          currentTradeAvailableProviders[double.maxFinite - calculatedAmount] = provider;
+          _currentTradeAvailableProviders[calculatedAmount] = provider;
 
           if (calculatedAmount >= highestReceivedAmount) {
             highestReceivedAmount = calculatedAmount;
@@ -384,7 +387,7 @@ abstract class ExchangeViewModelBase with Store {
     TradeRequest request;
     String amount;
 
-    for (var provider in currentTradeAvailableProviders.values) {
+    for (var provider in _currentTradeAvailableProviders.values) {
       if (!(await provider.checkIsAvailable())) {
         continue;
       }
