@@ -355,6 +355,7 @@ abstract class ExchangeViewModelBase with Store {
         : receiveCurrency;
 
     double lowestMin = double.maxFinite;
+    double highestMax = 0.0;
 
     for (var provider in selectedProviders) {
       /// if this provider is not valid for the current pair, skip it
@@ -370,8 +371,9 @@ abstract class ExchangeViewModelBase with Store {
 
         if (tempLimits.min != null && tempLimits.min < lowestMin) {
           lowestMin = tempLimits.min;
-
-          limits = tempLimits;
+        }
+        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax) {
+          highestMax = tempLimits.max;
         }
       } catch (e) {
         continue;
@@ -379,6 +381,8 @@ abstract class ExchangeViewModelBase with Store {
     }
 
     if (lowestMin < double.maxFinite) {
+      limits = Limits(min: lowestMin, max: highestMax);
+
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } else {
       limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
