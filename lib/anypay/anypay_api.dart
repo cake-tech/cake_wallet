@@ -48,7 +48,7 @@ class AnyPayApi {
   			'X-Paypro-Version': xPayproVersion,
   			'Accept': '*/*',
 			'x-wallet': 'cake',
-			'x-wallet-token': anypayToken};
+			'x-wallet-token': anypayToken,};
 		final body = <String, dynamic>{
 			'chain': chainByScheme(scheme),
 			'currency': currencyByScheme(scheme).title};
@@ -72,7 +72,7 @@ class AnyPayApi {
   			'X-Paypro-Version': xPayproVersion,
   			'Accept': '*/*',
 			'x-wallet': 'cake',
-			'x-wallet-token': anypayToken};
+			'x-wallet-token': anypayToken,};
 		final body = <String, dynamic>{
 			'chain': chain,
 			'currency': currency,
