@@ -347,43 +347,41 @@ abstract class ExchangeViewModelBase with Store {
 
     limitsState = LimitsIsLoading();
 
-    try {
-      double highestRate = 0.0;
+    final from = isFixedRateMode
+        ? receiveCurrency
+        : depositCurrency;
+    final to = isFixedRateMode
+        ? depositCurrency
+        : receiveCurrency;
 
-      for (var provider in selectedProviders) {
-        /// if this provider is not valid for the current pair, skip it
-        if (!providersForCurrentPair().contains(provider)) {
-          continue;
-        }
+    double lowestMin = double.maxFinite;
 
-        final calculatedAmount = await provider
-            .calculateAmount(
-              from: depositCurrency,
-              to: receiveCurrency,
-              amount: 1,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: false);
-
-        if (calculatedAmount >= highestRate) {
-          highestRate = calculatedAmount;
-
-          final from = isFixedRateMode
-              ? receiveCurrency
-              : depositCurrency;
-          final to = isFixedRateMode
-              ? depositCurrency
-              : receiveCurrency;
-
-          limits = await provider.fetchLimits(
-              from: from,
-              to: to,
-              isFixedRateMode: isFixedRateMode);
-        }
+    for (var provider in selectedProviders) {
+      /// if this provider is not valid for the current pair, skip it
+      if (!providersForCurrentPair().contains(provider)) {
+        continue;
       }
 
+      try {
+        final tempLimits = await provider.fetchLimits(
+            from: from,
+            to: to,
+            isFixedRateMode: isFixedRateMode);
+
+        if (tempLimits.min != null && tempLimits.min < lowestMin) {
+          lowestMin = tempLimits.min;
+
+          limits = tempLimits;
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+
+    if (lowestMin < double.maxFinite) {
       limitsState = LimitsLoadedSuccessfully(limits: limits);
-    } catch (e) {
-      limitsState = LimitsLoadedFailure(error: e.toString());
+    } else {
+      limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
     }
   }
 
