@@ -91,7 +91,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
     final response = await post(uri, headers: headers, body: json.encode(body));
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       if (response.statusCode == 400) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['message'] as String;
