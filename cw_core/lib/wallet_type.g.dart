@@ -23,6 +23,8 @@ class WalletTypeAdapter extends TypeAdapter<WalletType> {
         return WalletType.litecoin;
       case 4:
         return WalletType.haven;
+      case 5:
+        return WalletType.wownero;
       default:
         return WalletType.monero;
     }
@@ -45,6 +47,9 @@ class WalletTypeAdapter extends TypeAdapter<WalletType> {
         break;
       case WalletType.haven:
         writer.writeByte(4);
+        break;
+      case WalletType.wownero:
+        writer.writeByte(5);
         break;
     }
   }

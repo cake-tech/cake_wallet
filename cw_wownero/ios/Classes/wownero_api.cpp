@@ -485,7 +485,11 @@ extern "C"
 
     bool is_connected()
     {
-        return get_current_wallet()->connected();
+        try {
+            return get_current_wallet()->connected();
+        } catch (...) {
+            return false;
+        }
     }
 
     void start_refresh()
