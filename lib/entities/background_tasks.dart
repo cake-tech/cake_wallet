@@ -113,18 +113,16 @@ class BackgroundTasks {
       await Workmanager().registerPeriodicTask(
         moneroSyncTaskKey,
         moneroSyncTaskKey,
-        // initialDelay: syncMode.frequency,
-        // frequency: syncMode.frequency,
-        initialDelay: Duration(minutes: 1),
-        frequency: Duration(minutes: 15),
+        initialDelay: syncMode.frequency,
+        frequency: syncMode.frequency,
         existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
         inputData: <String, dynamic>{"sync_all": syncAll},
-        // constraints: Constraints(
-        //   networkType: NetworkType.connected,
-        //   requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
-        //   requiresCharging: syncMode.type == SyncType.unobtrusive,
-        //   requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
-        // ),
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+          requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
+          requiresCharging: syncMode.type == SyncType.unobtrusive,
+          requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
+        ),
       );
     } catch (error, stackTrace) {
       print(error);
