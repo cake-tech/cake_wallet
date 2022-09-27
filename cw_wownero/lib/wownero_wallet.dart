@@ -252,10 +252,11 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   }
 
   @override
-  Future<void> save() async {
+  Future<bool> save({bool prioritySave = false}) async {
+    print("save is called");
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name!);
-    await wownero_wallet.store();
+    return await wownero_wallet.store(prioritySave: prioritySave);
   }
 
   @override
