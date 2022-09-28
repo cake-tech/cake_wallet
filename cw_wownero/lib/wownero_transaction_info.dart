@@ -37,6 +37,7 @@ class WowneroTransactionInfo extends TransactionInfo {
       'accountIndex': accountIndex,
       'addressIndex': addressIndex
     };
+    confirmations = map['confirmations'] as int?;
   }
 
   WowneroTransactionInfo.fromRow(TransactionInfoRow row)
@@ -56,6 +57,7 @@ class WowneroTransactionInfo extends TransactionInfo {
       'accountIndex': accountIndex,
       'addressIndex': addressIndex
     };
+    confirmations = row.confirmations;
   }
 
   final String id;
