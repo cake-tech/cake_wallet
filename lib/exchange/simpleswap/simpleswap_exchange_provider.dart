@@ -212,7 +212,13 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.bnb:
         return currency.tag.toLowerCase();
       case CryptoCurrency.usdterc20:
-        return 'usdterc';
+        return 'usdterc20';
+      case CryptoCurrency.usdttrc20:
+        return 'usdttrc20';
+      case CryptoCurrency.usdcpoly:
+        return 'usdcpoly';
+      case CryptoCurrency.usdcsol:
+        return 'usdcspl';
       default:
         return currency.title.toLowerCase();
     }
