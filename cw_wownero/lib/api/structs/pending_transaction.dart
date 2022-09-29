@@ -11,15 +11,7 @@ class PendingTransactionRaw extends Struct {
 
   external Pointer<Utf8> hash;
 
-  external Pointer<Utf8> hex;
-
-  external Pointer<Utf8> txKey;
-
   String getHash() => hash.toDartString();
-
-  String getHex() => hex.toDartString();
-
-  String getKey() => txKey.toDartString();
 }
 
 class PendingTransactionDescription {
@@ -27,15 +19,11 @@ class PendingTransactionDescription {
     this.amount,
     this.fee,
     this.hash,
-    this.hex,
-    this.txKey,
     this.pointerAddress,
   });
 
   final int? amount;
   final int? fee;
   final String? hash;
-  final String? hex;
-  final String? txKey;
   final int? pointerAddress;
 }
