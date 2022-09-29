@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.author           = { 'CakeWallet' => 'support@cakewallet.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
-  s.public_header_files = 'Classes/**/*.h, Classes/*.h, ../shared_external/ios/libs/monero/include/src/**/*.h, ../shared_external/ios/libs/monero/include/contrib/**/*.h, ../shared_external/ios/libs/monero/include/../shared_external/ios/**/*.h'
+  s.public_header_files = 'Classes/**/*.h, Classes/*.h, Classes/**/*.hpp, Classes/*.hpp, ../shared_external/ios/libs/wownero/include/src/**/*.h, ../shared_external/ios/libs/wownero/include/contrib/**/*.h, ../shared_external/ios/libs/wownero/include/../shared_external/ios/**/*.h'
   s.dependency 'Flutter'
   s.dependency 'cw_shared_external'
   s.platform = :ios, '10.0'

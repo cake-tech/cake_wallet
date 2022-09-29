@@ -9,13 +9,14 @@
 #include "CwWalletListener.h"
 
 #include <sstream>
-#include <wownero_seed/wownero_seed.hpp>
 
 #if __APPLE__
 // Fix for randomx on ios
 void __clear_cache(void* start, void* end) { }
 #include "../../../cw_shared_external/ios/External/ios/include/wownero/wallet2_api.h"
+#include "../../../cw_shared_external/ios/External/ios/include/wownero_seed/wownero_seed.hpp"
 #else
+#include <wownero_seed/wownero_seed.hpp>
 #include "../External/android/include/wallet2_api.h"
 #endif
 #ifdef linux

@@ -41,6 +41,7 @@ ln ./libssl.a ${CW_WOWNERO_EXTERNAL_LIB}/libssl.a
 ln ./libsodium.a ${CW_WOWNERO_EXTERNAL_LIB}/libsodium.a
 cp ./libwownero.a $CW_WOWNERO_EXTERNAL_LIB
 cp ../include/wownero/* $CW_WOWNERO_EXTERNAL_INCLUDE
+cp -r ../include/wownero_seed $CW_WOWNERO_EXTERNAL_INCLUDE
 
 ln ./libboost.a ${CW_MONERO_EXTERNAL_LIB}/libboost.a
 ln ./libcrypto.a ${CW_MONERO_EXTERNAL_LIB}/libcrypto.a
