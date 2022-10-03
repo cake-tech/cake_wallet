@@ -106,7 +106,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['address_from'] as String;
     final settleAddress = responseJSON['user_refund_address'] as String;
-
+    final extraIdTo = responseJSON['extraIdTo'] as String;
     return Trade(
       id: id,
       provider: description,
@@ -114,6 +114,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       to: _request.to,
       inputAddress: inputAddress,
       refundAddress: settleAddress,
+      extraId: extraIdTo,
       state: TradeState.created,
       amount: _request.amount,
       createdAt: DateTime.now(),
