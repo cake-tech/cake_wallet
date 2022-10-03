@@ -124,7 +124,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const mkr = CryptoCurrency(title: 'MKR', iconPath: 'assets/images/mkr_icon.png', tag: 'ETH', raw: 53);
   static const near = CryptoCurrency(title: 'NEAR', iconPath: 'assets/images/near_icon.png', raw: 54);
   static const oxt = CryptoCurrency(title: 'OXT', iconPath: 'assets/images/oxt_icon.png', tag: 'ETH', raw: 55);
-  static const paxg = CryptoCurrency(title: 'PAXG', iconPath: 'assets/images/paxa_icon.png', tag: 'ETH', raw: 56);
+  static const paxg = CryptoCurrency(title: 'PAXG', iconPath: 'assets/images/paxg_icon.png', tag: 'ETH', raw: 56);
   static const pivx = CryptoCurrency(title: 'PIVX', iconPath: 'assets/images/pivx_icon.png', raw: 57);
   static const rune = CryptoCurrency(title: 'RUNE', iconPath: 'assets/images/rune_icon.png', raw: 58);
   static const rvn = CryptoCurrency(title: 'RVN', iconPath: 'assets/images/rvn_icon.png', raw: 59);
