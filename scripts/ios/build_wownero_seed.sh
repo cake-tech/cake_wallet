@@ -39,7 +39,8 @@ case $arch in
 esac
 
 cmake -Bbuild -DCMAKE_INSTALL_PREFIX="${PREFIX}" -DCMAKE_SYSTEM_NAME="iOS" -DCMAKE_OSX_ARCHITECTURES="${arch}" .
-make -Cbuild -j$THREADS
+make -Cbuild -j$(nproc)
 make -Cbuild install
+cp $CMAKE_LIBRARY_PATH/libwownero-seed.a $CMAKE_LIBRARY_PATH/wownero/libwownero-seed.a
 
 done

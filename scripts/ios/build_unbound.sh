@@ -23,5 +23,5 @@ source ./contrib/ios/setenv_ios.sh
 ./contrib/ios/install_tools.sh
 ./contrib/ios/install_expat.sh
 ./configure --build="$AUTOTOOLS_BUILD" --host="$AUTOTOOLS_HOST" --prefix="$IOS_PREFIX" --with-ssl="$IOS_PREFIX" --disable-gost --with-libexpat="$IOS_PREFIX"
-make
+make -j$(nproc)
 make install

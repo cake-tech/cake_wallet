@@ -1,9 +1,4 @@
 PODS:
-  - connectivity (0.0.1):
-    - Flutter
-    - Reachability
-  - cryptography_flutter (0.1.0):
-    - Flutter
   - cw_monero (0.0.2):
     - cw_monero/Boost (= 0.0.2)
     - cw_monero/Monero (= 0.0.2)
@@ -38,7 +33,24 @@ PODS:
     - Flutter
   - cw_shared_external/Sodium (0.0.1):
     - Flutter
-  - devicelocale (0.0.1):
+  - cw_wownero (0.0.2):
+    - cw_shared_external
+    - cw_wownero/Boost (= 0.0.2)
+    - cw_wownero/OpenSSL (= 0.0.2)
+    - cw_wownero/Sodium (= 0.0.2)
+    - cw_wownero/Wownero (= 0.0.2)
+    - Flutter
+  - cw_wownero/Boost (0.0.2):
+    - cw_shared_external
+    - Flutter
+  - cw_wownero/OpenSSL (0.0.2):
+    - cw_shared_external
+    - Flutter
+  - cw_wownero/Sodium (0.0.2):
+    - cw_shared_external
+    - Flutter
+  - cw_wownero/Wownero (0.0.2):
+    - cw_shared_external
     - Flutter
   - Flutter (1.0.0)
   - flutter_libmonero (0.0.1):
@@ -47,18 +59,15 @@ PODS:
     - Flutter
   - path_provider_ios (0.0.1):
     - Flutter
-  - Reachability (3.2)
   - shared_preferences_ios (0.0.1):
     - Flutter
   - stack_wallet_backup (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - connectivity (from `.symlinks/plugins/connectivity/ios`)
-  - cryptography_flutter (from `.symlinks/plugins/cryptography_flutter/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
-  - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
+  - cw_wownero (from `.symlinks/plugins/cw_wownero/ios`)
   - Flutter (from `Flutter`)
   - flutter_libmonero (from `.symlinks/plugins/flutter_libmonero/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
@@ -66,21 +75,13 @@ DEPENDENCIES:
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - stack_wallet_backup (from `.symlinks/plugins/stack_wallet_backup/ios`)
 
-SPEC REPOS:
-  trunk:
-    - Reachability
-
 EXTERNAL SOURCES:
-  connectivity:
-    :path: ".symlinks/plugins/connectivity/ios"
-  cryptography_flutter:
-    :path: ".symlinks/plugins/cryptography_flutter/ios"
   cw_monero:
     :path: ".symlinks/plugins/cw_monero/ios"
   cw_shared_external:
     :path: ".symlinks/plugins/cw_shared_external/ios"
-  devicelocale:
-    :path: ".symlinks/plugins/devicelocale/ios"
+  cw_wownero:
+    :path: ".symlinks/plugins/cw_wownero/ios"
   Flutter:
     :path: Flutter
   flutter_libmonero:
@@ -95,16 +96,13 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/stack_wallet_backup/ios"
 
 SPEC CHECKSUMS:
-  connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
-  cryptography_flutter: a2c541ba25ff28549f989f856dde126c961defcd
   cw_monero: 9816991daff0e3ad0a8be140e31933b5526babd4
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
-  devicelocale: b22617f40038496deffba44747101255cee005b0
+  cw_wownero: 25174994b62eff7bb5a4aa7e6d1f157699087d8e
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   flutter_libmonero: da68a616b73dd0374a8419c684fa6b6df2c44ffe
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
-  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   stack_wallet_backup: 5b8563aba5d8ffbf2ce1944331ff7294a0ec7c03
 

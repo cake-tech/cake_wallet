@@ -8,4 +8,3 @@
 ./build_unbound.sh
 ./build_zmq.sh
 ./build_monero.sh
-./setup.sh

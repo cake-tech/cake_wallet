@@ -21,6 +21,10 @@ git submodule update --init --force
 mkdir -p build
 cd ..
 
+echo $DEST_LIB_DIR
+mkdir -p $DEST_LIB_DIR
+mkdir -p $DEST_INCLUDE_DIR
+
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -z $INSTALL_PREFIX ]; then
     INSTALL_PREFIX=${ROOT_DIR}/wownero
@@ -53,7 +57,9 @@ cmake -D IOS=ON \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}  \
     -DUSE_DEVICE_TREZOR=OFF \
 	../..
-make -j4 && make install
+make -j$(nproc) && make install
+find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
+cp -r ./lib/* $DEST_LIB_DIR
 cp src/cryptonote_basic/libcryptonote_basic.a ${DEST_LIB}
 cp src/offshore/liboffshore.a ${DEST_LIB}
 popd
@@ -61,7 +67,5 @@ popd
 done
 
 #only for arm64
-mkdir -p $DEST_LIB_DIR
-mkdir -p $DEST_INCLUDE_DIR
 cp ${WOWNERO_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
 cp ${WOWNERO_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR
