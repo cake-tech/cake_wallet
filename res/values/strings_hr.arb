@@ -436,6 +436,7 @@
   "provider_error" : "${provider} greška",
 
   "use_ssl" : "Koristi SSL",
+  "trusted" : "vjerovao",
 
   "color_theme" : "Shema boja",
   "light_theme" : "Svijetla",

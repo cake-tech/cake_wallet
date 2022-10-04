@@ -436,6 +436,7 @@
   "provider_error" : "${provider} fout",
 
   "use_ssl" : "Gebruik SSL",
+  "trusted" : "vertrouwd",
 
   "color_theme" : "Kleur thema",
   "light_theme" : "Licht",

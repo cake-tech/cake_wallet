@@ -435,6 +435,7 @@
   "provider_error" : "${provider} 错误",
 
   "use_ssl" : "使用SSL",
+  "trusted" : "值得信赖",
 
   "color_theme" : "主题",
   "light_theme" : "艳丽",

@@ -436,6 +436,7 @@
   "provider_error" : "${provider} エラー",
 
   "use_ssl" : "SSLを使用する",
+  "trusted" : "信頼できる",
 
   "color_theme" : "カラーテーマ",
   "light_theme" : "光",

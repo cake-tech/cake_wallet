@@ -14,7 +14,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(this._nodeSource, this._wallet)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
-        useSSL = false;
+        useSSL = false,
+        trusted = false;
 
   @observable
   ExecutionState state;
@@ -36,6 +37,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   bool useSSL;
+
+  @observable
+  bool trusted;
 
   @computed
   bool get isReady =>
@@ -64,6 +68,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     login = '';
     password = '';
     useSSL = false;
+    trusted = false;
   }
 
   @action
@@ -72,7 +77,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       state = IsExecutingState();
       final node =
           Node(uri: uri, type: _wallet.type, login: login, password: password,
-              useSSL: useSSL);
+              useSSL: useSSL, trusted: trusted);
       await _nodeSource.add(node);
       state = ExecutedSuccessfullyState();
     } catch (e) {

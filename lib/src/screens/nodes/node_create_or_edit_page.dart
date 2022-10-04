@@ -174,7 +174,22 @@ class NodeCreateOrEditPage extends BasePage {
                                 caption: S.of(context).use_ssl,
                               ))
                         ],
-                      ))
+                      )),
+                    Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Observer(
+                              builder: (_) => StandardCheckbox(
+                                value: nodeCreateOrEditViewModel.trusted,
+                                onChanged: (value) =>
+                                  nodeCreateOrEditViewModel.trusted = value,
+                                caption: S.of(context).trusted,
+                              ))
+                        ],
+                      )),
                   ]
                 ],
               )),
