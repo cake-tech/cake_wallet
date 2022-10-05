@@ -1,7 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -11,7 +10,7 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
     with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._wallet)
+  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -45,8 +44,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get isReady =>
       (address?.isNotEmpty ?? false) && (port?.isNotEmpty ?? false);
 
-  bool get hasAuthCredentials => _wallet.type == WalletType.monero ||
-    _wallet.type == WalletType.haven;
+  bool get hasAuthCredentials => _walletType == WalletType.monero ||
+    _walletType == WalletType.haven;
 
   String get uri {
     var uri = address;
@@ -58,7 +57,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     return uri;
   }
 
-  final WalletBase _wallet;
+  final WalletType _walletType;
   final Box<Node> _nodeSource;
 
   @action
@@ -76,7 +75,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     try {
       state = IsExecutingState();
       final node =
-          Node(uri: uri, type: _wallet.type, login: login, password: password,
+          Node(uri: uri, type: _walletType, login: login, password: password,
               useSSL: useSSL, trusted: trusted);
       await _nodeSource.add(node);
       state = ExecutedSuccessfullyState();
@@ -90,7 +89,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     try {
       connectionState = IsExecutingState();
       final node =
-        Node(uri: uri, type: _wallet.type, login: login, password: password);
+        Node(uri: uri, type: _walletType, login: login, password: password);
       final isAlive = await node.requestNode();
       connectionState = ExecutedSuccessfullyState(payload: isAlive);
     } catch (e) {

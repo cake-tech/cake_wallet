@@ -343,7 +343,7 @@ Future setup(
               onAuthenticationFinished: onAuthFinished,
               closable: closable ?? false));
 
-  getIt.registerFactory(() => 
+  getIt.registerFactory(() =>
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
@@ -478,8 +478,9 @@ Future setup(
 
   getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
 
-  getIt.registerFactory(() =>
-      NodeCreateOrEditViewModel(_nodeSource, getIt.get<AppStore>().wallet));
+  getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType, void>(
+      (WalletType type, _) =>
+          NodeCreateOrEditViewModel(_nodeSource, type ?? getIt.get<AppStore>().wallet.type));
 
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
@@ -672,7 +673,7 @@ Future setup(
 
   getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
           (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
-  
+
   getIt.registerFactory(() => IoniaApi());
 
   getIt.registerFactory(() => AnyPayApi());
@@ -692,7 +693,7 @@ Future setup(
 
   getIt.registerFactoryParam<IoniaMerchPurchaseViewModel, double, IoniaMerchant>((double amount, merchant) {
     return IoniaMerchPurchaseViewModel(
-      ioniaAnyPayService: getIt.get<IoniaAnyPay>(), 
+      ioniaAnyPayService: getIt.get<IoniaAnyPay>(),
       amount: amount,
       ioniaMerchant: merchant,
     );
@@ -734,31 +735,31 @@ Future setup(
       ioniaService: getIt.get<IoniaService>(),
       giftCard: giftCard);
   });
- 
+
  getIt.registerFactoryParam<IoniaCustomTipViewModel, List, void>((List args, _) {
      final amount = args[0] as double;
      final merchant = args[1] as IoniaMerchant;
      final tip = args[2] as IoniaTip;
-     
+
      return IoniaCustomTipViewModel(amount: amount, tip: tip, ioniaMerchant: merchant);
   });
-  
+
   getIt.registerFactoryParam<IoniaGiftCardDetailPage, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
      return IoniaGiftCardDetailPage(getIt.get<IoniaGiftCardDetailsViewModel>(param1: giftCard));
   });
 
   getIt.registerFactoryParam<IoniaMoreOptionsPage, List, void>((List args, _){
     final giftCard = args.first as IoniaGiftCard;
-  
-    return IoniaMoreOptionsPage(giftCard); 
+
+    return IoniaMoreOptionsPage(giftCard);
   });
 
   getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) => IoniaCustomRedeemViewModel(giftCard));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _){
     final giftCard = args.first as IoniaGiftCard;
-  
-    return IoniaCustomRedeemPage(getIt.get<IoniaCustomRedeemViewModel>(param1: giftCard) ); 
+
+    return IoniaCustomRedeemPage(getIt.get<IoniaCustomRedeemViewModel>(param1: giftCard) );
   });
 
 

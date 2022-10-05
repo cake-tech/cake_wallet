@@ -1,48 +1,49 @@
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/privacy_settings_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
-  AdvancedPrivacySettingsPage(this.privacySettingsViewModel);
+  AdvancedPrivacySettingsPage(this.privacySettingsViewModel, this.nodeViewModel);
 
   final PrivacySettingsViewModel privacySettingsViewModel;
+  final NodeCreateOrEditViewModel nodeViewModel;
 
   @override
   String get title => S.current.privacy_settings;
 
   @override
   Widget body(BuildContext context) =>
-      AdvancedPrivacySettingsBody(privacySettingsViewModel);
+      AdvancedPrivacySettingsBody(privacySettingsViewModel, nodeViewModel);
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
-  const AdvancedPrivacySettingsBody(this.privacySettingsViewModel, {Key key})
+  const AdvancedPrivacySettingsBody(this.privacySettingsViewModel, this.nodeViewModel, {Key key})
       : super(key: key);
 
   final PrivacySettingsViewModel privacySettingsViewModel;
+  final NodeCreateOrEditViewModel nodeViewModel;
 
   @override
   _AdvancedPrivacySettingsBodyState createState() =>
-      _AdvancedPrivacySettingsBodyState(privacySettingsViewModel);
+      _AdvancedPrivacySettingsBodyState(privacySettingsViewModel, nodeViewModel);
 }
 
 class _AdvancedPrivacySettingsBodyState
     extends State<AdvancedPrivacySettingsBody> {
-  _AdvancedPrivacySettingsBodyState(this.privacySettingsViewModel);
+  _AdvancedPrivacySettingsBodyState(this.privacySettingsViewModel, this.nodeViewModel);
 
   final PrivacySettingsViewModel privacySettingsViewModel;
+  final NodeCreateOrEditViewModel nodeViewModel;
 
   final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -67,75 +68,9 @@ class _AdvancedPrivacySettingsBodyState
                 if (privacySettingsViewModel.addCustomNode) {
                   return Padding(
                     padding: EdgeInsets.only(top: 24),
-                    child: Form(
-                      key: _formKey,
-                      child: TextFormField(
-                        onChanged: (value) {},
-                        controller: _controller,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).primaryTextTheme.title.color),
-                        decoration: InputDecoration(
-                          hintStyle: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .display3
-                                  .color),
-                          hintText: S.of(context).wallet_name,
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .accentTextTheme
-                                    .display3
-                                    .decorationColor,
-                                width: 1.0),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .accentTextTheme
-                                    .display3
-                                    .decorationColor,
-                                width: 1.0),
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () async {
-                              final rName = await generateName();
-                              FocusManager.instance.primaryFocus?.unfocus();
-
-                              setState(() {
-                                _controller.text = rName;
-                                _controller.selection =
-                                    TextSelection.fromPosition(
-                                  TextPosition(offset: _controller.text.length),
-                                );
-                              });
-                            },
-                            icon: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6.0),
-                                color: Theme.of(context).hintColor,
-                              ),
-                              width: 34,
-                              height: 34,
-                              child: Image.asset(
-                                'assets/images/refresh_icon.png',
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .display1
-                                    .decorationColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                        validator: WalletNameValidator(),
-                      ),
+                    child: NodeForm(
+                      formKey: _formKey,
+                      nodeViewModel: nodeViewModel,
                     ),
                   );
                 }

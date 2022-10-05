@@ -20,6 +20,7 @@ import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/privacy_settings_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -476,9 +477,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.privacySettings:
       final type = settings.arguments as WalletType;
       final privacySettingsViewModel = getIt.get<PrivacySettingsViewModel>(param1: type);
+      final nodeCreateViewModel = getIt.get<NodeCreateOrEditViewModel>(param1: type);
 
       return CupertinoPageRoute<void>(
-          builder: (_) => AdvancedPrivacySettingsPage(privacySettingsViewModel));
+          builder: (_) => AdvancedPrivacySettingsPage(privacySettingsViewModel, nodeCreateViewModel));
 
     default:
       return MaterialPageRoute<void>(
