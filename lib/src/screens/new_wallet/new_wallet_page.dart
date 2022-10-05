@@ -216,7 +216,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
               const SizedBox(height: 25),
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushNamed(Routes.privacySettings);
+                  Navigator.of(context)
+                      .pushNamed(Routes.privacySettings, arguments: _walletNewVM.type);
                 },
                 child: Text(S.of(context).advanced_privacy_settings),
               ),

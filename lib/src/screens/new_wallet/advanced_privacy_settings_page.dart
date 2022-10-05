@@ -50,7 +50,7 @@ class _AdvancedPrivacySettingsBodyState
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        contentPadding: EdgeInsets.only(bottom: 24),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -67,7 +67,7 @@ class _AdvancedPrivacySettingsBodyState
               builder: (_) {
                 if (privacySettingsViewModel.addCustomNode) {
                   return Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(left: 24, right: 24, top: 24),
                     child: NodeForm(
                       formKey: _formKey,
                       nodeViewModel: nodeViewModel,
