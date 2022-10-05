@@ -644,5 +644,8 @@
   "choose_from_available_options": "उपलब्ध विकल्पों में से चुनें:",
   "custom_redeem_amount": "कस्टम रिडीम राशि",
   "add_custom_redemption": "कस्टम रिडेम्पशन जोड़ें",
-  "remaining": "शेष"
+  "remaining": "शेष",
+  "advanced_privacy_settings": "उन्नत गोपनीयता सेटिंग्स",
+  "privacy_settings": "गोपनीय सेटिंग",
+  "settings_can_be_changed_later": "इन सेटिंग्स को बाद में ऐप सेटिंग में बदला जा सकता है"
 }

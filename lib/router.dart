@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -19,6 +20,7 @@ import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/privacy_settings_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -470,6 +472,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaPaymentStatusPage>(
         param1: paymentInfo,
         param2: commitedInfo));
+
+    case Routes.privacySettings:
+      final type = settings.arguments as WalletType;
+      final privacySettingsViewModel = getIt.get<PrivacySettingsViewModel>(param1: type);
+
+      return CupertinoPageRoute<void>(
+          builder: (_) => AdvancedPrivacySettingsPage(privacySettingsViewModel));
 
     default:
       return MaterialPageRoute<void>(

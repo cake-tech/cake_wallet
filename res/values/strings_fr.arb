@@ -642,5 +642,8 @@
   "choose_from_available_options": "Choisissez parmi les options disponibles :",
   "custom_redeem_amount": "Montant d'échange personnalisé",
   "add_custom_redemption": "Ajouter un remboursement personnalisé",
-  "remaining": "restant"
+  "remaining": "restant",
+  "advanced_privacy_settings": "Paramètres de confidentialité avancés",
+  "privacy_settings": "Paramètres de confidentialité",
+  "settings_can_be_changed_later": "Ces paramètres peuvent être modifiés ultérieurement dans les paramètres de l'application"
 }

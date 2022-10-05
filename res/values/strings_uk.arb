@@ -643,5 +643,8 @@
   "choose_from_available_options": "Виберіть із доступних варіантів:",
   "custom_redeem_amount": "Власна сума викупу",
   "add_custom_redemption": "Додати спеціальне погашення",
-  "remaining": "залишилося"
+  "remaining": "залишилося",
+  "advanced_privacy_settings": "Розширені налаштування конфіденційності",
+  "privacy_settings": "Параметри конфіденційності",
+  "settings_can_be_changed_later": "Ці параметри можна змінити пізніше в налаштуваннях програми"
 }

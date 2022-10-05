@@ -643,5 +643,8 @@
   "choose_from_available_options": "Escolha entre as opções disponíveis:",
   "custom_redeem_amount": "Valor de resgate personalizado",
   "add_custom_redemption": "Adicionar resgate personalizado",
-  "remaining": "restante"
+  "remaining": "restante",
+  "advanced_privacy_settings": "Configurações de privacidade avançadas",
+  "privacy_settings": "Configurações de privacidade",
+  "settings_can_be_changed_later": "Essas configurações podem ser alteradas posteriormente nas configurações do aplicativo"
 }

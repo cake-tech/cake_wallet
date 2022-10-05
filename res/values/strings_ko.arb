@@ -644,5 +644,8 @@
   "choose_from_available_options": "사용 가능한 옵션에서 선택:",
   "custom_redeem_amount": "사용자 지정 상환 금액",
   "add_custom_redemption": "사용자 지정 상환 추가",
-  "remaining": "남은"
+  "remaining": "남은",
+  "advanced_privacy_settings": "고급 개인 정보 설정",
+  "privacy_settings": "개인 정보 설정",
+  "settings_can_be_changed_later": "이 설정은 나중에 앱 설정에서 변경할 수 있습니다."
 }

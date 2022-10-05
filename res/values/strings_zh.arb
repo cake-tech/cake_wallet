@@ -642,5 +642,8 @@
   "choose_from_available_options": "从可用选项中选择：",
   "custom_redeem_amount": "自定义兑换金额",
   "add_custom_redemption": "添加自定义兑换",
-  "remaining": "剩余"
+  "remaining": "剩余",
+  "advanced_privacy_settings": "高级隐私设置",
+  "privacy_settings": "隐私设置",
+  "settings_can_be_changed_later": "稍后可以在应用设置中更改这些设置"
 }

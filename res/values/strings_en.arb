@@ -644,5 +644,8 @@
   "choose_from_available_options": "Choose from the available options:",
   "custom_redeem_amount": "Custom Redeem Amount",
   "add_custom_redemption": "Add Custom Redemption",
-  "remaining": "remaining"
+  "remaining": "remaining",
+  "advanced_privacy_settings": "Advanced Privacy Settings",
+  "privacy_settings": "Privacy Settings",
+  "settings_can_be_changed_later": "These settings can be changed later in the app settings"
 }

@@ -644,5 +644,8 @@
   "choose_from_available_options": "Wybierz z dostępnych opcji:",
   "custom_redeem_amount": "Niestandardowa kwota wykorzystania",
   "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
-  "remaining": "pozostałe"
+  "remaining": "pozostałe",
+  "advanced_privacy_settings": "Zaawansowane ustawienia prywatności",
+  "privacy_settings": "Ustawienia prywatności",
+  "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji"
 }

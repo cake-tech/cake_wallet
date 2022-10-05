@@ -644,5 +644,8 @@
   "choose_from_available_options": "利用可能なオプションから選択してください:",
   "custom_redeem_amount": "カスタム交換金額",
   "add_custom_redemption": "カスタム引き換えを追加",
-  "remaining": "残り"
+  "remaining": "残り",
+  "advanced_privacy_settings": "高度なプライバシー設定",
+  "privacy_settings": "プライバシー設定",
+  "settings_can_be_changed_later": "これらの設定は、後でアプリの設定で変更できます"
 }

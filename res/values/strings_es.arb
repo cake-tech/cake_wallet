@@ -644,5 +644,8 @@
   "choose_from_available_options": "Elija entre las opciones disponibles:",
   "custom_redeem_amount": "Cantidad de canje personalizada",
   "add_custom_redemption": "Agregar redención personalizada",
-  "remaining": "restante"
+  "remaining": "restante",
+  "advanced_privacy_settings": "Configuración avanzada de privacidad",
+  "privacy_settings": "La configuración de privacidad",
+  "settings_can_be_changed_later": "Estas configuraciones se pueden cambiar más tarde en la configuración de la aplicación"
 }

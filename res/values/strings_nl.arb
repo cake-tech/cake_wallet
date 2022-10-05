@@ -644,5 +644,8 @@
   "choose_from_available_options": "Kies uit de beschikbare opties:",
   "custom_redeem_amount": "Aangepast inwisselbedrag",
   "add_custom_redemption": "Voeg aangepaste inwisseling toe",
-  "remaining": "resterende"
+  "remaining": "resterende",
+  "advanced_privacy_settings": "Geavanceerde privacy-instellingen",
+  "privacy_settings": "Privacy instellingen",
+  "settings_can_be_changed_later": "Deze instellingen kunnen later worden gewijzigd in de app-instellingen"
 }

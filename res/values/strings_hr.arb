@@ -644,5 +644,8 @@
   "choose_from_available_options": "Odaberite neku od dostupnih opcija:",
   "custom_redeem_amount": "Prilagođeni iznos otkupa",
   "add_custom_redemption": "Dodaj prilagođeni otkup",
-  "remaining": "preostalo"
+  "remaining": "preostalo",
+  "advanced_privacy_settings": "Napredne postavke privatnosti",
+  "privacy_settings": "Postavke privatnosti",
+  "settings_can_be_changed_later": "Te se postavke mogu promijeniti kasnije u postavkama aplikacije"
 }

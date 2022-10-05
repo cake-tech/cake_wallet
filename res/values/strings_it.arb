@@ -644,5 +644,8 @@
   "choose_from_available_options": "Scegli tra le opzioni disponibili:",
   "custom_redeem_amount": "Importo di riscatto personalizzato",
   "add_custom_redemption": "Aggiungi riscatto personalizzato",
-  "remaining": "rimanente"
+  "remaining": "rimanente",
+  "advanced_privacy_settings": "Impostazioni avanzate sulla privacy",
+  "privacy_settings": "Impostazioni della privacy",
+  "settings_can_be_changed_later": "Queste impostazioni possono essere modificate in seguito nelle impostazioni dell'app"
 }

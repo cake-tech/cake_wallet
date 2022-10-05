@@ -644,5 +644,8 @@
   "choose_from_available_options": "Wähle aus verfügbaren Optionen:",
   "custom_redeem_amount": "Benutzerdefinierter Einlösungsbetrag",
   "add_custom_redemption": "Benutzerdefinierte Einlösung hinzufügen",
-  "remaining": "Rest"
+  "remaining": "Rest",
+  "advanced_privacy_settings": "Erweiterte Datenschutzeinstellungen",
+  "privacy_settings": "Datenschutzeinstellungen",
+  "settings_can_be_changed_later": "Diese Einstellungen können später in den App-Einstellungen geändert werden"
 }
