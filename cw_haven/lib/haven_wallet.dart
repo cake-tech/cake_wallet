@@ -390,4 +390,8 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       print(e.toString());
     }
   }
+
+  void setTrustedDaemon(bool arg) => haven_wallet.setTrustedDaemon(arg);
+
+  Future<bool> trustedDaemon() async => haven_wallet.trustedDaemon();
 }

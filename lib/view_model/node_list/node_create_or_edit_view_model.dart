@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cw_haven/haven_wallet.dart';
+import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -78,6 +80,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       final node =
           Node(uri: uri, type: _wallet.type, login: login, password: password,
               useSSL: useSSL, trusted: trusted);
+      if (_wallet.type == WalletType.monero) {
+        (_wallet as MoneroWallet).setTrustedDaemon(trusted);
+      } else if (_wallet.type == WalletType.haven) {
+        (_wallet as HavenWallet).setTrustedDaemon(trusted);
+      }
       await _nodeSource.add(node);
       state = ExecutedSuccessfullyState();
     } catch (e) {

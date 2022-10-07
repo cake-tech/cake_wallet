@@ -427,4 +427,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       print(e.toString());
     }
   }
+
+  void setTrustedDaemon(bool arg) => monero_wallet.setTrustedDaemon(arg);
+
+  Future<bool> trustedDaemon() async => monero_wallet.trustedDaemon();
 }
