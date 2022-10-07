@@ -57,8 +57,6 @@ class Node extends HiveObject with Keyable {
 
   bool get isSSL => useSSL ?? false;
 
-  bool get isTrusted => trusted ?? false;
-
   Uri get uri {
     switch (type) {
       case WalletType.monero:
