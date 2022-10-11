@@ -181,6 +181,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final to = CryptoCurrency.fromString(toCurrency);
     final inputAddress = responseJSON['address_from'] as String;
     final expectedSendAmount = responseJSON['expected_amount'].toString();
+    final extraIdTo = responseJSON['extra_id_from'] as String;
     final status = responseJSON['status'] as String;
     final state = TradeState.deserialize(raw: status);
 
@@ -188,6 +189,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       id: id,
       from: from,
       to: to,
+      extraId: extraIdTo,
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,
