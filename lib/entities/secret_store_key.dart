@@ -5,7 +5,7 @@ const pinCodePassword = "PIN_CODE_PASSWORD";
 const backupPassword = "BACKUP_CODE_PASSWORD";
 
 String generateStoreKeyFor({
-  SecretStoreKey key,
+  required SecretStoreKey key,
   String walletName = "",
 }) {
   var _key = "";

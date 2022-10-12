@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FullscreenQRPage extends BasePage {
-  FullscreenQRPage({@required this.qrData, @required this.isLight});
+  FullscreenQRPage({required this.qrData, required this.isLight});
 
   final bool isLight;
   final String qrData;
@@ -23,7 +23,7 @@ class FullscreenQRPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
       size: 16,
     );
 
@@ -32,10 +32,11 @@ class FullscreenQRPage extends BasePage {
       width: 37,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          padding: EdgeInsets.all(0),
+        child: TextButton(
+          // FIX-ME: Style
+          //highlightColor: Colors.transparent,
+          //splashColor: Colors.transparent,
+          //padding: EdgeInsets.all(0),
           onPressed: () => onClose(context),
           child: _backButton,
         ),
@@ -70,11 +71,11 @@ class FullscreenQRPage extends BasePage {
             child: Container(
               padding: EdgeInsets.all(5),
               decoration: BoxDecoration(
-                  border: Border.all(width: 3, color: Theme.of(context).accentTextTheme.display3.backgroundColor)),
+                  border: Border.all(width: 3, color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
               child: QrImage(
                 data: qrData,
                 backgroundColor: isLight ? Colors.transparent : Colors.black,
-                foregroundColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                foregroundColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
               ),
             ),
           ),

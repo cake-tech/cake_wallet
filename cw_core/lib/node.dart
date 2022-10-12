@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:cw_core/keyable.dart';
-import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
@@ -11,22 +9,26 @@ import 'package:http/io_client.dart' as ioc;
 part 'node.g.dart';
 
 Uri createUriFromElectrumAddress(String address) =>
-    Uri.tryParse('tcp://$address');
+    Uri.tryParse('tcp://$address')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node(
-      {@required String uri,
-      @required WalletType type,
-      this.login,
+      {this.login,
       this.password,
-      this.useSSL}) {
-    uriRaw = uri;
-    this.type = type;
+      this.useSSL,
+      String? uri,
+      WalletType? type,}) {
+    if (uri != null) {
+      uriRaw = uri;
+    }
+    if (type != null) {
+      this.type = type;
+    }
   }
 
-  Node.fromMap(Map map)
-      : uriRaw = map['uri'] as String ?? '',
+  Node.fromMap(Map<String, Object?> map)
+      : uriRaw = map['uri'] as String? ?? '',
         login = map['login'] as String,
         password = map['password'] as String,
         typeRaw = map['typeRaw'] as int,
@@ -36,19 +38,19 @@ class Node extends HiveObject with Keyable {
   static const boxName = 'Nodes';
 
   @HiveField(0)
-  String uriRaw;
+  late String uriRaw;
 
   @HiveField(1)
-  String login;
+  String? login;
 
   @HiveField(2)
-  String password;
+  String? password;
 
   @HiveField(3)
-  int typeRaw;
+  late int typeRaw;
 
   @HiveField(4)
-  bool useSSL;
+  bool? useSSL;
 
   bool get isSSL => useSSL ?? false;
 
@@ -63,7 +65,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.haven:
         return Uri.http(uriRaw, '');
       default:
-        return null;
+        throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
   }
 
@@ -99,7 +101,6 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-  
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';

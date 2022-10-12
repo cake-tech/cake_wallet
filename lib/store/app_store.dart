@@ -14,15 +14,15 @@ class AppStore = AppStoreBase with _$AppStore;
 
 abstract class AppStoreBase with Store {
   AppStoreBase(
-      {this.authenticationStore,
-      this.walletList,
-      this.settingsStore,
-      this.nodeListStore});
+      {required this.authenticationStore,
+      required this.walletList,
+      required this.settingsStore,
+      required this.nodeListStore});
 
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
       wallet;
 
   WalletListStore walletList;

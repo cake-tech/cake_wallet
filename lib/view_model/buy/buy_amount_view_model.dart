@@ -8,9 +8,8 @@ part 'buy_amount_view_model.g.dart';
 class BuyAmountViewModel = BuyAmountViewModelBase with _$BuyAmountViewModel;
 
 abstract class BuyAmountViewModelBase with Store {
-  BuyAmountViewModelBase() {
-    amount = '';
-
+  BuyAmountViewModelBase()
+    : amount = '' {
     int selectedIndex = FiatCurrency.currenciesAvailableToBuyWith
         .indexOf(getIt.get<SettingsStore>().fiatCurrency);
 
@@ -25,15 +24,15 @@ abstract class BuyAmountViewModelBase with Store {
   String amount;
 
   @observable
-  FiatCurrency fiatCurrency;
+  late FiatCurrency fiatCurrency;
 
   @computed
   double get doubleAmount {
     double _amount;
 
     try {
-      _amount = double.parse(amount.replaceAll(',', '.')) ?? 0.0;
-    } catch (e) {
+      _amount = double.parse(amount.replaceAll(',', '.'));
+    } catch (_) {
       _amount = 0.0;
     }
 

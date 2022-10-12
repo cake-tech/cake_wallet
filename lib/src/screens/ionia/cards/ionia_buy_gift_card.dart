@@ -50,7 +50,7 @@ class IoniaBuyGiftCardPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme.body2.backgroundColor,
+          keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -69,8 +69,8 @@ class IoniaBuyGiftCardPage extends BasePage {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme.subhead.color,
-                    Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                    Theme.of(context).primaryTextTheme!.subtitle1!.color!,
+                    Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -85,14 +85,14 @@ class IoniaBuyGiftCardPage extends BasePage {
                       keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-                        WhitelistingTextInputFormatter(RegExp(r'^\d+(\.|\,)?\d{0,2}'))],
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,2}'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
-                        color: Theme.of(context).primaryTextTheme.headline.color,
+                        color: Theme.of(context).primaryTextTheme!.headline5!.color!,
                         fontWeight: FontWeight.w600,
                         fontSize: 36,
                       ),
-                      borderColor: Theme.of(context).primaryTextTheme.headline.color,
+                      borderColor: Theme.of(context).primaryTextTheme!.headline5!.color!,
                       textColor: Colors.white,
                       textStyle: TextStyle(
                         color: Colors.white,
@@ -121,13 +121,13 @@ class IoniaBuyGiftCardPage extends BasePage {
                         Text(
                           S.of(context).min_amount(merchant.minimumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.color,
+                            color: Theme.of(context).primaryTextTheme!.headline5!.color!,
                           ),
                         ),
                         Text(
                           S.of(context).max_amount(merchant.maximumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.color,
+                            color: Theme.of(context).primaryTextTheme!.headline5!.color!,
                           ),
                         ),
                       ],
@@ -140,9 +140,9 @@ class IoniaBuyGiftCardPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
+                  backgroundColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
                   discount: merchant.discount,
-                  titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
+                  titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.avaibilityStatus,
                   logoUrl: merchant.logoUrl,
@@ -165,7 +165,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                     ),
                     text: S.of(context).continue_text,
                     isDisabled: !ioniaBuyCardViewModel.isEnablePurchase,
-                    color: Theme.of(context).accentTextTheme.body2.color,
+                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                     textColor: Colors.white,
                   ),
                 );

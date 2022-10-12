@@ -50,7 +50,7 @@ class LanguageService {
   }
 
   static Future<String> localeDetection() async {
-    var locale = await Devicelocale.currentLocale;
+    var locale = await Devicelocale.currentLocale ?? '';
     locale = Intl.shortLocale(locale);
 
     return list.keys.contains(locale) ? locale : 'en';

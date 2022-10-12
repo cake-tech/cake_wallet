@@ -4,12 +4,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class TransactionRow extends StatelessWidget {
   TransactionRow(
-      {this.direction,
-      this.formattedDate,
-      this.formattedAmount,
-      this.formattedFiatAmount,
-      this.isPending,
-      @required this.onTap});
+      {required this.direction,
+      required this.formattedDate,
+      required this.formattedAmount,
+      required this.formattedFiatAmount,
+      required this.isPending,
+      required this.onTap});
 
   final VoidCallback onTap;
   final TransactionDirection direction;
@@ -34,7 +34,7 @@ class TransactionRow extends StatelessWidget {
                 width: 36,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).textTheme.overline.decorationColor
+                    color: Theme.of(context).textTheme!.overline!.decorationColor!
                 ),
                 child: Image.asset(
                     direction == TransactionDirection.incoming
@@ -57,14 +57,14 @@ class TransactionRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor)),
+                                    color: Theme.of(context).accentTextTheme!
+                                        .headline2!.backgroundColor!)),
                             Text(formattedAmount,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor))
+                                    color: Theme.of(context).accentTextTheme!
+                                        .headline2!.backgroundColor!))
                           ]),
                       SizedBox(height: 5),
                       Row(
@@ -74,16 +74,16 @@ class TransactionRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 14,
                                     color: Theme.of(context)
-                                        .textTheme
-                                        .overline
-                                        .backgroundColor)),
+                                        .textTheme!
+                                        .overline!
+                                        .backgroundColor!)),
                             Text(formattedFiatAmount,
                                 style: TextStyle(
                                     fontSize: 14,
                                     color: Theme.of(context)
-                                        .textTheme
-                                        .overline
-                                        .backgroundColor))
+                                        .textTheme!
+                                        .overline!
+                                        .backgroundColor!))
                           ])
                     ],
                   )

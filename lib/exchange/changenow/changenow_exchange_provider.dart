@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
@@ -56,8 +55,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   static String getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to,
-    bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode}) async {
     final headers = {apiHeaderKey: apiKey};
     final normalizedFrom = normalizeCryptoCurrency(from);
     final normalizedTo = normalizeCryptoCurrency(to);
@@ -79,7 +80,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -89,7 +90,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as ChangeNowRequest;
     final headers = {
       apiHeaderKey: apiKey,
@@ -122,7 +123,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -145,7 +146,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({@required String id}) async {
+  Future<Trade> findTradeById({required String id}) async {
     final headers = {apiHeaderKey: apiKey};
     final params = <String, String>{'id': id};
     final uri = Uri.https(apiAuthority,findTradeByIdPath, params);
@@ -164,7 +165,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -198,11 +199,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from,
-      CryptoCurrency to,
-      double amount,
-      bool isFixedRateMode,
-      bool isReceiveAmount}) async {
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) {
         return 0.0;
@@ -250,7 +251,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return CryptoCurrency.btc.title.toLowerCase();
       default:
         return currency.tag != null
-            ? currency.tag.toLowerCase()
+            ? currency.tag!.toLowerCase()
             : currency.title.toLowerCase();
       }
     }

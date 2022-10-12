@@ -12,7 +12,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 part 'backup_view_model.g.dart';
 
 class BackupExportFile {
-  BackupExportFile(this.content, {@required this.name});
+  BackupExportFile(this.content, {required this.name});
 
   final String name;
   final List<int> content;
@@ -22,8 +22,9 @@ class BackupViewModel = BackupViewModelBase with _$BackupViewModel;
 
 abstract class BackupViewModelBase with Store {
   BackupViewModelBase(this.secureStorage, this.secretStore, this.backupService)
-      : isBackupPasswordVisible = false {
-    state = InitialExecutionState();
+      : isBackupPasswordVisible = false,
+        backupPassword = '',
+        state = InitialExecutionState() {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     secretStore.values.observe((change) {
       if (change.key == key) {
@@ -48,11 +49,11 @@ abstract class BackupViewModelBase with Store {
   @action
   Future<void> init() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    backupPassword = await secureStorage.read(key: key);
+    backupPassword = (await secureStorage.read(key: key))!;
   }
 
   @action
-  Future<BackupExportFile> exportBackup() async {
+  Future<BackupExportFile?> exportBackup() async {
     try {
       state = IsExecutingState();
       final backupContent = await backupService.exportBackup(backupPassword);

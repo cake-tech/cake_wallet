@@ -41,7 +41,7 @@ abstract class ContactListViewModelBase with Store {
   final Box<WalletInfo> walletInfoSource;
   final ObservableList<ContactRecord> contacts;
   final List<WalletContact> walletContacts;
-  StreamSubscription<BoxEvent> _subscription;
+  StreamSubscription<BoxEvent>? _subscription;
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 }

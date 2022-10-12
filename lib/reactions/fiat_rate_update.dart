@@ -6,7 +6,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
 
-Timer _timer;
+Timer? _timer;
 
 Future<void> startFiatRateUpdate(AppStore appStore, SettingsStore settingsStore,
     FiatConversionStore fiatConversionStore) async {
@@ -14,19 +14,21 @@ Future<void> startFiatRateUpdate(AppStore appStore, SettingsStore settingsStore,
     return;
   }
 
-  fiatConversionStore.prices[appStore.wallet.currency] =
+  if (appStore.wallet != null) {
+    fiatConversionStore.prices[appStore.wallet!.currency] =
       await FiatConversionService.fetchPrice(
-          appStore.wallet.currency, settingsStore.fiatCurrency);
+          appStore.wallet!.currency, settingsStore.fiatCurrency);
+  }
 
   _timer = Timer.periodic(
       Duration(seconds: 30),
       (_) async {
         try {
-          if (appStore.wallet.type == WalletType.haven) {
+          if (appStore.wallet!.type == WalletType.haven) {
             await updateHavenRate(fiatConversionStore);
           } else {
-            fiatConversionStore.prices[appStore.wallet.currency] = await FiatConversionService.fetchPrice(
-              appStore.wallet.currency, settingsStore.fiatCurrency);
+            fiatConversionStore.prices[appStore.wallet!.currency] = await FiatConversionService.fetchPrice(
+              appStore.wallet!.currency, settingsStore.fiatCurrency);
           }
         } catch(e) {
           print(e);

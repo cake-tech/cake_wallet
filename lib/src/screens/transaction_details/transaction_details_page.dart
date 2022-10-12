@@ -17,7 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:hive/hive.dart';
 
 class TransactionDetailsPage extends BasePage {
-  TransactionDetailsPage({this.transactionDetailsViewModel});
+  TransactionDetailsPage({required this.transactionDetailsViewModel});
 
   @override
   String get title => S.current.transaction_details_title;
@@ -26,7 +26,9 @@ class TransactionDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
+        context: context,
         sectionCount: 1,
         itemCounter: (int _) => transactionDetailsViewModel.items.length,
         itemBuilder: (_, __, index) {
@@ -60,7 +62,7 @@ class TransactionDetailsPage extends BasePage {
             );
           }
 
-          return null;
+          return Container();
         });
   }
 }

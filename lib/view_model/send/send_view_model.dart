@@ -39,18 +39,18 @@ abstract class SendViewModelBase with Store {
       this._fiatConversationStore,
       this.balanceViewModel,
       this.transactionDescriptionBox)
-      : state = InitialExecutionState() {
+      : state = InitialExecutionState(),
+        currencies = _wallet.balance.keys.toList(),
+        selectedCryptoCurrency = _wallet.currency,
+        outputs = ObservableList<Output>() {
     final priority = _settingsStore.priority[_wallet.type];
     final priorities = priorityForWalletType(_wallet.type);
-    selectedCryptoCurrency = _wallet.currency;
-    currencies = _wallet.balance.keys.toList();
 
     if (!priorityForWalletType(_wallet.type).contains(priority)) {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
-
-    outputs = ObservableList<Output>()
-      ..add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    
+    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @observable
@@ -84,8 +84,8 @@ abstract class SendViewModelBase with Store {
     try {
       if (pendingTransaction != null) {
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency],
-            cryptoAmount: pendingTransaction.amountFormatted);
+            price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+            cryptoAmount: pendingTransaction!.amountFormatted);
         return fiat;
       } else {
         return '0.00';
@@ -100,8 +100,8 @@ abstract class SendViewModelBase with Store {
     try {
       if (pendingTransaction != null) {
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency],
-            cryptoAmount: pendingTransaction.feeFormatted);
+            price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+            cryptoAmount: pendingTransaction!.feeFormatted);
         return fiat;
       } else {
         return '0.00';
@@ -113,8 +113,15 @@ abstract class SendViewModelBase with Store {
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
-  TransactionPriority get transactionPriority =>
-      _settingsStore.priority[_wallet.type];
+  TransactionPriority get transactionPriority {
+    final priority = _settingsStore.priority[_wallet.type];
+
+    if (priority == null) {
+      throw Exception('Unexpected type ${_wallet.type}');
+    }
+
+    return priority;
+  }
 
   CryptoCurrency get currency => _wallet.currency;
 
@@ -127,7 +134,7 @@ abstract class SendViewModelBase with Store {
   Validator get textValidator => TextValidator();
 
   @observable
-  PendingTransaction pendingTransaction;
+  PendingTransaction? pendingTransaction;
 
   @computed
   String get balance => balanceViewModel.availableBalance ?? '0.0';
@@ -179,6 +186,10 @@ abstract class SendViewModelBase with Store {
 
   @action
   Future<void> commitTransaction() async {
+    if (pendingTransaction == null) {
+      throw Exception("Pending transaction doesn't exist. It should not be happened.");
+    }
+
     String address = outputs.fold('', (acc, value) {
       return value.isParsedAddress
           ? acc + value.address + '\n' + value.extractedAddress + '\n\n'
@@ -195,16 +206,16 @@ abstract class SendViewModelBase with Store {
 
     try {
       state = TransactionCommitting();
-      await pendingTransaction.commit();
+      await pendingTransaction!.commit();
 
-      if (pendingTransaction.id?.isNotEmpty ?? false) {
+      if (pendingTransaction!.id?.isNotEmpty ?? false) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction.id,
+                id: pendingTransaction!.id,
                 recipientAddress: address,
                 transactionNote: note))
             : await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction.id, transactionNote: note));
+                id: pendingTransaction!.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -222,23 +233,39 @@ abstract class SendViewModelBase with Store {
       case WalletType.bitcoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(outputs, priority: priority);
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+        }
+
+        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.litecoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(outputs, priority: priority);
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+        }
+
+        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.monero:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return monero.createMoneroTransactionCreationCredentials(
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+        }
+
+        return monero!.createMoneroTransactionCreationCredentials(
             outputs: outputs, priority: priority);
       case WalletType.haven:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return haven.createHavenTransactionCreationCredentials(
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+        }
+        
+        return haven!.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
       default:
-        return null;
+        throw Exception('Unexpected wallet type: ${_wallet.type}');
     }
   }
 
@@ -247,8 +274,10 @@ abstract class SendViewModelBase with Store {
     final wallet = _wallet;
 
     if (isElectrumWallet) {
-      final rate = bitcoin.getFeeRate(wallet, _priority);
-      return '${priority.labelWithRate(rate)}';
+      final rate = bitcoin!.getFeeRate(wallet, _priority);
+      // FIX-ME: labelWithRate
+      // return '${priority.labelWithRate(rate)}';
+      return '';
     }
 
     return priority.toString();

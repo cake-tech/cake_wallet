@@ -4,7 +4,10 @@ import 'package:cake_wallet/palette.dart';
 
 class IntroducingCard extends StatelessWidget {
   IntroducingCard(
-      {this.borderColor, this.closeCard, this.title, this.subTitle});
+      {required this.borderColor, 
+      required this.closeCard, 
+      required this.title, 
+      required this.subTitle});
 
   final String title;
   final String subTitle;
@@ -23,7 +26,7 @@ class IntroducingCard extends StatelessWidget {
               color: borderColor,
               width: 1,
             ),
-            color: Theme.of(context).textTheme.title.backgroundColor),
+            color: Theme.of(context).textTheme!.headline6!.backgroundColor!),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,9 +44,9 @@ class IntroducingCard extends StatelessWidget {
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context)
-                                .accentTextTheme
-                                .display3
-                                .backgroundColor,
+                                .accentTextTheme!
+                                .headline2!
+                                .backgroundColor!,
                             height: 1),
                         maxLines: 1,
                         textAlign: TextAlign.center),
@@ -54,9 +57,9 @@ class IntroducingCard extends StatelessWidget {
                             fontSize: 12,
                             fontFamily: 'Lato',
                             color: Theme.of(context)
-                                .accentTextTheme
-                                .display3
-                                .backgroundColor,
+                                .accentTextTheme!
+                                .headline2!
+                                .backgroundColor!,
                             height: 1)),
                   ],
                 ),

@@ -28,7 +28,9 @@ class SettingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
+        context: context,
         sectionCount: settingsViewModel.sections.length,
         itemCounter: (int sectionIndex) {
           if (sectionIndex < settingsViewModel.sections.length) {
@@ -42,7 +44,7 @@ class SettingsPage extends BasePage {
 
           if (item is PickerListItem) {
             return Observer(builder: (_) {
-              return SettingsPickerCell<dynamic>(
+              return SettingsPickerCell<Object>(
                 displayItem: item.displayItem,
                 title: item.title,
                 selectedItem: item.selectedItem(),

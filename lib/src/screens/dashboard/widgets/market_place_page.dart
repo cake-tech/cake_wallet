@@ -9,7 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class MarketPlacePage extends StatelessWidget {
 
-  MarketPlacePage({@required this.dashboardViewModel});
+  MarketPlacePage({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
   final _scrollController = ScrollController();
@@ -35,7 +35,7 @@ class MarketPlacePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                  color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                 ),
               ),
               Expanded(

@@ -67,9 +67,9 @@ class Unspent {
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({String name, String mnemonic, String password});
-  WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({String name, String password, String wif, WalletInfo walletInfo});
-  WalletCredentials createBitcoinNewWalletCredentials({String name, WalletInfo walletInfo});
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
+  WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
@@ -77,14 +77,14 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {TransactionPriority priority, int feeRate});
-  Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority priority, int feeRate});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
+  Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
 
-  String formatterBitcoinAmountToString({int amount});
-  double formatterBitcoinAmountToDouble({int amount});
+  String formatterBitcoinAmountToString({required int amount});
+  double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
 
   List<Unspent> getUnspents(Object wallet);
@@ -94,8 +94,8 @@ abstract class Bitcoin {
 }
   """;
 
-  const bitcoinEmptyDefinition = 'Bitcoin bitcoin;\n';
-  const bitcoinCWDefinition = 'Bitcoin bitcoin = CWBitcoin();\n';
+  const bitcoinEmptyDefinition = 'Bitcoin? bitcoin;\n';
+  const bitcoinCWDefinition = 'Bitcoin? bitcoin = CWBitcoin();\n';
 
   final output = '$bitcoinCommonHeaders\n'
     + (hasImplementation ? '$bitcoinCWHeaders\n' : '\n')
@@ -152,33 +152,35 @@ import 'package:cw_monero/pending_monero_transaction.dart';
   const moneroCwPart = "part 'cw_monero.dart';";
   const moneroContent = """
 class Account {
-  Account({this.id, this.label});
+  Account({required this.id, required this.label});
   final int id;
   final String label;
 }
 
 class Subaddress {
-  Subaddress({this.id, this.accountId, this.label, this.address});
+  Subaddress({
+    required this.id,
+    required this.label,
+    required this.address});
   final int id;
-  final int accountId;
   final String label;
   final String address;
 }
 
 class MoneroBalance extends Balance {
-  MoneroBalance({@required this.fullBalance, @required this.unlockedBalance})
-      : formattedFullBalance = monero.formatterMoneroAmountToString(amount: fullBalance),
+  MoneroBalance({required this.fullBalance, required this.unlockedBalance})
+      : formattedFullBalance = monero!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
-            monero.formatterMoneroAmountToString(amount: unlockedBalance),
+            monero!.formatterMoneroAmountToString(amount: unlockedBalance),
         super(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
-      {@required this.formattedFullBalance,
-      @required this.formattedUnlockedBalance})
-      : fullBalance = monero.formatterMoneroParseAmount(amount: formattedFullBalance),
-        unlockedBalance = monero.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(monero.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-            monero.formatterMoneroParseAmount(amount: formattedFullBalance));
+      {required this.formattedFullBalance,
+      required this.formattedUnlockedBalance})
+      : fullBalance = monero!.formatterMoneroParseAmount(amount: formattedFullBalance),
+        unlockedBalance = monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+            monero!.formatterMoneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
   final int unlockedBalance;
@@ -194,10 +196,10 @@ class MoneroBalance extends Balance {
 
 abstract class MoneroWalletDetails {
   @observable
-  Account account;
+  late Account account;
 
   @observable
-  MoneroBalance balance;
+  late MoneroBalance balance;
 }
 
 abstract class Monero {
@@ -213,28 +215,28 @@ abstract class Monero {
 
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
 
-  int getHeigthByDate({DateTime date});
+  int getHeigthByDate({required DateTime date});
   TransactionPriority getDefaultTransactionPriority();
-  TransactionPriority deserializeMoneroTransactionPriority({int raw});
+  TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
-      String name,
-            String spendKey,
-            String viewKey,
-            String address,
-            String password,
-            String language,
-            int height});
-  WalletCredentials createMoneroRestoreWalletFromSeedCredentials({String name, String password, int height, String mnemonic});
-  WalletCredentials createMoneroNewWalletCredentials({String name, String password, String language});
+    required String name,
+    required String spendKey,
+    required String viewKey,
+    required String address,
+    required String password,
+    required String language,
+    required int height});
+  WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, String password,});
   Map<String, String> getKeys(Object wallet);
-  Object createMoneroTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority});
-  Object createMoneroTransactionCreationCredentialsRaw({List<OutputInfo> outputs, TransactionPriority priority});
-  String formatterMoneroAmountToString({int amount});
-  double formatterMoneroAmountToDouble({int amount});
-  int formatterMoneroParseAmount({String amount});
+  Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
+  Object createMoneroTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
+  String formatterMoneroAmountToString({required int amount});
+  double formatterMoneroAmountToDouble({required int amount});
+  int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
   void setCurrentAccount(Object wallet, int id, String label);
   void onStartup();
@@ -245,12 +247,12 @@ abstract class Monero {
 
 abstract class MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {int accountIndex});
-  void refresh(Object wallet, {int accountIndex});
+  void update(Object wallet, {required int accountIndex});
+  void refresh(Object wallet, {required int accountIndex});
   List<Subaddress> getAll(Object wallet);
-  Future<void> addSubaddress(Object wallet, {int accountIndex, String label});
+  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
   Future<void> setLabelSubaddress(Object wallet,
-      {int accountIndex, int addressIndex, String label});
+      {required int accountIndex, required int addressIndex, required String label});
 }
 
 abstract class MoneroAccountList {
@@ -258,13 +260,13 @@ abstract class MoneroAccountList {
   void update(Object wallet);
   void refresh(Object wallet);
   List<Account> getAll(Object wallet);
-  Future<void> addAccount(Object wallet, {String label});
-  Future<void> setLabelAccount(Object wallet, {int accountIndex, String label});
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
 }
   """;
 
-  const moneroEmptyDefinition = 'Monero monero;\n';
-  const moneroCWDefinition = 'Monero monero = CWMonero();\n';
+  const moneroEmptyDefinition = 'Monero? monero;\n';
+  const moneroCWDefinition = 'Monero? monero = CWMonero();\n';
 
   final output = '$moneroCommonHeaders\n'
     + (hasImplementation ? '$moneroCWHeaders\n' : '\n')
@@ -323,33 +325,35 @@ import 'package:cw_haven/api/balance_list.dart';
   const havenCwPart = "part 'cw_haven.dart';";
   const havenContent = """
 class Account {
-  Account({this.id, this.label});
+  Account({required this.id, required this.label});
   final int id;
   final String label;
 }
 
 class Subaddress {
-  Subaddress({this.id, this.accountId, this.label, this.address});
+  Subaddress({
+    required this.id,
+    required this.label,
+    required this.address});
   final int id;
-  final int accountId;
   final String label;
   final String address;
 }
 
 class HavenBalance extends Balance {
-  HavenBalance({@required this.fullBalance, @required this.unlockedBalance})
-      : formattedFullBalance = haven.formatterMoneroAmountToString(amount: fullBalance),
+  HavenBalance({required this.fullBalance, required this.unlockedBalance})
+      : formattedFullBalance = haven!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
-            haven.formatterMoneroAmountToString(amount: unlockedBalance),
+            haven!.formatterMoneroAmountToString(amount: unlockedBalance),
         super(unlockedBalance, fullBalance);
 
   HavenBalance.fromString(
-      {@required this.formattedFullBalance,
-      @required this.formattedUnlockedBalance})
-      : fullBalance = haven.formatterMoneroParseAmount(amount: formattedFullBalance),
-        unlockedBalance = haven.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(haven.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-            haven.formatterMoneroParseAmount(amount: formattedFullBalance));
+      {required this.formattedFullBalance,
+      required this.formattedUnlockedBalance})
+      : fullBalance = haven!.formatterMoneroParseAmount(amount: formattedFullBalance),
+        unlockedBalance = haven!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super(haven!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+            haven!.formatterMoneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
   final int unlockedBalance;
@@ -364,18 +368,19 @@ class HavenBalance extends Balance {
 }
 
 class AssetRate {
+  AssetRate(this.asset, this.rate);
+
   final String asset;
   final int rate;
-
-  AssetRate(this.asset, this.rate);
 }
 
 abstract class HavenWalletDetails {
+  // FIX-ME: it's abstruct class
   @observable
-  Account account;
-
+  late Account account;
+  // FIX-ME: it's abstruct class
   @observable
-  HavenBalance balance;
+  late HavenBalance balance;
 }
 
 abstract class Haven {
@@ -389,27 +394,27 @@ abstract class Haven {
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
-  int getHeigthByDate({DateTime date});
+  int getHeigthByDate({required DateTime date});
   TransactionPriority getDefaultTransactionPriority();
-  TransactionPriority deserializeMoneroTransactionPriority({int raw});
+  TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
 
   WalletCredentials createHavenRestoreWalletFromKeysCredentials({
-      String name,
-            String spendKey,
-            String viewKey,
-            String address,
-            String password,
-            String language,
-            int height});
-  WalletCredentials createHavenRestoreWalletFromSeedCredentials({String name, String password, int height, String mnemonic});
-  WalletCredentials createHavenNewWalletCredentials({String name, String password, String language});
+      required String name,
+      required String spendKey,
+      required String viewKey,
+      required String address,
+      required String password,
+      required String language,
+      required int height});
+  WalletCredentials createHavenRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createHavenNewWalletCredentials({required String name, required String language, String password});
   Map<String, String> getKeys(Object wallet);
-  Object createHavenTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority, String assetType});
-  String formatterMoneroAmountToString({int amount});
-  double formatterMoneroAmountToDouble({int amount});
-  int formatterMoneroParseAmount({String amount});
+  Object createHavenTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, required String assetType});
+  String formatterMoneroAmountToString({required int amount});
+  double formatterMoneroAmountToDouble({required int amount});
+  int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
   void setCurrentAccount(Object wallet, int id, String label);
   void onStartup();
@@ -421,26 +426,17 @@ abstract class Haven {
 
 abstract class MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {int accountIndex});
-  void refresh(Object wallet, {int accountIndex});
+  void update(Object wallet, {required int accountIndex});
+  void refresh(Object wallet, {required int accountIndex});
   List<Subaddress> getAll(Object wallet);
-  Future<void> addSubaddress(Object wallet, {int accountIndex, String label});
+  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
   Future<void> setLabelSubaddress(Object wallet,
-      {int accountIndex, int addressIndex, String label});
-}
-
-abstract class HavenAccountList {
-  ObservableList<Account> get accounts;
-  void update(Object wallet);
-  void refresh(Object wallet);
-  List<Account> getAll(Object wallet);
-  Future<void> addAccount(Object wallet, {String label});
-  Future<void> setLabelAccount(Object wallet, {int accountIndex, String label});
+      {required int accountIndex, required int addressIndex, required String label});
 }
   """;
 
-  const havenEmptyDefinition = 'Haven haven;\n';
-  const havenCWDefinition = 'Haven haven = CWHaven();\n';
+  const havenEmptyDefinition = 'Haven? haven;\n';
+  const havenCWDefinition = 'Haven? haven = CWHaven();\n';
 
   final output = '$havenCommonHeaders\n'
     + (hasImplementation ? '$havenCWHeaders\n' : '\n')
@@ -456,7 +452,7 @@ abstract class HavenAccountList {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
+Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven}) async {
   const cwCore =  """
   cw_core:
     path: ./cw_core
@@ -509,7 +505,7 @@ Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) a
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
+Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven}) async {
   final walletTypesFile = File(walletTypesPath);
   
   if (walletTypesFile.existsSync()) {

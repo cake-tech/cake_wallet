@@ -6,68 +6,68 @@ import 'package:cw_core/wallet_type.dart';
 
 Future<List<Node>> loadDefaultNodes() async {
   final nodesRaw = await rootBundle.loadString('assets/node_list.yml');
-  final nodes = loadYaml(nodesRaw) as YamlList;
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
 
-  return nodes.map((dynamic raw) {
+  for (final raw in loadedNodes) {
     if (raw is Map) {
-      final node = Node.fromMap(raw);
-      node?.type = WalletType.monero;
-
-      return node;
+      final node = Node.fromMap(raw as Map<String, Object>);
+      node.type = WalletType.monero;
+      nodes.add(node);
     }
+  }
 
-    return null;
-  }).toList();
+  return nodes;
 }
 
 Future<List<Node>> loadBitcoinElectrumServerList() async {
   final serverListRaw =
       await rootBundle.loadString('assets/bitcoin_electrum_server_list.yml');
-  final serverList = loadYaml(serverListRaw) as YamlList;
+  final loadedServerList = loadYaml(serverListRaw) as YamlList;
+  final serverList = <Node>[];
 
-  return serverList.map((dynamic raw) {
-    if (raw is Map) {
-      final node = Node.fromMap(raw);
-      node?.type = WalletType.bitcoin;
-
-      return node;
+  for (final raw in loadedServerList) {
+     if (raw is Map) {
+      final node = Node.fromMap(raw as Map<String, Object>);
+      node.type = WalletType.bitcoin;
+      serverList.add(node);
     }
+  }
 
-    return null;
-  }).toList();
+  return serverList;
 }
 
 Future<List<Node>> loadLitecoinElectrumServerList() async {
   final serverListRaw =
       await rootBundle.loadString('assets/litecoin_electrum_server_list.yml');
-  final serverList = loadYaml(serverListRaw) as YamlList;
+  final loadedServerList = loadYaml(serverListRaw) as YamlList;
+  final serverList = <Node>[];
 
-  return serverList.map((dynamic raw) {
+  for (final raw in loadedServerList) {
     if (raw is Map) {
-      final node = Node.fromMap(raw);
-      node?.type = WalletType.litecoin;
-
-      return node;
+      final node = Node.fromMap(raw as Map<String, Object>);
+      node.type = WalletType.litecoin;
+      serverList.add(node);
     }
+  }
 
-    return null;
-  }).toList();
+  return serverList;
 }
 
 Future<List<Node>> loadDefaultHavenNodes() async {
   final nodesRaw = await rootBundle.loadString('assets/haven_node_list.yml');
-  final nodes = loadYaml(nodesRaw) as YamlList;
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
 
-  return nodes.map((dynamic raw) {
+  for (final raw in loadedNodes) {
     if (raw is Map) {
-      final node = Node.fromMap(raw);
-      node?.type = WalletType.haven;
-
-      return node;
+      final node = Node.fromMap(raw as Map<String, Object>);
+      node.type = WalletType.haven;
+      nodes.add(node);
     }
-
-    return null;
-  }).toList();
+  }
+  
+  return nodes;
 }
 
 Future resetToDefault(Box<Node> nodeSource) async {

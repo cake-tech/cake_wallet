@@ -8,9 +8,9 @@ abstract class AccountList<T> {
 
   List<T> getAll();
 
-  Future addAccount({String label});
+  Future<void> addAccount({required String label});
 
-  Future setLabelAccount({int accountIndex, String label});
+  Future<void> setLabelAccount({required int accountIndex, required String label});
 
   void refresh();
 }

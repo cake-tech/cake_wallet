@@ -7,7 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 
 class PresentProviderPicker extends StatelessWidget {
-  PresentProviderPicker({@required this.exchangeViewModel});
+  PresentProviderPicker({required this.exchangeViewModel});
 
   final ExchangeViewModel exchangeViewModel;
 
@@ -18,10 +18,11 @@ class PresentProviderPicker extends StatelessWidget {
         color: Colors.white,
         height: 6);
 
-    return FlatButton(
+    return TextButton(
         onPressed: () => _presentProviderPicker(context),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
+        // FIX-ME: Style
+        //highlightColor: Colors.transparent,
+        //splashColor: Colors.transparent,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +46,7 @@ class PresentProviderPicker extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 10.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).textTheme.headline.color)))
+                                color: Theme.of(context).textTheme!.headline5!.color!)))
               ],
             ),
             SizedBox(width: 5),

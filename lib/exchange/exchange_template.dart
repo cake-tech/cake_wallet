@@ -5,12 +5,12 @@ part 'exchange_template.g.dart';
 @HiveType(typeId: ExchangeTemplate.typeId)
 class ExchangeTemplate extends HiveObject {
   ExchangeTemplate({
-    this.amount,
-    this.depositCurrency,
-    this.receiveCurrency,
-    this.provider,
-    this.depositAddress,
-    this.receiveAddress
+    required this.amount,
+    required this.depositCurrency,
+    required this.receiveCurrency,
+    required this.provider,
+    required this.depositAddress,
+    required this.receiveAddress
   });
 
   static const typeId = 7;

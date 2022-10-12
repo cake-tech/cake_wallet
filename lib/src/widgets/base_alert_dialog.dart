@@ -20,7 +20,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
         decoration: TextDecoration.none,
       ),
     );
@@ -34,7 +34,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
         fontFamily: 'Lato',
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
         decoration: TextDecoration.none,
       ),
     );
@@ -48,13 +48,14 @@ class BaseAlertDialog extends StatelessWidget {
             child: Container(
           height: 52,
           padding: EdgeInsets.only(left: 6, right: 6),
-          color: Theme.of(context).accentTextTheme.body2.decorationColor,
+          color: Theme.of(context).accentTextTheme!.bodyText1!.decorationColor!,
           child: ButtonTheme(
             minWidth: double.infinity,
-            child: FlatButton(
+            child: TextButton(
                 onPressed: actionLeft,
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
+                // FIX-ME: Style
+                //highlightColor: Colors.transparent,
+                //splashColor: Colors.transparent,
                 child: Text(
                   leftActionButtonText,
                   textAlign: TextAlign.center,
@@ -62,7 +63,7 @@ class BaseAlertDialog extends StatelessWidget {
                     fontSize: 15,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme.body2.backgroundColor,
+                    color: Theme.of(context).primaryTextTheme!.bodyText1!.backgroundColor!,
                     decoration: TextDecoration.none,
                   ),
                 )),
@@ -77,13 +78,14 @@ class BaseAlertDialog extends StatelessWidget {
             child: Container(
           height: 52,
           padding: EdgeInsets.only(left: 6, right: 6),
-          color: Theme.of(context).accentTextTheme.body1.backgroundColor,
+          color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
           child: ButtonTheme(
             minWidth: double.infinity,
-            child: FlatButton(
+            child: TextButton(
                 onPressed: actionRight,
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
+                // FIX-ME: Style
+                //highlightColor: Colors.transparent,
+                //splashColor: Colors.transparent,
                 child: Text(
                   rightActionButtonText,
                   textAlign: TextAlign.center,
@@ -91,7 +93,7 @@ class BaseAlertDialog extends StatelessWidget {
                     fontSize: 15,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme.body1.backgroundColor,
+                    color: Theme.of(context).primaryTextTheme!.bodyText2!.backgroundColor!,
                     decoration: TextDecoration.none,
                   ),
                 )),
@@ -118,7 +120,7 @@ class BaseAlertDialog extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
                     width: 300,
-                    color: Theme.of(context).accentTextTheme.title.decorationColor,
+                    color: Theme.of(context).accentTextTheme!.headline6!.decorationColor!,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[

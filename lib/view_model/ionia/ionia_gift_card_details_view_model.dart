@@ -10,12 +10,15 @@ class IoniaGiftCardDetailsViewModel  = IoniaGiftCardDetailsViewModelBase with _$
 
 abstract class IoniaGiftCardDetailsViewModelBase with Store {
 
-  IoniaGiftCardDetailsViewModelBase({this.ioniaService, this.giftCard}) {
-    redeemState = InitialExecutionState();
-    remainingAmount = giftCard.remainingAmount;
-  }
+  IoniaGiftCardDetailsViewModelBase({
+    required this.ioniaService,
+    required this.giftCard}) 
+    : redeemState = InitialExecutionState(),
+      remainingAmount = giftCard.remainingAmount,
+      brightness = 0;
 
   final IoniaService ioniaService;
+  
   double brightness;
   
   @observable
