@@ -7,7 +7,7 @@ PODS:
   - connectivity (0.0.1):
     - Flutter
     - Reachability
-  - CryptoSwift (1.6.0)
+  - CryptoSwift (1.3.2)
   - cw_haven (0.0.1):
     - cw_haven/Boost (= 0.0.1)
     - cw_haven/Haven (= 0.0.1)
@@ -67,14 +67,14 @@ PODS:
     - Flutter
   - devicelocale (0.0.1):
     - Flutter
-  - DKImagePickerController/Core (4.3.4):
+  - DKImagePickerController/Core (4.3.2):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
-  - DKImagePickerController/ImageDataManager (4.3.4)
-  - DKImagePickerController/PhotoGallery (4.3.4):
+  - DKImagePickerController/ImageDataManager (4.3.2)
+  - DKImagePickerController/PhotoGallery (4.3.2):
     - DKImagePickerController/Core
     - DKPhotoGallery
-  - DKImagePickerController/Resource (4.3.4)
+  - DKImagePickerController/Resource (4.3.2)
   - DKPhotoGallery (0.0.17):
     - DKPhotoGallery/Core (= 0.0.17)
     - DKPhotoGallery/Model (= 0.0.17)
@@ -118,15 +118,15 @@ PODS:
   - platform_device_id (0.0.1):
     - Flutter
   - Reachability (3.2)
-  - SDWebImage (5.13.4):
-    - SDWebImage/Core (= 5.13.4)
-  - SDWebImage/Core (5.13.4)
+  - SDWebImage (5.9.1):
+    - SDWebImage/Core (= 5.9.1)
+  - SDWebImage/Core (5.9.1)
   - share (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
     - Flutter
-  - SwiftProtobuf (1.20.2)
-  - SwiftyGif (5.4.3)
+  - SwiftProtobuf (1.12.0)
+  - SwiftyGif (5.3.0)
   - uni_links (0.0.1):
     - Flutter
   - UnstoppableDomainsResolution (4.0.0):
@@ -226,14 +226,14 @@ SPEC CHECKSUMS:
   barcode_scan: a5c27959edfafaa0c771905bad0b29d6d39e4479
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
-  CryptoSwift: 562f8eceb40e80796fffc668b0cad9313284cfa6
+  CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   devicelocale: b22617f40038496deffba44747101255cee005b0
-  DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
+  DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   esys_flutter_share: 403498dab005b36ce1f8d7aff377e81f0621b0b4
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
@@ -246,16 +246,16 @@ SPEC CHECKSUMS:
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
-  SDWebImage: e5cc87bf736e60f49592f307bdf9e157189298a3
+  SDWebImage: a990c053fff71e388a10f3357edb0be17929c9c5
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
-  SwiftProtobuf: 9f458aaa7844a2fc0b910053e66578bc4e2da9c1
-  SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
+  SwiftProtobuf: 4ef85479c18ca85b5482b343df9c319c62bda699
+  SwiftyGif: e466e86c660d343357ab944a819a101c4127cb40
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   webview_flutter: 3603125dfd3bcbc9d8d418c3f80aeecf331c068b
 
-PODFILE CHECKSUM: bf84c4e13798f92b867c8ebcbd04acc127fec6be
+PODFILE CHECKSUM: ae71bdf0eb731a1ffc399c122f6aa4dea0cb5f6f
 
 COCOAPODS: 1.11.2
