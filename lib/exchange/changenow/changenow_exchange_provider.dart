@@ -191,7 +191,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         inputAddress: inputAddress,
         amount: expectedSendAmount,
         state: state,
-        extraId: extraId.isNotEmpty ? extraId : null,
+        extraId: extraId,
         expiredAt: expiredAt,
         outputTransaction: outputTransaction);
   }
