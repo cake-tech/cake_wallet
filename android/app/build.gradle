@@ -37,7 +37,7 @@ if (appPropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 29
 
     lintOptions {
         disable 'InvalidPackage'
@@ -80,8 +80,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
        }
    }
-
-    ndkVersion "25.1.8937393"
 }
 
 flutter {
