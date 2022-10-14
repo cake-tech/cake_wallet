@@ -26,7 +26,7 @@ class S implements WidgetsLocalizations {
   static const GeneratedLocalizationsDelegate delegate =
     GeneratedLocalizationsDelegate();
 
-  static S of(BuildContext context) => Localizations.of<S>(context, S);  
+  static S of(BuildContext context) => Localizations.of<S>(context, S)!;
 """;
 
 const part2 = """
