@@ -433,6 +433,15 @@ abstract class MoneroSubaddressList {
   Future<void> setLabelSubaddress(Object wallet,
       {required int accountIndex, required int addressIndex, required String label});
 }
+
+abstract class HavenAccountList {
+  ObservableList<Account> get accounts;
+  void update(Object wallet);
+  void refresh(Object wallet);
+  List<Account> getAll(Object wallet);
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+}
   """;
 
   const havenEmptyDefinition = 'Haven? haven;\n';
