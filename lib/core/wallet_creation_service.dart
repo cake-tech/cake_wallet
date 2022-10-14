@@ -22,7 +22,7 @@ class WalletCreationService {
   }
 
   WalletType type = WalletType.monero;
-  final FlutterSecureStorage? secureStorage;
+  final dynamic secureStorage;
   final SharedPreferences? sharedPreferences;
   final KeyService? keyService;
   WalletService? _service;
