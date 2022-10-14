@@ -85,8 +85,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     return Limits(
-      min: responseJSON['minAmount'] as double,
-      max: responseJSON['maxAmount'] as double);
+      min: responseJSON['minAmount'] as double?,
+      max: responseJSON['maxAmount'] as double?);
   }
 
   @override
