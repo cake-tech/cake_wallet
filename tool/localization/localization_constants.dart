@@ -21,12 +21,12 @@ import \'package:flutter/material.dart\';
 class S implements WidgetsLocalizations {
   const S();
 
-  static S current;
+  static late S current;
 
   static const GeneratedLocalizationsDelegate delegate =
     GeneratedLocalizationsDelegate();
 
-  static S of(BuildContext context) => Localizations.of<S>(context, S);  
+  static S of(BuildContext context) => Localizations.of<S>(context, S)!;
 """;
 
 const part2 = """
