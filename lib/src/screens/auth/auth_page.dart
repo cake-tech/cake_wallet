@@ -1,5 +1,5 @@
 import 'package:cake_wallet/utils/show_bar.dart';
-// import 'package:flushbar/flushbar.dart';
+import 'package:flash/flash.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,9 +31,8 @@ class AuthPageState extends State<AuthPage> {
   final _backArrowImageDarkTheme =
       Image.asset('assets/images/close_button.png');
   ReactionDisposer? _reaction;
-  // FIX-ME: replace Flushbar 
-  // Flushbar<void>? _authBar;
-  // Flushbar<void>? _progressBar;
+  FlashController<void>? _authBarController;
+  FlashController<void>? _progressBarController;
 
   @override
   void initState() {
@@ -48,11 +47,14 @@ class AuthPageState extends State<AuthPage> {
 
       if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          // FIX-ME: Changes related to flutter upgreade.
-          //         Could be incorrect value for duration of auth bar
-          // _authBar =
-          //     createBar<void>(S.of(context).authentication, duration: Duration())
-          //       ..show(context);
+          showToast(
+              context,
+              builder: (_, controller) {
+                 _authBarController = controller;
+                 
+                return createBar(S.of(context).authentication, controller);
+              },
+            );
         });
       }
 
@@ -61,7 +63,7 @@ class AuthPageState extends State<AuthPage> {
         print(state.error);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _pinCodeKey.currentState?.clear();
-          // _authBar?.dismiss();
+          _authBarController?.dismiss();
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
@@ -74,7 +76,7 @@ class AuthPageState extends State<AuthPage> {
       if (state is AuthenticationBanned) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _pinCodeKey.currentState?.clear();
-          // _authBar?.dismiss();
+          _authBarController?.dismiss();
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
@@ -99,19 +101,28 @@ class AuthPageState extends State<AuthPage> {
   void dispose() {
     _reaction?.reaction.dispose();
     super.dispose();
+    _authBarController?.dismiss();
+    _progressBarController?.dismiss();
   }
 
   void changeProcessText(String text) {
-    // _authBar?.dismiss();
-    // FIX-ME: Changes related to flutter upgreade.
-          //         Could be incorrect value for duration of auth bar
-    // _progressBar = createBar<void>(text, duration: Duration())
-    //   ..show(_key.currentContext);
+    final context = _key.currentContext;
+     _authBarController?.dismiss();
+     if(context != null){
+     showToast(
+        context,
+        builder: (_, controller) {
+          _progressBarController = controller;
+          
+          return createBar(text, controller);
+        },
+      );
+    }
   }
 
   void hideProgressText() {
-    // _progressBar?.dismiss();
-    // _progressBar = null;
+    _progressBarController?.dismiss();
+    _progressBarController = null;
   }
 
   void close() {
@@ -119,8 +130,8 @@ class AuthPageState extends State<AuthPage> {
       throw Exception('Key context is null. Should be not happened');
     }
 
-    // _authBar?.dismiss();
-    // _progressBar?.dismiss();
+     _authBarController?.dismiss();
+    _progressBarController?.dismiss();
     Navigator.of(_key.currentContext!).pop();
   }
 
