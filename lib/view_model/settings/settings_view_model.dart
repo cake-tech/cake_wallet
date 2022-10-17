@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -136,9 +137,7 @@ abstract class SettingsViewModelBase with Store {
               if (wallet.type == WalletType.bitcoin
                   || wallet.type == WalletType.litecoin) {
                 final rate = bitcoin!.getFeeRate(wallet, _priority);
-                // FIX-ME: BitcoinTransactionPriority
-                // return '${priority.labelWithRate(rate)}';
-                return '';
+                return '${(priority as BitcoinTransactionPriority).labelWithRate(rate)}';
               }
 
               return priority.toString();
