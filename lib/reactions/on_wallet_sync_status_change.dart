@@ -21,18 +21,22 @@ void startWalletSyncStatusChangeReaction(
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
   _onWalletSyncStatusChangeReaction =
       reaction((_) => wallet.syncStatus, (SyncStatus status) async {
-    if (status is ConnectedSyncStatus) {
-      await wallet.startSync();
+    try {
+      if (status is ConnectedSyncStatus) {
+        await wallet.startSync();
 
-      if (wallet.type == WalletType.haven) {
-        await updateHavenRate(fiatConversionStore);
+        if (wallet.type == WalletType.haven) {
+          await updateHavenRate(fiatConversionStore);
+        }
       }
-    }
-    if (status is SyncingSyncStatus) {
-      await _wakeLock.enableWake();
-    }
-    if (status is SyncedSyncStatus || status is FailedSyncStatus) {
-      await _wakeLock.disableWake();
+      if (status is SyncingSyncStatus) {
+        await _wakeLock.enableWake();
+      }
+      if (status is SyncedSyncStatus || status is FailedSyncStatus) {
+        await _wakeLock.disableWake();
+      }
+    } catch(e) {
+      print(e.toString());
     }
   });
 }

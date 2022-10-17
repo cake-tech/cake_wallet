@@ -65,8 +65,9 @@ class ElectrumClient {
 
     socket!.listen((Uint8List event) {
       try {
+        final msg = utf8.decode(event.toList());
         final response =
-            json.decode(utf8.decode(event.toList())) as Map<String, dynamic>;
+            json.decode(msg) as Map<String, dynamic>;
         _handleResponse(response);
       } on FormatException catch (e) {
         final msg = e.message.toLowerCase();
@@ -136,14 +137,14 @@ class ElectrumClient {
         return [];
       });
 
-  Future<Map<String, Object>> getBalance(String scriptHash) =>
+  Future<Map<String, dynamic>> getBalance(String scriptHash) =>
       call(method: 'blockchain.scripthash.get_balance', params: [scriptHash])
           .then((dynamic result) {
-        if (result is Map<String, Object>) {
+        if (result is Map<String, dynamic>) {
           return result;
         }
 
-        return <String, Object>{};
+        return <String, dynamic>{};
       });
 
   Future<List<Map<String, dynamic>>> getHistory(String scriptHash) =>
@@ -151,11 +152,11 @@ class ElectrumClient {
           .then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
-            if (val is Map<String, Object>) {
+            if (val is Map<String, dynamic>) {
               return val;
             }
 
-            return <String, Object>{};
+            return <String, dynamic>{};
           }).toList();
         }
 
@@ -170,12 +171,12 @@ class ElectrumClient {
           .then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
-            if (val is Map<String, Object>) {
+            if (val is Map<String, dynamic>) {
               val['address'] = address;
               return val;
             }
 
-            return <String, Object>{};
+            return <String, dynamic>{};
           }).toList();
         }
 
@@ -187,11 +188,11 @@ class ElectrumClient {
           .then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
-            if (val is Map<String, Object>) {
+            if (val is Map<String, dynamic>) {
               return val;
             }
 
-            return <String, Object>{};
+            return <String, dynamic>{};
           }).toList();
         }
 
@@ -203,26 +204,26 @@ class ElectrumClient {
           .then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
-            if (val is Map<String, Object>) {
+            if (val is Map<String, dynamic>) {
               return val;
             }
 
-            return <String, Object>{};
+            return <String, dynamic>{};
           }).toList();
         }
 
         return [];
       });
 
-  Future<Map<String, Object>> getTransactionRaw(
+  Future<Map<String, dynamic>> getTransactionRaw(
           {required String hash}) async =>
       call(method: 'blockchain.transaction.get', params: [hash, true])
           .then((dynamic result) {
-        if (result is Map<String, Object>) {
+        if (result is Map<String, dynamic>) {
           return result;
         }
 
-        return <String, Object>{};
+        return <String, dynamic>{};
       });
 
   Future<String> getTransactionHex(
