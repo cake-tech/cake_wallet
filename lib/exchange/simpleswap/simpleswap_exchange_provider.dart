@@ -31,9 +31,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   static const apiKey = secrets.simpleSwapApiKey;
 
   @override
-  ExchangeProviderDescription get description =>
-      ExchangeProviderDescription.simpleSwap;
-      
+  ExchangeProviderDescription get description => ExchangeProviderDescription.simpleSwap;
+
   @override
   Future<double> calculateAmount(
       {CryptoCurrency from, CryptoCurrency to, double amount, bool isFixedRateMode, bool isReceiveAmount}) async {
@@ -51,12 +50,12 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         'fixed': isFixedRateMode.toString()
       };
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
-      
+
       final response = await get(uri);
 
       if (response.body == null) return 0.00;
       final data = json.decode(response.body) as String;
-    
+
       return double.parse(data);
     } catch (_) {
       return 0.00;
@@ -68,14 +67,13 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(apiAuthority, getEstimatePath, <String, String>{'api_key': apiKey});
     final response = await get(uri);
 
-   return !(response.statusCode == 403);
+    return !(response.statusCode == 403);
   }
 
   @override
   Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
     final _request = request as SimpleSwapRequest;
-    final headers = {
-      'Content-Type': 'application/json'};
+    final headers = {'Content-Type': 'application/json'};
     final params = <String, String>{
       'api_key': apiKey,
     };
@@ -106,7 +104,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['address_from'] as String;
     final settleAddress = responseJSON['user_refund_address'] as String;
-    final extraId = responseJSON['extra_id_from'] as String;
+    final extraId = responseJSON['extra_id_from'] as String?;
     return Trade(
       id: id,
       provider: description,
@@ -114,7 +112,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       to: _request.to,
       inputAddress: inputAddress,
       refundAddress: settleAddress,
-      extraId: extraId,
+      extraId: extraId ?? '',
       state: TradeState.created,
       amount: _request.amount,
       createdAt: DateTime.now(),
@@ -147,8 +145,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min =  responseJSON['min'] != null ?  double.tryParse(responseJSON['min'] as String) : null;
-    final max = responseJSON['max'] != null ?  double.parse(responseJSON['max'] as String) : null;
+    final min = responseJSON['min'] != null ? double.tryParse(responseJSON['min'] as String) : null;
+    final max = responseJSON['max'] != null ? double.parse(responseJSON['max'] as String) : null;
 
     return Limits(min: min, max: max);
   }
