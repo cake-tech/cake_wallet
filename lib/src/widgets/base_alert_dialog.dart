@@ -76,9 +76,6 @@ class BaseAlertDialog extends StatelessWidget {
             color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
             child: TextButton(
                 onPressed: actionRight,
-                // FIX-ME: Style
-                //highlightColor: Colors.transparent,
-                //splashColor: Colors.transparent,
                 child: Text(
                   rightActionButtonText,
                   textAlign: TextAlign.center,
