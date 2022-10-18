@@ -9,22 +9,21 @@ class BuyAmountViewModel = BuyAmountViewModelBase with _$BuyAmountViewModel;
 
 abstract class BuyAmountViewModelBase with Store {
   BuyAmountViewModelBase()
-    : amount = '' {
+      : amount = '',
+        fiatCurrency = FiatCurrency.usd {
     int selectedIndex = FiatCurrency.currenciesAvailableToBuyWith
         .indexOf(getIt.get<SettingsStore>().fiatCurrency);
 
-    if (selectedIndex == -1) {
-      selectedIndex = FiatCurrency.currenciesAvailableToBuyWith
-          .indexOf(FiatCurrency.usd);
+    if (selectedIndex != -1) {
+      fiatCurrency = FiatCurrency.currenciesAvailableToBuyWith[selectedIndex];
     }
-    fiatCurrency = FiatCurrency.currenciesAvailableToBuyWith[selectedIndex];
   }
 
   @observable
   String amount;
 
   @observable
-  late FiatCurrency fiatCurrency;
+  FiatCurrency fiatCurrency;
 
   @computed
   double get doubleAmount {
