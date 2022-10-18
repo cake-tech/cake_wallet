@@ -9,7 +9,8 @@ for arch in $TYPES_OF_BUILD
 do
 
 PREFIX=$WORKDIR/prefix_${arch}
-./init_boost.sh $arch $PREFIX $BOOST_SRC_DIR $BOOST_FILENAME $BOOST_VERSION
-./finish_boost.sh $arch $PREFIX $BOOST_SRC_DIR $BOOST_SRC_DIR
+# put the outputs into dev/null since it overrides githubs workflow test log
+./init_boost.sh $arch $PREFIX $BOOST_SRC_DIR $BOOST_FILENAME $BOOST_VERSION  > /dev/null
+./finish_boost.sh $arch $PREFIX $BOOST_SRC_DIR $BOOST_SRC_DIR  > /dev/null
 
 done
