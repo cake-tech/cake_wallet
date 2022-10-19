@@ -318,15 +318,16 @@ class _TrailingIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.centerRight,
-      width: 25,
-      child: TextButton(
-        //highlightColor: Colors.transparent,
-        //splashColor: Colors.transparent,
-        //padding: EdgeInsets.all(0),
+    return Material(
+      color: Colors.transparent,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints(),
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        iconSize: 25,
         onPressed: onPressed,
-        child: Image.asset(
+        icon: Image.asset(
           asset,
           color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
         ),
