@@ -1,9 +1,11 @@
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({
@@ -29,7 +31,22 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
   int get height => _height;
   int _height = 0;
-
+  final _restoreFocusNode = FocusNode();
+ 
+  KeyboardActionsConfig _buildConfig(BuildContext context) {
+    return KeyboardActionsConfig(
+      keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+      keyboardBarColor:
+                Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _restoreFocusNode,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
+              ),
+      ],
+    );
+  }
   @override
   void initState() {
     restoreHeightController.addListener(() {
@@ -55,7 +72,11 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+
+    return  KeyboardActions(
+      autoScroll: false,
+      config: _buildConfig(context),
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
@@ -64,12 +85,14 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                 child: Container(
                     padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
                     child: BaseTextFormField(
-                      focusNode: widget.focusNode,
+                      focusNode: _restoreFocusNode,
                       controller: restoreHeightController,
                       keyboardType: TextInputType.numberWithOptions(
                           signed: false, decimal: false),
                       hintText: S.of(context).widgets_restore_from_blockheight,
-                    )))
+                    ),
+                  ),
+                )
           ],
         ),
         if (widget.hasDatePicker) ...[
@@ -112,7 +135,8 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           )
         ]
       ],
-    );
+    ),
+  );
   }
 
   Future _selectDate(BuildContext context) async {

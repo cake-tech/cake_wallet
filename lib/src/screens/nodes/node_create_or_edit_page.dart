@@ -1,10 +1,11 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/node_address_validator.dart';
@@ -68,7 +69,22 @@ class NodeCreateOrEditPage extends BasePage {
   String get title => S.current.node_new;
 
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
+  final _nodePortFocusNode = FocusNode();
 
+  KeyboardActionsConfig _buildConfig(BuildContext context) {
+    return KeyboardActionsConfig(
+      keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+      keyboardBarColor:
+                Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _nodePortFocusNode,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
+              ),
+      ],
+    );
+  }
   @override
   Widget body(BuildContext context) {
 
@@ -104,47 +120,24 @@ class NodeCreateOrEditPage extends BasePage {
           }
         });
 
-    return Container(
-        padding: EdgeInsets.only(left: 24, right: 24),
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 24.0),
-          content: Form(
-              key: _formKey,
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: BaseTextFormField(
-                          controller: _addressController,
-                          hintText: S.of(context).node_address,
-                          validator: NodeAddressValidator(),
-                        )
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 10.0),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: BaseTextFormField(
-                          controller: _portController,
-                          hintText: S.of(context).node_port,
-                          keyboardType: TextInputType.numberWithOptions(
-                              signed: false, decimal: false),
-                          validator: NodePortValidator(),
-                        )
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 10.0),
-                  if (nodeCreateOrEditViewModel.hasAuthCredentials) ...[
+    return  KeyboardActions(
+      autoScroll: false,
+      config: _buildConfig(context),
+      child: Container(
+          padding: EdgeInsets.only(left: 24, right: 24),
+          child: ScrollableWithBottomSection(
+            contentPadding: EdgeInsets.only(bottom: 24.0),
+            content: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
                     Row(
                       children: <Widget>[
                         Expanded(
                           child: BaseTextFormField(
-                            controller: _loginController,
-                            hintText: S.of(context).login,
+                            controller: _addressController,
+                            hintText: S.of(context).node_address,
+                            validator: NodeAddressValidator(),
                           )
                         )
                       ],
@@ -154,74 +147,102 @@ class NodeCreateOrEditPage extends BasePage {
                       children: <Widget>[
                         Expanded(
                           child: BaseTextFormField(
-                            controller: _passwordController,
-                            hintText: S.of(context).password,
+                            controller: _portController,
+                            hintText: S.of(context).node_port,
+                            focusNode: _nodePortFocusNode,
+                            keyboardType: TextInputType.numberWithOptions(
+                                signed: false, decimal: false),
+                            validator: NodePortValidator(),
                           )
                         )
                       ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Observer(
-                              builder: (_) => StandardCheckbox(
-                                value: nodeCreateOrEditViewModel.useSSL,
-                                onChanged: (value) =>
-                                  nodeCreateOrEditViewModel.useSSL = value,
-                                caption: S.of(context).use_ssl,
-                              ))
+                    SizedBox(height: 10.0),
+                    if (nodeCreateOrEditViewModel.hasAuthCredentials) ...[
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: BaseTextFormField(
+                              controller: _loginController,
+                              hintText: S.of(context).login,
+                            )
+                          )
                         ],
-                      ))
-                  ]
-                ],
-              )),
-          bottomSectionPadding: EdgeInsets.only(bottom: 24),
-          bottomSection: Observer(
-              builder: (_) => Row(
-                    children: <Widget>[
-                      Flexible(
-                          child: Container(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: LoadingPrimaryButton(
+                      ),
+                      SizedBox(height: 10.0),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: BaseTextFormField(
+                              controller: _passwordController,
+                              hintText: S.of(context).password,
+                            )
+                          )
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Observer(
+                                builder: (_) => StandardCheckbox(
+                                  value: nodeCreateOrEditViewModel.useSSL,
+                                  onChanged: (value) =>
+                                    nodeCreateOrEditViewModel.useSSL = value,
+                                  caption: S.of(context).use_ssl,
+                                ))
+                          ],
+                        ))
+                    ]
+                  ],
+                )),
+            bottomSectionPadding: EdgeInsets.only(bottom: 24),
+            bottomSection: Observer(
+                builder: (_) => Row(
+                      children: <Widget>[
+                        Flexible(
+                            child: Container(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: LoadingPrimaryButton(
+                              onPressed: () async {
+                                if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+                                  return;
+                                }
+    
+                                await nodeCreateOrEditViewModel.connect();
+                              },
+                              isLoading: nodeCreateOrEditViewModel
+                                  .connectionState is IsExecutingState,
+                              text: S.of(context).node_test,
+                              isDisabled: !nodeCreateOrEditViewModel.isReady,
+                              color: Colors.orange,
+                              textColor: Colors.white),
+                        )),
+                        Flexible(
+                            child: Container(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: PrimaryButton(
                             onPressed: () async {
                               if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                                 return;
                               }
-
-                              await nodeCreateOrEditViewModel.connect();
+    
+                              await nodeCreateOrEditViewModel.save();
+                              Navigator.of(context).pop();
                             },
-                            isLoading: nodeCreateOrEditViewModel
-                                .connectionState is IsExecutingState,
-                            text: S.of(context).node_test,
-                            isDisabled: !nodeCreateOrEditViewModel.isReady,
-                            color: Colors.orange,
-                            textColor: Colors.white),
-                      )),
-                      Flexible(
-                          child: Container(
-                        padding: EdgeInsets.only(left: 8.0),
-                        child: PrimaryButton(
-                          onPressed: () async {
-                            if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                              return;
-                            }
-
-                            await nodeCreateOrEditViewModel.save();
-                            Navigator.of(context).pop();
-                          },
-                          text: S.of(context).save,
-                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
-                          textColor: Colors.white,
-                          isDisabled: (!nodeCreateOrEditViewModel.isReady)||
-                              (nodeCreateOrEditViewModel
-                              .connectionState is IsExecutingState),
-                        ),
-                      )),
-                    ],
-                  )),
-        ));
+                            text: S.of(context).save,
+                            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                            textColor: Colors.white,
+                            isDisabled: (!nodeCreateOrEditViewModel.isReady)||
+                                (nodeCreateOrEditViewModel
+                                .connectionState is IsExecutingState),
+                          ),
+                        )),
+                      ],
+                    )),
+          )),
+    );
   }
 }
