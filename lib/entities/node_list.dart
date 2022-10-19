@@ -11,7 +11,7 @@ Future<List<Node>> loadDefaultNodes() async {
 
   for (final raw in loadedNodes) {
     if (raw is Map) {
-      final node = Node.fromMap(raw as Map<String, Object>);
+      final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.monero;
       nodes.add(node);
     }
@@ -28,7 +28,7 @@ Future<List<Node>> loadBitcoinElectrumServerList() async {
 
   for (final raw in loadedServerList) {
      if (raw is Map) {
-      final node = Node.fromMap(raw as Map<String, Object>);
+      final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.bitcoin;
       serverList.add(node);
     }
@@ -45,7 +45,7 @@ Future<List<Node>> loadLitecoinElectrumServerList() async {
 
   for (final raw in loadedServerList) {
     if (raw is Map) {
-      final node = Node.fromMap(raw as Map<String, Object>);
+      final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.litecoin;
       serverList.add(node);
     }
@@ -61,7 +61,7 @@ Future<List<Node>> loadDefaultHavenNodes() async {
 
   for (final raw in loadedNodes) {
     if (raw is Map) {
-      final node = Node.fromMap(raw as Map<String, Object>);
+      final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.haven;
       nodes.add(node);
     }
