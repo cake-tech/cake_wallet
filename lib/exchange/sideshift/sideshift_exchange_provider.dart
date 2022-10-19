@@ -192,8 +192,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min = double.parse(responseJSON['min'] as String);
-    final max = double.parse(responseJSON['max'] as String);
+    final min = double.tryParse(responseJSON['min'] as String? ?? '');
+    final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
     return Limits(min: min, max: max);
   }
