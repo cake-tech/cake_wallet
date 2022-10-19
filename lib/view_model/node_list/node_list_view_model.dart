@@ -50,6 +50,9 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.litecoin:
         node = getLitecoinDefaultElectrumServer(nodes: _nodeSource)!;
         break;
+      case WalletType.haven:
+        node = getHavenDefaultNode(nodes: _nodeSource)!;
+        break;
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

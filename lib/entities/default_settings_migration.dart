@@ -417,8 +417,7 @@ Future<void> checkCurrentNodes(
   }
 
   if (currentHavenNodeServer == null) {
-    final nodes = await loadDefaultHavenNodes();
-    final node = nodes.first;
+    final node = Node(uri: havenDefaultNodeUri, type: WalletType.haven);
     await nodeSource.add(node);
     await sharedPreferences.setInt(
         PreferencesKey.currentHavenNodeIdKey, node.key as int);
