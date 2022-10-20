@@ -45,7 +45,7 @@ abstract class TradeFilterStoreBase with Store {
     }
   }
 
-  List<TradeListItem> filtered({List<TradeListItem> trades, WalletBase wallet}) {
+  List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
     final _trades =
     trades.where((item) => item.trade.walletId == wallet.id).toList();
     final needToFilter = !displayChangeNow || !displayXMRTO || !displayMorphToken || !displaySimpleSwap;

@@ -12,7 +12,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 
 class BalancePage extends StatelessWidget{
-  BalancePage({@required this.dashboardViewModel, @required this.settingsStore});
+  BalancePage({required this.dashboardViewModel, required this.settingsStore});
 
   final DashboardViewModel dashboardViewModel;
   final SettingsStore settingsStore;
@@ -40,9 +40,9 @@ class BalancePage extends StatelessWidget{
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context)
-                              .accentTextTheme
-                              .display3
-                              .backgroundColor,
+                              .accentTextTheme!
+                              .headline2!
+                              .backgroundColor!,
                           height: 1),
                       maxLines: 1,
                       textAlign: TextAlign.center);
@@ -82,19 +82,19 @@ class BalancePage extends StatelessWidget{
   }
 
   Widget buildBalanceRow(BuildContext context,
-    {String availableBalanceLabel,
-      String availableBalance,
-      String availableFiatBalance,
-      String additionalBalanceLabel,
-      String additionalBalance,
-      String additionalFiatBalance,
-      String currency}) {
+    {required String availableBalanceLabel,
+      required String availableBalance,
+      required String availableFiatBalance,
+      required String additionalBalanceLabel,
+      required String additionalBalance,
+      required String additionalFiatBalance,
+      required String currency}) {
     return Container(    
       margin: const EdgeInsets.only(left: 16, right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         border: Border.all(color: settingsStore.currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
-        color:Theme.of(context).textTheme.title.backgroundColor
+        color:Theme.of(context).textTheme!.headline6!.backgroundColor!
       ),
       child: Container(
        margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
@@ -109,9 +109,9 @@ class BalancePage extends StatelessWidget{
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
                     color: Theme.of(context)
-                            .accentTextTheme
-                            .display2
-                            .backgroundColor,
+                            .accentTextTheme!
+                            .headline3!
+                            .backgroundColor!,
                     height: 1)),
                 SizedBox(height: 5),
               Row(
@@ -124,9 +124,9 @@ class BalancePage extends StatelessWidget{
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w900,
                         color: Theme.of(context)
-                            .accentTextTheme
-                            .display3
-                            .backgroundColor,
+                            .accentTextTheme!
+                            .headline2!
+                            .backgroundColor!,
                         height: 1),
                     maxLines: 1,
                     textAlign: TextAlign.center),
@@ -136,9 +136,9 @@ class BalancePage extends StatelessWidget{
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context)
-                            .accentTextTheme
-                            .display3
-                            .backgroundColor,
+                            .accentTextTheme!
+                            .headline2!
+                            .backgroundColor!,
                         height: 1)),
                   ]),
               SizedBox(height: 4,),
@@ -149,9 +149,9 @@ class BalancePage extends StatelessWidget{
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w500,
                   color: Theme.of(context)
-                          .accentTextTheme
-                          .display3
-                          .backgroundColor,
+                          .accentTextTheme!
+                          .headline2!
+                          .backgroundColor!,
                   height: 1)),
               SizedBox(height: 26),
               Text('${additionalBalanceLabel}',
@@ -161,9 +161,9 @@ class BalancePage extends StatelessWidget{
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
                   color: Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .backgroundColor,
+                          .accentTextTheme!
+                          .headline3!
+                          .backgroundColor!,
                   height: 1)),
               SizedBox(height: 8),
               AutoSizeText(
@@ -173,9 +173,9 @@ class BalancePage extends StatelessWidget{
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
                         color: Theme.of(context)
-                            .accentTextTheme
-                            .display3
-                            .backgroundColor,
+                            .accentTextTheme!
+                            .headline2!
+                            .backgroundColor!,
                         height: 1),
                     maxLines: 1,
                     textAlign: TextAlign.center),
@@ -187,9 +187,9 @@ class BalancePage extends StatelessWidget{
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
                   color: Theme.of(context)
-                          .accentTextTheme
-                          .display3
-                          .backgroundColor,
+                          .accentTextTheme!
+                          .headline2!
+                          .backgroundColor!,
                   height: 1),
                 )
       ])),

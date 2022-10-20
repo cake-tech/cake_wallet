@@ -3,11 +3,11 @@ import 'package:cake_wallet/anypay/any_pay_payment_instruction_output.dart';
 
 class AnyPayPaymentInstruction {
 	AnyPayPaymentInstruction({
-		@required this.type,
-		@required this.requiredFeeRate,
-		@required this.txKey,
-		@required this.txHash,
-		@required this.outputs});
+		required this.type,
+		required this.requiredFeeRate,
+		required this.txKey,
+		required this.txHash,
+		required this.outputs});
 
 	factory AnyPayPaymentInstruction.fromMap(Map<String, dynamic> obj) {
 		final outputs = (obj['outputs'] as List<dynamic>)

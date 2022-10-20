@@ -154,24 +154,24 @@ int getNodeHeightSync() => getNodeHeightNative();
 bool isConnectedSync() => isConnectedNative() != 0;
 
 bool setupNodeSync(
-    {String address,
-    String login,
-    String password,
+    {required String address,
+    String? login,
+    String? password,
     bool useSSL = false,
     bool isLightWallet = false}) {
-  final addressPointer = Utf8.toUtf8(address);
-  Pointer<Utf8> loginPointer;
-  Pointer<Utf8> passwordPointer;
+  final addressPointer = address.toNativeUtf8();
+  Pointer<Utf8>? loginPointer;
+  Pointer<Utf8>? passwordPointer;
 
   if (login != null) {
-    loginPointer = Utf8.toUtf8(login);
+    loginPointer = login.toNativeUtf8();
   }
 
   if (password != null) {
-    passwordPointer = Utf8.toUtf8(password);
+    passwordPointer = password.toNativeUtf8();
   }
 
-  final errorMessagePointer = allocate<Utf8>();
+  final errorMessagePointer = ''.toNativeUtf8();
   final isSetupNode = setupNodeNative(
           addressPointer,
           loginPointer,
@@ -181,9 +181,15 @@ bool setupNodeSync(
           errorMessagePointer) !=
       0;
 
-  free(addressPointer);
-  free(loginPointer);
-  free(passwordPointer);
+  calloc.free(addressPointer);
+
+  if (loginPointer != null) {
+    calloc.free(loginPointer);
+  }
+
+  if (passwordPointer != null) {
+    calloc.free(passwordPointer);
+  }
 
   if (!isSetupNode) {
     throw SetupWalletException(
@@ -197,31 +203,31 @@ void startRefreshSync() => startRefreshNative();
 
 Future<bool> connectToNode() async => connecToNodeNative() != 0;
 
-void setRefreshFromBlockHeight({int height}) =>
+void setRefreshFromBlockHeight({required int height}) =>
     setRefreshFromBlockHeightNative(height);
 
-void setRecoveringFromSeed({bool isRecovery}) =>
+void setRecoveringFromSeed({required bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
 void storeSync() {
-  final pathPointer = Utf8.toUtf8('');
+  final pathPointer = ''.toNativeUtf8();
   storeNative(pathPointer);
-  free(pathPointer);
+  calloc.free(pathPointer);
 }
 
 void setPasswordSync(String password) {
-  final passwordPointer = Utf8.toUtf8(password);
-  final errorMessagePointer = allocate<Utf8Box>();
+  final passwordPointer = password.toNativeUtf8();
+  final errorMessagePointer = calloc<Utf8Box>();
   final changed = setPasswordNative(passwordPointer, errorMessagePointer) != 0;
-  free(passwordPointer);
+  calloc.free(passwordPointer);
   
   if (!changed) {
     final message = errorMessagePointer.ref.getValue();
-    free(errorMessagePointer);
+    calloc.free(errorMessagePointer);
     throw Exception(message);
   }
 
-  free(errorMessagePointer);
+  calloc.free(errorMessagePointer);
 }
 
 void closeCurrentWallet() => closeCurrentWalletNative();
@@ -239,16 +245,16 @@ String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
 class SyncListener {
-  SyncListener(this.onNewBlock, this.onNewTransaction) {
-    _cachedBlockchainHeight = 0;
-    _lastKnownBlockHeight = 0;
+  SyncListener(this.onNewBlock, this.onNewTransaction) 
+    : _cachedBlockchainHeight = 0,
+    _lastKnownBlockHeight = 0,
     _initialSyncHeight = 0;
-  }
+  
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
 
-  Timer _updateSyncInfoTimer;
+  Timer? _updateSyncInfoTimer;
   int _cachedBlockchainHeight;
   int _lastKnownBlockHeight;
   int _initialSyncHeight;
@@ -268,7 +274,7 @@ class SyncListener {
     _updateSyncInfoTimer ??=
         Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
-        onNewTransaction?.call();
+        onNewTransaction();
       }
 
       var syncHeight = getSyncingHeight();
@@ -316,7 +322,7 @@ void onStartup() => onStartupNative();
 
 void _storeSync(Object _) => storeSync();
 
-bool _setupNodeSync(Map args) {
+bool _setupNodeSync(Map<String, Object?> args) {
   final address = args['address'] as String;
   final login = (args['login'] ?? '') as String;
   final password = (args['password'] ?? '') as String;
@@ -337,21 +343,21 @@ int _getNodeHeight(Object _) => getNodeHeightSync();
 
 void startRefresh() => startRefreshSync();
 
-Future setupNode(
-        {String address,
-        String login,
-        String password,
+Future<void> setupNode(
+        {required String address,
+        String? login,
+        String? password,
         bool useSSL = false,
         bool isLightWallet = false}) =>
-    compute<Map<String, Object>, void>(_setupNodeSync, {
+    compute<Map<String, Object?>, void>(_setupNodeSync, {
       'address': address,
-      'login': login,
+      'login': login ,
       'password': password,
       'useSSL': useSSL,
       'isLightWallet': isLightWallet
     });
 
-Future store() => compute<int, void>(_storeSync, 0);
+Future<void> store() => compute<int, void>(_storeSync, 0);
 
 Future<bool> isConnected() => compute(_isConnected, 0);
 

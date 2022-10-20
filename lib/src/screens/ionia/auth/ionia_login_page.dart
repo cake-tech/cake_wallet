@@ -33,7 +33,7 @@ class IoniaLoginPage extends BasePage {
     return Text(
       S.current.login,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -69,13 +69,13 @@ class IoniaLoginPage extends BasePage {
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).login,
                   onPressed: () async {
-                    if (!_formKey.currentState.validate()) {
+                    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                       return;
                     }
                     await _authViewModel.signIn(_emailController.text);
                   },
                   isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
                 ),
               ),

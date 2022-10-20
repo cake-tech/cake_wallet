@@ -169,13 +169,18 @@ Future<String> visualisationForEmojiId(String emojiId) async {
 class YatStore = YatStoreBase with _$YatStore;
 
 abstract class YatStoreBase with Store {
-  YatStoreBase({@required this.appStore, @required this.secureStorage}) {
-    _wallet ??= appStore.wallet;
-    emoji = _wallet?.walletInfo?.yatEmojiId ?? '';
+  YatStoreBase({
+    required this.appStore,
+    required this.secureStorage})
+  : _wallet = appStore.wallet,
+    emoji = appStore.wallet?.walletInfo?.yatEmojiId ?? '',
+    refreshToken = '',
+    accessToken = '',
+    apiKey = '',
+    emojiIncommingSC = StreamController<String>.broadcast() {
     //reaction((_) => appStore.wallet, _onWalletChange);
     //reaction((_) => emoji, (String _) => _onEmojiChange());
     //reaction((_) => refreshToken, (String _) => _onRefreshTokenChange());
-    emojiIncommingSC = StreamController<String>.broadcast();
   }
 
   static const yatRefreshTokenKeyBase = 'yat_refresh_token';
@@ -207,17 +212,17 @@ abstract class YatStoreBase with Store {
   Stream<String> get emojiIncommingStream => emojiIncommingSC.stream;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
-  _wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
+    _wallet;
 
   Future<void> init() async {
     if (_wallet == null) {
       return;
     }
 
-    refreshToken = await secureStorage.read(key: yatRefreshTokenKey(_wallet.walletInfo.name));
-    accessToken = await secureStorage.read(key: yatAccessTokenKey(_wallet.walletInfo.name));
-    apiKey = await secureStorage.read(key: yatApiKey(_wallet.walletInfo.name));
+    refreshToken = await secureStorage.read(key: yatRefreshTokenKey(_wallet!.walletInfo.name)) ?? '';
+    accessToken = await secureStorage.read(key: yatAccessTokenKey(_wallet!.walletInfo.name)) ?? '';
+    apiKey = await secureStorage.read(key: yatApiKey(_wallet!.walletInfo.name)) ?? '';
   }
  
   @action
@@ -233,16 +238,16 @@ abstract class YatStoreBase with Store {
   @action
   void _onEmojiChange() {
     try {
-      final walletInfo = _wallet.walletInfo;
+      final walletInfo = _wallet?.walletInfo;
 
       if (walletInfo == null) {
         return;
       }
 
-      walletInfo.yatEid = emoji;
+      walletInfo!.yatEid = emoji;
 
-      if (walletInfo.isInBox) {
-        walletInfo.save();
+      if (walletInfo!.isInBox) {
+        walletInfo!.save();
       }
     } catch (e) {
       print(e.toString());

@@ -5,7 +5,7 @@ String normalizeKeyName(String key) {
   final firstWord = parts.removeAt(0);
   final capitalized = parts
       .map((e) => toBeginningOfSentenceCase(e))
-      .fold('', (String acc, String word) => acc + word);
+      .fold('', (String acc, String? word) => acc + (word ?? ''));
   return firstWord + capitalized;
 }
 

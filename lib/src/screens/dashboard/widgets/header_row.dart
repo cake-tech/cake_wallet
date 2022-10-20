@@ -5,14 +5,14 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 
 class HeaderRow extends StatelessWidget {
-  HeaderRow({this.dashboardViewModel});
+  HeaderRow({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
 
   @override
   Widget build(BuildContext context) {
     final filterIcon = Image.asset('assets/images/filter_icon.png',
-        color: Theme.of(context).textTheme.caption.decorationColor);
+        color: Theme.of(context).textTheme!.caption!.decorationColor!);
 
     return Container(
       height: 52,
@@ -27,7 +27,7 @@ class HeaderRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).accentTextTheme.display3.backgroundColor
+              color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
             ),
           ),
           GestureDetector(
@@ -43,7 +43,7 @@ class HeaderRow extends StatelessWidget {
               width: 36,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).textTheme.overline.color
+                  color: Theme.of(context).textTheme!.overline!.color!
               ),
               child: filterIcon,
             ),

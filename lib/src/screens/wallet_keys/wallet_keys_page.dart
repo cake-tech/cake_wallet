@@ -26,7 +26,7 @@ class WalletKeysPage extends BasePage {
                 separatorBuilder: (context, index) => Container(
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
-                      color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                      color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
                       child: Container(
                         height: 1,
                         color: Theme.of(context).dividerColor,

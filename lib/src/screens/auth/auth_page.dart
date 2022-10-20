@@ -1,5 +1,5 @@
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:flushbar/flushbar.dart';
+// import 'package:flushbar/flushbar.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,14 +8,14 @@ import 'package:cake_wallet/view_model/auth_state.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
 class AuthPage extends StatefulWidget {
   AuthPage(this.authViewModel,
-      {this.onAuthenticationFinished, this.closable = true});
+      {required this.onAuthenticationFinished,
+        this.closable = true});
 
   final AuthViewModel authViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;
@@ -30,9 +30,10 @@ class AuthPageState extends State<AuthPage> {
   final _pinCodeKey = GlobalKey<PinCodeState>();
   final _backArrowImageDarkTheme =
       Image.asset('assets/images/close_button.png');
-  ReactionDisposer _reaction;
-  Flushbar<void> _authBar;
-  Flushbar<void> _progressBar;
+  ReactionDisposer? _reaction;
+  // FIX-ME: replace Flushbar 
+  // Flushbar<void>? _authBar;
+  // Flushbar<void>? _progressBar;
 
   @override
   void initState() {
@@ -40,28 +41,27 @@ class AuthPageState extends State<AuthPage> {
         reaction((_) => widget.authViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _authBar?.dismiss();
-          if (widget.onAuthenticationFinished != null) {
-            widget.onAuthenticationFinished(true, this);
-          } else {
-            showBar<void>(context, S.of(context).authenticated);
-          }
+          widget.onAuthenticationFinished(true, this);
         });
         setState(() {});
       }
 
       if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _authBar =
-              createBar<void>(S.of(context).authentication, duration: null)
-                ..show(context);
+          // FIX-ME: Changes related to flutter upgreade.
+          //         Could be incorrect value for duration of auth bar
+          // _authBar =
+          //     createBar<void>(S.of(context).authentication, duration: Duration())
+          //       ..show(context);
         });
       }
 
       if (state is FailureState) {
+        print('X');
+        print(state.error);
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _pinCodeKey.currentState.clear();
-          _authBar?.dismiss();
+          _pinCodeKey.currentState?.clear();
+          // _authBar?.dismiss();
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
@@ -73,8 +73,8 @@ class AuthPageState extends State<AuthPage> {
 
       if (state is AuthenticationBanned) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _pinCodeKey.currentState.clear();
-          _authBar?.dismiss();
+          _pinCodeKey.currentState?.clear();
+          // _authBar?.dismiss();
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
@@ -97,25 +97,31 @@ class AuthPageState extends State<AuthPage> {
 
   @override
   void dispose() {
-    _reaction.reaction.dispose();
+    _reaction?.reaction.dispose();
     super.dispose();
   }
 
   void changeProcessText(String text) {
-    _authBar?.dismiss();
-    _progressBar = createBar<void>(text, duration: null)
-      ..show(_key.currentContext);
+    // _authBar?.dismiss();
+    // FIX-ME: Changes related to flutter upgreade.
+          //         Could be incorrect value for duration of auth bar
+    // _progressBar = createBar<void>(text, duration: Duration())
+    //   ..show(_key.currentContext);
   }
 
   void hideProgressText() {
-    _progressBar?.dismiss();
-    _progressBar = null;
+    // _progressBar?.dismiss();
+    // _progressBar = null;
   }
 
   void close() {
-    _authBar?.dismiss();
-    _progressBar?.dismiss();
-    Navigator.of(_key.currentContext).pop();
+    if (_key.currentContext == null) {
+      throw Exception('Key context is null. Should be not happened');
+    }
+
+    // _authBar?.dismiss();
+    // _progressBar?.dismiss();
+    Navigator.of(_key.currentContext!).pop();
   }
 
   @override
@@ -131,10 +137,10 @@ class AuthPageState extends State<AuthPage> {
                       width: 37,
                       child: ButtonTheme(
                         minWidth: double.minPositive,
-                        child: FlatButton(
-                            highlightColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                            padding: EdgeInsets.all(0),
+                        child: TextButton(
+                            //highlightColor: Colors.transparent,
+                            //splashColor: Colors.transparent,
+                            //padding: EdgeInsets.all(0),
                             onPressed: () => Navigator.of(context).pop(),
                             child: _backArrowImageDarkTheme),
                       ),

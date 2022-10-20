@@ -16,12 +16,13 @@ import 'package:mobx/mobx.dart';
 part 'balance_view_model.g.dart';
 
 class BalanceRecord {
-  const BalanceRecord({this.availableBalance,
-    this.additionalBalance,
-    this.fiatAvailableBalance,
-    this.fiatAdditionalBalance,
-    this.asset,
-    this.formattedAssetTitle});
+  const BalanceRecord({
+    required this.availableBalance,
+    required this.additionalBalance,
+    required this.fiatAvailableBalance,
+    required this.fiatAdditionalBalance,
+    required this.asset,
+    required this.formattedAssetTitle});
   final String fiatAdditionalBalance;
   final String fiatAvailableBalance;
   final String additionalBalance;
@@ -34,12 +35,12 @@ class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
 
 abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
-      {@required this.appStore,
-      @required this.settingsStore,
-      @required this.fiatConvertationStore}) {
-    isReversing = false;
-    wallet ??= appStore.wallet;
-    isShowCard = wallet.walletInfo.isShowIntroCakePayCard;
+      {required this.appStore,
+      required this.settingsStore,
+      required this.fiatConvertationStore})
+    : isReversing = false,
+      isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
+      wallet = appStore.wallet! {
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
@@ -57,14 +58,22 @@ abstract class BalanceViewModelBase with Store {
       wallet;
 
   @computed
-  double get price => fiatConvertationStore.prices[appStore.wallet.currency];
+  double get price {
+    final price = fiatConvertationStore.prices[appStore.wallet!.currency];
+
+    if (price == null) {
+      throw Exception('No price for ${appStore.wallet!.currency} (current wallet)');
+    }
+
+    return price;
+  }
 
   @computed
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
 
   @computed
   String get asset {
-    final typeFormatted = walletTypeToString(appStore.wallet.type);
+    final typeFormatted = walletTypeToString(appStore.wallet!.type);
 
     switch(wallet.type) {
       case WalletType.haven:
@@ -110,7 +119,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasMultiBalance => appStore.wallet.type == WalletType.haven;
+  bool get hasMultiBalance => appStore.wallet!.type == WalletType.haven;
 
   @computed
   String get availableBalance {
@@ -177,16 +186,22 @@ abstract class BalanceViewModelBase with Store {
           formattedAssetTitle: _formatterAsset(key)));
       }
       final fiatCurrency = settingsStore.fiatCurrency;
+      final price = fiatConvertationStore.prices[key] ?? 0;
+
+      // if (price == null) {
+      //   throw Exception('Price is null for: $key');
+      // }
+
       final additionalFiatBalance = fiatCurrency.toString()
         + ' ' 
         + _getFiatBalance(
-            price: fiatConvertationStore.prices[key],
+            price: price,
             cryptoAmount: value.formattedAdditionalBalance);
 
       final availableFiatBalance = fiatCurrency.toString()
         + ' ' 
         + _getFiatBalance(
-            price: fiatConvertationStore.prices[key],
+            price: price,
             cryptoAmount: value.formattedAvailableBalance);
 
       return MapEntry(key, BalanceRecord(
@@ -231,23 +246,35 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  Balance get _walletBalance => wallet.balance[wallet.currency];
+  Balance get _walletBalance {
+    final balance = wallet.balance[wallet.currency];
+
+    if (balance == null) {
+      throw Exception('No balance for ${wallet.currency}');
+    }
+
+    return balance;
+  }
 
   @computed
-  CryptoCurrency get currency => appStore.wallet.currency;
+  CryptoCurrency get currency => appStore.wallet!.currency;
 
   @observable
   bool isShowCard;
 
-  ReactionDisposer _onCurrentWalletChangeReaction;
+  ReactionDisposer? _onCurrentWalletChangeReaction;
 
   @action
   void _onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
+              TransactionInfo>?
           wallet) {
-     this.wallet = wallet;
-    _onCurrentWalletChangeReaction?.reaction?.dispose();
+    if (wallet == null) {
+      return;
+    }
+
+    this.wallet = wallet;
+    _onCurrentWalletChangeReaction?.reaction.dispose();
     isShowCard = wallet.walletInfo.isShowIntroCakePayCard;
   }
 
@@ -259,7 +286,7 @@ abstract class BalanceViewModelBase with Store {
     isShowCard = cardDisplayStatus;
   }
 
-  String _getFiatBalance({double price, String cryptoAmount}) {
+  String _getFiatBalance({required double price, String? cryptoAmount}) {
     if (cryptoAmount == null) {
       return '0.00';
     }

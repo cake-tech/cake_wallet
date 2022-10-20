@@ -17,18 +17,15 @@ class WalletLoadingService {
 	final WalletService Function(WalletType type) walletServiceFactory;
 
 	Future<WalletBase> load(WalletType type, String name) async {
-		if (walletServiceFactory == null) {
-			throw Exception('WalletLoadingService.walletServiceFactory is not set');
-		}
-		final walletService = walletServiceFactory?.call(type);
+		final walletService = walletServiceFactory.call(type);
 		final password = await keyService.getWalletPassword(walletName: name);
-  		final wallet = await walletService.openWallet(name, password);
+  	final wallet = await walletService.openWallet(name, password);
 
-  		if (type == WalletType.monero) {
-  			await upateMoneroWalletPassword(wallet);
-  		}
+  	if (type == WalletType.monero) {
+  		await upateMoneroWalletPassword(wallet);
+  	}
 
-  		return wallet;
+  	return wallet;
 	}
 
 	Future<void> upateMoneroWalletPassword(WalletBase wallet) async {

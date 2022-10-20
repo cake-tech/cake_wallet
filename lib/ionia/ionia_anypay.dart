@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
@@ -14,7 +13,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
-import 'package:cake_wallet/ionia/ionia_order.dart';
 
 class IoniaAnyPay {
 	IoniaAnyPay(this.ioniaService, this.anyPayApi, this.wallet);
@@ -24,8 +22,8 @@ class IoniaAnyPay {
 	final WalletBase wallet;
 
 	Future<IoniaAnyPayPaymentInfo> purchase({
-		@required String merchId,
-		@required double amount}) async {
+		required String merchId,
+		required double amount}) async {
 		final invoice = await ioniaService.purchaseGiftCard(
 			merchId: merchId,
 			amount: amount,
@@ -40,7 +38,7 @@ class IoniaAnyPay {
 			.map((AnyPayPaymentInstruction instruction) {
 				switch(payment.chain.toUpperCase()) {
 					case AnyPayChain.xmr:
-						return monero.createMoneroTransactionCreationCredentialsRaw(
+						return monero!.createMoneroTransactionCreationCredentialsRaw(
 							outputs: instruction.outputs.map((out) =>
 							  OutputInfo(
 								isParsedAddress: false,
@@ -50,7 +48,7 @@ class IoniaAnyPay {
 								sendAll: false)).toList(),
 							priority: MoneroTransactionPriority.medium); // FIXME: HARDCODED PRIORITY
 					case AnyPayChain.btc:
-						return bitcoin.createBitcoinTransactionCredentialsRaw(
+						return bitcoin!.createBitcoinTransactionCredentialsRaw(
 							instruction.outputs.map((out) =>
 							  OutputInfo(
 								isParsedAddress: false,
@@ -59,7 +57,7 @@ class IoniaAnyPay {
 								sendAll: false)).toList(),
 							feeRate: instruction.requiredFeeRate);
 					case AnyPayChain.ltc:
-						return bitcoin.createBitcoinTransactionCredentialsRaw(
+						return bitcoin!.createBitcoinTransactionCredentialsRaw(
 							instruction.outputs.map((out) =>
 							  OutputInfo(
 								isParsedAddress: false,
@@ -76,8 +74,8 @@ class IoniaAnyPay {
 			.map((PendingTransaction pendingTransaction) {
 				switch (payment.chain.toUpperCase()){
 				case AnyPayChain.xmr:
-					final ptx = monero.pendingTransactionInfo(pendingTransaction);
-					return AnyPayTransaction(ptx['hex'], id: ptx['id'], key: ptx['key']);
+					final ptx = monero!.pendingTransactionInfo(pendingTransaction);
+					return AnyPayTransaction(ptx['hex'] ?? '', id: ptx['id'] ?? '', key: ptx['key']);
 				default:
 					return AnyPayTransaction(pendingTransaction.hex, id: pendingTransaction.id, key: null);
 				} 

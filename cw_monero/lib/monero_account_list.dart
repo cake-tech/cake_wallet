@@ -12,7 +12,6 @@ abstract class MoneroAccountListBase with Store {
         _isRefreshing = false,
         _isUpdating = false {
     refresh();
-    print(account_list.accountSizeNative());
   }
 
   @observable
@@ -49,12 +48,12 @@ abstract class MoneroAccountListBase with Store {
         label: accountRow.getLabel()))
       .toList();
 
-  Future addAccount({String label}) async {
+  Future<void> addAccount({required String label}) async {
     await account_list.addAccount(label: label);
     update();
   }
 
-  Future setLabelAccount({int accountIndex, String label}) async {
+  Future<void> setLabelAccount({required int accountIndex, required String label}) async {
     await account_list.setLabelForAccount(
         accountIndex: accountIndex, label: label);
     update();

@@ -12,12 +12,11 @@ import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
 class MoneroAccountListPage extends StatelessWidget {
-  MoneroAccountListPage({@required this.accountListViewModel}) {
-    backgroundHeight = 194;
-    thumbHeight = 72;
-    isAlwaysShowScrollThumb = false;
-    controller = ScrollController();
-
+  MoneroAccountListPage({required this.accountListViewModel})
+    : backgroundHeight = 194,
+      thumbHeight = 72,
+      isAlwaysShowScrollThumb = false,
+      controller = ScrollController() {
     controller.addListener(() {
       final scrollOffsetFromTop = controller.hasClients
           ? (controller.offset / controller.position.maxScrollExtent * (backgroundHeight - thumbHeight))
@@ -67,7 +66,7 @@ class MoneroAccountListPage extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(14)),
                     child: Container(
                       height: 296,
-                      color: Theme.of(context).textTheme.display4.decorationColor,
+                      color: Theme.of(context).textTheme!.headline1!.decorationColor!,
                       child: Column(
                         children: <Widget>[
                           Expanded(

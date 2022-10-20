@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 
 class NodeListRow extends StandardListRow {
   NodeListRow(
-      {@required String title,
-      @required void Function(BuildContext context) onTap,
-      @required bool isSelected,
-      @required this.isAlive})
+      {required String title,
+      required void Function(BuildContext context) onTap,
+      required bool isSelected,
+      required this.isAlive})
       : super(title: title, onTap: onTap, isSelected: isSelected);
 
   final Future<bool> isAlive;
@@ -32,12 +32,12 @@ class NodeListRow extends StandardListRow {
 }
 
 class NodeHeaderListRow extends StandardListRow {
-  NodeHeaderListRow({@required String title, @required void Function(BuildContext context) onTap})
+  NodeHeaderListRow({required String title, required void Function(BuildContext context) onTap})
       : super(title: title, onTap: onTap, isSelected: false);
 
   @override
   Widget buildTrailing(BuildContext context) {
     return Icon(Icons.add,
-        color: Theme.of(context).accentTextTheme.subhead.color, size: 24.0);
+        color: Theme.of(context).accentTextTheme!.subtitle1!.color!, size: 24.0);
   }
 }

@@ -6,7 +6,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
+// import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/di.dart';
@@ -22,7 +22,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ReceivePage extends BasePage {
-  ReceivePage({this.addressListViewModel}) : _cryptoAmountFocus = FocusNode();
+  ReceivePage({required this.addressListViewModel}) : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
 
@@ -44,7 +44,7 @@ class ReceivePage extends BasePage {
   @override
   Widget leading(BuildContext context) {
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
       size: 16,);
 
     return SizedBox(
@@ -52,10 +52,11 @@ class ReceivePage extends BasePage {
       width: 37,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+          // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => onClose(context),
             child: _backButton),
       ),
@@ -70,7 +71,7 @@ class ReceivePage extends BasePage {
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: Theme.of(context).accentTextTheme.display3.backgroundColor),
+          color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
     );
   }
 
@@ -89,19 +90,23 @@ class ReceivePage extends BasePage {
   Widget trailing(BuildContext context) {
     final shareImage =
         Image.asset('assets/images/share.png',
-            color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
 
     return SizedBox(
       height: 20.0,
       width: 20.0,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
-            onPressed: () => Share.text(S.current.share_address,
-                addressListViewModel.address.address, 'text/plain'),
+        child: TextButton(
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
+            onPressed: () {
+              // FIX-ME: Share esys_flutter_share.dart
+              // Share.text(S.current.share_address,
+              //   addressListViewModel.address.address, 'text/plain')
+            },
             child: shareImage),
       ),
     );
@@ -113,8 +118,8 @@ class ReceivePage extends BasePage {
         ? KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
+            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!
+                .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -156,7 +161,7 @@ class ReceivePage extends BasePage {
                                 Icons.arrow_forward_ios,
                                 size: 14,
                                 color:
-                                Theme.of(context).textTheme.display1.color,
+                                Theme.of(context).textTheme!.headline4!.color!,
                               ));
                         }
 
@@ -169,7 +174,7 @@ class ReceivePage extends BasePage {
                                 Icons.add,
                                 size: 20,
                                 color:
-                                Theme.of(context).textTheme.display1.color,
+                                Theme.of(context).textTheme!.headline4!.color!,
                               ));
                         }
 
@@ -179,16 +184,16 @@ class ReceivePage extends BasePage {
                                 addressListViewModel.address.address;
                             final backgroundColor = isCurrent
                                 ? Theme.of(context)
-                                .textTheme
-                                .display3
-                                .decorationColor
+                                .textTheme!
+                                .headline2!
+                                .decorationColor!
                                 : Theme.of(context)
-                                .textTheme
-                                .display2
-                                .decorationColor;
+                                .textTheme!
+                                .headline3!
+                                .decorationColor!;
                             final textColor = isCurrent
-                                ? Theme.of(context).textTheme.display3.color
-                                : Theme.of(context).textTheme.display2.color;
+                                ? Theme.of(context).textTheme!.headline2!.color!
+                                : Theme.of(context).textTheme!.headline3!.color!;
 
                             return AddressCell.fromItem(item,
                                 isCurrent: isCurrent,
@@ -233,9 +238,9 @@ class ReceivePage extends BasePage {
               style: TextStyle(
                   fontSize: 15,
                   color: Theme.of(context)
-                      .accentTextTheme
-                      .display2
-                      .backgroundColor)),
+                      .accentTextTheme!
+                      .headline3!
+                      .backgroundColor!)),
         ],
       ),
     );

@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 
 class StandardCheckbox extends StatefulWidget {
   StandardCheckbox({
-    Key key,
-    @required this.value,
+    Key? key,
+    required this.value,
     this.caption = '',
-    @required this.onChanged}) : super(key: key);
+    required this.onChanged})
+    : super(key: key);
 
   final bool value;
   final String caption;
@@ -47,9 +48,9 @@ class StandardCheckboxState extends State<StandardCheckbox> {
             decoration: BoxDecoration(
                 border: Border.all(
                     color: Theme.of(context)
-                        .primaryTextTheme
-                        .caption
-                        .color,
+                        .primaryTextTheme!
+                        .caption!
+                        .color!,
                     width: 1.0),
                 borderRadius: BorderRadius.all(
                     Radius.circular(8.0)),
@@ -69,9 +70,9 @@ class StandardCheckboxState extends State<StandardCheckbox> {
               style: TextStyle(
                   fontSize: 16.0,
                   color: Theme.of(context)
-                      .primaryTextTheme
-                      .title
-                      .color),
+                      .primaryTextTheme!
+                      .headline6!
+                      .color!),
             )
           )
         ],
