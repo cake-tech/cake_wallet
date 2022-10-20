@@ -56,7 +56,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await get(uri);
 
-      if (response.body == null) return 0.00;
+      if (response.body == null || response.body == "null") return 0.00;
       final data = json.decode(response.body) as String;
     
       return double.parse(data);
@@ -151,8 +151,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min =  responseJSON['min'] != null ?  double.tryParse(responseJSON['min'] as String) : null;
-    final max = responseJSON['max'] != null ?  double.parse(responseJSON['max'] as String) : null;
+    final min = double.tryParse(responseJSON['min'] as String? ?? '');
+    final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
     return Limits(min: min, max: max);
   }
