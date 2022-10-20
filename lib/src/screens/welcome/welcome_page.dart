@@ -55,17 +55,16 @@ class WelcomePage extends BasePage {
         width: 12,
         color: Theme
             .of(context)
-            .accentTextTheme
-            .headline
-            .decorationColor);
+            .accentTextTheme!
+            .headline5!
+            .decorationColor!);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme
-            .of(context)
-            .primaryTextTheme
-            .title
-            .color);
+        color: Theme.of(context)
+            .primaryTextTheme!
+            .headline6!
+            .color!);
 
     return WillPopScope(onWillPop: () async => false, child: Container(
         padding: EdgeInsets.only(top: 64, bottom: 24, left: 24, right: 24),
@@ -97,9 +96,9 @@ class WelcomePage extends BasePage {
                               fontWeight: FontWeight.w500,
                               color: Theme
                                   .of(context)
-                                  .accentTextTheme
-                                  .display3
-                                  .color,
+                                  .accentTextTheme!
+                                  .headline2!
+                                  .color!,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -111,11 +110,10 @@ class WelcomePage extends BasePage {
                             style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
-                              color: Theme
-                                  .of(context)
-                                  .primaryTextTheme
-                                  .title
-                                  .color,
+                              color: Theme.of(context)
+                                  .primaryTextTheme!
+                                  .headline6!
+                                  .color!,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -129,9 +127,9 @@ class WelcomePage extends BasePage {
                               fontWeight: FontWeight.w500,
                               color: Theme
                                   .of(context)
-                                  .accentTextTheme
-                                  .display3
-                                  .color,
+                                  .accentTextTheme!
+                                  .headline2!
+                                  .color!,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -147,11 +145,10 @@ class WelcomePage extends BasePage {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.normal,
-                            color: Theme
-                                .of(context)
-                                .accentTextTheme
-                                .display3
-                                .color,
+                            color: Theme.of(context)
+                                .accentTextTheme!
+                                .headline2!
+                                .color!,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -162,19 +159,16 @@ class WelcomePage extends BasePage {
                                 Navigator.pushNamed(context,
                                     Routes.newWalletFromWelcome),
                             image: newWalletImage,
-                            text: S
-                                .of(context)
-                                .create_new,
-                            color: Theme
-                                .of(context)
-                                .accentTextTheme
-                                .subtitle
-                                .decorationColor,
+                            text: S.of(context).create_new,
+                            color: Theme.of(context)
+                                .accentTextTheme!
+                                .subtitle2!
+                                .decorationColor!,
                             textColor: Theme
                                 .of(context)
-                                .accentTextTheme
-                                .headline
-                                .decorationColor,
+                                .accentTextTheme!
+                                .headline5!
+                                .decorationColor!,
                           ),
                         ),
                         Padding(
@@ -187,16 +181,14 @@ class WelcomePage extends BasePage {
                               text: S
                                   .of(context)
                                   .restore_wallet,
-                              color: Theme
-                                  .of(context)
-                                  .accentTextTheme
-                                  .caption
-                                  .color,
-                              textColor: Theme
-                                  .of(context)
-                                  .primaryTextTheme
-                                  .title
-                                  .color),
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .caption!
+                                  .color!,
+                              textColor: Theme.of(context)
+                                  .primaryTextTheme!
+                                  .headline6!
+                                  .color!),
                         )
                       ],
                     )

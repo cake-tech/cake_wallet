@@ -1,17 +1,17 @@
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
 class Picker<Item extends Object> extends StatefulWidget {
   Picker({
-    @required this.selectedAtIndex,
-    @required this.items,
-    @required this.onItemSelected,
+    required this.selectedAtIndex,
+    required this.items,
+    required this.onItemSelected,
     this.title,
     this.displayItem,
-    this.images,
+    this.images = const <Image>[],
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.isGridView = false,
@@ -25,22 +25,22 @@ class Picker<Item extends Object> extends StatefulWidget {
   final int selectedAtIndex;
   final List<Item> items;
   final List<Image> images;
-  final String title;
-  final String description;
+  final String? title;
+  final String? description;
   final Function(Item) onItemSelected;
   final MainAxisAlignment mainAxisAlignment;
-  final String Function(Item) displayItem;
+  final String Function(Item)? displayItem;
   final bool isGridView;
   final bool isSeparated;
-  final String hintText;
-  final bool Function(Item, String) matchingCriteria;
+  final String? hintText;
+  final bool Function(Item, String)? matchingCriteria;
 
   @override
-  PickerState createState() => PickerState<Item>(items, images, onItemSelected);
+  _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
 }
 
-class PickerState<Item> extends State<Picker> {
-  PickerState(this.items, this.images, this.onItemSelected);
+class _PickerState<Item> extends State<Picker> {
+  _PickerState(this.items, this.images, this.onItemSelected);
 
   final Function(Item) onItemSelected;
   List<Item> items;
@@ -80,7 +80,7 @@ class PickerState<Item> extends State<Picker> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
-                    widget.title,
+                    widget.title!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -96,7 +96,7 @@ class PickerState<Item> extends State<Picker> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
-                    color: Theme.of(context).accentTextTheme.title.color,
+                    color: Theme.of(context).accentTextTheme.headline6!.color!,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height * 0.65,
@@ -109,12 +109,12 @@ class PickerState<Item> extends State<Picker> {
                               padding: const EdgeInsets.all(16),
                               child: TextFormField(
                                 controller: searchController,
-                                style: TextStyle(color: Theme.of(context).primaryTextTheme.title.color),
+                                style: TextStyle(color: Theme.of(context).primaryTextTheme.headline6!.color!),
                                 decoration: InputDecoration(
                                   hintText: widget.hintText,
                                   prefixIcon: Image.asset("assets/images/search_icon.png"),
                                   filled: true,
-                                  fillColor: Theme.of(context).accentTextTheme.display2.color,
+                                  fillColor: Theme.of(context).accentTextTheme.headline3!.color!,
                                   alignLabelWithHint: false,
                                   contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                                   enabledBorder: OutlineInputBorder(
@@ -131,7 +131,7 @@ class PickerState<Item> extends State<Picker> {
                               ),
                             ),
                           Divider(
-                            color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                            color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
                             height: 1,
                           ),
                           if (widget.selectedAtIndex != -1) buildSelectedItem(),
@@ -139,7 +139,7 @@ class PickerState<Item> extends State<Picker> {
                             child: Stack(
                               alignment: Alignment.center,
                               children: <Widget>[
-                                (items?.length ?? 0) > 3 ? Scrollbar(
+                                items.length > 3 ? Scrollbar(
                                   controller: controller,
                                   child: itemsList(),
                                 ) : itemsList(),
@@ -149,14 +149,14 @@ class PickerState<Item> extends State<Picker> {
                                         left: 24,
                                         right: 24,
                                         child: Text(
-                                          widget.description,
+                                          widget.description!,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             fontFamily: 'Lato',
                                             decoration: TextDecoration.none,
-                                            color: Theme.of(context).primaryTextTheme.title.color,
+                                            color: Theme.of(context).primaryTextTheme.headline6!.color!,
                                           ),
                                         ),
                                       )
@@ -180,13 +180,13 @@ class PickerState<Item> extends State<Picker> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
+      color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
       child: widget.isGridView
           ? GridView.builder(
               padding: EdgeInsets.zero,
               controller: controller,
               shrinkWrap: true,
-              itemCount: items == null || items.isEmpty ? 0 : items.length,
+              itemCount: items.isEmpty ? 0 : items.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 2,
@@ -200,11 +200,11 @@ class PickerState<Item> extends State<Picker> {
               shrinkWrap: true,
               separatorBuilder: (context, index) => widget.isSeparated
                   ? Divider(
-                      color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                      color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
                       height: 1,
                     )
                   : const SizedBox(),
-              itemCount: items == null || items.isEmpty ? 0 : items.length,
+              itemCount: items.isEmpty ? 0 : items.length,
               itemBuilder: (context, index) => buildItem(index),
             ),
     );
@@ -217,19 +217,16 @@ class PickerState<Item> extends State<Picker> {
     }
 
     final item = items[index];
-    final image = images != null ? images[index] : null;
+    final image = images.isNotEmpty ? images[index] : null;
 
     return GestureDetector(
       onTap: () {
-        if (onItemSelected == null) {
-          return;
-        }
         Navigator.of(context).pop();
         onItemSelected(item);
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).accentTextTheme.headline6.color,
+        color: Theme.of(context).accentTextTheme.headline6!.color!,
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -241,12 +238,13 @@ class PickerState<Item> extends State<Picker> {
               child: Padding(
                 padding: EdgeInsets.only(left: image != null ? 12 : 0),
                 child: Text(
-                  widget.displayItem?.call(item) ?? item.toString(),
+                  // What a hack (item as) ?
+                  widget.displayItem?.call(item as Object) ?? item.toString(),
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme.title.color,
+                    color: Theme.of(context).primaryTextTheme.headline6!.color!,
                     decoration: TextDecoration.none,
                   ),
                 ),
@@ -260,11 +258,11 @@ class PickerState<Item> extends State<Picker> {
 
   Widget buildSelectedItem() {
     final item = widget.items[widget.selectedAtIndex];
-    final image = images != null ? widget.images[widget.selectedAtIndex] : null;
+    final image = images.isNotEmpty ? widget.images[widget.selectedAtIndex] : null;
 
     return Container(
       height: 55,
-      color: Theme.of(context).accentTextTheme.headline6.color,
+      color: Theme.of(context).accentTextTheme.headline6!.color!,
       padding: EdgeInsets.only(left: 24, right: 24),
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -281,13 +279,13 @@ class PickerState<Item> extends State<Picker> {
                   fontSize: 16,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.headline6!.color!,
                   decoration: TextDecoration.none,
                 ),
               ),
             ),
           ),
-          Icon(Icons.check_circle, color: Theme.of(context).accentTextTheme.body2.color),
+          Icon(Icons.check_circle, color: Theme.of(context).accentTextTheme.bodyText1!.color!),
         ],
       ),
     );

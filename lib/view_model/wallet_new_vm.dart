@@ -19,7 +19,7 @@ class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
 abstract class WalletNewVMBase extends WalletCreationVM with Store {
   WalletNewVMBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
-      {@required WalletType type})
+      {required WalletType type})
       : selectedMnemonicLanguage = '',
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: false);
 
@@ -32,17 +32,17 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   WalletCredentials getCredentials(dynamic options) {
     switch (type) {
       case WalletType.monero:
-        return monero.createMoneroNewWalletCredentials(
+        return monero!.createMoneroNewWalletCredentials(
             name: name, language: options as String);
       case WalletType.bitcoin:
-        return bitcoin.createBitcoinNewWalletCredentials(name: name);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
-        return bitcoin.createBitcoinNewWalletCredentials(name: name);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.haven:
-        return haven.createHavenNewWalletCredentials(
+        return haven!.createHavenNewWalletCredentials(
             name: name, language: options as String);
       default:
-        return null;
+        throw Exception('Unexpected type: ${type.toString()}');;
     }
   }
 

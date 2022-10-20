@@ -4,25 +4,25 @@ import 'package:flutter/foundation.dart';
 
 class IoniaGiftCard {
     IoniaGiftCard({
-        @required this.id,
-        @required this.merchantId,
-        @required this.legalName,
-        @required this.systemName,
-        @required this.barcodeUrl,
-        @required this.cardNumber,
-        @required this.cardPin,
-        @required this.instructions,
-        @required this.tip,
-        @required this.purchaseAmount,
-        @required this.actualAmount,
-        @required this.totalTransactionAmount,
-        @required this.totalDashTransactionAmount,
-        @required this.remainingAmount,
-        @required this.createdDateFormatted,
-        @required this.lastTransactionDateFormatted,
-        @required this.isActive,
-        @required this.isEmpty,
-        @required this.logoUrl});
+        required this.id,
+        required this.merchantId,
+        required this.legalName,
+        required this.systemName,
+        required this.barcodeUrl,
+        required this.cardNumber,
+        required this.cardPin,
+        required this.instructions,
+        required this.tip,
+        required this.purchaseAmount,
+        required this.actualAmount,
+        required this.totalTransactionAmount,
+        required this.totalDashTransactionAmount,
+        required this.remainingAmount,
+        required this.createdDateFormatted,
+        required this.lastTransactionDateFormatted,
+        required this.isActive,
+        required this.isEmpty,
+        required this.logoUrl});
 
     factory IoniaGiftCard.fromJsonMap(Map<String, dynamic> element) {
         return IoniaGiftCard(

@@ -37,15 +37,19 @@ class HavenWallet = HavenWalletBase with _$HavenWallet;
 
 abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     HavenTransactionHistory, HavenTransactionInfo> with Store {
-  HavenWalletBase({WalletInfo walletInfo})
-      : super(walletInfo) {
+  HavenWalletBase({required WalletInfo walletInfo})
+      : balance = ObservableMap.of(getHavenBalance(accountIndex: 0)),
+        _isTransactionUpdating = false,
+        _hasSyncAfterStartup = false,
+        walletAddresses = HavenWalletAddresses(walletInfo),
+        syncStatus = NotConnectedSyncStatus(),
+        super(walletInfo) {
     transactionHistory = HavenTransactionHistory();
-    balance = ObservableMap.of(getHavenBalance(accountIndex: 0));
-    _isTransactionUpdating = false;
-    _hasSyncAfterStartup = false;
-    walletAddresses = HavenWalletAddresses(walletInfo);
     _onAccountChangeReaction = reaction((_) => walletAddresses.account,
-            (Account account) {
+            (Account? account) {
+      if (account == null) {
+        return;
+      }
       balance.addAll(getHavenBalance(accountIndex: account.id));
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
@@ -74,15 +78,15 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       publicSpendKey: haven_wallet.getPublicSpendKey(),
       publicViewKey: haven_wallet.getPublicViewKey());
 
-  haven_wallet.SyncListener _listener;
-  ReactionDisposer _onAccountChangeReaction;
+  haven_wallet.SyncListener? _listener;
+  ReactionDisposer? _onAccountChangeReaction;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
-  Timer _autoSaveTimer;
+  Timer? _autoSaveTimer;
 
   Future<void> init() async {
     await walletAddresses.init();
-    balance.addAll(getHavenBalance(accountIndex: walletAddresses.account.id ?? 0));
+    balance.addAll(getHavenBalance(accountIndex: walletAddresses.account?.id ?? 0));
     _setListeners();
     await updateTransactions();
 
@@ -103,19 +107,19 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   @override
   void close() {
     _listener?.stop();
-    _onAccountChangeReaction?.reaction?.dispose();
+    _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
   @override
-  Future<void> connectToNode({@required Node node}) async {
+  Future<void> connectToNode({required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();
       await haven_wallet.setupNode(
           address: node.uriRaw,
           login: node.login,
           password: node.password,
-          useSSL: node.useSSL,
+          useSSL: node.useSSL ?? false,
           isLightWallet: false); // FIXME: hardcoded value
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
@@ -148,8 +152,8 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
     final assetType = CryptoCurrency.fromString(_credentials.assetType.toLowerCase());
-    final balances = getHavenBalance(accountIndex: walletAddresses.account.id);
-    final unlockedBalance = balances[assetType].unlockedBalance;
+    final balances = getHavenBalance(accountIndex: walletAddresses.account!.id);
+    final unlockedBalance = balances[assetType]!.unlockedBalance;
 
     PendingTransactionDescription pendingTransactionDescription;
 
@@ -159,12 +163,12 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll
-          || item.formattedCryptoAmount <= 0)) {
+          || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw HavenTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
       }
 
       final int totalAmount = outputs.fold(0, (acc, value) =>
-          acc + value.formattedCryptoAmount);
+          acc + (value.formattedCryptoAmount ?? 0));
 
       if (unlockedBalance < totalAmount) {
         throw HavenTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
@@ -173,21 +177,21 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       final moneroOutputs = outputs.map((output) =>
           MoneroOutput(
               address: output.address,
-              amount: output.cryptoAmount.replaceAll(',', '.')))
+              amount: output.cryptoAmount!.replaceAll(',', '.')))
           .toList();
 
       pendingTransactionDescription =
       await transaction_history.createTransactionMultDest(
           outputs: moneroOutputs,
           priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account.id);
+          accountIndex: walletAddresses.account!.id);
     } else {
       final output = outputs.first;
       final address = output.address;
       final amount = output.sendAll
           ? null
-          : output.cryptoAmount.replaceAll(',', '.');
-      final formattedAmount = output.sendAll
+          : output.cryptoAmount!.replaceAll(',', '.');
+      final int? formattedAmount = output.sendAll
           ? null
           : output.formattedCryptoAmount;
 
@@ -205,14 +209,14 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           assetType: _credentials.assetType,
           amount: amount,
           priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account.id);
+          accountIndex: walletAddresses.account!.id);
     }
 
     return PendingHavenTransaction(pendingTransactionDescription, assetType);
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int amount) {
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {
@@ -255,7 +259,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
-  Future<void> rescan({int height}) async {
+  Future<void> rescan({required int height}) async {
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
     haven_wallet.setRefreshFromBlockHeight(height: height);
@@ -346,7 +350,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _askForUpdateBalance() =>
-      balance.addAll(getHavenBalance(accountIndex: walletAddresses.account.id));
+      balance.addAll(getHavenBalance(accountIndex: walletAddresses.account!.id));
 
   Future<void> _askForUpdateTransactionHistory() async =>
       await updateTransactions();

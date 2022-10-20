@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
@@ -10,7 +9,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -26,7 +24,7 @@ import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PreOrderPage extends BasePage {
-  PreOrderPage({@required this.buyViewModel})
+  PreOrderPage({required this.buyViewModel})
       : _amountFocus = FocusNode(),
         _amountController = TextEditingController() {
     _amountController.addListener(() {
@@ -82,8 +80,8 @@ class PreOrderPage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
+            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!
+                .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -104,11 +102,11 @@ class PreOrderPage extends BasePage {
                           bottomLeft: Radius.circular(24),
                           bottomRight: Radius.circular(24)),
                       gradient: LinearGradient(colors: [
-                        Theme.of(context).primaryTextTheme.subhead.color,
+                        Theme.of(context).primaryTextTheme!.subtitle1!.color!,
                         Theme.of(context)
-                            .primaryTextTheme
-                            .subhead
-                            .decorationColor,
+                            .primaryTextTheme!
+                            .subtitle1!
+                            .decorationColor!,
                       ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     ),
                   child: Padding(
@@ -163,11 +161,11 @@ class PreOrderPage extends BasePage {
                             ),
                           ),
                           hintText: '0.00',
-                          borderColor: Theme.of(context).primaryTextTheme.body2.decorationColor,
+                          borderColor: Theme.of(context).primaryTextTheme!.bodyText1!.decorationColor!,
                           borderWidth: 0.5,
                           textStyle: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.white),
                           placeholderTextStyle: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.decorationColor,
+                            color: Theme.of(context).primaryTextTheme!.headline5!.decorationColor!,
                             fontWeight: FontWeight.w500,
                             fontSize: 36,
                           ),
@@ -182,7 +180,7 @@ class PreOrderPage extends BasePage {
                       S.of(context).buy_with + ':',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.title.color,
+                          color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                           fontSize: 18,
                           fontWeight: FontWeight.bold
                       ),
@@ -200,14 +198,15 @@ class PreOrderPage extends BasePage {
                           int minAmount;
 
                           if (snapshot.hasData) {
-                            sourceAmount = snapshot.data.sourceAmount;
-                            destAmount = snapshot.data.destAmount;
-                            minAmount = snapshot.data.minAmount;
-                            achAmount = snapshot.data.achSourceAmount;
+                            sourceAmount = snapshot.data!.sourceAmount;
+                            destAmount = snapshot.data!.destAmount;
+                            minAmount = snapshot.data!.minAmount;
+                            achAmount = snapshot.data!.achSourceAmount!;
                           } else {
                             sourceAmount = 0.0;
                             destAmount = 0.0;
                             minAmount = 0;
+                            achAmount = 0;
                           }
 
                           return Padding(
@@ -216,7 +215,7 @@ class PreOrderPage extends BasePage {
                               child: Observer(builder: (_) {
                                 return BuyListItem(
                                     selectedProvider:
-                                      buyViewModel.selectedProvider,
+                                      buyViewModel.selectedProvider!,
                                     provider: item.provider,
                                     sourceAmount: sourceAmount,
                                     sourceCurrency: buyViewModel.fiatCurrency,
@@ -247,9 +246,8 @@ class PreOrderPage extends BasePage {
                     text: buyViewModel.selectedProvider == null
                           ? S.of(context).buy
                           : S.of(context).buy_with +
-                            ' ${buyViewModel.selectedProvider
-                             .description.title}',
-                    color: Theme.of(context).accentTextTheme.body2.color,
+                            ' ${buyViewModel.selectedProvider!.description.title}',
+                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                     textColor: Colors.white,
                     isLoading: buyViewModel.isRunning,
                     isDisabled: (buyViewModel.selectedProvider == null) ||
@@ -261,8 +259,8 @@ class PreOrderPage extends BasePage {
     );
   }
 
-  void onSelectBuyProvider({BuildContext context, BuyProvider provider,
-    double sourceAmount, int minAmount}) {
+  void onSelectBuyProvider({required BuildContext context, required BuyProvider provider,
+    required double sourceAmount, required int minAmount}) {
 
     if ((provider is MoonPayBuyProvider)&&
         (buyViewModel.buyAmountViewModel.doubleAmount < minAmount)) {
@@ -285,7 +283,7 @@ class PreOrderPage extends BasePage {
         : buyViewModel.isDisabled = true;
   }
 
-  Future<void> onPresentProvider({BuildContext context}) async {
+  Future<void> onPresentProvider({required BuildContext context}) async {
     if (buyViewModel.isRunning) {
       return;
     }

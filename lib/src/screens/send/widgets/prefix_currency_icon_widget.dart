@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class PrefixCurrencyIcon extends StatelessWidget {
   PrefixCurrencyIcon({
-    @required this.isSelected,
-    @required this.title,
+    required this.isSelected,
+    required this.title,
   });
 
   final bool isSelected;

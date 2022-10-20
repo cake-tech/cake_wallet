@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class YatPageIndicator extends StatelessWidget {
-  YatPageIndicator({this.filled});
+  YatPageIndicator({required this.filled});
 
   final int filled;
 

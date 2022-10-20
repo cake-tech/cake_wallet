@@ -10,7 +10,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class MoneroAccountEditOrCreatePage extends BasePage {
-  MoneroAccountEditOrCreatePage({@required this.moneroAccountCreationViewModel})
+  MoneroAccountEditOrCreatePage({required this.moneroAccountCreationViewModel})
       : _formKey = GlobalKey<FormState>(),
         _textController = TextEditingController() {
     _textController.addListener(
@@ -45,7 +45,7 @@ class MoneroAccountEditOrCreatePage extends BasePage {
                   builder: (_) =>
                       LoadingPrimaryButton(
                         onPressed: () async {
-                          if (!_formKey.currentState.validate()) {
+                          if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                             return;
                           }
 
@@ -56,7 +56,7 @@ class MoneroAccountEditOrCreatePage extends BasePage {
                         text: moneroAccountCreationViewModel.isEdit
                             ? S.of(context).rename
                             : S.of(context).add,
-                        color: Theme.of(context).accentTextTheme.body2.color,
+                        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                         textColor: Colors.white,
                         isLoading: moneroAccountCreationViewModel.state
                         is IsExecutingState,

@@ -4,9 +4,9 @@ class MarketPlaceItem extends StatelessWidget {
 
 
   MarketPlaceItem({
-    @required this.onTap,
-    @required this.title,
-    @required this.subTitle,
+    required this.onTap,
+    required this.title,
+    required this.subTitle,
   });
 
   final VoidCallback onTap;
@@ -23,7 +23,7 @@ class MarketPlaceItem extends StatelessWidget {
             padding: EdgeInsets.all(20),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Theme.of(context).textTheme.title.backgroundColor,
+              color: Theme.of(context).textTheme!.headline6!.backgroundColor!,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Colors.white.withOpacity(0.20),
@@ -37,9 +37,9 @@ class MarketPlaceItem extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: Theme.of(context)
-                            .accentTextTheme
-                            .display3
-                            .backgroundColor,
+                            .accentTextTheme!
+                            .headline2!
+                            .backgroundColor!,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
@@ -49,9 +49,9 @@ class MarketPlaceItem extends StatelessWidget {
                       subTitle,
                       style: TextStyle(
                           color:  Theme.of(context)
-                            .accentTextTheme
-                            .display3
-                            .backgroundColor,
+                            .accentTextTheme!
+                            .headline2!
+                            .backgroundColor!,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Lato'),
                     )

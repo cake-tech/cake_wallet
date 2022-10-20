@@ -4,7 +4,7 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class AddressValidator extends TextValidator {
-  AddressValidator({@required CryptoCurrency type})
+  AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
             pattern: getPattern(type),
@@ -79,7 +79,7 @@ class AddressValidator extends TextValidator {
     }
   }
 
-  static List<int> getLength(CryptoCurrency type) {
+  static List<int>? getLength(CryptoCurrency type) {
     switch (type) {
       case CryptoCurrency.xmr:
         return null;

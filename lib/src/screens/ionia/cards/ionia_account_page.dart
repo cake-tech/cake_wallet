@@ -19,7 +19,7 @@ class IoniaAccountPage extends BasePage {
     return Text(
       S.current.account,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -133,7 +133,7 @@ class IoniaAccountPage extends BasePage {
       bottomSection: Column(
         children: [
           PrimaryButton(
-            color: Theme.of(context).accentTextTheme.body2.color,
+            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
             textColor: Colors.white,
             text: S.of(context).logout,
             onPressed: () {
@@ -149,31 +149,26 @@ class IoniaAccountPage extends BasePage {
 
 class _GradiantContainer extends StatelessWidget {
   const _GradiantContainer({
-    Key key,
-    @required this.content,
-    this.padding,
-    this.width,
+    Key? key,
+    required this.content,
   }) : super(key: key);
 
   final Widget content;
-  final EdgeInsets padding;
-  final double width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: content,
-      width: width,
-      padding: padding ?? EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
           colors: [
             Theme.of(context)
-                            .primaryTextTheme
-                            .subhead
-                            .decorationColor,
-            Theme.of(context).primaryTextTheme.subhead.color,           
+              .primaryTextTheme!
+              .subtitle1!
+              .decorationColor!,
+            Theme.of(context).primaryTextTheme!.subtitle1!.color!,           
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

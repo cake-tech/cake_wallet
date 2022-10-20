@@ -40,7 +40,7 @@ void showInformation(
 }
 
 class ExchangeTradePage extends BasePage {
-  ExchangeTradePage({@required this.exchangeTradeViewModel});
+  ExchangeTradePage({required this.exchangeTradeViewModel});
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
 
@@ -50,17 +50,18 @@ class ExchangeTradePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme.title.color);
+        color: Theme.of(context).primaryTextTheme!.headline6!.color!);
 
     return SizedBox(
       height: 20.0,
       width: 20.0,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => showInformation(exchangeTradeViewModel, context),
             child: questionImage),
       ),
@@ -109,7 +110,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme.overline.color);
+        color: Theme.of(context).primaryTextTheme!.overline!.color!);
 
     _setEffects(context);
 
@@ -132,15 +133,16 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .overline
-                                      .color),
+                                      .primaryTextTheme!
+                                      .overline!
+                                      .color!),
                             ),
-                            TimerWidget(trade.expiredAt,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color)
+                            if (trade.expiredAt != null)
+                              TimerWidget(trade.expiredAt!,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme!
+                                      .headline6!
+                                      .color!)
                           ])
                     : Offstage(),
                 Padding(
@@ -158,18 +160,18 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                       border: Border.all(
                                           width: 3,
                                           color: Theme.of(context)
-                                              .accentTextTheme
-                                              .subtitle
-                                              .color
+                                              .accentTextTheme!
+                                              .subtitle2!
+                                              .color!
                                       )
                                   ),
                                   child: QrImage(
                                     data: trade.inputAddress ?? fetchingLabel,
                                     backgroundColor: Colors.transparent,
                                     foregroundColor: Theme.of(context)
-                                        .accentTextTheme
-                                        .subtitle
-                                        .color,
+                                        .accentTextTheme!
+                                        .subtitle2!
+                                        .color!,
                                   ),
                                 )))),
                     Spacer(flex: 3)
@@ -184,9 +186,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     separatorBuilder: (context, index) => Container(
                       height: 1,
                       color: Theme.of(context)
-                          .accentTextTheme
-                          .subtitle
-                          .backgroundColor,
+                          .accentTextTheme!
+                          .subtitle2!
+                          .backgroundColor!,
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
@@ -227,12 +229,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     !(sendingState is TransactionCommitted)
                 ? LoadingPrimaryButton(
                     isDisabled: trade.inputAddress == null ||
-                        trade.inputAddress.isEmpty,
+                        trade.inputAddress!.isEmpty,
                     isLoading: sendingState is IsExecutingState,
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
                     text: S.of(context).confirm,
-                    color: Theme.of(context).accentTextTheme.body2.color,
+                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                     textColor: Colors.white)
                 : Offstage();
           })),
@@ -269,10 +271,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     alertTitle: S.of(context).confirm_sending,
                     amount: S.of(context).send_amount,
                     amountValue: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransaction.amountFormatted,
+                        .pendingTransaction!.amountFormatted,
                     fee: S.of(context).send_fee,
                     feeValue: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransaction.feeFormatted,
+                        .pendingTransaction!.feeFormatted,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
                     actionRightButton: () async {
@@ -311,8 +313,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                             fontSize: 22,
                                             fontWeight: FontWeight.bold,
                                             color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .title
+                                                .primaryTextTheme!
+                                                .headline6!
                                                 .color,
                                             decoration: TextDecoration.none,
                                           ),
@@ -328,9 +330,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                                 Navigator.of(context).pop(),
                                             text: S.of(context).send_got_it,
                                             color: Theme.of(context)
-                                                .accentTextTheme
-                                                .body2
-                                                .color,
+                                                .accentTextTheme!
+                                                .bodyText1!
+                                                .color!,
                                             textColor: Colors.white))
                                   ],
                                 );
@@ -362,10 +364,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                             style: TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .title
-                                                  .color,
+                                              color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                                               decoration: TextDecoration.none,
                                             ),
                                           ),

@@ -14,7 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class YatPopup extends StatelessWidget {
-  YatPopup({this.dashboardViewModel, this.onClose})
+  YatPopup({required this.dashboardViewModel, required this.onClose})
       : baseUrl = YatLink.isDevMode
           ? YatLink.baseDevUrl
           : YatLink.baseReleaseUrl;

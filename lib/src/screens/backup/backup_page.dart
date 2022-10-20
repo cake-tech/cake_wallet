@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
+// import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -80,7 +80,7 @@ class BackupPage extends BasePage {
                   isLoading: backupViewModelBase.state is IsExecutingState,
                   onPressed: () => onExportBackup(context),
                   text: S.of(context).export_backup,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white)),
           bottom: 24,
           left: 24,
@@ -104,10 +104,11 @@ class BackupPage extends BasePage {
                 final backup = await backupViewModelBase.exportBackup();
 
                 if (Platform.isAndroid) {
-                  onExportAndroid(context, backup);
+                  onExportAndroid(context, backup!);
                 } else {
-                  await Share.file(S.of(context).backup_file, backup.name,
-                      backup.content, 'application/*');
+                  // FIX-ME: Share esys_flutter_share.dart
+                  // await Share.file(S.of(context).backup_file, backup.name,
+                  //     backup.content, 'application/*');
                 }
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
@@ -137,8 +138,9 @@ class BackupPage extends BasePage {
               },
               actionLeftButton: () {
                 Navigator.of(dialogContext).pop();
-                Share.file(S.of(context).backup_file, backup.name,
-                    backup.content, 'application/*');
+                // FIX-ME: Share esys_flutter_share.dart
+                // Share.file(S.of(context).backup_file, backup.name,
+                //     backup.content, 'application/*');
               });
         });
   }

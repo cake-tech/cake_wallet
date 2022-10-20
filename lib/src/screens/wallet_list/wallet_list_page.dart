@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
-import 'package:flushbar/flushbar.dart';
+// import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -18,7 +18,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
-  WalletListPage({this.walletListViewModel});
+  WalletListPage({required this.walletListViewModel});
 
   final WalletListViewModel walletListViewModel;
 
@@ -28,7 +28,7 @@ class WalletListPage extends BasePage {
 }
 
 class WalletListBody extends StatefulWidget {
-  WalletListBody({this.walletListViewModel});
+  WalletListBody({required this.walletListViewModel});
 
   final WalletListViewModel walletListViewModel;
 
@@ -49,7 +49,7 @@ class WalletListBodyState extends State<WalletListBody> {
       Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
-  Flushbar<void> _progressBar;
+  // Flushbar<void>? _progressBar;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme.title.color);
+        color: Theme.of(context).primaryTextTheme!.headline6!.color!);
 
     return Container(
       padding: EdgeInsets.only(top: 16),
@@ -76,9 +76,9 @@ class WalletListBodyState extends State<WalletListBody> {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
                         ? Theme.of(context)
-                            .accentTextTheme
-                            .subtitle
-                            .decorationColor
+                            .accentTextTheme!
+                            .subtitle2!
+                            .decorationColor!
                         : Theme.of(context).backgroundColor;
                     final row = GestureDetector(
                         onTap: () async {
@@ -144,9 +144,9 @@ class WalletListBodyState extends State<WalletListBody> {
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .title
-                                                .color),
+                                                .primaryTextTheme!
+                                                .headline6!
+                                                .color!),
                                       )
                                     ],
                                   ),
@@ -156,20 +156,22 @@ class WalletListBodyState extends State<WalletListBody> {
                           ),
                         ));
 
-                    return wallet.isCurrent
-                        ? row
-                        : Slidable(
-                            key: Key('${wallet.key}'),
-                            actionPane: SlidableDrawerActionPane(),
-                            child: row,
-                            secondaryActions: <Widget>[
-                                IconSlideAction(
-                                  caption: S.of(context).delete,
-                                  color: Colors.red,
-                                  icon: CupertinoIcons.delete,
-                                  onTap: () async => _removeWallet(wallet),
-                                )
-                              ]);
+                    // FIX-ME: Slidable for current
+                    return row;
+                    // return wallet.isCurrent
+                    //     ? row
+                    //     : Slidable(
+                    //         key: Key('${wallet.key}'),
+                    //         actionPane: SlidableDrawerActionPane(),
+                    //         child: row,
+                    //         secondaryActions: <Widget>[
+                    //             IconSlideAction(
+                    //               caption: S.of(context).delete,
+                    //               color: Colors.red,
+                    //               icon: CupertinoIcons.delete,
+                    //               onTap: () async => _removeWallet(wallet),
+                    //             )
+                    //           ]);
                   }),
             ),
           ),
@@ -186,7 +188,7 @@ class WalletListBodyState extends State<WalletListBody> {
 	            },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
               textColor: Colors.white,
             ),
             SizedBox(height: 10.0),
@@ -204,13 +206,13 @@ class WalletListBodyState extends State<WalletListBody> {
 		            },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).accentTextTheme.caption.color,
-                textColor: Theme.of(context).primaryTextTheme.title.color)
+                color: Theme.of(context).accentTextTheme!.caption!.color!,
+                textColor: Theme.of(context).primaryTextTheme!.headline6!.color!)
           ])),
     );
   }
 
-  Image _imageFor({WalletType type}) {
+  Image _imageFor({required WalletType type}) {
     switch (type) {
       case WalletType.bitcoin:
         return bitcoinIcon;
@@ -269,11 +271,12 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, duration: null)..show(context);
+    // FIX-ME: Duration
+    // _progressBar = createBar<void>(text, duration: Duration())..show(context);
   }
 
   void hideProgressText() {
-    _progressBar?.dismiss();
-    _progressBar = null;
+    // _progressBar?.dismiss();
+    // _progressBar = null;
   }
 }

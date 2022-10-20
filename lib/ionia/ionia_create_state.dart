@@ -10,7 +10,7 @@ class IoniaCreateStateSuccess extends IoniaCreateAccountState {}
 class IoniaCreateStateLoading extends IoniaCreateAccountState {}
 
 class IoniaCreateStateFailure extends IoniaCreateAccountState {
-  IoniaCreateStateFailure({@required this.error});
+  IoniaCreateStateFailure({required this.error});
 
   final String error;
 }
@@ -26,7 +26,7 @@ class IoniaOtpSendDisabled extends IoniaOtpState {}
 class IoniaOtpSendEnabled extends IoniaOtpState {}
 
 class IoniaOtpFailure extends IoniaOtpState {
-  IoniaOtpFailure({@required this.error});
+  IoniaOtpFailure({required this.error});
 
   final String error;
 }
@@ -38,7 +38,7 @@ class IoniaCreateCardSuccess extends IoniaCreateCardState {}
 class IoniaCreateCardLoading extends IoniaCreateCardState {}
 
 class IoniaCreateCardFailure extends IoniaCreateCardState {
-  IoniaCreateCardFailure({@required this.error});
+  IoniaCreateCardFailure({required this.error});
 
   final String error;
 }
@@ -52,12 +52,14 @@ class IoniaFetchingCard extends IoniaFetchCardState {}
 class IoniaFetchCardFailure extends IoniaFetchCardState {}
 
 class IoniaCardSuccess extends IoniaFetchCardState {
-  IoniaCardSuccess({@required this.card});
+  IoniaCardSuccess({required this.card});
 
   final IoniaVirtualCard card;
 }
 
 abstract class IoniaMerchantState {}
+
+class InitialIoniaMerchantLoadingState extends IoniaMerchantState {}
 
 class IoniaLoadingMerchantState extends IoniaMerchantState {}
 

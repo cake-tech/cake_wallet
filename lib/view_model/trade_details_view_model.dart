@@ -26,9 +26,12 @@ class TradeDetailsViewModel = TradeDetailsViewModelBase
     with _$TradeDetailsViewModel;
 
 abstract class TradeDetailsViewModelBase with Store {
-  TradeDetailsViewModelBase({Trade tradeForDetails, this.trades, this.settingsStore}) {
-    trade = tradeForDetails;
-
+  TradeDetailsViewModelBase({
+    required Trade tradeForDetails,
+    required this.trades,
+    required this.settingsStore})
+  : items = ObservableList<StandartListItem>(),
+    trade = tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider();
@@ -64,16 +67,16 @@ abstract class TradeDetailsViewModelBase with Store {
   @observable
   ObservableList<StandartListItem> items;
 
-  ExchangeProvider _provider;
+  ExchangeProvider? _provider;
 
-  Timer timer;
+  Timer? timer;
 
   final SettingsStore settingsStore;
 
   @action
   Future<void> _updateTrade() async {
     try {
-      final updatedTrade = await _provider.findTradeById(id: trade.id);
+      final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
       if (updatedTrade.createdAt == null && trade.createdAt != null) {
         updatedTrade.createdAt = trade.createdAt;
@@ -90,7 +93,7 @@ abstract class TradeDetailsViewModelBase with Store {
   void _updateItems() {
     final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
 
-    items?.clear();
+    items.clear();
 
     items.add(
         DetailsListStatusItem(
@@ -102,7 +105,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
     items.add(TradeDetailsListCardItem.tradeDetails(
       id: trade.id,
-      createdAt: dateFormat.format(trade.createdAt),
+      createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
       from: trade.from,
       to: trade.to,
       onTap: (BuildContext context) {
@@ -143,7 +146,7 @@ abstract class TradeDetailsViewModelBase with Store {
     if (trade.createdAt != null) {
       items.add(StandartListItem(
           title: S.current.trade_details_created_at,
-          value: dateFormat.format(trade.createdAt).toString()));
+          value: trade.createdAt != null ? dateFormat.format(trade.createdAt!).toString() : ''));
     }
 
     if (trade.from != null && trade.to != null) {
