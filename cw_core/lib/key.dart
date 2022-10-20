@@ -16,14 +16,14 @@ List<String> extractKeys(String key) {
   return [_key, iv];
 }
 
-Future<String> encode({encrypt.Key key, encrypt.IV iv, String data}) async {
+Future<String> encode({required encrypt.Key key, required encrypt.IV iv, required String data}) async {
   final encrypter = encrypt.Encrypter(encrypt.Salsa20(key));
   final encrypted = encrypter.encrypt(data, iv: iv);
 
   return encrypted.base64;
 }
 
-Future<String> decode({String password, String data}) async {
+Future<String> decode({required String password, required String data}) async {
   final keys = extractKeys(password);
   final key = encrypt.Key.fromBase64(keys.first);
   final iv = encrypt.IV.fromBase64(keys.last);

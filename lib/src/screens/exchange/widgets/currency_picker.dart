@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker_item_widget.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_utils.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,9 +10,9 @@ import 'currency_picker_widget.dart';
 
 class CurrencyPicker extends StatefulWidget {
   CurrencyPicker(
-      {@required this.selectedAtIndex,
-      @required this.items,
-      @required this.onItemSelected,
+      {required this.selectedAtIndex,
+      required this.items,
+      required this.onItemSelected,
       this.title,
       this.hintText,
       this.isMoneroWallet = false,
@@ -21,11 +20,11 @@ class CurrencyPicker extends StatefulWidget {
 
   int selectedAtIndex;
   final List<CryptoCurrency> items;
-  final String title;
+  final String? title;
   final Function(CryptoCurrency) onItemSelected;
   final bool isMoneroWallet;
   final bool isConvertFrom;
-  final String hintText;
+  final String? hintText;
 
   @override
   CurrencyPickerState createState() => CurrencyPickerState(items);
@@ -35,45 +34,32 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   CurrencyPickerState(this.items)
       : isSearchBarActive = false,
         textFieldValue = '',
-        subPickerItemsList = [],
+        subPickerItemsList = items,
         appBarTextStyle =
-            TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white);
-
-  @override
-  void initState() {
-    pickerItemsList = CryptoCurrency.all
-        .map((CryptoCurrency cur) => PickerItem<CryptoCurrency>(cur,
-            title: CurrencyUtils.titleForCurrency(cur),
-            iconPath: CurrencyUtils.iconPathForCurrency(cur),
-            tag: CurrencyUtils.tagForCurrency(cur),
-            description: CurrencyUtils.descriptionForCurrency(cur)))
-        .toList();
-    cleanSubPickerItemsList();
-    super.initState();
-  }
+          TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white),
+        pickerItemsList = <PickerItem<CryptoCurrency>>[];
 
   List<PickerItem<CryptoCurrency>> pickerItemsList;
   List<CryptoCurrency> items;
   bool isSearchBarActive;
   String textFieldValue;
-  List<PickerItem<CryptoCurrency>> subPickerItemsList;
+  List<CryptoCurrency> subPickerItemsList;
   TextStyle appBarTextStyle;
 
-  void cleanSubPickerItemsList() {
-    subPickerItemsList = pickerItemsList.where((element) => items.contains(element.original)).toList();
-  }
+  void cleanSubPickerItemsList() => subPickerItemsList = items;
 
-  void currencySearchBySubstring(String subString, List<PickerItem<CryptoCurrency>> list) {
+  void currencySearchBySubstring(String subString) {
     setState(() {
       if (subString.isNotEmpty) {
-        subPickerItemsList = subPickerItemsList
+        subPickerItemsList = items
             .where((element) =>
-                element.title.contains(subString.toUpperCase()) ||
-                element.description.contains(subString.toLowerCase()))
+        (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
+            (element.tag != null ? element.tag!.toLowerCase().contains(subString.toLowerCase()) : false) ||
+            (element.name != null ? element.name!.toLowerCase().contains(subString.toLowerCase()) : false))
             .toList();
-      } else {
-        cleanSubPickerItemsList();
+        return;
       }
+      cleanSubPickerItemsList();
     });
   }
 
@@ -90,7 +76,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
-                    widget.title,
+                    widget.title!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -106,7 +92,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
-                    color: Theme.of(context).accentTextTheme.title.color,
+                    color: Theme.of(context).accentTextTheme!.headline6!.color!,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height * 0.65,
@@ -118,7 +104,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             Padding(
                               padding: const EdgeInsets.all(16),
                               child: TextFormField(
-                                style: TextStyle(color: Theme.of(context).primaryTextTheme.title.color),
+                                style: TextStyle(color: Theme.of(context).primaryTextTheme!.headline6!.color!),
                                 decoration: InputDecoration(
                                   hintText: widget.hintText,
                                   prefixIcon: Image.asset("assets/images/search_icon.png"),
@@ -140,22 +126,22 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                 onChanged: (value) {
                                   this.textFieldValue = value;
                                   cleanSubPickerItemsList();
-                                  currencySearchBySubstring(textFieldValue, subPickerItemsList);
+                                  currencySearchBySubstring(textFieldValue);
                                 },
                               ),
                             ),
                           Divider(
-                            color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                            color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
                             height: 1,
                           ),
                           if (widget.selectedAtIndex != -1)
                             AspectRatio(
                               aspectRatio: 6,
                               child: PickerItemWidget(
-                                title: pickerItemsList[widget.selectedAtIndex].title,
-                                iconPath: pickerItemsList[widget.selectedAtIndex].iconPath,
+                                title: items[widget.selectedAtIndex].title,
+                                iconPath: items[widget.selectedAtIndex].iconPath,
                                 isSelected: true,
-                                tag: pickerItemsList[widget.selectedAtIndex].tag,
+                                tag: items[widget.selectedAtIndex].tag,
                               ),
                             ),
                           Flexible(
@@ -167,10 +153,10 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                 setState(() {
                                   widget.selectedAtIndex = index;
                                 });
-                                widget.onItemSelected(subPickerItemsList[index].original);
+                                widget.onItemSelected(subPickerItemsList[index]);
                                 if (widget.isConvertFrom &&
                                     !widget.isMoneroWallet &&
-                                    (subPickerItemsList[index].original == CryptoCurrency.xmr)) {
+                                    (subPickerItemsList[index] == CryptoCurrency.xmr)) {
                                 } else {
                                   Navigator.of(context).pop();
                                 }

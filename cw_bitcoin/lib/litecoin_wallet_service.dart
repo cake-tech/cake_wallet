@@ -10,6 +10,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:collection/collection.dart';
 
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -25,10 +26,10 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials) async {
-    final wallet = LitecoinWallet(
+    final wallet = await LitecoinWalletBase.create(
         mnemonic: await generateMnemonic(),
-        password: credentials.password,
-        walletInfo: credentials.walletInfo,
+        password: credentials.password!,
+        walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
@@ -42,9 +43,8 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhere(
-        (info) => info.id == WalletBase.idFor(name, getType()),
-        orElse: () => null);
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(name, getType()))!;
     final wallet = await LitecoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource);
@@ -69,10 +69,10 @@ class LitecoinWalletService extends WalletService<
       throw BitcoinMnemonicIsIncorrectException();
     }
 
-    final wallet = LitecoinWallet(
-        password: credentials.password,
+    final wallet = await LitecoinWalletBase.create(
+        password: credentials.password!,
         mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo,
+        walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();

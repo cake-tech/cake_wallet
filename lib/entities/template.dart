@@ -4,7 +4,14 @@ part 'template.g.dart';
 
 @HiveType(typeId: Template.typeId)
 class Template extends HiveObject {
-  Template({this.name,this.isCurrencySelected, this.address, this.cryptoCurrency, this.amount, this.fiatCurrency, this.amountFiat});
+  Template({
+    required this.name,
+    required this.isCurrencySelected,
+    required this.address,
+    required this.cryptoCurrency,
+    required this.amount,
+    required this.fiatCurrency,
+    required this.amountFiat});
 
   static const typeId = 6;
   static const boxName = 'Template';

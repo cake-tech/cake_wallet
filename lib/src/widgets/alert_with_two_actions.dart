@@ -4,19 +4,21 @@ import 'package:flutter/cupertino.dart';
 
 class AlertWithTwoActions extends BaseAlertDialog {
   AlertWithTwoActions({
-    @required this.alertTitle,
-    @required this.leftButtonText,
-    @required this.rightButtonText,
-    @required this.actionLeftButton,
-    @required this.actionRightButton,
+    required this.alertTitle,
+    required this.alertContent,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
     this.alertBarrierDismissible = true,
-    this.isDividerExists = false,
+    this.isDividerExist = false,
     this.alertContent,
     this.contentWidget,
     this.leftActionButtonColor,
     this.rightActionButtonColor,
     this.alertTitleColor,
   }) : assert(alertContent != null || contentWidget != null);
+
 
   final String alertTitle;
   final String alertContent;

@@ -14,7 +14,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(this._nodeSource, this._wallet)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
-        useSSL = false;
+        useSSL = false,
+        address = '',
+        port = '',
+        login = '',
+        password = '';
 
   @observable
   ExecutionState state;
@@ -39,7 +43,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @computed
   bool get isReady =>
-      (address?.isNotEmpty ?? false) && (port?.isNotEmpty ?? false);
+      address.isNotEmpty && port.isNotEmpty;
 
   bool get hasAuthCredentials => _wallet.type == WalletType.monero ||
     _wallet.type == WalletType.haven;
@@ -47,7 +51,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   String get uri {
     var uri = address;
 
-    if (port != null && port.isNotEmpty) {
+    if (port.isNotEmpty) {
       uri += ':' + port;
     }
 

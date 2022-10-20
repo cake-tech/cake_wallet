@@ -25,7 +25,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
+        color: titleColor ?? Theme.of(context).primaryTextTheme!.headline6!.color!,
         decoration: TextDecoration.none,
       ),
     );
@@ -39,86 +39,74 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
         fontFamily: 'Lato',
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
         decoration: TextDecoration.none,
       ),
     );
   }
 
   Widget actionButtons(BuildContext context) {
-    return Row(
+    return Container(
+      height: 52,
+      child: Row(
       mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Flexible(
-            child: Container(
-              height: 52,
-              padding: EdgeInsets.only(left: 6, right: 6),
-              color: leftActionButtonColor ?? Theme.of(context).accentTextTheme.body2.decorationColor,
-              child: ButtonTheme(
-                minWidth: double.infinity,
-                child: FlatButton(
-                    onPressed: actionLeft,
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: Text(
-                      leftActionButtonText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: leftActionButtonColor != null
-                            ? Colors.white
-                            : Theme.of(context).primaryTextTheme.body2.backgroundColor,
-                        decoration: TextDecoration.none,
-                      ),
-                    )),
-              ),
-            )
+          child: Container(
+            width: double.infinity,
+            color: leftActionButtonColor ?? Theme.of(context).accentTextTheme!.bodyText1!.decorationColor!,
+            child: TextButton(
+                onPressed: actionLeft,
+                child: Text(
+                  leftActionButtonText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: leftActionButtonColor != null
+                        ? Colors.white
+                        : Theme.of(context).primaryTextTheme!.bodyText1!.backgroundColor!,
+                    decoration: TextDecoration.none,
+                  ),
+                )),
+          ),
         ),
         if (leftActionButtonColor == null && rightActionButtonColor == null)
           Container(
             width: 1,
-            height: 52,
             color: Theme.of(context).dividerColor,
           ),
         Flexible(
-            child: Container(
-              height: 52,
-              padding: EdgeInsets.only(left: 6, right: 6),
-              color: rightActionButtonColor ?? Theme.of(context).accentTextTheme.body1.backgroundColor,
-              child: ButtonTheme(
-                minWidth: double.infinity,
-                child: FlatButton(
-                    onPressed: actionRight,
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: Text(
-                      rightActionButtonText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: rightActionButtonColor != null
-                            ? Colors.white
-                            : Theme.of(context).primaryTextTheme.body1.backgroundColor,
-                        decoration: TextDecoration.none,
-                      ),
-                    )),
-              ),
-            )
+          child: Container(
+            width: double.infinity,
+            color: rightActionButtonColor ?? Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
+            child: TextButton(
+                onPressed: actionRight,
+                child: Text(
+                  rightActionButtonText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: rightActionButtonColor != null
+                        ? Colors.white
+                        : Theme.of(context).primaryTextTheme!.bodyText2!.backgroundColor!,
+                    decoration: TextDecoration.none,
+                  ),
+                )),
+          ),
         ),
       ],
-    );
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => barrierDismissible
-      ? Navigator.of(context).pop()
-      : null,
+      onTap: () => barrierDismissible ? Navigator.of(context).pop() : null,
       child: Container(
         color: Colors.transparent,
         child: BackdropFilter(
@@ -132,7 +120,7 @@ class BaseAlertDialog extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
                     width: 300,
-                    color: Theme.of(context).accentTextTheme.title.decorationColor,
+                    color: Theme.of(context).accentTextTheme!.headline6!.decorationColor!,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -144,14 +132,14 @@ class BaseAlertDialog extends StatelessWidget {
                               child: title(context),
                             ),
                             isDividerExists
-                            ? Padding(
-                                padding: EdgeInsets.only(top: 16, bottom: 8),
-                                child: Container(
-                                  height: 1,
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                            )
-                            : Offstage(),
+                                ? Padding(
+                                    padding: EdgeInsets.only(top: 16, bottom: 8),
+                                    child: Container(
+                                      height: 1,
+                                      color: Theme.of(context).dividerColor,
+                                    ),
+                                  )
+                                : Offstage(),
                             Padding(
                               padding: contentPadding ?? EdgeInsets.fromLTRB(24, 8, 24, 32),
                               child: content(context),

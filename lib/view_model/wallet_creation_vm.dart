@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -15,11 +16,10 @@ part 'wallet_creation_vm.g.dart';
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._appStore, this._walletInfoSource,
-      {@required this.type, @required this.isRecovery}) {
-    state = InitialExecutionState();
-    name = '';
-  }
+  WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
+      {required this.type, required this.isRecovery})
+      : state = InitialExecutionState(),
+        name = '';
 
   @observable
   String name;
@@ -29,21 +29,24 @@ abstract class WalletCreationVMBase with Store {
 
   WalletType type;
   final bool isRecovery;
+  final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
 
-  bool nameExists(String name) {
-    final walletNameList = _walletInfoSource.values.map((e) => e.name.toLowerCase()).toList();
+  bool nameExists(String name)
+    => walletCreationService.exists(name);
 
-    return walletNameList.contains(name.toLowerCase());
-  }
+  bool typeExists(WalletType type)
+    => walletCreationService.typeExists(type);
 
   Future<void> create({dynamic options}) async {
     try {
       state = IsExecutingState();
-      if (name?.isEmpty ?? true) {
+      if (name.isEmpty) {
             name = await generateName();
       }
+
+      walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
       final credentials = getCredentials(options);
@@ -55,7 +58,9 @@ abstract class WalletCreationVMBase with Store {
           restoreHeight: credentials.height ?? 0,
           date: DateTime.now(),
           path: path,
-          dirPath: dirPath);
+          dirPath: dirPath,
+          address: '',
+          showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
       credentials.walletInfo = walletInfo;
       final wallet = await process(credentials);
       walletInfo.address = wallet.walletAddresses.address;

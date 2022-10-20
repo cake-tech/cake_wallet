@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AlertCloseButton extends StatelessWidget {
   AlertCloseButton({this.image});
 
-  final Image image;
+  final Image? image;
 
   final closeButton = Image.asset(
     'assets/images/close.png',

@@ -10,7 +10,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class UnspentCoinsListPage extends BasePage {
-  UnspentCoinsListPage({this.unspentCoinsListViewModel});
+  UnspentCoinsListPage({required this.unspentCoinsListViewModel});
 
   @override
   String get title => S.current.unspent_coins_title;
@@ -18,7 +18,7 @@ class UnspentCoinsListPage extends BasePage {
   //@override
   //Widget trailing(BuildContext context) {
   //  final questionImage = Image.asset('assets/images/question_mark.png',
-  //      color: Theme.of(context).primaryTextTheme.title.color);
+  //      color: Theme.of(context).primaryTextTheme!.headline6!.color!);
 
   //  return SizedBox(
   //    height: 20.0,

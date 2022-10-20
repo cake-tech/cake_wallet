@@ -20,9 +20,14 @@ class WalletRestorationFromKeysVM = WalletRestorationFromKeysVMBase
 abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
     with Store {
   WalletRestorationFromKeysVMBase(AppStore appStore,
-      this._walletCreationService, Box<WalletInfo> walletInfoSource,
-      {@required WalletType type, @required this.language})
-      : super(appStore, walletInfoSource, type: type, isRecovery: true);
+      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
+      {required WalletType type, required this.language})
+      : height = 0,
+        viewKey = '',
+        spendKey = '',
+        wif = '',
+        address = '',
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -42,15 +47,14 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
   bool get hasRestorationHeight => type == WalletType.monero;
 
   final String language;
-  final WalletCreationService _walletCreationService;
 
   @override
   WalletCredentials getCredentials(dynamic options) {
-    final password = generateWalletPassword(type);
+    final password = generateWalletPassword();
 
     switch (type) {
       case WalletType.monero:
-        return monero.createMoneroRestoreWalletFromKeysCredentials(
+        return monero!.createMoneroRestoreWalletFromKeysCredentials(
             name: name,
             password: password,
             language: language,
@@ -59,14 +63,14 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
             spendKey: spendKey,
             height: height);
       case WalletType.bitcoin:
-        return bitcoin.createBitcoinRestoreWalletFromWIFCredentials(
+        return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
             name: name, password: password, wif: wif);
       default:
-        return null;
+        throw Exception('Unexpected type: ${type.toString()}');;
     }
   }
 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async =>
-      _walletCreationService.restoreFromKeys(credentials);
+      walletCreationService.restoreFromKeys(credentials);
 }

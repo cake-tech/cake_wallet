@@ -1,6 +1,9 @@
 class PickerItem<T> {
   PickerItem(this.original,
-      {this.title, this.iconPath, this.tag, this.description});
+      {required this.title,
+      required this.iconPath,
+      required this.tag,
+      required this.description});
 
   final String title;
   final String iconPath;

@@ -14,8 +14,8 @@ part 'support_view_model.g.dart';
 class SupportViewModel = SupportViewModelBase with _$SupportViewModel;
 
 abstract class SupportViewModelBase with Store {
-  SupportViewModelBase() {
-    items = [
+  SupportViewModelBase()
+  : items = [
       RegularListItem(
         title: S.current.faq,
         handler: (BuildContext context) async {
@@ -53,27 +53,27 @@ abstract class SupportViewModelBase with Store {
           icon: 'assets/images/change_now.png',
           linkTitle: 'support@changenow.io',
           link: 'mailto:support@changenow.io'),
-      if (!isMoneroOnly) ... [	  
-      	 LinkListItem(
-		 title: 'Wyre',
-          	 icon: 'assets/images/wyre.png',
-          	 linkTitle: S.current.submit_request,
-          	 link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new'),
- 	 LinkListItem(
-		 title: 'MoonPay',
-          	 icon: 'assets/images/moonpay.png',
-          	 hasIconColor: true,
-          	 linkTitle: S.current.submit_request,
-          	 link: 'https://support.moonpay.com/hc/en-gb/requests/new')
-	  ]
+      if (!isMoneroOnly) ... [    
+         LinkListItem(
+     title: 'Wyre',
+             icon: 'assets/images/wyre.png',
+             linkTitle: S.current.submit_request,
+             link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new'),
+   LinkListItem(
+     title: 'MoonPay',
+             icon: 'assets/images/moonpay.png',
+             hasIconColor: true,
+             linkTitle: S.current.submit_request,
+             link: 'https://support.moonpay.com/hc/en-gb/requests/new')
+    ]
       //LinkListItem(
       //    title: 'Yat',
       //    icon: 'assets/images/yat_mini_logo.png',
       //    hasIconColor: true,
       //    linkTitle: 'support@y.at',
       //    link: 'mailto:support@y.at')
-    ];
-  }
+  ];
+
   static const url = 'https://cakewallet.com/guide/';
 
   List<SettingsListItem> items;

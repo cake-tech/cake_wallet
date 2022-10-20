@@ -14,10 +14,10 @@ import 'package:cake_wallet/core/wallet_name_validator.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm(
-      {Key key,
-      @required this.displayLanguageSelector,
-      @required this.displayBlockHeightSelector,
-      @required this.type,
+      {Key? key,
+      required this.displayLanguageSelector,
+      required this.displayBlockHeightSelector,
+      required this.type,
       this.blockHeightFocusNode,
       this.onHeightOrDateEntered,
       this.onSeedChange,
@@ -27,10 +27,10 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final WalletType type;
   final bool displayLanguageSelector;
   final bool displayBlockHeightSelector;
-  final FocusNode blockHeightFocusNode;
-  final Function(bool) onHeightOrDateEntered;
-  final void Function(String) onSeedChange;
-  final void Function(String) onLanguageChange;
+  final FocusNode? blockHeightFocusNode;
+  final Function(bool)? onHeightOrDateEntered;
+  final void Function(String)? onSeedChange;
+  final void Function(String)? onLanguageChange;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -71,16 +71,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               BaseTextFormField(
                 controller: nameTextEditingController,
                 hintText: S.of(context).wallet_name,
-                validator: WalletNameValidator(),
-              ),
-              Container(
-                width: 34,
-                height: 34,
-                margin: const EdgeInsets.only(bottom: 15, left: 13),
-                child: InkWell(
-                  onTap: () async {
+                suffixIcon: IconButton(
+                  onPressed: () async {
                     final rName = await generateName();
                     FocusManager.instance.primaryFocus?.unfocus();
+
                     setState(() {
                       nameTextEditingController.text = rName;
                       nameTextEditingController.selection =
@@ -88,17 +83,24 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                               offset: nameTextEditingController.text.length));
                     });
                   },
-                  child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).hintColor,
-                          borderRadius: BorderRadius.all(Radius.circular(6))),
-                      child: Image.asset('assets/images/refresh_icon.png',
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .display1
-                              .decorationColor)),
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.0),
+                      color: Theme.of(context).hintColor,
+                    ),
+                    width: 34,
+                    height: 34,
+                    child: Image.asset(
+                      'assets/images/refresh_icon.png',
+                      color: Theme.of(context)
+                          .primaryTextTheme!
+                          .headline4!
+                          .decorationColor!,
+                    ),
+                  ),
                 ),
+                validator: WalletNameValidator(),
               ),
             ],
           )),
@@ -142,7 +144,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void _changeLanguage(String language) {
     setState(() {
       this.language = language;
-      seedWidgetStateKey.currentState.changeSeedLanguage(language);
+      seedWidgetStateKey.currentState!.changeSeedLanguage(language);
       _setLanguageLabel(language);
       widget.onLanguageChange?.call(language);
     });
