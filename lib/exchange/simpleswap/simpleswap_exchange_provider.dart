@@ -151,10 +151,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min =  responseJSON != null && responseJSON['min'] != null
-        ? double.tryParse(responseJSON['min'] as String) : null;
-    final max = responseJSON != null && responseJSON['max'] != null
-        ? double.parse(responseJSON['max'] as String) : null;
+    final min = double.tryParse(responseJSON['min'] as String? ?? '');
+    final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
     return Limits(min: min, max: max);
   }
