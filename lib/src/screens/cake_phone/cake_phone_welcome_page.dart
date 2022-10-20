@@ -55,7 +55,7 @@ class CakePhoneWelcomeBodyState extends State<CakePhoneWelcomeBody> {
                 Navigator.pushNamed(context, Routes.cakePhoneAuth);
               },
               text: S.of(context).create_account,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
             ),
             Padding(

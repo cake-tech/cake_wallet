@@ -70,7 +70,7 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                 S.of(context).auto_renew_term_description,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).accentTextTheme.subhead.color,
+                  color: Theme.of(context).accentTextTheme.subtitle1?.color,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -149,7 +149,7 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
               onPressed: () {
               },
               text: "${S.of(context).update} ${S.of(context).auto_renew}",
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
             ),
           ],

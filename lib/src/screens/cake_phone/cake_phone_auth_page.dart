@@ -80,7 +80,7 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
                 }
               },
               text: widget.isLogin ? S.of(context).login : S.of(context).create_account,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
             ),
             Padding(
@@ -116,7 +116,7 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
                   ],
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).accentTextTheme.subhead.color,
+                    color: Theme.of(context).accentTextTheme.subtitle1?.color,
                   ),
                 ),
                 textAlign: TextAlign.center,

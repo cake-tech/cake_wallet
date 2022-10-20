@@ -14,7 +14,7 @@ class AddOptionsTile extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(15)),
-          color: Theme.of(context).primaryTextTheme.display3.decorationColor,
+          color: Theme.of(context).primaryTextTheme.displayMedium?.decorationColor,
         ),
         child: Row(
           children: [

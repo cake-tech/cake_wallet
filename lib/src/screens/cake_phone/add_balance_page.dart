@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
@@ -8,7 +7,6 @@ import 'package:cake_wallet/src/widgets/info_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -22,7 +20,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/view_model/cake_phone/add_balance_view_model.dart';
 
 class AddBalancePage extends BasePage {
-  AddBalancePage({@required this.addBalanceViewModel})
+  AddBalancePage({required this.addBalanceViewModel})
       : _amountFocus = FocusNode(),
         _amountController = TextEditingController() {
     _amountController.addListener(() {
@@ -65,7 +63,7 @@ class AddBalancePage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-        keyboardBarColor: Theme.of(context).accentTextTheme.body2.backgroundColor,
+        keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1?.backgroundColor,
         nextFocus: false,
         actions: [
           KeyboardActionsItem(
@@ -85,8 +83,8 @@ class AddBalancePage extends BasePage {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme.subhead.color,
-                    Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                    Theme.of(context).primaryTextTheme.subtitle1!.color!,
+                    Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Padding(
@@ -111,11 +109,11 @@ class AddBalancePage extends BasePage {
                           ),
                         ),
                         hintText: '0.00',
-                        borderColor: Theme.of(context).primaryTextTheme.body2.decorationColor,
+                        borderColor: Theme.of(context).primaryTextTheme.bodyText1?.decorationColor,
                         borderWidth: 0.5,
                         textStyle: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.white),
                         placeholderTextStyle: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.headline.decorationColor,
+                          color: Theme.of(context).primaryTextTheme.headline5?.decorationColor,
                           fontWeight: FontWeight.w500,
                           fontSize: 36,
                         ),
@@ -129,7 +127,7 @@ class AddBalancePage extends BasePage {
                 child: Text(
                   "${S.of(context).cake_phone_products_example}:",
                   style: TextStyle(
-                    color: Theme.of(context).primaryTextTheme.title.color,
+                    color: Theme.of(context).primaryTextTheme.headline6?.color,
                     fontSize: 16,
                   ),
                 ),
@@ -143,7 +141,7 @@ class AddBalancePage extends BasePage {
                             padding: const EdgeInsets.all(16),
                             margin: const EdgeInsets.only(bottom: 8),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).accentTextTheme.caption.backgroundColor,
+                              color: Theme.of(context).accentTextTheme.caption?.backgroundColor,
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: RichText(
@@ -157,7 +155,7 @@ class AddBalancePage extends BasePage {
                                 ],
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                  color: Theme.of(context).primaryTextTheme.headline6?.color,
                                 ),
                               ),
                             ),
@@ -176,7 +174,7 @@ class AddBalancePage extends BasePage {
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
                           alertTitle: S.of(context).confirm_sending,
-                          alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
+                          alertTitleColor: Theme.of(context).primaryTextTheme.headline6!.decorationColor!,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Material(
                             color: Colors.transparent,
@@ -191,8 +189,8 @@ class AddBalancePage extends BasePage {
                                     value: cryptoAmount(getIt
                                         .get<AppStore>()
                                         .wallet
-                                        .calculateEstimatedFee(
-                                          getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet.type],
+                                        !.calculateEstimatedFee(
+                                          getIt.get<AppStore>().settingsStore!.priority[getIt.get<AppStore>().wallet!.type],
                                           addBalanceViewModel.buyAmountViewModel.doubleAmount.floor(),
                                         )
                                         .toDouble())),
@@ -212,7 +210,7 @@ class AddBalancePage extends BasePage {
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).accentTextTheme.subhead.color,
+                                    color: Theme.of(context).accentTextTheme.subtitle1?.color,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -222,8 +220,8 @@ class AddBalancePage extends BasePage {
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
-                          rightActionButtonColor: Theme.of(context).accentTextTheme.body2.color,
-                          leftActionButtonColor: Theme.of(context).primaryTextTheme.body2.backgroundColor,
+                          rightActionButtonColor: Theme.of(context).accentTextTheme.bodyText1?.color,
+                          leftActionButtonColor: Theme.of(context).primaryTextTheme.bodyText1?.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
                             showPaymentConfirmationPopup(context);
@@ -232,7 +230,7 @@ class AddBalancePage extends BasePage {
                     });
               },
               text: S.of(context).buy,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
               isLoading: false,
               isDisabled: addBalanceViewModel.buyAmountViewModel.amount.isEmpty,
@@ -276,7 +274,7 @@ class AddBalancePage extends BasePage {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).accentTextTheme.subhead.color,
+                color: Theme.of(context).accentTextTheme.subtitle1?.color,
               ),
             ),
           ],
@@ -328,7 +326,7 @@ class AddBalancePage extends BasePage {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).accentTextTheme.subhead.color,
+                              color: Theme.of(context).accentTextTheme.subtitle1?.color,
                             ),
                           ),
                           Padding(
@@ -348,7 +346,7 @@ class AddBalancePage extends BasePage {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).accentTextTheme.subhead.color,
+                              color: Theme.of(context).accentTextTheme.subtitle1?.color,
                             ),
                           ),
                           Padding(

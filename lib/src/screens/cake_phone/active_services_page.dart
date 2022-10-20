@@ -21,7 +21,7 @@ class ActiveServicesPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: titleColor ?? Theme.of(context).primaryTextTheme.title.color),
+          color: titleColor ?? Theme.of(context).primaryTextTheme.titleMedium?.color),
     );
   }
 }
@@ -59,8 +59,11 @@ class ActiveServicesBodyState extends State<ActiveServicesBody> {
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryTextTheme.subhead.color,
-                      Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                      Theme.of(context).primaryTextTheme.subtitle1!.color!,
+                      Theme.of(context)
+                          .primaryTextTheme
+                          .subtitle1!
+                          .decorationColor!,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -103,7 +106,7 @@ class ActiveServicesBodyState extends State<ActiveServicesBody> {
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(15)),
-              color: Theme.of(context).primaryTextTheme.display3.decorationColor,
+              color: Theme.of(context).primaryTextTheme.displayMedium?.decorationColor,
             ),
             child: InfoTextColumn(
               title: S.of(context).free_sms_balance,
@@ -119,7 +122,7 @@ class ActiveServicesBodyState extends State<ActiveServicesBody> {
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(15)),
-              color: Theme.of(context).primaryTextTheme.display3.decorationColor,
+              color: Theme.of(context).primaryTextTheme.displayMedium?.decorationColor,
             ),
             child: InfoTextColumn(
               title: S.of(context).free_data_balance,

@@ -36,7 +36,7 @@ class InfoTextColumn extends StatelessWidget {
 
   TextStyle subtitleTextStyle(BuildContext context) => TextStyle(
         fontSize: 12,
-        color: Theme.of(context).accentTextTheme.subhead.color,
+        color: Theme.of(context).accentTextTheme.subtitle1?.color,
       );
 
   TextStyle titleTextStyle(BuildContext context) => TextStyle(

@@ -57,8 +57,8 @@ class CakePhoneProductsBodyState extends State<CakePhoneProductsBody> {
                     borderRadius: BorderRadius.all(Radius.circular(24)),
                     gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).primaryTextTheme.subhead.color,
-                        Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                        Theme.of(context).primaryTextTheme.subtitle1!.color!,
+                        Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!,
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,

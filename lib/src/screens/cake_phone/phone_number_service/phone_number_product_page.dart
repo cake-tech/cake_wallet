@@ -88,7 +88,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     : S.of(context).phone_number_promotion_text,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).accentTextTheme.subhead.color,
+                  color: Theme.of(context).accentTextTheme.subtitle1?.color,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -241,13 +241,13 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       Text(
                         S.of(context).additional_sms_messages,
                         style: TextStyle(
-                          color: Theme.of(context).accentTextTheme.subhead.color,
+                          color: Theme.of(context).accentTextTheme.subtitle1?.color,
                         ),
                       ),
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: Theme.of(context).primaryTextTheme.display3.decorationColor,
+                          color: Theme.of(context).primaryTextTheme.displayMedium?.decorationColor,
                         ),
                         child: Row(
                           children: [
@@ -300,7 +300,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                   ],
                   style: TextStyle(
                     fontSize: 15,
-                    color: Theme.of(context).accentTextTheme.subhead.color,
+                    color: Theme.of(context).accentTextTheme.subtitle1?.color,
                     fontFamily: 'Lato',
                   ),
                 ),
@@ -327,8 +327,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
-                          rightActionButtonColor: Theme.of(context).accentTextTheme.body2.color,
-                          leftActionButtonColor: Theme.of(context).primaryTextTheme.body2.backgroundColor,
+                          rightActionButtonColor: Theme.of(context).accentTextTheme.bodyText1?.color,
+                          leftActionButtonColor: Theme.of(context).primaryTextTheme.bodyText1?.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
                             Navigator.pushNamedAndRemoveUntil(
@@ -388,7 +388,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).accentTextTheme.subhead.color,
+                                  color: Theme.of(context).accentTextTheme.subtitle1?.color,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -397,8 +397,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
-                          rightActionButtonColor: Theme.of(context).accentTextTheme.body2.color,
-                          leftActionButtonColor: Theme.of(context).primaryTextTheme.body2.backgroundColor,
+                          rightActionButtonColor: Theme.of(context).accentTextTheme.bodyText1?.color,
+                          leftActionButtonColor: Theme.of(context).primaryTextTheme.bodyText1?.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
                             showPaymentConfirmationPopup();
@@ -407,7 +407,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     });
               },
               text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet.currency.toString()}",
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
             ),
           ],
@@ -422,7 +422,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Theme.of(context).accentTextTheme.body2.color,
+          color: Theme.of(context).accentTextTheme.bodyText1?.color,
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: Colors.white, size: 15),
@@ -433,13 +433,13 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
       child: DottedBorder(
         borderType: BorderType.Circle,
         dashPattern: [3, 3],
-        color: Theme.of(context).primaryTextTheme.display3.color,
+        color: Theme.of(context).primaryTextTheme.displayMedium?.color,
         strokeWidth: 3,
         child: Padding(
           padding: const EdgeInsets.all(6),
           child: Icon(
             icon,
-            color: Theme.of(context).primaryTextTheme.display3.color,
+            color: Theme.of(context).primaryTextTheme.displayMedium?.color,
             size: 15,
           ),
         ),
@@ -490,7 +490,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).accentTextTheme.subhead.color,
+                color: Theme.of(context).accentTextTheme.subtitle1?.color,
               ),
             ),
           ],
@@ -539,7 +539,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.subhead.color,
+                            color: Theme.of(context).accentTextTheme.subtitle1?.color,
                           ),
                         ),
                         Padding(
@@ -559,7 +559,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.subhead.color,
+                            color: Theme.of(context).accentTextTheme.subtitle1?.color,
                           ),
                         ),
                         Padding(

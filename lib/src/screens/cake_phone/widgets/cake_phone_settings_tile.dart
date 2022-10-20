@@ -18,7 +18,7 @@ class CakePhoneSettingsTile extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                color: Theme.of(context).accentTextTheme.subhead.color,
+                color: Theme.of(context).accentTextTheme.subtitle1?.color,
               ),
             ),
           Container(

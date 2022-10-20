@@ -162,7 +162,7 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
                 }
               },
               text: S.of(context).continue_text,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
               isDisabled: disabled,
             ),

@@ -18,7 +18,7 @@ class ReceiptRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).accentTextTheme.subhead.color,
+              color: Theme.of(context).accentTextTheme.subtitle1?.color,
             ),
           ),
           value,

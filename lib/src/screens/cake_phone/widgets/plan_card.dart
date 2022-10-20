@@ -21,14 +21,14 @@ class PlanCard extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
             colors: [
-              Theme.of(context).primaryTextTheme.subhead.color,
-              Theme.of(context).primaryTextTheme.subhead.decorationColor,
+              Theme.of(context).primaryTextTheme.subtitle1!.color!,
+              Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           )
               : null,
-          color: isSelected ? null : Theme.of(context).primaryTextTheme.display3.decorationColor,
+          color: isSelected ? null : Theme.of(context).primaryTextTheme.displayMedium?.decorationColor,
         ),
         child: Column(
           children: [
@@ -44,7 +44,7 @@ class PlanCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : Theme.of(context).accentTextTheme.subhead.color,
+                color: isSelected ? Colors.white : Theme.of(context).accentTextTheme.subtitle1?.color,
                 fontFamily: 'Lato',
               ),
             ),

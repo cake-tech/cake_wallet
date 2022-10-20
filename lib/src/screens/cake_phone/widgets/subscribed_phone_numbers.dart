@@ -50,7 +50,7 @@ class _SubscribedPhoneNumbersState extends State<SubscribedPhoneNumbers> {
           padding: EdgeInsets.all(5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(30)),
-            color: Theme.of(context).primaryTextTheme.display3.decorationColor,
+            color: Theme.of(context).primaryTextTheme.headline2?.decorationColor,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -96,8 +96,8 @@ class _SubscribedPhoneNumbersState extends State<SubscribedPhoneNumbers> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(30)),
           color: selected
-              ? Theme.of(context).accentTextTheme.body2.color
-              : Theme.of(context).primaryTextTheme.display3.decorationColor,
+              ? Theme.of(context).accentTextTheme.bodyText1?.color
+              : Theme.of(context).primaryTextTheme.headline2?.decorationColor,
         ),
         child: Text(
           title,
