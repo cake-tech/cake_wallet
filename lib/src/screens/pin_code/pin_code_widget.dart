@@ -1,22 +1,22 @@
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:flushbar/flushbar.dart';
+// import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class PinCodeWidget extends StatefulWidget {
   PinCodeWidget(
-      {Key key,
-      @required this.onFullPin,
-      @required this.initialPinLength,
-      this.onChangedPin,
-      this.onChangedPinLength,
-      this.hasLengthSwitcher})
+      {required Key key,
+      required this.onFullPin,
+      required this.initialPinLength,
+      required this.onChangedPin,
+      required this.hasLengthSwitcher,
+      this.onChangedPinLength,})
       : super(key: key);
 
   final void Function(String pin, PinCodeState state) onFullPin;
   final void Function(String pin) onChangedPin;
-  final void Function(int length) onChangedPinLength;
+  final void Function(int length)? onChangedPinLength;
   final bool hasLengthSwitcher;
   final int initialPinLength;
 
@@ -25,6 +25,11 @@ class PinCodeWidget extends StatefulWidget {
 }
 
 class PinCodeState<T extends PinCodeWidget> extends State<T> {
+  PinCodeState()
+    : _aspectRatio = 0,
+      pinLength = 0,
+      pin = '',
+      title = '';
   static const defaultPinLength = fourPinLength;
   static const sixPinLength = 6;
   static const fourPinLength = 4;
@@ -35,7 +40,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   String pin;
   String title;
   double _aspectRatio;
-  Flushbar<void> _progressBar;
+  // FIX-ME: Replace Flushbar
+  // Flushbar<void>? _progressBar;
 
   int currentPinLength() => pin.length;
 
@@ -72,7 +78,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
 
   void calculateAspectRatio() {
     final renderBox =
-        _gridViewKey.currentContext.findRenderObject() as RenderBox;
+        _gridViewKey.currentContext!.findRenderObject() as RenderBox;
     final cellWidth = renderBox.size.width / 3;
     final cellHeight = renderBox.size.height / 4;
 
@@ -85,18 +91,19 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
 
   void changeProcessText(String text) {
     hideProgressText();
-    _progressBar = createBar<void>(text, duration: null)
-      ..show(_key.currentContext);
+    // FIX-ME: Empty Duration,
+    // _progressBar = createBar<void>(text, duration: Duration())
+    //   ..show(_key.currentContext);
   }
 
   void close() {
-    _progressBar?.dismiss();
-    Navigator.of(_key.currentContext).pop();
+    // _progressBar?.dismiss();
+    Navigator.of(_key.currentContext!).pop();
   }
 
   void hideProgressText() {
-    _progressBar?.dismiss();
-    _progressBar = null;
+    // _progressBar?.dismiss();
+    // _progressBar = null;
   }
 
   @override
@@ -106,11 +113,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   Widget body(BuildContext context) {
     final deleteIconImage = Image.asset(
       'assets/images/delete_icon.png',
-      color: Theme.of(context).primaryTextTheme.title.color,
+      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
     );
     final faceImage = Image.asset(
       'assets/images/face.png',
-      color: Theme.of(context).primaryTextTheme.title.color,
+      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
     );
 
     return Container(
@@ -122,7 +129,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).primaryTextTheme.title.color)),
+                color: Theme.of(context).primaryTextTheme!.headline6!.color!)),
         Spacer(flex: 3),
         Container(
           width: 180,
@@ -138,11 +145,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isFilled
-                        ? Theme.of(context).primaryTextTheme.title.color
+                        ? Theme.of(context).primaryTextTheme!.headline6!.color!
                         : Theme.of(context)
-                            .accentTextTheme
-                            .body1
-                            .color
+                            .accentTextTheme!
+                            .bodyText2!
+                            .color!
                             .withOpacity(0.25),
                   ));
             }),
@@ -150,7 +157,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
         ),
         Spacer(flex: 2),
         if (widget.hasLengthSwitcher) ...[
-          FlatButton(
+          TextButton(
               onPressed: () {
                 changePinLength(pinLength == PinCodeState.fourPinLength
                     ? PinCodeState.sixPinLength
@@ -162,9 +169,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                     fontSize: 14.0,
                     fontWeight: FontWeight.normal,
                     color: Theme.of(context)
-                        .accentTextTheme
-                        .body1
-                        .decorationColor),
+                        .accentTextTheme!
+                        .bodyText2!
+                        .decorationColor!),
               ))
         ],
         Spacer(flex: 1),
@@ -186,7 +193,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                             return Container(
                               margin: EdgeInsets.only(
                                   left: marginLeft, right: marginRight),
-                              child: FlatButton(
+                              child: TextButton(
                                   onPressed: () => null,
                                   // (widget.hasLengthSwitcher ||
                                   //         !settingsStore
@@ -213,9 +220,10 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
 //                                          });
 //                                        }
 //                                       },
-                                  color: Theme.of(context).backgroundColor,
-                                  shape: CircleBorder(),
-                                  child: null
+                                  // FIX-ME: Style
+                                  //color: Theme.of(context).backgroundColor,
+                                  //shape: CircleBorder(),
+                                  child: Container()
                                   // (widget.hasLengthSwitcher ||
                                   //         !settingsStore
                                   //             .allowBiometricalAuthentication)
@@ -229,10 +237,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                             return Container(
                               margin: EdgeInsets.only(
                                   left: marginLeft, right: marginRight),
-                              child: FlatButton(
+                              child: TextButton(
                                 onPressed: () => _pop(),
-                                color: Theme.of(context).backgroundColor,
-                                shape: CircleBorder(),
+                                // FIX-ME: Style
+                                //color: Theme.of(context).backgroundColor,
+                                //shape: CircleBorder(),
                                 child: deleteIconImage,
                               ),
                             );
@@ -243,18 +252,19 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                           return Container(
                             margin: EdgeInsets.only(
                                 left: marginLeft, right: marginRight),
-                            child: FlatButton(
+                            child: TextButton(
                               onPressed: () => _push(index),
-                              color: Theme.of(context).backgroundColor,
-                              shape: CircleBorder(),
+                              // FIX-ME: Style
+                              //color: Theme.of(context).backgroundColor,
+                              //shape: CircleBorder(),
                               child: Text('$index',
                                   style: TextStyle(
                                       fontSize: 30.0,
                                       fontWeight: FontWeight.w600,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .title
-                                          .color)),
+                                          .primaryTextTheme!
+                                          .headline6!
+                                          .color!)),
                             ),
                           );
                         }),

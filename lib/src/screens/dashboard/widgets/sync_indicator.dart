@@ -6,7 +6,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class SyncIndicator extends StatelessWidget {
-  SyncIndicator({@required this.dashboardViewModel,this.onTap});
+  SyncIndicator({required this.dashboardViewModel, required this.onTap});
 
   final DashboardViewModel dashboardViewModel;
   final Function() onTap;
@@ -32,7 +32,7 @@ class SyncIndicator extends StatelessWidget {
           child: Container(
             height: 30,
             width: syncIndicatorWidth,
-            color: Theme.of(context).textTheme.title.decorationColor,
+            color: Theme.of(context).textTheme!.headline6!.decorationColor!,
             child: Stack(
               alignment: Alignment.center,
               children: <Widget>[
@@ -44,7 +44,7 @@ class SyncIndicator extends StatelessWidget {
                     child: Container(
                       width: indicatorWidth,
                       height: 30,
-                      color: Theme.of(context).textTheme.title.backgroundColor,
+                      color: Theme.of(context).textTheme!.headline6!.backgroundColor!,
                     )
                 )
                 : Offstage(),
@@ -66,7 +66,7 @@ class SyncIndicator extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.title.color
+                            color: Theme.of(context).textTheme!.headline6!.color!
                           ),
                         ),
                       )

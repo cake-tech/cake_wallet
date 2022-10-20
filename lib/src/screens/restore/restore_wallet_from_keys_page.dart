@@ -15,7 +15,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class RestoreWalletFromKeysPage extends BasePage {
   RestoreWalletFromKeysPage(
-      {@required this.walletRestorationFromKeysVM});
+      {required this.walletRestorationFromKeysVM});
 
   final WalletRestorationFromKeysVM walletRestorationFromKeysVM;
 
@@ -190,7 +190,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
         bottomSection: Observer(builder: (_) {
           return LoadingPrimaryButton(
             onPressed: () {
-              if (_formKey.currentState.validate()) {
+              if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                 /*walletRestorationStore.restoreFromKeys(
                     name: _nameController.text,
                     language: seedLanguageStore.selectedSeedLanguage,
@@ -201,7 +201,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
               }
             },
             text: S.of(context).restore_recover,
-            color: Theme.of(context).accentTextTheme.body2.color,
+            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
             textColor: Colors.white,
             //isDisabled: walletRestorationStore.disabledState,
           );

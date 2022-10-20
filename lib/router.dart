@@ -74,7 +74,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.da
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 
-RouteSettings currentRouteSettings;
+late RouteSettings currentRouteSettings;
 
 Route<dynamic> createRoute(RouteSettings settings) {
   currentRouteSettings = settings;
@@ -100,8 +100,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<NewWalletTypePage>(
               param1: (BuildContext context, WalletType type) =>
                   Navigator.of(context)
-                      .pushNamed(Routes.newWallet, arguments: type),
-              param2: false));
+                      .pushNamed(Routes.newWallet, arguments: type)));
 
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
@@ -111,7 +110,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => NewWalletPage(walletNewVM));
 
     case Routes.setupPin:
-      Function(PinCodeState<PinCodeWidget>, String) callback;
+      Function(PinCodeState<PinCodeWidget>, String)? callback;
 
       if (settings.arguments is Function(PinCodeState<PinCodeWidget>, String)) {
         callback =
@@ -286,8 +285,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (context) => WillPopScope(
               child: getIt.get<AuthPage>(instanceName: 'login'),
-              onWillPop: () =>
-                  SystemChannels.platform.invokeMethod('SystemNavigator.pop')),
+              onWillPop: () async =>
+              // FIX-ME: Additional check does it works correctly
+                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ?? false)),
           fullscreenDialog: true);
 
     case Routes.accountCreation:
@@ -306,7 +306,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<ContactPage>(
-              param1: settings.arguments as ContactRecord));
+              param1: settings.arguments as ContactRecord?));
 
     case Routes.showKeys:
       return MaterialPageRoute<void>(
@@ -475,6 +475,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(
               body: Center(
-                  child: Text(S.current.router_no_route(settings.name)))));
+                  child: Text(S.current.router_no_route(settings.name ?? 'No route')))));
   }
 }

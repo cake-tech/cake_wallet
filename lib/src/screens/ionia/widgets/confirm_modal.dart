@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 
 class IoniaConfirmModal extends StatelessWidget {
   IoniaConfirmModal({
-    @required this.alertTitle,
-    @required this.alertContent,
-    @required this.leftButtonText,
-    @required this.rightButtonText,
-    @required this.actionLeftButton,
-    @required this.actionRightButton,
-    this.leftActionColor,
-    this.rightActionColor,
+    required this.alertTitle,
+    required this.alertContent,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
+    required this.leftActionColor,
+    required this.rightActionColor,
     this.hideActions = false,
   });
 
@@ -57,7 +57,7 @@ class IoniaConfirmModal extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
         decoration: TextDecoration.none,
       ),
     );
@@ -78,7 +78,7 @@ class IoniaConfirmModal extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(30)),
                 child: Container(
                   width: 327,
-                  color: Theme.of(context).accentTextTheme.title.decorationColor,
+                  color: Theme.of(context).accentTextTheme!.headline6!.decorationColor!,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -109,9 +109,9 @@ class IoniaConfirmModal extends StatelessWidget {
 
 class IoniaActionButton extends StatelessWidget {
   const IoniaActionButton({
-    @required this.buttonText,
-    @required this.action,
-    this.backgoundColor,
+    required this.buttonText,
+    required this.action,
+    required this.backgoundColor,
   });
 
   final String buttonText;
@@ -127,10 +127,11 @@ class IoniaActionButton extends StatelessWidget {
       color: backgoundColor,
       child: ButtonTheme(
         minWidth: double.infinity,
-        child: FlatButton(
+        child: TextButton(
             onPressed: action,
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
+            // FIX-ME: ignored highlightColor and splashColor
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
             child: Text(
               buttonText,
               textAlign: TextAlign.center,
@@ -138,7 +139,7 @@ class IoniaActionButton extends StatelessWidget {
                 fontSize: 15,
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w600,
-                color: backgoundColor != null ? Colors.white : Theme.of(context).primaryTextTheme.body1.backgroundColor,
+                color: backgoundColor != null ? Colors.white : Theme.of(context).primaryTextTheme!.bodyText2!.backgroundColor!,
                 decoration: TextDecoration.none,
               ),
             )),

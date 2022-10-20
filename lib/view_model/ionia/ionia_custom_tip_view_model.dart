@@ -7,10 +7,13 @@ part 'ionia_custom_tip_view_model.g.dart';
 class IoniaCustomTipViewModel = IoniaCustomTipViewModelBase with _$IoniaCustomTipViewModel;
 
 abstract class IoniaCustomTipViewModelBase with Store {
-  IoniaCustomTipViewModelBase({this.amount, this.tip, this.ioniaMerchant}){
-    customTip = tip;
-    percentage = 0;
-  } 
+  IoniaCustomTipViewModelBase({
+    required this.amount,
+    required this.tip,
+    required this.ioniaMerchant})
+    : customTip = tip,
+      percentage = 0;
+      
   final IoniaMerchant ioniaMerchant;
   final double amount;
   final IoniaTip tip;

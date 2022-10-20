@@ -40,11 +40,31 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore, this.sharedPreferences) {
+      this.tradesStore, this._settingsStore, this.sharedPreferences)
+    : _cryptoNumberFormat = NumberFormat(),
+      isReverse = false,
+      isFixedRateMode = false,
+      isReceiveAmountEntered = false,
+      depositAmount = '',
+      receiveAmount = '',
+      receiveAddress = '',
+      depositAddress = '',
+      isDepositAddressEnabled = false,
+      isReceiveAddressEnabled = false,
+      isReceiveAmountEditable = false,
+      receiveCurrencies = <CryptoCurrency>[],
+      depositCurrencies = <CryptoCurrency>[],
+      limits = Limits(min: 0, max: 0),
+      tradeState = ExchangeTradeStateInitial(),
+      limitsState = LimitsInitialState(),
+      receiveCurrency = wallet.currency,
+      depositCurrency = wallet.currency,
+      providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()],
+      selectedProviders = ObservableList<ExchangeProvider>(),
+      currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>() {
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
       CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
-    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()];
     _initialPairBasedOnWallet();
 
     final Map<String, dynamic> exchangeProvidersSelection = json
@@ -70,12 +90,10 @@ abstract class ExchangeViewModelBase with Store {
     receiveAddress = '';
     depositAddress = depositCurrency == wallet.currency
         ? wallet.walletAddresses.address : '';
-    limitsState = LimitsInitialState();
-    tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = wallet.type == WalletType.bitcoin ? 8 : 12;
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
-    provider.checkIsAvailable().then((bool isAvailable) {
+    provider!.checkIsAvailable().then((bool isAvailable) {
       if (!isAvailable && provider == initialProvider) {
         provider = providerList.firstWhere(
             (provider) => provider is ChangeNowExchangeProvider,
@@ -89,9 +107,6 @@ abstract class ExchangeViewModelBase with Store {
     depositCurrencies = CryptoCurrency.all
       .where((cryptoCurrency) => !excludeDepositCurrencies.contains(cryptoCurrency))
       .toList();
-    isReverse = false;
-    isFixedRateMode = false;
-    isReceiveAmountEntered = false;
     _defineIsReceiveAmountEditable();
     loadLimits();
     reaction(
@@ -106,7 +121,7 @@ abstract class ExchangeViewModelBase with Store {
   final SharedPreferences sharedPreferences;
 
   @observable
-  ExchangeProvider provider;
+  ExchangeProvider? provider;
 
   /// Maps in dart are not sorted by default
   /// SplayTreeMap is a map sorted by keys
@@ -192,10 +207,10 @@ abstract class ExchangeViewModelBase with Store {
 
   double _bestRate = 0.0;
 
-  Timer bestRateSync;
+  late Timer bestRateSync;
 
   @action
-  void changeDepositCurrency({CryptoCurrency currency}) {
+  void changeDepositCurrency({required CryptoCurrency currency}) {
     depositCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
@@ -204,7 +219,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  void changeReceiveCurrency({CryptoCurrency currency}) {
+  void changeReceiveCurrency({required CryptoCurrency currency}) {
     receiveCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
@@ -213,7 +228,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  Future<void> changeReceiveAmount({String amount}) async {
+  Future<void> changeReceiveAmount({required String amount}) async {
     receiveAmount = amount;
     isReverse = true;
 
@@ -238,7 +253,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  Future<void> changeDepositAmount({String amount}) async {
+  Future<void> changeDepositAmount({required String amount}) async {
     depositAmount = amount;
     isReverse = false;
 
@@ -303,7 +318,7 @@ abstract class ExchangeViewModelBase with Store {
         : receiveCurrency;
 
     double lowestMin = double.maxFinite;
-    double highestMax = 0.0;
+    double? highestMax = 0.0;
 
     for (var provider in selectedProviders) {
       /// if this provider is not valid for the current pair, skip it
@@ -338,9 +353,9 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  Future createTrade() async {
-    TradeRequest request;
-    String amount;
+  Future<void> createTrade() async {
+    TradeRequest? request;
+    String amount = '';
 
     for (var provider in _sortedAvailableProviders.values) {
       if (!(await provider.checkIsAvailable())) {
@@ -351,7 +366,7 @@ abstract class ExchangeViewModelBase with Store {
         request = SideShiftRequest(
           depositMethod: depositCurrency,
           settleMethod: receiveCurrency,
-          depositAmount: depositAmount?.replaceAll(',', '.'),
+          depositAmount: depositAmount?.replaceAll(',', '.') ?? '',
           settleAddress: receiveAddress,
           refundAddress: depositAddress,
         );
@@ -362,7 +377,7 @@ abstract class ExchangeViewModelBase with Store {
         request = SimpleSwapRequest(
           from: depositCurrency,
           to: receiveCurrency,
-          amount: depositAmount?.replaceAll(',', '.'),
+          amount: depositAmount?.replaceAll(',', '.') ?? '',
           address: receiveAddress,
           refundAddress: depositAddress,
         );
@@ -373,8 +388,8 @@ abstract class ExchangeViewModelBase with Store {
         request = XMRTOTradeRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            amount: depositAmount?.replaceAll(',', '.'),
-            receiveAmount: receiveAmount?.replaceAll(',', '.'),
+            amount: depositAmount?.replaceAll(',', '.') ?? '',
+            receiveAmount: receiveAmount?.replaceAll(',', '.') ?? '',
             address: receiveAddress,
             refundAddress: depositAddress,
             isBTCRequest: isReceiveAmountEntered);
@@ -385,8 +400,8 @@ abstract class ExchangeViewModelBase with Store {
         request = ChangeNowRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            fromAmount: depositAmount?.replaceAll(',', '.'),
-            toAmount: receiveAmount?.replaceAll(',', '.'),
+            fromAmount: depositAmount?.replaceAll(',', '.') ?? '',
+            toAmount: receiveAmount?.replaceAll(',', '.') ?? '',
             refundAddress: depositAddress,
             address: receiveAddress,
             isReverse: isReverse);
@@ -397,7 +412,7 @@ abstract class ExchangeViewModelBase with Store {
         request = MorphTokenRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            amount: depositAmount?.replaceAll(',', '.'),
+            amount: depositAmount?.replaceAll(',', '.') ?? '',
             refundAddress: depositAddress,
             address: receiveAddress);
         amount = depositAmount;
@@ -406,15 +421,15 @@ abstract class ExchangeViewModelBase with Store {
       amount = amount.replaceAll(',', '.');
 
       if (limitsState is LimitsLoadedSuccessfully && amount != null) {
-        if (double.parse(amount) < limits.min) {
+        if (double.parse(amount) < limits.min!) {
           continue;
-        } else if (limits.max != null && double.parse(amount) > limits.max) {
+        } else if (limits.max != null && double.parse(amount) > limits.max!) {
           continue;
         } else {
           try {
             tradeState = TradeIsCreating();
             final trade = await provider.createTrade(
-                request: request, isFixedRateMode: isFixedRateMode);
+                request: request!, isFixedRateMode: isFixedRateMode);
             trade.walletId = wallet.id;
             tradesStore.setTrade(trade);
             await trades.add(trade);
@@ -422,7 +437,6 @@ abstract class ExchangeViewModelBase with Store {
             /// return after the first successful trade
             return;
           } catch (e) {
-            print(e);
             continue;
           }
         }
@@ -454,8 +468,8 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void calculateDepositAllAmount() {
     if (wallet.type == WalletType.bitcoin) {
-      final availableBalance = wallet.balance[wallet.currency].available;
-      final priority = _settingsStore.priority[wallet.type];
+      final availableBalance = wallet.balance[wallet.currency]!.available;
+      final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);
 
       if (availableBalance < fee || availableBalance == 0) {
@@ -463,19 +477,19 @@ abstract class ExchangeViewModelBase with Store {
       }
 
       final amount = availableBalance - fee;
-      changeDepositAmount(amount: bitcoin.formatterBitcoinAmountToString(amount: amount));
+      changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
     }
   }
 
   void updateTemplate() => _exchangeTemplateStore.update();
 
   void addTemplate(
-          {String amount,
-          String depositCurrency,
-          String receiveCurrency,
-          String provider,
-          String depositAddress,
-          String receiveAddress}) =>
+          {required String amount,
+          required String depositCurrency,
+          required String receiveCurrency,
+          required String provider,
+          required String depositAddress,
+          required String receiveAddress}) =>
       _exchangeTemplateStore.addTemplate(
           amount: amount,
           depositCurrency: depositCurrency,
@@ -484,7 +498,7 @@ abstract class ExchangeViewModelBase with Store {
           depositAddress: depositAddress,
           receiveAddress: receiveAddress);
 
-  void removeTemplate({ExchangeTemplate template}) =>
+  void removeTemplate({required ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);
 
   List<ExchangeProvider> providersForCurrentPair() {
@@ -492,7 +506,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   List<ExchangeProvider> _providersForPair(
-      {CryptoCurrency from, CryptoCurrency to}) {
+      {required CryptoCurrency from, required CryptoCurrency to}) {
     final providers = providerList
         .where((provider) => provider.pairList
             .where((pair) =>

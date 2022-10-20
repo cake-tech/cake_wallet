@@ -26,9 +26,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
-    @required this.balancePage,
-    @required this.walletViewModel,
-    @required this.addressListViewModel,
+    required this.balancePage,
+    required this.walletViewModel,
+    required this.addressListViewModel,
   });
   final BalancePage balancePage;
   
@@ -66,15 +66,16 @@ class DashboardPage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset('assets/images/menu.png',
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
 
     return Container(
         alignment: Alignment.centerRight,
         width: 40,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => onOpenEndDrawer(),
             child: menuButton));
   }
@@ -85,18 +86,18 @@ class DashboardPage extends BasePage {
 
   var pages = <Widget>[];
   bool _isEffectsInstalled = false;
-  StreamSubscription<bool> _onInactiveSub;
+  StreamSubscription<bool>? _onInactiveSub;
 
   @override
   Widget body(BuildContext context) {
     final sendImage = Image.asset('assets/images/upload.png',
         height: 24,
         width: 24,
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
     final receiveImage = Image.asset('assets/images/received.png',
         height: 24,
         width: 24,
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
     _setEffects(context);
 
     return SafeArea(
@@ -121,9 +122,9 @@ class DashboardPage extends BasePage {
                   dotHeight: 6.0,
                   dotColor: Theme.of(context).indicatorColor,
                   activeDotColor: Theme.of(context)
-                      .accentTextTheme
-                      .display1
-                      .backgroundColor),
+                      .accentTextTheme!
+                      .headline4!
+                      .backgroundColor!),
             )),
         Observer(builder: (_) {
           return ClipRect(
@@ -133,7 +134,7 @@ class DashboardPage extends BasePage {
               decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50.0),
                     border: Border.all(color: currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
-                    color:Theme.of(context).textTheme.title.backgroundColor),
+                    color:Theme.of(context).textTheme!.headline6!.backgroundColor!),
                 child: Container(
                   padding: EdgeInsets.only(left: 32, right: 32),
                   child: Row(
@@ -146,17 +147,17 @@ class DashboardPage extends BasePage {
                         width: 24,
                         color: !walletViewModel.isEnabledBuyAction
                           ? Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor
-                          : Theme.of(context).accentTextTheme.display3.backgroundColor),
+                              .accentTextTheme!
+                              .headline3!
+                              .backgroundColor!
+                          : Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
                       title: S.of(context).buy,
                       onClick: () async => await _onClickBuyButton(context),
                       textColor: !walletViewModel.isEnabledBuyAction
                         ? Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .backgroundColor
+                          .accentTextTheme!
+                          .headline3!
+                          .backgroundColor!
                         : null),  
                   ActionButton(
                       image: receiveImage,
@@ -169,17 +170,17 @@ class DashboardPage extends BasePage {
                         width: 24,
                         color: !walletViewModel.isEnabledExchangeAction
                           ? Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor
-                          : Theme.of(context).accentTextTheme.display3.backgroundColor),
+                              .accentTextTheme!
+                              .headline3!
+                              .backgroundColor!
+                          : Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
                       title: S.of(context).exchange,
                       onClick: () async => _onClickExchangeButton(context),
                       textColor: !walletViewModel.isEnabledExchangeAction
                         ? Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .backgroundColor
+                          .accentTextTheme!
+                          .headline3!
+                          .backgroundColor!
                         : null),
                   ActionButton(
                       image: sendImage,
@@ -192,17 +193,17 @@ class DashboardPage extends BasePage {
                         width: 24,
                         color: !walletViewModel.isEnabledSellAction
                           ? Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor
-                          : Theme.of(context).accentTextTheme.display3.backgroundColor),
+                              .accentTextTheme!
+                              .headline3!
+                              .backgroundColor!
+                          : Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
                       title: S.of(context).sell,
                       onClick: () async => await _onClickSellButton(context),
                       textColor: !walletViewModel.isEnabledSellAction
                         ? Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .backgroundColor
+                          .accentTextTheme!
+                          .headline3!
+                          .backgroundColor!
                         : null),
                 ],
               ),),
@@ -243,13 +244,13 @@ class DashboardPage extends BasePage {
     var needToPresentYat = false;
     var isInactive = false;
 
-    _onInactiveSub = rootKey.currentState.isInactive.listen((inactive) {
+    _onInactiveSub = rootKey.currentState!.isInactive.listen((inactive) {
       isInactive = inactive;
 
       if (needToPresentYat) {
         Future<void>.delayed(Duration(milliseconds: 500)).then((_) {
           showPopUp<void>(
-              context: navigatorKey.currentContext,
+              context: navigatorKey.currentContext!,
               builder: (_) => YatEmojiId(walletViewModel.yatStore.emoji));
           needToPresentYat = false;
         });

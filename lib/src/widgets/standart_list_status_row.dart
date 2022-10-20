@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class StandartListStatusRow extends StatelessWidget {
-  StandartListStatusRow({this.title, this.value});
+  StandartListStatusRow({required this.title, required this.value});
 
   final String title;
   final String value;
@@ -24,13 +24,13 @@ class StandartListStatusRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme.overline.color),
+                      color: Theme.of(context).primaryTextTheme!.overline!.color!),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).accentTextTheme.display2.color,
+                    color: Theme.of(context).accentTextTheme!.headline3!.color!,
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: Padding(
@@ -51,9 +51,9 @@ class StandartListStatusRow extends StatelessWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color))
+                                    .primaryTextTheme!
+                                    .headline6!
+                                    .color!))
                       ],
                     ),
                   ),

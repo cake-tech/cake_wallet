@@ -5,11 +5,11 @@ part 'unspent_coins_info.g.dart';
 @HiveType(typeId: UnspentCoinsInfo.typeId)
 class UnspentCoinsInfo extends HiveObject {
   UnspentCoinsInfo({
-    this.walletId,
-    this.hash,
-    this.isFrozen,
-    this.isSending,
-    this.note});
+    required this.walletId,
+    required this.hash,
+    required this.isFrozen,
+    required this.isSending,
+    required this.note});
 
   static const typeId = 9;
   static const boxName = 'Unspent';

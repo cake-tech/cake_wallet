@@ -14,18 +14,18 @@ class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCo
 
 abstract class UnspentCoinsListViewModelBase with Store {
   UnspentCoinsListViewModelBase({
-    @required this.wallet,
-    @required Box<UnspentCoinsInfo> unspentCoinsInfo}) {
-    _unspentCoinsInfo = unspentCoinsInfo;
-    bitcoin.updateUnspents(wallet);
+    required this.wallet,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo})
+    : _unspentCoinsInfo = unspentCoinsInfo {
+    bitcoin!.updateUnspents(wallet);
   }
 
   WalletBase wallet;
   Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
   @computed
-  ObservableList<UnspentCoinsItem> get items => ObservableList.of(bitcoin.getUnspents(wallet).map((elem) {
-      final amount = bitcoin.formatterBitcoinAmountToString(amount: elem.value) +
+  ObservableList<UnspentCoinsItem> get items => ObservableList.of(bitcoin!.getUnspents(wallet).map((elem) {
+      final amount = bitcoin!.formatterBitcoinAmountToString(amount: elem.value) +
           ' ${wallet.currency.title}';
   
      final info = _unspentCoinsInfo.values
@@ -52,7 +52,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       info.note = item.note;
 
       await info.save();
-      bitcoin.updateUnspents(wallet);
+      bitcoin!.updateUnspents(wallet);
     } catch (e) {
       print(e.toString());
     }
