@@ -256,10 +256,10 @@ class WalletListBodyState extends State<WalletListBody> {
             return AlertWithTwoActions(
               alertTitle: S.of(context).delete_wallet,
               alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
-              rightButtonText: S.of(context).cancel,
-              leftButtonText: S.of(context).delete,
-              actionRightButton: () => Navigator.of(context).pop(),
-              actionLeftButton: () {
+              leftButtonText: S.of(context).cancel,
+              rightButtonText: S.of(context).delete,
+              actionLeftButton: () => Navigator.of(context).pop(),
+              actionRightButton: () {
                 confirmed = true;
                 Navigator.of(context).pop();
               },
