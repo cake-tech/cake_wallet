@@ -93,7 +93,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
     final response = await post(uri, headers: headers, body: json.encode(body));
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       if (response.statusCode == 400) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['message'] as String;
@@ -217,7 +217,13 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.bnb:
         return currency.tag!.toLowerCase();
       case CryptoCurrency.usdterc20:
-        return 'usdterc';
+        return 'usdterc20';
+      case CryptoCurrency.usdttrc20:
+        return 'usdttrc20';
+      case CryptoCurrency.usdcpoly:
+        return 'usdcpoly';
+      case CryptoCurrency.usdcsol:
+        return 'usdcspl';
       default:
         return currency.title.toLowerCase();
     }
