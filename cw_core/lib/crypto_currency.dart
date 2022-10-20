@@ -5,12 +5,17 @@ part 'crypto_currency.g.dart';
 
 @HiveType(typeId: 0)
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
-  const CryptoCurrency({final String title, this.tag, this.name, this.iconPath, final int raw})
+  const CryptoCurrency({
+    String title = '',
+    int raw = -1,
+    this.name,
+    this.iconPath,
+    this.tag,})
       : super(title: title, raw: raw);
 
-  final String tag;
-  final String name;
-  final String iconPath;
+  final String? tag;
+  final String? name;
+  final String? iconPath;
 
   static const all = [
     CryptoCurrency.xmr,
@@ -134,7 +139,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
 
 
 
-  static CryptoCurrency deserialize({int raw}) {
+  static CryptoCurrency deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return CryptoCurrency.xmr;
@@ -263,7 +268,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
       case 62:
         return CryptoCurrency.stx;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for CryptoCurrency deserialize');
     }
   }
 
@@ -396,7 +401,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
       case 'stx':
         return CryptoCurrency.stx;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for CryptoCurrency fromString');
     }
   }
 

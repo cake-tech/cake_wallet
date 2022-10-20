@@ -16,7 +16,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 
 class MorphTokenExchangeProvider extends ExchangeProvider {
-  MorphTokenExchangeProvider({@required this.trades})
+  MorphTokenExchangeProvider({required this.trades})
       : super(pairList: [
           ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.eth),
           ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.bch),
@@ -74,8 +74,12 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode}) async {
     final url = apiUri + _limitsURISuffix;
+    final uri = Uri.parse(url);
     final headers = {'Content-type': 'application/json'};
     final body = json.encode({
       "input": {"asset": from.toString()},
@@ -83,11 +87,11 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         {"asset": to.toString(), "weight": weight}
       ]
     });
-    final response = await post(url, headers: headers, body: body);
+    final response = await post(uri, headers: headers, body: body);
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     final min = responseJSON['input']['limits']['min'] as int;
-    int max;
+    int max = 0;
     double ethMax;
 
     if (from == CryptoCurrency.eth) {
@@ -96,14 +100,16 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
       max = responseJSON['input']['limits']['max'] as int;
     }
 
-    double minFormatted = AmountConverter.amountIntToDouble(from, min);
-    double maxFormatted = AmountConverter.amountIntToDouble(from, max);
+    final minFormatted = AmountConverter.amountIntToDouble(from, min);
+    final maxFormatted = AmountConverter.amountIntToDouble(from, max);
 
     return Limits(min: minFormatted, max: maxFormatted);
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode}) async {
     const url = apiUri + _morphURISuffix;
     final _request = request as MorphTokenRequest;
     final body = {
@@ -120,8 +126,8 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
       ],
       "tag": "cakewallet"
     };
-
-    final response = await post(url,
+    final uri = Uri.parse(url);
+    final response = await post(uri,
         headers: {'Content-Type': 'application/json'}, body: json.encode(body));
 
     if (response.statusCode != 200) {
@@ -149,9 +155,10 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({@required String id}) async {
+  Future<Trade> findTradeById({required String id}) async {
     final url = apiUri + _morphURISuffix + '/' + id;
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       if (response.statusCode == 400) {
@@ -194,17 +201,21 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount, bool isFixedRateMode,
-        bool isReceiveAmount}) async {
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     final url = apiUri + _ratesURISuffix;
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final rate = responseJSON['data'][from.toString()][to.toString()] as String;
 
     try {
       final estimatedAmount = double.parse(rate) * amount;
       return estimatedAmount;
-    } catch (e) {
+    } catch (_) {
       return 0.0;
     }
   }

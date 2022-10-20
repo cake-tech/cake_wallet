@@ -6,47 +6,42 @@ enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed }
 
 class ParsedAddress {
   ParsedAddress({
-    this.addresses,
+    required this.addresses,
     this.name = '',
     this.description = '',
     this.parseFrom = ParseFrom.notParsed,
   });
-
-  final List<String> addresses;
-  final String name;
-  final String description;
-  final ParseFrom parseFrom;
   
   factory ParsedAddress.fetchEmojiAddress({
-    @required List<YatRecord> addresses, 
-    @required String name,
+    List<YatRecord>? addresses, 
+    required String name,
     }){
       if (addresses?.isEmpty ?? true) {
         return ParsedAddress(
           addresses: [name], parseFrom: ParseFrom.yatRecord);
-        }
+      }
       return ParsedAddress(
-        addresses: addresses.map((e) => e.address).toList(),
+        addresses: addresses!.map((e) => e.address).toList(),
         name: name,
         parseFrom: ParseFrom.yatRecord,
       );
   }
 
   factory ParsedAddress.fetchUnstoppableDomainAddress({
-    @required String address, 
-    @required String name,
+    String? address, 
+    required String name,
   }){
-    if (address?.isEmpty ?? true) {
+      if (address?.isEmpty ?? true) {
         return ParsedAddress(addresses: [name]);
       }
       return ParsedAddress(
-        addresses: [address],
+        addresses: [address!],
         name: name,
         parseFrom: ParseFrom.unstoppableDomains,
       );
   }
 
-  factory ParsedAddress.fetchOpenAliasAddress({@required OpenaliasRecord record, @required String name}){
+  factory ParsedAddress.fetchOpenAliasAddress({OpenaliasRecord? record, required String name}){
     final formattedName = OpenaliasRecord.formatDomainName(name);
     if (record == null || record.address.contains(formattedName)) {
         return ParsedAddress(addresses: [name]);
@@ -59,12 +54,16 @@ class ParsedAddress {
       );
   }
 
-  factory ParsedAddress.fetchFioAddress({@required String address, @required String name}){
-
+  factory ParsedAddress.fetchFioAddress({required String address, required String name}){
     return ParsedAddress(
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.fio,
     );
   }
+
+  final List<String> addresses;
+  final String name;
+  final String description;
+  final ParseFrom parseFrom;
 }

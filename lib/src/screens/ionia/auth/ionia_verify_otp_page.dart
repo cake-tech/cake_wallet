@@ -41,7 +41,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
     return Text(
       S.current.verification,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -62,7 +62,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme.body2.backgroundColor,
+          keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -119,7 +119,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
                       onPressed: () async => await _authViewModel.verifyEmail(_codeController.text),
                       isDisabled: _authViewModel.otpState is IoniaOtpSendDisabled,
                       isLoading: _authViewModel.otpState is IoniaOtpValidating,
-                      color: Theme.of(context).accentTextTheme.body2.color,
+                      color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                       textColor: Colors.white,
                     ),
                   ),

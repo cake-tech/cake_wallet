@@ -4,9 +4,8 @@ part 'ionia_custom_redeem_view_model.g.dart';
 class IoniaCustomRedeemViewModel = IoniaCustomRedeemViewModelBase with _$IoniaCustomRedeemViewModel;
 
 abstract class IoniaCustomRedeemViewModelBase with Store {
-  IoniaCustomRedeemViewModelBase(this.giftCard){
-    amount = 0;
-  }
+  IoniaCustomRedeemViewModelBase(this.giftCard)
+    : amount = 0;
 
   final IoniaGiftCard giftCard;
 

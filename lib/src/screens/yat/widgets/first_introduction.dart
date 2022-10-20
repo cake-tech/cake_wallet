@@ -9,10 +9,10 @@ import 'package:lottie/lottie.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class FirstIntroduction extends StatelessWidget {
-  FirstIntroduction({this.onClose, this.onNext});
+  FirstIntroduction({required this.onNext, this.onClose});
 
   static const aspectRatioImage = 1.133;
-  final VoidCallback onClose;
+  final VoidCallback? onClose;
   final VoidCallback onNext;
   final animation = Lottie.asset('assets/animation/anim1.json');
 

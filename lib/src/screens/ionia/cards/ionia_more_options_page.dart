@@ -16,7 +16,7 @@ class IoniaMoreOptionsPage extends BasePage {
     return Text(
       S.current.more_options,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -30,7 +30,7 @@ class IoniaMoreOptionsPage extends BasePage {
           children: [
             SizedBox(height: 10,),
             Center(child: Text(S.of(context).choose_from_available_options, style: textMedium(
-              color:  Theme.of(context).primaryTextTheme.title.color,
+              color:  Theme.of(context).primaryTextTheme!.headline6!.color!,
             ),)),
             SizedBox(height: 40,),
             InkWell(
@@ -58,22 +58,17 @@ class IoniaMoreOptionsPage extends BasePage {
 
 class _GradiantContainer extends StatelessWidget {
   const _GradiantContainer({
-    Key key,
-    @required this.content,
-    this.padding,
-    this.width,
+    Key? key,
+    required this.content
   }) : super(key: key);
 
   final Widget content;
-  final EdgeInsets padding;
-  final double width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: content,
-      width: width,
-      padding: padding ?? EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(

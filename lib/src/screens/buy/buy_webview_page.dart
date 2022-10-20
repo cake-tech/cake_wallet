@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class BuyWebViewPage extends BasePage {
-  BuyWebViewPage({@required this.buyViewModel,
-      @required this.ordersStore, @required this.url});
+  BuyWebViewPage({required this.buyViewModel,
+      required this.ordersStore, required this.url});
 
   final OrdersStore ordersStore;
   final String url;
@@ -34,10 +34,10 @@ class BuyWebViewPage extends BasePage {
 }
 
 class BuyWebViewPageBody extends StatefulWidget {
-  BuyWebViewPageBody(this.buyViewModel, {this.ordersStore, this.url});
+  BuyWebViewPageBody(this.buyViewModel, {required this.ordersStore, this.url});
 
   final OrdersStore ordersStore;
-  final String url;
+  final String? url;
   final BuyViewModel buyViewModel;
 
   @override
@@ -45,12 +45,16 @@ class BuyWebViewPageBody extends StatefulWidget {
 }
 
 class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
+  BuyWebViewPageBodyState()
+    : _webViewkey = GlobalKey(),
+      _isSaving = false,
+      orderId = '';
+
   String orderId;
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
   GlobalKey _webViewkey;
-  Timer _timer;
+  Timer? _timer;
   bool _isSaving;
-  BuyProvider _provider;
 
   @override
   void initState() {
@@ -58,15 +62,14 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
     _webViewkey = GlobalKey();
     _isSaving = false;
     widget.ordersStore.orderId = '';
-    _provider = widget.buyViewModel.selectedProvider;
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
 
-    if (_provider is WyreBuyProvider) {
+    if (widget.buyViewModel.selectedProvider is WyreBuyProvider) {
       _saveOrder(keyword: 'completed', splitSymbol: '/');
     }
 
-    if (_provider is MoonPayBuyProvider) {
+    if (widget.buyViewModel.selectedProvider is MoonPayBuyProvider) {
       _saveOrder(keyword: 'transactionId', splitSymbol: '=');
     }
   }
@@ -81,7 +84,7 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
             setState(() => _webViewController = controller));
   }
 
-  void _saveOrder({String keyword, String splitSymbol}) {
+  void _saveOrder({required String keyword, required String splitSymbol}) {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
 
@@ -90,10 +93,14 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
           return;
         }
 
-        final url = await _webViewController.currentUrl();
+        final url = await _webViewController!.currentUrl();
 
-        if (url.contains(keyword)) {
-          final urlParts = url.split(splitSymbol);
+        if (url == null) {
+          throw Exception('_saveOrder: Url is null');
+        }
+
+        if (url!.contains(keyword)) {
+          final urlParts = url!.split(splitSymbol);
           orderId = urlParts.last;
           widget.ordersStore.orderId = orderId;
 

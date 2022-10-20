@@ -16,8 +16,8 @@ class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(this._walletInfoSource, this._appStore,
-      this._walletLoadingService) {
-    wallets = ObservableList<WalletListItem>();
+      this._walletLoadingService)
+  : wallets = ObservableList<WalletListItem>() {
     _updateList();
   }
 
@@ -28,7 +28,7 @@ abstract class WalletListViewModelBase with Store {
   final Box<WalletInfo> _walletInfoSource;
   final WalletLoadingService _walletLoadingService;
 
-  WalletType get currentWalletType => _appStore.wallet.type;
+  WalletType get currentWalletType => _appStore.wallet!.type;
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
@@ -51,8 +51,8 @@ abstract class WalletListViewModelBase with Store {
         name: info.name,
         type: info.type,
         key: info.key,
-        isCurrent: info.name == _appStore.wallet.name &&
-            info.type == _appStore.wallet.type,
+        isCurrent: info.name == _appStore.wallet!.name &&
+            info.type == _appStore.wallet!.type,
         isEnabled: availableWalletTypes.contains(info.type))));
   }
 }

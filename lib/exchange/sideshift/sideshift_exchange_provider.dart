@@ -60,11 +60,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from,
-      CryptoCurrency to,
-      double amount,
-      bool isFixedRateMode,
-      bool isReceiveAmount}) async {
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) {
         return 0.0;
@@ -73,7 +73,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final toCurrency = _normalizeCryptoCurrency(to);
       final url =
           apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
-      final response = await get(url);
+      final uri = Uri.parse(url);
+      final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final rate = double.parse(responseJSON['rate'] as String);
       final max = double.parse(responseJSON['max'] as String);
@@ -91,7 +92,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async {
     const url = apiBaseUrl + permissionPath;
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -112,7 +114,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade(
-      {TradeRequest request, bool isFixedRateMode}) async {
+      {required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
     final quoteId = await _createQuote(_request);
     final url = apiBaseUrl + orderPath;
@@ -124,7 +126,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       'settleAddress': _request.settleAddress,
       'refundAddress': _request.refundAddress
     };
-    final response = await post(url, headers: headers, body: json.encode(body));
+    final uri = Uri.parse(url);
+    final response = await post(uri, headers: headers, body: json.encode(body));
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -166,7 +169,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       'affiliateId': affiliateId,
       'depositAmount': request.depositAmount,
     };
-    final response = await post(url, headers: headers, body: json.encode(body));
+    final uri = Uri.parse(url);
+    final response = await post(uri, headers: headers, body: json.encode(body));
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -187,11 +191,14 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Limits> fetchLimits(
-      {CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required bool isFixedRateMode}) async {
     final fromCurrency = _normalizeCryptoCurrency(from);
     final toCurrency = _normalizeCryptoCurrency(to);
     final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -201,20 +208,21 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min = double.parse(responseJSON['min'] as String);
-    final max = double.parse(responseJSON['max'] as String);
+    final min = double.tryParse(responseJSON['min'] as String? ?? '');
+    final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
     return Limits(min: min, max: max);
   }
 
   @override
-  Future<Trade> findTradeById({@required String id}) async {
+  Future<Trade> findTradeById({required String id}) async {
     final url = apiBaseUrl + orderPath + '/' + id;
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
@@ -229,7 +237,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -239,8 +247,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final to = CryptoCurrency.fromString(toCurrency);
     final inputAddress = responseJSON['depositAddress']['address'] as String;
     final expectedSendAmount = responseJSON['depositAmount'].toString();
-    final deposits = responseJSON['deposits'] as List;
-    TradeState state;
+    final deposits = responseJSON['deposits'] as List?;
+    TradeState? state;
 
     if (deposits != null && deposits.isNotEmpty) {
       final status = deposits[0]['status'] as String;
@@ -279,7 +287,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.zec:
         return 'zec';
       case CryptoCurrency.bnb:
-        return currency.tag.toLowerCase();
+        return currency.tag!.toLowerCase();
       case CryptoCurrency.usdterc20:
         return 'usdtErc20';
       case CryptoCurrency.usdttrc20:

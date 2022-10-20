@@ -8,18 +8,23 @@ part 'order.g.dart';
 @HiveType(typeId: Order.typeId)
 class Order extends HiveObject {
   Order(
-      {this.id,
-        BuyProviderDescription provider,
-        this.transferId,
+      {required this.id,
+        required this.transferId,
+        required this.createdAt,
+        required this.amount,
+        required this.receiveAddress,
+        required this.walletId,
+        BuyProviderDescription? provider,
+        TradeState? state,
         this.from,
-        this.to,
-        TradeState state,
-        this.createdAt,
-        this.amount,
-        this.receiveAddress,
-        this.walletId})
-      : providerRaw = provider?.raw,
-        stateRaw = state?.raw;
+        this.to}) {
+      if (provider != null) {
+        providerRaw = provider.raw;
+      }
+      if (state != null) {
+        stateRaw = state.raw;
+      }
+    }
 
   static const typeId = 8;
   static const boxName = 'Orders';
@@ -32,13 +37,13 @@ class Order extends HiveObject {
   String transferId;
 
   @HiveField(2)
-  String from;
+  String? from;
 
   @HiveField(3)
-  String to;
+  String? to;
 
   @HiveField(4)
-  String stateRaw;
+  late String stateRaw;
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
 
@@ -55,7 +60,7 @@ class Order extends HiveObject {
   String walletId;
 
   @HiveField(9)
-  int providerRaw;
+  late int providerRaw;
 
   BuyProviderDescription get provider =>
       BuyProviderDescription.deserialize(raw: providerRaw);

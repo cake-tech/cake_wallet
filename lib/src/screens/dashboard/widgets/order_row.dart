@@ -4,23 +4,23 @@ import 'package:flutter/material.dart';
 
 class OrderRow extends StatelessWidget {
   OrderRow({
-    @required this.onTap,
-    @required this.provider,
-    this.from,
-    this.to,
-    this.createdAtFormattedDate,
+    required this.provider,
+    required this.from,
+    required this.to,
+    required this.createdAtFormattedDate,
+    this.onTap,
     this.formattedAmount});
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final BuyProviderDescription provider;
   final String from;
   final String to;
   final String createdAtFormattedDate;
-  final String formattedAmount;
+  final String? formattedAmount;
 
   @override
   Widget build(BuildContext context) {
     final iconColor =
-        Theme.of(context).primaryTextTheme.display4.backgroundColor;
+        Theme.of(context).primaryTextTheme!.headline1!.backgroundColor!;
 
     final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
 
@@ -48,16 +48,14 @@ class OrderRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor
+                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
                                 )),
                             formattedAmount != null
-                                ? Text(formattedAmount + ' ' + to,
+                                ? Text(formattedAmount! + ' ' + to,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor
+                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
                                 ))
                                 : Container()
                           ]),
@@ -68,8 +66,8 @@ class OrderRow extends StatelessWidget {
                             Text(createdAtFormattedDate,
                                 style: TextStyle(
                                     fontSize: 14,
-                                    color: Theme.of(context).textTheme
-                                        .overline.backgroundColor))
+                                    color: Theme.of(context).textTheme!
+                                        .overline!.backgroundColor!))
                           ])
                     ],
                   )
