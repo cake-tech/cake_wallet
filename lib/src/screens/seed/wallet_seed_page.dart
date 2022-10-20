@@ -6,7 +6,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:share/share.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -160,11 +160,7 @@ class WalletSeedPage extends BasePage {
                               padding: EdgeInsets.only(right: 8.0),
                               child: PrimaryButton(
                                   onPressed: () {
-                                    // FIX-ME: Share esys_flutter_share
-                                    // Share.text(
-                                    //   S.of(context).seed_share,
-                                    //   walletSeedViewModel.seed,
-                                    //   'text/plain')
+                                    Share.share(walletSeedViewModel.seed);
                                   },
                                   text: S.of(context).save,
                                   color: Colors.green,
