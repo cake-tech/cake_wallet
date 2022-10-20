@@ -643,5 +643,7 @@
   "choose_from_available_options": "Выберите из доступных вариантов:",
   "custom_redeem_amount": "Пользовательская сумма погашения",
   "add_custom_redemption": "Добавить пользовательское погашение",
-  "remaining": "осталось"
+  "remaining": "осталось",
+  "delete_wallet": "Удалить кошелек",
+  "delete_wallet_confirm_message" : "Вы уверены, что хотите удалить кошелек ${wallet_name}?"
 }

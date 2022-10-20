@@ -643,5 +643,7 @@
   "choose_from_available_options": "Elija entre las opciones disponibles:",
   "custom_redeem_amount": "Cantidad de canje personalizada",
   "add_custom_redemption": "Agregar redención personalizada",
-  "remaining": "restante"
+  "remaining": "restante",
+  "delete_wallet": "Eliminar billetera",
+  "delete_wallet_confirm_message" : "¿Está seguro de que desea eliminar la billetera ${wallet_name}?"
 }

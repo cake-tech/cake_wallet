@@ -643,5 +643,7 @@
   "choose_from_available_options": "Odaberite neku od dostupnih opcija:",
   "custom_redeem_amount": "Prilagođeni iznos otkupa",
   "add_custom_redemption": "Dodaj prilagođeni otkup",
-  "remaining": "preostalo"
+  "remaining": "preostalo",
+  "delete_wallet": "Izbriši novčanik",
+  "delete_wallet_confirm_message" : "Jeste li sigurni da želite izbrisati ${wallet_name} novčanik?"
 }

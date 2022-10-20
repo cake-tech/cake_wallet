@@ -643,5 +643,7 @@
   "choose_from_available_options": "사용 가능한 옵션에서 선택:",
   "custom_redeem_amount": "사용자 지정 상환 금액",
   "add_custom_redemption": "사용자 지정 상환 추가",
-  "remaining": "남은"
+  "remaining": "남은",
+  "delete_wallet": "지갑 삭제",
+  "delete_wallet_confirm_message" : "${wallet_name} 지갑을 삭제하시겠습니까?"
 }

@@ -641,5 +641,7 @@
   "choose_from_available_options": "从可用选项中选择：",
   "custom_redeem_amount": "自定义兑换金额",
   "add_custom_redemption": "添加自定义兑换",
-  "remaining": "剩余"
+  "remaining": "剩余",
+  "delete_wallet": "删除钱包",
+  "delete_wallet_confirm_message" : "您确定要删除 ${wallet_name} 钱包吗？"
 }
