@@ -17,8 +17,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   SimpleSwapExchangeProvider()
       : super(
             pairList: CryptoCurrency.all
-                .map((i) =>
-                    CryptoCurrency.all.map((k) => ExchangePair(from: i, to: k, reverse: true)).where((c) => c != null))
+                .where((i) => i != CryptoCurrency.zaddr)
+                .map((i) => CryptoCurrency.all
+                    .where((i) => i != CryptoCurrency.zaddr)
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
+                    .where((c) => c != null))
                 .expand((i) => i)
                 .toList());
 
