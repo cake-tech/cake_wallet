@@ -60,8 +60,7 @@ abstract class ExchangeViewModelBase with Store {
       receiveCurrency = wallet.currency,
       depositCurrency = wallet.currency,
       providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()],
-      selectedProviders = ObservableList<ExchangeProvider>(),
-      currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>() {
+      selectedProviders = ObservableList<ExchangeProvider>() {
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
       CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
@@ -232,13 +231,13 @@ abstract class ExchangeViewModelBase with Store {
     receiveAmount = amount;
     isReverse = true;
 
-    if (amount == null || amount.isEmpty) {
+    if (amount.isEmpty) {
       depositAmount = '';
       receiveAmount = '';
       return;
     }
 
-    final _enteredAmount = double.parse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
     if (_bestRate == 0) {
       depositAmount = S.current.fetching;
@@ -257,7 +256,7 @@ abstract class ExchangeViewModelBase with Store {
     depositAmount = amount;
     isReverse = false;
 
-    if (amount == null || amount.isEmpty) {
+    if (amount.isEmpty) {
       depositAmount = '';
       receiveAmount = '';
       return;
@@ -303,7 +302,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  Future loadLimits() async {
+  Future<void> loadLimits() async {
     if (selectedProviders.isEmpty) {
       return;
     }
@@ -332,8 +331,8 @@ abstract class ExchangeViewModelBase with Store {
             to: to,
             isFixedRateMode: isFixedRateMode);
 
-        if (tempLimits.min != null && tempLimits.min < lowestMin) {
-          lowestMin = tempLimits.min;
+        if (tempLimits.min != null && tempLimits.min! < lowestMin) {
+          lowestMin = tempLimits.min!;
         }
         if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax) {
           highestMax = tempLimits.max;
@@ -366,7 +365,7 @@ abstract class ExchangeViewModelBase with Store {
         request = SideShiftRequest(
           depositMethod: depositCurrency,
           settleMethod: receiveCurrency,
-          depositAmount: depositAmount?.replaceAll(',', '.') ?? '',
+          depositAmount: depositAmount.replaceAll(',', '.'),
           settleAddress: receiveAddress,
           refundAddress: depositAddress,
         );
@@ -377,7 +376,7 @@ abstract class ExchangeViewModelBase with Store {
         request = SimpleSwapRequest(
           from: depositCurrency,
           to: receiveCurrency,
-          amount: depositAmount?.replaceAll(',', '.') ?? '',
+          amount: depositAmount.replaceAll(',', '.'),
           address: receiveAddress,
           refundAddress: depositAddress,
         );
@@ -388,8 +387,8 @@ abstract class ExchangeViewModelBase with Store {
         request = XMRTOTradeRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            amount: depositAmount?.replaceAll(',', '.') ?? '',
-            receiveAmount: receiveAmount?.replaceAll(',', '.') ?? '',
+            amount: depositAmount.replaceAll(',', '.'),
+            receiveAmount: receiveAmount.replaceAll(',', '.'),
             address: receiveAddress,
             refundAddress: depositAddress,
             isBTCRequest: isReceiveAmountEntered);
@@ -400,8 +399,8 @@ abstract class ExchangeViewModelBase with Store {
         request = ChangeNowRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            fromAmount: depositAmount?.replaceAll(',', '.') ?? '',
-            toAmount: receiveAmount?.replaceAll(',', '.') ?? '',
+            fromAmount: depositAmount.replaceAll(',', '.'),
+            toAmount: receiveAmount.replaceAll(',', '.'),
             refundAddress: depositAddress,
             address: receiveAddress,
             isReverse: isReverse);
@@ -412,7 +411,7 @@ abstract class ExchangeViewModelBase with Store {
         request = MorphTokenRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            amount: depositAmount?.replaceAll(',', '.') ?? '',
+            amount: depositAmount.replaceAll(',', '.'),
             refundAddress: depositAddress,
             address: receiveAddress);
         amount = depositAmount;
@@ -420,7 +419,7 @@ abstract class ExchangeViewModelBase with Store {
 
       amount = amount.replaceAll(',', '.');
 
-      if (limitsState is LimitsLoadedSuccessfully && amount != null) {
+      if (limitsState is LimitsLoadedSuccessfully) {
         if (double.parse(amount) < limits.min!) {
           continue;
         } else if (limits.max != null && double.parse(amount) > limits.max!) {
@@ -510,7 +509,7 @@ abstract class ExchangeViewModelBase with Store {
     final providers = providerList
         .where((provider) => provider.pairList
             .where((pair) =>
-                pair.from == (from ?? depositCurrency) && pair.to == (to ?? receiveCurrency))
+                pair.from == from && pair.to == to)
             .isNotEmpty)
         .toList();
 
