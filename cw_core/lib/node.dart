@@ -29,10 +29,9 @@ class Node extends HiveObject with Keyable {
 
   Node.fromMap(Map<String, Object?> map)
       : uriRaw = map['uri'] as String? ?? '',
-        login = map['login'] as String,
-        password = map['password'] as String,
-        typeRaw = map['typeRaw'] as int,
-        useSSL = map['useSSL'] as bool;
+        login = map['login'] as String?,
+        password = map['password'] as String?,
+        useSSL = map['useSSL'] as bool?;
 
   static const typeId = 1;
   static const boxName = 'Nodes';
