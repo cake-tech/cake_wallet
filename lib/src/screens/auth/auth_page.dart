@@ -135,14 +135,9 @@ class AuthPageState extends State<AuthPage> {
                     child: SizedBox(
                       height: 37,
                       width: 37,
-                      child: ButtonTheme(
-                        minWidth: double.minPositive,
-                        child: TextButton(
-                            //highlightColor: Colors.transparent,
-                            //splashColor: Colors.transparent,
-                            //padding: EdgeInsets.all(0),
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: _backArrowImageDarkTheme),
+                      child: InkWell(
+                        onTap: () => Navigator.of(context).pop(),
+                        child:  _backArrowImageDarkTheme,
                       ),
                     ))
                 : Container(),
