@@ -643,5 +643,7 @@
   "choose_from_available_options": "Choose from the available options:",
   "custom_redeem_amount": "Custom Redeem Amount",
   "add_custom_redemption": "Add Custom Redemption",
-  "remaining": "remaining"
+  "remaining": "remaining",
+  "delete_wallet": "Delete wallet",
+  "delete_wallet_confirm_message" : "Are you sure that you want to delete ${wallet_name} wallet?"
 }

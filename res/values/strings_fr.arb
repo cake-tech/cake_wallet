@@ -641,5 +641,7 @@
   "choose_from_available_options": "Choisissez parmi les options disponibles :",
   "custom_redeem_amount": "Montant d'échange personnalisé",
   "add_custom_redemption": "Ajouter un remboursement personnalisé",
-  "remaining": "restant"
+  "remaining": "restant",
+  "delete_wallet": "Supprimer le portefeuille",
+  "delete_wallet_confirm_message" : "Êtes-vous sûr de vouloir supprimer le portefeuille ${wallet_name}?"
 }

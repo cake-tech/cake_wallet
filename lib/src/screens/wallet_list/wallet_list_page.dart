@@ -156,22 +156,14 @@ class WalletListBodyState extends State<WalletListBody> {
                           ),
                         ));
 
-                    // FIX-ME: Slidable for current
-                    return row;
-                    // return wallet.isCurrent
-                    //     ? row
-                    //     : Slidable(
-                    //         key: Key('${wallet.key}'),
-                    //         actionPane: SlidableDrawerActionPane(),
-                    //         child: row,
-                    //         secondaryActions: <Widget>[
-                    //             IconSlideAction(
-                    //               caption: S.of(context).delete,
-                    //               color: Colors.red,
-                    //               icon: CupertinoIcons.delete,
-                    //               onTap: () async => _removeWallet(wallet),
-                    //             )
-                    //           ]);
+                    return wallet.isCurrent
+                        ? row
+                        : Slidable(
+                            key: Key('${wallet.key}'),
+                            startActionPane: _actionPane(wallet),
+                            endActionPane: _actionPane(wallet),
+                            child: row,
+                    );
                   }),
             ),
           ),
@@ -256,14 +248,34 @@ class WalletListBodyState extends State<WalletListBody> {
         return;
       }
 
-      try {
-        auth.changeProcessText(
-            S.of(context).wallet_list_removing_wallet(wallet.name));
-        await widget.walletListViewModel.remove(wallet);
-      } catch (e) {
-        auth.changeProcessText(S
-            .of(context)
-            .wallet_list_failed_to_remove(wallet.name, e.toString()));
+      bool confirmed = false;
+
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithTwoActions(
+              alertTitle: S.of(context).delete_wallet,
+              alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
+              leftButtonText: S.of(context).cancel,
+              rightButtonText: S.of(context).delete,
+              actionLeftButton: () => Navigator.of(context).pop(),
+              actionRightButton: () {
+                confirmed = true;
+                Navigator.of(context).pop();
+              },
+            );
+          });
+
+      if (confirmed) {
+        try {
+          auth.changeProcessText(
+              S.of(context).wallet_list_removing_wallet(wallet.name));
+          await widget.walletListViewModel.remove(wallet);
+        } catch (e) {
+          auth.changeProcessText(S
+              .of(context)
+              .wallet_list_failed_to_remove(wallet.name, e.toString()));
+        }
       }
 
       auth.close();
@@ -279,4 +291,18 @@ class WalletListBodyState extends State<WalletListBody> {
     // _progressBar?.dismiss();
     // _progressBar = null;
   }
+
+  ActionPane _actionPane(WalletListItem wallet) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.3,
+    children: [
+      SlidableAction(
+        onPressed: (_) => _removeWallet(wallet),
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        icon: CupertinoIcons.delete,
+        label: S.of(context).delete,
+      ),
+    ],
+  );
 }

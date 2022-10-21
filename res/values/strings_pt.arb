@@ -643,5 +643,7 @@
   "choose_from_available_options": "Escolha entre as opções disponíveis:",
   "custom_redeem_amount": "Valor de resgate personalizado",
   "add_custom_redemption": "Adicionar resgate personalizado",
-  "remaining": "restante"
+  "remaining": "restante",
+  "delete_wallet": "Excluir carteira",
+  "delete_wallet_confirm_message" : "Tem certeza de que deseja excluir a carteira ${wallet_name}?"
 }

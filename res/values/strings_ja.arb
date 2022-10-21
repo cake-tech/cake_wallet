@@ -643,5 +643,7 @@
   "choose_from_available_options": "利用可能なオプションから選択してください:",
   "custom_redeem_amount": "カスタム交換金額",
   "add_custom_redemption": "カスタム引き換えを追加",
-  "remaining": "残り"
+  "remaining": "残り",
+  "delete_wallet": "ウォレットを削除",
+  "delete_wallet_confirm_message" : "${wallet_name} ウォレットを削除してもよろしいですか?"
 }
