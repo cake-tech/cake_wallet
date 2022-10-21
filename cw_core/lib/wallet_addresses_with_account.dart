@@ -5,9 +5,9 @@ import 'package:cw_core/wallet_info.dart';
 abstract class WalletAddressesWithAccount<T> extends WalletAddresses {
   WalletAddressesWithAccount(WalletInfo walletInfo) : super(walletInfo);
 
-  T get account;
+  // T get account;
 
-  set account(T account);
+  // set account(T account);
 
   AccountList<T> get accountList;
 }

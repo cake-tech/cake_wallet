@@ -1,5 +1,9 @@
 class IoniaCategory {
-  const IoniaCategory({this.index, this.title, this.ids, this.iconPath});
+  const IoniaCategory({
+    required this.index,
+    required this.title,
+    required this.ids,
+    required this.iconPath});
 
   static const allCategories = <IoniaCategory>[all, apparel, onlineOnly, food, entertainment, delivery, travel];
   static const all = IoniaCategory(index: 0, title: 'All', ids: [], iconPath: 'assets/images/category.png');

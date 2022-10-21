@@ -14,21 +14,19 @@ class UnspentCoinsDetailsViewModel = UnspentCoinsDetailsViewModelBase
 
 abstract class UnspentCoinsDetailsViewModelBase with Store {
   UnspentCoinsDetailsViewModelBase({
-    this.unspentCoinsItem, this.unspentCoinsListViewModel}) {
-
-    final amount = unspentCoinsItem.amount ?? '';
-    final address = unspentCoinsItem.address ?? '';
-    isFrozen = unspentCoinsItem.isFrozen ?? false;
-    note = unspentCoinsItem.note ?? '';
-
+    required this.unspentCoinsItem,
+    required this.unspentCoinsListViewModel})
+      : items = <TransactionDetailsListItem>[],
+        isFrozen = unspentCoinsItem.isFrozen,
+        note = unspentCoinsItem.note {
     items = [
       StandartListItem(
         title: S.current.transaction_details_amount,
-        value: amount
+        value: unspentCoinsItem.amount
       ),
       StandartListItem(
         title: S.current.widgets_address,
-        value: address
+        value: unspentCoinsItem.address
       ),
       TextFieldListItem(
           title: S.current.note_tap_to_change,

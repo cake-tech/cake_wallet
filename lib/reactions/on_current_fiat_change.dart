@@ -5,15 +5,19 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 
-ReactionDisposer _onCurrentFiatCurrencyChangeDisposer;
+ReactionDisposer? _onCurrentFiatCurrencyChangeDisposer;
 
 void startCurrentFiatChangeReaction(AppStore appStore,
     SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
-  _onCurrentFiatCurrencyChangeDisposer?.reaction?.dispose();
+  _onCurrentFiatCurrencyChangeDisposer?.reaction.dispose();
   _onCurrentFiatCurrencyChangeDisposer = reaction(
       (_) => settingsStore.fiatCurrency, (FiatCurrency fiatCurrency) async {
-    final cryptoCurrency = appStore.wallet.currency;
-    fiatConversionStore.prices[appStore.wallet.currency] =
+    if (appStore.wallet == null) {
+      return;
+    }
+
+    final cryptoCurrency = appStore.wallet!.currency;
+    fiatConversionStore.prices[appStore.wallet!.currency] =
         await FiatConversionService.fetchPrice(cryptoCurrency, fiatCurrency);
   });
 }

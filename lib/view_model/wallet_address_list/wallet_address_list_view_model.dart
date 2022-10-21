@@ -23,14 +23,18 @@ class WalletAddressListViewModel = WalletAddressListViewModelBase
     with _$WalletAddressListViewModel;
 
 abstract class PaymentURI {
-  PaymentURI({this.amount, this.address});
+  PaymentURI({
+    required this.amount,
+    required this.address});
 
   final String amount;
   final String address;
 }
 
 class MoneroURI extends PaymentURI {
-  MoneroURI({String amount, String address})
+  MoneroURI({
+      required String amount,
+      required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -46,7 +50,9 @@ class MoneroURI extends PaymentURI {
 }
 
 class HavenURI extends PaymentURI {
-  HavenURI({String amount, String address})
+  HavenURI({
+      required String amount,
+      required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -62,7 +68,9 @@ class HavenURI extends PaymentURI {
 }
 
 class BitcoinURI extends PaymentURI {
-  BitcoinURI({String amount, String address})
+  BitcoinURI({
+      required String amount,
+      required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -78,7 +86,9 @@ class BitcoinURI extends PaymentURI {
 }
 
 class LitecoinURI extends PaymentURI {
-  LitecoinURI({String amount, String address})
+  LitecoinURI({
+    required String amount,
+    required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -95,16 +105,19 @@ class LitecoinURI extends PaymentURI {
 
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase({
-    @required AppStore appStore,
-    @required this.yatStore
-  }) {
-    _appStore = appStore;
-    _wallet = _appStore.wallet;
-    hasAccounts = _wallet?.type == WalletType.monero || _wallet?.type == WalletType.haven;
-
+    required AppStore appStore,
+    required this.yatStore
+  }) : _appStore = appStore,
+      _baseItems = <ListItem>[],
+      _wallet = appStore.wallet!,
+      hasAccounts = appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+      amount = '' {
     _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<
-            Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+            Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
         wallet) {
+      if (wallet == null) {
+        return;
+      }
       _wallet = wallet;
       hasAccounts = _wallet.type == WalletType.monero;
     });
@@ -119,7 +132,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   WalletAddressListItem get address =>
-      WalletAddressListItem(address: _wallet.walletAddresses.address);
+      WalletAddressListItem(address: _wallet.walletAddresses.address, isPrimary: false);
 
   @computed
   PaymentURI get uri {
@@ -139,7 +152,7 @@ abstract class WalletAddressListViewModelBase with Store {
       return LitecoinURI(amount: amount, address: address.address);
     }
 
-    return null;
+    throw Exception('Unexpected type: ${type.toString()}');
   }
 
   @computed
@@ -152,9 +165,9 @@ abstract class WalletAddressListViewModelBase with Store {
     final addressList = ObservableList<ListItem>();
 
     if (wallet.type == WalletType.monero) {
-      final primaryAddress = monero.getSubaddressList(wallet).subaddresses.first;
+      final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
       final addressItems = monero
-        .getSubaddressList(wallet)
+        !.getSubaddressList(wallet)
         .subaddresses
           .map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
@@ -169,9 +182,9 @@ abstract class WalletAddressListViewModelBase with Store {
     }
 
     if (wallet.type == WalletType.haven) {
-      final primaryAddress = haven.getSubaddressList(wallet).subaddresses.first;
+      final primaryAddress = haven!.getSubaddressList(wallet).subaddresses.first;
       final addressItems = haven
-        .getSubaddressList(wallet)
+        !.getSubaddressList(wallet)
         .subaddresses
           .map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
@@ -186,8 +199,8 @@ abstract class WalletAddressListViewModelBase with Store {
     }
 
     if (wallet.type == WalletType.bitcoin) {
-      final primaryAddress = bitcoin.getAddress(wallet);
-      final bitcoinAddresses = bitcoin.getAddresses(wallet).map((addr) {
+      final primaryAddress = bitcoin!.getAddress(wallet);
+      final bitcoinAddresses = bitcoin!.getAddresses(wallet).map((addr) {
         final isPrimary = addr == primaryAddress;
 
         return WalletAddressListItem(
@@ -207,14 +220,14 @@ abstract class WalletAddressListViewModelBase with Store {
     final wallet = _wallet;
 
     if (wallet.type == WalletType.monero) {
-      return monero.getCurrentAccount(wallet).label;
+      return monero!.getCurrentAccount(wallet).label;
     }
 
     if (wallet.type == WalletType.haven) {
-      return haven.getCurrentAccount(wallet).label;
+      return haven!.getCurrentAccount(wallet).label;
     }
 
-    return null;
+    return '';
   }
 
   @computed
@@ -230,7 +243,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
   final YatStore yatStore;
 
-  ReactionDisposer _onWalletChangeReaction;
+  ReactionDisposer? _onWalletChangeReaction;
 
   @action
   void setAddress(WalletAddressListItem address) =>

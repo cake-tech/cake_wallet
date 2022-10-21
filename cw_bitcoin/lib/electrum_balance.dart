@@ -4,10 +4,10 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/balance.dart';
 
 class ElectrumBalance extends Balance {
-  const ElectrumBalance({@required this.confirmed, @required this.unconfirmed})
+  const ElectrumBalance({required this.confirmed, required this.unconfirmed})
       : super(confirmed, unconfirmed);
 
-  factory ElectrumBalance.fromJSON(String jsonSource) {
+  static ElectrumBalance? fromJSON(String? jsonSource) {
     if (jsonSource == null) {
       return null;
     }
@@ -15,8 +15,8 @@ class ElectrumBalance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     return ElectrumBalance(
-        confirmed: decoded['confirmed'] as int ?? 0,
-        unconfirmed: decoded['unconfirmed'] as int ?? 0);
+        confirmed: decoded['confirmed'] as int? ?? 0,
+        unconfirmed: decoded['unconfirmed'] as int? ?? 0);
   }
 
   final int confirmed;

@@ -26,10 +26,10 @@ class NodeListPage extends BasePage {
       height: 32,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          color: Theme.of(context).accentTextTheme.caption.color),
+          color: Theme.of(context).accentTextTheme!.caption!.color!),
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
+        child: TextButton(
             onPressed: () async {
               await showPopUp<void>(
                   context: context,
@@ -114,41 +114,42 @@ class NodeListPage extends BasePage {
                                 });
                           });
                     });
+                // FIX-ME: Slidable
+                // final dismissibleRow = Slidable(
+                //     key: Key('${node.keyIndex}'),
+                //     actionPane: SlidableDrawerActionPane(),
+                //     child: nodeListRow,
+                //     secondaryActions: <Widget>[
+                //       IconSlideAction(
+                //         caption: S.of(context).delete,
+                //         color: Colors.red,
+                //         icon: CupertinoIcons.delete,
+                //         onTap: () async {
+                //           final confirmed = await showPopUp<bool>(
+                //                   context: context,
+                //                   builder: (BuildContext context) {
+                //                     return AlertWithTwoActions(
+                //                         alertTitle: S.of(context).remove_node,
+                //                         alertContent:
+                //                             S.of(context).remove_node_message,
+                //                         rightButtonText: S.of(context).remove,
+                //                         leftButtonText: S.of(context).cancel,
+                //                         actionRightButton: () =>
+                //                             Navigator.pop(context, true),
+                //                         actionLeftButton: () =>
+                //                             Navigator.pop(context, false));
+                //                   }) ??
+                //               false;
 
-                final dismissibleRow = Slidable(
-                    key: Key('${node.keyIndex}'),
-                    actionPane: SlidableDrawerActionPane(),
-                    child: nodeListRow,
-                    secondaryActions: <Widget>[
-                      IconSlideAction(
-                        caption: S.of(context).delete,
-                        color: Colors.red,
-                        icon: CupertinoIcons.delete,
-                        onTap: () async {
-                          final confirmed = await showPopUp<bool>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertWithTwoActions(
-                                        alertTitle: S.of(context).remove_node,
-                                        alertContent:
-                                            S.of(context).remove_node_message,
-                                        rightButtonText: S.of(context).remove,
-                                        leftButtonText: S.of(context).cancel,
-                                        actionRightButton: () =>
-                                            Navigator.pop(context, true),
-                                        actionLeftButton: () =>
-                                            Navigator.pop(context, false));
-                                  }) ??
-                              false;
-
-                          if (confirmed) {
-                            await nodeListViewModel.delete(node);
-                          }
-                        },
-                      ),
-                    ]);
-
-                return isSelected ? nodeListRow : dismissibleRow;
+                //           if (confirmed) {
+                //             await nodeListViewModel.delete(node);
+                //           }
+                //         },
+                //       ),
+                //     ]);
+                
+                return nodeListRow;
+                // return isSelected ? nodeListRow : dismissibleRow;
               });
         },
       ),

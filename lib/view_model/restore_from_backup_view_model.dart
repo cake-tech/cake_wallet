@@ -15,15 +15,17 @@ class RestoreFromBackupViewModel = RestoreFromBackupViewModelBase
     with _$RestoreFromBackupViewModel;
 
 abstract class RestoreFromBackupViewModelBase with Store {
-  RestoreFromBackupViewModelBase(this.backupService);
+  RestoreFromBackupViewModelBase(this.backupService)
+  : state = InitialExecutionState(),
+    filePath = '';
+
+  final BackupService backupService;
 
   @observable
   String filePath;
 
   @observable
   ExecutionState state;
-
-  final BackupService backupService;
 
   @action
   void reset() => filePath = '';
@@ -45,15 +47,16 @@ abstract class RestoreFromBackupViewModelBase with Store {
       await main();
 
       final store = getIt.get<AppStore>();
-      ReactionDisposer reaction;
-      await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
+      ReactionDisposer? reaction;
+      // FIX-ME: SettingsStore reload
+      // await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
 
       reaction = autorun((_) {
         final wallet = store.wallet;
 
         if (wallet != null) {
           store.authenticationStore.state = AuthenticationState.allowed;
-          reaction?.reaction?.dispose();
+          reaction?.reaction.dispose();
         }
       });
 
@@ -61,7 +64,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
     } catch (e) {
       var msg = e.toString();
 
-      if (msg == 'Message authentication code (MAC) is invalid') {
+      if (msg.toLowerCase().contains("message authentication code (mac)")) {
         msg = 'Incorrect backup password';
       }
 

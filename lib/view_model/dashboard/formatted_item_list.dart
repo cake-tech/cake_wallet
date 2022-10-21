@@ -3,7 +3,7 @@ import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 
 List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
   final formattedList = <ActionListItem>[];
-  DateTime lastDate;
+  DateTime? lastDate;
   items.sort((a, b) => b.date.compareTo(a.date));
 
   for (var i = 0; i < items.length; i++) {

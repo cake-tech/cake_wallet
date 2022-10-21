@@ -13,27 +13,27 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 
 class QRWidget extends StatelessWidget {
   QRWidget(
-      {@required this.addressListViewModel,
+      {required this.addressListViewModel,
+      required this.isLight,
       this.isAmountFieldShow = false,
-      this.amountTextFieldFocusNode,
-      this.isLight})
+      this.amountTextFieldFocusNode})
       : amountController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
     amountController.addListener(() => addressListViewModel.amount =
-        _formKey.currentState.validate() ? amountController.text : '');
+        _formKey.currentState!.validate() ? amountController.text : '');
   }
 
   final WalletAddressListViewModel addressListViewModel;
   final bool isAmountFieldShow;
   final TextEditingController amountController;
-  final FocusNode amountTextFieldFocusNode;
+  final FocusNode? amountTextFieldFocusNode;
   final GlobalKey<FormState> _formKey;
   final bool isLight;
 
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).textTheme.subhead.decorationColor);
+        color: Theme.of(context).textTheme!.subtitle1!.decorationColor!);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -49,7 +49,7 @@ class QRWidget extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).accentTextTheme.display3.backgroundColor),
+                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
               ),
             ),
             Row(
@@ -86,13 +86,13 @@ class QRWidget extends StatelessWidget {
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 3,
-                                  color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                                  color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                                 ),
                               ),
                               child: QrImage(
                                 data: addressListViewModel.uri.toString(),
                                 backgroundColor: isLight ? Colors.transparent : Colors.black,
-                                foregroundColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                                foregroundColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                               ),
                             ),
                           ),
@@ -118,13 +118,14 @@ class QRWidget extends StatelessWidget {
                       focusNode: amountTextFieldFocusNode,
                       controller: amountController,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [BlacklistingTextInputFormatter(RegExp('[\\-|\\ ]'))],
+                      inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))],
                       textAlign: TextAlign.center,
                       hintText: S.of(context).receive_amount,
-                      textColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
-                      borderColor: Theme.of(context).textTheme.headline.decorationColor,
+                      textColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                      borderColor: Theme.of(context).textTheme!.headline5!.decorationColor!,
                       validator: AmountValidator(type: addressListViewModel.type, isAutovalidate: true),
-                      autovalidate: true,
+                      // FIX-ME: Check does it equal to autovalidate: true,
+                      autovalidateMode: AutovalidateMode.always,
                       placeholderTextStyle: TextStyle(
                         color: Theme.of(context).hoverColor,
                         fontSize: 18,
@@ -156,7 +157,7 @@ class QRWidget extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.display3.backgroundColor),
+                            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
                       ),
                     ),
                     Padding(

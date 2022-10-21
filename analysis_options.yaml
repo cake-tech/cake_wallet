@@ -1,51 +1,73 @@
+include: package:lints/recommended.yaml
+
 analyzer:
-  strong-mode:
-    implicit-casts: false
-    implicit-dynamic: false
-  exclude: [build/**, lib/generated/*.dart, lib/**.g.dart, cw_monero/ios/External/**, cw_shared_external/**, shared_external/**]
+  exclude: [
+    build/**,
+    lib/**.g.dart,
+    cw_core/lib/**.g.dart,
+    cw_haven/lib/**.g.dart,
+    cw_monero/lib/**.g.dart,
+    lib/generated/*.dart,
+    cw_monero/ios/External/**,
+    cw_shared_external/**,
+    shared_external/**]
+  language:
+    strict-casts: true
+    strict-raw-types: true
 
 linter:
   rules:
-    - always_declare_return_types
-    - annotate_overrides
-    - avoid_empty_else
-    - avoid_init_to_null
-    - avoid_return_types_on_setters
-    - await_only_futures
-    - camel_case_types
     - cancel_subscriptions
-    - close_sinks
-    - comment_references
-    - constant_identifier_names
-    - control_flow_in_finally
-    - empty_catches
-    - empty_constructor_bodies
-    - empty_statements
-    - hash_and_equals
-    - invariant_booleans
-    - iterable_contains_unrelated_type
-    - library_names
-    - library_prefixes
-    - list_remove_unrelated_type
-    - literal_only_boolean_expressions
-    - non_constant_identifier_names
-    - one_member_abstracts
-    - only_throw_errors
-    - overridden_fields
-    - package_api_docs
-    - package_names
-    - package_prefixed_library_names
-    - parameter_assignments
-    - prefer_final_fields
-    - prefer_final_locals
-    - prefer_is_not_empty
-    - slash_for_doc_comments
-    - sort_constructors_first
-    - sort_unnamed_constructors_first
-    - test_types_in_equals
-    - throw_in_finally
-    - type_init_formals
-    - unawaited_futures
-    - unnecessary_getters_setters
-    - unrelated_type_equality_checks
-    - valid_regexps
+
+
+# analyzer:
+#   strong-mode:
+#     implicit-casts: false
+#     implicit-dynamic: false
+#   exclude: [build/**, lib/generated/*.dart, lib/**.g.dart, cw_monero/ios/External/**, cw_shared_external/**, shared_external/**]
+
+# linter:
+#   rules:
+#     - always_declare_return_types
+#     - annotate_overrides
+#     - avoid_empty_else
+#     - avoid_init_to_null
+#     - avoid_return_types_on_setters
+#     - await_only_futures
+#     - camel_case_types
+#     - cancel_subscriptions
+#     - close_sinks
+#     - comment_references
+#     - constant_identifier_names
+#     - control_flow_in_finally
+#     - empty_catches
+#     - empty_constructor_bodies
+#     - empty_statements
+#     - hash_and_equals
+#     - invariant_booleans
+#     - iterable_contains_unrelated_type
+#     - library_names
+#     - library_prefixes
+#     - list_remove_unrelated_type
+#     - literal_only_boolean_expressions
+#     - non_constant_identifier_names
+#     - one_member_abstracts
+#     - only_throw_errors
+#     - overridden_fields
+#     - package_api_docs
+#     - package_names
+#     - package_prefixed_library_names
+#     - parameter_assignments
+#     - prefer_final_fields
+#     - prefer_final_locals
+#     - prefer_is_not_empty
+#     - slash_for_doc_comments
+#     - sort_constructors_first
+#     - sort_unnamed_constructors_first
+#     - test_types_in_equals
+#     - throw_in_finally
+#     - type_init_formals
+#     - unawaited_futures
+#     - unnecessary_getters_setters
+#     - unrelated_type_equality_checks
+#     - valid_regexps

@@ -43,7 +43,7 @@ class WalletMenu {
   ];
 
   List<WalletMenuItem> generateItemsForWalletMenu(bool isCurrentWallet) {
-    final items = List<WalletMenuItem>();
+    final items = <WalletMenuItem>[];
 
     if (!isCurrentWallet) items.add(menuItems[0]);
     if (isCurrentWallet) items.add(menuItems[1]);

@@ -85,7 +85,7 @@ final dates = {
   "2020-11": 2220000
 };
 
-int getMoneroHeigthByDate({DateTime date}) {
+int getMoneroHeigthByDate({required DateTime date}) {
   final raw = '${date.year}' + '-' + '${date.month}';
   final lastHeight = dates.values.last;
   int startHeight;
@@ -105,7 +105,7 @@ int getMoneroHeigthByDate({DateTime date}) {
       final daysHeight = (differenceInDays * heightPerDay).round();
       height = endHeight + daysHeight;
     } else {
-      startHeight = dates[raw];
+      startHeight = dates[raw]!;
       final index = dates.values.toList().indexOf(startHeight);
       endHeight = dates.values.toList()[index + 1];
       final heightPerDay = ((endHeight - startHeight) / 31).round();

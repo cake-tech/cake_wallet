@@ -12,7 +12,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class UnspentCoinsDetailsPage extends BasePage {
-  UnspentCoinsDetailsPage({this.unspentCoinsDetailsViewModel});
+  UnspentCoinsDetailsPage({required this.unspentCoinsDetailsViewModel});
 
   @override
   String get title => S.current.unspent_coins_details_title;
@@ -21,7 +21,9 @@ class UnspentCoinsDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
+        context: context,
         sectionCount: 1,
         itemCounter: (int _) => unspentCoinsDetailsViewModel.items.length,
         itemBuilder: (_, __, index) {
@@ -49,7 +51,7 @@ class UnspentCoinsDetailsPage extends BasePage {
             ));
           }
 
-          return null;
+          return Container();
         });
   }
 }

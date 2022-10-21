@@ -13,20 +13,20 @@ class WalletInfo extends HiveObject {
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
-      {@required String id,
-      @required String name,
-      @required WalletType type,
-      @required bool isRecovery,
-      @required int restoreHeight,
-      @required DateTime date,
-      @required String dirPath,
-      @required String path,
-      @required String address,
+      {required String id,
+      required String name,
+      required WalletType type,
+      required bool isRecovery,
+      required int restoreHeight,
+      required DateTime date,
+      required String dirPath,
+      required String path,
+      required String address,
+      bool? showIntroCakePayCard,
       String yatEid ='',
-      String yatLastUsedAddressRaw = '',
-      bool showIntroCakePayCard}) {
+      String yatLastUsedAddressRaw = ''}) {
     return WalletInfo(id, name, type, isRecovery, restoreHeight,
-        date.millisecondsSinceEpoch ?? 0, dirPath, path, address,
+        date.millisecondsSinceEpoch, dirPath, path, address,
         yatEid, yatLastUsedAddressRaw, showIntroCakePayCard);
   }
 
@@ -61,7 +61,7 @@ class WalletInfo extends HiveObject {
   String address;
 
   @HiveField(10)
-  Map<String, String> addresses;
+  Map<String, String>? addresses;
 
   @HiveField(11)
   String yatEid;
@@ -70,7 +70,7 @@ class WalletInfo extends HiveObject {
   String yatLastUsedAddressRaw;
 
   @HiveField(13)
-  bool showIntroCakePayCard;
+  bool? showIntroCakePayCard;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw;
 
@@ -85,7 +85,7 @@ class WalletInfo extends HiveObject {
     if(showIntroCakePayCard == null) {
       return type != WalletType.haven;
     }
-    return showIntroCakePayCard;
+    return showIntroCakePayCard!;
   }
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
