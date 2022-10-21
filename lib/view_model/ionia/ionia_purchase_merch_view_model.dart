@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
@@ -17,6 +18,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
     required this.ioniaAnyPayService,
     required this.amount,
     required this.ioniaMerchant,
+    required this.sendViewModel,
   }) : tipAmount = 0.0,
         percentage = 0.0,
         invoiceCreationState = InitialExecutionState(),
@@ -39,6 +41,8 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   IoniaTip? selectedTip;
 
   final IoniaMerchant ioniaMerchant;
+
+  final SendViewModel sendViewModel;
 
   final IoniaAnyPay ioniaAnyPayService;
 
