@@ -1,7 +1,6 @@
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -9,7 +8,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class CakePhoneAuthPage extends BasePage {
-  CakePhoneAuthPage({@required this.isLogin});
+  CakePhoneAuthPage({required this.isLogin});
 
   final bool isLogin;
 
@@ -24,7 +23,7 @@ class CakePhoneAuthPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.decorationColor),
+          color: Theme.of(context).primaryTextTheme.headline6?.decorationColor),
     );
   }
 }
@@ -58,9 +57,11 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
             keyboardType: TextInputType.emailAddress,
             maxLines: 1,
             hintText: S.of(context).email_address,
-            validator: (String text) {
-              text = text.trim();
-              if (text.isNotEmpty && RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(text)) {
+            validator: (String? text) {
+              text = text?.trim();
+              if (text != null
+                  && text.isNotEmpty
+                  && RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(text)) {
                 return null;
               }
 
@@ -130,7 +131,7 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
 
   void _registerCakePhone() {
     // TODO: Add Registration logic
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       Navigator.pushNamed(context, Routes.cakePhoneVerification);
     } else {
       setState(() {
@@ -141,7 +142,7 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
 
   void _loginCakePhone() {
     // TODO: Add Login logic
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       Navigator.pushNamed(context, Routes.cakePhoneVerification);
     } else {
       setState(() {

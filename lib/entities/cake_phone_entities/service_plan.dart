@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class ServicePlan {
   const ServicePlan({
-    @required this.id,
-    @required this.duration,
-    @required this.price,
-    @required this.quantity,
+    required this.id,
+    required this.duration,
+    required this.price,
+    required this.quantity,
   });
 
   final String id;

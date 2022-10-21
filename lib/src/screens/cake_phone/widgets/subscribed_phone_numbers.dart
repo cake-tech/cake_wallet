@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/screens/cake_phone/widgets/add_options_tile.dart
 import 'package:cake_wallet/src/screens/cake_phone/widgets/info_text_column.dart';
 
 class SubscribedPhoneNumbers extends StatefulWidget {
-  const SubscribedPhoneNumbers({Key key}) : super(key: key);
+  const SubscribedPhoneNumbers({Key? key}) : super(key: key);
 
   @override
   _SubscribedPhoneNumbersState createState() => _SubscribedPhoneNumbersState();
@@ -104,7 +104,7 @@ class _SubscribedPhoneNumbersState extends State<SubscribedPhoneNumbers> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? Colors.white : Theme.of(context).primaryTextTheme.title.color,
+            color: selected ? Colors.white : Theme.of(context).primaryTextTheme.headline6?.color,
           ),
         ),
       ),

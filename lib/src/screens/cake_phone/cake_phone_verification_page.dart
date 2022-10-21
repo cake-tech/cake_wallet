@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -23,7 +22,7 @@ class CakePhoneVerificationPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.decorationColor),
+          color: Theme.of(context).primaryTextTheme.headline6?.decorationColor),
     );
   }
 }
@@ -77,7 +76,7 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
                 S.of(context).fill_verification_code,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.headline6?.color,
                   fontFamily: 'Lato',
                 ),
                 textAlign: TextAlign.center,
@@ -100,20 +99,20 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
                               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                               margin: EdgeInsets.only(bottom: 12),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).accentTextTheme.caption.color,
+                                color: Theme.of(context).accentTextTheme.caption?.color,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 S.of(context).get_code,
                                 style: TextStyle(
-                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                  color: Theme.of(context).primaryTextTheme.headline6?.color,
                                   fontWeight: FontWeight.w900,
                                 ),
                               )),
                         ),
-                  validator: (String text) {
+                  validator: (String? text) {
                     // TODO: check and apply verification constraints with backend
-                    if (text.length < 4) {
+                    if ((text?.length ?? 0) < 4) {
                       return S.of(context).invalid_verification_code;
                     }
                     return null;
@@ -137,7 +136,7 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Theme.of(context).textTheme.subtitle.color,
+                      color: Theme.of(context).textTheme.subtitle2?.color,
                     ),
                   ),
                 ],
@@ -149,7 +148,7 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
           children: <Widget>[
             PrimaryButton(
               onPressed: () {
-                if (_formKey.currentState.validate()) {
+                if (_formKey.currentState!.validate()) {
                   Navigator.pushNamedAndRemoveUntil(
                     context,
                     Routes.cakePhoneProducts,

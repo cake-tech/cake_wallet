@@ -805,7 +805,7 @@ Future setup(
     ));
 
   getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
+    final wallet = getIt.get<AppStore>().wallet!;
 
     return AddBalanceViewModel(getIt.get<BuyAmountViewModel>(), wallet: wallet);
   });

@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_t
 import 'package:cake_wallet/src/screens/cake_phone/widgets/plan_card.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -11,7 +10,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AutoRenewSettingsPage extends BasePage {
-  AutoRenewSettingsPage({@required this.phoneNumberService, @required this.phonePlanViewModel});
+  AutoRenewSettingsPage({required this.phoneNumberService, required this.phonePlanViewModel});
 
   final PhoneNumberService phoneNumberService;
   final PhonePlanViewModel phonePlanViewModel;
@@ -27,7 +26,7 @@ class AutoRenewSettingsPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.decorationColor),
+          color: Theme.of(context).primaryTextTheme.headline6?.decorationColor),
     );
   }
 }
@@ -59,7 +58,7 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.title.decorationColor,
+                  color: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -113,7 +112,7 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.title.color,
+                          color: Theme.of(context).primaryTextTheme.headline6?.color,
                         ),
                       );
                     }),
@@ -125,7 +124,7 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).primaryTextTheme.title.color,
+                        color: Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ),
@@ -141,8 +140,8 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
               onPressed: () {
               },
               text: "${S.of(context).disable} ${S.of(context).auto_renew}",
-              color: Theme.of(context).accentTextTheme.caption.backgroundColor,
-              textColor: Theme.of(context).primaryTextTheme.title.color,
+              color: Theme.of(context).accentTextTheme.caption?.backgroundColor,
+              textColor: Theme.of(context).primaryTextTheme.headline6?.color,
             ),
             const SizedBox(height: 8),
             PrimaryButton(

@@ -1,6 +1,5 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
@@ -18,7 +17,7 @@ class CakePhoneProductsPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.decorationColor),
+          color: Theme.of(context).primaryTextTheme.headline6?.decorationColor),
     );
   }
 }
@@ -44,7 +43,7 @@ class CakePhoneProductsBodyState extends State<CakePhoneProductsBody> {
                 "${S.of(context).choose_phone_products}:",
                 style: TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.headline6?.color,
                   fontFamily: 'Lato',
                 ),
               ),

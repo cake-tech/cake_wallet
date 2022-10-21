@@ -3,14 +3,13 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/standart_switch.dart';
 import 'package:cake_wallet/entities/cake_phone_entities/phone_number_service.dart';
 
 class NumberSettingsPage extends BasePage {
-  NumberSettingsPage({@required this.phoneNumberService, @required this.phonePlanViewModel});
+  NumberSettingsPage({required this.phoneNumberService, required this.phonePlanViewModel});
 
   final PhoneNumberService phoneNumberService;
   final PhonePlanViewModel phonePlanViewModel;
@@ -26,7 +25,7 @@ class NumberSettingsPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.decorationColor),
+          color: Theme.of(context).primaryTextTheme.headline6?.decorationColor),
     );
   }
 }
@@ -42,7 +41,7 @@ class NumberSettingsBody extends StatefulWidget {
 }
 
 class NumberSettingsBodyState extends State<NumberSettingsBody> {
-  ServicePlan selectedPhoneNumberPlan;
+  ServicePlan? selectedPhoneNumberPlan;
   bool blockIncomingSMS = true;
 
   @override
@@ -51,7 +50,7 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
 
     try {
       selectedPhoneNumberPlan = widget.phonePlanViewModel.servicePlans
-          .firstWhere((element) => element.id == widget.phoneNumberService.planId);
+          ?.firstWhere((element) => element.id == widget.phoneNumberService.planId);
     } catch (err) {
       // the current phone plan is no longer available so check for nullability
     }
@@ -72,7 +71,7 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.headline6?.color,
                 ),
               ),
             ),
@@ -87,13 +86,13 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).primaryTextTheme.title.color,
+                        color: Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.arrow_forward_ios,
-                    color: Theme.of(context).primaryTextTheme.title.color,
+                    color: Theme.of(context).primaryTextTheme.headline6?.color,
                     size: 16,
                   ),
                 ],
@@ -112,13 +111,13 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).primaryTextTheme.title.color,
+                        color: Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.arrow_forward_ios,
-                    color: Theme.of(context).primaryTextTheme.title.color,
+                    color: Theme.of(context).primaryTextTheme.headline6?.color,
                     size: 16,
                   ),
                 ],
@@ -134,7 +133,7 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
                     child: Text(
                       S.of(context).block_incoming_sms,
                       style: TextStyle(
-                        color: Theme.of(context).primaryTextTheme.title.color,
+                        color: Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ),

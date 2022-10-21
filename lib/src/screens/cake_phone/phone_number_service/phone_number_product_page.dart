@@ -16,7 +16,6 @@ import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:country_pickers/country.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:country_pickers/country_pickers.dart';
 import 'package:country_pickers/countries.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -29,7 +28,7 @@ class PhoneNumberProductPage extends BasePage {
   PhoneNumberProductPage(this.phonePlanViewModel, {this.phoneNumberService});
 
   final PhonePlanViewModel phonePlanViewModel;
-  final PhoneNumberService phoneNumberService;
+  final PhoneNumberService? phoneNumberService;
 
   @override
   Widget body(BuildContext context) => PhoneNumberProductBody(phonePlanViewModel, phoneNumberService);
@@ -42,7 +41,7 @@ class PhoneNumberProductPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.decorationColor),
+          color: Theme.of(context).primaryTextTheme.headline6?.decorationColor),
     );
   }
 }
@@ -51,7 +50,7 @@ class PhoneNumberProductBody extends StatefulWidget {
   PhoneNumberProductBody(this.phonePlanViewModel, this.phoneNumberService);
 
   final PhonePlanViewModel phonePlanViewModel;
-  final PhoneNumberService phoneNumberService;
+  final PhoneNumberService? phoneNumberService;
 
   @override
   PhoneNumberProductBodyState createState() => PhoneNumberProductBodyState();
@@ -75,7 +74,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.title.decorationColor,
+                  color: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -131,7 +130,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.title.color,
+                          color: Theme.of(context).primaryTextTheme.headline6?.color,
                         ),
                       );
                     }),
@@ -140,11 +139,11 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     CakePhoneSettingsTile(
                       title: S.of(context).phone_number,
                       value: Text(
-                        widget.phoneNumberService.phoneNumber,
+                        widget.phoneNumberService!.phoneNumber,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.title.color,
+                          color: Theme.of(context).primaryTextTheme.headline6?.color,
                         ),
                       ),
                     ),
@@ -173,7 +172,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
-                                          color: Theme.of(context).primaryTextTheme.title.color,
+                                          color: Theme.of(context).primaryTextTheme.headline6?.color,
                                         ),
                                       ),
                                     ),
@@ -183,7 +182,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).primaryTextTheme.title.color,
+                                      color: Theme.of(context).primaryTextTheme.headline6?.color,
                                     ),
                                   ),
                                 ],
@@ -191,7 +190,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             ),
                             Icon(
                               Icons.arrow_forward_ios,
-                              color: Theme.of(context).primaryTextTheme.title.color,
+                              color: Theme.of(context).primaryTextTheme.headline6?.color,
                               size: 16,
                             ),
                           ],
@@ -263,7 +262,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
-                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                    color: Theme.of(context).primaryTextTheme.headline6?.color,
                                   ),
                                 );
                               }),
@@ -294,7 +293,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       text: "\$${widget.phonePlanViewModel.totalPrice}",
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).primaryTextTheme.title.color,
+                        color: Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ],
@@ -314,7 +313,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
                           alertTitle: S.of(context).confirm_payment,
-                          alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
+                          alertTitleColor: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -341,8 +340,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     });
               },
               text: "${S.of(context).pay_with} ${S.of(context).cake_pay_balance}",
-              color: Theme.of(context).accentTextTheme.caption.backgroundColor,
-              textColor: Theme.of(context).primaryTextTheme.title.color,
+              color: Theme.of(context).accentTextTheme.caption?.backgroundColor,
+              textColor: Theme.of(context).primaryTextTheme.headline6?.color,
             ),
             const SizedBox(height: 8),
             PrimaryButton(
@@ -352,7 +351,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
                           alertTitle: S.of(context).confirm_sending,
-                          alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
+                          alertTitleColor: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -365,9 +364,9 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 title: S.of(context).send_fee,
                                 value: cryptoAmount(getIt
                                     .get<AppStore>()
-                                    .wallet
+                                    .wallet!
                                     .calculateEstimatedFee(
-                                      getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet.type],
+                                      getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet!.type]!,
                                       widget.phonePlanViewModel.totalPrice.floor(),
                                     )
                                     .toDouble()),
@@ -378,7 +377,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                  color: Theme.of(context).primaryTextTheme.headline6?.color,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -406,7 +405,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           actionLeftButton: () => Navigator.of(dialogContext).pop());
                     });
               },
-              text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet.currency.toString()}",
+              text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet!.currency.toString()}",
               color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
             ),
@@ -433,7 +432,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
       child: DottedBorder(
         borderType: BorderType.Circle,
         dashPattern: [3, 3],
-        color: Theme.of(context).primaryTextTheme.displayMedium?.color,
+        color: Theme.of(context).primaryTextTheme.headline2!.color!,
         strokeWidth: 3,
         child: Padding(
           padding: const EdgeInsets.all(6),
@@ -453,22 +452,22 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w700,
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme.headline6?.color,
       ),
     );
   }
 
   Widget cryptoAmount(double totalPrice) {
     return FutureBuilder<BuyAmount>(
-      future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet)
+      future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet!)
           .calculateAmount(totalPrice.toString(), FiatCurrency.usd.title),
       builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
         double sourceAmount;
         double destAmount;
 
-        if (snapshot.hasData) {
-          sourceAmount = snapshot.data.sourceAmount;
-          destAmount = snapshot.data.destAmount;
+        if (snapshot.hasData && snapshot.data != null) {
+          sourceAmount = snapshot.data!.sourceAmount;
+          destAmount = snapshot.data!.destAmount;
         } else {
           sourceAmount = 0.0;
           destAmount = 0.0;
@@ -478,11 +477,11 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              "${sourceAmount} ${getIt.get<AppStore>().wallet.currency.toString()}",
+              "${sourceAmount} ${getIt.get<AppStore>().wallet!.currency.toString()}",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Theme.of(context).primaryTextTheme.title.color,
+                color: Theme.of(context).primaryTextTheme.headline6?.color,
               ),
             ),
             Text(
@@ -505,7 +504,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         builder: (dialogContext) {
           return InfoAlertDialog(
             alertTitle: S.of(context).awaiting_payment_confirmation,
-            alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
+            alertTitleColor: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
             alertContentPadding: EdgeInsets.zero,
             alertContent: Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 32),
@@ -518,7 +517,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryTextTheme.title.color,
+                        color: Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ),
@@ -550,7 +549,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.title.color,
+                              color: Theme.of(context).primaryTextTheme.headline6?.color,
                             ),
                           ),
                         ),
@@ -570,7 +569,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.title.color,
+                              color: Theme.of(context).primaryTextTheme.headline6?.color,
                             ),
                           ),
                         ),

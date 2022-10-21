@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class InfoTextColumn extends StatelessWidget {
   const InfoTextColumn({
-    Key key,
-    @required this.title,
-    @required this.subtitle,
+    Key? key,
+    required this.title,
+    required this.subtitle,
     this.isReversed = false,
     this.padding,
   }) : super(key: key);
@@ -12,7 +12,7 @@ class InfoTextColumn extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool isReversed;
-  final EdgeInsets padding;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +42,6 @@ class InfoTextColumn extends StatelessWidget {
   TextStyle titleTextStyle(BuildContext context) => TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w700,
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme.headline6?.color,
       );
 }

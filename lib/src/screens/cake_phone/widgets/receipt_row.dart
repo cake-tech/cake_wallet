@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReceiptRow extends StatelessWidget {
-  const ReceiptRow({Key key, @required this.title, @required this.value}) : super(key: key);
+  const ReceiptRow({Key? key, required this.title, required this.value}) : super(key: key);
 
   final String title;
   final Widget value;

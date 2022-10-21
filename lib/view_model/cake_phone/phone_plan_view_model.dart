@@ -8,8 +8,7 @@ part 'phone_plan_view_model.g.dart';
 class PhonePlanViewModel = PhonePlanViewModelBase with _$PhonePlanViewModel;
 
 abstract class PhonePlanViewModelBase with Store {
-  PhonePlanViewModelBase({this.selectedPlan}) {
-    additionalSms = 0;
+  PhonePlanViewModelBase({this.selectedPlan}) : this.additionalSms = 0 {
     rateInCents = 20; // TODO: get from api
 
     servicePlans = [
@@ -21,25 +20,25 @@ abstract class PhonePlanViewModelBase with Store {
     ];
     // TODO: servicePlans = _getServicesFromApi
 
-    selectedPlan ??= servicePlans.first;
+    selectedPlan ??= servicePlans!.first;
 
     selectedCountry = countryList.firstWhere((element) => element.iso3Code == "USA");
   }
 
   @observable
-  ServicePlan selectedPlan;
+  ServicePlan? selectedPlan;
 
   @observable
-  Country selectedCountry;
+  Country? selectedCountry;
 
   @observable
-  List<ServicePlan> servicePlans;
+  List<ServicePlan>? servicePlans;
 
   @observable
   int additionalSms;
 
   @observable
-  int rateInCents;
+  int? rateInCents;
 
   @computed
   double get totalPrice => (selectedPlan?.price ?? 0)

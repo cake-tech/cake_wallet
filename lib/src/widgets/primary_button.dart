@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton(
       {required this.text,
-      required this.color,
-      required this.textColor,
+      this.textColor,
+      this.color,
       this.onPressed,
       this.isDisabled = false,
       this.isDottedBorder = false,
@@ -15,8 +15,8 @@ class PrimaryButton extends StatelessWidget {
 
   final VoidCallback? onPressed;
   final VoidCallback? onDisabledPressed;
-  final Color color;
-  final Color textColor;
+  final Color? color;
+  final Color? textColor;
   final Color borderColor;
   final String text;
   final bool isDisabled;
@@ -30,7 +30,7 @@ class PrimaryButton extends StatelessWidget {
         child: TextButton(
           onPressed: isDisabled
               ? (onDisabledPressed != null ? onDisabledPressed : null) : onPressed,
-          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color?.withOpacity(0.5) : color),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(26.0),
@@ -43,7 +43,7 @@ class PrimaryButton extends StatelessWidget {
                   fontSize: 15.0,
                   fontWeight: FontWeight.w600,
                   color: isDisabled
-                      ? textColor.withOpacity(0.5)
+                      ? textColor?.withOpacity(0.5)
                       : textColor)),
         ));
 
@@ -63,14 +63,14 @@ class LoadingPrimaryButton extends StatelessWidget {
   const LoadingPrimaryButton(
       {required this.onPressed,
         required this.text,
-        required this.color,
-        required this.textColor,
+        this.color,
+        this.textColor,
         this.isDisabled = false,
         this.isLoading = false});
 
   final VoidCallback onPressed;
-  final Color color;
-  final Color textColor;
+  final Color? color;
+  final Color? textColor;
   final bool isLoading;
   final bool isDisabled;
   final String text;
@@ -82,7 +82,7 @@ class LoadingPrimaryButton extends StatelessWidget {
         height: 52.0,
         child: TextButton(
           onPressed: (isLoading || isDisabled) ? null : onPressed,
-          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color?.withOpacity(0.5) : color),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(26.0),
@@ -96,7 +96,7 @@ class LoadingPrimaryButton extends StatelessWidget {
                   fontSize: 15.0,
                   fontWeight: FontWeight.w600,
                   color: isDisabled
-                      ? textColor.withOpacity(0.5)
+                      ? textColor?.withOpacity(0.5)
                       : textColor
               )),
         ));

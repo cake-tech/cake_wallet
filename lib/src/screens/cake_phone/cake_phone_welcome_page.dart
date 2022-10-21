@@ -1,6 +1,5 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -20,7 +19,7 @@ class CakePhoneWelcomePage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.decorationColor),
+          color: Theme.of(context).primaryTextTheme.headline6?.decorationColor),
     );
   }
 }
@@ -43,7 +42,7 @@ class CakePhoneWelcomeBodyState extends State<CakePhoneWelcomeBody> {
           S.of(context).cake_phone_introduction,
           style: TextStyle(
             fontSize: 16,
-            color: Theme.of(context).primaryTextTheme.title.color,
+            color: Theme.of(context).primaryTextTheme.headline6?.color,
             fontFamily: 'Lato',
           ),
         ),
@@ -63,7 +62,7 @@ class CakePhoneWelcomeBodyState extends State<CakePhoneWelcomeBody> {
               child: Text(
                 S.of(context).already_have_account,
                 style: TextStyle(
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.headline6?.color,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -75,7 +74,7 @@ class CakePhoneWelcomeBodyState extends State<CakePhoneWelcomeBody> {
               child: Text(
                 S.of(context).login,
                 style: TextStyle(
-                  color: Theme.of(context).accentTextTheme.display1.color,
+                  color: Theme.of(context).accentTextTheme.headline4?.color,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                 ),

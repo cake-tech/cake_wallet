@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class PlanCard extends StatelessWidget {
-  const PlanCard({Key key, @required this.plan, @required this.onTap, this.isSelected = false}) : super(key: key);
+  const PlanCard({Key? key, required this.plan, required this.onTap, this.isSelected = false}) : super(key: key);
 
   final ServicePlan plan;
   final bool isSelected;
@@ -36,7 +36,7 @@ class PlanCard extends StatelessWidget {
               "\$${plan.price}/${S.of(context).month}",
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : Theme.of(context).primaryTextTheme.title.color,
+                color: isSelected ? Colors.white : Theme.of(context).primaryTextTheme.headline6?.color,
               ),
             ),
             Text(

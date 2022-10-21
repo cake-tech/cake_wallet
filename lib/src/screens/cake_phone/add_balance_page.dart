@@ -190,7 +190,7 @@ class AddBalancePage extends BasePage {
                                         .get<AppStore>()
                                         .wallet
                                         !.calculateEstimatedFee(
-                                          getIt.get<AppStore>().settingsStore!.priority[getIt.get<AppStore>().wallet!.type],
+                                          getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet!.type]!,
                                           addBalanceViewModel.buyAmountViewModel.doubleAmount.floor(),
                                         )
                                         .toDouble())),
@@ -200,7 +200,7 @@ class AddBalancePage extends BasePage {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                    color: Theme.of(context).primaryTextTheme.headline6?.color,
                                   ),
                                 ),
                                 const SizedBox(height: 16),
@@ -220,8 +220,8 @@ class AddBalancePage extends BasePage {
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
-                          rightActionButtonColor: Theme.of(context).accentTextTheme.bodyText1?.color,
-                          leftActionButtonColor: Theme.of(context).primaryTextTheme.bodyText1?.backgroundColor,
+                          rightActionButtonColor: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                          leftActionButtonColor: Theme.of(context).primaryTextTheme.bodyText1!.backgroundColor!,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
                             showPaymentConfirmationPopup(context);
@@ -244,15 +244,15 @@ class AddBalancePage extends BasePage {
   // TODO: Make it reusable after finding the models related and use it here and in phone_number_product_page.dart
   Widget cryptoAmount(double totalPrice) {
     return FutureBuilder<BuyAmount>(
-      future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet)
+      future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet!)
           .calculateAmount(totalPrice.toString(), FiatCurrency.usd.title),
       builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
         double sourceAmount;
         double destAmount;
 
-        if (snapshot.hasData) {
-          sourceAmount = snapshot.data.sourceAmount;
-          destAmount = snapshot.data.destAmount;
+        if (snapshot.hasData && snapshot.data != null) {
+          sourceAmount = snapshot.data!.sourceAmount;
+          destAmount = snapshot.data!.destAmount;
         } else {
           sourceAmount = 0.0;
           destAmount = 0.0;
@@ -262,11 +262,11 @@ class AddBalancePage extends BasePage {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              "${sourceAmount} ${getIt.get<AppStore>().wallet.currency.toString()}",
+              "${sourceAmount} ${getIt.get<AppStore>().wallet!.currency.toString()}",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Theme.of(context).primaryTextTheme.title.color,
+                color: Theme.of(context).primaryTextTheme.headline6?.color,
               ),
             ),
             Text(
@@ -290,7 +290,7 @@ class AddBalancePage extends BasePage {
         builder: (dialogContext) {
           return InfoAlertDialog(
             alertTitle: S.of(context).awaiting_payment_confirmation,
-            alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
+            alertTitleColor: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
             alertContentPadding: EdgeInsets.zero,
             alertContent: Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 32),
@@ -305,7 +305,7 @@ class AddBalancePage extends BasePage {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).primaryTextTheme.title.color,
+                          color: Theme.of(context).primaryTextTheme.headline6?.color,
                         ),
                       ),
                     ),
@@ -337,7 +337,7 @@ class AddBalancePage extends BasePage {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).primaryTextTheme.title.color,
+                                color: Theme.of(context).primaryTextTheme.headline6?.color,
                               ),
                             ),
                           ),
@@ -357,7 +357,7 @@ class AddBalancePage extends BasePage {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).primaryTextTheme.title.color,
+                                color: Theme.of(context).primaryTextTheme.headline6?.color,
                               ),
                             ),
                           ),

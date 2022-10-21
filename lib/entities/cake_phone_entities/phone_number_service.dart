@@ -1,11 +1,11 @@
 class PhoneNumberService {
   const PhoneNumberService({
-    this.id,
-    this.phoneNumber,
-    this.planId,
-    this.usedUntil,
-    this.messageReceiveEnabled,
-    this.autoRenew,
+    required this.id,
+    required this.phoneNumber,
+    required this.planId,
+    required this.usedUntil,
+    this.messageReceiveEnabled = false,
+    this.autoRenew = false,
   });
 
   final String id;

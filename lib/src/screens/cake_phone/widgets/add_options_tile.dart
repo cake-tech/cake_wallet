@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AddOptionsTile extends StatelessWidget {
-  const AddOptionsTile({Key key, @required this.leading, this.onTap}) : super(key: key);
+  const AddOptionsTile({Key? key, required this.leading, this.onTap}) : super(key: key);
 
   final Widget leading;
-  final Function() onTap;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +24,12 @@ class AddOptionsTile extends StatelessWidget {
             Container(
               width: 2,
               height: 48,
-              color: Theme.of(context).primaryTextTheme.title.color,
+              color: Theme.of(context).primaryTextTheme.headline6?.color,
             ),
             const SizedBox(width: 16),
             Icon(
               Icons.add_circle,
-              color: Theme.of(context).primaryTextTheme.title.color,
+              color: Theme.of(context).primaryTextTheme.headline6?.color,
               size: 24,
             ),
           ],
