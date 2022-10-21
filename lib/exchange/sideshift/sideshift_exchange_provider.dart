@@ -16,16 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
-  SideShiftExchangeProvider()
-      : super(
-            pairList: CryptoCurrency.all
-                .where((i) => i != CryptoCurrency.xhv)
-                .map((i) => CryptoCurrency.all
-                    .where((i) => i != CryptoCurrency.xhv)
-                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
-                    .where((c) => c != null))
-                .expand((i) => i)
-                .toList());
+  SideShiftExchangeProvider() : super(pairList: _supportedPairs());
 
   static const affiliateId = secrets.sideShiftAffiliateId;
   static const apiBaseUrl = 'https://sideshift.ai/api';
@@ -33,6 +24,35 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   static const orderPath = '/v1/orders';
   static const quotePath = '/v1/quotes';
   static const permissionPath = '/v1/permissions';
+
+  static const List<CryptoCurrency> _notSupported = [
+    CryptoCurrency.xhv,
+    CryptoCurrency.dcr,
+    CryptoCurrency.husd,
+    CryptoCurrency.kmd,
+    CryptoCurrency.mkr,
+    CryptoCurrency.near,
+    CryptoCurrency.oxt,
+    CryptoCurrency.paxg,
+    CryptoCurrency.pivx,
+    CryptoCurrency.rune,
+    CryptoCurrency.rvn,
+    CryptoCurrency.scrt,
+    CryptoCurrency.stx,
+  ];
+
+  static List<ExchangePair> _supportedPairs() {
+    final supportedCurrencies = CryptoCurrency.all
+        .where((element) => !_notSupported.contains(element))
+        .toList();
+
+    return supportedCurrencies
+        .map((i) => supportedCurrencies
+            .map((k) => ExchangePair(from: i, to: k, reverse: true))
+            .where((c) => c != null))
+        .expand((i) => i)
+        .toList();
+  }
 
   @override
   ExchangeProviderDescription get description =>
@@ -270,6 +290,14 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return currency.tag!.toLowerCase();
       case CryptoCurrency.usdterc20:
         return 'usdtErc20';
+      case CryptoCurrency.usdttrc20:
+        return 'usdtTrc20';
+      case CryptoCurrency.usdcpoly:
+        return 'usdcpolygon';
+      case CryptoCurrency.usdcsol:
+        return 'usdcsol';
+      case CryptoCurrency.maticpoly:
+        return 'polygon';
       default:
         return currency.title.toLowerCase();
     }

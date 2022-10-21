@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
@@ -59,12 +60,12 @@ abstract class ExchangeViewModelBase with Store {
       receiveCurrency = wallet.currency,
       depositCurrency = wallet.currency,
       providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()],
-      selectedProviders = ObservableList<ExchangeProvider>(),
-      currentTradeAvailableProviders = SplayTreeMap<double, ExchangeProvider>() {
+      selectedProviders = ObservableList<ExchangeProvider>() {
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
       CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
     _initialPairBasedOnWallet();
+
     final Map<String, dynamic> exchangeProvidersSelection = json
         .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
 
@@ -75,6 +76,11 @@ abstract class ExchangeViewModelBase with Store {
             ? element.isEnabled
             : (exchangeProvidersSelection[element.title] as bool))
         .toList());
+
+    _setAvailableProviders();
+    _calculateBestRate();
+
+    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => _calculateBestRate());
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -119,8 +125,15 @@ abstract class ExchangeViewModelBase with Store {
   /// Maps in dart are not sorted by default
   /// SplayTreeMap is a map sorted by keys
   /// will use it to sort available providers
-  /// depending on the amount they yield for the current trade
-  SplayTreeMap<double, ExchangeProvider> currentTradeAvailableProviders;
+  /// based on the rate they yield for the current trade
+  ///
+  ///
+  /// initialize with descending comparator
+  /// since we want largest rate first
+  final SplayTreeMap<double, ExchangeProvider> _sortedAvailableProviders =
+          SplayTreeMap<double, ExchangeProvider>((double a, double b) => b.compareTo(a));
+
+  final List<ExchangeProvider> _tradeAvailableProviders = [];
 
   @observable
   ObservableList<ExchangeProvider> selectedProviders;
@@ -191,6 +204,10 @@ abstract class ExchangeViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
+  double _bestRate = 0.0;
+
+  late Timer bestRateSync;
+
   @action
   void changeDepositCurrency({required CryptoCurrency currency}) {
     depositCurrency = currency;
@@ -210,68 +227,11 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  void changeReceiveAmount({required String amount}) {
+  Future<void> changeReceiveAmount({required String amount}) async {
     receiveAmount = amount;
     isReverse = true;
 
-    if (amount == null || amount.isEmpty) {
-      depositAmount = '';
-      receiveAmount = '';
-      return;
-    }
-
-    final _enteredAmount = double.parse(amount.replaceAll(',', '.')) ?? 0;
-
-    currentTradeAvailableProviders.clear();
-    for (var provider in selectedProviders) {
-      /// if this provider is not valid for the current pair, skip it
-      if (!providersForCurrentPair().contains(provider)) {
-        continue;
-      }
-      provider
-          .calculateAmount(
-              from: receiveCurrency,
-              to: depositCurrency,
-              amount: _enteredAmount,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: true)
-          .then((amount) {
-
-        final from = isFixedRateMode
-            ? receiveCurrency
-            : depositCurrency;
-        final to = isFixedRateMode
-            ? depositCurrency
-            : receiveCurrency;
-
-        provider.fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode,
-        ).then((limits) {
-          /// if the entered amount doesn't exceed the limits of this provider
-          if ((limits?.max ?? double.maxFinite) >= _enteredAmount
-              && (limits?.min ?? 0) <= _enteredAmount) {
-            /// add this provider as its valid for this trade
-            /// will be sorted ascending already since
-            /// we seek the least deposit amount
-            currentTradeAvailableProviders[amount] = provider;
-          }
-          return amount;
-        }).then((amount) => depositAmount = _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''));
-      });
-    }
-  }
-
-  @action
-  void changeDepositAmount({required String amount}) {
-    depositAmount = amount;
-    isReverse = false;
-
-    if (amount == null || amount.isEmpty) {
+    if (amount.isEmpty) {
       depositAmount = '';
       receiveAmount = '';
       return;
@@ -279,93 +239,115 @@ abstract class ExchangeViewModelBase with Store {
 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    currentTradeAvailableProviders.clear();
-    for (var provider in selectedProviders) {
-      /// if this provider is not valid for the current pair, skip it
-      if (!providersForCurrentPair().contains(provider)) {
-        continue;
+    if (_bestRate == 0) {
+      depositAmount = S.current.fetching;
+
+      await _calculateBestRate();
+    }
+
+    depositAmount = _cryptoNumberFormat
+        .format(_enteredAmount / _bestRate)
+        .toString()
+        .replaceAll(RegExp('\\,'), '');
+  }
+
+  @action
+  Future<void> changeDepositAmount({required String amount}) async {
+    depositAmount = amount;
+    isReverse = false;
+
+    if (amount.isEmpty) {
+      depositAmount = '';
+      receiveAmount = '';
+      return;
+    }
+
+    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
+
+    /// in case the best rate was not calculated yet
+    if (_bestRate == 0) {
+      receiveAmount = S.current.fetching;
+
+      await _calculateBestRate();
+    }
+
+    receiveAmount = _cryptoNumberFormat
+        .format(_bestRate * _enteredAmount)
+        .toString()
+        .replaceAll(RegExp('\\,'), '');
+  }
+
+  Future<void> _calculateBestRate() async {
+    final result = await Future.wait<double>(
+        _tradeAvailableProviders
+            .map((element) => element.calculateAmount(
+                from: depositCurrency,
+                to: receiveCurrency,
+                amount: 1,
+                isFixedRateMode: isFixedRateMode,
+                isReceiveAmount: false))
+    );
+
+    _sortedAvailableProviders.clear();
+
+    for (int i=0;i<result.length;i++) {
+      if (result[i] != 0) {
+        /// add this provider as its valid for this trade
+        _sortedAvailableProviders[result[i]] = _tradeAvailableProviders[i];
       }
-      provider
-          .calculateAmount(
-              from: depositCurrency,
-              to: receiveCurrency,
-              amount: _enteredAmount,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: false)
-          .then((amount) {
-
-        final from = isFixedRateMode
-            ? receiveCurrency
-            : depositCurrency;
-        final to = isFixedRateMode
-            ? depositCurrency
-            : receiveCurrency;
-
-        provider.fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode,
-        ).then((limits) {
-
-          /// if the entered amount doesn't exceed the limits of this provider
-          if ((limits?.max ?? double.maxFinite) >= _enteredAmount
-              && (limits?.min ?? 0) <= _enteredAmount) {
-            /// add this provider as its valid for this trade
-            /// subtract from maxFinite so the provider
-            /// with the largest amount would be sorted ascending
-            currentTradeAvailableProviders[double.maxFinite - amount] = provider;
-          }
-          return amount;
-        }).then((amount) => receiveAmount =
-            receiveAmount = _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''));
-      });
+    }
+    if (_sortedAvailableProviders.isNotEmpty) {
+      _bestRate = _sortedAvailableProviders.keys.first;
     }
   }
 
   @action
-  Future loadLimits() async {
+  Future<void> loadLimits() async {
     if (selectedProviders.isEmpty) {
       return;
     }
 
     limitsState = LimitsIsLoading();
 
-    try {
-      final from = isFixedRateMode
+    final from = isFixedRateMode
         ? receiveCurrency
         : depositCurrency;
-      final to = isFixedRateMode
+    final to = isFixedRateMode
         ? depositCurrency
         : receiveCurrency;
 
-      limits = await selectedProviders.first.fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode);
+    double lowestMin = double.maxFinite;
+    double? highestMax = 0.0;
 
-      /// if the first provider limits is bounded then check with other providers
-      /// for the highest maximum limit
-      if (limits.max != null) {
-        for (int i = 1;i < selectedProviders.length;i++) {
-          final Limits tempLimits = await selectedProviders[i].fetchLimits(
-              from: from,
-              to: to,
-              isFixedRateMode: isFixedRateMode);
-
-          /// set the limits with the maximum provider limit
-          /// if there is a provider with null max then it's the maximum limit
-          if ((tempLimits.max ?? double.maxFinite) > limits.max!) {
-            limits = tempLimits;
-          }
-        }
+    for (var provider in selectedProviders) {
+      /// if this provider is not valid for the current pair, skip it
+      if (!providersForCurrentPair().contains(provider)) {
+        continue;
       }
 
+      try {
+        final tempLimits = await provider.fetchLimits(
+            from: from,
+            to: to,
+            isFixedRateMode: isFixedRateMode);
+
+        if (tempLimits.min != null && tempLimits.min! < lowestMin) {
+          lowestMin = tempLimits.min!;
+        }
+        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax) {
+          highestMax = tempLimits.max;
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+
+    if (lowestMin < double.maxFinite) {
+      limits = Limits(min: lowestMin, max: highestMax);
+
       limitsState = LimitsLoadedSuccessfully(limits: limits);
-    } catch (e) {
-      limitsState = LimitsLoadedFailure(error: e.toString());
+    } else {
+      limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
     }
   }
 
@@ -374,7 +356,7 @@ abstract class ExchangeViewModelBase with Store {
     TradeRequest? request;
     String amount = '';
 
-    for (var provider in currentTradeAvailableProviders.values) {
+    for (var provider in _sortedAvailableProviders.values) {
       if (!(await provider.checkIsAvailable())) {
         continue;
       }
@@ -383,7 +365,7 @@ abstract class ExchangeViewModelBase with Store {
         request = SideShiftRequest(
           depositMethod: depositCurrency,
           settleMethod: receiveCurrency,
-          depositAmount: depositAmount?.replaceAll(',', '.') ?? '',
+          depositAmount: depositAmount.replaceAll(',', '.'),
           settleAddress: receiveAddress,
           refundAddress: depositAddress,
         );
@@ -394,7 +376,7 @@ abstract class ExchangeViewModelBase with Store {
         request = SimpleSwapRequest(
           from: depositCurrency,
           to: receiveCurrency,
-          amount: depositAmount?.replaceAll(',', '.') ?? '',
+          amount: depositAmount.replaceAll(',', '.'),
           address: receiveAddress,
           refundAddress: depositAddress,
         );
@@ -405,8 +387,8 @@ abstract class ExchangeViewModelBase with Store {
         request = XMRTOTradeRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            amount: depositAmount?.replaceAll(',', '.') ?? '',
-            receiveAmount: receiveAmount?.replaceAll(',', '.') ?? '',
+            amount: depositAmount.replaceAll(',', '.'),
+            receiveAmount: receiveAmount.replaceAll(',', '.'),
             address: receiveAddress,
             refundAddress: depositAddress,
             isBTCRequest: isReceiveAmountEntered);
@@ -417,8 +399,8 @@ abstract class ExchangeViewModelBase with Store {
         request = ChangeNowRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            fromAmount: depositAmount?.replaceAll(',', '.') ?? '',
-            toAmount: receiveAmount?.replaceAll(',', '.') ?? '',
+            fromAmount: depositAmount.replaceAll(',', '.'),
+            toAmount: receiveAmount.replaceAll(',', '.'),
             refundAddress: depositAddress,
             address: receiveAddress,
             isReverse: isReverse);
@@ -429,7 +411,7 @@ abstract class ExchangeViewModelBase with Store {
         request = MorphTokenRequest(
             from: depositCurrency,
             to: receiveCurrency,
-            amount: depositAmount?.replaceAll(',', '.') ?? '',
+            amount: depositAmount.replaceAll(',', '.'),
             refundAddress: depositAddress,
             address: receiveAddress);
         amount = depositAmount;
@@ -437,7 +419,7 @@ abstract class ExchangeViewModelBase with Store {
 
       amount = amount.replaceAll(',', '.');
 
-      if (limitsState is LimitsLoadedSuccessfully && amount != null) {
+      if (limitsState is LimitsLoadedSuccessfully) {
         if (double.parse(amount) < limits.min!) {
           continue;
         } else if (limits.max != null && double.parse(amount) > limits.max!) {
@@ -527,7 +509,7 @@ abstract class ExchangeViewModelBase with Store {
     final providers = providerList
         .where((provider) => provider.pairList
             .where((pair) =>
-                pair.from == (from ?? depositCurrency) && pair.to == (to ?? receiveCurrency))
+                pair.from == from && pair.to == to)
             .isNotEmpty)
         .toList();
 
@@ -537,6 +519,10 @@ abstract class ExchangeViewModelBase with Store {
   void _onPairChange() {
     depositAmount = '';
     receiveAmount = '';
+    loadLimits();
+    _setAvailableProviders();
+    _bestRate = 0;
+    _calculateBestRate();
   }
 
   void _initialPairBasedOnWallet() {
@@ -579,11 +565,15 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void addExchangeProvider(ExchangeProvider provider) {
     selectedProviders.add(provider);
+    if (providersForCurrentPair().contains(provider)) {
+      _tradeAvailableProviders.add(provider);
+    }
   }
 
   @action
   void removeExchangeProvider(ExchangeProvider provider) {
     selectedProviders.remove(provider);
+    _tradeAvailableProviders.remove(provider);
   }
 
   @action
@@ -593,13 +583,14 @@ abstract class ExchangeViewModelBase with Store {
     isFixedRateMode = false;
     _defineIsReceiveAmountEditable();
     loadLimits();
+    _bestRate = 0;
+    _calculateBestRate();
 
     final Map<String, dynamic> exchangeProvidersSelection = json
         .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
 
-    exchangeProvidersSelection.updateAll((key, dynamic value) => false);
-    for (var provider in selectedProviders) {
-      exchangeProvidersSelection[provider.title] = true;
+    for (var provider in providerList) {
+      exchangeProvidersSelection[provider.title] = selectedProviders.contains(provider);
     }
 
     sharedPreferences.setString(
@@ -611,5 +602,13 @@ abstract class ExchangeViewModelBase with Store {
   bool get isAvailableInSelected {
     final providersForPair = providersForCurrentPair();
     return selectedProviders.any((element) => element.isAvailable && providersForPair.contains(element));
+  }
+
+  void _setAvailableProviders() {
+    _tradeAvailableProviders.clear();
+
+    _tradeAvailableProviders.addAll(
+        selectedProviders
+            .where((provider) => providersForCurrentPair().contains(provider)));
   }
 }

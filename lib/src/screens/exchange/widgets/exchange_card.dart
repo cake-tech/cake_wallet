@@ -37,7 +37,8 @@ class ExchangeCard extends StatefulWidget {
       this.addressFocusNode,
       this.allAmount,
       this.onPushPasteButton,
-      this.onPushAddressBookButton})
+      this.onPushAddressBookButton,
+      this.onDispose})
       : super(key: key);
 
   final List<CryptoCurrency> currencies;
@@ -63,6 +64,7 @@ class ExchangeCard extends StatefulWidget {
   final VoidCallback? allAmount;
   final void Function(BuildContext context)? onPushPasteButton;
   final void Function(BuildContext context)? onPushAddressBookButton;
+  final Function()? onDispose;
 
   @override
   ExchangeCardState createState() => ExchangeCardState();
@@ -104,6 +106,13 @@ class ExchangeCardState extends State<ExchangeCard> {
     _isMoneroWallet = widget.isMoneroWallet;
     addressController.text = widget.initialAddress;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.onDispose?.call();
+
+    super.dispose();
   }
 
   void changeLimits({String? min, String? max}) {
