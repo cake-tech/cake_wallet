@@ -53,7 +53,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.haven:
         final asset = haven!.assetOfTransaction(transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset]!;
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
           price: price);

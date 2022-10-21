@@ -41,21 +41,18 @@ class BaseAlertDialog extends StatelessWidget {
   }
 
   Widget actionButtons(BuildContext context) {
-    return Row(
+    return Container(
+      height: 52,
+      child: Row(
       mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Flexible(
-            child: Container(
-          height: 52,
-          padding: EdgeInsets.only(left: 6, right: 6),
-          color: Theme.of(context).accentTextTheme!.bodyText1!.decorationColor!,
-          child: ButtonTheme(
-            minWidth: double.infinity,
+          child: Container(
+            width: double.infinity,
+            color: Theme.of(context).accentTextTheme!.bodyText1!.decorationColor!,
             child: TextButton(
                 onPressed: actionLeft,
-                // FIX-ME: Style
-                //highlightColor: Colors.transparent,
-                //splashColor: Colors.transparent,
                 child: Text(
                   leftActionButtonText,
                   textAlign: TextAlign.center,
@@ -68,24 +65,17 @@ class BaseAlertDialog extends StatelessWidget {
                   ),
                 )),
           ),
-        )),
+        ),
         Container(
           width: 1,
-          height: 52,
           color: Theme.of(context).dividerColor,
         ),
         Flexible(
-            child: Container(
-          height: 52,
-          padding: EdgeInsets.only(left: 6, right: 6),
-          color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
-          child: ButtonTheme(
-            minWidth: double.infinity,
+          child: Container(
+            width: double.infinity,
+            color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
             child: TextButton(
                 onPressed: actionRight,
-                // FIX-ME: Style
-                //highlightColor: Colors.transparent,
-                //splashColor: Colors.transparent,
                 child: Text(
                   rightActionButtonText,
                   textAlign: TextAlign.center,
@@ -98,9 +88,9 @@ class BaseAlertDialog extends StatelessWidget {
                   ),
                 )),
           ),
-        )),
+        ),
       ],
-    );
+    ));
   }
 
   @override

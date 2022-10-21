@@ -179,6 +179,7 @@ class ExchangePage extends BasePage {
                             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                             child: Observer(
                               builder: (_) => ExchangeCard(
+                                onDispose: disposeBestRateSync,
                                 hasAllAmount: exchangeViewModel.hasAllAmount,
                                 allAmount: exchangeViewModel.hasAllAmount
                                     ? () => exchangeViewModel
@@ -265,6 +266,7 @@ class ExchangePage extends BasePage {
                             EdgeInsets.only(top: 29, left: 24, right: 24),
                             child: Observer(
                                 builder: (_) => ExchangeCard(
+                                  onDispose: disposeBestRateSync,
                                   amountFocusNode: _receiveAmountFocus,
                                   addressFocusNode: _receiveAddressFocus,
                                   key: receiveKey,
@@ -743,13 +745,13 @@ class ExchangePage extends BasePage {
       if (_receiveAmountFocus.hasFocus) {
         exchangeViewModel.isFixedRateMode = true;
       }
-      exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
+      // exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
     });
 
     _depositAmountFocus.addListener(() {
       exchangeViewModel.isFixedRateMode = false;
-      exchangeViewModel.changeDepositAmount(
-        amount: depositAmountController.text);
+      // exchangeViewModel.changeDepositAmount(
+      //   amount: depositAmountController.text);
     });
 
     _isReactionsSet = true;
@@ -791,4 +793,6 @@ class ExchangePage extends BasePage {
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
+
+  void disposeBestRateSync() => exchangeViewModel.bestRateSync?.cancel();
 }

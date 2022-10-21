@@ -455,7 +455,13 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         .addresses.map((address) => electrumClient
         .getListUnspentWithAddress(address.address, networkType)
         .then((unspent) => unspent
-            .map((unspent) => BitcoinUnspent.fromJSON(address, unspent)))));
+            .map((unspent) {
+              try {
+                return BitcoinUnspent.fromJSON(address, unspent);
+              } catch(_) {
+                return null;
+              }
+            }).whereNotNull())));
     unspentCoins = unspent.expand((e) => e).toList();
 
     if (unspentCoinsInfo.isEmpty) {
@@ -542,8 +548,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       confirmations: confirmations);
   }
 
-  Future<ElectrumTransactionInfo> fetchTransactionInfo(
+  Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, required int height}) async {
+        try {
     final tx = await getTransactionExpanded(hash: hash, height: height);
     final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
     return ElectrumTransactionInfo.fromElectrumBundle(
@@ -552,6 +559,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       networkType,
       addresses: addresses,
       height: height);
+      } catch(_) {
+        return null;
+      }
   }
 
   @override
@@ -578,12 +588,20 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     });
     final historiesWithDetails = await Future.wait(
       normalizedHistories
-        .map((transaction) => fetchTransactionInfo(
-            hash: transaction['tx_hash'] as String,
-            height: transaction['height'] as int)));
-
+        .map((transaction) {
+          try {
+            return fetchTransactionInfo(
+              hash: transaction['tx_hash'] as String,
+              height: transaction['height'] as int);
+          } catch(_) {
+            return Future.value(null);
+          }
+        }));
     return historiesWithDetails.fold<Map<String, ElectrumTransactionInfo>>(
         <String, ElectrumTransactionInfo>{}, (acc, tx) {
+      if (tx == null) {
+        return acc;
+      }
       acc[tx.id] = acc[tx.id]?.updated(tx) ?? tx;
       return acc;
     });
@@ -601,7 +619,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       walletAddresses.updateReceiveAddresses();
       await transactionHistory.save();
       _isTransactionUpdating = false;
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print(e);
       _isTransactionUpdating = false;
     }
