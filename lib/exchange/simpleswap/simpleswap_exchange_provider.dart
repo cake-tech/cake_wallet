@@ -17,8 +17,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   SimpleSwapExchangeProvider()
       : super(
             pairList: CryptoCurrency.all
-                .map((i) =>
-                    CryptoCurrency.all.map((k) => ExchangePair(from: i, to: k, reverse: true)).where((c) => c != null))
+                .where((i) => i != CryptoCurrency.zaddr)
+                .map((i) => CryptoCurrency.all
+                    .where((i) => i != CryptoCurrency.zaddr)
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
+                    .where((c) => c != null))
                 .expand((i) => i)
                 .toList());
 
@@ -56,7 +59,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await get(uri);
 
-      if (response.body == null) return 0.00;
+      if (response.body == null || response.body == "null") return 0.00;
       final data = json.decode(response.body) as String;
     
       return double.parse(data);
@@ -151,8 +154,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min =  responseJSON['min'] != null ?  double.tryParse(responseJSON['min'] as String) : null;
-    final max = responseJSON['max'] != null ?  double.parse(responseJSON['max'] as String) : null;
+    final min = double.tryParse(responseJSON['min'] as String? ?? '');
+    final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
     return Limits(min: min, max: max);
   }
@@ -217,7 +220,13 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.bnb:
         return currency.tag!.toLowerCase();
       case CryptoCurrency.usdterc20:
-        return 'usdterc';
+        return 'usdterc20';
+      case CryptoCurrency.usdttrc20:
+        return 'usdttrc20';
+      case CryptoCurrency.usdcpoly:
+        return 'usdcpoly';
+      case CryptoCurrency.usdcsol:
+        return 'usdcspl';
       default:
         return currency.title.toLowerCase();
     }
