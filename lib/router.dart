@@ -293,7 +293,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
           builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
-              param1: settings.arguments as AccountListItem));
+              param1: settings.arguments as AccountListItem?));
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
