@@ -513,7 +513,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         settings: RouteSettings(name: Routes.phoneNumberProduct),
         builder: (_) => PhoneNumberProductPage(
           getIt.get<PhonePlanViewModel>(),
-          phoneNumberService: settings.arguments as PhoneNumberService,
+          phoneNumberService: settings.arguments as PhoneNumberService?,
         ),
       );
 

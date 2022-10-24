@@ -8,41 +8,45 @@ part 'phone_plan_view_model.g.dart';
 class PhonePlanViewModel = PhonePlanViewModelBase with _$PhonePlanViewModel;
 
 abstract class PhonePlanViewModelBase with Store {
-  PhonePlanViewModelBase({this.selectedPlan}) : this.additionalSms = 0 {
+  PhonePlanViewModelBase({this.selectedPlan})
+      : this.additionalSms = 0,
+        this.rateInCents = 0,
+        this.selectedCountry =
+            countryList.firstWhere((element) => element.iso3Code == "USA"),
+        this.servicePlans = ObservableList<ServicePlan>.of([]) {
     rateInCents = 20; // TODO: get from api
 
-    servicePlans = [
+    servicePlans = ObservableList<ServicePlan>.of([
       ServicePlan(id: "1", duration: 1, price: 20, quantity: 30),
       ServicePlan(id: "2", duration: 3, price: 10, quantity: 60),
       ServicePlan(id: "3", duration: 6, price: 9, quantity: 120),
       ServicePlan(id: "4", duration: 12, price: 5, quantity: 200),
       ServicePlan(id: "5", duration: 24, price: 2, quantity: 400),
-    ];
+    ]);
     // TODO: servicePlans = _getServicesFromApi
 
-    selectedPlan ??= servicePlans!.first;
-
-    selectedCountry = countryList.firstWhere((element) => element.iso3Code == "USA");
+    selectedPlan ??= servicePlans.first;
   }
 
   @observable
   ServicePlan? selectedPlan;
 
   @observable
-  Country? selectedCountry;
+  Country selectedCountry;
 
   @observable
-  List<ServicePlan>? servicePlans;
+  ObservableList<ServicePlan> servicePlans;
 
   @observable
   int additionalSms;
 
   @observable
-  int? rateInCents;
+  int rateInCents;
 
   @computed
-  double get totalPrice => (selectedPlan?.price ?? 0)
-      + (additionalSms * ((rateInCents ?? 0) / 100)).toDouble();
+  double get totalPrice =>
+      (selectedPlan?.price ?? 0) +
+      (additionalSms * (rateInCents / 100)).toDouble();
 
   @action
   void addAdditionalSms() => additionalSms++;

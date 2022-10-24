@@ -31,7 +31,8 @@ class PhoneNumberProductPage extends BasePage {
   final PhoneNumberService? phoneNumberService;
 
   @override
-  Widget body(BuildContext context) => PhoneNumberProductBody(phonePlanViewModel, phoneNumberService);
+  Widget body(BuildContext context) =>
+      PhoneNumberProductBody(phonePlanViewModel, phoneNumberService);
 
   @override
   Widget middle(BuildContext context) {
@@ -74,7 +75,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
+                  color: Theme.of(context)
+                      .primaryTextTheme
+                      .headline6
+                      ?.decorationColor,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -102,11 +106,13 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         .map((e) => PlanCard(
                               plan: e,
                               onTap: () {
-                                if (widget.phonePlanViewModel.selectedPlan != e) {
+                                if (widget.phonePlanViewModel.selectedPlan !=
+                                    e) {
                                   widget.phonePlanViewModel.selectedPlan = e;
                                 }
                               },
-                              isSelected: widget.phonePlanViewModel.selectedPlan == e,
+                              isSelected:
+                                  widget.phonePlanViewModel.selectedPlan == e,
                             ))
                         .toList(),
                   ),
@@ -122,17 +128,24 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                   CakePhoneSettingsTile(
                     title: S.of(context).free_sms_email_forward,
                     value: Observer(builder: (_) {
-                      return Text(
-                        "${widget.phonePlanViewModel.selectedPlan.quantity}, " +
-                            "${S.of(context).then} " +
-                            "\$${(widget.phonePlanViewModel.rateInCents / 100).toStringAsFixed(2)} " +
-                            "${S.of(context).per_message}",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.headline6?.color,
-                        ),
-                      );
+                      if (widget.phonePlanViewModel.selectedPlan != null) {
+                        return Text(
+                          "${widget.phonePlanViewModel.selectedPlan!.quantity}, " +
+                              "${S.of(context).then} " +
+                              "\$${(widget.phonePlanViewModel.rateInCents / 100).toStringAsFixed(2)} " +
+                              "${S.of(context).per_message}",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .headline6
+                                ?.color,
+                          ),
+                        );
+                      }
+
+                      return const SizedBox();
                     }),
                   ),
                   if (widget.phoneNumberService != null)
@@ -143,7 +156,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.headline6?.color,
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .headline6
+                              ?.color,
                         ),
                       ),
                     ),
@@ -154,8 +170,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         return Row(
                           children: [
                             Image.asset(
-                              CountryPickerUtils.getFlagImageAssetPath(
-                                  widget.phonePlanViewModel.selectedCountry.isoCode),
+                              CountryPickerUtils.getFlagImageAssetPath(widget
+                                  .phonePlanViewModel.selectedCountry.isoCode),
                               height: 20.0,
                               width: 36.0,
                               fit: BoxFit.fill,
@@ -166,13 +182,18 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 children: [
                                   Flexible(
                                     child: Padding(
-                                      padding: const EdgeInsets.only(left: 8, right: 6),
+                                      padding: const EdgeInsets.only(
+                                          left: 8, right: 6),
                                       child: Text(
-                                        widget.phonePlanViewModel.selectedCountry.name,
+                                        widget.phonePlanViewModel
+                                            .selectedCountry.name,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
-                                          color: Theme.of(context).primaryTextTheme.headline6?.color,
+                                          color: Theme.of(context)
+                                              .primaryTextTheme
+                                              .headline6
+                                              ?.color,
                                         ),
                                       ),
                                     ),
@@ -182,7 +203,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).primaryTextTheme.headline6?.color,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .headline6
+                                          ?.color,
                                     ),
                                   ),
                                 ],
@@ -190,7 +214,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             ),
                             Icon(
                               Icons.arrow_forward_ios,
-                              color: Theme.of(context).primaryTextTheme.headline6?.color,
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline6
+                                  ?.color,
                               size: 16,
                             ),
                           ],
@@ -205,14 +232,17 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                               final Country _country = country as Country;
                               return "${_country.name} (+${_country.phoneCode})";
                             },
-                            selectedAtIndex: countryList.indexOf(widget.phonePlanViewModel.selectedCountry),
+                            selectedAtIndex: countryList.indexOf(
+                                widget.phonePlanViewModel.selectedCountry),
                             mainAxisAlignment: MainAxisAlignment.start,
                             onItemSelected: (Country country) {
-                              widget.phonePlanViewModel.selectedCountry = country;
+                              widget.phonePlanViewModel.selectedCountry =
+                                  country;
                             },
                             images: countryList
                                 .map((e) => Image.asset(
-                                      CountryPickerUtils.getFlagImageAssetPath(e.isoCode),
+                                      CountryPickerUtils.getFlagImageAssetPath(
+                                          e.isoCode),
                                       height: 20.0,
                                       width: 36.0,
                                       fit: BoxFit.fill,
@@ -221,13 +251,20 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 .toList(),
                             isSeparated: false,
                             hintText: S.of(context).search_country,
-                            matchingCriteria: (dynamic country, String searchText) {
+                            matchingCriteria:
+                                (dynamic country, String searchText) {
                               final Country _country = country as Country;
                               searchText = searchText.toLowerCase();
-                              return _country.name.toLowerCase().contains(searchText) ||
+                              return _country.name
+                                      .toLowerCase()
+                                      .contains(searchText) ||
                                   _country.phoneCode.contains(searchText) ||
-                                  _country.isoCode.toLowerCase().contains(searchText) ||
-                                  _country.iso3Code.toLowerCase().contains(searchText);
+                                  _country.isoCode
+                                      .toLowerCase()
+                                      .contains(searchText) ||
+                                  _country.iso3Code
+                                      .toLowerCase()
+                                      .contains(searchText);
                             },
                           ),
                         );
@@ -240,35 +277,48 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       Text(
                         S.of(context).additional_sms_messages,
                         style: TextStyle(
-                          color: Theme.of(context).accentTextTheme.subtitle1?.color,
+                          color: Theme.of(context)
+                              .accentTextTheme
+                              .subtitle1
+                              ?.color,
                         ),
                       ),
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: Theme.of(context).primaryTextTheme.displayMedium?.decorationColor,
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .displayMedium
+                              ?.decorationColor,
                         ),
                         child: Row(
                           children: [
                             GestureDetector(
-                              onTap: () => widget.phonePlanViewModel.removeAdditionalSms(),
+                              onTap: () => widget.phonePlanViewModel
+                                  .removeAdditionalSms(),
                               child: quantityIcon(Icons.remove),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Observer(builder: (_) {
                                 return Text(
-                                  widget.phonePlanViewModel.additionalSms.toString(),
+                                  widget.phonePlanViewModel.additionalSms
+                                      .toString(),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
-                                    color: Theme.of(context).primaryTextTheme.headline6?.color,
+                                    color: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline6
+                                        ?.color,
                                   ),
                                 );
                               }),
                             ),
                             GestureDetector(
-                              onTap: () => widget.phonePlanViewModel.addAdditionalSms(),
+                              onTap: () =>
+                                  widget.phonePlanViewModel.addAdditionalSms(),
                               child: quantityIcon(Icons.add),
                             ),
                           ],
@@ -293,7 +343,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       text: "\$${widget.phonePlanViewModel.totalPrice}",
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).primaryTextTheme.headline6?.color,
+                        color:
+                            Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ],
@@ -313,21 +364,34 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
                           alertTitle: S.of(context).confirm_payment,
-                          alertTitleColor: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
+                          alertTitleColor: Theme.of(context)
+                              .primaryTextTheme
+                              .headline6
+                              ?.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ReceiptRow(
-                                  title: S.of(context).amount, value: amountText(widget.phonePlanViewModel.totalPrice)),
-                              ReceiptRow(title: "${S.of(context).cake_pay_balance}: ", value: amountText(100)),
+                                  title: S.of(context).amount,
+                                  value: amountText(
+                                      widget.phonePlanViewModel.totalPrice)),
+                              ReceiptRow(
+                                  title: "${S.of(context).cake_pay_balance}: ",
+                                  value: amountText(100)),
                             ],
                           ),
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
-                          rightActionButtonColor: Theme.of(context).accentTextTheme.bodyText1?.color,
-                          leftActionButtonColor: Theme.of(context).primaryTextTheme.bodyText1?.backgroundColor,
+                          rightActionButtonColor: Theme.of(context)
+                              .accentTextTheme
+                              .bodyText1
+                              ?.color,
+                          leftActionButtonColor: Theme.of(context)
+                              .primaryTextTheme
+                              .bodyText1
+                              ?.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
                             Navigator.pushNamedAndRemoveUntil(
@@ -336,10 +400,12 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                               ModalRoute.withName(Routes.cakePhoneWelcome),
                             );
                           },
-                          actionLeftButton: () => Navigator.of(dialogContext).pop());
+                          actionLeftButton: () =>
+                              Navigator.of(dialogContext).pop());
                     });
               },
-              text: "${S.of(context).pay_with} ${S.of(context).cake_pay_balance}",
+              text:
+                  "${S.of(context).pay_with} ${S.of(context).cake_pay_balance}",
               color: Theme.of(context).accentTextTheme.caption?.backgroundColor,
               textColor: Theme.of(context).primaryTextTheme.headline6?.color,
             ),
@@ -351,14 +417,18 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
                           alertTitle: S.of(context).confirm_sending,
-                          alertTitleColor: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
+                          alertTitleColor: Theme.of(context)
+                              .primaryTextTheme
+                              .headline6
+                              ?.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ReceiptRow(
                                 title: S.of(context).amount,
-                                value: cryptoAmount(widget.phonePlanViewModel.totalPrice),
+                                value: cryptoAmount(
+                                    widget.phonePlanViewModel.totalPrice),
                               ),
                               ReceiptRow(
                                 title: S.of(context).send_fee,
@@ -366,8 +436,13 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                     .get<AppStore>()
                                     .wallet!
                                     .calculateEstimatedFee(
-                                      getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet!.type]!,
-                                      widget.phonePlanViewModel.totalPrice.floor(),
+                                      getIt
+                                              .get<AppStore>()
+                                              .settingsStore
+                                              .priority[
+                                          getIt.get<AppStore>().wallet!.type]!,
+                                      widget.phonePlanViewModel.totalPrice
+                                          .floor(),
                                     )
                                     .toDouble()),
                               ),
@@ -377,7 +452,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme.headline6?.color,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline6
+                                      ?.color,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -387,7 +465,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).accentTextTheme.subtitle1?.color,
+                                  color: Theme.of(context)
+                                      .accentTextTheme
+                                      .subtitle1
+                                      ?.color,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -396,16 +477,24 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
-                          rightActionButtonColor: Theme.of(context).accentTextTheme.bodyText1?.color,
-                          leftActionButtonColor: Theme.of(context).primaryTextTheme.bodyText1?.backgroundColor,
+                          rightActionButtonColor: Theme.of(context)
+                              .accentTextTheme
+                              .bodyText1
+                              ?.color,
+                          leftActionButtonColor: Theme.of(context)
+                              .primaryTextTheme
+                              .bodyText1
+                              ?.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
                             showPaymentConfirmationPopup();
                           },
-                          actionLeftButton: () => Navigator.of(dialogContext).pop());
+                          actionLeftButton: () =>
+                              Navigator.of(dialogContext).pop());
                     });
               },
-              text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet!.currency.toString()}",
+              text:
+                  "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet!.currency.toString()}",
               color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
             ),
@@ -504,7 +593,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         builder: (dialogContext) {
           return InfoAlertDialog(
             alertTitle: S.of(context).awaiting_payment_confirmation,
-            alertTitleColor: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
+            alertTitleColor:
+                Theme.of(context).primaryTextTheme.headline6?.decorationColor,
             alertContentPadding: EdgeInsets.zero,
             alertContent: Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 32),
@@ -517,7 +607,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryTextTheme.headline6?.color,
+                        color:
+                            Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ),
@@ -538,7 +629,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.subtitle1?.color,
+                            color: Theme.of(context)
+                                .accentTextTheme
+                                .subtitle1
+                                ?.color,
                           ),
                         ),
                         Padding(
@@ -549,7 +643,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.headline6?.color,
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline6
+                                  ?.color,
                             ),
                           ),
                         ),
@@ -558,7 +655,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.subtitle1?.color,
+                            color: Theme.of(context)
+                                .accentTextTheme
+                                .subtitle1
+                                ?.color,
                           ),
                         ),
                         Padding(
@@ -569,7 +669,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.headline6?.color,
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline6
+                                  ?.color,
                             ),
                           ),
                         ),

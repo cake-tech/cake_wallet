@@ -10,13 +10,15 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AutoRenewSettingsPage extends BasePage {
-  AutoRenewSettingsPage({required this.phoneNumberService, required this.phonePlanViewModel});
+  AutoRenewSettingsPage(
+      {required this.phoneNumberService, required this.phonePlanViewModel});
 
   final PhoneNumberService phoneNumberService;
   final PhonePlanViewModel phonePlanViewModel;
 
   @override
-  Widget body(BuildContext context) => AutoRenewSettingsBody(phoneNumberService, phonePlanViewModel);
+  Widget body(BuildContext context) =>
+      AutoRenewSettingsBody(phoneNumberService, phonePlanViewModel);
 
   @override
   Widget middle(BuildContext context) {
@@ -58,7 +60,10 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.headline6?.decorationColor,
+                  color: Theme.of(context)
+                      .primaryTextTheme
+                      .headline6
+                      ?.decorationColor,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -84,11 +89,13 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                         .map((e) => PlanCard(
                               plan: e,
                               onTap: () {
-                                if (widget.phonePlanViewModel.selectedPlan != e) {
+                                if (widget.phonePlanViewModel.selectedPlan !=
+                                    e) {
                                   widget.phonePlanViewModel.selectedPlan = e;
                                 }
                               },
-                              isSelected: widget.phonePlanViewModel.selectedPlan == e,
+                              isSelected:
+                                  widget.phonePlanViewModel.selectedPlan == e,
                             ))
                         .toList(),
                   ),
@@ -104,17 +111,23 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                   CakePhoneSettingsTile(
                     title: S.of(context).free_sms_email_forward,
                     value: Observer(builder: (_) {
-                      return Text(
-                        "${widget.phonePlanViewModel.selectedPlan.quantity}, " +
-                            "${S.of(context).then} " +
-                            "\$${(widget.phonePlanViewModel.rateInCents / 100).toStringAsFixed(2)} " +
-                            "${S.of(context).per_message}",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.headline6?.color,
-                        ),
-                      );
+                      if (widget.phonePlanViewModel.selectedPlan != null) {
+                        return Text(
+                          "${widget.phonePlanViewModel.selectedPlan?.quantity}, " +
+                              "${S.of(context).then} " +
+                              "\$${(widget.phonePlanViewModel.rateInCents / 100).toStringAsFixed(2)} " +
+                              "${S.of(context).per_message}",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .headline6
+                                ?.color,
+                          ),
+                        );
+                      }
+                      return const SizedBox();
                     }),
                   ),
                   CakePhoneSettingsTile(
@@ -124,7 +137,8 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).primaryTextTheme.headline6?.color,
+                        color:
+                            Theme.of(context).primaryTextTheme.headline6?.color,
                       ),
                     ),
                   ),
@@ -137,16 +151,14 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
         bottomSection: Column(
           children: <Widget>[
             PrimaryButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               text: "${S.of(context).disable} ${S.of(context).auto_renew}",
               color: Theme.of(context).accentTextTheme.caption?.backgroundColor,
               textColor: Theme.of(context).primaryTextTheme.headline6?.color,
             ),
             const SizedBox(height: 8),
             PrimaryButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               text: "${S.of(context).update} ${S.of(context).auto_renew}",
               color: Theme.of(context).accentTextTheme.bodyText1?.color,
               textColor: Colors.white,
