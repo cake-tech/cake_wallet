@@ -419,16 +419,16 @@ Future setup(
           getIt.get<MoneroAccountEditOrCreateViewModel>()));*/
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel,
-          AccountListItem, void>(
-      (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
+          AccountListItem?, void>(
+      (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
           monero!.getAccountList(getIt.get<AppStore>().wallet!),
           haven?.getAccountList(getIt.get<AppStore>().wallet!),
           wallet: getIt.get<AppStore>().wallet!,
           accountListItem: account));
 
-  getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem,
+  getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem?,
           void>(
-      (AccountListItem account, _) => MoneroAccountEditOrCreatePage(
+      (AccountListItem? account, _) => MoneroAccountEditOrCreatePage(
           moneroAccountCreationViewModel:
               getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
 
