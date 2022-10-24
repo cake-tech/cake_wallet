@@ -33,7 +33,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   static const apiKey = secrets.simpleSwapApiKey;
 
   @override
-  ExchangeProviderDescription get description => ExchangeProviderDescription.simpleSwap;
+  ExchangeProviderDescription get description =>
+      ExchangeProviderDescription.simpleSwap;
 
   @override
   Future<double> calculateAmount(
@@ -60,7 +61,6 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
       if (response.body == null || response.body == "null") return 0.00;
       final data = json.decode(response.body) as String;
-
       return double.parse(data);
     } catch (_) {
       return 0.00;
@@ -78,7 +78,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as SimpleSwapRequest;
-    final headers = {'Content-Type': 'application/json'};
+     final headers = {
+      'Content-Type': 'application/json'};
     final params = <String, String>{
       'api_key': apiKey,
     };
@@ -187,7 +188,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final to = CryptoCurrency.fromString(toCurrency);
     final inputAddress = responseJSON['address_from'] as String;
     final expectedSendAmount = responseJSON['expected_amount'].toString();
-    final extraId = responseJSON['extra_id_from'] as String;
+    final extraId = responseJSON['extra_id_from'] as String?;
     final status = responseJSON['status'] as String;
     final state = TradeState.deserialize(raw: status);
 
