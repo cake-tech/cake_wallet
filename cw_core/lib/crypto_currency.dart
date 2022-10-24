@@ -183,7 +183,24 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     42: CryptoCurrency.zaddr,
     43: CryptoCurrency.zec,
     44: CryptoCurrency.zen,
-    45: CryptoCurrency.xvg
+    45: CryptoCurrency.xvg,
+    46: CryptoCurrency.usdcpoly,
+    47: CryptoCurrency.dcr,
+    48: CryptoCurrency.husd,
+    49: CryptoCurrency.kmd,
+    50: CryptoCurrency.mana,
+    51: CryptoCurrency.maticpoly,
+    52: CryptoCurrency.matic,
+    53: CryptoCurrency.mkr,
+    54: CryptoCurrency.near,
+    55: CryptoCurrency.oxt,
+    56: CryptoCurrency.paxg,
+    57: CryptoCurrency.pivx,
+    58: CryptoCurrency.rune,
+    59: CryptoCurrency.rvn,
+    60: CryptoCurrency.scrt,
+    61: CryptoCurrency.uni,
+    62: CryptoCurrency.stx
   };
 
   static const mapFromString = {
@@ -232,7 +249,24 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     'zaddr': CryptoCurrency.zaddr,
     'zec': CryptoCurrency.zec,
     'zen': CryptoCurrency.zen,
-    'xvg': CryptoCurrency.xvg
+    'xvg': CryptoCurrency.xvg,
+    'usdcpoly': CryptoCurrency.usdcpoly,
+    'dcr': CryptoCurrency.dcr,
+    'husd': CryptoCurrency.husd,
+    'kmd': CryptoCurrency.kmd,
+    'mana': CryptoCurrency.mana,
+    'maticpoly': CryptoCurrency.maticpoly,
+    'matic': CryptoCurrency.matic,
+    'mkr': CryptoCurrency.mkr,
+    'near': CryptoCurrency.near,
+    'oxt': CryptoCurrency.oxt,
+    'paxg': CryptoCurrency.paxg,
+    'pivx': CryptoCurrency.pivx,
+    'rune': CryptoCurrency.rune,
+    'rvn': CryptoCurrency.rvn,
+    'scrt': CryptoCurrency.scrt,
+    'uni': CryptoCurrency.uni,
+    'stx': CryptoCurrency.stx
   };
 
   static CryptoCurrency deserialize({required int raw}) {
