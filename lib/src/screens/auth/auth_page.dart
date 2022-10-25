@@ -59,7 +59,6 @@ class AuthPageState extends State<AuthPage> {
         print(state.error);
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
-          await Future<void>.delayed(Duration(milliseconds: 100));
           dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
@@ -71,7 +70,6 @@ class AuthPageState extends State<AuthPage> {
       if (state is AuthenticationBanned) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
-          await Future<void>.delayed(Duration(milliseconds: 100));
           dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
