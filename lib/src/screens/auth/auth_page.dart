@@ -97,24 +97,24 @@ class AuthPageState extends State<AuthPage> {
     super.dispose();
   }
 
-  void changeProcessText(String text) async {
-    await dismissFlushBar(_authBar);
+  void changeProcessText(String text) {
+    dismissFlushBar(_authBar);
     _progressBar = createBar<void>(text)
       ..show(_key.currentContext!);
   }
 
-  Future<void> hideProgressText() async {
-    await dismissFlushBar(_progressBar);
+  void hideProgressText() {
+    dismissFlushBar(_progressBar);
     _progressBar = null;
   }
 
-  Future<void> close() async {
+  void close() {
     if (_key.currentContext == null) {
       throw Exception('Key context is null. Should be not happened');
     }
 
-    await _authBar?.dismiss();
-    await _progressBar?.dismiss();
+    dismissFlushBar(_authBar);
+    dismissFlushBar(_progressBar);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(_key.currentContext!).pop();
     });
@@ -144,7 +144,7 @@ class AuthPageState extends State<AuthPage> {
             (_) => null, widget.authViewModel.pinLength, false, _pinCodeKey));
   }
 
-  Future<void> dismissFlushBar(Flushbar<dynamic>? bar) async {
+  void dismissFlushBar(Flushbar<dynamic>? bar) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await bar?.dismiss();
     });
