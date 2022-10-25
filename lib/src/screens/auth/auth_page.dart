@@ -97,7 +97,7 @@ class AuthPageState extends State<AuthPage> {
 
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
-    _progressBar = createBar<void>(text)
+    _progressBar = createBar<void>(text, duration: null)
       ..show(_key.currentContext!);
   }
 
