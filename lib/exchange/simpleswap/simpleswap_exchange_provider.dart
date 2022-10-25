@@ -118,7 +118,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       to: _request.to,
       inputAddress: inputAddress,
       refundAddress: settleAddress,
-      extraId: extraId ?? '',
+      extraId: extraId,
       state: TradeState.created,
       amount: _request.amount,
       createdAt: DateTime.now(),
