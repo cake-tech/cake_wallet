@@ -230,9 +230,11 @@ class WalletListBodyState extends State<WalletListBody> {
         auth.changeProcessText(
             S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
-        auth.hideProgressText();
-        auth.close();
-        Navigator.of(context).pop();
+        await auth.hideProgressText();
+        await auth.close();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pop();
+        });
       } catch (e) {
         auth.changeProcessText(S
             .of(context)

@@ -57,9 +57,10 @@ class AuthPageState extends State<AuthPage> {
       if (state is FailureState) {
         print('X');
         print(state.error);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
-          _authBar?.dismiss();
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
@@ -68,9 +69,10 @@ class AuthPageState extends State<AuthPage> {
       }
 
       if (state is AuthenticationBanned) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
-          _authBar?.dismiss();
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
@@ -95,25 +97,27 @@ class AuthPageState extends State<AuthPage> {
     super.dispose();
   }
 
-  void changeProcessText(String text) {
-    _authBar?.dismiss();
-    _progressBar = createBar<void>(text, duration: null)
+  void changeProcessText(String text) async {
+    await dismissFlushBar(_authBar);
+    _progressBar = createBar<void>(text)
       ..show(_key.currentContext!);
   }
 
-  void hideProgressText() {
-    _progressBar?.dismiss();
+  Future<void> hideProgressText() async {
+    await dismissFlushBar(_progressBar);
     _progressBar = null;
   }
 
-  void close() {
+  Future<void> close() async {
     if (_key.currentContext == null) {
       throw Exception('Key context is null. Should be not happened');
     }
 
-    _authBar?.dismiss();
-    _progressBar?.dismiss();
-    Navigator.of(_key.currentContext!).pop();
+    await _authBar?.dismiss();
+    await _progressBar?.dismiss();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(_key.currentContext!).pop();
+    });
   }
 
   @override
@@ -138,5 +142,11 @@ class AuthPageState extends State<AuthPage> {
         resizeToAvoidBottomInset: false,
         body: PinCode((pin, _) => widget.authViewModel.auth(password: pin),
             (_) => null, widget.authViewModel.pinLength, false, _pinCodeKey));
+  }
+
+  Future<void> dismissFlushBar(Flushbar<dynamic>? bar) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await bar?.dismiss();
+    });
   }
 }
