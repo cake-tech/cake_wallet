@@ -455,42 +455,41 @@ class BackupService {
   }
 
   Future<String> _exportPreferencesJSON() async {
-    // FIX-ME: Force unwrap
     final preferences = <String, dynamic>{
       PreferencesKey.currentWalletName:
-          _sharedPreferences.getString(PreferencesKey.currentWalletName)!,
+          _sharedPreferences.getString(PreferencesKey.currentWalletName),
       PreferencesKey.currentNodeIdKey:
-          _sharedPreferences.getInt(PreferencesKey.currentNodeIdKey)!,
+          _sharedPreferences.getInt(PreferencesKey.currentNodeIdKey),
       PreferencesKey.currentBalanceDisplayModeKey: _sharedPreferences
-          .getInt(PreferencesKey.currentBalanceDisplayModeKey)!,
+          .getInt(PreferencesKey.currentBalanceDisplayModeKey),
       PreferencesKey.currentWalletType:
-          _sharedPreferences.getInt(PreferencesKey.currentWalletType)!,
+          _sharedPreferences.getInt(PreferencesKey.currentWalletType),
       PreferencesKey.currentFiatCurrencyKey:
-          _sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!,
+          _sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
       PreferencesKey.shouldSaveRecipientAddressKey: _sharedPreferences
-          .getBool(PreferencesKey.shouldSaveRecipientAddressKey)!,
+          .getBool(PreferencesKey.shouldSaveRecipientAddressKey),
       PreferencesKey.isDarkThemeLegacy:
-          _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy)!,
+          _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
       PreferencesKey.currentPinLength:
-          _sharedPreferences.getInt(PreferencesKey.currentPinLength)!,
+          _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy: _sharedPreferences
-          .getInt(PreferencesKey.currentTransactionPriorityKeyLegacy)!,
+          .getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
       PreferencesKey.allowBiometricalAuthenticationKey: _sharedPreferences
-          .getBool(PreferencesKey.allowBiometricalAuthenticationKey)!,
+          .getBool(PreferencesKey.allowBiometricalAuthenticationKey),
       PreferencesKey.currentBitcoinElectrumSererIdKey: _sharedPreferences
-          .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey)!,
+          .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey),
       PreferencesKey.currentLanguageCode:
-          _sharedPreferences.getString(PreferencesKey.currentLanguageCode)!,
+          _sharedPreferences.getString(PreferencesKey.currentLanguageCode),
       PreferencesKey.displayActionListModeKey:
-          _sharedPreferences.getInt(PreferencesKey.displayActionListModeKey)!,
+          _sharedPreferences.getInt(PreferencesKey.displayActionListModeKey),
       PreferencesKey.currentTheme:
-          _sharedPreferences.getInt(PreferencesKey.currentTheme)!,
+          _sharedPreferences.getInt(PreferencesKey.currentTheme),
       PreferencesKey.currentDefaultSettingsMigrationVersion: _sharedPreferences
-          .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion)!,
+          .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
       PreferencesKey.bitcoinTransactionPriority:
-          _sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!,
+          _sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority),
       PreferencesKey.moneroTransactionPriority:
-          _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!,
+          _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
     };
 
     return json.encode(preferences);
