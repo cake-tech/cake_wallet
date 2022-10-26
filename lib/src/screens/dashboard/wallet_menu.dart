@@ -62,8 +62,7 @@ class WalletMenu {
             Routes.auth,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
               if (isAuthenticatedSuccessfully) {
-                auth.close();
-                Navigator.of(auth.context).pushNamed(Routes.backup);
+                auth.close(route:Routes.backup);
               }
             });
         }),
