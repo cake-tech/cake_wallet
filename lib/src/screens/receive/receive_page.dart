@@ -92,19 +92,17 @@ class ReceivePage extends BasePage {
         Image.asset('assets/images/share.png',
             color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
 
-    return SizedBox(
-      height: 20.0,
-      width: 20.0,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
+    return Material(
+        color: Colors.transparent,
+        child: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            iconSize: 25,
             onPressed: () => Share.share(addressListViewModel.address.address),
-            child: shareImage),
-      ),
+            icon: shareImage
+        )
     );
   }
 
