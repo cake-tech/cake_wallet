@@ -15,6 +15,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -84,6 +85,26 @@ class AddressPage extends BasePage {
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
           child: scaffold);
+
+  @override
+  Widget? trailing(BuildContext context) {
+    final shareImage =
+    Image.asset('assets/images/share.png',
+        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
+
+    return !addressListViewModel.hasAddressList ? Material(
+      color: Colors.transparent,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints(),
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        iconSize: 25,
+        onPressed: () => Share.share(addressListViewModel.address.address),
+        icon: shareImage,
+      ),
+    ) : null;
+  }
 
   @override
   Widget body(BuildContext context) {

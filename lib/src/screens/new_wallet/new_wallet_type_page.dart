@@ -1,15 +1,6 @@
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/view_model/wallet_new_vm.dart';
-// import 'package:flushbar/flushbar.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -67,8 +58,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   WalletType? selected;
   List<WalletType> types;
-  // FIX-ME: Replace Flushbar
-  // Flushbar<void>? _progressBar;
 
   @override
   void initState() {
@@ -97,7 +86,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                  color: Theme.of(context).primaryTextTheme.headline6!.color!),
             ),
           ),
           ...types.map((type) => Padding(
@@ -114,7 +103,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       bottomSection: PrimaryButton(
         onPressed: () => onTypeSelected(),
         text: S.of(context).seed_language_next,
-        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+        color: Theme.of(context).accentTextTheme.bodyText1!.color!,
         textColor: Colors.white,
         isDisabled: selected == null,
       ),

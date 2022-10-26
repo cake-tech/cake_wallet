@@ -1,5 +1,5 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-// import 'package:flushbar/flushbar.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,9 +31,8 @@ class AuthPageState extends State<AuthPage> {
   final _backArrowImageDarkTheme =
       Image.asset('assets/images/close_button.png');
   ReactionDisposer? _reaction;
-  // FIX-ME: replace Flushbar 
-  // Flushbar<void>? _authBar;
-  // Flushbar<void>? _progressBar;
+  Flushbar<void>? _authBar;
+  Flushbar<void>? _progressBar;
 
   @override
   void initState() {
@@ -48,39 +47,34 @@ class AuthPageState extends State<AuthPage> {
 
       if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          // FIX-ME: Changes related to flutter upgreade.
-          //         Could be incorrect value for duration of auth bar
-          // _authBar =
-          //     createBar<void>(S.of(context).authentication, duration: Duration())
-          //       ..show(context);
+          // null duration to make it indefinite until its disposed
+          _authBar =
+              createBar<void>(S.of(context).authentication, duration: null)
+                ..show(context);
         });
       }
 
       if (state is FailureState) {
         print('X');
         print(state.error);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
-          // _authBar?.dismiss();
+          dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
-          if (widget.onAuthenticationFinished != null) {
-            widget.onAuthenticationFinished(false, this);
-          }
+          widget.onAuthenticationFinished(false, this);
         });
       }
 
       if (state is AuthenticationBanned) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
-          // _authBar?.dismiss();
+          dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
 
-          if (widget.onAuthenticationFinished != null) {
-            widget.onAuthenticationFinished(false, this);
-          }
+          widget.onAuthenticationFinished(false, this);
         });
       }
     });
@@ -102,26 +96,31 @@ class AuthPageState extends State<AuthPage> {
   }
 
   void changeProcessText(String text) {
-    // _authBar?.dismiss();
-    // FIX-ME: Changes related to flutter upgreade.
-          //         Could be incorrect value for duration of auth bar
-    // _progressBar = createBar<void>(text, duration: Duration())
-    //   ..show(_key.currentContext);
+    dismissFlushBar(_authBar);
+    _progressBar = createBar<void>(text, duration: null)
+      ..show(_key.currentContext!);
   }
 
   void hideProgressText() {
-    // _progressBar?.dismiss();
-    // _progressBar = null;
+    dismissFlushBar(_progressBar);
+    _progressBar = null;
   }
 
-  void close() {
+  Future<void> close({String? route}) async {
     if (_key.currentContext == null) {
       throw Exception('Key context is null. Should be not happened');
     }
 
-    // _authBar?.dismiss();
-    // _progressBar?.dismiss();
-    Navigator.of(_key.currentContext!).pop();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _authBar?.dismiss();
+      await _progressBar?.dismiss();
+
+      if (route != null) {
+        Navigator.of(_key.currentContext!).pushReplacementNamed(route);
+      } else {
+        Navigator.of(_key.currentContext!).pop();
+      }
+    });
   }
 
   @override
@@ -146,5 +145,11 @@ class AuthPageState extends State<AuthPage> {
         resizeToAvoidBottomInset: false,
         body: PinCode((pin, _) => widget.authViewModel.auth(password: pin),
             (_) => null, widget.authViewModel.pinLength, false, _pinCodeKey));
+  }
+
+  void dismissFlushBar(Flushbar<dynamic>? bar) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await bar?.dismiss();
+    });
   }
 }
