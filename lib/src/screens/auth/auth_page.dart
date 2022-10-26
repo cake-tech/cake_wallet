@@ -106,15 +106,20 @@ class AuthPageState extends State<AuthPage> {
     _progressBar = null;
   }
 
-  void close() {
+  Future<void> close({String? route}) async {
     if (_key.currentContext == null) {
       throw Exception('Key context is null. Should be not happened');
     }
 
-    dismissFlushBar(_authBar);
-    dismissFlushBar(_progressBar);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(_key.currentContext!).pop();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _authBar?.dismiss();
+      await _progressBar?.dismiss();
+
+      if (route != null) {
+        Navigator.of(_key.currentContext!).pushReplacementNamed(route);
+      } else {
+        Navigator.of(_key.currentContext!).pop();
+      }
     });
   }
 
