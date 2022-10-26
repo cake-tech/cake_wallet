@@ -6,7 +6,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-// import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/di.dart';
@@ -102,11 +102,7 @@ class ReceivePage extends BasePage {
             //highlightColor: Colors.transparent,
             //splashColor: Colors.transparent,
             //padding: EdgeInsets.all(0),
-            onPressed: () {
-              // FIX-ME: Share esys_flutter_share.dart
-              // Share.text(S.current.share_address,
-              //   addressListViewModel.address.address, 'text/plain')
-            },
+            onPressed: () => Share.share(addressListViewModel.address.address),
             child: shareImage),
       ),
     );
