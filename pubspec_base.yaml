@@ -52,8 +52,7 @@ dependencies:
   connectivity: ^3.0.3
   # connectivity_plus: ^2.3.5
   keyboard_actions: ^4.0.1
-  flushbar: ^1.10.4
-  # check flushbar for replace
+  another_flushbar: ^1.12.29
   archive: ^3.3.0
   cryptography: ^2.0.5
   file_picker: ^4.6.1

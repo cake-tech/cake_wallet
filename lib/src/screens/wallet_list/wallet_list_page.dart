@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
-// import 'package:flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -49,7 +49,7 @@ class WalletListBodyState extends State<WalletListBody> {
       Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
-  // Flushbar<void>? _progressBar;
+  Flushbar<void>? _progressBar;
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +232,9 @@ class WalletListBodyState extends State<WalletListBody> {
         await widget.walletListViewModel.loadWallet(wallet);
         auth.hideProgressText();
         auth.close();
-        Navigator.of(context).pop();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pop();
+        });
       } catch (e) {
         auth.changeProcessText(S
             .of(context)
@@ -283,13 +285,12 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   void changeProcessText(String text) {
-    // FIX-ME: Duration
-    // _progressBar = createBar<void>(text, duration: Duration())..show(context);
+    _progressBar = createBar<void>(text, duration: null)..show(context);
   }
 
   void hideProgressText() {
-    // _progressBar?.dismiss();
-    // _progressBar = null;
+    _progressBar?.dismiss();
+    _progressBar = null;
   }
 
   ActionPane _actionPane(WalletListItem wallet) => ActionPane(
