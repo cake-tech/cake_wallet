@@ -39,11 +39,11 @@ class BackupService {
   Future<void> importBackup(Uint8List data, String password,
       {String nonce = secrets.backupSalt}) async {
     final version = getVersion(data);
-    final backupBytes = data.toList()..removeAt(0);
-    final backupData = Uint8List.fromList(backupBytes);
 
     switch (version) {
       case _v1:
+        final backupBytes = data.toList()..removeAt(0);
+        final backupData = Uint8List.fromList(backupBytes);
         await _importBackupV1(backupData, password, nonce: nonce);
         break;
       case _v2:
@@ -66,49 +66,10 @@ class BackupService {
     }
   }
 
+  @Deprecated('Use v2 instead')
   Future<Uint8List> _exportBackupV1(String password,
-      {String nonce = secrets.backupSalt}) async {
-    final zipEncoder = ZipFileEncoder();
-    final appDir = await getApplicationDocumentsDirectory();
-    final now = DateTime.now();
-    final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
-    final archivePath = '${tmpDir.path}/backup_${now.toString()}.zip';
-    final fileEntities = appDir.listSync(recursive: false);
-    final keychainDump = await _exportKeychainDumpV1(password, nonce: nonce);
-    final preferencesDump = await _exportPreferencesJSON();
-    final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
-    final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
-
-    if (tmpDir.existsSync()) {
-      tmpDir.deleteSync(recursive: true);
-    }
-
-    tmpDir.createSync();
-    zipEncoder.create(archivePath);
-
-    fileEntities.forEach((entity) {
-      if (entity.path == archivePath || entity.path == tmpDir.path) {
-        return;
-      }
-
-      if (entity.statSync().type == FileSystemEntityType.directory) {
-        zipEncoder.addDirectory(Directory(entity.path));
-      } else {
-        zipEncoder.addFile(File(entity.path));
-      }
-    });
-    await keychainDumpFile.writeAsBytes(keychainDump.toList());
-    await preferencesDumpFile.writeAsString(preferencesDump);
-    await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
-    await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
-    zipEncoder.close();
-
-    final content = File(archivePath).readAsBytesSync();
-    tmpDir.deleteSync(recursive: true);
-    final encryptedData = await _encryptV1(content, password, nonce);
-
-    return setVersion(encryptedData, currentVersion);
-  }
+      {String nonce = secrets.backupSalt}) async
+    => throw Exception('Deprecated. Export for backups v1 is deprecated. Please use export v2.');
 
   Future<Uint8List> _exportBackupV2(String password) async {
     final zipEncoder = ZipFileEncoder();
@@ -395,35 +356,11 @@ class BackupService {
     await _keyService.saveWalletPassword(walletName: name, password: password);
   }
 
+  @Deprecated('Use v2 instead')
   Future<Uint8List> _exportKeychainDumpV1(String password,
       {required String nonce,
-      String keychainSalt = secrets.backupKeychainSalt}) async {
-    final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await _flutterSecureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin!);
-    final wallets =
-        await Future.wait(_walletInfoSource.values.map((walletInfo) async {
-      return {
-        'name': walletInfo.name,
-        'type': walletInfo.type.toString(),
-        'password':
-            await _keyService.getWalletPassword(walletName: walletInfo.name)
-      };
-    }));
-    final backupPasswordKey =
-        generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    final backupPassword =
-        await _flutterSecureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(json.encode({
-      'pin': decodedPin,
-      'wallets': wallets,
-      backupPasswordKey: backupPassword
-    }));
-    final encrypted = await _encryptV1(
-        Uint8List.fromList(data), '$keychainSalt$password', nonce);
-
-    return encrypted;
-  }
+      String keychainSalt = secrets.backupKeychainSalt}) async
+    => throw Exception('Deprecated');
 
   Future<Uint8List> _exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
@@ -502,14 +439,10 @@ class BackupService {
     return Uint8List.fromList(bytes);
   }
 
+  @Deprecated('Use v2 instead')
   Future<Uint8List> _encryptV1(
-      Uint8List data, String secretKeySource, String nonceBase64) async {
-    final secretKeyHash = await Cryptography.instance.sha256().hash(utf8.encode(secretKeySource));
-    final secretKey = SecretKey(secretKeyHash.bytes);
-    final nonce = base64.decode(nonceBase64).toList();
-    final box = await _cipher.encrypt(data.toList(), secretKey: secretKey, nonce: nonce);
-    return Uint8List.fromList(box.cipherText);
-  }
+      Uint8List data, String secretKeySource, String nonceBase64) async
+    => throw Exception('Deprecated');
 
   Future<Uint8List> _decryptV1(
       Uint8List data, String secretKeySource, String nonceBase64, {int macLength = 16}) async {
