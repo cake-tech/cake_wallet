@@ -47,7 +47,7 @@ class BackupService {
         await _importBackupV1(backupData, password, nonce: nonce);
         break;
       case _v2:
-        await _importBackupV2(backupData, password);
+        await _importBackupV2(data, password);
         break;
       default:
         break;
@@ -526,7 +526,7 @@ class BackupService {
 
   Future<Uint8List> _encryptV2(
       Uint8List data, String passphrase) async
-    => cake_backup.encrypt(passphrase, data);
+    => cake_backup.encrypt(passphrase, data, version: _v2);
 
   Future<Uint8List> _decryptV2(
       Uint8List data, String passphrase) async
