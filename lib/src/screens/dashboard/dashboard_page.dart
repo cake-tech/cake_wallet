@@ -271,10 +271,10 @@ class DashboardPage extends BasePage {
 
     switch (walletType) {
       case WalletType.bitcoin:
-        Navigator.of(context).pushNamed(Routes.preOrder);
+        Navigator.of(context).pushNamed(Routes.onramperPage);
         break;
       case WalletType.litecoin:
-        Navigator.of(context).pushNamed(Routes.preOrder);
+        Navigator.of(context).pushNamed(Routes.onramperPage);
         break;
       default:
         await showPopUp<void>(
