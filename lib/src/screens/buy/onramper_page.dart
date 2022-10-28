@@ -28,7 +28,8 @@ class OnRamperPage extends BasePage {
         backgroundColor: darkMode
           ? backgroundDarkColor
           : backgroundLightColor,
-        supportSell: false);
+        supportSell: false,
+        supportSwap: false);
   }
 }
 
