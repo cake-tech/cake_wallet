@@ -28,7 +28,8 @@ class OnRamperPage extends BasePage {
         backgroundColor: darkMode
           ? backgroundDarkColor
           : backgroundLightColor,
-        supportSell: false);
+        supportSell: false,
+        supportSwap: false);
   }
 }
 
@@ -38,6 +39,7 @@ class OnRamperPageBody extends StatefulWidget {
     required this.wallet,
     required this.darkMode,
     required this.supportSell,
+    required this.supportSwap,
     required this.backgroundColor});
 
   static const baseUrl = 'widget.onramper.com';
@@ -46,6 +48,7 @@ class OnRamperPageBody extends StatefulWidget {
   final Color backgroundColor;
   final bool darkMode;
   final bool supportSell;
+  final bool supportSwap;
 
   Uri get uri
     => Uri.https(
@@ -57,7 +60,8 @@ class OnRamperPageBody extends StatefulWidget {
         'defaultFiat': settingsStore.fiatCurrency.title,
         'wallets': '${wallet.currency.title}:${wallet.walletAddresses.address}',
         'darkMode': darkMode.toString(),
-        'supportSell': supportSell.toString()});
+        'supportSell': supportSell.toString(),
+        'supportSwap': supportSwap.toString()});
 
   @override
   OnRamperPageBodyState createState() => OnRamperPageBodyState();
