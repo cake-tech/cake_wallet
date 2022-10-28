@@ -112,6 +112,10 @@ class CWBitcoin extends Bitcoin {
 	int formatterStringDoubleToBitcoinAmount(String amount)
 		=> stringDoubleToBitcoinAmount(amount);
 
+  @override
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate)
+    => (priority as BitcoinTransactionPriority).labelWithRate(rate);
+
 	@override
 	List<Unspent> getUnspents(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
