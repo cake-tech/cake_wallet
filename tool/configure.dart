@@ -86,6 +86,7 @@ abstract class Bitcoin {
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
 
   List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
