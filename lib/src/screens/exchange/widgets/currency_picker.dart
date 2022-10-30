@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
+import 'package:cake_wallet/palette.dart';
 import 'currency_picker_widget.dart';
 
 class CurrencyPicker extends StatefulWidget {
@@ -104,7 +105,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             Padding(
                               padding: const EdgeInsets.all(16),
                               child: TextFormField(
-                                style: TextStyle(color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                                style: TextStyle(color: Palette.darkBlueCraiola),
                                 decoration: InputDecoration(
                                   hintText: widget.hintText,
                                   prefixIcon: Image.asset("assets/images/search_icon.png"),
