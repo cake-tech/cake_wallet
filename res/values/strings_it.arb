@@ -645,5 +645,6 @@
   "add_custom_redemption": "Aggiungi riscatto personalizzato",
   "remaining": "rimanente",
   "delete_wallet": "Elimina portafoglio",
-  "delete_wallet_confirm_message" : "Sei sicuro di voler eliminare il portafoglio ${wallet_name}?"
+  "delete_wallet_confirm_message" : "Sei sicuro di voler eliminare il portafoglio ${wallet_name}?",
+  "help": "aiuto"
 }

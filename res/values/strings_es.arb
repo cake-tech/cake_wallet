@@ -645,5 +645,6 @@
   "add_custom_redemption": "Agregar redención personalizada",
   "remaining": "restante",
   "delete_wallet": "Eliminar billetera",
-  "delete_wallet_confirm_message" : "¿Está seguro de que desea eliminar la billetera ${wallet_name}?"
+  "delete_wallet_confirm_message" : "¿Está seguro de que desea eliminar la billetera ${wallet_name}?",
+  "help": "ayuda"
 }

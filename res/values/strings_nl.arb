@@ -645,5 +645,6 @@
   "add_custom_redemption": "Voeg aangepaste inwisseling toe",
   "remaining": "resterende",
   "delete_wallet": "Portemonnee verwijderen",
-  "delete_wallet_confirm_message" : "Weet u zeker dat u de portemonnee van ${wallet_name} wilt verwijderen?"
+  "delete_wallet_confirm_message" : "Weet u zeker dat u de portemonnee van ${wallet_name} wilt verwijderen?",
+  "help": "helpen"
 }

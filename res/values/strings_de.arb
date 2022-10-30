@@ -645,5 +645,6 @@
   "add_custom_redemption": "Benutzerdefinierte Einlösung hinzufügen",
   "remaining": "Rest",
   "delete_wallet": "Geldbörse löschen",
-  "delete_wallet_confirm_message" : "Sind Sie sicher, dass Sie das ${wallet_name} Wallet löschen möchten?"
+  "delete_wallet_confirm_message" : "Sind Sie sicher, dass Sie das ${wallet_name} Wallet löschen möchten?",
+  "help": "hilfe"
 }

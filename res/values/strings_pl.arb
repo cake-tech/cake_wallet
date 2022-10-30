@@ -645,5 +645,6 @@
   "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
   "remaining": "pozostałe",
   "delete_wallet": "Usuń portfel",
-  "delete_wallet_confirm_message" : "Czy na pewno chcesz usunąć portfel ${wallet_name}?"
+  "delete_wallet_confirm_message" : "Czy na pewno chcesz usunąć portfel ${wallet_name}?",
+  "help": "pomoc"
 }
