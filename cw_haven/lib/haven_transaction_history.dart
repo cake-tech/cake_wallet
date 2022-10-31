@@ -18,10 +18,12 @@ abstract class HavenTransactionHistoryBase
   Future<void> save() async {}
 
   @override
+  @action
   void addOne(HavenTransactionInfo transaction) =>
       transactions[transaction.id] = transaction;
 
   @override
+  @action
   void addMany(Map<String, HavenTransactionInfo> transactions) =>
       this.transactions.addAll(transactions);
 }
