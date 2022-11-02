@@ -187,7 +187,9 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           accountIndex: walletAddresses.account!.id);
     } else {
       final output = outputs.first;
-      final address = output.address;
+      final address = output.isParsedAddress && (output.extractedAddress?.isNotEmpty ?? false)
+          ? output.extractedAddress!
+          : output.address;
       final amount = output.sendAll
           ? null
           : output.cryptoAmount!.replaceAll(',', '.');
