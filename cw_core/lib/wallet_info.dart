@@ -64,15 +64,15 @@ class WalletInfo extends HiveObject {
   Map<String, String>? addresses;
 
   @HiveField(11)
-  String yatEid;
+  String? yatEid;
 
   @HiveField(12)
-  String yatLastUsedAddressRaw;
+  String? yatLastUsedAddressRaw;
 
   @HiveField(13)
   bool? showIntroCakePayCard;
 
-  String get yatLastUsedAddress => yatLastUsedAddressRaw;
+  String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
   set yatLastUsedAddress(String address) {
     yatLastUsedAddressRaw = address;
