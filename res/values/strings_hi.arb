@@ -645,5 +645,6 @@
   "add_custom_redemption": "कस्टम रिडेम्पशन जोड़ें",
   "remaining": "शेष",
   "delete_wallet": "वॉलेट हटाएं",
-  "delete_wallet_confirm_message" : "क्या आप वाकई ${wallet_name} वॉलेट हटाना चाहते हैं?"
+  "delete_wallet_confirm_message" : "क्या आप वाकई ${wallet_name} वॉलेट हटाना चाहते हैं?",
+  "help": "मदद करना"
 }

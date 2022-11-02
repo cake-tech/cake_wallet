@@ -645,5 +645,6 @@
   "add_custom_redemption": "Добавить пользовательское погашение",
   "remaining": "осталось",
   "delete_wallet": "Удалить кошелек",
-  "delete_wallet_confirm_message" : "Вы уверены, что хотите удалить кошелек ${wallet_name}?"
+  "delete_wallet_confirm_message" : "Вы уверены, что хотите удалить кошелек ${wallet_name}?",
+  "help": "помощь"
 }

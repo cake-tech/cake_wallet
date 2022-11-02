@@ -645,5 +645,6 @@
   "add_custom_redemption": "カスタム引き換えを追加",
   "remaining": "残り",
   "delete_wallet": "ウォレットを削除",
-  "delete_wallet_confirm_message" : "${wallet_name} ウォレットを削除してもよろしいですか?"
+  "delete_wallet_confirm_message" : "${wallet_name} ウォレットを削除してもよろしいですか?",
+  "help": "ヘルプ"
 }

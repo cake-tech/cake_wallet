@@ -643,5 +643,6 @@
   "add_custom_redemption": "Ajouter un remboursement personnalisé",
   "remaining": "restant",
   "delete_wallet": "Supprimer le portefeuille",
-  "delete_wallet_confirm_message" : "Êtes-vous sûr de vouloir supprimer le portefeuille ${wallet_name}?"
+  "delete_wallet_confirm_message" : "Êtes-vous sûr de vouloir supprimer le portefeuille ${wallet_name}?",
+  "help": "aider"
 }
