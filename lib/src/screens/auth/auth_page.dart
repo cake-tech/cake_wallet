@@ -111,15 +111,16 @@ class AuthPageState extends State<AuthPage> {
       throw Exception('Key context is null. Should be not happened');
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _authBar?.dismiss();
-      await _progressBar?.dismiss();
-
-      if (route != null) {
-        Navigator.of(_key.currentContext!).pushReplacementNamed(route);
-      } else {
-        Navigator.of(_key.currentContext!).pop();
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      dismissFlushBar(_authBar);
+      dismissFlushBar(_progressBar);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (route != null) {
+          Navigator.of(_key.currentContext!).pushReplacementNamed(route);
+        } else {
+          Navigator.of(_key.currentContext!).pop();
+        }
+      });
     });
   }
 
