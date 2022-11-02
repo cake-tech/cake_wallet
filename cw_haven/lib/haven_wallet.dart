@@ -225,7 +225,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       switch (priority) {
         case MoneroTransactionPriority.slow:
           return 24590000;
-        case MoneroTransactionPriority.regular:
+        case MoneroTransactionPriority.automatic:
           return 123050000;
         case MoneroTransactionPriority.medium:
           return 245029999;
