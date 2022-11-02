@@ -495,7 +495,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         hash: coin.hash,
         isFrozen: coin.isFrozen,
         isSending: coin.isSending,
-        note: coin.note
+        noteRaw: coin.note
     );
 
     await unspentCoinsInfo.add(newInfo);
