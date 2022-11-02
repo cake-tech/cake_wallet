@@ -646,5 +646,6 @@
   "remaining": "pozostałe",
   "delete_wallet": "Usuń portfel",
   "delete_wallet_confirm_message" : "Czy na pewno chcesz usunąć portfel ${wallet_name}?",
+  "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
   "help": "pomoc"
 }

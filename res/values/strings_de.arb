@@ -646,5 +646,6 @@
   "remaining": "Rest",
   "delete_wallet": "Geldbörse löschen",
   "delete_wallet_confirm_message" : "Sind Sie sicher, dass Sie das ${wallet_name} Wallet löschen möchten?",
+  "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich des Supports.\n\nSie werden Ihr Geld stehlen!",
   "help": "hilfe"
 }

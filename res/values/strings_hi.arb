@@ -646,5 +646,6 @@
   "remaining": "शेष",
   "delete_wallet": "वॉलेट हटाएं",
   "delete_wallet_confirm_message" : "क्या आप वाकई ${wallet_name} वॉलेट हटाना चाहते हैं?",
+  "do_not_share_warning_text" : "इन्हें समर्थन सहित किसी और के साथ साझा न करें।\n\nवे आपका पैसा चुरा लेंगे!",
   "help": "मदद करना"
 }

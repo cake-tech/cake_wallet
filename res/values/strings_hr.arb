@@ -646,5 +646,6 @@
   "remaining": "preostalo",
   "delete_wallet": "Izbriši novčanik",
   "delete_wallet_confirm_message" : "Jeste li sigurni da želite izbrisati ${wallet_name} novčanik?",
+  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
   "help": "pomozite"
 }

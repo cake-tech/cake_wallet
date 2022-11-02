@@ -644,5 +644,6 @@
   "remaining": "剩余",
   "delete_wallet": "删除钱包",
   "delete_wallet_confirm_message" : "您确定要删除 ${wallet_name} 钱包吗？",
+  "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
   "help": "帮助"
 }

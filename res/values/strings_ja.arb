@@ -646,5 +646,6 @@
   "remaining": "残り",
   "delete_wallet": "ウォレットを削除",
   "delete_wallet_confirm_message" : "${wallet_name} ウォレットを削除してもよろしいですか?",
+  "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
   "help": "ヘルプ"
 }

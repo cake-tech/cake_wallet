@@ -646,5 +646,6 @@
   "remaining": "resterende",
   "delete_wallet": "Portemonnee verwijderen",
   "delete_wallet_confirm_message" : "Weet u zeker dat u de portemonnee van ${wallet_name} wilt verwijderen?",
+  "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
   "help": "helpen"
 }

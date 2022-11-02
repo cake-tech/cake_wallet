@@ -646,5 +646,6 @@
   "remaining": "remaining",
   "delete_wallet": "Delete wallet",
   "delete_wallet_confirm_message" : "Are you sure that you want to delete ${wallet_name} wallet?",
+  "do_not_share_warning_text" : "Do not share these with anyone else, including support.\n\nThey will steal your money!",
   "help": "help"
 }
