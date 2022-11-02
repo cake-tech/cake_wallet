@@ -36,11 +36,10 @@ class WalletKeysPage extends BasePage {
                     child: AutoSizeText(
                         S.of(context).do_not_share_warning_text.toUpperCase(),
                         textAlign: TextAlign.center,
-                        maxLines: 3,
-                        minFontSize: 8,
+                        maxLines: 4,
                         style: TextStyle(
-                          fontSize: 30,
-                            fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                            fontWeight: FontWeight.w500,
                             color: Colors.red)),
                   ),
                 ),
@@ -48,7 +47,7 @@ class WalletKeysPage extends BasePage {
             ),
           ),
           Expanded(
-            flex: 10,
+            flex: 7,
           child: Container(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
