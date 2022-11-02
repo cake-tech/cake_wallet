@@ -63,8 +63,15 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => fiatCurrency,
-        (FiatCurrency fiatCurrency) => sharedPreferences.setString(
-            PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
+        (FiatCurrency fiatCurrency){
+        final typeRaw = sharedPreferences.getInt(PreferencesKey.currentWalletType) ?? 0;
+        final type = deserializeFromInt(typeRaw);
+          sharedPreferences.setString(
+            type == WalletType.haven ?
+              PreferencesKey.currentHavenFiatCurrencyKey : 
+              PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()
+          );
+        });
 
     reaction(
         (_) => shouldShowYatPopup,
@@ -199,8 +206,12 @@ abstract class SettingsStoreBase with Store {
     }
 
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
+    final typeRaw = sharedPreferences.getInt(PreferencesKey.currentWalletType) ?? 0;
+    final type = deserializeFromInt(typeRaw);
+    final havenFiatCurrency = 
+      sharedPreferences.getString(PreferencesKey.currentHavenFiatCurrencyKey) ?? FiatCurrency.usd.serialize(); 
     final currentFiatCurrency = FiatCurrency.deserialize(raw:
-            sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+          type == WalletType.haven ? havenFiatCurrency : sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
     final savedMoneroTransactionPriority =
         monero?.deserializeMoneroTransactionPriority(
             raw: sharedPreferences
