@@ -138,3 +138,4 @@ assets/images/app_logo.png
 build/
 scripts/android/downloads
 lib/git_versions.dart
+scripts/windows/cache/
