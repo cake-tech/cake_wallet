@@ -23,6 +23,6 @@ tar -xjf $BOOST_FILE_PATH -C $WORKDIR
 cp ../user-config.jam $BOOST_SRC_DIR/user-config.jam
 cd $BOOST_SRC_DIR
 ./bootstrap.sh --prefix="${WORKDIR}/prefix_${TYPES_OF_BUILD}" --with-toolset=gcc
-./b2 release address-model=64 --verbose link=static runtime-link=static toolset=gcc-mingw target-os=windows --build-dir=windows --stagedir=windows_staging --user-config=user-config.jam --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale -sICONV_PATH=${PREFIX} -j$THREADS stage
+./b2 release address-model=64 --verbose link=static runtime-link=static toolset=gcc-mingw target-os=windows --build-dir=windows --stagedir=windows_staging --user-config=user-config.jam --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale -sICONV_PATH=${PREFIX} -j$THREADS install
 
 done
