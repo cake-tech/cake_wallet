@@ -6,6 +6,10 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -40,7 +44,7 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore, this.sharedPreferences)
+      this.tradesStore, this._settingsStore, this.sharedPreferences, this._settingsViewModel)
     : _cryptoNumberFormat = NumberFormat(),
       isReverse = false,
       isFixedRateMode = false,
@@ -192,6 +196,20 @@ abstract class ExchangeViewModelBase with Store {
 
   bool get isMoneroWallet  => wallet.type == WalletType.monero;
 
+  bool get isLowFee  {
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+        return _settingsViewModel.transactionPriority == MoneroTransactionPriority.slow;
+      case WalletType.bitcoin:
+        return _settingsViewModel.transactionPriority == BitcoinTransactionPriority.slow;
+      case WalletType.litecoin:
+        return _settingsViewModel.transactionPriority == LitecoinTransactionPriority.slow;
+      default:
+        return false;
+    }
+  }
+
   List<CryptoCurrency> receiveCurrencies;
 
   List<CryptoCurrency> depositCurrencies;
@@ -203,6 +221,8 @@ abstract class ExchangeViewModelBase with Store {
   NumberFormat _cryptoNumberFormat;
 
   final SettingsStore _settingsStore;
+
+  final SettingsViewModel _settingsViewModel;
 
   double _bestRate = 0.0;
 
@@ -610,5 +630,23 @@ abstract class ExchangeViewModelBase with Store {
     _tradeAvailableProviders.addAll(
         selectedProviders
             .where((provider) => providersForCurrentPair().contains(provider)));
+  }
+
+  @action
+  void setDefaultTransactionPriority() {
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+        _settingsStore.priority[wallet.type] = MoneroTransactionPriority.automatic;
+        break;
+      case WalletType.bitcoin:
+        _settingsStore.priority[wallet.type] = BitcoinTransactionPriority.medium;
+        break;
+      case WalletType.litecoin:
+        _settingsStore.priority[wallet.type] = LitecoinTransactionPriority.medium;
+        break;
+      default:
+        break;
+    }
   }
 }

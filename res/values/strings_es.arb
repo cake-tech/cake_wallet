@@ -646,6 +646,10 @@
   "remaining": "restante",
   "delete_wallet": "Eliminar billetera",
   "delete_wallet_confirm_message" : "¿Está seguro de que desea eliminar la billetera ${wallet_name}?",
+  "low_fee": "Tarifa baja",
+  "low_fee_alert": "Actualmente está utilizando una prioridad de tarifa de red baja. Esto podría causar largas esperas, tarifas diferentes o transacciones canceladas. Recomendamos establecer una tarifa más alta para una mejor experiencia.",
+  "ignor": "Pasar por alto",
+  "use_suggested": "Usar sugerido",
   "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Te robarán tu dinero!",
   "help": "ayuda"
 }
