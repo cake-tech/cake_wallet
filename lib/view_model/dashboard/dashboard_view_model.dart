@@ -96,9 +96,6 @@ abstract class DashboardViewModelBase with Store {
 
     final _wallet = wallet;
 
-    _onTransactionsChangeReaction = reaction((_) => appStore.wallet!.transactionHistory.transactions,
-            (ObservableMap<String, TransactionInfo> transactions) => _onMoneroTransactionsUpdate(wallet));
-
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
 
@@ -274,8 +271,6 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
-  ReactionDisposer? _onTransactionsChangeReaction;
-
   @observable
   bool isOutdatedElectrumWallet;
 
@@ -305,16 +300,12 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
-      _onTransactionsChangeReaction?.reaction.dispose();
 
       _onMoneroAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet)
           .account, (Account account) => _onMoneroAccountChange(wallet));
 
       _onMoneroBalanceChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
-
-      _onTransactionsChangeReaction = reaction((_) => appStore.wallet!.transactionHistory.transactions,
-              (ObservableMap<String, TransactionInfo> transactions) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
     } else {
