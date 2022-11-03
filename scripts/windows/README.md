@@ -1,12 +1,12 @@
 # `flutter_libmonero`
-## Building for Windows
+## Building for Windows on Ubuntu 20.04
 ### Install dependencies
 Run `monerodeps.sh` to install Monero dependencies, or use the commands below:
 ```bash
 sudo apt install libsecret-1-dev libjsoncpp-dev libsecret-1-0
 ```
 
-## Build
+### Build
 Run `build_all.sh` (may need to alter permissions like `chmod +x *.sh`)
 
 Libraries will be output to `scripts/windows/build`
@@ -72,3 +72,6 @@ msbuild .\libsodium.sln /p:PlatformTarget=x86 /property:Configuration=Release -m
 cmake -G"Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 msbuild /m expat.sln
 ```
+
+## Notes
+See https://www.oodlestechnologies.com/blogs/how-to-compile-altcoin-for-windows-on-linux-using-mxe-and-mingw/
