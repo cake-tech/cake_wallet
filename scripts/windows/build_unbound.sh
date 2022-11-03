@@ -9,8 +9,6 @@ EXPAT_SRC_DIR=$WORKDIR/libexpat
 for arch in $TYPES_OF_BUILD
 do
 PREFIX=$WORKDIR/prefix_${arch}
-TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
-PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
 cd $WORKDIR
 rm -rf $EXPAT_SRC_DIR
@@ -20,11 +18,15 @@ test `git rev-parse HEAD` = ${EXPAT_HASH} || exit 1
 cd $EXPAT_SRC_DIR/expat
 
 case $arch in
-	*)	       HOST="${arch}-linux-gnu";;
+	*)	       HOST="${arch}-windows-gnu";;
 esac
 
 ./buildconf.sh
-CC=clang CXX=clang++ ./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --enable-static --disable-shared --prefix=${PREFIX} --host=${HOST}
+#CC=clang CXX=clang++
+CC=x86_64-w64-mingw32-gcc
+CXX=x86_64-w64-mingw32-g++
+CROSS_COMPILE="x86_64-w64-mingw32.static-"
+./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --enable-static --disable-shared --prefix=${PREFIX} --host=${HOST}
 make -j$THREADS
 make -j$THREADS install
 done
@@ -36,26 +38,24 @@ UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
 for arch in $TYPES_OF_BUILD
 do
 PREFIX=$WORKDIR/prefix_${arch}
-TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
 
-case $arch in
-	"aarch")   TOOLCHAIN_BIN_PATH=${TOOLCHAIN_BASE_DIR}_${arch}/arm-linux-androideabi/bin;;
-	*)	       TOOLCHAIN_BIN_PATH=${TOOLCHAIN_BASE_DIR}_${arch}/${arch}-linux-android/bin;;
-esac
-
-PATH="${TOOLCHAIN_BIN_PATH}:${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
-echo $PATH
 cd $WORKDIR
-rm -rf $UNBOUND_SRC_DIR
-git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
+#rm -rf $UNBOUND_SRC_DIR
+#git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
 cd $UNBOUND_SRC_DIR
 test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
-case $arch in
-	*)	       HOST="${arch}-linux-gnu";;
-esac
-
-CC=clang CXX=clang++ ./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared --disable-flto --with-ssl=${PREFIX} --with-libexpat=${PREFIX}
+./configure \
+	CFLAGS=-fPIC \
+	CXXFLAGS=-fPIC \
+	--prefix=${PREFIX} \
+	--host=${HOST} \
+	--enable-static \
+	--disable-shared \
+	--disable-flto \
+	--enable-static-openssl \
+	--with-ssl=${PREFIX} \
+	--with-libexpat=${PREFIX}
 make -j$THREADS
 make -j$THREADS install
 done
