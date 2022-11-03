@@ -633,17 +633,20 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   @action
-  TransactionPriority? setDefaultTransactionPriority() {
+  void setDefaultTransactionPriority() {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        return _settingsStore.priority[wallet.type] = MoneroTransactionPriority.regular;
+        _settingsStore.priority[wallet.type] = MoneroTransactionPriority.automatic;
+        break;
       case WalletType.bitcoin:
-        return _settingsStore.priority[wallet.type] = BitcoinTransactionPriority.medium;
+        _settingsStore.priority[wallet.type] = BitcoinTransactionPriority.medium;
+        break;
       case WalletType.litecoin:
-        return _settingsStore.priority[wallet.type] = LitecoinTransactionPriority.medium;
+        _settingsStore.priority[wallet.type] = LitecoinTransactionPriority.medium;
+        break;
       default:
-        return _settingsStore.priority[wallet.type];
+        break;
     }
   }
 }
