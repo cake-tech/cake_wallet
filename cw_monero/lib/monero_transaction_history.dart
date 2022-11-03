@@ -18,12 +18,10 @@ abstract class MoneroTransactionHistoryBase
   Future<void> save() async {}
 
   @override
-  @action
   void addOne(MoneroTransactionInfo transaction) =>
       transactions[transaction.id] = transaction;
 
   @override
-  @action
   void addMany(Map<String, MoneroTransactionInfo> transactions) =>
       this.transactions.addAll(transactions);
 }

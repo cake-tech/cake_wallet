@@ -30,12 +30,10 @@ abstract class ElectrumTransactionHistoryBase
   Future<void> init() async => await _load();
 
   @override
-  @action
   void addOne(ElectrumTransactionInfo transaction) =>
       transactions[transaction.id] = transaction;
 
   @override
-  @action
   void addMany(Map<String, ElectrumTransactionInfo> transactions) =>
       transactions.forEach((_, tx) => _updateOrInsert(tx));
 
