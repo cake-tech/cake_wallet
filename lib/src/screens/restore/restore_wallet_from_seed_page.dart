@@ -19,7 +19,8 @@ import 'package:cake_wallet/core/mnemonic_length.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class RestoreWalletFromSeedPage extends BasePage {
-  RestoreWalletFromSeedPage({@required this.type});
+  RestoreWalletFromSeedPage({required this.type})
+    : _pages = <Widget>[];
 
   final WalletType type;
   final String language = 'en';
@@ -51,9 +52,9 @@ class RestoreWalletFromSeedPage extends BasePage {
 
   void _setPages(BuildContext context) {
     _pages = <Widget>[
-      WalletRestoreFromSeedForm(),
+      // FIX-ME: Added args (displayBlockHeightSelector: true, displayLanguageSelector: true, type: type)
+      WalletRestoreFromSeedForm(displayBlockHeightSelector: true, displayLanguageSelector: true, type: type),
       RestoreFromKeysFrom(),
-      // Container(color: Colors.yellow)
     ];
   }
 
@@ -87,7 +88,7 @@ class RestoreWalletFromSeedPage extends BasePage {
               text: S.of(context).restore_recover,
               isDisabled: false,
               onPressed: () => null,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
               textColor: Colors.white)),
     ]);
 
@@ -105,7 +106,7 @@ class RestoreWalletFromSeedPage extends BasePage {
     //             text: S.of(context).restore_next,
     //             isDisabled: false,
     //             onPressed: () => null,
-    //             color: Theme.of(context).accentTextTheme.body2.color,
+    //             color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
     //             textColor: Colors.white)
     //       ]),
     //       contentPadding: EdgeInsets.only(bottom: 24),
@@ -135,12 +136,16 @@ class RestoreWalletFromSeedPage extends BasePage {
 
 class RestoreFromSeedForm extends StatefulWidget {
   RestoreFromSeedForm(
-      {Key key, this.type, this.language, this.leading, this.middle})
+      {Key? key,
+      required this.type,
+      this.language,
+      this.leading,
+      this.middle})
       : super(key: key);
   final WalletType type;
-  final String language;
-  final Widget leading;
-  final Widget middle;
+  final String? language;
+  final Widget? leading;
+  final Widget? middle;
 
   @override
   _RestoreFromSeedFormState createState() => _RestoreFromSeedFormState();
@@ -163,6 +168,8 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
           // height: 300,
           child: Column(children: [
             SeedWidget(
+              type: widget.type,
+              language: widget.language ?? '',
               // key: _seedKey,
               // maxLength: mnemonicLength(widget.type),
               // onMnemonicChange: (seed) => null,

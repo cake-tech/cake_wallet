@@ -9,9 +9,12 @@ import 'package:lottie/lottie.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class ThirdIntroduction extends StatelessWidget {
-  ThirdIntroduction({this.onClose, this.onGet, this.onConnect});
+  ThirdIntroduction({
+    required this.onGet,
+    required this.onConnect,
+    this.onClose});
 
-  final VoidCallback onClose;
+  final VoidCallback? onClose;
   final VoidCallback onGet;
   final VoidCallback onConnect;
   final animation = Lottie.asset('assets/animation/anim3.json');

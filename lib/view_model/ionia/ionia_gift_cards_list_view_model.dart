@@ -2,8 +2,6 @@ import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
-import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
-import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_gift_cards_list_view_model.g.dart';
 
@@ -11,13 +9,18 @@ class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase with _$Ionia
 
 abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaGiftCardsListViewModelBase({
-    @required this.ioniaService,
+    required this.ioniaService,
   })  :
         cardState = IoniaNoCardState(),
         ioniaMerchants = [],
         ioniaCategories = IoniaCategory.allCategories,
         selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
-        scrollOffsetFromTop = 0.0 {
+        scrollOffsetFromTop = 0.0,
+        isLoggedIn = false,
+        merchantState = InitialIoniaMerchantLoadingState(),
+        createCardState = IoniaCreateCardState(),
+        searchString = '',
+        ioniaMerchantList = <IoniaMerchant>[] {
         _getAuthStatus().then((value) => isLoggedIn = value);
   }
 
@@ -56,16 +59,14 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   }
 
   @action
-  Future<IoniaVirtualCard> createCard() async {
-    createCardState = IoniaCreateCardLoading();
+  Future<void> createCard() async {
     try {
+      createCardState = IoniaCreateCardLoading();
       final card = await ioniaService.createCard();
       createCardState = IoniaCreateCardSuccess();
-      return card;
-    } on Exception catch (e) {
+    } catch (e) {
       createCardState = IoniaCreateCardFailure(error: e.toString());
     }
-    return null;
   }
 
   @action

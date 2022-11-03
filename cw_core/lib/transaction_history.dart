@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_info.dart';
 
 abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
-  TransactionHistoryBase();
-  // : _isUpdating = false;
+  TransactionHistoryBase()
+    : transactions = ObservableMap<String, TransactionType>();
 
   @observable
   ObservableMap<String, TransactionType> transactions;

@@ -46,7 +46,7 @@ class FioAddressProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected response http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;

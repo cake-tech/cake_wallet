@@ -109,7 +109,7 @@ Future<void> main() async {
     final templates = await Hive.openBox<Template>(Template.boxName);
     final exchangeTemplates =
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+    Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
     
     if (!isMoneroOnly) {
       unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
@@ -130,7 +130,7 @@ Future<void> main() async {
         secureStorage: secureStorage,
         initialMigrationVersion: 17);
     runApp(App());
-  } catch (e) {
+  } catch (e, stacktrace) {
     runApp(MaterialApp(
         debugShowCheckedModeBanner: true,
         home: Scaffold(
@@ -138,25 +138,25 @@ Future<void> main() async {
                 margin:
                     EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
                 child: Text(
-                  'Error:\n${e.toString()}',
+                  'Error:\n${e.toString()}\nStacktrace: $stacktrace',
                   style: TextStyle(fontSize: 22),
                 )))));
   }
 }
 
 Future<void> initialSetup(
-    {@required SharedPreferences sharedPreferences,
-    @required Box<Node> nodes,
-    @required Box<WalletInfo> walletInfoSource,
-    @required Box<Contact> contactSource,
-    @required Box<Trade> tradesSource,
-    @required Box<Order> ordersSource,
-    // @required FiatConvertationService fiatConvertationService,
-    @required Box<Template> templates,
-    @required Box<ExchangeTemplate> exchangeTemplates,
-    @required Box<TransactionDescription> transactionDescriptions,
-    @required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    FlutterSecureStorage secureStorage,
+    {required SharedPreferences sharedPreferences,
+    required Box<Node> nodes,
+    required Box<WalletInfo> walletInfoSource,
+    required Box<Contact> contactSource,
+    required Box<Trade> tradesSource,
+    required Box<Order> ordersSource,
+    // required FiatConvertationService fiatConvertationService,
+    required Box<Template> templates,
+    required Box<ExchangeTemplate> exchangeTemplates,
+    required Box<TransactionDescription> transactionDescriptions,
+    required FlutterSecureStorage secureStorage,
+    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
@@ -188,14 +188,14 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
-  AppState() {
-    yatStore = getIt.get<YatStore>();
+  AppState()
+    : yatStore = getIt.get<YatStore>() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 
   YatStore yatStore;
-  StreamSubscription stream;
+  StreamSubscription? stream;
 
   @override
   void initState() {
@@ -227,7 +227,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
 
   void _handleIncomingLinks() {
     if (!kIsWeb) {
-      stream = getUriLinksStream().listen((Uri uri) {
+      stream = getUriLinksStream().listen((Uri? uri) {
         print('uri: $uri');
         if (!mounted) return;
         //_fetchEmojiFromUri(uri);
@@ -256,7 +256,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
-      final settingsStore = getIt.get<AppStore>().settingsStore;
+      final appStore = getIt.get<AppStore>();
+      final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute =
@@ -277,6 +278,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
 
       return Root(
           key: rootKey,
+          appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           child: MaterialApp(

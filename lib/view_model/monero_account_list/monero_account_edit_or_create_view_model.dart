@@ -14,7 +14,7 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._havenAccountList,
-      {@required WalletBase wallet, AccountListItem accountListItem})
+      {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
         label = accountListItem?.label??'',
@@ -30,8 +30,8 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   String label;
 
   final MoneroAccountList _moneroAccountList;
-  final HavenAccountList _havenAccountList;
-  final AccountListItem _accountListItem;
+  final HavenAccountList? _havenAccountList;
+  final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
   Future<void> save() async {
@@ -51,7 +51,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       if (_accountListItem != null) {
         await _moneroAccountList.setLabelAccount(
             _wallet,
-            accountIndex: _accountListItem.id,
+            accountIndex: _accountListItem!.id,
             label: label);
       } else {
         await _moneroAccountList.addAccount(
@@ -75,12 +75,12 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = IsExecutingState();
 
       if (_accountListItem != null) {
-        await _havenAccountList.setLabelAccount(
+        await _havenAccountList!.setLabelAccount(
             _wallet,
-            accountIndex: _accountListItem.id,
+            accountIndex: _accountListItem!.id,
             label: label);
       } else {
-        await _havenAccountList.addAccount(
+        await _havenAccountList!.addAccount(
           _wallet,
           label: label);
       }

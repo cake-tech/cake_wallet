@@ -6,14 +6,14 @@ import 'package:cake_wallet/monero/monero.dart';
 
 class AnyPayPayment {
 	AnyPayPayment({
-		@required this.time,
-		@required this.expires,
-		@required this.memo,
-		@required this.paymentUrl,
-		@required this.paymentId,
-		@required this.chain,
-		@required this.network,
-		@required this.instructions});
+		required this.time,
+		required this.expires,
+		required this.memo,
+		required this.paymentUrl,
+		required this.paymentId,
+		required this.chain,
+		required this.network,
+		required this.instructions});
 
 	factory AnyPayPayment.fromMap(Map<String, dynamic> obj) {
 		final instructions = (obj['instructions'] as List<dynamic>)
@@ -45,13 +45,13 @@ class AnyPayPayment {
 				.fold<int>(0, (int outAcc, out) => outAcc + out.amount));
 		switch (chain) {
 			case AnyPayChain.xmr:
-				return monero.formatterMoneroAmountToString(amount: total);
+				return monero!.formatterMoneroAmountToString(amount: total);
 			case AnyPayChain.btc:
-				return bitcoin.formatterBitcoinAmountToString(amount: total);
+				return bitcoin!.formatterBitcoinAmountToString(amount: total);
 			case AnyPayChain.ltc:
-				return bitcoin.formatterBitcoinAmountToString(amount: total);
+				return bitcoin!.formatterBitcoinAmountToString(amount: total);
 			default:
-				return null;
+				return '';
 		}
 	}
 

@@ -15,11 +15,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AddressPage extends BasePage {
-  AddressPage({@required this.addressListViewModel,
-                this.walletViewModel})
-      : _cryptoAmountFocus = FocusNode();
+  AddressPage({
+    required this.addressListViewModel,
+    required this.walletViewModel})
+    : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
   final DashboardViewModel walletViewModel;
@@ -42,7 +44,7 @@ class AddressPage extends BasePage {
   @override
   Widget leading(BuildContext context) {
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
       size: 16,);
 
     return SizedBox(
@@ -50,10 +52,11 @@ class AddressPage extends BasePage {
       width: 37,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => onClose(context),
             child: _backButton),
       ),
@@ -68,7 +71,7 @@ class AddressPage extends BasePage {
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: Theme.of(context).accentTextTheme.display3.backgroundColor),
+          color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
     );
   }
 
@@ -82,6 +85,26 @@ class AddressPage extends BasePage {
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
           child: scaffold);
+
+  @override
+  Widget? trailing(BuildContext context) {
+    final shareImage =
+    Image.asset('assets/images/share.png',
+        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
+
+    return !addressListViewModel.hasAddressList ? Material(
+      color: Colors.transparent,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints(),
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        iconSize: 25,
+        onPressed: () => Share.share(addressListViewModel.address.address),
+        icon: shareImage,
+      ),
+    ) : null;
+  }
 
   @override
   Widget body(BuildContext context) {
@@ -115,7 +138,7 @@ class AddressPage extends BasePage {
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor:
-                Theme.of(context).accentTextTheme.body2.backgroundColor,
+                Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -148,7 +171,7 @@ class AddressPage extends BasePage {
                                   BorderRadius.all(Radius.circular(25)),
                               border: Border.all(
                                   color:
-                                      Theme.of(context).textTheme.subhead.color,
+                                      Theme.of(context).textTheme!.subtitle1!.color!,
                                   width: 1),
                               color: Theme.of(context).buttonColor),
                           child: Row(
@@ -166,17 +189,17 @@ class AddressPage extends BasePage {
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
-                                                .accentTextTheme
-                                                .display3
-                                                .backgroundColor),
+                                                .accentTextTheme!
+                                                .headline2!
+                                                .backgroundColor!),
                                       )),
                               Icon(
                                 Icons.arrow_forward_ios,
                                 size: 14,
                                 color: Theme.of(context)
-                                    .accentTextTheme
-                                    .display3
-                                    .backgroundColor,
+                                    .accentTextTheme!
+                                    .headline2!
+                                    .backgroundColor!,
                               )
                             ],
                           ),
@@ -188,9 +211,9 @@ class AddressPage extends BasePage {
                         style: TextStyle(
                             fontSize: 15,
                             color: Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor));
+                              .accentTextTheme!
+                              .headline3!
+                              .backgroundColor!));
               })
             ],
           ),

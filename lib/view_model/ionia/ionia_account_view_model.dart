@@ -8,9 +8,10 @@ part 'ionia_account_view_model.g.dart';
 class IoniaAccountViewModel = IoniaAccountViewModelBase with _$IoniaAccountViewModel;
 
 abstract class IoniaAccountViewModelBase with Store {
-  IoniaAccountViewModelBase({this.ioniaService}) {
-    email = '';
-    giftCards = [];
+  IoniaAccountViewModelBase({required this.ioniaService})
+    : email = '',
+      giftCards = [],
+      merchantState = InitialIoniaMerchantLoadingState() {
     ioniaService.getUserEmail().then((email) => this.email = email);
     updateUserGiftCards();
   }

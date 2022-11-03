@@ -643,5 +643,13 @@
   "choose_from_available_options": "Kies uit de beschikbare opties:",
   "custom_redeem_amount": "Aangepast inwisselbedrag",
   "add_custom_redemption": "Voeg aangepaste inwisseling toe",
-  "remaining": "resterende"
+  "remaining": "resterende",
+  "delete_wallet": "Portemonnee verwijderen",
+  "delete_wallet_confirm_message" : "Weet u zeker dat u de portemonnee van ${wallet_name} wilt verwijderen?",
+  "low_fee": "Lage vergoeding",
+  "low_fee_alert": "U gebruikt momenteel een lage prioriteit voor netwerkkosten. Dit kan lange wachttijden, andere tarieven of geannuleerde transacties veroorzaken. We raden aan een hogere vergoeding in te stellen voor een betere ervaring.",
+  "ignor": "Negeren",
+  "use_suggested": "Gebruik aanbevolen",
+  "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
+  "help": "helpen"
 }

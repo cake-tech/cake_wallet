@@ -40,7 +40,7 @@ class IoniaCreateAccountPage extends BasePage {
     return Text(
       S.current.sign_up,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -78,13 +78,13 @@ class IoniaCreateAccountPage extends BasePage {
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).create_account,
                   onPressed: () async {
-                    if (!_formKey.currentState.validate()) {
+                    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                       return;
                     }
                     await _authViewModel.createUser(_emailController.text);
                   },
                   isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
                 ),
               ),
@@ -104,7 +104,7 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                       text: S.of(context).settings_terms_and_conditions,
                       style: TextStyle(
-                        color: Theme.of(context).accentTextTheme.body2.color,
+                        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                         fontWeight: FontWeight.w700,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -116,7 +116,7 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                         text: S.of(context).privacy_policy,
                         style: TextStyle(
-                          color: Theme.of(context).accentTextTheme.body2.color,
+                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                           fontWeight: FontWeight.w700,
                         ),
                         recognizer: TapGestureRecognizer()

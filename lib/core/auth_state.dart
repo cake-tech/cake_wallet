@@ -7,13 +7,13 @@ class AuthenticationInProgress extends AuthState {}
 class AuthenticatedSuccessfully extends AuthState {}
 
 class AuthenticationFailure extends AuthState {
-  AuthenticationFailure({this.error});
+  AuthenticationFailure({required this.error});
 
   final String error;
 }
 
 class AuthenticationBanned extends AuthState {
-  AuthenticationBanned({this.error});
+  AuthenticationBanned({required this.error});
 
   final String error;
 }

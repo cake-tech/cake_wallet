@@ -1,5 +1,5 @@
 class ListSection<Item> {
-  const ListSection({this.items});
+  const ListSection({required this.items});
 
   final List<Item> items;
 }

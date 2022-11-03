@@ -1,16 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class TextFieldListRow extends StatelessWidget {
   TextFieldListRow(
-      {this.title,
-        this.value,
+      {required this.title,
+        required this.value,
         this.titleFontSize = 14,
         this.valueFontSize = 16,
-        this.onSubmitted}) {
-
-    _textController = TextEditingController();
+        this.onSubmitted})
+    : _textController = TextEditingController() {
     _textController.text = value;
   }
 
@@ -18,9 +16,8 @@ class TextFieldListRow extends StatelessWidget {
   final String value;
   final double titleFontSize;
   final double valueFontSize;
-  final Function(String value) onSubmitted;
-
-  TextEditingController _textController;
+  final Function(String value)? onSubmitted;
+  final TextEditingController _textController;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +35,7 @@ class TextFieldListRow extends StatelessWidget {
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context)
-                          .primaryTextTheme.overline.color),
+                          .primaryTextTheme!.overline!.color!),
                   textAlign: TextAlign.left),
               TextField(
                 controller: _textController,
@@ -50,7 +47,7 @@ class TextFieldListRow extends StatelessWidget {
                     fontSize: valueFontSize,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context)
-                        .primaryTextTheme.title.color),
+                        .primaryTextTheme!.headline6!.color!),
                 decoration: InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.only(top: 12, bottom: 0),
@@ -59,10 +56,10 @@ class TextFieldListRow extends StatelessWidget {
                         fontSize: valueFontSize,
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context)
-                            .primaryTextTheme.overline.color),
+                            .primaryTextTheme!.overline!.color!),
                     border: InputBorder.none
                 ),
-                onSubmitted: (value) => onSubmitted.call(value),
+                onSubmitted: (value) => onSubmitted?.call(value),
               )
             ]),
       ),

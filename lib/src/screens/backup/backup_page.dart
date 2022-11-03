@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -80,7 +80,7 @@ class BackupPage extends BasePage {
                   isLoading: backupViewModelBase.state is IsExecutingState,
                   onPressed: () => onExportBackup(context),
                   text: S.of(context).export_backup,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white)),
           bottom: 24,
           left: 24,
@@ -103,11 +103,14 @@ class BackupPage extends BasePage {
                 Navigator.of(dialogContext).pop();
                 final backup = await backupViewModelBase.exportBackup();
 
+                if (backup == null) {
+                  return;
+                }
+
                 if (Platform.isAndroid) {
                   onExportAndroid(context, backup);
                 } else {
-                  await Share.file(S.of(context).backup_file, backup.name,
-                      backup.content, 'application/*');
+                  await share(backup);
                 }
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
@@ -135,11 +138,20 @@ class BackupPage extends BasePage {
                     backup.name, backup.content);
                 Navigator.of(dialogContext).pop();
               },
-              actionLeftButton: () {
+              actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();
-                Share.file(S.of(context).backup_file, backup.name,
-                    backup.content, 'application/*');
+                await share(backup);
               });
         });
+  }
+
+  Future<void> share(BackupExportFile backup) async {
+    const mimeType = 'application/*';
+    final path = await backupViewModelBase.saveBackupFileLocally(backup);
+    await Share.shareXFiles(<XFile>[XFile(
+        path,
+        name: backup.name,
+        mimeType: mimeType)]);
+    await backupViewModelBase.removeBackupFileLocally(backup);
   }
 }

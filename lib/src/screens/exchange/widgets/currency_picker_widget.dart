@@ -5,10 +5,10 @@ import 'currency_picker_item_widget.dart';
 
 class CurrencyPickerWidget extends StatelessWidget {
   CurrencyPickerWidget({
-    @required this.crossAxisCount,
-    @required this.selectedAtIndex,
-    @required this.pickerItemsList,
-    @required this.pickListItem,
+    required this.crossAxisCount,
+    required this.selectedAtIndex,
+    required this.pickerItemsList,
+    required this.pickListItem,
   });
 
   final int crossAxisCount;
@@ -21,7 +21,7 @@ class CurrencyPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
+      color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
       child: Scrollbar(
         controller: _scrollController,
         child: GridView.builder(

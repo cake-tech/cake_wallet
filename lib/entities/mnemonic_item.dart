@@ -1,5 +1,5 @@
 class MnemonicItem {
-  MnemonicItem({String text}) : _text = text;
+  MnemonicItem({required String text}) : _text = text;
 
   String get text => _text;
   String _text;
