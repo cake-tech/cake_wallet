@@ -7,8 +7,6 @@ import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart'
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -16,6 +14,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -200,11 +199,11 @@ abstract class ExchangeViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        return _settingsViewModel.transactionPriority == MoneroTransactionPriority.slow;
+        return _settingsViewModel.transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
-        return _settingsViewModel.transactionPriority == BitcoinTransactionPriority.slow;
+        return _settingsViewModel.transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
-        return _settingsViewModel.transactionPriority == LitecoinTransactionPriority.slow;
+        return _settingsViewModel.transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
       default:
         return false;
     }
@@ -637,13 +636,13 @@ abstract class ExchangeViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        _settingsStore.priority[wallet.type] = MoneroTransactionPriority.automatic;
+        _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
         break;
       case WalletType.bitcoin:
-        _settingsStore.priority[wallet.type] = BitcoinTransactionPriority.medium;
+        _settingsStore.priority[wallet.type] = bitcoin!.getBitcoinTransactionPriorityMedium();
         break;
       case WalletType.litecoin:
-        _settingsStore.priority[wallet.type] = LitecoinTransactionPriority.medium;
+        _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
         break;
       default:
         break;

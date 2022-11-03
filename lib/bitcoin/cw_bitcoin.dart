@@ -140,4 +140,20 @@ class CWBitcoin extends Bitcoin {
 	WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
 		return LitecoinWalletService(walletInfoSource, unspentCoinSource);
 	}
+  
+  @override
+  TransactionPriority getBitcoinTransactionPriorityMedium()
+    => BitcoinTransactionPriority.medium;
+
+  @override
+  TransactionPriority getLitecoinTransactionPriorityMedium()
+    => LitecoinTransactionPriority.medium;
+
+  @override
+  TransactionPriority getBitcoinTransactionPrioritySlow()
+    => BitcoinTransactionPriority.slow;
+  
+  @override
+  TransactionPriority getLitecoinTransactionPrioritySlow()
+    => LitecoinTransactionPriority.slow;
 }

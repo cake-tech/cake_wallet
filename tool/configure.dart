@@ -92,6 +92,10 @@ abstract class Bitcoin {
   void updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  TransactionPriority getBitcoinTransactionPriorityMedium();
+  TransactionPriority getLitecoinTransactionPriorityMedium();
+  TransactionPriority getBitcoinTransactionPrioritySlow();
+  TransactionPriority getLitecoinTransactionPrioritySlow();
 }
   """;
 
@@ -218,6 +222,8 @@ abstract class Monero {
 
   int getHeigthByDate({required DateTime date});
   TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getMoneroTransactionPrioritySlow();
+  TransactionPriority getMoneroTransactionPriorityAutomatic();
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
