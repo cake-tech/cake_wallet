@@ -644,5 +644,13 @@
   "choose_from_available_options": "Wähle aus verfügbaren Optionen:",
   "custom_redeem_amount": "Benutzerdefinierter Einlösungsbetrag",
   "add_custom_redemption": "Benutzerdefinierte Einlösung hinzufügen",
-  "remaining": "Rest"
+  "remaining": "Rest",
+  "delete_wallet": "Geldbörse löschen",
+  "delete_wallet_confirm_message" : "Sind Sie sicher, dass Sie das ${wallet_name} Wallet löschen möchten?",
+  "low_fee": "Niedrige Gebühr",
+  "low_fee_alert": "Sie verwenden derzeit eine niedrige Netzwerkgebührenpriorität. Dies kann zu langen Wartezeiten, unterschiedlichen Kursen oder stornierten Trades führen. Wir empfehlen, für ein besseres Erlebnis eine höhere Gebühr festzulegen.",
+  "ignor": "Ignorieren",
+  "use_suggested": "Vorgeschlagen verwenden",
+  "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich des Supports.\n\nSie werden Ihr Geld stehlen!",
+  "help": "hilfe"
 }

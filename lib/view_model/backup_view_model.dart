@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'backup_view_model.g.dart';
 
@@ -69,6 +70,21 @@ abstract class BackupViewModelBase with Store {
       state = FailureState(e.toString());
       return null;
     }
+  }
+
+  Future<String> saveBackupFileLocally(BackupExportFile backup) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final path = '${appDir.path}/${backup.name}';
+    final backupFile = File(path);
+    await backupFile.writeAsBytes(backup.content);
+    return path;
+  }
+
+  Future<void> removeBackupFileLocally(BackupExportFile backup) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final path = '${appDir.path}/${backup.name}';
+    final backupFile = File(path);
+    await backupFile.delete();
   }
 
   @action

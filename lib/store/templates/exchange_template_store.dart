@@ -24,7 +24,7 @@ abstract class ExchangeTemplateBase with Store {
       templates.replaceRange(0, templates.length, templateSource.values.toList());
 
   @action
-  Future addTemplate({
+  Future<void> addTemplate({
     required  String amount,
     required  String depositCurrency,
     required  String receiveCurrency,
@@ -32,15 +32,15 @@ abstract class ExchangeTemplateBase with Store {
     required  String depositAddress,
     required  String receiveAddress}) async {
     final template = ExchangeTemplate(
-        amount: amount,
-        depositCurrency: depositCurrency,
-        receiveCurrency: receiveCurrency,
-        provider: provider,
-        depositAddress: depositAddress,
-        receiveAddress: receiveAddress);
+        amountRaw: amount,
+        depositCurrencyRaw: depositCurrency,
+        receiveCurrencyRaw: receiveCurrency,
+        providerRaw: provider,
+        depositAddressRaw: depositAddress,
+        receiveAddressRaw: receiveAddress);
     await templateSource.add(template);
   }
 
   @action
-  Future remove({required  ExchangeTemplate template}) async => await template.delete();
+  Future<void> remove({required  ExchangeTemplate template}) async => await template.delete();
 }

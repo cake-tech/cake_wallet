@@ -18,7 +18,7 @@ class BuyListItem extends StatelessWidget {
     this.onTap
   });
 
-  final BuyProvider selectedProvider;
+  final BuyProvider? selectedProvider;
   final BuyProvider provider;
   final double sourceAmount;
   final FiatCurrency sourceCurrency;

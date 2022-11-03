@@ -64,7 +64,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
     } catch (e) {
       var msg = e.toString();
 
-      if (msg == 'Message authentication code (MAC) is invalid') {
+      if (msg.toLowerCase().contains("message authentication code (mac)")) {
         msg = 'Incorrect backup password';
       }
 

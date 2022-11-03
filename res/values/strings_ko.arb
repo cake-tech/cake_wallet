@@ -644,5 +644,13 @@
   "choose_from_available_options": "사용 가능한 옵션에서 선택:",
   "custom_redeem_amount": "사용자 지정 상환 금액",
   "add_custom_redemption": "사용자 지정 상환 추가",
-  "remaining": "남은"
+  "remaining": "남은",
+  "delete_wallet": "지갑 삭제",
+  "delete_wallet_confirm_message" : "${wallet_name} 지갑을 삭제하시겠습니까?",
+  "low_fee": "낮은 수수료",
+  "low_fee_alert": "현재 낮은 네트워크 요금 우선 순위를 사용하고 있습니다. 이로 인해 긴 대기 시간, 다른 요금 또는 취소된 거래가 발생할 수 있습니다. 더 나은 경험을 위해 더 높은 요금을 설정하는 것이 좋습니다.",
+  "ignor": "무시하다",
+  "use_suggested": "추천 사용",
+  "do_not_share_warning_text" : "지원을 포함하여 다른 사람과 이러한 정보를 공유하지 마십시오.\n\n그들은 당신의 돈을 훔칠 것입니다!",
+  "help": "돕다"
 }

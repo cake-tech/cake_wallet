@@ -111,6 +111,10 @@ class ExchangePage extends BasePage {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
+    if (exchangeViewModel.isLowFee) {
+      _showFeeAlert(context);
+    }
+
     return KeyboardActions(
         disableScroll: true,
         config: KeyboardActionsConfig(
@@ -179,6 +183,7 @@ class ExchangePage extends BasePage {
                             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                             child: Observer(
                               builder: (_) => ExchangeCard(
+                                onDispose: disposeBestRateSync,
                                 hasAllAmount: exchangeViewModel.hasAllAmount,
                                 allAmount: exchangeViewModel.hasAllAmount
                                     ? () => exchangeViewModel
@@ -265,6 +270,7 @@ class ExchangePage extends BasePage {
                             EdgeInsets.only(top: 29, left: 24, right: 24),
                             child: Observer(
                                 builder: (_) => ExchangeCard(
+                                  onDispose: disposeBestRateSync,
                                   amountFocusNode: _receiveAmountFocus,
                                   addressFocusNode: _receiveAddressFocus,
                                   key: receiveKey,
@@ -743,13 +749,13 @@ class ExchangePage extends BasePage {
       if (_receiveAmountFocus.hasFocus) {
         exchangeViewModel.isFixedRateMode = true;
       }
-      exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
+      // exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
     });
 
     _depositAmountFocus.addListener(() {
       exchangeViewModel.isFixedRateMode = false;
-      exchangeViewModel.changeDepositAmount(
-        amount: depositAmountController.text);
+      // exchangeViewModel.changeDepositAmount(
+      //   amount: depositAmountController.text);
     });
 
     _isReactionsSet = true;
@@ -791,4 +797,24 @@ class ExchangePage extends BasePage {
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
+
+  void _showFeeAlert(BuildContext context) async {
+    await Future<void>.delayed(Duration(seconds: 1));
+    final confirmed = await showPopUp<bool>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).low_fee,
+              alertContent: S.of(context).low_fee_alert,
+              leftButtonText: S.of(context).ignor,
+              rightButtonText: S.of(context).use_suggested,
+              actionLeftButton: () => Navigator.of(context).pop(false),
+              actionRightButton: () => Navigator.of(context).pop(true));
+        }) ?? false;
+    if (confirmed) {
+      exchangeViewModel.setDefaultTransactionPriority();
+    }
+  }
+
+  void disposeBestRateSync() => exchangeViewModel.bestRateSync?.cancel();
 }

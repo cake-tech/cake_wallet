@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
-// import 'package:flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -49,7 +49,7 @@ class WalletListBodyState extends State<WalletListBody> {
       Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
-  // Flushbar<void>? _progressBar;
+  Flushbar<void>? _progressBar;
 
   @override
   Widget build(BuildContext context) {
@@ -156,22 +156,14 @@ class WalletListBodyState extends State<WalletListBody> {
                           ),
                         ));
 
-                    // FIX-ME: Slidable for current
-                    return row;
-                    // return wallet.isCurrent
-                    //     ? row
-                    //     : Slidable(
-                    //         key: Key('${wallet.key}'),
-                    //         actionPane: SlidableDrawerActionPane(),
-                    //         child: row,
-                    //         secondaryActions: <Widget>[
-                    //             IconSlideAction(
-                    //               caption: S.of(context).delete,
-                    //               color: Colors.red,
-                    //               icon: CupertinoIcons.delete,
-                    //               onTap: () async => _removeWallet(wallet),
-                    //             )
-                    //           ]);
+                    return wallet.isCurrent
+                        ? row
+                        : Slidable(
+                            key: Key('${wallet.key}'),
+                            startActionPane: _actionPane(wallet),
+                            endActionPane: _actionPane(wallet),
+                            child: row,
+                    );
                   }),
             ),
           ),
@@ -240,7 +232,9 @@ class WalletListBodyState extends State<WalletListBody> {
         await widget.walletListViewModel.loadWallet(wallet);
         auth.hideProgressText();
         auth.close();
-        Navigator.of(context).pop();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pop();
+        });
       } catch (e) {
         auth.changeProcessText(S
             .of(context)
@@ -256,14 +250,34 @@ class WalletListBodyState extends State<WalletListBody> {
         return;
       }
 
-      try {
-        auth.changeProcessText(
-            S.of(context).wallet_list_removing_wallet(wallet.name));
-        await widget.walletListViewModel.remove(wallet);
-      } catch (e) {
-        auth.changeProcessText(S
-            .of(context)
-            .wallet_list_failed_to_remove(wallet.name, e.toString()));
+      bool confirmed = false;
+
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithTwoActions(
+              alertTitle: S.of(context).delete_wallet,
+              alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
+              leftButtonText: S.of(context).cancel,
+              rightButtonText: S.of(context).delete,
+              actionLeftButton: () => Navigator.of(context).pop(),
+              actionRightButton: () {
+                confirmed = true;
+                Navigator.of(context).pop();
+              },
+            );
+          });
+
+      if (confirmed) {
+        try {
+          auth.changeProcessText(
+              S.of(context).wallet_list_removing_wallet(wallet.name));
+          await widget.walletListViewModel.remove(wallet);
+        } catch (e) {
+          auth.changeProcessText(S
+              .of(context)
+              .wallet_list_failed_to_remove(wallet.name, e.toString()));
+        }
       }
 
       auth.close();
@@ -271,12 +285,25 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   void changeProcessText(String text) {
-    // FIX-ME: Duration
-    // _progressBar = createBar<void>(text, duration: Duration())..show(context);
+    _progressBar = createBar<void>(text, duration: null)..show(context);
   }
 
   void hideProgressText() {
-    // _progressBar?.dismiss();
-    // _progressBar = null;
+    _progressBar?.dismiss();
+    _progressBar = null;
   }
+
+  ActionPane _actionPane(WalletListItem wallet) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.3,
+    children: [
+      SlidableAction(
+        onPressed: (_) => _removeWallet(wallet),
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        icon: CupertinoIcons.delete,
+        label: S.of(context).delete,
+      ),
+    ],
+  );
 }

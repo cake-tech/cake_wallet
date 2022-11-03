@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:cake_wallet/core/amount_converter.dart';
+import 'package:cw_core/amount_converter.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:flutter/foundation.dart';
