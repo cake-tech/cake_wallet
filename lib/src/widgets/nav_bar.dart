@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   factory NavBar(
-      {BuildContext context,
-      Widget leading,
-      Widget middle,
-      Widget trailing,
-      Color backgroundColor}) {
+      {Widget? leading,
+      Widget? middle,
+      Widget? trailing,
+      Color? backgroundColor}) {
 
     return NavBar._internal(
         leading: leading,
@@ -18,11 +17,10 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   }
 
   factory NavBar.withShadow(
-      {BuildContext context,
-      Widget leading,
-      Widget middle,
-      Widget trailing,
-      Color backgroundColor}) {
+      {Widget? leading,
+      Widget? middle,
+      Widget? trailing,
+      Color? backgroundColor}) {
 
     return NavBar._internal(
       leading: leading,
@@ -52,11 +50,11 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   static const _originalHeight = 44.0; // iOS nav bar height
   static const _height = 60.0;
 
-  final Widget leading;
-  final Widget middle;
-  final Widget trailing;
-  final Color backgroundColor;
-  final BoxDecoration decoration;
+  final Widget? leading;
+  final Widget? middle;
+  final Widget? trailing;
+  final Color? backgroundColor;
+  final BoxDecoration? decoration;
   final double height;
 
   @override

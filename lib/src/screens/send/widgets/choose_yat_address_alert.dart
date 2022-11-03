@@ -4,9 +4,9 @@ import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 
 class ChooseYatAddressAlert extends BaseAlertDialog {
   ChooseYatAddressAlert({
-    @required this.alertTitle,
-    @required this.alertContent,
-    @required this.addresses,
+    required this.alertTitle,
+    required this.alertContent,
+    required this.addresses,
   });
 
   final String alertTitle;
@@ -65,7 +65,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
         Container(
             width: 300,
             height: 158,
-            color: Theme.of(context).accentTextTheme.body1.backgroundColor,
+            color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
             child: ListView.separated(
                 controller: controller,
                 padding: EdgeInsets.all(0),
@@ -97,7 +97,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                    color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                                     decoration: TextDecoration.none,
                                   ),
                                 )

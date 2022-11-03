@@ -2,7 +2,7 @@ part of 'haven.dart';
 
 class CWHavenAccountList extends HavenAccountList {
 	CWHavenAccountList(this._wallet);
-	Object _wallet;
+	final Object _wallet;
 
 	@override
 	@computed
@@ -37,13 +37,13 @@ class CWHavenAccountList extends HavenAccountList {
   }
 
   @override
-  Future<void> addAccount(Object wallet, {String label}) async {
+  Future<void> addAccount(Object wallet, {required String label}) async {
   	final havenWallet = wallet as HavenWallet;
   	await havenWallet.walletAddresses.accountList.addAccount(label: label);
   }
 
   @override
-  Future<void> setLabelAccount(Object wallet, {int accountIndex, String label}) async {
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label}) async {
   	final havenWallet = wallet as HavenWallet;
   	await havenWallet.walletAddresses.accountList
   		.setLabelAccount(
@@ -54,7 +54,7 @@ class CWHavenAccountList extends HavenAccountList {
 
 class CWHavenSubaddressList extends MoneroSubaddressList {
 	CWHavenSubaddressList(this._wallet);
-	Object _wallet;
+	final Object _wallet;
 
 	@override
 	@computed
@@ -71,13 +71,13 @@ class CWHavenSubaddressList extends MoneroSubaddressList {
   }
 
   @override
-  void update(Object wallet, {int accountIndex}) {
+  void update(Object wallet, {required int accountIndex}) {
   	final havenWallet = wallet as HavenWallet;
   	havenWallet.walletAddresses.subaddressList.update(accountIndex: accountIndex);
   }
 
   @override
-  void refresh(Object wallet, {int accountIndex}) {
+  void refresh(Object wallet, {required int accountIndex}) {
   	final havenWallet = wallet as HavenWallet;
   	havenWallet.walletAddresses.subaddressList.refresh(accountIndex: accountIndex);
   }
@@ -93,7 +93,7 @@ class CWHavenSubaddressList extends MoneroSubaddressList {
   }
 
   @override
-  Future<void> addSubaddress(Object wallet, {int accountIndex, String label}) async {
+  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label}) async {
   	final havenWallet = wallet as HavenWallet;
   	await havenWallet.walletAddresses.subaddressList
   		.addSubaddress(
@@ -103,7 +103,7 @@ class CWHavenSubaddressList extends MoneroSubaddressList {
 
   @override
   Future<void> setLabelSubaddress(Object wallet,
-      {int accountIndex, int addressIndex, String label}) async {
+      {required int accountIndex, required int addressIndex, required String label}) async {
   	final havenWallet = wallet as HavenWallet;
   	await havenWallet.walletAddresses.subaddressList
   		.setLabelSubaddress(
@@ -115,9 +115,10 @@ class CWHavenSubaddressList extends MoneroSubaddressList {
 
 class CWHavenWalletDetails extends HavenWalletDetails {
 	CWHavenWalletDetails(this._wallet);
-	Object _wallet;
+	final Object _wallet;
 
 	@computed
+  @override
   Account get account {
   	final havenWallet = _wallet as HavenWallet;
   	final acc = havenWallet.walletAddresses.account as monero_account.Account;
@@ -125,10 +126,11 @@ class CWHavenWalletDetails extends HavenWalletDetails {
   }
 
   @computed
+  @override
 	HavenBalance get balance {
 		final havenWallet = _wallet as HavenWallet;
   	final balance = havenWallet.balance;
-  	return null;
+  	throw Exception('Unimplemented');
   	//return HavenBalance(
   	//	fullBalance: balance.fullBalance,
   	//	unlockedBalance: balance.unlockedBalance);
@@ -136,39 +138,48 @@ class CWHavenWalletDetails extends HavenWalletDetails {
 }
 
 class CWHaven extends Haven {
-	HavenAccountList getAccountList(Object wallet) {
+  @override
+  HavenAccountList getAccountList(Object wallet) {
 		return CWHavenAccountList(wallet);
 	}
-	
+
+	@override
 	MoneroSubaddressList getSubaddressList(Object wallet) {
 		return CWHavenSubaddressList(wallet);
 	}
 
+  @override
 	TransactionHistoryBase getTransactionHistory(Object wallet) {
 		final havenWallet = wallet as HavenWallet;
 		return havenWallet.transactionHistory;
 	}
 
+  @override
 	HavenWalletDetails getMoneroWalletDetails(Object wallet) {
 		return CWHavenWalletDetails(wallet);
 	}
 
-	int getHeigthByDate({DateTime date}) {
+  @override
+	int getHeigthByDate({required DateTime date}) {
 		return getMoneroHeigthByDate(date: date);
 	}
 	
+  @override
 	TransactionPriority getDefaultTransactionPriority() {
-		return MoneroTransactionPriority.slow;
+		return MoneroTransactionPriority.automatic;
 	}
 
-	TransactionPriority deserializeMoneroTransactionPriority({int raw}) {
+  @override
+	TransactionPriority deserializeMoneroTransactionPriority({required int raw}) {
 		return MoneroTransactionPriority.deserialize(raw: raw);
 	}
 
+  @override
 	List<TransactionPriority> getTransactionPriorities() {
 		return MoneroTransactionPriority.all;
 	}
 
+  @override
 	List<String> getMoneroWordList(String language) {
 		switch (language.toLowerCase()) {
 		  case 'english':
@@ -196,14 +207,15 @@ class CWHaven extends Haven {
 		}
 	}
 
+  @override
 	WalletCredentials createHavenRestoreWalletFromKeysCredentials({
-			String name,
-          	String spendKey,
-          	String viewKey,
-          	String address,
-          	String password,
-          	String language,
-          	int height}) {
+			required String name,
+      required String spendKey,
+      required String viewKey,
+      required String address,
+      required String password,
+      required String language,
+      required int height}) {
 		return HavenRestoreWalletFromKeysCredentials(
 			name: name,
 			spendKey: spendKey,
@@ -213,8 +225,13 @@ class CWHaven extends Haven {
 			language: language,
 			height: height);
 	}
-	
-	WalletCredentials createHavenRestoreWalletFromSeedCredentials({String name, String password, int height, String mnemonic}) {
+  
+  @override
+	WalletCredentials createHavenRestoreWalletFromSeedCredentials({
+    required String name,
+    required String password,
+    required int height,
+    required String mnemonic}) {
 		return HavenRestoreWalletFromSeedCredentials(
 			name: name,
 			password: password,
@@ -222,13 +239,18 @@ class CWHaven extends Haven {
 			mnemonic: mnemonic);
 	}
 
-	WalletCredentials createHavenNewWalletCredentials({String name, String password, String language}) {
+  @override
+	WalletCredentials createHavenNewWalletCredentials({
+    required String name,
+    required String language,
+    String? password}) {
 		return HavenNewWalletCredentials(
 			name: name,
 			password: password,
 			language: language);
 	}
 
+  @override
 	Map<String, String> getKeys(Object wallet) {
 		final havenWallet = wallet as HavenWallet;
 		final keys = havenWallet.keys;
@@ -239,7 +261,11 @@ class CWHaven extends Haven {
       'publicViewKey': keys.publicViewKey};
 	}
 
-	Object createHavenTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority, String assetType}) {
+  @override
+	Object createHavenTransactionCreationCredentials({
+    required List<Output> outputs,
+    required TransactionPriority priority,
+    required String assetType}) {
 		return HavenTransactionCreationCredentials(
 			outputs: outputs.map((out) => OutputInfo(
 					fiatAmount: out.fiatAmount,
@@ -255,53 +281,64 @@ class CWHaven extends Haven {
 			assetType: assetType);
 	}
 
-	String formatterMoneroAmountToString({int amount}) {
+  @override
+	String formatterMoneroAmountToString({required int amount}) {
 		return moneroAmountToString(amount: amount);
 	}
-
-	double formatterMoneroAmountToDouble({int amount}) {
+  
+  @override
+	double formatterMoneroAmountToDouble({required int amount}) {
 		return moneroAmountToDouble(amount: amount);
 	}
 
-	int formatterMoneroParseAmount({String amount}) {
+  @override
+	int formatterMoneroParseAmount({required String amount}) {
 		return moneroParseAmount(amount: amount);
 	}
 
+  @override
 	Account getCurrentAccount(Object wallet) {
 		final havenWallet = wallet as HavenWallet;
 		final acc = havenWallet.walletAddresses.account as monero_account.Account;
 		return Account(id: acc.id, label: acc.label);
 	}
 
+  @override
 	void setCurrentAccount(Object wallet, int id, String label) {
 		final havenWallet = wallet as HavenWallet;
 		havenWallet.walletAddresses.account = monero_account.Account(id: id, label: label);
 	}
 
+  @override
 	void onStartup() {
 		monero_wallet_api.onStartup();
 	}
 
+  @override
 	int getTransactionInfoAccountId(TransactionInfo tx) {
 		final havenTransactionInfo = tx as HavenTransactionInfo;
 		return havenTransactionInfo.accountIndex;
 	}
 
+  @override
 	WalletService createHavenWalletService(Box<WalletInfo> walletInfoSource) {
 		return HavenWalletService(walletInfoSource);
 	}
 
+  @override
 	String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
 		final havenWallet = wallet as HavenWallet;
 		return havenWallet.getTransactionAddress(accountIndex, addressIndex);
 	}
 
+  @override
 	CryptoCurrency assetOfTransaction(TransactionInfo tx) {
 		final transaction = tx as HavenTransactionInfo;
 		final asset = CryptoCurrency.fromString(transaction.assetType);
 		return asset;
 	}
 
+  @override
 	List<AssetRate> getAssetRate() 
 		=> getRate()
 				.map((rate) => AssetRate(rate.getAssetType(), rate.getRate()))

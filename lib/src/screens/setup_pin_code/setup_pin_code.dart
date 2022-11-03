@@ -12,7 +12,7 @@ class SetupPinCodePage extends BasePage {
       : pinCodeStateKey = GlobalKey<PinCodeState>();
 
   final SetupPinCodeViewModel pinCodeViewModel;
-  final void Function(PinCodeState<PinCodeWidget>, String) onSuccessfulPinSetup;
+  final void Function(PinCodeState<PinCodeWidget>, String)? onSuccessfulPinSetup;
   final GlobalKey<PinCodeState> pinCodeStateKey;
 
   @override
@@ -57,7 +57,10 @@ class SetupPinCodePage extends BasePage {
                   buttonText: S.of(context).ok,
                   buttonAction: () {
                     Navigator.of(context).pop();
-                    onSuccessfulPinSetup(pinCodeStateKey.currentState, pin);
+                    if (pinCodeStateKey.currentState != null) {
+                      onSuccessfulPinSetup?.call(pinCodeStateKey.currentState!, pin);
+                    }
+                    
                     state.reset();
                   },
                   alertBarrierDismissible: false,

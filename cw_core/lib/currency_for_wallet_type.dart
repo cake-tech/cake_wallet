@@ -12,6 +12,6 @@ CryptoCurrency currencyForWalletType(WalletType type) {
     case WalletType.haven:
       return CryptoCurrency.xhv;
     default:
-      return null;
+      throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }
 }

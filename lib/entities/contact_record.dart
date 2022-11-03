@@ -13,7 +13,10 @@ abstract class ContactRecordBase extends Record<Contact>
     with Store
     implements ContactBase {
   ContactRecordBase(Box<Contact> source, Contact original)
-      : super(source, original);
+      : name = original.name,
+        address = original.address,
+        type = original.type,
+      super(source, original);
 
   @override
   @observable

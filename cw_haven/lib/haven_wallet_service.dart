@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
@@ -13,7 +14,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class HavenNewWalletCredentials extends WalletCredentials {
-  HavenNewWalletCredentials({String name, String password, this.language})
+  HavenNewWalletCredentials({required String name, required this.language, String? password})
       : super(name: name, password: password);
 
   final String language;
@@ -21,7 +22,10 @@ class HavenNewWalletCredentials extends WalletCredentials {
 
 class HavenRestoreWalletFromSeedCredentials extends WalletCredentials {
   HavenRestoreWalletFromSeedCredentials(
-      {String name, String password, int height, this.mnemonic})
+      {required String name,
+      required String password,
+      required int height,
+      required this.mnemonic})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
@@ -34,13 +38,13 @@ class HavenWalletLoadingException implements Exception {
 
 class HavenRestoreWalletFromKeysCredentials extends WalletCredentials {
   HavenRestoreWalletFromKeysCredentials(
-      {String name,
-      String password,
-      this.language,
-      this.address,
-      this.viewKey,
-      this.spendKey,
-      int height})
+      {required String name,
+      required String password,
+      required this.language,
+      required this.address,
+      required this.viewKey,
+      required this.spendKey,
+      required int height})
       : super(name: name, password: password, height: height);
 
   final String language;
@@ -69,9 +73,9 @@ class HavenWalletService extends WalletService<
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.createWallet(
           path: path,
-          password: credentials.password,
+          password: credentials.password!,
           language: credentials.language);
-      final wallet = HavenWallet(walletInfo: credentials.walletInfo);
+      final wallet = HavenWallet(walletInfo: credentials.walletInfo!);
       await wallet.init();
       return wallet;
     } catch (e) {
@@ -104,9 +108,8 @@ class HavenWalletService extends WalletService<
 
       await haven_wallet_manager
           .openWalletAsync({'path': path, 'password': password});
-      final walletInfo = walletInfoSource.values.firstWhere(
-          (info) => info.id == WalletBase.idFor(name, getType()),
-          orElse: () => null);
+      final walletInfo = walletInfoSource.values.firstWhereOrNull(
+          (info) => info.id == WalletBase.idFor(name, getType()))!;
       final wallet = HavenWallet(walletInfo: walletInfo);
       final isValid = wallet.walletAddresses.validate();
 
@@ -155,13 +158,13 @@ class HavenWalletService extends WalletService<
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromKeys(
           path: path,
-          password: credentials.password,
+          password: credentials.password!,
           language: credentials.language,
-          restoreHeight: credentials.height,
+          restoreHeight: credentials.height!,
           address: credentials.address,
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
-      final wallet = HavenWallet(walletInfo: credentials.walletInfo);
+      final wallet = HavenWallet(walletInfo: credentials.walletInfo!);
       await wallet.init();
 
       return wallet;
@@ -179,10 +182,10 @@ class HavenWalletService extends WalletService<
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromSeed(
           path: path,
-          password: credentials.password,
+          password: credentials.password!,
           seed: credentials.mnemonic,
-          restoreHeight: credentials.height);
-      final wallet = HavenWallet(walletInfo: credentials.walletInfo);
+          restoreHeight: credentials.height!);
+      final wallet = HavenWallet(walletInfo: credentials.walletInfo!);
       await wallet.init();
 
       return wallet;

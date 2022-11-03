@@ -8,13 +8,13 @@ class LimitsInitialState extends LimitsState {}
 class LimitsIsLoading extends LimitsState {}
 
 class LimitsLoadedSuccessfully extends LimitsState {
-  LimitsLoadedSuccessfully({@required this.limits});
+  LimitsLoadedSuccessfully({required this.limits});
 
   final Limits limits;
 }
 
 class LimitsLoadedFailure extends LimitsState {
-  LimitsLoadedFailure({@required this.error});
+  LimitsLoadedFailure({required this.error});
 
   final String error;
 }

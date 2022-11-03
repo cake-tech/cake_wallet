@@ -47,7 +47,7 @@ class AmountConverter {
       case CryptoCurrency.xusd:
         return _moneroAmountToDouble(amount);
       default:
-        return null;
+        return 0.0;
     }
   }
 
@@ -71,7 +71,7 @@ class AmountConverter {
       case CryptoCurrency.xusd:
         return _moneroParseAmount(amount);
       default:
-        return null;
+        return 0;
     }
   }
 
@@ -97,11 +97,11 @@ class AmountConverter {
       case CryptoCurrency.xusd:
         return _moneroAmountToString(amount);
       default:
-        return null;
+        return '';
     }
   }
 
-  static double cryptoAmountToDouble({num amount, num divider}) =>
+  static double cryptoAmountToDouble({required num amount, required num divider}) =>
       amount / divider;
 
   static String _moneroAmountToString(int amount) => _moneroAmountFormat.format(

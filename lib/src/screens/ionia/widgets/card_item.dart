@@ -3,30 +3,30 @@ import 'package:flutter/material.dart';
 
 class CardItem extends StatelessWidget {
   CardItem({
-    @required this.title,
-    @required this.subTitle,
-    @required this.backgroundColor,
-    @required this.titleColor,
-    @required this.subtitleColor,
+    required this.title,
+    required this.subTitle,
+    required this.backgroundColor,
+    required this.titleColor,
+    required this.subtitleColor,
     this.hideBorder = false,
+    this.discount = 0.0,
+    this.isAmount = false,
     this.discountBackground,
     this.onTap,
     this.logoUrl,
-    this.discount,
-    this.isAmount = false,
   });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final String title;
   final String subTitle;
-  final String logoUrl;
+  final String? logoUrl;
   final double discount;
   final bool isAmount;
   final bool hideBorder;
   final Color backgroundColor;
   final Color titleColor;
   final Color subtitleColor;
-  final AssetImage discountBackground;
+  final AssetImage? discountBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +49,11 @@ class CardItem extends StatelessWidget {
                 if (logoUrl != null) ...[
                   ClipOval(
                     child: Image.network(
-                      logoUrl,
+                      logoUrl!,
                       width: 40.0,
                       height: 40.0,
                       fit: BoxFit.cover,
-                      loadingBuilder: (BuildContext _, Widget child, ImageChunkEvent loadingProgress) {
+                      loadingBuilder: (BuildContext _, Widget child, ImageChunkEvent? loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
                         } else {
@@ -116,7 +116,7 @@ class CardItem extends StatelessWidget {
 }
 
 class _PlaceholderContainer extends StatelessWidget {
-  const _PlaceholderContainer({@required this.text});
+  const _PlaceholderContainer({required this.text});
 
   final String text;
 

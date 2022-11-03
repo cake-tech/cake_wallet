@@ -39,13 +39,13 @@ class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 List<TransactionPriority> priorityForWalletType(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return monero.getTransactionPriorities();
+      return monero!.getTransactionPriorities();
     case WalletType.bitcoin:
-      return bitcoin.getTransactionPriorities();
+      return bitcoin!.getTransactionPriorities();
     case WalletType.litecoin:
-      return bitcoin.getLitecoinTransactionPriorities();
+      return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.haven:
-      return haven.getTransactionPriorities();
+      return haven!.getTransactionPriorities();
     default:
       return [];
   }
@@ -60,8 +60,9 @@ abstract class SettingsViewModelBase with Store {
           wallet)
       : itemHeaders = {},
         _walletType = wallet.type,
-        _biometricAuth = BiometricAuth() {
-    currentVersion = '';
+        _biometricAuth = BiometricAuth(),
+        sections = <List<SettingsListItem>>[],
+        currentVersion = '' {
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
@@ -134,8 +135,8 @@ abstract class SettingsViewModelBase with Store {
 
               if (wallet.type == WalletType.bitcoin
                   || wallet.type == WalletType.litecoin) {
-                final rate = bitcoin.getFeeRate(wallet, _priority);
-                return '${priority.labelWithRate(rate)}';
+                final rate = bitcoin!.getFeeRate(wallet, _priority);
+                return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
               }
 
               return priority.toString();
@@ -169,7 +170,7 @@ abstract class SettingsViewModelBase with Store {
             searchHintText: S.current.search_language,
             items: LanguageService.list.keys.toList(),
             displayItem: (dynamic code) {
-              return LanguageService.list[code];
+              return LanguageService.list[code] ?? '';
             },
             selectedItem: () => _settingsStore.languageCode,
             onItemSelected: (String code) {
@@ -179,7 +180,7 @@ abstract class SettingsViewModelBase with Store {
               (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
               .toList(),
             matchingCriteria: (String code, String searchText) {
-              return LanguageService.list[code].toLowerCase().contains(searchText);
+              return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
             },
         ),
         SwitcherListItem(
@@ -256,8 +257,15 @@ abstract class SettingsViewModelBase with Store {
       _settingsStore.actionlistDisplayMode;
 
   @computed
-  TransactionPriority get transactionPriority =>
-      _settingsStore.priority[_walletType];
+  TransactionPriority get transactionPriority {
+    final priority = _settingsStore.priority[_walletType];
+
+    if (priority == null) {
+      throw Exception('Unexpected type ${_walletType.toString()}');
+    }
+
+    return priority;
+  }
 
   @computed
   BalanceDisplayMode get balanceDisplayMode =>

@@ -4,15 +4,25 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 
 class AddressCell extends StatelessWidget {
+  AddressCell(
+      {required this.address,
+      required this.name,
+      required this.isCurrent,
+      required this.isPrimary,
+      required this.backgroundColor,
+      required this.textColor,
+      this.onTap,
+      this.onEdit});
+
   factory AddressCell.fromItem(WalletAddressListItem item,
-          {@required bool isCurrent,
-          @required Color backgroundColor,
-          @required Color textColor,
-          Function(String) onTap,
-          Function() onEdit}) =>
+          {required bool isCurrent,
+          required Color backgroundColor,
+          required Color textColor,
+          Function(String)? onTap,
+          Function()? onEdit}) =>
       AddressCell(
           address: item.address,
-          name: item.name,
+          name: item.name ?? '',
           isCurrent: isCurrent,
           isPrimary: item.isPrimary,
           backgroundColor: backgroundColor,
@@ -20,24 +30,14 @@ class AddressCell extends StatelessWidget {
           onTap: onTap,
           onEdit: onEdit);
 
-  AddressCell(
-      {@required this.address,
-      @required this.name,
-      @required this.isCurrent,
-      @required this.isPrimary,
-      @required this.backgroundColor,
-      @required this.textColor,
-      this.onTap,
-      this.onEdit});
-
   final String address;
   final String name;
   final bool isCurrent;
   final bool isPrimary;
   final Color backgroundColor;
   final Color textColor;
-  final Function(String) onTap;
-  final Function() onEdit;
+  final Function(String)? onTap;
+  final Function()? onEdit;
 
   String get label {
     if (name.isEmpty){
@@ -55,8 +55,9 @@ class AddressCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget cell = InkWell(
-        onTap: () => onTap(address),
+        onTap: () => onTap?.call(address),
         child: Container(
+          width: double.infinity,
           color: backgroundColor,
           padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: 28),
           child: Text(
@@ -69,19 +70,25 @@ class AddressCell extends StatelessWidget {
             ),
           ),
         ));
-
-    return Container(
-          color: backgroundColor,
-          child: Slidable(
-            key: Key(address),
-            actionPane: SlidableDrawerActionPane(),
-            child: cell,
-            secondaryActions: <Widget>[
-                IconSlideAction(
-                    caption: S.of(context).edit,
-                    color: Colors.blue,
-                    icon: Icons.edit,
-                    onTap: () => onEdit?.call())
-              ]));
+    return Slidable(
+      key: Key(address),
+      startActionPane: _actionPane(context),
+      endActionPane: _actionPane(context),
+      child: cell,
+    );
   }
+
+  ActionPane _actionPane(BuildContext context) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.3,
+    children: [
+      SlidableAction(
+        onPressed: (_) => onEdit?.call(),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        icon: Icons.edit,
+        label: S.of(context).edit,
+      ),
+    ],
+  );
 }

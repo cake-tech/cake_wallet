@@ -106,15 +106,18 @@ Future<String> generateMnemonic(
   return result;
 }
 
-Uint8List mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) {
+Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {
   final pbkdf2 = cryptography.Pbkdf2(
-      macAlgorithm: cryptography.Hmac(cryptography.sha512),
+      macAlgorithm: cryptography.Hmac.sha512(),
       iterations: 2048,
       bits: 512);
   final text = normalizeText(mnemonic);
-
-  return pbkdf2.deriveBitsSync(text.codeUnits,
-      nonce: cryptography.Nonce('electrum'.codeUnits));
+  // pbkdf2.deriveKey(secretKey: secretKey, nonce: nonce)
+  final key = await pbkdf2.deriveKey(
+      secretKey: cryptography.SecretKey(text.codeUnits),
+      nonce: 'electrum'.codeUnits);
+  final bytes = await key.extractBytes();
+  return Uint8List.fromList(bytes);
 }
 
 bool matchesAnyPrefix(String mnemonic) =>

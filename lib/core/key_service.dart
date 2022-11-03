@@ -7,15 +7,14 @@ class KeyService {
 
   final FlutterSecureStorage _secureStorage;
 
-  Future<String> getWalletPassword({String walletName}) async {
+  Future<String> getWalletPassword({required String walletName}) async {
     final key = generateStoreKeyFor(
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
     final encodedPassword = await _secureStorage.read(key: key);
-
-    return decodeWalletPassword(password: encodedPassword);
+    return decodeWalletPassword(password: encodedPassword!);
   }
 
-  Future<void> saveWalletPassword({String walletName, String password}) async {
+  Future<void> saveWalletPassword({required String walletName, required String password}) async {
     final key = generateStoreKeyFor(
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
     final encodedPassword = encodeWalletPassword(password: password);

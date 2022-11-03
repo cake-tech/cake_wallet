@@ -2,21 +2,21 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/keyable.dart';
 
 abstract class TransactionInfo extends Object with Keyable {
-  String id;
-  int amount;
-  int fee;
-  TransactionDirection direction;
-  bool isPending;
-  DateTime date;
-  int height;
-  int confirmations;
+  late String id;
+  late int amount;
+  int? fee;
+  late TransactionDirection direction;
+  late bool isPending;
+  late DateTime date;
+  late int height;
+  late int confirmations;
   String amountFormatted();
   String fiatAmount();
-  String feeFormatted();
+  String? feeFormatted();
   void changeFiatAmount(String amount);
 
   @override
   dynamic get keyIndex => id;
 
-  Map<String, dynamic> additionalInfo;
+  late Map<String, dynamic> additionalInfo;
 }

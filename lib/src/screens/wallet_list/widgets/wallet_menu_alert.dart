@@ -10,9 +10,9 @@ import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
 class WalletMenuAlert extends StatelessWidget {
   WalletMenuAlert({
-    @required this.wallet,
-    @required this.walletMenu,
-    @required this.items
+    required this.wallet,
+    required this.walletMenu,
+    required this.items
   });
 
   final WalletListItem wallet;
@@ -36,7 +36,7 @@ class WalletMenuAlert extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(14)),
               child: Container(
-                color: Theme.of(context).textTheme.body2.decorationColor,
+                color: Theme.of(context).textTheme!.bodyText1!.decorationColor!,
                 padding: EdgeInsets.only(left: 24),
                 child: ListView.separated(
                   shrinkWrap: true,
@@ -44,7 +44,7 @@ class WalletMenuAlert extends StatelessWidget {
                   itemCount: items.length,
                   separatorBuilder: (context, _) => Container(
                     height: 1,
-                    color: Theme.of(context).accentTextTheme.subhead.backgroundColor,
+                    color: Theme.of(context).accentTextTheme!.subtitle1!.backgroundColor!,
                   ),
                   itemBuilder: (_, index) {
                     final item = items[index];
@@ -87,7 +87,7 @@ class WalletMenuAlert extends StatelessWidget {
                               child: Text(
                                 item.title,
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                    color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                                     fontSize: 18,
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w500,

@@ -11,7 +11,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 
 class ExchangeConfirmPage extends BasePage {
-  ExchangeConfirmPage({@required this.tradesStore}) : trade = tradesStore.trade;
+  ExchangeConfirmPage({required this.tradesStore}) : trade = tradesStore.trade!;
 
   final TradesStore tradesStore;
   final Trade trade;
@@ -36,7 +36,7 @@ class ExchangeConfirmPage extends BasePage {
                   style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme.title.color),
+                      color: Theme.of(context).primaryTextTheme!.headline6!.color!),
                 ),
               )),
               Container(
@@ -45,8 +45,8 @@ class ExchangeConfirmPage extends BasePage {
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     border: Border.all(
                         width: 1,
-                        color: Theme.of(context).accentTextTheme.caption.color),
-                    color: Theme.of(context).accentTextTheme.title.color),
+                        color: Theme.of(context).accentTextTheme!.caption!.color!),
+                    color: Theme.of(context).accentTextTheme!.headline6!.color!),
                 child: Column(
                   children: <Widget>[
                     Expanded(
@@ -62,9 +62,9 @@ class ExchangeConfirmPage extends BasePage {
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w500,
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .overline
-                                    .color),
+                                    .primaryTextTheme!
+                                    .overline!
+                                    .color!),
                           ),
                           Text(
                             trade.id,
@@ -74,9 +74,9 @@ class ExchangeConfirmPage extends BasePage {
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color),
+                                    .primaryTextTheme!
+                                    .headline6!
+                                    .color!),
                           ),
                         ],
                       ),
@@ -92,11 +92,11 @@ class ExchangeConfirmPage extends BasePage {
                             },
                             text: S.of(context).copy_id,
                             color: Theme.of(context)
-                                .accentTextTheme
-                                .caption
-                                .backgroundColor,
+                                .accentTextTheme!
+                                .caption!
+                                .backgroundColor!,
                             textColor:
-                                Theme.of(context).primaryTextTheme.title.color),
+                                Theme.of(context).primaryTextTheme!.headline6!.color!),
                       ),
                     )
                   ],
@@ -125,7 +125,7 @@ class ExchangeConfirmPage extends BasePage {
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
               textColor: Colors.white)
         ],
       ),

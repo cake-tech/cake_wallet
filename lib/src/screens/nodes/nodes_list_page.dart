@@ -1,4 +1,5 @@
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -26,10 +27,10 @@ class NodeListPage extends BasePage {
       height: 32,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          color: Theme.of(context).accentTextTheme.caption.color),
+          color: Theme.of(context).accentTextTheme.caption!.color!),
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
+        child: TextButton(
             onPressed: () async {
               await showPopUp<void>(
                   context: context,
@@ -85,7 +86,7 @@ class NodeListPage extends BasePage {
 
                 final node = nodeListViewModel.nodes[index];
                 final isSelected =
-                    node.keyIndex == nodeListViewModel.currentNode?.keyIndex;
+                    node.keyIndex == nodeListViewModel.currentNode.keyIndex;
                 final nodeListRow = NodeListRow(
                     title: node.uriRaw,
                     isSelected: isSelected,
@@ -116,42 +117,50 @@ class NodeListPage extends BasePage {
                     });
 
                 final dismissibleRow = Slidable(
-                    key: Key('${node.keyIndex}'),
-                    actionPane: SlidableDrawerActionPane(),
-                    child: nodeListRow,
-                    secondaryActions: <Widget>[
-                      IconSlideAction(
-                        caption: S.of(context).delete,
-                        color: Colors.red,
-                        icon: CupertinoIcons.delete,
-                        onTap: () async {
-                          final confirmed = await showPopUp<bool>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertWithTwoActions(
-                                        alertTitle: S.of(context).remove_node,
-                                        alertContent:
-                                            S.of(context).remove_node_message,
-                                        rightButtonText: S.of(context).remove,
-                                        leftButtonText: S.of(context).cancel,
-                                        actionRightButton: () =>
-                                            Navigator.pop(context, true),
-                                        actionLeftButton: () =>
-                                            Navigator.pop(context, false));
-                                  }) ??
-                              false;
-
-                          if (confirmed) {
-                            await nodeListViewModel.delete(node);
-                          }
-                        },
-                      ),
-                    ]);
-
+                  key: Key('${node.keyIndex}'),
+                  startActionPane: _actionPane(context, node),
+                  endActionPane: _actionPane(context, node),
+                  child: nodeListRow,
+                );
+                
                 return isSelected ? nodeListRow : dismissibleRow;
               });
         },
       ),
     );
   }
+
+  ActionPane _actionPane(BuildContext context, Node node) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.3,
+    children: [
+      SlidableAction(
+        onPressed: (context) async {
+          final confirmed = await showPopUp<bool>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithTwoActions(
+                    alertTitle: S.of(context).remove_node,
+                    alertContent:
+                    S.of(context).remove_node_message,
+                    rightButtonText: S.of(context).remove,
+                    leftButtonText: S.of(context).cancel,
+                    actionRightButton: () =>
+                        Navigator.pop(context, true),
+                    actionLeftButton: () =>
+                        Navigator.pop(context, false));
+              }) ??
+              false;
+
+          if (confirmed) {
+            await nodeListViewModel.delete(node);
+          }
+        },
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        icon: CupertinoIcons.delete,
+        label: S.of(context).delete,
+      ),
+    ],
+  );
 }

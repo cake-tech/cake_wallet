@@ -18,7 +18,7 @@ abstract class BasePage extends StatelessWidget {
   final Image closeButtonImageDarkTheme =
     Image.asset('assets/images/close_button_dark_theme.png');
 
-  String get title => null;
+  String? get title => null;
 
   bool get isModalBackButton => false;
 
@@ -26,31 +26,31 @@ abstract class BasePage extends StatelessWidget {
 
   Color get backgroundDarkColor => PaletteDark.backgroundColor;
 
-  Color get titleColor => null;
+  Color? get titleColor => null;
 
   bool get resizeToAvoidBottomInset => true;
 
   bool get extendBodyBehindAppBar => false;
 
-  Widget get endDrawer => null;
+  Widget? get endDrawer => null;
 
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
-  Widget Function(BuildContext, Widget) get rootWrapper => null;
+  Widget Function(BuildContext, Widget)? get rootWrapper => null;
 
   ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
-  void onOpenEndDrawer() => _scaffoldKey.currentState.openEndDrawer();
+  void onOpenEndDrawer() => _scaffoldKey.currentState!.openEndDrawer();
 
   void onClose(BuildContext context) => Navigator.of(context).pop();
 
-  Widget leading(BuildContext context) {
-    if (ModalRoute.of(context).isFirst) {
+  Widget? leading(BuildContext context) {
+    if (ModalRoute.of(context)?.isFirst ?? true) {
       return null;
     }
 
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
+      color: titleColor ?? Theme.of(context).primaryTextTheme!.headline6!.color!,
       size: 16,);
     final _closeButton = currentTheme.type == ThemeType.dark
         ? closeButtonImageDarkTheme : closeButtonImage;
@@ -60,33 +60,34 @@ abstract class BasePage extends StatelessWidget {
       width: 37,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => onClose(context),
             child: isModalBackButton ? _closeButton : _backButton),
       ),
     );
   }
 
-  Widget middle(BuildContext context) {
+  Widget? middle(BuildContext context) {
     return title == null
         ? null
         : Text(
-            title,
+            title!,
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
                 color: titleColor ??
-                    Theme.of(context).primaryTextTheme.title.color),
+                    Theme.of(context).primaryTextTheme!.headline6!.color!),
           );
   }
 
-  Widget trailing(BuildContext context) => null;
+  Widget? trailing(BuildContext context) => null;
 
-  Widget floatingActionButton(BuildContext context) => null;
+  Widget? floatingActionButton(BuildContext context) => null;
 
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final appBarColor = currentTheme.type == ThemeType.dark
@@ -94,16 +95,18 @@ abstract class BasePage extends StatelessWidget {
 
     switch (appBarStyle) {
       case AppBarStyle.regular:
+        // FIX-ME: NavBar no context
         return NavBar(
-            context: context,
+            // context: context,
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
             backgroundColor: appBarColor);
 
       case AppBarStyle.withShadow:
+        // FIX-ME: NavBar no context
         return NavBar.withShadow(
-            context: context,
+            // context: context,
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
@@ -119,8 +122,9 @@ abstract class BasePage extends StatelessWidget {
         );
 
       default:
+        // FIX-ME: NavBar no context
         return NavBar(
-            context: context,
+            // context: context,
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),

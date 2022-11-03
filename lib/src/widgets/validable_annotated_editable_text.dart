@@ -3,7 +3,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class Annotation extends Comparable<Annotation> {
-  Annotation({@required this.range, this.style});
+  Annotation({required this.range, required this.style});
 
   final TextRange range;
   final TextStyle style;
@@ -13,7 +13,7 @@ class Annotation extends Comparable<Annotation> {
 }
 
 class TextAnnotation extends Comparable<TextAnnotation> {
-  TextAnnotation({@required this.text, this.style});
+  TextAnnotation({required this.text, required this.style});
 
   final TextStyle style;
   final String text;
@@ -24,24 +24,24 @@ class TextAnnotation extends Comparable<TextAnnotation> {
 
 class ValidatableAnnotatedEditableText extends EditableText {
   ValidatableAnnotatedEditableText({
-    Key key,
-    FocusNode focusNode,
-    TextEditingController controller,
-    List<String> wordList,
-    ValueChanged<String> onChanged,
-    ValueChanged<String> onSubmitted,
-    Color cursorColor,
-    Color selectionColor,
-    Color backgroundCursorColor,
-    TextSelectionControls selectionControls,
-    this.validStyle,
-    this.invalidStyle,
+    Key? key,
+    required FocusNode focusNode,
+    required TextEditingController controller,
+    // required List<String> wordList,
+    required Color cursorColor,
+    required Color backgroundCursorColor,
+    required this.validStyle,
+    required this.invalidStyle,
+    required this.words,
     TextStyle textStyle = const TextStyle(
         color: Colors.black,
         backgroundColor: Colors.transparent,
         fontWeight: FontWeight.normal,
         fontSize: 16),
-    @required this.words,
+    TextSelectionControls? selectionControls,
+    Color? selectionColor,
+    ValueChanged<String>? onChanged,
+    ValueChanged<String>? onSubmitted,
   }) : super(
             maxLines: null,
             key: key,
@@ -83,7 +83,7 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
       super.widget as ValidatableAnnotatedEditableText;
 
   List<Annotation> getRanges() {
-    final result = List<Annotation>();
+    final result = <Annotation>[];
     final text = textEditingValue.text;
     final source = text
         .split(' ')
@@ -98,10 +98,10 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
         .expand((e) => e)
         .toList();
     source.sort();
-    Annotation prev;
+    Annotation? prev;
 
     for (var item in source) {
-      Annotation annotation;
+      Annotation? annotation;
 
       if (prev == null) {
         annotation = Annotation(
@@ -134,7 +134,7 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
   bool validate(String source) => widget.words.indexOf(source) >= 0;
 
   List<TextRange> range(String pattern, String source) {
-    final result = List<TextRange>();
+    final result = <TextRange>[];
 
     if (pattern.isEmpty || source.isEmpty) {
       return result;

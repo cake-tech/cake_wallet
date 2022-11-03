@@ -6,12 +6,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class UnspentCoinsListItem extends StatelessWidget {
   UnspentCoinsListItem({
-    @required this.note,
-    @required this.amount,
-    @required this.address,
-    @required this.isSending,
-    @required this.isFrozen,
-    @required this.onCheckBoxTap,
+    required this.note,
+    required this.amount,
+    required this.address,
+    required this.isSending,
+    required this.isFrozen,
+    this.onCheckBoxTap,
   });
 
   static const amountColor = Palette.darkBlueCraiola;
@@ -24,7 +24,7 @@ class UnspentCoinsListItem extends StatelessWidget {
   final String address;
   final bool isSending;
   final bool isFrozen;
-  final Function() onCheckBoxTap;
+  final Function()? onCheckBoxTap;
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +51,9 @@ class UnspentCoinsListItem extends StatelessWidget {
                     decoration: BoxDecoration(
                         border: Border.all(
                             color: Theme.of(context)
-                                .primaryTextTheme
-                                .caption
-                                .color,
+                                .primaryTextTheme!
+                                .caption!
+                                .color!,
                             width: 1.0),
                         borderRadius: BorderRadius.all(
                             Radius.circular(8.0)),

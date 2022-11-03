@@ -16,15 +16,18 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cake_backup/backup.dart' as cake_backup;
 
 class BackupService {
   BackupService(this._flutterSecureStorage, this._walletInfoSource,
       this._keyService, this._sharedPreferences)
-      : _cipher = chacha20Poly1305Aead;
+      : _cipher = Cryptography.instance.chacha20Poly1305Aead(),
+        _correctWallets = <WalletInfo>[];
 
-  static const currentVersion = _v1;
+  static const currentVersion = _v2;
 
   static const _v1 = 1;
+  static const _v2 = 2;
 
   final Cipher _cipher;
   final FlutterSecureStorage _flutterSecureStorage;
@@ -36,12 +39,15 @@ class BackupService {
   Future<void> importBackup(Uint8List data, String password,
       {String nonce = secrets.backupSalt}) async {
     final version = getVersion(data);
-    final backupBytes = data.toList()..removeAt(0);
-    final backupData = Uint8List.fromList(backupBytes);
 
     switch (version) {
       case _v1:
+        final backupBytes = data.toList()..removeAt(0);
+        final backupData = Uint8List.fromList(backupBytes);
         await _importBackupV1(backupData, password, nonce: nonce);
+        break;
+      case _v2:
+        await _importBackupV2(data, password);
         break;
       default:
         break;
@@ -53,20 +59,26 @@ class BackupService {
     switch (version) {
       case _v1:
         return await _exportBackupV1(password, nonce: nonce);
+      case _v2:
+        return await _exportBackupV2(password);
       default:
-        return null;
+        throw Exception('Incorrect version: $version for exportBackup');
     }
   }
 
+  @Deprecated('Use v2 instead')
   Future<Uint8List> _exportBackupV1(String password,
-      {String nonce = secrets.backupSalt}) async {
+      {String nonce = secrets.backupSalt}) async
+    => throw Exception('Deprecated. Export for backups v1 is deprecated. Please use export v2.');
+
+  Future<Uint8List> _exportBackupV2(String password) async {
     final zipEncoder = ZipFileEncoder();
     final appDir = await getApplicationDocumentsDirectory();
     final now = DateTime.now();
     final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
     final archivePath = '${tmpDir.path}/backup_${now.toString()}.zip';
     final fileEntities = appDir.listSync(recursive: false);
-    final keychainDump = await _exportKeychainDump(password, nonce: nonce);
+    final keychainDump = await _exportKeychainDumpV2(password);
     final preferencesDump = await _exportPreferencesJSON();
     final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
     final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
@@ -91,21 +103,19 @@ class BackupService {
     });
     await keychainDumpFile.writeAsBytes(keychainDump.toList());
     await preferencesDumpFile.writeAsString(preferencesDump);
-    zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
-    zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
+    await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
+    await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
     zipEncoder.close();
 
     final content = File(archivePath).readAsBytesSync();
     tmpDir.deleteSync(recursive: true);
-    final encryptedData = await _encrypt(content, password, nonce);
-
-    return setVersion(encryptedData, currentVersion);
+    return await _encryptV2(content, password);
   }
 
   Future<void> _importBackupV1(Uint8List data, String password,
-      {@required String nonce}) async {
+      {required String nonce}) async {
     final appDir = await getApplicationDocumentsDirectory();
-    final decryptedData = await _decrypt(data, password, nonce);
+    final decryptedData = await _decryptV1(data, password, nonce);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
     zip.files.forEach((file) {
@@ -122,7 +132,30 @@ class BackupService {
     });
 
     await _verifyWallets();
-    await _importKeychainDump(password, nonce: nonce);
+    await _importKeychainDumpV1(password, nonce: nonce);
+    await _importPreferencesDump();
+  }
+
+  Future<void> _importBackupV2(Uint8List data, String password) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final decryptedData = await _decryptV2(data, password);
+    final zip = ZipDecoder().decodeBytes(decryptedData);
+
+    zip.files.forEach((file) {
+      final filename = file.name;
+
+      if (file.isFile) {
+        final content = file.content as List<int>;
+        File('${appDir.path}/' + filename)
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(content);
+      } else {
+        Directory('${appDir.path}/' + filename)..create(recursive: true);
+      }
+    });
+
+    await _verifyWallets();
+    await _importKeychainDumpV2(password);
     await _importPreferencesDump();
   }
 
@@ -159,7 +192,7 @@ class BackupService {
     }
 
     final data =
-        json.decode(preferencesFile.readAsStringSync()) as Map<String, Object>;
+        json.decode(preferencesFile.readAsStringSync()) as Map<String, dynamic>;
     String currentWalletName = data[PreferencesKey.currentWalletName] as String;
     int currentWalletType = data[PreferencesKey.currentWalletType] as int;
 
@@ -172,54 +205,127 @@ class BackupService {
       currentWalletType = serializeToInt(_correctWallets.first.type);
     }
 
+    final currentNodeId = data[PreferencesKey.currentNodeIdKey] as int?;
+    final currentBalanceDisplayMode = data[PreferencesKey.currentBalanceDisplayModeKey] as int?;
+    final currentFiatCurrency = data[PreferencesKey.currentFiatCurrencyKey] as String?;
+    final shouldSaveRecipientAddress = data[PreferencesKey.shouldSaveRecipientAddressKey] as bool?;
+    final currentTransactionPriorityKeyLegacy = data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
+    final allowBiometricalAuthentication = data[PreferencesKey.allowBiometricalAuthenticationKey] as bool?;
+    final currentBitcoinElectrumSererId = data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
+    final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
+    final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
+    final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
+    final currentTheme = data[PreferencesKey.currentTheme] as int?;
+    final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
+    final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
+    final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
+
     await _sharedPreferences.setString(PreferencesKey.currentWalletName,
         currentWalletName);
-    await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey,
-        data[PreferencesKey.currentNodeIdKey] as int);
-    await _sharedPreferences.setInt(PreferencesKey.currentBalanceDisplayModeKey,
-        data[PreferencesKey.currentBalanceDisplayModeKey] as int);
+
+    if (currentNodeId != null)
+      await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey,
+        currentNodeId);
+
+    if (currentBalanceDisplayMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.currentBalanceDisplayModeKey,
+        currentBalanceDisplayMode);
+
     await _sharedPreferences.setInt(PreferencesKey.currentWalletType,
         currentWalletType);
-    await _sharedPreferences.setString(PreferencesKey.currentFiatCurrencyKey,
-        data[PreferencesKey.currentFiatCurrencyKey] as String);
-    await _sharedPreferences.setBool(
+
+    if (currentFiatCurrency != null)
+      await _sharedPreferences.setString(PreferencesKey.currentFiatCurrencyKey,
+        currentFiatCurrency);
+
+    if (shouldSaveRecipientAddress != null)
+      await _sharedPreferences.setBool(
         PreferencesKey.shouldSaveRecipientAddressKey,
-        data[PreferencesKey.shouldSaveRecipientAddressKey] as bool);
-    await _sharedPreferences.setInt(
+        shouldSaveRecipientAddress);
+
+    if (currentTransactionPriorityKeyLegacy != null)
+      await _sharedPreferences.setInt(
         PreferencesKey.currentTransactionPriorityKeyLegacy,
-        data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int);
-    await _sharedPreferences.setBool(
+        currentTransactionPriorityKeyLegacy);
+
+    if (allowBiometricalAuthentication != null)
+      await _sharedPreferences.setBool(
         PreferencesKey.allowBiometricalAuthenticationKey,
-        data[PreferencesKey.allowBiometricalAuthenticationKey] as bool);
-    await _sharedPreferences.setInt(
+        allowBiometricalAuthentication);
+
+    if (currentBitcoinElectrumSererId != null)
+      await _sharedPreferences.setInt(
         PreferencesKey.currentBitcoinElectrumSererIdKey,
-        data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int);
-    await _sharedPreferences.setString(PreferencesKey.currentLanguageCode,
-        data[PreferencesKey.currentLanguageCode] as String);
-    await _sharedPreferences.setInt(PreferencesKey.displayActionListModeKey,
-        data[PreferencesKey.displayActionListModeKey] as int);
-    await _sharedPreferences.setInt(PreferencesKey.currentPinLength,
-        data[PreferencesKey.currentPinLength] as int);
-    await _sharedPreferences.setInt(
-        PreferencesKey.currentTheme, data[PreferencesKey.currentTheme] as int);
-    await _sharedPreferences.setInt(
+        currentBitcoinElectrumSererId);
+
+    if (currentLanguageCode != null)
+      await _sharedPreferences.setString(PreferencesKey.currentLanguageCode,
+        currentLanguageCode);
+
+    if (displayActionListMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.displayActionListModeKey,
+        displayActionListMode);
+
+    if (currentPinLength != null)
+      await _sharedPreferences.setInt(PreferencesKey.currentPinLength,
+        currentPinLength);
+
+    if (currentTheme != null)
+      await _sharedPreferences.setInt(
+        PreferencesKey.currentTheme, currentTheme);
+
+    if (currentDefaultSettingsMigrationVersion != null)
+      await _sharedPreferences.setInt(
         PreferencesKey.currentDefaultSettingsMigrationVersion,
-        data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int);
-    await _sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
-        data[PreferencesKey.moneroTransactionPriority] as int);
-    await _sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
-        data[PreferencesKey.bitcoinTransactionPriority] as int);
+        currentDefaultSettingsMigrationVersion);
+
+    if (moneroTransactionPriority != null)
+      await _sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
+        moneroTransactionPriority);
+
+    if (bitcoinTransactionPriority != null)
+      await _sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
+        bitcoinTransactionPriority);
 
     await preferencesFile.delete();
   }
 
-  Future<void> _importKeychainDump(String password,
-      {@required String nonce,
+  Future<void> _importKeychainDumpV1(String password,
+      {required String nonce,
       String keychainSalt = secrets.backupKeychainSalt}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
-    final decryptedKeychainDumpFileData = await _decrypt(
+    final decryptedKeychainDumpFileData = await _decryptV1(
         keychainDumpFile.readAsBytesSync(), '$keychainSalt$password', nonce);
+    final keychainJSON = json.decode(utf8.decode(decryptedKeychainDumpFileData))
+        as Map<String, dynamic>;
+    final keychainWalletsInfo = keychainJSON['wallets'] as List;
+    final decodedPin = keychainJSON['pin'] as String;
+    final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+    final backupPasswordKey =
+        generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+    final backupPassword = keychainJSON[backupPasswordKey] as String;
+
+    await _flutterSecureStorage.write(
+        key: backupPasswordKey, value: backupPassword);
+
+    keychainWalletsInfo.forEach((dynamic rawInfo) async {
+      final info = rawInfo as Map<String, dynamic>;
+      await importWalletKeychainInfo(info);
+    });
+
+    await _flutterSecureStorage.write(
+        key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+
+    keychainDumpFile.deleteSync();
+  }
+
+  Future<void> _importKeychainDumpV2(String password,
+      {String keychainSalt = secrets.backupKeychainSalt}) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
+    final decryptedKeychainDumpFileData = await _decryptV2(
+        keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
     final keychainJSON = json.decode(utf8.decode(decryptedKeychainDumpFileData))
         as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
@@ -250,12 +356,17 @@ class BackupService {
     await _keyService.saveWalletPassword(walletName: name, password: password);
   }
 
-  Future<Uint8List> _exportKeychainDump(String password,
-      {@required String nonce,
-      String keychainSalt = secrets.backupKeychainSalt}) async {
+  @Deprecated('Use v2 instead')
+  Future<Uint8List> _exportKeychainDumpV1(String password,
+      {required String nonce,
+      String keychainSalt = secrets.backupKeychainSalt}) async
+    => throw Exception('Deprecated');
+
+  Future<Uint8List> _exportKeychainDumpV2(String password,
+      {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPin = await _flutterSecureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin);
+    final decodedPin = decodedPinCode(pin: encodedPin!);
     final wallets =
         await Future.wait(_walletInfoSource.values.map((walletInfo) async {
       return {
@@ -274,14 +385,14 @@ class BackupService {
       'wallets': wallets,
       backupPasswordKey: backupPassword
     }));
-    final encrypted = await _encrypt(
-        Uint8List.fromList(data), '$keychainSalt$password', nonce);
+    final encrypted = await _encryptV2(
+        Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
   }
 
   Future<String> _exportPreferencesJSON() async {
-    final preferences = <String, Object>{
+    final preferences = <String, dynamic>{
       PreferencesKey.currentWalletName:
           _sharedPreferences.getString(PreferencesKey.currentWalletName),
       PreferencesKey.currentNodeIdKey:
@@ -328,19 +439,29 @@ class BackupService {
     return Uint8List.fromList(bytes);
   }
 
-  Future<Uint8List> _encrypt(
-      Uint8List data, String secretKeySource, String nonceBase64) async {
-    final secretKeyHash = await sha256.hash(utf8.encode(secretKeySource));
+  @Deprecated('Use v2 instead')
+  Future<Uint8List> _encryptV1(
+      Uint8List data, String secretKeySource, String nonceBase64) async
+    => throw Exception('Deprecated');
+
+  Future<Uint8List> _decryptV1(
+      Uint8List data, String secretKeySource, String nonceBase64, {int macLength = 16}) async {
+    final secretKeyHash = await Cryptography.instance.sha256().hash(utf8.encode(secretKeySource));
     final secretKey = SecretKey(secretKeyHash.bytes);
-    final nonce = Nonce(base64.decode(nonceBase64));
-    return await _cipher.encrypt(data, secretKey: secretKey, nonce: nonce);
+    final nonce = base64.decode(nonceBase64).toList();
+    final box = SecretBox(
+      Uint8List.sublistView(data, 0, data.lengthInBytes - macLength).toList(),
+      nonce: nonce,
+      mac: Mac(Uint8List.sublistView(data, data.lengthInBytes - macLength)));
+    final plainData = await _cipher.decrypt(box, secretKey: secretKey);
+    return Uint8List.fromList(plainData);
   }
 
-  Future<Uint8List> _decrypt(
-      Uint8List data, String secretKeySource, String nonceBase64) async {
-    final secretKeyHash = await sha256.hash(utf8.encode(secretKeySource));
-    final secretKey = SecretKey(secretKeyHash.bytes);
-    final nonce = Nonce(base64.decode(nonceBase64));
-    return await _cipher.decrypt(data, secretKey: secretKey, nonce: nonce);
-  }
+  Future<Uint8List> _encryptV2(
+      Uint8List data, String passphrase) async
+    => cake_backup.encrypt(passphrase, data, version: _v2);
+
+  Future<Uint8List> _decryptV2(
+      Uint8List data, String passphrase) async
+    => cake_backup.decrypt(passphrase, data);
 }

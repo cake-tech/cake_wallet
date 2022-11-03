@@ -1,11 +1,14 @@
 import 'package:cake_wallet/palette.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 
 class TradeDatailsStandartListCard extends StatelessWidget {
   TradeDatailsStandartListCard(
-      {this.id, this.create, this.pair, this.onTap, this.currentTheme});
+      {required this.id,
+      required this.create,
+      required this.pair,
+      required this.onTap,
+      required this.currentTheme});
 
   final String id;
   final String create;
@@ -18,8 +21,8 @@ class TradeDatailsStandartListCard extends StatelessWidget {
     final darkTheme = currentTheme == ThemeType.dark;
 
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).primaryTextTheme.subtitle.color,
-      Theme.of(context).primaryTextTheme.subtitle.decorationColor,
+      Theme.of(context).primaryTextTheme!.subtitle2!.color!,
+      Theme.of(context).primaryTextTheme!.subtitle2!.decorationColor!,
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final gradient = LinearGradient(colors: [

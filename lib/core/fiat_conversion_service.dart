@@ -16,7 +16,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     final fiatStringified = fiat.toString();
     final uri = Uri.https(fiatApiAuthority, fiatApiPath,
         <String, String>{'convert': fiatStringified});
-    final response = await get(uri.toString());
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       return 0.0;

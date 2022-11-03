@@ -38,7 +38,7 @@ class WalletRestorePage extends BasePage {
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector:
                   walletRestoreViewModel.hasSeedLanguageSelector,
-              type: walletRestoreViewModel.type,
+              type: walletRestoreViewModel.type!,
               key: walletRestoreFromSeedFormKey,
               blockHeightFocusNode: _blockHeightFocusNode,
               onHeightOrDateEntered: (value) {
@@ -49,10 +49,7 @@ class WalletRestorePage extends BasePage {
               onSeedChange: (String seed) {
                 if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
                   final hasHeight = walletRestoreFromSeedFormKey
-                      .currentState
-                      .blockchainHeightKey
-                      .currentState
-                      .restoreHeightController
+                      .currentState!.blockchainHeightKey.currentState!.restoreHeightController
                       .text
                       .isNotEmpty;
                   if (hasHeight) {
@@ -65,10 +62,7 @@ class WalletRestorePage extends BasePage {
               onLanguageChange: (_) {
                 if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
                   final hasHeight = walletRestoreFromSeedFormKey
-                    .currentState
-                    .blockchainHeightKey
-                    .currentState
-                    .restoreHeightController
+                    .currentState!.blockchainHeightKey.currentState!.restoreHeightController
                     .text
                     .isNotEmpty;
 
@@ -104,7 +98,7 @@ class WalletRestorePage extends BasePage {
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
                 color: titleColor ??
-                    Theme.of(context).primaryTextTheme.title.color),
+                    Theme.of(context).primaryTextTheme!.headline6!.color!),
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
@@ -135,24 +129,24 @@ class WalletRestorePage extends BasePage {
     reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
       walletRestoreViewModel.isButtonEnabled = false;
 
-      walletRestoreFromSeedFormKey.currentState.blockchainHeightKey.currentState
-          .restoreHeightController.text = '';
-      walletRestoreFromSeedFormKey.currentState.blockchainHeightKey.currentState
-          .dateController.text = '';
-      walletRestoreFromSeedFormKey.currentState.nameTextEditingController.text = '';
+      walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState
+          !.restoreHeightController.text = '';
+      walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState
+          !.dateController.text = '';
+      walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text = '';
 
-      walletRestoreFromKeysFormKey.currentState.blockchainHeightKey.currentState
-          .restoreHeightController.text = '';
-      walletRestoreFromKeysFormKey.currentState.blockchainHeightKey.currentState
-          .dateController.text = '';
-      walletRestoreFromKeysFormKey.currentState.nameTextEditingController.text = '';
+      walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState
+          !.restoreHeightController.text = '';
+      walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState
+          !.dateController.text = '';
+      walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text = '';
     });
 
     return KeyboardActions(
     config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
+            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!
+                .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -196,9 +190,9 @@ class WalletRestorePage extends BasePage {
                 onPressed: _confirmForm,
                 text: S.of(context).restore_recover,
                 color:
-                    Theme.of(context).accentTextTheme.subtitle.decorationColor,
+                    Theme.of(context).accentTextTheme!.subtitle2!.decorationColor!,
                 textColor:
-                    Theme.of(context).accentTextTheme.headline.decorationColor,
+                    Theme.of(context).accentTextTheme!.headline5!.decorationColor!,
                 isLoading: walletRestoreViewModel.state is IsExecutingState,
                 isDisabled: !walletRestoreViewModel.isButtonEnabled,
               );
@@ -210,9 +204,9 @@ class WalletRestorePage extends BasePage {
   bool _isValidSeed() {
     final seedWords = walletRestoreFromSeedFormKey
       .currentState
-      .seedWidgetStateKey
+      !.seedWidgetStateKey
       .currentState
-      .text
+      !.text
       .split(' ');
 
     if ((walletRestoreViewModel.type == WalletType.monero || walletRestoreViewModel.type == WalletType.haven) &&
@@ -229,9 +223,9 @@ class WalletRestorePage extends BasePage {
 
     final words = walletRestoreFromSeedFormKey
       .currentState
-      .seedWidgetStateKey
+      !.seedWidgetStateKey
       .currentState
-      .words
+      !.words
       .toSet();
     return seedWords
       .toSet()
@@ -245,24 +239,24 @@ class WalletRestorePage extends BasePage {
 
     if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
       credentials['seed'] = walletRestoreFromSeedFormKey
-          .currentState.seedWidgetStateKey.currentState.text;
+          .currentState!.seedWidgetStateKey.currentState!.text;
 
       if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
         credentials['height'] = walletRestoreFromSeedFormKey
-            .currentState.blockchainHeightKey.currentState.height;
+            .currentState!.blockchainHeightKey.currentState!.height;
       }
 
-      credentials['name'] = walletRestoreFromSeedFormKey.currentState.nameTextEditingController.text;
+      credentials['name'] = walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;
     } else {
       credentials['address'] =
-          walletRestoreFromKeysFormKey.currentState.addressController.text;
+          walletRestoreFromKeysFormKey.currentState!.addressController.text;
       credentials['viewKey'] =
-          walletRestoreFromKeysFormKey.currentState.viewKeyController.text;
+          walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
       credentials['spendKey'] =
-          walletRestoreFromKeysFormKey.currentState.spendKeyController.text;
+          walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
       credentials['height'] = walletRestoreFromKeysFormKey
-          .currentState.blockchainHeightKey.currentState.height;
-      credentials['name'] = walletRestoreFromKeysFormKey.currentState.nameTextEditingController.text;
+          .currentState!.blockchainHeightKey.currentState!.height;
+      credentials['name'] = walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
     }
 
     return credentials;
@@ -274,21 +268,21 @@ class WalletRestorePage extends BasePage {
         : walletRestoreFromKeysFormKey.currentContext;
 
     final formKey = walletRestoreViewModel.mode == WalletRestoreMode.seed
-        ? walletRestoreFromSeedFormKey.currentState.formKey
-        : walletRestoreFromKeysFormKey.currentState.formKey;
+        ? walletRestoreFromSeedFormKey.currentState!.formKey
+        : walletRestoreFromKeysFormKey.currentState!.formKey;
 
     final name = walletRestoreViewModel.mode == WalletRestoreMode.seed
         ? walletRestoreFromSeedFormKey
-        .currentState.nameTextEditingController.value.text
+        .currentState!.nameTextEditingController.value.text
         : walletRestoreFromKeysFormKey
-        .currentState.nameTextEditingController.value.text;
+        .currentState!.nameTextEditingController.value.text;
 
-    if (!formKey.currentState.validate()) {
+    if (!formKey.currentState!.validate()) {
       return;
     }
 
     if (walletRestoreViewModel.nameExists(name)) {
-      showNameExistsAlert(formContext);
+      showNameExistsAlert(formContext!);
       return;
     }
 
