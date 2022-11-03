@@ -167,7 +167,7 @@ class CWMonero extends Monero {
 	
 	@override
 	TransactionPriority getDefaultTransactionPriority() {
-		return MoneroTransactionPriority.slow;
+		return MoneroTransactionPriority.automatic;
 	}
 
 	@override
