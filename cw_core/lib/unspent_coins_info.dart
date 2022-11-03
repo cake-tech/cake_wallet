@@ -9,7 +9,7 @@ class UnspentCoinsInfo extends HiveObject {
     required this.hash,
     required this.isFrozen,
     required this.isSending,
-    required this.note});
+    required this.noteRaw});
 
   static const typeId = 9;
   static const boxName = 'Unspent';
@@ -28,5 +28,9 @@ class UnspentCoinsInfo extends HiveObject {
   bool isSending;
 
   @HiveField(4)
-  String note;
+  String? noteRaw;
+
+  String get note => noteRaw ?? '';
+
+  set note(String value) => noteRaw = value;
 }
