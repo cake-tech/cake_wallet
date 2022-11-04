@@ -33,31 +33,31 @@ class WalletInfo extends HiveObject {
   static const typeId = 4;
   static const boxName = 'WalletInfo';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String id;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String name;
 
   @HiveField(2)
   WalletType type;
 
-  @HiveField(3)
+  @HiveField(3, defaultValue: false)
   bool isRecovery;
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: 0)
   int restoreHeight;
 
-  @HiveField(5)
+  @HiveField(5, defaultValue: 0)
   int timestamp;
 
-  @HiveField(6)
+  @HiveField(6, defaultValue: '')
   String dirPath;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: '')
   String path;
 
-  @HiveField(8)
+  @HiveField(8, defaultValue: '')
   String address;
 
   @HiveField(10)

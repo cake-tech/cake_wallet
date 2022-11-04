@@ -10,7 +10,7 @@ class TransactionDescription extends HiveObject {
   static const boxName = 'TransactionDescriptions';
   static const boxKey = 'transactionDescriptionsBoxKey';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String id;
 
   @HiveField(1)
