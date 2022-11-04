@@ -112,8 +112,9 @@ class AuthPageState extends State<AuthPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      dismissFlushBar(_authBar);
-      dismissFlushBar(_progressBar);
+      await _authBar?.dismiss();
+      await Future<void>.delayed(Duration(milliseconds: 100));
+      await _progressBar?.dismiss();
       await Future<void>.delayed(Duration(milliseconds: 100));
       if (route != null) {
         Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
