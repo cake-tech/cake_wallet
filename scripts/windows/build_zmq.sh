@@ -11,9 +11,9 @@ do
 PREFIX=$WORKDIR/prefix_${arch}
 
 case $arch in
-	"x86_64")  HOST="x86_64-linux-gnu";;
-	"aarch64")  HOST="aarch64-linux-gnu";;
-	*)	   HOST="x86_64-linux-gnu";;
+	"x86_64")  HOST="x86_64-windows-gnu";;
+	"aarch64")  HOST="aarch64-windows-gnu";;
+	*)	   HOST="x86_64-windows-gnu";;
 esac
 
 cd $WORKDIR
