@@ -651,5 +651,6 @@
   "ignor": "Ignorar",
   "use_suggested": "Uso sugerido",
   "do_not_share_warning_text" : "Não os compartilhe com mais ninguém, incluindo suporte.\n\nEles vão roubar seu dinheiro!",
-  "help": "ajuda"
+  "help": "ajuda",
+  "disable_fiat": "Desativar fiat"
 }
