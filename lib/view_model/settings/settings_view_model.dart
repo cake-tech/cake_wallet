@@ -183,7 +183,7 @@ abstract class SettingsViewModelBase with Store {
             },
         ),
         SwitcherListItem(
-            title: 'S.current.disable_fiat',
+            title: S.current.disable_fiat,
             value: () => shouldDisableFiat,
             onValueChange: (_, bool value) =>
                 setShouldDisableFiat(value)),
