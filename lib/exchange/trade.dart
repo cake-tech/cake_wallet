@@ -59,7 +59,7 @@ class Trade extends HiveObject {
 
   CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw);
 
-  @HiveField(4, defaultValue: 0)
+  @HiveField(4, defaultValue: '')
   late String stateRaw;
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
