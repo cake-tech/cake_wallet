@@ -29,6 +29,7 @@ abstract class SettingsStoreBase with Store {
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
+      required bool initialDisableFiat,
       required bool initialAllowBiometricalAuthentication,
       required ThemeBase initialTheme,
       required int initialPinLength,
@@ -46,6 +47,7 @@ abstract class SettingsStoreBase with Store {
     fiatCurrency = initialFiatCurrency,
     balanceDisplayMode = initialBalanceDisplayMode,
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
+    shouldDisableFiat = initialDisableFiat,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
     currentTheme = initialTheme,
     pinCodeLength = initialPinLength,
@@ -86,6 +88,12 @@ abstract class SettingsStoreBase with Store {
         (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
             PreferencesKey.shouldSaveRecipientAddressKey,
             shouldSaveRecipientAddress));
+
+    reaction(
+            (_) => shouldDisableFiat,
+            (bool shouldDisableFiat) => sharedPreferences.setBool(
+            PreferencesKey.shouldDisableFiatKey,
+            shouldDisableFiat));
 
     reaction(
         (_) => currentTheme,
@@ -139,6 +147,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldSaveRecipientAddress;
+
+  @observable
+  bool shouldDisableFiat;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -218,6 +229,8 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
+    final shouldDisableFiat =
+    sharedPreferences.getBool(PreferencesKey.shouldDisableFiatKey) ?? false;
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
@@ -283,6 +296,7 @@ abstract class SettingsStoreBase with Store {
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialDisableFiat: shouldDisableFiat,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,

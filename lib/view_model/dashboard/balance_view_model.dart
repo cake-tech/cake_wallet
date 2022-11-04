@@ -72,6 +72,9 @@ abstract class BalanceViewModelBase with Store {
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
 
   @computed
+  bool get disableFiat => settingsStore.shouldDisableFiat;
+
+  @computed
   String get asset {
     final typeFormatted = walletTypeToString(appStore.wallet!.type);
 
@@ -180,8 +183,8 @@ abstract class BalanceViewModelBase with Store {
         return MapEntry(key, BalanceRecord(
           availableBalance: '---',
           additionalBalance: '---',
-          fiatAdditionalBalance: '---',
-          fiatAvailableBalance: '---',
+          fiatAdditionalBalance: disableFiat ? '' : '---',
+          fiatAvailableBalance: disableFiat ? '' : '---',
           asset: key,
           formattedAssetTitle: _formatterAsset(key)));
       }
@@ -192,17 +195,17 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final additionalFiatBalance = fiatCurrency.toString()
-        + ' ' 
+      final additionalFiatBalance = disableFiat ? '' : (fiatCurrency.toString()
+        + ' '
         + _getFiatBalance(
             price: price,
-            cryptoAmount: value.formattedAdditionalBalance);
+            cryptoAmount: value.formattedAdditionalBalance));
 
-      final availableFiatBalance = fiatCurrency.toString()
-        + ' ' 
+      final availableFiatBalance = disableFiat ? '' : (fiatCurrency.toString()
+        + ' '
         + _getFiatBalance(
             price: price,
-            cryptoAmount: value.formattedAvailableBalance);
+            cryptoAmount: value.formattedAvailableBalance));
 
       return MapEntry(key, BalanceRecord(
         availableBalance: value.formattedAvailableBalance,

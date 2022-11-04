@@ -9,6 +9,7 @@ class PreferencesKey {
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
+  static const shouldDisableFiatKey = 'disable_fiat';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
   static const currentTheme = 'current_theme';

@@ -29,18 +29,20 @@ class SettingsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     // FIX-ME: Added `context` it was not used here before, maby bug ?
-    return SectionStandardList(
+    return Observer(builder: (_) {
+      final sections = settingsViewModel.getSections();
+      return SectionStandardList(
         context: context,
-        sectionCount: settingsViewModel.sections.length,
+        sectionCount: sections.length,
         itemCounter: (int sectionIndex) {
-          if (sectionIndex < settingsViewModel.sections.length) {
-            return settingsViewModel.sections[sectionIndex].length;
+          if (sectionIndex < sections.length) {
+            return sections[sectionIndex].length;
           }
 
           return 0;
         },
         itemBuilder: (_, sectionIndex, itemIndex) {
-          final item = settingsViewModel.sections[sectionIndex][itemIndex];
+          final item = sections[sectionIndex][itemIndex];
 
           if (item is PickerListItem) {
             return Observer(builder: (_) {
@@ -94,5 +96,6 @@ class SettingsPage extends BasePage {
 
           return Container();
         });
+    });
   }
 }
