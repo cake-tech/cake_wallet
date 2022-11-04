@@ -8,25 +8,39 @@ part 'contact.g.dart';
 
 @HiveType(typeId: Contact.typeId)
 class Contact extends HiveObject with Keyable {
-  Contact({required this.name, required this.address, CryptoCurrency? type}) {
+  Contact({required this.nameRaw, required this.addressRaw, CryptoCurrency? type}) {
     if (type != null) {
       raw = type.raw;
     }
   }
 
+  factory Contact.create({required String name, required String address, CryptoCurrency? type})
+    => Contact(
+      nameRaw: name,
+      addressRaw: address,
+      type: type);
+
   static const typeId = 0;
   static const boxName = 'Contacts';
 
   @HiveField(0)
-  String name;
+  String? nameRaw;
 
   @HiveField(1)
-  String address;
+  String? addressRaw;
 
   @HiveField(2)
-  late int raw;
+  late int? raw;
 
-  CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);
+  String get name => nameRaw ?? '';
+
+  set name(String value) => name = value;
+  
+  String get address => addressRaw ?? '';
+
+  set address(String value) => address = value;
+
+  CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw ?? 0);
 
   @override
   dynamic get keyIndex => key;

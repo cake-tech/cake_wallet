@@ -2,7 +2,6 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cw_core/crypto_currency.dart';
 
@@ -48,7 +47,7 @@ abstract class ContactViewModelBase with Store {
     currency = null;
   }
 
-  Future save() async {
+  Future<void> save() async {
     try {
       state = IsExecutingState();
 
@@ -59,7 +58,7 @@ abstract class ContactViewModelBase with Store {
         await _contact?.save();
       } else {
         await _contacts
-            .add(Contact(name: name, address: address, type: currency!));
+            .add(Contact.create(name: name, address: address, type: currency!));
       }
 
       state = ExecutedSuccessfullyState();

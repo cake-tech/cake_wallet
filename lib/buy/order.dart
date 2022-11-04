@@ -8,12 +8,12 @@ part 'order.g.dart';
 @HiveType(typeId: Order.typeId)
 class Order extends HiveObject {
   Order(
-      {required this.id,
-        required this.transferId,
-        required this.createdAt,
-        required this.amount,
-        required this.receiveAddress,
-        required this.walletId,
+      {required this.idRaw,
+        required this.transferIdRaw,
+        required this.createdAtRaw,
+        required this.amountRaw,
+        required this.receiveAddressRaw,
+        required this.walletIdRaw,
         BuyProviderDescription? provider,
         TradeState? state,
         this.from,
@@ -26,15 +26,37 @@ class Order extends HiveObject {
       }
     }
 
+  factory Order.create({required String id,
+        required String transferId,
+        required DateTime createdAt,
+        required String amount,
+        required String receiveAddress,
+        required String walletId,
+        BuyProviderDescription? provider,
+        TradeState? state,
+        String? from,
+        String? to})
+    => Order(
+      idRaw: id,
+      transferIdRaw: transferId,
+      createdAtRaw: createdAt,
+      amountRaw: amount,
+      receiveAddressRaw: receiveAddress,
+      walletIdRaw: walletId,
+      provider: provider,
+      state: state,
+      from: from,
+      to: to);
+
   static const typeId = 8;
   static const boxName = 'Orders';
   static const boxKey = 'ordersBoxKey';
 
   @HiveField(0)
-  String id;
+  String? idRaw;
 
   @HiveField(1)
-  String transferId;
+  String? transferIdRaw;
 
   @HiveField(2)
   String? from;
@@ -43,27 +65,51 @@ class Order extends HiveObject {
   String? to;
 
   @HiveField(4)
-  late String stateRaw;
+  late String? stateRaw;
 
-  TradeState get state => TradeState.deserialize(raw: stateRaw);
+  TradeState get state => TradeState.deserialize(raw: stateRaw ?? '');
 
   @HiveField(5)
-  DateTime createdAt;
+  DateTime? createdAtRaw;
 
   @HiveField(6)
-  String amount;
+  String? amountRaw;
 
   @HiveField(7)
-  String receiveAddress;
+  String? receiveAddressRaw;
 
   @HiveField(8)
-  String walletId;
+  String? walletIdRaw;
 
   @HiveField(9)
-  late int providerRaw;
+  late int? providerRaw;
+
+  String get id => idRaw ?? '';
+
+  set id(String value) => idRaw = value;
+
+  String get transferId => transferIdRaw ?? '';
+
+  set transferId(String value) => transferIdRaw = value;
+
+  DateTime get createdAt => createdAtRaw ?? DateTime.fromMillisecondsSinceEpoch(0);
+  
+  set createdAt(DateTime value) => createdAtRaw = value;
+
+  String get amount => amountRaw ?? '';
+
+  set amount(String value) => amountRaw = value;
+
+  String get receiveAddress => receiveAddressRaw ?? '';
+
+  set receiveAddress(String value) => receiveAddressRaw = value;
+
+  String get walletId => walletIdRaw ?? '';
+
+  set walletId(String value) => walletIdRaw = value;
 
   BuyProviderDescription get provider =>
-      BuyProviderDescription.deserialize(raw: providerRaw);
+      BuyProviderDescription.deserialize(raw: providerRaw ?? 0);
 
   String amountFormatted() => formatAmount(amount);
 }

@@ -490,12 +490,12 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   }
 
   Future<void> _addCoinInfo(BitcoinUnspent coin) async {
-    final newInfo = UnspentCoinsInfo(
+    final newInfo = UnspentCoinsInfo.create(
         walletId: id,
         hash: coin.hash,
         isFrozen: coin.isFrozen,
         isSending: coin.isSending,
-        noteRaw: coin.note
+        note: coin.note
     );
 
     await unspentCoinsInfo.add(newInfo);

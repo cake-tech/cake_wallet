@@ -148,7 +148,7 @@ class MoonPayBuyProvider extends BuyProvider {
     final createdAt = DateTime.parse(createdAtRaw).toLocal();
     final amount = responseJSON['quoteCurrencyAmount'] as double;
 
-    return Order(
+    return Order.create(
         id: id,
         provider: description,
         transferId: id,

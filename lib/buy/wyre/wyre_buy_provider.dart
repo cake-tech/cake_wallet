@@ -149,7 +149,7 @@ class WyreBuyProvider extends BuyProvider {
     json.decode(transferResponse.body) as Map<String, dynamic>;
     final amount = transferResponseJSON['destAmount'] as double;
 
-    return Order(
+    return Order.create(
         id: id,
         provider: description,
         transferId: transferId,

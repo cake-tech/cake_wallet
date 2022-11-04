@@ -44,25 +44,25 @@ class Trade extends HiveObject {
   String id;
 
   @HiveField(1)
-  late int providerRaw;
+  late int? providerRaw;
 
   ExchangeProviderDescription get provider =>
-      ExchangeProviderDescription.deserialize(raw: providerRaw);
+      ExchangeProviderDescription.deserialize(raw: providerRaw ?? 0);
 
   @HiveField(2)
-  late int fromRaw;
+  late int? fromRaw;
 
-  CryptoCurrency get from => CryptoCurrency.deserialize(raw: fromRaw);
+  CryptoCurrency get from => CryptoCurrency.deserialize(raw: fromRaw ?? 0);
 
   @HiveField(3)
-  late int toRaw;
+  late int? toRaw;
 
-  CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw);
+  CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw ?? 0);
 
   @HiveField(4)
-  late String stateRaw;
+  late String? stateRaw;
 
-  TradeState get state => TradeState.deserialize(raw: stateRaw);
+  TradeState get state => TradeState.deserialize(raw: stateRaw ?? '');
 
   @HiveField(5)
   DateTime? createdAt;

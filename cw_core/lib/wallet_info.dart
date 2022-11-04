@@ -7,8 +7,8 @@ part 'wallet_info.g.dart';
 
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
-  WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
-      this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
+  WalletInfo(this.idRaw, this.nameRaw, this.type, this.isRecoveryRaw, this.restoreHeightRaw,
+      this.timestampRaw, this.dirPathRaw, this.pathRaw, this.addressRaw, this.yatEid,
         this.yatLastUsedAddressRaw, this.showIntroCakePayCard)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
@@ -34,31 +34,31 @@ class WalletInfo extends HiveObject {
   static const boxName = 'WalletInfo';
 
   @HiveField(0)
-  String id;
+  String? idRaw;
 
   @HiveField(1)
-  String name;
+  String? nameRaw;
 
   @HiveField(2)
   WalletType type;
 
   @HiveField(3)
-  bool isRecovery;
+  bool? isRecoveryRaw;
 
   @HiveField(4)
-  int restoreHeight;
+  int? restoreHeightRaw;
 
   @HiveField(5)
-  int timestamp;
+  int? timestampRaw;
 
   @HiveField(6)
-  String dirPath;
+  String? dirPathRaw;
 
   @HiveField(7)
-  String path;
+  String? pathRaw;
 
   @HiveField(8)
-  String address;
+  String? addressRaw;
 
   @HiveField(10)
   Map<String, String>? addresses;
@@ -78,6 +78,38 @@ class WalletInfo extends HiveObject {
     yatLastUsedAddressRaw = address;
     _yatLastUsedAddressController.add(address);
   }
+
+  String get id => idRaw ?? '';
+
+  set id(String value) => idRaw = value;
+
+  String get name => nameRaw ?? '';
+
+  set name(String value) => nameRaw = value;
+
+  bool get isRecovery => isRecoveryRaw ?? false;
+
+  set isRecovery(bool value) => isRecoveryRaw = value;
+
+  int get restoreHeight => restoreHeightRaw ?? 0;
+
+  set restoreHeight(int value) => restoreHeightRaw = value;
+
+  int get timestamp => timestampRaw ?? 0;
+
+  set timestamp(int value) => timestampRaw = value;
+
+  String get dirPath => dirPathRaw ?? '';
+
+  set dirPath(String value) => dirPathRaw = value;
+
+  String get path => pathRaw ?? '';
+
+  set path(String value) => pathRaw = value;
+
+  String get address => addressRaw ?? '';
+
+  set address(String value) => addressRaw = value;
 
   String get yatEmojiId => yatEid ?? '';
 
