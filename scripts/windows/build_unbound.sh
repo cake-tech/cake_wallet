@@ -40,11 +40,12 @@ do
 PREFIX=$WORKDIR/prefix_${arch}
 
 cd $WORKDIR
-#rm -rf $UNBOUND_SRC_DIR
-#git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
+rm -rf $UNBOUND_SRC_DIR
+git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
 cd $UNBOUND_SRC_DIR
 test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
+CROSS_COMPILE="x86_64-w64-mingw32.static-"
 ./configure \
 	CFLAGS=-fPIC \
 	CXXFLAGS=-fPIC \
