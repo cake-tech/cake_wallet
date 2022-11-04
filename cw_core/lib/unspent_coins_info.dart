@@ -15,16 +15,16 @@ class UnspentCoinsInfo extends HiveObject {
   static const boxName = 'Unspent';
   static const boxKey = 'unspentBoxKey';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String walletId;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String hash;
 
-  @HiveField(2)
+  @HiveField(2, defaultValue: false)
   bool isFrozen;
 
-  @HiveField(3)
+  @HiveField(3, defaultValue: false)
   bool isSending;
 
   @HiveField(4)
