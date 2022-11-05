@@ -16,10 +16,12 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
-  ContactListPage(this.contactListViewModel, {this.isEditable = true});
+  ContactListPage(this.contactListViewModel,
+      {this.isEditable = true, required this.selectedCurrency});
 
   final ContactListViewModel contactListViewModel;
   final bool isEditable;
+  final CryptoCurrency? selectedCurrency;
 
   @override
   String get title => S.current.address_book;
@@ -60,11 +62,13 @@ class ContactListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final contacts =
+    contactListViewModel.getContacts(isEditable, selectedCurrency);
+    final walletContacts =
+    contactListViewModel.getWallets(isEditable, selectedCurrency);
     return Container(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-        child: Observer(
-          builder: (_) {
-            return CollapsibleSectionList(
+        child: CollapsibleSectionList(
               context: context,
               sectionCount: 2,
               themeColor: Theme.of(context).primaryTextTheme.headline6!.color!,
@@ -82,15 +86,15 @@ class ContactListPage extends BasePage {
                     child: Text(title, style: TextStyle(fontSize: 36)));
               },
               itemCounter: (int sectionIndex) => sectionIndex == 0
-                  ? contactListViewModel.walletContacts.length
-                  : contactListViewModel.contacts.length,
+                  ? walletContacts.length
+                  : contacts.length,
               itemBuilder: (_, sectionIndex, index) {
                 if (sectionIndex == 0) {
-                  final walletInfo = contactListViewModel.walletContacts[index];
+                  final walletInfo = walletContacts[index];
                   return generateRaw(context, walletInfo);
                 }
 
-                final contact = contactListViewModel.contacts[index];
+                final contact = contacts[index];
                 final content = generateRaw(context, contact);
                 return !isEditable
                     ? content
@@ -100,9 +104,8 @@ class ContactListPage extends BasePage {
                         child: content,
                       );
               },
-            );
-          },
-        ));
+            )
+       );
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {

@@ -7,6 +7,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 part 'contact_list_view_model.g.dart';
 
@@ -44,4 +45,20 @@ abstract class ContactListViewModelBase with Store {
   StreamSubscription<BoxEvent>? _subscription;
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
+
+  List<ContactRecord> getContacts(bool isEditable, CryptoCurrency? cur) {
+    if (!isEditable) {
+      return contacts.where((element) => element.type == cur).toList();
+    }
+
+    return contacts;
+  }
+
+  List<WalletContact> getWallets(bool isEditable, CryptoCurrency? cur) {
+    if (!isEditable) {
+      return walletContacts.where((element) => element.type == cur).toList();
+    }
+
+    return walletContacts;
+  }
 }
