@@ -3,7 +3,6 @@ import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_model.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
