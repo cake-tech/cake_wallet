@@ -111,17 +111,17 @@ class AuthPageState extends State<AuthPage> {
       throw Exception('Key context is null. Should be not happened');
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _authBar?.dismiss();
-      await Future<void>.delayed(Duration(milliseconds: 100));
-      await _progressBar?.dismiss();
-      await Future<void>.delayed(Duration(milliseconds: 100));
-      if (route != null) {
-        Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
-      } else {
-        Navigator.of(_key.currentContext!).pop();
-      }
-    });
+    /// not the best scenario, but WidgetsBinding is not behaving correctly on Android
+    await Future<void>.delayed(Duration(milliseconds: 100));
+    await _authBar?.dismiss();
+    await Future<void>.delayed(Duration(milliseconds: 100));
+    await _progressBar?.dismiss();
+    await Future<void>.delayed(Duration(milliseconds: 100));
+    if (route != null) {
+      Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
+    } else {
+      Navigator.of(_key.currentContext!).pop();
+    }
   }
 
   @override
