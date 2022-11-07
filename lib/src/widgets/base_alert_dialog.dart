@@ -11,6 +11,10 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
+  Color? get leftActionButtonTextColor => null;
+  Color? get rightActionButtonTextColor => null;
+  Color? get leftActionButtonColor => null;
+  Color? get rightActionButtonColor => null;
 
   Widget title(BuildContext context) {
     return Text(
@@ -50,7 +54,8 @@ class BaseAlertDialog extends StatelessWidget {
         Flexible(
           child: Container(
             width: double.infinity,
-            color: Theme.of(context).accentTextTheme!.bodyText1!.decorationColor!,
+            color: leftActionButtonColor ??
+                Theme.of(context).accentTextTheme!.bodyText1!.decorationColor!,
             child: TextButton(
                 onPressed: actionLeft,
                 child: Text(
@@ -60,7 +65,8 @@ class BaseAlertDialog extends StatelessWidget {
                     fontSize: 15,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme!.bodyText1!.backgroundColor!,
+                    color: leftActionButtonTextColor ??
+                        Theme.of(context).primaryTextTheme!.bodyText1!.backgroundColor!,
                     decoration: TextDecoration.none,
                   ),
                 )),
@@ -73,7 +79,8 @@ class BaseAlertDialog extends StatelessWidget {
         Flexible(
           child: Container(
             width: double.infinity,
-            color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
+            color: rightActionButtonColor ??
+                Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
             child: TextButton(
                 onPressed: actionRight,
                 child: Text(
