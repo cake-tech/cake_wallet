@@ -1,6 +1,15 @@
 # `flutter_libmonero`
-## Building on Windows
-Build on Windows using MSYS2 MinGW64.
+## Building on Windows with MSYS2 MinGW64
+
+- [ ] `iconv`
+- [ ] `boost`
+- [ ] `zlib`
+- [ ] `openssl`
+- [ ] `sodium`
+- [ ] `expat`
+- [ ] `unbound`
+- [ ] `zmq`
+- [x] `monero`
 
 ### Prerequisites
  - [MSYS2](https://www.msys2.org/)
@@ -10,8 +19,20 @@ Run `build_all.sh`
 
 Libraries will be output to `scripts/winwin/build`
 
+###
+MSYS2 MinGW64 Progress:
+
 ## Building on Windows with MSVC
-Windows build using MSVC are broken, but the following notes may assist in setup:
+
+- [x] `iconv`
+- [x] `boost`
+- [x] `zlib`
+- [x] `openssl`
+- [x] `sodium`
+- [ ] `expat`
+- [ ] `unbound`
+- [ ] `zmq`
+- [ ] `monero`
 
 ### Prerequisites
  - Visual Studio Code 2019
@@ -47,6 +68,8 @@ Open up the relevant solution file (`libiconv-win-build\build-VS2019\libiconv.sl
 .\b2.exe release debug --toolset=msvc address-model=64 --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale threading=multi target-os=windows -sICONV_PATH="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64" stage
 ```
 
+See https://gist.github.com/zrsmithson/0b72e0cb58d0cb946fc48b5c88511da8
+
 ### `zlib`
 ```shell
 git clone -b v1.2.12 --depth 1 https://github.com/madler/zlib
@@ -60,17 +83,28 @@ perl Configure --no-shared --with-zlib-include="C:\AndroidStudioproj\firo_wallet
 nmake
 ```
 
-### `libsodium`
-open up visual studio solutions file and build the release version
+### `sodium`
+Build `libsodium.sln` for releawse
 ```shell
-msbuild .\libsodium.sln /p:PlatformTarget=x86 /property:Configuration=Release -m /p:OutputPath="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\libsodium\output"
+msbuild .\libsodium.sln /p:PlatformTarget=x86_64 /property:Configuration=Release -m /p:OutputPath="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\libsodium\output"
 ```
 
-### `libexpat`
+See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
+
+### `expat`
 ```shell
 cmake -G"Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 msbuild /m expat.sln
 ```
+
+### `unbound`
+TODO
+
+### `zmq`
+TODO
+
+### `monero`
+TODO
 
 ## Building for Windows on Ubuntu 20.04
 Cross-compilation for Windows from Ubuntu/linux is broken, stuck on an issue with unbound where it doesn't properly detect OpenSSL or OpenSSL isn't compiled correctly.  Please submit an issue or a pull request if you can contribute a fix!
