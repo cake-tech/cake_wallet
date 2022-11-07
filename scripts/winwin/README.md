@@ -2,9 +2,11 @@
 ## Building on Windows with MSYS2 MinGW64
 
 - [x] `iconv`
-- [ ] `boost`
+- [x] `boost`
+See https://gist.github.com/zrsmithson/0b72e0cb58d0cb946fc48b5c88511da8
 - [ ] `zlib`
 - [ ] `openssl`
+See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 - [ ] `sodium`
 - [ ] `expat`
 - [ ] `unbound`
@@ -13,6 +15,12 @@
 
 ### Prerequisites
  - [MSYS2](https://www.msys2.org/)
+
+### MSYS2 Dependencies
+In a MSYS2 MinGW64 shell:
+```shell
+pacman -S base-devel gcc cmake
+```
 
 ### Build
 Run `build_all.sh`
@@ -70,8 +78,6 @@ See `build_boost.sh` for downloading Boost
 .\b2.exe release debug --toolset=msvc address-model=64 --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale threading=multi target-os=windows -sICONV_PATH="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64" stage
 ```
 
-See https://gist.github.com/zrsmithson/0b72e0cb58d0cb946fc48b5c88511da8
-
 ### `zlib`
 ```shell
 git clone -b v1.2.12 --depth 1 https://github.com/madler/zlib
@@ -90,8 +96,6 @@ Build `libsodium.sln` for releawse
 ```shell
 msbuild .\libsodium.sln /p:PlatformTarget=x86_64 /property:Configuration=Release -m /p:OutputPath="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\libsodium\output"
 ```
-
-See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 
 ### `expat`
 ```shell
