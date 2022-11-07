@@ -17,6 +17,7 @@ fi
 cd $ZLIB_DIR
 git reset --hard $ZLIB_COMMIT_HASH
 ./configure --static
+cmake -G"MSYS Makefiles"
 make
 
 if [ ! -e "$OPENSSL_FILE_PATH" ]; then
@@ -30,15 +31,13 @@ do
 PREFIX=$WORKDIR/prefix_${arch}
 
 cd $WORKDIR
-rm -rf $OPENSSL_SRC_DIR
+#rm -rf $OPENSSL_SRC_DIR
 tar -xzf $OPENSSL_FILE_PATH -C $WORKDIR
 
 cd $OPENSSL_SRC_DIR
 
-CROSS_COMPILE="x86_64-w64-mingw32.static-"
 ./Configure mingw64 \
 	no-shared no-tests \
-	--cross-compile-prefix=x86_64-w64-mingw32- \
 	--with-zlib-include=${PREFIX}/include \
 	--with-zlib-lib=${PREFIX}/lib \
 	--prefix=${PREFIX} \

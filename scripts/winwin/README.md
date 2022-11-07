@@ -4,7 +4,8 @@
 - [x] `iconv`
 - [x] `boost`
 See https://gist.github.com/zrsmithson/0b72e0cb58d0cb946fc48b5c88511da8
-- [ ] `zlib`
+- [x] `zlib`
+See https://gist.github.com/baoilleach/5975580
 - [ ] `openssl`
 See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 - [ ] `sodium`
@@ -21,6 +22,7 @@ In a MSYS2 MinGW64 shell:
 ```shell
 pacman -S base-devel gcc cmake
 ```
+<!-- Do we need to also install mingw-w64-x86_64-cmake ? -->
 
 ### Build
 Run `build_all.sh`
