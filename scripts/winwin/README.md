@@ -9,7 +9,7 @@ See https://gist.github.com/baoilleach/5975580
 - [x] `openssl`
 See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 - [x] `sodium`
-- [ ] `expat`
+- [x] `expat`
 - [ ] `unbound`
 - [ ] `zmq`
 - [x] `monero`
