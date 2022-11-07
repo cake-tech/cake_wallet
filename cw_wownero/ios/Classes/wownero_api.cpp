@@ -239,6 +239,8 @@ extern "C"
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
 
+        // 14 word seeds
+        /*
         time_t time = std::time(nullptr);
         wownero_seed wow_seed(time, "wownero");
 
@@ -261,6 +263,10 @@ extern "C"
             spendKey,
             1);
         wallet->setCacheAttribute("cake.seed", seed);
+        */
+
+        // 25 word seeds
+        Monero::Wallet *wallet = walletManager->createWallet(path, password, language, _networkType);
 
         int status;
         std::string errorString;
@@ -282,6 +288,8 @@ extern "C"
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
 
+        // 14 word seeds
+        /*
         wownero_seed wow_seed(seed, "wownero");
 
         std::stringstream seed_stream;
@@ -303,6 +311,17 @@ extern "C"
             spendKey,
             1);
         wallet->setCacheAttribute("cake.seed", seed_str);
+        */
+
+        uint64_t restoreHeight = 0;
+
+        // 25 word seeds
+        Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
+            std::string(path),
+            std::string(password),
+            std::string(seed),
+            _networkType,
+            (uint64_t)restoreHeight);
 
         int status;
         std::string errorString;

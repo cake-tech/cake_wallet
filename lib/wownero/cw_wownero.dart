@@ -169,6 +169,7 @@ class CWWownero extends Wownero {
 
   List<String> getWowneroWordList(String language) {
     switch (language.toLowerCase()) {
+      // TODO handle 14 word list vs 25 word list
       case 'english':
         return EnglishMnemonics.words;
       default:
