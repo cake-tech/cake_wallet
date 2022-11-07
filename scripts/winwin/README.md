@@ -8,7 +8,7 @@ See https://gist.github.com/zrsmithson/0b72e0cb58d0cb946fc48b5c88511da8
 See https://gist.github.com/baoilleach/5975580
 - [x] `openssl`
 See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
-- [ ] `sodium`
+- [x] `sodium`
 - [ ] `expat`
 - [ ] `unbound`
 - [ ] `zmq`
@@ -20,7 +20,7 @@ See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 ### MSYS2 Dependencies
 In a MSYS2 MinGW64 shell:
 ```shell
-pacman -S base-devel gcc cmake
+pacman -S base-devel gcc cmake libtool autoconf automake
 ```
 <!-- Do we need to also install mingw-w64-x86_64-cmake ? -->
 
