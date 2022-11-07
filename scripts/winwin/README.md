@@ -1,7 +1,7 @@
 # `flutter_libmonero`
 ## Building on Windows with MSYS2 MinGW64
 
-- [ ] `iconv`
+- [x] `iconv`
 - [ ] `boost`
 - [ ] `zlib`
 - [ ] `openssl`
@@ -62,6 +62,8 @@ Open up the relevant solution file (`libiconv-win-build\build-VS2019\libiconv.sl
 ```
 
 ### `boost`
+See `build_boost.sh` for downloading Boost
+
 ```shell
 .\bootstrap.bat --prefix="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64"
 
