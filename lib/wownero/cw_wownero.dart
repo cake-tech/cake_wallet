@@ -167,13 +167,22 @@ class CWWownero extends Wownero {
     return MoneroTransactionPriority.all;
   }
 
-  List<String> getWowneroWordList(String language) {
+  List<String> getWowneroWordList(String language, {int seedWords = 14}) {
     switch (language.toLowerCase()) {
-      // TODO handle 14 word list vs 25 word list
       case 'english':
-        return EnglishMnemonics.words;
+        switch (seedWords) {
+          case 25:
+            return EnglishMnemonics25.words;
+          default:
+            return EnglishMnemonics14.words;
+        }
       default:
-        return EnglishMnemonics.words;
+        switch (seedWords) {
+          case 25:
+            return EnglishMnemonics25.words;
+          default:
+            return EnglishMnemonics14.words;
+        }
     }
   }
 
