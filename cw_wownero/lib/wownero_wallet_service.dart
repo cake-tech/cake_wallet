@@ -186,7 +186,9 @@ class WowneroWalletService extends WalletService<
           restoreHeight: credentials.height);
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       wallet.walletInfo.isRecovery = true;
-      wallet.walletInfo.restoreHeight = wallet.getSeedHeight(credentials.mnemonic!);
+      //wallet.walletInfo.restoreHeight = wallet.getSeedHeight(credentials.mnemonic!);
+      // TODO use alternative seed height function
+      wallet.walletInfo.restoreHeight = 0;
       await wallet.init();
 
       return wallet;
