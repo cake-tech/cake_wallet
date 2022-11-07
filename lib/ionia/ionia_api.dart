@@ -36,8 +36,8 @@ class IoniaApi {
 			throw Exception('Unexpected http status: ${response.statusCode}');
 		}
 
-		final bodyJson = json.decode(response.body) as Map<String, Object>;
-		final data = bodyJson['Data'] as Map<String, Object>;
+		final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+		final data = bodyJson['Data'] as Map<String, dynamic>;
 		final isSuccessful = bodyJson['Successful'] as bool;
 
 		if (!isSuccessful) {
@@ -50,13 +50,11 @@ class IoniaApi {
 	// Verify email
 
 	Future<IoniaUserCredentials> verifyEmail({
-		required String username,
 		required String email,
 		required String code,
 		required String clientId}) async {
 		final headers = <String, String>{
 			'clientId': clientId,
-			'username': username,
 			'EmailAddress': email};
 		final query = <String, String>{'verificationCode': code};
 		final uri = verifyEmailUri.replace(queryParameters: query);
@@ -66,8 +64,8 @@ class IoniaApi {
 			throw Exception('Unexpected http status: ${response.statusCode}');
 		}
 
-		final bodyJson = json.decode(response.body) as Map<String, Object>;
-		final data = bodyJson['Data'] as Map<String, Object>;
+		final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+		final data = bodyJson['Data'] as Map<String, dynamic>;
 		final isSuccessful = bodyJson['Successful'] as bool;
 
 		if (!isSuccessful) {
@@ -75,13 +73,13 @@ class IoniaApi {
 		}
 		
 		final password = data['password'] as String;
-		username = data['username'] as String;
+		final username = data['username'] as String;
 		return IoniaUserCredentials(username, password);
 	}
 
 	// Sign In
 
-	Future<String> signIn(String email, {required String clientId}) async {
+	Future<void> signIn(String email, {required String clientId}) async {
 		final headers = <String, String>{'clientId': clientId};
 		final query = <String, String>{'emailAddress': email};
 		final uri = signInUri.replace(queryParameters: query);
@@ -91,15 +89,13 @@ class IoniaApi {
 		  throw Exception('Unexpected http status: ${response.statusCode}');
 		}
 
-		final bodyJson = json.decode(response.body) as Map<String, Object>;
-		final data = bodyJson['Data'] as Map<String, Object>;
+		final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+		final data = bodyJson['Data'] as Map<String, dynamic>;
 		final isSuccessful = bodyJson['Successful'] as bool;
 
 		if (!isSuccessful) {
 			throw Exception(data['ErrorMessage'] as String);
 		}
-
-		return data['username'] as String;
 	}
 
 	// Get virtual card
@@ -118,15 +114,15 @@ class IoniaApi {
 		  throw Exception('Unexpected http status: ${response.statusCode}');
 		}
 
-		final bodyJson = json.decode(response.body) as Map<String, Object>;
-		final data = bodyJson['Data'] as Map<String, Object>;
+		final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+		final data = bodyJson['Data'] as Map<String, dynamic>;
 		final isSuccessful = bodyJson['Successful'] as bool;
 
 		if (!isSuccessful) {
 			throw Exception(data['message'] as String);
 		}
 
-		final virtualCard = data['VirtualCard'] as Map<String, Object>;
+		final virtualCard = data['VirtualCard'] as Map<String, dynamic>;
 		return IoniaVirtualCard.fromMap(virtualCard);
 	}
 
@@ -146,8 +142,8 @@ class IoniaApi {
 		  throw Exception('Unexpected http status: ${response.statusCode}');
 		}
 
-		final bodyJson = json.decode(response.body) as Map<String, Object>;
-		final data = bodyJson['Data'] as Map<String, Object>;
+		final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+		final data = bodyJson['Data'] as Map<String, dynamic>;
 		final isSuccessful = bodyJson['Successful'] as bool? ?? false;
 
 		if (!isSuccessful) {
