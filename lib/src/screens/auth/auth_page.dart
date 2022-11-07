@@ -112,11 +112,11 @@ class AuthPageState extends State<AuthPage> {
     }
 
     /// not the best scenario, but WidgetsBinding is not behaving correctly on Android
-    await Future<void>.delayed(Duration(milliseconds: 100));
+    await Future<void>.delayed(Duration(milliseconds: 50));
     await _authBar?.dismiss();
-    await Future<void>.delayed(Duration(milliseconds: 100));
+    await Future<void>.delayed(Duration(milliseconds: 50));
     await _progressBar?.dismiss();
-    await Future<void>.delayed(Duration(milliseconds: 100));
+    await Future<void>.delayed(Duration(milliseconds: 50));
     if (route != null) {
       Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
     } else {
