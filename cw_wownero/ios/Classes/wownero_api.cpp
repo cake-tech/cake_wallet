@@ -265,8 +265,9 @@ extern "C"
         wallet->setCacheAttribute("cake.seed", seed);
         */
 
-        // 25 word seeds
+        // 25 word seeds /*
         Monero::Wallet *wallet = walletManager->createWallet(path, password, language, _networkType);
+        // */
 
         int status;
         std::string errorString;
@@ -315,13 +316,14 @@ extern "C"
 
         uint64_t restoreHeight = 0;
 
-        // 25 word seeds
+        // 25 word seeds /*
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
             std::string(path),
             std::string(password),
             std::string(seed),
             _networkType,
             (uint64_t)restoreHeight);
+        // */
 
         int status;
         std::string errorString;
