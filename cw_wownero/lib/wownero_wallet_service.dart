@@ -65,14 +65,16 @@ class WowneroWalletService extends WalletService<
   WalletType getType() => WalletType.wownero;
 
   @override
-  Future<WowneroWallet> create(WowneroNewWalletCredentials credentials) async {
+  Future<WowneroWallet> create(WowneroNewWalletCredentials credentials,
+      {int seedWords = 14}) async {
     try {
       final path =
           await pathForWallet(name: credentials.name!, type: getType());
       await wownero_wallet_manager.createWallet(
           path: path,
           password: credentials.password,
-          language: credentials.language);
+          language: credentials.language,
+          seedWords: seedWords);
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       await wallet.init();
 
@@ -189,11 +191,9 @@ class WowneroWalletService extends WalletService<
           restoreHeight: credentials.height);
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       wallet.walletInfo.isRecovery = true;
-      // 14 word seeds
-      //wallet.walletInfo.restoreHeight = wallet.getSeedHeight(credentials.mnemonic!);
-      // 25 word seeds
+      // 25 word seeds /*
       wallet.walletInfo.restoreHeight = 0;
-      // TODO use an alternative to wow_seed's get_seed_height
+      // TODO use an alternative to wow_seed's get_seed_height */
       await wallet.init();
 
       return wallet;

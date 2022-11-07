@@ -12,14 +12,23 @@ import 'package:ffi/ffi.dart';
 import 'package:ffi/ffi.dart' as pkgffi;
 import 'package:flutter/foundation.dart';
 
-final createWalletNative = wowneroApi
-    .lookup<NativeFunction<create_wallet>>('create_wallet')
-    .asFunction<CreateWallet>();
+final create14WordWalletNative = wowneroApi
+    .lookup<NativeFunction<create_14_word_wallet>>('create_14_word_wallet')
+    .asFunction<Create14WordWallet>();
 
-final restoreWalletFromSeedNative = wowneroApi
-    .lookup<NativeFunction<restore_wallet_from_seed>>(
-        'restore_wallet_from_seed')
-    .asFunction<RestoreWalletFromSeed>();
+final create25WordWalletNative = wowneroApi
+    .lookup<NativeFunction<create_25_word_wallet>>('create_25_word_wallet')
+    .asFunction<Create25WordWallet>();
+
+final restoreWalletFrom14WordSeedNative = wowneroApi
+    .lookup<NativeFunction<restore_wallet_from_14_word_seed>>(
+        'restore_wallet_from_14_word_seed')
+    .asFunction<RestoreWalletFrom14WordSeed>();
+
+final restoreWalletFrom25WordSeedNative = wowneroApi
+    .lookup<NativeFunction<restore_wallet_from_25_word_seed>>(
+        'restore_wallet_from_25_word_seed')
+    .asFunction<RestoreWalletFrom25WordSeed>();
 
 final restoreWalletFromKeysNative = wowneroApi
     .lookup<NativeFunction<restore_wallet_from_keys>>(
@@ -39,15 +48,29 @@ final errorStringNative = wowneroApi
     .asFunction<ErrorString>();
 
 void createWalletSync(
-    {required String path, required String password, required String language, int nettype = 0}) {
+    {required String path,
+    required String password,
+    required String language,
+    int nettype = 0,
+    int seedWords = 14}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
   final errorMessagePointer =
       pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
-  final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
-          languagePointer, nettype, errorMessagePointer) !=
-      0;
+
+  bool
+      isWalletCreated; // TODO refactor to return to use of final isWalletCreated
+  if (seedWords == 14) {
+    isWalletCreated = create14WordWalletNative(pathPointer, passwordPointer,
+            languagePointer, nettype, errorMessagePointer) !=
+        0;
+  } else /*if (seedWords == 25)*/ {
+    isWalletCreated = create25WordWalletNative(pathPointer, passwordPointer,
+            languagePointer, nettype, errorMessagePointer) !=
+        0;
+    // TODO handle other cases / validation
+  }
 
   pkgffi.calloc.free(pathPointer);
   pkgffi.calloc.free(passwordPointer);
@@ -81,9 +104,19 @@ void restoreWalletFromSeedSync(
   final seedPointer = seed.toNativeUtf8();
   final errorMessagePointer =
       pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
-  final isWalletRestored = restoreWalletFromSeedNative(pathPointer,
-          passwordPointer, seedPointer, nettype, errorMessagePointer) !=
-      0;
+
+  int seedWords = seed.split(' ').length;
+  bool isWalletRestored; // TODO refactor to return to use of final isRestored
+  if (seedWords == 14) {
+    isWalletRestored = restoreWalletFrom14WordSeedNative(pathPointer,
+            passwordPointer, seedPointer, nettype, errorMessagePointer) !=
+        0;
+  } else /*if(seedWords == 25)*/ {
+    isWalletRestored = restoreWalletFrom25WordSeedNative(pathPointer,
+            passwordPointer, seedPointer, nettype, errorMessagePointer) !=
+        0;
+    // TODO handle other cases / validation
+  }
 
   pkgffi.calloc.free(pathPointer);
   pkgffi.calloc.free(passwordPointer);
@@ -137,7 +170,8 @@ void restoreWalletFromKeysSync(
   }
 }
 
-void loadWallet({required String path, required String password, int nettype = 0}) {
+void loadWallet(
+    {required String path, required String password, int nettype = 0}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final loaded = loadWalletNative(pathPointer, passwordPointer, nettype) != 0;
@@ -154,8 +188,13 @@ void _createWallet(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
   final language = args['language'] as String;
+  final seedWords = args['seedWords'] as int?;
 
-  createWalletSync(path: path, password: password, language: language);
+  createWalletSync(
+      path: path,
+      password: password,
+      language: language,
+      seedWords: seedWords ?? 14);
 }
 
 void _restoreFromSeed(Map<String, dynamic> args) {
@@ -192,7 +231,10 @@ Future<void> _openWallet(Map<String, String> args) async =>
 
 bool _isWalletExist(String? path) => isWalletExistSync(path: path!);
 
-void openWallet({required String path, required String password, int nettype = 0}) async =>
+void openWallet(
+        {required String path,
+        required String password,
+        int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
 Future<void> openWalletAsync(Map<String, String> args) async =>
@@ -202,12 +244,14 @@ Future<void> createWallet(
         {String? path,
         String? password,
         String? language,
-        int nettype = 0}) async =>
+        int nettype = 0,
+        int seedWords = 14}) async =>
     compute(_createWallet, {
       'path': path,
       'password': password,
       'language': language,
-      'nettype': nettype
+      'nettype': nettype,
+      'seedWords': seedWords
     });
 
 Future restoreFromSeed(
