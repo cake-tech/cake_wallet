@@ -57,7 +57,7 @@ class WowneroWalletService extends WalletService<
   WowneroWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
-  
+
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
@@ -67,7 +67,8 @@ class WowneroWalletService extends WalletService<
   @override
   Future<WowneroWallet> create(WowneroNewWalletCredentials credentials) async {
     try {
-      final path = await pathForWallet(name: credentials.name!, type: getType());
+      final path =
+          await pathForWallet(name: credentials.name!, type: getType());
       await wownero_wallet_manager.createWallet(
           path: path,
           password: credentials.password,
@@ -124,12 +125,12 @@ class WowneroWalletService extends WalletService<
       // TODO: Implement Exception for wallet list service.
 
       if ((e.toString().contains('bad_alloc') ||
-          (e is WalletOpeningException &&
-              (e.message == 'std::bad_alloc' ||
-                  e.message!.contains('bad_alloc')))) ||
+              (e is WalletOpeningException &&
+                  (e.message == 'std::bad_alloc' ||
+                      e.message!.contains('bad_alloc')))) ||
           (e.toString().contains('does not correspond') ||
-          (e is WalletOpeningException &&
-            e.message!.contains('does not correspond')))) {
+              (e is WalletOpeningException &&
+                  e.message!.contains('does not correspond')))) {
         await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
@@ -153,7 +154,8 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> restoreFromKeys(
       WowneroRestoreWalletFromKeysCredentials credentials) async {
     try {
-      final path = await pathForWallet(name: credentials.name!, type: getType());
+      final path =
+          await pathForWallet(name: credentials.name!, type: getType());
       await wownero_wallet_manager.restoreFromKeys(
           path: path,
           password: credentials.password,
@@ -178,7 +180,8 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> restoreFromSeed(
       WowneroRestoreWalletFromSeedCredentials credentials) async {
     try {
-      final path = await pathForWallet(name: credentials.name!, type: getType());
+      final path =
+          await pathForWallet(name: credentials.name!, type: getType());
       await wownero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password,
