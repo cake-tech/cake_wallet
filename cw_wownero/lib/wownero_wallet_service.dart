@@ -192,7 +192,8 @@ class WowneroWalletService extends WalletService<
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       wallet.walletInfo.isRecovery = true;
 
-      int seedWordsLength = credentials.mnemonic.split(' ').length;
+      String seedString = credentials.mnemonic ?? '';
+      int seedWordsLength = seedString.split(' ').length;
       if (seedWordsLength == 14) {
         wallet.walletInfo.restoreHeight = wallet.getSeedHeight(credentials.mnemonic!);
       } else {
