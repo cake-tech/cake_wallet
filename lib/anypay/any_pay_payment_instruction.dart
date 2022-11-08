@@ -17,8 +17,8 @@ class AnyPayPaymentInstruction {
 		return AnyPayPaymentInstruction(
 			type: obj['type'] as String,
 			requiredFeeRate: obj['requiredFeeRate'] as int,
-			txKey: obj['tx_key'] as bool,
-			txHash: obj['tx_hash'] as bool,
+			txKey: obj['tx_key'] as bool? ?? false,
+			txHash: obj['tx_hash'] as bool? ?? false,
 			outputs: outputs);
 	}
 

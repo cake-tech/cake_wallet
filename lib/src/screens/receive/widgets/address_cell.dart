@@ -57,6 +57,7 @@ class AddressCell extends StatelessWidget {
     final Widget cell = InkWell(
         onTap: () => onTap?.call(address),
         child: Container(
+          width: double.infinity,
           color: backgroundColor,
           padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: 28),
           child: Text(
@@ -69,20 +70,25 @@ class AddressCell extends StatelessWidget {
             ),
           ),
         ));
-    // FIX-ME: Slidable
-    return cell;
-    // return Container(
-    //       color: backgroundColor,
-    //       child: Slidable(
-    //         key: Key(address),
-    //         actionPane: SlidableDrawerActionPane(),
-    //         child: cell,
-    //         secondaryActions: <Widget>[
-    //             IconSlideAction(
-    //                 caption: S.of(context).edit,
-    //                 color: Colors.blue,
-    //                 icon: Icons.edit,
-    //                 onTap: () => onEdit?.call())
-    //           ]));
+    return Slidable(
+      key: Key(address),
+      startActionPane: _actionPane(context),
+      endActionPane: _actionPane(context),
+      child: cell,
+    );
   }
+
+  ActionPane _actionPane(BuildContext context) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.3,
+    children: [
+      SlidableAction(
+        onPressed: (_) => onEdit?.call(),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        icon: Icons.edit,
+        label: S.of(context).edit,
+      ),
+    ],
+  );
 }

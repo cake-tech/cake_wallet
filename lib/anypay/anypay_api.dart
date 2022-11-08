@@ -5,11 +5,13 @@ import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_trasnaction.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class AnyPayApi {
 	static const contentTypePaymentRequest = 'application/payment-request';
 	static const contentTypePayment = 'application/payment';
 	static const xPayproVersion = '2';
+	static const anypayToken = secrets.anypayToken;
 
 	static String chainByScheme(String scheme) {
 		switch (scheme.toLowerCase()) {
@@ -44,7 +46,9 @@ class AnyPayApi {
   	final headers = <String, String>{
   			'Content-Type': contentTypePaymentRequest,
   			'X-Paypro-Version': xPayproVersion,
-  			'Accept': '*/*',};
+  			'Accept': '*/*',
+			'x-wallet': 'cake',
+			'x-wallet-token': anypayToken,};
 		final body = <String, dynamic>{
 			'chain': chainByScheme(scheme),
 			'currency': currencyByScheme(scheme).title};
@@ -66,7 +70,9 @@ class AnyPayApi {
   	final headers = <String, String>{
   			'Content-Type': contentTypePayment,
   			'X-Paypro-Version': xPayproVersion,
-  			'Accept': '*/*',};
+  			'Accept': '*/*',
+			'x-wallet': 'cake',
+			'x-wallet-token': anypayToken,};
 		final body = <String, dynamic>{
 			'chain': chain,
 			'currency': currency,

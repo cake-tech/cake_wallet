@@ -182,7 +182,7 @@ void commitTransaction({required Pointer<PendingTransactionRaw> transactionPoint
 PendingTransactionDescription _createTransactionSync(Map args) {
   final address = args['address'] as String;
   final paymentId = args['paymentId'] as String;
-  final amount = args['amount'] as String;
+  final amount = args['amount'] as String?;
   final priorityRaw = args['priorityRaw'] as int;
   final accountIndex = args['accountIndex'] as int;
 

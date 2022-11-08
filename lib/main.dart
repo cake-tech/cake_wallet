@@ -130,7 +130,7 @@ Future<void> main() async {
         secureStorage: secureStorage,
         initialMigrationVersion: 17);
     runApp(App());
-  } catch (e) {
+  } catch (e, stacktrace) {
     runApp(MaterialApp(
         debugShowCheckedModeBanner: true,
         home: Scaffold(
@@ -138,7 +138,7 @@ Future<void> main() async {
                 margin:
                     EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
                 child: Text(
-                  'Error:\n${e.toString()}',
+                  'Error:\n${e.toString()}\nStacktrace: $stacktrace',
                   style: TextStyle(fontSize: 22),
                 )))));
   }

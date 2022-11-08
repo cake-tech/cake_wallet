@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
@@ -55,8 +56,10 @@ abstract class AuthViewModelBase with Store {
     final isSuccessfulAuthenticated = await _authService.authenticate(password);
 
     if (isSuccessfulAuthenticated) {
-      state = ExecutedSuccessfullyState();
-      _failureCounter = 0;
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        state = ExecutedSuccessfullyState();
+        _failureCounter = 0;
+      });
     } else {
       _failureCounter += 1;
 

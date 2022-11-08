@@ -53,6 +53,16 @@ abstract class SupportViewModelBase with Store {
           icon: 'assets/images/change_now.png',
           linkTitle: 'support@changenow.io',
           link: 'mailto:support@changenow.io'),
+    LinkListItem(
+        title: 'SideShift',
+        icon: 'assets/images/sideshift.png',
+        linkTitle: S.current.help,
+        link: 'https://help.sideshift.ai/en/'),
+    LinkListItem(
+        title: 'SimpleSwap',
+        icon: 'assets/images/simpleSwap.png',
+        linkTitle: 'support@simpleswap.io',
+        link: 'mailto:support@simpleswap.io'),
       if (!isMoneroOnly) ... [    
          LinkListItem(
      title: 'Wyre',

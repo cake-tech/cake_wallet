@@ -25,9 +25,7 @@ dependencies:
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
   flutter_slidable: ^2.0.0
-  share: ^2.0.1
-  # share_plus: ^4.0.10
-  # esys_flutter_share: ^1.0.2
+  share_plus: ^4.0.10
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
   dio: ^4.0.6
@@ -54,8 +52,7 @@ dependencies:
   connectivity: ^3.0.3
   # connectivity_plus: ^2.3.5
   keyboard_actions: ^4.0.1
-  flushbar: ^1.10.4
-  # check flushbar for replace
+  another_flushbar: ^1.12.29
   archive: ^3.3.0
   cryptography: ^2.0.5
   file_picker: ^4.6.1
@@ -64,6 +61,11 @@ dependencies:
   permission_handler: ^10.0.0
   device_display_brightness: ^0.0.6
   platform_device_id: ^1.0.1
+  cake_backup:
+    git:
+      url: https://github.com/cake-tech/cake_backup.git
+      ref: main
+      version: 1.0.0
 
 dev_dependencies:
   flutter_test:

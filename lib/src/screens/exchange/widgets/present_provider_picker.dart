@@ -20,9 +20,12 @@ class PresentProviderPicker extends StatelessWidget {
 
     return TextButton(
         onPressed: () => _presentProviderPicker(context),
-        // FIX-ME: Style
-        //highlightColor: Colors.transparent,
-        //splashColor: Colors.transparent,
+        style: ButtonStyle(
+          padding: MaterialStateProperty.all(EdgeInsets.zero),
+          splashFactory: NoSplash.splashFactory,
+          foregroundColor: MaterialStateProperty.all(Colors.transparent),
+          overlayColor: MaterialStateProperty.all(Colors.transparent),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,7 +49,7 @@ class PresentProviderPicker extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 10.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).textTheme!.headline5!.color!)))
+                                color: Theme.of(context).textTheme.headline5!.color!)))
               ],
             ),
             SizedBox(width: 5),

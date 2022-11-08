@@ -643,5 +643,13 @@
   "choose_from_available_options": "Wybierz z dostępnych opcji:",
   "custom_redeem_amount": "Niestandardowa kwota wykorzystania",
   "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
-  "remaining": "pozostałe"
+  "remaining": "pozostałe",
+  "delete_wallet": "Usuń portfel",
+  "delete_wallet_confirm_message" : "Czy na pewno chcesz usunąć portfel ${wallet_name}?",
+  "low_fee": "Niska opłata",
+  "low_fee_alert": "Obecnie korzystasz z niskiego priorytetu opłaty sieciowej. Może to spowodować długie oczekiwanie, różne stawki lub anulowane transakcje. Zalecamy ustawienie wyższej opłaty, aby zapewnić lepsze wrażenia.",
+  "ignor": "Ignorować",
+  "use_suggested": "Użyj sugerowane",
+  "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
+  "help": "pomoc"
 }
