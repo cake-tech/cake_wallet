@@ -36,7 +36,7 @@ class Node extends HiveObject with Keyable {
   static const typeId = 1;
   static const boxName = 'Nodes';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   late String uriRaw;
 
   @HiveField(1)
@@ -45,7 +45,7 @@ class Node extends HiveObject with Keyable {
   @HiveField(2)
   String? password;
 
-  @HiveField(3)
+  @HiveField(3, defaultValue: 0)
   late int typeRaw;
 
   @HiveField(4)

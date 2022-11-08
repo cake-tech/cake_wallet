@@ -112,6 +112,10 @@ class CWBitcoin extends Bitcoin {
 	int formatterStringDoubleToBitcoinAmount(String amount)
 		=> stringDoubleToBitcoinAmount(amount);
 
+  @override
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate)
+    => (priority as BitcoinTransactionPriority).labelWithRate(rate);
+
 	@override
 	List<Unspent> getUnspents(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
@@ -136,4 +140,20 @@ class CWBitcoin extends Bitcoin {
 	WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
 		return LitecoinWalletService(walletInfoSource, unspentCoinSource);
 	}
+  
+  @override
+  TransactionPriority getBitcoinTransactionPriorityMedium()
+    => BitcoinTransactionPriority.medium;
+
+  @override
+  TransactionPriority getLitecoinTransactionPriorityMedium()
+    => LitecoinTransactionPriority.medium;
+
+  @override
+  TransactionPriority getBitcoinTransactionPrioritySlow()
+    => BitcoinTransactionPriority.slow;
+  
+  @override
+  TransactionPriority getLitecoinTransactionPrioritySlow()
+    => LitecoinTransactionPriority.slow;
 }

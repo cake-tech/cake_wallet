@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
+import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
@@ -482,6 +483,10 @@ Future setup(
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 
+  getIt.registerFactory(() => OnRamperPage(
+    settingsStore: getIt.get<AppStore>().settingsStore,
+    wallet: getIt.get<AppStore>().wallet!));
+
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>().wallet!,
       _tradesSource,
@@ -489,6 +494,7 @@ Future setup(
       getIt.get<TradesStore>(),
       getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
+      getIt.get<SettingsViewModel>(),
   ));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
@@ -586,6 +592,9 @@ Future setup(
       getIt.get<SecretStore>(), getIt.get<BackupService>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
+
+  getIt.registerFactory(
+      () => EditBackupPasswordViewModel(getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>()));
 
   getIt.registerFactory(
       () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));

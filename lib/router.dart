@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
+import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
@@ -470,6 +471,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaPaymentStatusPage>(
         param1: paymentInfo,
         param2: commitedInfo));
+
+    case Routes.onramperPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
 
     default:
       return MaterialPageRoute<void>(
