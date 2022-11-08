@@ -167,17 +167,17 @@ class CWWownero extends Wownero {
     return MoneroTransactionPriority.all;
   }
 
-  List<String> getWowneroWordList(String language, {int seedWords = 14}) {
+  List<String> getWowneroWordList(String language, {int seedWordsLength = 14}) {
     switch (language.toLowerCase()) {
       case 'english':
-        switch (seedWords) {
+        switch (seedWordsLength) {
           case 25:
             return EnglishMnemonics25.words;
           default:
             return EnglishMnemonics14.words;
         }
       default:
-        switch (seedWords) {
+        switch (seedWordsLength) {
           case 25:
             return EnglishMnemonics25.words;
           default:
@@ -211,7 +211,7 @@ class CWWownero extends Wownero {
   }
 
   WalletCredentials createWowneroNewWalletCredentials(
-      {String? name, String? password, String? language}) {
+      {String? name, String? password, String? language, int seedWordsLength = 14}) {
     return WowneroNewWalletCredentials(
         name: name, password: password, language: language);
   }

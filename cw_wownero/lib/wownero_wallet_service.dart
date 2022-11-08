@@ -66,7 +66,7 @@ class WowneroWalletService extends WalletService<
 
   @override
   Future<WowneroWallet> create(WowneroNewWalletCredentials credentials,
-      {int seedWords = 14}) async {
+      {int seedWordsLength = 14}) async {
     try {
       final path =
           await pathForWallet(name: credentials.name!, type: getType());
@@ -74,7 +74,7 @@ class WowneroWalletService extends WalletService<
           path: path,
           password: credentials.password,
           language: credentials.language,
-          seedWords: seedWords);
+          seedWordsLength: seedWordsLength);
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       await wallet.init();
 

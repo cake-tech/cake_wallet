@@ -52,7 +52,7 @@ void createWalletSync(
     required String password,
     required String language,
     int nettype = 0,
-    int seedWords = 14}) {
+    int seedWordsLength = 14}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
@@ -61,11 +61,11 @@ void createWalletSync(
 
   bool
       isWalletCreated; // TODO refactor to return to use of final isWalletCreated
-  if (seedWords == 14) {
+  if (seedWordsLength == 14) {
     isWalletCreated = create14WordWalletNative(pathPointer, passwordPointer,
             languagePointer, nettype, errorMessagePointer) !=
         0;
-  } else /*if (seedWords == 25)*/ {
+  } else /*if (seedWordsLength == 25)*/ {
     isWalletCreated = create25WordWalletNative(pathPointer, passwordPointer,
             languagePointer, nettype, errorMessagePointer) !=
         0;
@@ -105,13 +105,13 @@ void restoreWalletFromSeedSync(
   final errorMessagePointer =
       pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
 
-  int seedWords = seed.split(' ').length;
+  int seedWordsLength = seed.split(' ').length;
   bool isWalletRestored; // TODO refactor to return to use of final isRestored
-  if (seedWords == 14) {
+  if (seedWordsLength == 14) {
     isWalletRestored = restoreWalletFrom14WordSeedNative(pathPointer,
             passwordPointer, seedPointer, nettype, errorMessagePointer) !=
         0;
-  } else /*if(seedWords == 25)*/ {
+  } else /*if(seedWordsLength == 25)*/ {
     isWalletRestored = restoreWalletFrom25WordSeedNative(pathPointer,
             passwordPointer, seedPointer, nettype, errorMessagePointer) !=
         0;
@@ -188,13 +188,13 @@ void _createWallet(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
   final language = args['language'] as String;
-  final seedWords = args['seedWords'] as int?;
+  final seedWordsLength = args['seedWordsLength'] as int?;
 
   createWalletSync(
       path: path,
       password: password,
       language: language,
-      seedWords: seedWords ?? 14);
+      seedWordsLength: seedWordsLength ?? 14);
 }
 
 void _restoreFromSeed(Map<String, dynamic> args) {
@@ -245,13 +245,13 @@ Future<void> createWallet(
         String? password,
         String? language,
         int nettype = 0,
-        int seedWords = 14}) async =>
+        int seedWordsLength = 14}) async =>
     compute(_createWallet, {
       'path': path,
       'password': password,
       'language': language,
       'nettype': nettype,
-      'seedWords': seedWords
+      'seedWordsLength': seedWordsLength
     });
 
 Future restoreFromSeed(
