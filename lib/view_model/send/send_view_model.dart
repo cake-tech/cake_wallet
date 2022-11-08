@@ -137,7 +137,7 @@ abstract class SendViewModelBase with Store {
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => balanceViewModel.availableBalance ?? '0.0';
+  String get balance => balanceViewModel.availableBalance;
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
@@ -164,7 +164,7 @@ abstract class SendViewModelBase with Store {
 
   WalletType get walletType => _wallet.type;
 
-  String get walletCurrencyName => _wallet.currency.name.toLowerCase();
+  String? get walletCurrencyName => _wallet.currency.name?.toLowerCase();
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
 

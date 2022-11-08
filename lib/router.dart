@@ -210,7 +210,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
-      final initialPaymentRequest = settings.arguments as PaymentRequest;
+      final initialPaymentRequest = settings.arguments as PaymentRequest?;
 
       return CupertinoPageRoute<void>(
         fullscreenDialog: true, builder: (_) => getIt.get<SendPage>(

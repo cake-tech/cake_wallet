@@ -39,6 +39,8 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
+import 'src/screens/auth/auth_page.dart';
+
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 
@@ -213,15 +215,15 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  /// handle app links while the app is already started - be it in
-  /// the foreground or in the background.
+  /// handle app links while the app is already started
+  /// whether its in the foreground or in the background.
   Future<void> initUniLinks() async {
     try {
-      stream = getUriLinksStream().listen((Uri uri) {
+      stream = uriLinkStream.listen((Uri? uri) {
         handleDeepLinking(uri);
       });
 
-      final Uri initialUri = await getInitialUri();
+      final Uri? initialUri = await getInitialUri();
 
       handleDeepLinking(initialUri);
     } catch (e) {
@@ -229,14 +231,21 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     }
   }
 
-  void handleDeepLinking(Uri uri) {
+  void handleDeepLinking(Uri? uri) {
     if (uri == null || !mounted) return;
 
-    Navigator.pushNamed(
-      navigatorKey.currentContext,
-      Routes.send,
-      arguments: PaymentRequest.fromUri(uri),
-    );
+    Navigator.of(navigatorKey.currentContext!).pushNamed(Routes.auth,
+        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+          if (isAuthenticatedSuccessfully) {
+            auth.close(route: Routes.send, arguments: PaymentRequest.fromUri(uri));
+          }
+        });
+
+    // Navigator.pushNamed(
+    //   navigatorKey.currentContext!,
+    //   Routes.send,
+    //   arguments: PaymentRequest.fromUri(uri),
+    // );
   }
 
   Future<void> _handleInitialUri() async {

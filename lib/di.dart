@@ -377,8 +377,8 @@ Future setup(
       getIt.get<BalanceViewModel>(),
       _transactionDescriptionBox));
 
-  getIt.registerFactoryParam<SendPage, PaymentRequest, void>(
-      (PaymentRequest initialPaymentRequest, _) => SendPage(
+  getIt.registerFactoryParam<SendPage, PaymentRequest?, void>(
+      (PaymentRequest? initialPaymentRequest, _) => SendPage(
         sendViewModel: getIt.get<SendViewModel>(),
         settingsViewModel: getIt.get<SettingsViewModel>(),
         initialPaymentRequest: initialPaymentRequest,

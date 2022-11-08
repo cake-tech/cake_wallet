@@ -1,7 +1,7 @@
 class PaymentRequest {
-  PaymentRequest(this.address, this.amount, this.note, {this.scheme});
+  PaymentRequest(this.address, this.amount, this.note, this.scheme);
 
-  factory PaymentRequest.fromUri(Uri uri) {
+  factory PaymentRequest.fromUri(Uri? uri) {
     var address = "";
     var amount = "";
     var note = "";
@@ -15,7 +15,7 @@ class PaymentRequest {
       scheme = uri.scheme;
     }
 
-    return PaymentRequest(address, amount, note, scheme: scheme);
+    return PaymentRequest(address, amount, note, scheme);
   }
 
   final String address;

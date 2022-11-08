@@ -38,7 +38,7 @@
                     android:scheme="cakewallet"
                     android:host="y.at" />
             </intent-filter>
-            <!-- bitcoin qr code scheme -->
+            <!-- currencies qr code scheme -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
