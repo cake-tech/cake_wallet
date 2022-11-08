@@ -96,7 +96,7 @@ abstract class Wownero {
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority? deserializeMoneroTransactionPriority({int raw});
   List<TransactionPriority> getTransactionPriorities();
-  List<String> getWowneroWordList(String language);
+  List<String> getWowneroWordList(String language, {int seedWordsLength});
 
   WalletCredentials createWowneroRestoreWalletFromKeysCredentials(
       {String name,
@@ -109,7 +109,10 @@ abstract class Wownero {
   WalletCredentials createWowneroRestoreWalletFromSeedCredentials(
       {String name, String password, int height, String mnemonic});
   WalletCredentials createWowneroNewWalletCredentials(
-      {String name, String password, String language, int seedWordsLength = 14});
+      {String name,
+      String password,
+      String language,
+      int seedWordsLength = 14});
   Map<String, String?> getKeys(Object wallet);
   Object createWowneroTransactionCreationCredentials(
       {List<Output> outputs, TransactionPriority priority});
