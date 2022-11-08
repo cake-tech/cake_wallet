@@ -5,7 +5,6 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,8 +37,6 @@ import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-
-import 'src/screens/auth/auth_page.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -205,47 +202,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     super.initState();
     //_handleIncomingLinks();
     //_handleInitialUri();
-
-    initUniLinks();
-  }
-
-  @override
-  void dispose() {
-    stream?.cancel();
-    super.dispose();
-  }
-
-  /// handle app links while the app is already started
-  /// whether its in the foreground or in the background.
-  Future<void> initUniLinks() async {
-    try {
-      stream = uriLinkStream.listen((Uri? uri) {
-        handleDeepLinking(uri);
-      });
-
-      final Uri? initialUri = await getInitialUri();
-
-      handleDeepLinking(initialUri);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  void handleDeepLinking(Uri? uri) {
-    if (uri == null || !mounted) return;
-
-    Navigator.of(navigatorKey.currentContext!).pushNamed(Routes.auth,
-        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-          if (isAuthenticatedSuccessfully) {
-            auth.close(route: Routes.send, arguments: PaymentRequest.fromUri(uri));
-          }
-        });
-
-    // Navigator.pushNamed(
-    //   navigatorKey.currentContext!,
-    //   Routes.send,
-    //   arguments: PaymentRequest.fromUri(uri),
-    // );
   }
 
   Future<void> _handleInitialUri() async {
