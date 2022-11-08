@@ -191,11 +191,16 @@ class WowneroWalletService extends WalletService<
           restoreHeight: credentials.height);
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       wallet.walletInfo.isRecovery = true;
-      // 25 word seeds /*
-      wallet.walletInfo.restoreHeight = 0;
-      // TODO use an alternative to wow_seed's get_seed_height */
-      await wallet.init();
 
+      int seedWordsLength = credentials.mnemonic.split(' ').length;
+      if (seedWordsLength == 14) {
+        wallet.walletInfo.restoreHeight = wallet.getSeedHeight(credentials.mnemonic!);
+      } else {
+        wallet.walletInfo.restoreHeight = 0;
+        // TODO use an alternative to wow_seed's get_seed_height
+      }
+
+      await wallet.init();
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
