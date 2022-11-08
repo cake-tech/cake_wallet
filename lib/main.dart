@@ -40,6 +40,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 Future<void> main() async {
   try {
@@ -282,6 +283,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           child: MaterialApp(
+            navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: settingsStore.theme,

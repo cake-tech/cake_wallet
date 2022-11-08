@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/route_aware.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
@@ -47,10 +48,7 @@ class IoniaGiftCardDetailPage extends BasePage {
               //highlightColor: Colors.transparent,
               //splashColor: Colors.transparent,
               //padding: EdgeInsets.all(0),
-              onPressed: () {
-                onClose(context);
-                DeviceDisplayBrightness.setBrightness(viewModel.brightness);
-              },
+              onPressed: ()=> onClose(context),
               child: _backButton),
         ),
       ),
@@ -67,7 +65,6 @@ class IoniaGiftCardDetailPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    viewModel.increaseBrightness();
     reaction((_) => viewModel.redeemState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -84,7 +81,12 @@ class IoniaGiftCardDetailPage extends BasePage {
       }
     });
 
-    return ScrollableWithBottomSection(
+    return RouteAwareWidget(
+        pushToWidget: ()=> viewModel.increaseBrightness(),
+        pushToNextWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+        popNextWidget: ()=> viewModel.increaseBrightness(),
+        popWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+      child: ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Column(
         children: [
@@ -163,7 +165,7 @@ class IoniaGiftCardDetailPage extends BasePage {
           },
         ),
       ),
-    );
+    ));
   }
 
   Widget buildIoniaTile(BuildContext context, {required String title, required String subTitle}) {
