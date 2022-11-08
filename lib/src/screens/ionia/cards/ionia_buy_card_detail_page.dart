@@ -295,6 +295,8 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
     
     final amount = ioniaPurchaseViewModel.invoice!.totalAmount;
     final addresses = ioniaPurchaseViewModel.invoice!.outAddresses;
+    ioniaPurchaseViewModel.sendViewModel.outputs.first.setCryptoAmount(amount);
+    ioniaPurchaseViewModel.sendViewModel.outputs.first.address = addresses.first;
 
     await showPopUp<void>(
       context: context,
