@@ -1,12 +1,12 @@
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -48,15 +48,15 @@ abstract class WalletBase<
 
   WalletAddresses get walletAddresses;
 
-  HistoryType transactionHistory;
+  late HistoryType transactionHistory;
 
-  Future<void> connectToNode({@required Node node});
+  Future<void> connectToNode({required Node node});
 
   Future<void> startSync();
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
-  int calculateEstimatedFee(TransactionPriority priority, int amount);
+  int calculateEstimatedFee(TransactionPriority priority, int? amount);
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
@@ -66,7 +66,7 @@ abstract class WalletBase<
 
   Future<void> save();
 
-  Future<void> rescan({int height});
+  Future<void> rescan({required int height});
 
   void close();
 

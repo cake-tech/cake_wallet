@@ -71,7 +71,7 @@ class RestoreFromBackupPage extends BasePage {
                       restoreFromBackupViewModel.state is IsExecutingState,
                   onPressed: () => onImportHandler(context),
                   text: S.of(context).import,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white);
             }))
           ])),
@@ -85,7 +85,7 @@ class RestoreFromBackupPage extends BasePage {
       return;
     }
 
-    restoreFromBackupViewModel.filePath = result.files.first.path;
+    restoreFromBackupViewModel.filePath = result!.files.first.path!;
   }
 
   Future<void> onImportHandler(BuildContext context) async {

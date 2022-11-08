@@ -1,7 +1,6 @@
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_order.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/ionia/ionia_api.dart';
@@ -32,9 +31,8 @@ class IoniaService {
 	// Verify email
 
 	Future<void> verifyEmail(String code) async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final email = await secureStorage.read(key: ioniaEmailStorageKey);
-		final credentials = await ioniaApi.verifyEmail(email: email, username: username, code: code, clientId: clientId);
+		final email = (await secureStorage.read(key: ioniaEmailStorageKey))!;
+		final credentials = await ioniaApi.verifyEmail(email: email, code: code, clientId: clientId);
 		await secureStorage.write(key: ioniaPasswordStorageKey, value: credentials.password);
 		await secureStorage.write(key: ioniaUsernameStorageKey, value: credentials.username);
 	}
@@ -42,13 +40,12 @@ class IoniaService {
 	// Sign In
 
 	Future<void> signIn(String email) async {
-		final username = await ioniaApi.signIn(email, clientId: clientId);
+		await ioniaApi.signIn(email, clientId: clientId);
 		await secureStorage.write(key: ioniaEmailStorageKey, value: email);
-		await secureStorage.write(key: ioniaUsernameStorageKey, value: username);
 	}
 
 	Future<String> getUserEmail() async {
-		return secureStorage.read(key: ioniaEmailStorageKey);
+		return (await secureStorage.read(key: ioniaEmailStorageKey))!;
 	}
 
 	// Check is user logined
@@ -69,35 +66,35 @@ class IoniaService {
 	// Create virtual card
 
 	Future<IoniaVirtualCard> createCard() async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.createCard(username: username, password: password, clientId: clientId);
 	}
 
 	// Get virtual card
 
 	Future<IoniaVirtualCard> getCard() async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getCards(username: username, password: password, clientId: clientId);
 	}
 
 	// Get Merchants
 
 	Future<List<IoniaMerchant>> getMerchants() async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getMerchants(username: username, password: password, clientId: clientId);
 	}
 
 	// Get Merchants By Filter
 
 	Future<List<IoniaMerchant>> getMerchantsByFilter({
-		String search,
-		List<IoniaCategory> categories,
+		String? search,
+		List<IoniaCategory>? categories,
 		int merchantFilterType = 0}) async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getMerchantsByFilter(
 			username: username,
 			password: password,
@@ -110,14 +107,14 @@ class IoniaService {
 	// Purchase Gift Card
 
 	Future<IoniaOrder> purchaseGiftCard({
-		@required String merchId,
-		@required double amount,
-		@required String currency}) async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		required String merchId,
+		required double amount,
+		required String currency}) async {
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		final deviceId = await PlatformDeviceId.getDeviceId;
 		return ioniaApi.purchaseGiftCard(
-			requestedUUID: deviceId,
+			requestedUUID: deviceId!,
 			merchId: merchId,
 			amount: amount,
 			currency: currency,
@@ -129,18 +126,18 @@ class IoniaService {
 	// Get Current User Gift Card Summaries
 
 	Future<List<IoniaGiftCard>> getCurrentUserGiftCardSummaries() async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getCurrentUserGiftCardSummaries(username: username, password: password, clientId: clientId);
 	}
 
 	// Charge Gift Card
 
 	Future<void> chargeGiftCard({
-		@required int giftCardId,
-		@required double amount}) async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		required int giftCardId,
+		required double amount}) async {
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		await ioniaApi.chargeGiftCard(
 			username: username,
 			password: password,
@@ -157,19 +154,19 @@ class IoniaService {
 
 	// Get Gift Card
 
-	Future<IoniaGiftCard> getGiftCard({@required int id}) async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+	Future<IoniaGiftCard> getGiftCard({required int id}) async {
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getGiftCard(username: username, password: password, clientId: clientId,id: id);
 	}
 
 	// Payment Status
 
 	Future<int> getPaymentStatus({
-		@required String orderId,
-		@required String paymentId}) async {
-		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
-		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		required String orderId,
+		required String paymentId}) async {
+		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getPaymentStatus(username: username, password: password, clientId: clientId, orderId: orderId, paymentId: paymentId);
 	}
 }

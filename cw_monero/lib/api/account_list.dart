@@ -50,16 +50,16 @@ List<AccountRow> getAllAccount() {
       .toList();
 }
 
-void addAccountSync({String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+void addAccountSync({required String label}) {
+  final labelPointer = label.toNativeUtf8();
   accountAddNewNative(labelPointer);
-  free(labelPointer);
+  calloc.free(labelPointer);
 }
 
-void setLabelForAccountSync({int accountIndex, String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+void setLabelForAccountSync({required int accountIndex, required String label}) {
+  final labelPointer = label.toNativeUtf8();
   accountSetLabelNative(accountIndex, labelPointer);
-  free(labelPointer);
+  calloc.free(labelPointer);
 }
 
 void _addAccount(String label) => addAccountSync(label: label);
@@ -71,12 +71,12 @@ void _setLabelForAccount(Map<String, dynamic> args) {
   setLabelForAccountSync(label: label, accountIndex: accountIndex);
 }
 
-Future<void> addAccount({String label}) async {
+Future<void> addAccount({required String label}) async {
   await compute(_addAccount, label);
   await store();
 }
 
-Future<void> setLabelForAccount({int accountIndex, String label}) async {
+Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
     await compute(
         _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
     await store();

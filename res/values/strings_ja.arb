@@ -634,7 +634,7 @@
   "contact_support": "サポートに連絡する",
   "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。",
   "introducing_cake_pay":  "序章Cake Pay！",
-  "cake_pay_learn_more": "アプリですぐにカードを購入して引き換えましょう！\n右にスワイプして詳細をご覧ください。",
+  "cake_pay_learn_more": "アプリですぐにギフトカードを購入して引き換えましょう!\n左から右にスワイプして詳細をご覧ください。",
   "automatic": "自動",
   "fixed_pair_not_supported": "この固定ペアは、選択したエクスチェンジではサポートされていません",
   "variable_pair_not_supported": "この変数ペアは、選択した取引所ではサポートされていません",
@@ -643,5 +643,13 @@
   "choose_from_available_options": "利用可能なオプションから選択してください:",
   "custom_redeem_amount": "カスタム交換金額",
   "add_custom_redemption": "カスタム引き換えを追加",
-  "remaining": "残り"
+  "remaining": "残り",
+  "delete_wallet": "ウォレットを削除",
+  "delete_wallet_confirm_message" : "${wallet_name} ウォレットを削除してもよろしいですか?",
+  "low_fee": "低料金",
+  "low_fee_alert": "現在、低ネットワーク料金優先度を使用しています。これにより、長い待ち時間、異なるレート、またはキャンセルされた取引が発生する可能性があります。より良い体験のために、より高い料金を設定することをお勧めします。",
+  "ignor": "無視",
+  "use_suggested": "推奨を使用",
+  "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
+  "help": "ヘルプ"
 }

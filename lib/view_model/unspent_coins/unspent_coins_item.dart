@@ -6,12 +6,12 @@ class UnspentCoinsItem = UnspentCoinsItemBase with _$UnspentCoinsItem;
 
 abstract class UnspentCoinsItemBase with Store {
   UnspentCoinsItemBase({
-    this.address,
-    this.amount,
-    this.hash,
-    this.isFrozen,
-    this.note,
-    this.isSending});
+    required this.address,
+    required this.amount,
+    required this.hash,
+    required this.isFrozen,
+    required this.note,
+    required this.isSending});
 
   @observable
   String address;

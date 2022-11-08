@@ -3,7 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/enumerable_item.dart';
 
 class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
-  const BalanceDisplayMode({@required String title, @required int raw})
+  const BalanceDisplayMode({required String title, required int raw})
       : super(title: title, raw: raw);
 
   static const all = [
@@ -18,7 +18,7 @@ class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
   static const displayableBalance =
       BalanceDisplayMode(raw: 3, title: 'Displayable Balance');
 
-  static BalanceDisplayMode deserialize({int raw}) {
+  static BalanceDisplayMode deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return fullBalance;
@@ -29,7 +29,7 @@ class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
       case 3:
         return displayableBalance;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for BalanceDisplayMode deserialize');
     }
   }
 

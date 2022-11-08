@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class BitcoinAddressRecord {
   BitcoinAddressRecord(this.address,
-    {this.index, this.isHidden = false, bool isUsed = false})
+    {required this.index, this.isHidden = false, bool isUsed = false})
    : _isUsed = isUsed;
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource) {
@@ -11,8 +11,8 @@ class BitcoinAddressRecord {
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
-      isHidden: decoded['isHidden'] as bool ?? false,
-      isUsed: decoded['isUsed'] as bool ?? false);
+      isHidden: decoded['isHidden'] as bool? ?? false,
+      isUsed: decoded['isUsed'] as bool? ?? false);
   }
 
   @override

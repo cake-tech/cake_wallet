@@ -12,10 +12,13 @@ import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
-  WalletRestoreFromKeysFrom({Key key, this.onHeightOrDateEntered, this.walletRestoreViewModel})
+  WalletRestoreFromKeysFrom({
+    required this.walletRestoreViewModel,
+    Key? key,
+    this.onHeightOrDateEntered,})
       : super(key: key);
 
-  final Function(bool) onHeightOrDateEntered;
+  final Function(bool)? onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
 
   @override
@@ -87,9 +90,9 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                       child: Image.asset(
                         'assets/images/refresh_icon.png',
                         color: Theme.of(context)
-                            .primaryTextTheme
-                            .display1
-                            .decorationColor,
+                            .primaryTextTheme!
+                            .headline4!
+                            .decorationColor!,
                       ),
                     ),
                   ),

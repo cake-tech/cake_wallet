@@ -4,18 +4,18 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/enumerable_item.dart';
 
 class MoneroTransactionPriority extends TransactionPriority {
-  const MoneroTransactionPriority({String title, int raw})
+  const MoneroTransactionPriority({required String title, required int raw})
       : super(title: title, raw: raw);
 
   static const all = [
     MoneroTransactionPriority.slow,
-    MoneroTransactionPriority.regular,
+    MoneroTransactionPriority.automatic,
     MoneroTransactionPriority.medium,
     MoneroTransactionPriority.fast,
     MoneroTransactionPriority.fastest
   ];
   static const slow = MoneroTransactionPriority(title: 'Slow', raw: 0);
-  static const regular = MoneroTransactionPriority(title: 'Regular', raw: 1);
+  static const automatic = MoneroTransactionPriority(title: 'Automatic', raw: 1);
   static const medium = MoneroTransactionPriority(title: 'Medium', raw: 2);
   static const fast = MoneroTransactionPriority(title: 'Fast', raw: 3);
   static const fastest = MoneroTransactionPriority(title: 'Fastest', raw: 4);
@@ -29,7 +29,7 @@ class MoneroTransactionPriority extends TransactionPriority {
       case WalletType.bitcoin:
         return [
           MoneroTransactionPriority.slow,
-          MoneroTransactionPriority.regular,
+          MoneroTransactionPriority.automatic,
           MoneroTransactionPriority.fast
         ];
       default:
@@ -37,12 +37,12 @@ class MoneroTransactionPriority extends TransactionPriority {
     }
   }
 
-  static MoneroTransactionPriority deserialize({int raw}) {
+  static MoneroTransactionPriority deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return slow;
       case 1:
-        return regular;
+        return automatic;
       case 2:
         return medium;
       case 3:
@@ -50,7 +50,7 @@ class MoneroTransactionPriority extends TransactionPriority {
       case 4:
         return fastest;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for MoneroTransactionPriority deserialize');
     }
   }
 
@@ -59,8 +59,8 @@ class MoneroTransactionPriority extends TransactionPriority {
     switch (this) {
       case MoneroTransactionPriority.slow:
         return 'Slow'; // S.current.transaction_priority_slow;
-      case MoneroTransactionPriority.regular:
-        return 'Regular'; // S.current.transaction_priority_regular;
+      case MoneroTransactionPriority.automatic:
+        return 'Automatic'; // S.current.transaction_priority_regular;
       case MoneroTransactionPriority.medium:
         return 'Medium'; // S.current.transaction_priority_medium;
       case MoneroTransactionPriority.fast:

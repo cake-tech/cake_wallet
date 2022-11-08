@@ -7,12 +7,12 @@ final moneroAmountFormat = NumberFormat()
   ..maximumFractionDigits = moneroAmountLength
   ..minimumFractionDigits = 1;
 
-String moneroAmountToString({int amount}) => moneroAmountFormat
+String moneroAmountToString({required int amount}) => moneroAmountFormat
     .format(cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider))
     .replaceAll(',', '');
 
-double moneroAmountToDouble({int amount}) =>
+double moneroAmountToDouble({required int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider);
 
-int moneroParseAmount({String amount}) =>
+int moneroParseAmount({required String amount}) =>
     (double.parse(amount) * moneroAmountDivider).toInt();

@@ -29,7 +29,7 @@ final subaddrressSetLabelNative = havenApi
 
 bool isUpdating = false;
 
-void refreshSubaddresses({@required int accountIndex}) {
+void refreshSubaddresses({required int accountIndex}) {
   try {
     isUpdating = true;
     subaddressRefreshNative(accountIndex);
@@ -50,18 +50,18 @@ List<SubaddressRow> getAllSubaddresses() {
       .toList();
 }
 
-void addSubaddressSync({int accountIndex, String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+void addSubaddressSync({required int accountIndex, required String label}) {
+  final labelPointer = label.toNativeUtf8();
   subaddrressAddNewNative(accountIndex, labelPointer);
-  free(labelPointer);
+  calloc.free(labelPointer);
 }
 
 void setLabelForSubaddressSync(
-    {int accountIndex, int addressIndex, String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+    {required int accountIndex, required int addressIndex, required String label}) {
+  final labelPointer = label.toNativeUtf8();
 
   subaddrressSetLabelNative(accountIndex, addressIndex, labelPointer);
-  free(labelPointer);
+  calloc.free(labelPointer);
 }
 
 void _addSubaddress(Map<String, dynamic> args) {
@@ -80,14 +80,14 @@ void _setLabelForSubaddress(Map<String, dynamic> args) {
       accountIndex: accountIndex, addressIndex: addressIndex, label: label);
 }
 
-Future addSubaddress({int accountIndex, String label}) async {
+Future addSubaddress({required int accountIndex, required String label}) async {
     await compute<Map<String, Object>, void>(
         _addSubaddress, {'accountIndex': accountIndex, 'label': label});
     await store();
 }
 
 Future setLabelForSubaddress(
-        {int accountIndex, int addressIndex, String label}) async {
+        {required int accountIndex, required int addressIndex, required String label}) async {
   await compute<Map<String, Object>, void>(_setLabelForSubaddress, {
     'accountIndex': accountIndex,
     'addressIndex': addressIndex,

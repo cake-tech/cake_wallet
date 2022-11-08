@@ -632,7 +632,7 @@
   "contact_support": "联系支持",
   "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡",
   "introducing_cake_pay":  "介绍 Cake Pay!",
-  "cake_pay_learn_more": "立即在应用程序中购买和兑换卡！\n向右滑动了解更多！",
+  "cake_pay_learn_more": "立即在应用中购买和兑换礼品卡！\n从左向右滑动以了解详情。",
   "automatic": "自动的",
   "fixed_pair_not_supported": "所选交易所不支持此固定货币对",
   "variable_pair_not_supported": "所选交易所不支持此变量对",
@@ -641,5 +641,13 @@
   "choose_from_available_options": "从可用选项中选择：",
   "custom_redeem_amount": "自定义兑换金额",
   "add_custom_redemption": "添加自定义兑换",
-  "remaining": "剩余"
+  "remaining": "剩余",
+  "delete_wallet": "删除钱包",
+  "delete_wallet_confirm_message" : "您确定要删除 ${wallet_name} 钱包吗？",
+  "low_fee": "费用低",
+  "low_fee_alert": "您当前正在使用低网络费用优先级。这可能会导致长时间等待、不同的费率或取消交易。我们建议设置更高的费用以获得更好的体验。",
+  "ignor": "忽视",
+  "use_suggested": "使用建议",
+  "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
+  "help": "帮助"
 }

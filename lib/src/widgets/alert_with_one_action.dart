@@ -3,10 +3,10 @@ import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 
 class AlertWithOneAction extends BaseAlertDialog {
   AlertWithOneAction({
-    @required this.alertTitle,
-    @required this.alertContent,
-    @required this.buttonText,
-    @required this.buttonAction,
+    required this.alertTitle,
+    required this.alertContent,
+    required this.buttonText,
+    required this.buttonAction,
     this.alertBarrierDismissible = true
   });
 
@@ -31,21 +31,22 @@ class AlertWithOneAction extends BaseAlertDialog {
       width: 300,
       height: 52,
       padding: EdgeInsets.only(left: 12, right: 12),
-      color: Theme.of(context).accentTextTheme.body1.backgroundColor,
+      color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
       child: ButtonTheme(
         minWidth: double.infinity,
-        child: FlatButton(
+        child: TextButton(
             onPressed: buttonAction,
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
             child: Text(
               buttonText,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).primaryTextTheme.body1
-                    .backgroundColor,
+                color: Theme.of(context).primaryTextTheme!.bodyText2!
+                    .backgroundColor!,
                 decoration: TextDecoration.none,
               ),
             )),

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-Future<T> showPopUp<T>({
-  @required BuildContext context,
-  WidgetBuilder builder,
+Future<T?> showPopUp<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
   bool barrierDismissible = true,
-  Color barrierColor,
+  Color? barrierColor,
   bool useSafeArea = false,
   bool useRootNavigator = true,
-  RouteSettings routeSettings
+  RouteSettings? routeSettings
 }) {
   return showDialog<T>(
       context: context,
