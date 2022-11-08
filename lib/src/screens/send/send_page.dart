@@ -30,8 +30,8 @@ import 'package:cw_core/crypto_currency.dart';
 
 class SendPage extends BasePage {
   SendPage({
-    @required this.sendViewModel,
-    @required this.settingsViewModel,
+    required this.sendViewModel,
+    required this.settingsViewModel,
     this.initialPaymentRequest,
   }) : _formKey = GlobalKey<FormState>(),fiatFromSettings = settingsViewModel.fiatCurrency;
 
@@ -40,7 +40,7 @@ class SendPage extends BasePage {
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
   final FiatCurrency fiatFromSettings;
-  final PaymentRequest initialPaymentRequest;
+  final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;
 
@@ -66,15 +66,20 @@ class SendPage extends BasePage {
   }
 
   @override
-  Widget middle(BuildContext context) => Row(
+  Widget? middle(BuildContext context) {
+    final supMiddle = super.middle(context);
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.only(right:8.0),
           child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),),
-        ),super.middle(context),
+        ),
+        if (supMiddle != null)
+          supMiddle
       ],
     );
+  }
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
@@ -82,7 +87,7 @@ class SendPage extends BasePage {
             ? TrailButton(
                 caption: S.of(context).remove,
                 onPressed: () {
-                  var pageToJump = controller.page.round() - 1;
+                  var pageToJump = (controller.page?.round() ?? 0) - 1;
                   pageToJump = pageToJump > 0 ? pageToJump : 0;
                   final output = _defineCurrentOutput();
                   sendViewModel.removeOutput(output);
@@ -92,7 +97,7 @@ class SendPage extends BasePage {
                 caption: S.of(context).clear,
                 onPressed: () {
                   final output = _defineCurrentOutput();
-                  _formKey.currentState.reset();
+                  _formKey.currentState?.reset();
                   output.reset();
                 });
       });
@@ -146,13 +151,13 @@ class SendPage extends BasePage {
                                   dotWidth: 6.0,
                                   dotHeight: 6.0,
                                   dotColor: Theme.of(context)
-                                      .primaryTextTheme
-                                      .display2
-                                      .backgroundColor,
+                                      .primaryTextTheme!
+                                      .headline3!
+                                      .backgroundColor!,
                                   activeDotColor: Theme.of(context)
-                                      .primaryTextTheme
-                                      .display3
-                                      .backgroundColor),
+                                      .primaryTextTheme!
+                                      .headline2!
+                                      .backgroundColor!),
                             )
                           : Offstage();
                     },
@@ -182,9 +187,9 @@ class SendPage extends BasePage {
                                 borderType: BorderType.RRect,
                                 dashPattern: [6, 4],
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline2
-                                    .decorationColor,
+                                    .primaryTextTheme!
+                                    .headline2!
+                                    .decorationColor!,
                                 strokeWidth: 2,
                                 radius: Radius.circular(20),
                                 child: Container(
@@ -200,9 +205,9 @@ class SendPage extends BasePage {
                                       ? Icon(
                                           Icons.add,
                                           color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .display3
-                                              .color,
+                                              .primaryTextTheme!
+                                              .headline2!
+                                              .color!,
                                         )
                                       : Text(
                                           S.of(context).new_template,
@@ -210,9 +215,9 @@ class SendPage extends BasePage {
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
                                             color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .display3
-                                                .color,
+                                                .primaryTextTheme!
+                                                .headline2!
+                                                .color!,
                                           ),
                                         ),
                                 ),
@@ -291,9 +296,9 @@ class SendPage extends BasePage {
                       text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                       color: Colors.transparent,
                       textColor: Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .decorationColor,
+                          .accentTextTheme!
+                          .headline3!
+                          .decorationColor!,
                     )
                   )
                 ),
@@ -310,20 +315,20 @@ class SendPage extends BasePage {
                       text: S.of(context).add_receiver,
                       color: Colors.transparent,
                       textColor: Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .decorationColor,
+                          .accentTextTheme!
+                          .headline3!
+                          .decorationColor!,
                       isDottedBorder: true,
                       borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .display2
-                          .decorationColor,
+                          .primaryTextTheme!
+                          .headline3!
+                          .decorationColor!,
                     )),
               Observer(
                 builder: (_) {
                   return LoadingPrimaryButton(
                     onPressed: () async {
-                      if (!_formKey.currentState.validate()) {
+                      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                         if (sendViewModel.outputs.length > 1) {
                           showErrorValidationAlert(context);
                         }
@@ -345,7 +350,7 @@ class SendPage extends BasePage {
 
                     },
                     text: S.of(context).send,
-                    color: Theme.of(context).accentTextTheme.body2.color,
+                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                     textColor: Colors.white,
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,
@@ -387,13 +392,13 @@ class SendPage extends BasePage {
                     alertTitle: S.of(context).confirm_sending,
                     amount: S.of(context).send_amount,
                     amountValue:
-                        sendViewModel.pendingTransaction.amountFormatted,
+                        sendViewModel.pendingTransaction!.amountFormatted,
                     fiatAmountValue:
                         sendViewModel.pendingTransactionFiatAmount +
                             ' ' +
                             sendViewModel.fiat.title,
                     fee: S.of(context).send_fee,
-                    feeValue: sendViewModel.pendingTransaction.feeFormatted,
+                    feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                     feeFiatAmount:
                         sendViewModel.pendingTransactionFeeFiatAmount +
                             ' ' +
@@ -444,7 +449,10 @@ class SendPage extends BasePage {
   }
 
   Output _defineCurrentOutput() {
-    final itemCount = controller.page.round();
+    if (controller.page == null) {
+      throw Exception('Controller page is null');
+    }
+    final itemCount = controller.page!.round();
     return sendViewModel.outputs[itemCount];
   }
 

@@ -3,9 +3,9 @@ import 'package:cw_core/wallet_type.dart';
 
 class WalletListItem {
   const WalletListItem(
-      {@required this.name,
-       @required this.type,
-      @required this.key,
+      {required this.name,
+       required this.type,
+      required this.key,
       this.isCurrent = false,
       this.isEnabled = true});
 

@@ -276,7 +276,7 @@
 
   "trade_details_title" : "Detalji razmjene",
   "trade_details_id" : "ID",
-  "trade_details_state" : "Stanje",
+  "trade_details_state" : "Status",
   "trade_details_fetching" : "Dohvaćanje",
   "trade_details_provider" : "Pružatelj",
   "trade_details_created_at" : "Stvoreno u",
@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Razmjena za ${title} nije izrađena.",
-  "trade_not_created" : "Razmjena nije izrađena.",
+  "trade_not_created" : "Razmjena nije izrađena",
   "trade_id_not_found" : "Razmjena ${tradeId} za ${title} nije pronađena.",
   "trade_not_found" : "Razmjena nije pronađena.",
 
@@ -539,7 +539,7 @@
   "cake_pay_title": "Cake Pay poklon kartice",
   "cake_pay_subtitle": "Kupite darovne kartice i odmah ih iskoristite",
   "about_cake_pay": "Cake Pay vam omogućuje jednostavnu kupnju darovnih kartica s virtualnim sredstvima, koja se trenutno mogu potrošiti kod više od 150 000 trgovaca u Sjedinjenim Državama.",
-  "cake_pay_account_note": "Napravite račun da vidite dostupne kartice. Neke su čak dostupne uz popust!",
+  "cake_pay_account_note": "Prijavite se samo s adresom e-pošte da biste vidjeli i kupili kartice. Neke su čak dostupne uz popust!",
   "already_have_account": "Već imate račun?",
   "create_account": "Stvori račun",
   "privacy_policy": "Pravila privatnosti",
@@ -633,5 +633,24 @@
   "open_gift_card": "Otvori darovnu karticu",
   "contact_support": "Kontaktirajte podršku",
   "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina",
+  "introducing_cake_pay":  "Predstavljamo Cake Pay!",
+  "cake_pay_learn_more": "Azonnal vásárolhat és válthat be ajándékutalványokat az alkalmazásban!\nTovábbi információért csúsztassa balról jobbra az ujját.",
+  "automatic": "Automatski",
+  "fixed_pair_not_supported": "Ovaj fiksni par nije podržan s odabranim burzama",
+  "variable_pair_not_supported": "Ovaj par varijabli nije podržan s odabranim burzama",
+  "none_of_selected_providers_can_exchange": "Niti jedan od odabranih pružatelja usluga ne može izvršiti ovu razmjenu",
+  "choose_one": "Izaberi jedan",
+  "choose_from_available_options": "Odaberite neku od dostupnih opcija:",
+  "custom_redeem_amount": "Prilagođeni iznos otkupa",
+  "add_custom_redemption": "Dodaj prilagođeni otkup",
+  "remaining": "preostalo",
+  "delete_wallet": "Izbriši novčanik",
+  "delete_wallet_confirm_message" : "Jeste li sigurni da želite izbrisati ${wallet_name} novčanik?",
+  "low_fee": "Niska naknada",
+  "low_fee_alert": "Trenutačno koristite niski prioritet mrežne naknade. To bi moglo uzrokovati duga čekanja, različite tečajeve ili otkazane trgovine. Preporučujemo postavljanje veće naknade za bolje iskustvo.",
+  "ignor": "Zanemariti",
+  "use_suggested": "Koristite predloženo",
+  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
+  "help": "pomozite",
   "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u"
 }

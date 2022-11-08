@@ -9,7 +9,7 @@ import 'package:cake_wallet/entities/fio_address_provider.dart';
 
 class AddressResolver {
   
-  AddressResolver({@required this.yatService, this.walletType});
+  AddressResolver({required this.yatService, required this.walletType});
   
   final YatService yatService;
   final WalletType walletType;

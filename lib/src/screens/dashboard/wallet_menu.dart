@@ -42,8 +42,7 @@ class WalletMenu {
 	  Navigator.of(context).pushNamed(Routes.auth,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
             if (isAuthenticatedSuccessfully) {
-             auth.close();
-		Navigator.of(auth.context).pushNamed(Routes.showKeys);
+              auth.close(route: Routes.showKeys);
             }
           });
 	}),
@@ -52,6 +51,21 @@ class WalletMenu {
           image: Image.asset('assets/images/open_book_menu.png',
               height: 16, width: 16),
 	  handler: () => Navigator.of(context).pushNamed(Routes.addressBook)),
+      WalletMenuItem(
+        title: S.current.backup,
+        image: Image.asset('assets/images/restore_wallet.png',
+          height: 16,
+          width: 16,
+          color: Palette.darkBlue),
+        handler: () {
+          Navigator.of(context).pushNamed(
+            Routes.auth,
+            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+              if (isAuthenticatedSuccessfully) {
+                auth.close(route:Routes.backup);
+              }
+            });
+        }),
       WalletMenuItem(
           title: S.current.settings_title,
           image: Image.asset('assets/images/settings_menu.png',

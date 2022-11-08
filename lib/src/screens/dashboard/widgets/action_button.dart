@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class ActionButton extends StatelessWidget {
   ActionButton(
-      {@required this.image,
-        @required this.title,
+      {required this.image,
+        required this.title,
         this.route,
         this.onClick,
         this.alignment = Alignment.center,
@@ -11,22 +11,17 @@ class ActionButton extends StatelessWidget {
 
   final Image image;
   final String title;
-  final String route;
+  final String? route;
   final Alignment alignment;
-  final void Function() onClick;
-  final Color textColor;
+  final VoidCallback? onClick;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
-    var _textColor = textColor ?? Theme.of(context)
-      .accentTextTheme
-      .display3
-      .backgroundColor;
-
     return GestureDetector(
       onTap: () {
         if (route?.isNotEmpty ?? false) {
-          Navigator.of(context, rootNavigator: true).pushNamed(route);
+          Navigator.of(context, rootNavigator: true).pushNamed(route!);
         } else {
           onClick?.call();
         }
@@ -50,7 +45,7 @@ class ActionButton extends StatelessWidget {
               title,
               style: TextStyle(
                   fontSize: 10,
-                  color: _textColor),
+                  color: textColor ?? Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
             )
           ],
         ),

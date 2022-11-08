@@ -18,7 +18,7 @@ int serializeActionlistDisplayModes(List<ActionListDisplayMode> modes) {
 }
 
 List<ActionListDisplayMode> deserializeActionlistDisplayModes(int raw) {
-  final modes = List<ActionListDisplayMode>();
+  final modes = <ActionListDisplayMode>[];
 
   if (raw == 1 || raw - 10 == 1) {
     modes.add(ActionListDisplayMode.trades);

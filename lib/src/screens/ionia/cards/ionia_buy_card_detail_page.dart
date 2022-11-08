@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
@@ -29,12 +28,12 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       ioniaPurchaseViewModel.ioniaMerchant.legalName,
-      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme.display4.backgroundColor),
+      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!),
     );
   }
 
   @override
-  Widget trailing(BuildContext context)
+  Widget? trailing(BuildContext context)
     => ioniaPurchaseViewModel.ioniaMerchant.discount > 0
       ? DiscountBadge(percentage: ioniaPurchaseViewModel.ioniaMerchant.discount)
       : null;
@@ -97,8 +96,8 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryTextTheme.subhead.color,
-                      Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                      Theme.of(context).primaryTextTheme!.subtitle1!.color!,
+                      Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -155,15 +154,16 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                   ],
                 ),
               ),
+              if(ioniaPurchaseViewModel.ioniaMerchant.acceptsTips)
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.fromLTRB(24.0, 24.0, 0, 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       S.of(context).tip,
                       style: TextStyle(
-                        color: Theme.of(context).primaryTextTheme.title.color,
+                        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -171,9 +171,11 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                     SizedBox(height: 4),
                     Observer(
                       builder: (_) => TipButtonGroup(
-                        selectedTip: ioniaPurchaseViewModel.selectedTip.percentage,
+                        selectedTip: ioniaPurchaseViewModel.selectedTip!.percentage,
                         tipsList: ioniaPurchaseViewModel.tips,
                         onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
+                        amount: ioniaPurchaseViewModel.amount,
+                        merchant: ioniaPurchaseViewModel.ioniaMerchant,
                       ),
                     )
                   ],
@@ -200,7 +202,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                       ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
                   onPressed: () => purchaseCard(context),
                   text: S.of(context).purchase_gift_card,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
                 );
               }),
@@ -210,7 +212,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
               onTap: () => _showTermsAndCondition(context),
               child: Text(S.of(context).settings_terms_and_conditions,
                   style: textMediumSemiBold(
-                    color: Theme.of(context).primaryTextTheme.body1.color,
+                    color: Theme.of(context).primaryTextTheme!.bodyText2!.color!,
                   ).copyWith(fontSize: 12)),
             ),
             SizedBox(height: 16)
@@ -230,7 +232,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             child: Text(
               ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
               style: textMedium(
-                color: Theme.of(context).textTheme.display2.color,
+                color: Theme.of(context).textTheme!.headline3!.color!,
               ),
             ),
           ),
@@ -268,13 +270,13 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                             child: Text(
                               instruction.header,
                               style: textLargeSemiBold(
-                                color: Theme.of(context).textTheme.display2.color,
+                                color: Theme.of(context).textTheme!.headline3!.color!,
                               ),
                             )),
                         Text(
                           instruction.body,
                           style: textMedium(
-                            color: Theme.of(context).textTheme.display2.color,
+                            color: Theme.of(context).textTheme!.headline3!.color!,
                           ),
                         )
                       ];
@@ -287,8 +289,12 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
   }
 
   Future<void> _presentSuccessfulInvoiceCreationPopup(BuildContext context) async {
-    final amount = ioniaPurchaseViewModel.invoice.totalAmount;
-    final addresses = ioniaPurchaseViewModel.invoice.outAddresses;
+    if (ioniaPurchaseViewModel.invoice == null) {
+      return;
+    }
+    
+    final amount = ioniaPurchaseViewModel.invoice!.totalAmount;
+    final addresses = ioniaPurchaseViewModel.invoice!.outAddresses;
 
     await showPopUp<void>(
       context: context,
@@ -307,7 +313,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                             fontWeight: FontWeight.w400,
                             color: PaletteDark.pigeonBlue,
                             decoration: TextDecoration.none)),
-                    Text(ioniaPurchaseViewModel.invoice.paymentId,
+                    Text(ioniaPurchaseViewModel.invoice!.paymentId,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
@@ -323,7 +329,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                             fontWeight: FontWeight.w400,
                             color: PaletteDark.pigeonBlue,
                             decoration: TextDecoration.none)),
-                    Text('$amount ${ioniaPurchaseViewModel.invoice.chain}',
+                    Text('$amount ${ioniaPurchaseViewModel.invoice!.chain}',
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
@@ -355,7 +361,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             rightButtonText: S.of(context).ok,
             leftButtonText: S.of(context).cancel,
             leftActionColor: Color(0xffFF6600),
-            rightActionColor: Theme.of(context).accentTextTheme.body2.color,
+            rightActionColor: Theme.of(context).accentTextTheme!.bodyText1!.color!,
             actionRightButton: () async {
               Navigator.of(context).pop();
               await ioniaPurchaseViewModel.commitPaymentInvoice();
@@ -368,17 +374,23 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
 
 class TipButtonGroup extends StatelessWidget {
   const TipButtonGroup({
-    Key key,
-    @required this.selectedTip,
-    @required this.onSelect,
-    @required this.tipsList,
+    Key? key,
+    required this.selectedTip,
+    required this.onSelect,
+    required this.tipsList,
+    required this.amount,
+    required this.merchant,
   }) : super(key: key);
 
   final Function(IoniaTip) onSelect;
   final double selectedTip;
   final List<IoniaTip> tipsList;
+  final double amount;
+  final IoniaMerchant merchant;
 
   bool _isSelected(double value) => selectedTip == value;
+  Set<double> get filter => tipsList.map((e) => e.percentage).toSet();
+  bool get _isCustomSelected => !filter.contains(selectedTip);
 
   @override
   Widget build(BuildContext context) {
@@ -392,10 +404,17 @@ class TipButtonGroup extends StatelessWidget {
           return Padding(
             padding: EdgeInsets.only(right: 5),
             child: TipButton(
-                isSelected: _isSelected(tip.percentage),
-                onTap: () => onSelect(tip),
-                caption: '${tip.percentage.toStringAsFixed(0)}%',
-                subTitle: '\$${tip.additionalAmount.toStringAsFixed(2)}',
+                isSelected: tip.isCustom ? _isCustomSelected :  _isSelected(tip.percentage),
+                onTap: () async {
+                    IoniaTip ioniaTip = tip;
+                    if(tip.isCustom){
+                      final customTip = await Navigator.pushNamed(context, Routes.ioniaCustomTipPage, arguments: [amount, merchant, tip]) as IoniaTip?;
+                      ioniaTip =  customTip ?? tip;
+                    }
+                    onSelect(ioniaTip);
+                },
+                caption: tip.isCustom ? S.of(context).custom : '${tip.percentage.toStringAsFixed(0)}%',
+                subTitle: tip.isCustom ? null : '\$${tip.additionalAmount.toStringAsFixed(2)}',
               ));
         }));
   }
@@ -403,14 +422,14 @@ class TipButtonGroup extends StatelessWidget {
 
 class TipButton extends StatelessWidget {
   const TipButton({
-    @required this.caption,
+    required this.caption,
+    required this.onTap,
     this.subTitle,
-    @required this.onTap,
     this.isSelected = false,
   });
 
   final String caption;
-  final String subTitle;
+  final String? subTitle;
   final bool isSelected;
   final void Function() onTap;
 
@@ -418,34 +437,34 @@ class TipButton extends StatelessWidget {
 
   Color captionTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme.title.color;
+      return Theme.of(context).primaryTextTheme!.headline6!.color!;
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme.title.color
-      : Theme.of(context).primaryTextTheme.title.color;
+      ? Theme.of(context).accentTextTheme!.headline6!.color!
+      : Theme.of(context).primaryTextTheme!.headline6!.color!;
   }
 
   Color subTitleTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme.title.color;
+      return Theme.of(context).primaryTextTheme!.headline6!.color!;
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme.title.color
-      : Theme.of(context).primaryTextTheme.overline.color;
+      ? Theme.of(context).accentTextTheme!.headline6!.color!
+      : Theme.of(context).primaryTextTheme!.overline!.color!;
   }
 
-  Color backgroundColor(BuildContext context) {
+  Color? backgroundColor(BuildContext context) {
     if (isDark(context)) {
       return isSelected
         ? null
-        : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.01);
+        : Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.01);
     }
 
     return isSelected
         ? null
-        : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1);
+        : Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1);
   }
 
   @override
@@ -463,7 +482,7 @@ class TipButton extends StatelessWidget {
             if (subTitle != null) ...[
               SizedBox(height: 4),
               Text(
-                subTitle,
+                subTitle!,
                 style: textXxSmallSemiBold(
                   color: subTitleTextColor(context),
                 ),
@@ -478,8 +497,8 @@ class TipButton extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    Theme.of(context).primaryTextTheme.subhead.color,
-                    Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                    Theme.of(context).primaryTextTheme!.subtitle1!.color!,
+                    Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

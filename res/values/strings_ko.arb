@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "거래 ${title} 생성되지 않습니다.",
-  "trade_not_created" : "거래가 생성되지 않았습니다.",
+  "trade_not_created" : "거래가 생성되지 않았습니다",
   "trade_id_not_found" : "무역 ${tradeId} 의 ${title} 찾을 수 없습니다.",
   "trade_not_found" : "거래를 찾을 수 없습니다.",
 
@@ -539,7 +539,7 @@
   "cake_pay_title": "케이크 페이 기프트 카드",
   "cake_pay_subtitle": "기프트 카드를 구매하고 즉시 사용",
   "about_cake_pay": "Cake Pay를 사용하면 미국 내 150,000개 이상의 가맹점에서 즉시 사용할 수 있는 가상 자산이 포함된 기프트 카드를 쉽게 구입할 수 있습니다.",
-  "cake_pay_account_note": "사용 가능한 카드를 보려면 계정을 만드십시오. 일부는 할인된 가격으로 사용 가능합니다!",
+  "cake_pay_account_note": "이메일 주소로 가입하면 카드를 보고 구매할 수 있습니다. 일부는 할인된 가격으로 사용 가능합니다!",
   "already_have_account": "이미 계정이 있습니까?",
   "create_account": "계정 만들기",
   "privacy_policy": "개인 정보 보호 정책",
@@ -633,5 +633,24 @@
   "open_gift_card": "기프트 카드 열기",
   "contact_support": "지원팀에 문의",
   "gift_cards_unavailable": "기프트 카드는 현재 Monero, Bitcoin 및 Litecoin을 통해서만 구매할 수 있습니다.",
+  "introducing_cake_pay":  "소개 Cake Pay!",
+  "cake_pay_learn_more": "앱에서 즉시 기프트 카드를 구매하고 사용하세요!\n자세히 알아보려면 왼쪽에서 오른쪽으로 스와이프하세요.",
+  "automatic": "자동적 인",
+  "fixed_pair_not_supported": "이 고정 쌍은 선택한 교환에서 지원되지 않습니다.",
+  "variable_pair_not_supported": "이 변수 쌍은 선택한 교환에서 지원되지 않습니다.",
+  "none_of_selected_providers_can_exchange": "선택한 공급자 중 누구도 이 교환을 할 수 없습니다.",
+  "choose_one": "하나 선택",
+  "choose_from_available_options": "사용 가능한 옵션에서 선택:",
+  "custom_redeem_amount": "사용자 지정 상환 금액",
+  "add_custom_redemption": "사용자 지정 상환 추가",
+  "remaining": "남은",
+  "delete_wallet": "지갑 삭제",
+  "delete_wallet_confirm_message" : "${wallet_name} 지갑을 삭제하시겠습니까?",
+  "low_fee": "낮은 수수료",
+  "low_fee_alert": "현재 낮은 네트워크 요금 우선 순위를 사용하고 있습니다. 이로 인해 긴 대기 시간, 다른 요금 또는 취소된 거래가 발생할 수 있습니다. 더 나은 경험을 위해 더 높은 요금을 설정하는 것이 좋습니다.",
+  "ignor": "무시하다",
+  "use_suggested": "추천 사용",
+  "do_not_share_warning_text" : "지원을 포함하여 다른 사람과 이러한 정보를 공유하지 마십시오.\n\n그들은 당신의 돈을 훔칠 것입니다!",
+  "help": "돕다",
   "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다."
 }

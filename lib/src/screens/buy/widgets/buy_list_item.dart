@@ -8,24 +8,24 @@ import 'package:flutter/material.dart';
 
 class BuyListItem extends StatelessWidget {
   BuyListItem({
-    @required this.selectedProvider,
-    @required this.provider,
-    @required this.sourceAmount,
-    @required this.sourceCurrency,
-    @required this.destAmount,
-    @required this.destCurrency,
-    @required this.achSourceAmount,
-    @required this.onTap
+    required this.selectedProvider,
+    required this.provider,
+    required this.sourceAmount,
+    required this.sourceCurrency,
+    required this.destAmount,
+    required this.destCurrency,
+    required this.achSourceAmount,
+    this.onTap
   });
 
-  final BuyProvider selectedProvider;
+  final BuyProvider? selectedProvider;
   final BuyProvider provider;
   final double sourceAmount;
   final FiatCurrency sourceCurrency;
   final double destAmount;
   final CryptoCurrency destCurrency;
   final double achSourceAmount;
-  final void Function() onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class BuyListItem extends StatelessWidget {
     final iconColor = isSelected ? Colors.white : Colors.black;
 
     final providerIcon = getBuyProviderIcon(provider.description,
-          iconColor: iconColor);
+          iconColor: iconColor)!;
 
     final backgroundColor = isSelected
           ? Palette.greyBlueCraiola
@@ -48,7 +48,7 @@ class BuyListItem extends StatelessWidget {
           : Palette.darkBlueCraiola;
 
     return GestureDetector(
-      onTap: () => onTap?.call(),
+      onTap: onTap,
       child: Container(
         padding: EdgeInsets.only(
           left: 20,

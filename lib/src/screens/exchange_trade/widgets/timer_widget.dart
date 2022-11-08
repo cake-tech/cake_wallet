@@ -13,13 +13,17 @@ class TimerWidget extends StatefulWidget {
 }
 
 class TimerWidgetState extends State<TimerWidget> {
-  TimerWidgetState();
+  TimerWidgetState()
+    : _leftSeconds = 0,
+    _minutes = 0,
+    _seconds = 0,
+    _isExpired = false;
 
   int _leftSeconds;
   int _minutes;
   int _seconds;
   bool _isExpired;
-  Timer _timer;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -45,7 +49,7 @@ class TimerWidgetState extends State<TimerWidget> {
 
   @override
   void dispose() {
-    if (_timer != null) _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 

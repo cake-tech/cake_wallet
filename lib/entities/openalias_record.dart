@@ -1,12 +1,11 @@
 import 'package:basic_utils/basic_utils.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
 
 class OpenaliasRecord {
   OpenaliasRecord({
-    this.address,
-    this.name,
-    this.description,
+    required this.address,
+    required this.name,
+    required this.description,
   });
 
   final String name;
@@ -24,8 +23,8 @@ class OpenaliasRecord {
   }
 
   static Future<OpenaliasRecord> fetchAddressAndName({
-    @required String formattedName,
-    @required String ticker,
+    required String formattedName,
+    required String ticker,
   }) async {
     String address = formattedName;
     String name = formattedName;

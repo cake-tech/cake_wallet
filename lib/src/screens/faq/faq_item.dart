@@ -12,6 +12,9 @@ class FAQItem extends StatefulWidget {
 }
 
 class FAQItemState extends State<FAQItem> {
+  FAQItemState()
+    : isActive = false;
+
   bool isActive;
 
   @override
@@ -23,12 +26,12 @@ class FAQItemState extends State<FAQItem> {
   @override
   Widget build(BuildContext context) {
     final addIcon =
-        Icon(Icons.add, color: Theme.of(context).primaryTextTheme.title.color);
+        Icon(Icons.add, color: Theme.of(context).primaryTextTheme!.headline6!.color!);
     final removeIcon = Icon(Icons.remove, color: Palette.blueCraiola);
     final icon = isActive ? removeIcon : addIcon;
     final color = isActive
         ? Palette.blueCraiola
-        : Theme.of(context).primaryTextTheme.title.color;
+        : Theme.of(context).primaryTextTheme!.headline6!.color!;
 
     return ListTileTheme(
       contentPadding: EdgeInsets.fromLTRB(0, 6, 24, 6),
@@ -50,7 +53,7 @@ class FAQItemState extends State<FAQItem> {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).primaryTextTheme.title.color),
+                    color: Theme.of(context).primaryTextTheme!.headline6!.color!),
               ),
             ))
           ])

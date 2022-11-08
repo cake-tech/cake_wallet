@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -15,15 +15,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaCustomTipPage extends BasePage {
   IoniaCustomTipPage(
-    this.ioniaPurchaseViewModel,
+    this.customTipViewModel,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
     _amountController.addListener(() {
-      // ioniaPurchaseViewModel.onTipChanged(_amountController.text);
+     customTipViewModel.onTipChanged(_amountController.text);
     });
   }
 
-  final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
+  final IoniaCustomTipViewModel customTipViewModel;
  
 
   @override
@@ -46,12 +46,12 @@ class IoniaCustomTipPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
-    final merchant = ioniaPurchaseViewModel.ioniaMerchant;
+    final merchant = customTipViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme.body2.backgroundColor,
+          keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -70,8 +70,8 @@ class IoniaCustomTipPage extends BasePage {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme.subhead.color,
-                    Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                    Theme.of(context).primaryTextTheme!.subtitle1!.color!,
+                    Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -86,11 +86,11 @@ class IoniaCustomTipPage extends BasePage {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\-|\ ]'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
-                        color: Theme.of(context).primaryTextTheme.headline.color,
+                        color: Theme.of(context).primaryTextTheme!.headline5!.color!,
                         fontWeight: FontWeight.w500,
                         fontSize: 36,
                       ),
-                      borderColor: Theme.of(context).primaryTextTheme.headline.color,
+                      borderColor: Theme.of(context).primaryTextTheme!.headline5!.color!,
                       textColor: Colors.white,
                       textStyle: TextStyle(
                         color: Colors.white,
@@ -116,7 +116,7 @@ class IoniaCustomTipPage extends BasePage {
                     ),
                     SizedBox(height: 8),
                     Observer(builder: (_) {
-                      if (ioniaPurchaseViewModel.percentage == 0.0) {
+                      if (customTipViewModel.percentage == 0.0) {
                         return SizedBox.shrink();
                       }
 
@@ -125,12 +125,12 @@ class IoniaCustomTipPage extends BasePage {
                         text: TextSpan(
                           text: '\$${_amountController.text}',
                           style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.color,
+                            color: Theme.of(context).primaryTextTheme!.headline5!.color!,
                           ),
                           children: [
                             TextSpan(text: ' ${S.of(context).is_percentage} '),
-                            TextSpan(text: '${ioniaPurchaseViewModel.percentage}%'),
-                            TextSpan(text: ' ${S.of(context).percentageOf(ioniaPurchaseViewModel.amount.toString())} '),
+                            TextSpan(text: '${customTipViewModel.percentage.toStringAsFixed(2)}%'),
+                            TextSpan(text: ' ${S.of(context).percentageOf(customTipViewModel.amount.toStringAsFixed(2))} '),
                           ],
                         ),
                       );
@@ -143,9 +143,9 @@ class IoniaCustomTipPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
+                  backgroundColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
                   discount: 0.0,
-                  titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
+                  titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
                   logoUrl: merchant.logoUrl,
@@ -159,10 +159,10 @@ class IoniaCustomTipPage extends BasePage {
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
                   onPressed: () {
-                    Navigator.of(context).pop(_amountController.text);
+                    Navigator.of(context).pop(customTipViewModel.customTip);
                   },
                   text: S.of(context).add_tip,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
                 ),
               ),

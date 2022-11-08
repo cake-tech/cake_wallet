@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
@@ -19,7 +18,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       : _lastUsedRateId = '',
         super(
             pairList: CryptoCurrency.all
+                .where((i) => i != CryptoCurrency.xhv)
                 .map((i) => CryptoCurrency.all
+                    .where((i) => i != CryptoCurrency.xhv)
                     .map((k) => ExchangePair(from: i, to: k, reverse: true))
                     .where((c) => c != null))
                 .expand((i) => i)
@@ -40,6 +41,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   bool get isAvailable => true;
 
   @override
+  bool get isEnabled => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.changeNow;
 
@@ -51,8 +55,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   static String getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to,
-    bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode}) async {
     final headers = {apiHeaderKey: apiKey};
     final normalizedFrom = normalizeCryptoCurrency(from);
     final normalizedTo = normalizeCryptoCurrency(to);
@@ -74,29 +80,29 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     return Limits(
-      min: responseJSON['minAmount'] as double,
-      max: responseJSON['maxAmount'] as double);
+      min: responseJSON['minAmount'] as double?,
+      max: responseJSON['maxAmount'] as double?);
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as ChangeNowRequest;
     final headers = {
       apiHeaderKey: apiKey,
       'Content-Type': 'application/json'};
     final flow = getFlow(isFixedRateMode);
     final body = <String, String>{
-      'fromCurrency': normalizeCryptoCurrency(_request.from), 
+      'fromCurrency': normalizeCryptoCurrency(_request.from),
       'toCurrency': normalizeCryptoCurrency(_request.to),
       'fromNetwork': networkFor(_request.from),
       'toNetwork': networkFor(_request.to),
-      'fromAmount': _request.fromAmount, 
-      'toAmount': _request.toAmount, 
+      'fromAmount': _request.fromAmount,
+      'toAmount': _request.toAmount,
       'address': _request.address,
       'flow': flow,
       'refundAddress': _request.refundAddress
@@ -117,7 +123,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -140,7 +146,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({@required String id}) async {
+  Future<Trade> findTradeById({required String id}) async {
     final headers = {apiHeaderKey: apiKey};
     final params = <String, String>{'id': id};
     final uri = Uri.https(apiAuthority,findTradeByIdPath, params);
@@ -159,7 +165,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -193,11 +199,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from,
-      CryptoCurrency to,
-      double amount,
-      bool isFixedRateMode,
-      bool isReceiveAmount}) async {
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) {
         return 0.0;
@@ -245,7 +251,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return CryptoCurrency.btc.title.toLowerCase();
       default:
         return currency.tag != null
-            ? currency.tag.toLowerCase()
+            ? currency.tag!.toLowerCase()
             : currency.title.toLowerCase();
       }
     }

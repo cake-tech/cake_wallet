@@ -3,10 +3,10 @@
 set -e
 
 . ./config.sh
-OPENSSL_FILENAME=openssl-1.1.1k.tar.gz
+OPENSSL_FILENAME=openssl-1.1.1q.tar.gz
 OPENSSL_FILE_PATH=$WORKDIR/$OPENSSL_FILENAME
-OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1k
-OPENSSL_SHA256="892a0875b9872acd04a9fde79b1f943075d5ea162415de3047c327df33fbaee5"
+OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1q
+OPENSSL_SHA256="d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca"
 ZLIB_DIR=$WORKDIR/zlib
 ZLIB_TAG=v1.2.11
 ZLIB_COMMIT_HASH="cacf7f1d4e3d44d871b605da3b647f07d718623f"
@@ -40,10 +40,9 @@ rm -rf $OPENSSL_SRC_DIR
 tar -xzf $OPENSSL_FILE_PATH -C $WORKDIR
 cd $OPENSSL_SRC_DIR
 
-sed -i -e "s/mandroid/target\ ${TARGET}\-linux\-android/" Configure
 CC=clang ANDROID_NDK=$TOOLCHAIN \
 	./Configure ${X_ARCH} \
-	no-asm no-shared \
+	no-shared no-tests \
 	--with-zlib-include=${PREFIX}/include \
 	--with-zlib-lib=${PREFIX}/lib \
 	--prefix=${PREFIX} \

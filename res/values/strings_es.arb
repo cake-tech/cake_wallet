@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Comercio por ${title} no se crea.",
-  "trade_not_created" : "Comercio no se crea.",
+  "trade_not_created" : "Comercio no se crea",
   "trade_id_not_found" : "Comercio ${tradeId} de ${title} no encontrado.",
   "trade_not_found" : "Comercio no encontrado.",
 
@@ -539,7 +539,7 @@
   "cake_pay_title": "Tarjetas de regalo Cake Pay",
   "cake_pay_subtitle": "Compra tarjetas de regalo y canjéalas al instante",
   "about_cake_pay": "Cake Pay le permite comprar fácilmente tarjetas de regalo con activos virtuales, gastables instantáneamente en más de 150 000 comerciantes en los Estados Unidos.",
-  "cake_pay_account_note": "Crea una cuenta para ver las tarjetas disponibles. ¡Algunas incluso están disponibles con descuento!",
+  "cake_pay_account_note": "Regístrese con solo una dirección de correo electrónico para ver y comprar tarjetas. ¡Algunas incluso están disponibles con descuento!",
   "already_have_account": "¿Ya tienes una cuenta?",
   "create_account": "Crear Cuenta",
   "privacy_policy": "Política de privacidad",
@@ -633,5 +633,24 @@
   "open_gift_card": "Abrir tarjeta de regalo",
   "contact_support": "Contactar con Soporte",
   "gift_cards_unavailable": "Las tarjetas de regalo están disponibles para comprar solo a través de Monero, Bitcoin y Litecoin en este momento",
+  "introducing_cake_pay":  "¡Presentamos Cake Pay!",
+  "cake_pay_learn_more": "¡Compre y canjee tarjetas de regalo al instante en la aplicación!\nDeslice el dedo de izquierda a derecha para obtener más información.",
+  "automatic": "Automático",
+  "fixed_pair_not_supported": "Este par fijo no es compatible con los intercambios seleccionados",
+  "variable_pair_not_supported": "Este par de variables no es compatible con los intercambios seleccionados",
+  "none_of_selected_providers_can_exchange": "Ninguno de los proveedores seleccionados puede realizar este intercambio",
+  "choose_one": "Elige uno",
+  "choose_from_available_options": "Elija entre las opciones disponibles:",
+  "custom_redeem_amount": "Cantidad de canje personalizada",
+  "add_custom_redemption": "Agregar redención personalizada",
+  "remaining": "restante",
+  "delete_wallet": "Eliminar billetera",
+  "delete_wallet_confirm_message" : "¿Está seguro de que desea eliminar la billetera ${wallet_name}?",
+  "low_fee": "Tarifa baja",
+  "low_fee_alert": "Actualmente está utilizando una prioridad de tarifa de red baja. Esto podría causar largas esperas, tarifas diferentes o transacciones canceladas. Recomendamos establecer una tarifa más alta para una mejor experiencia.",
+  "ignor": "Pasar por alto",
+  "use_suggested": "Usar sugerido",
+  "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Te robarán tu dinero!",
+  "help": "ayuda",
   "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado"
 }

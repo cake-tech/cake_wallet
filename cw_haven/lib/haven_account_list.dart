@@ -53,13 +53,13 @@ abstract class HavenAccountListBase extends AccountList<Account> with Store {
       .toList();
   
   @override
-  Future addAccount({String label}) async {
+  Future<void> addAccount({required String label}) async {
     await account_list.addAccount(label: label);
     update();
   }
 
   @override
-  Future setLabelAccount({int accountIndex, String label}) async {
+  Future<void> setLabelAccount({required int accountIndex, required String label}) async {
     await account_list.setLabelForAccount(
         accountIndex: accountIndex, label: label);
     update();

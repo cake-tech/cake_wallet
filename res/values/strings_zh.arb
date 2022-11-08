@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "交易 ${title} 未创建.",
-  "trade_not_created" : "未建立交易.",
+  "trade_not_created" : "未建立交易",
   "trade_id_not_found" : "交易方式 ${tradeId} 的 ${title} 未找到.",
   "trade_not_found" : "找不到交易.",
 
@@ -537,7 +537,7 @@
   "cake_pay_title": "Cake Pay 礼品卡",
   "cake_pay_subtitle": "购买礼品卡并立即兑换",
   "about_cake_pay": "Cake Pay 让您可以轻松购买带有虚拟资产的礼品卡，可立即在美国超过 150,000 家商家消费。",
-  "cake_pay_account_note": "注册一个账户来查看可用的卡片。有些甚至可以打折！",
+  "cake_pay_account_note": "只需使用電子郵件地址註冊即可查看和購買卡片。有些甚至可以打折！",
   "already_have_account": "已经有账号了？",
   "create_account": "创建账户",
   "privacy_policy": "隐私政策",
@@ -631,5 +631,24 @@
   "open_gift_card": "打开礼品卡",
   "contact_support": "联系支持",
   "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡",
+  "introducing_cake_pay":  "介绍 Cake Pay!",
+  "cake_pay_learn_more": "立即在应用中购买和兑换礼品卡！\n从左向右滑动以了解详情。",
+  "automatic": "自动的",
+  "fixed_pair_not_supported": "所选交易所不支持此固定货币对",
+  "variable_pair_not_supported": "所选交易所不支持此变量对",
+  "none_of_selected_providers_can_exchange": "选定的供应商都不能进行此交换",
+  "choose_one": "选一个",
+  "choose_from_available_options": "从可用选项中选择：",
+  "custom_redeem_amount": "自定义兑换金额",
+  "add_custom_redemption": "添加自定义兑换",
+  "remaining": "剩余",
+  "delete_wallet": "删除钱包",
+  "delete_wallet_confirm_message" : "您确定要删除 ${wallet_name} 钱包吗？",
+  "low_fee": "费用低",
+  "low_fee_alert": "您当前正在使用低网络费用优先级。这可能会导致长时间等待、不同的费率或取消交易。我们建议设置更高的费用以获得更好的体验。",
+  "ignor": "忽视",
+  "use_suggested": "使用建议",
+  "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
+  "help": "帮助",
   "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配"
 }

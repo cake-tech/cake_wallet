@@ -25,37 +25,39 @@ abstract class MoneroAccountListViewModelBase with Store {
   List<AccountListItem> get accounts {
     if (_wallet.type == WalletType.haven) {
       return haven
-        .getAccountList(_wallet)
+        !.getAccountList(_wallet)
         .accounts.map((acc) => AccountListItem(
             label: acc.label,
             id: acc.id,
-            isSelected: acc.id == haven.getCurrentAccount(_wallet).id))
+            isSelected: acc.id == haven!.getCurrentAccount(_wallet).id))
         .toList();
     }
 
     if (_wallet.type == WalletType.monero) {
       return monero
-        .getAccountList(_wallet)
+        !.getAccountList(_wallet)
         .accounts.map((acc) => AccountListItem(
             label: acc.label,
             id: acc.id,
-            isSelected: acc.id == monero.getCurrentAccount(_wallet).id))
+            isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
         .toList();
     }
+
+    throw Exception('Unexpected wallet type: ${_wallet.type}');
   }
 
   final WalletBase _wallet;
 
   void select(AccountListItem item) {
     if (_wallet.type == WalletType.monero) {
-      monero.setCurrentAccount(
+      monero!.setCurrentAccount(
         _wallet,
         item.id,
         item.label);
     }
 
     if (_wallet.type == WalletType.haven) {
-      haven.setCurrentAccount(
+      haven!.setCurrentAccount(
         _wallet,
         item.id,
         item.label);

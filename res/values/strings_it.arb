@@ -7,14 +7,14 @@
   "restore_wallet" : "Recupera Portafoglio",
 
   "monero_com": "Monero.com by Cake Wallet",
-  "monero_com_wallet_text": "Awesome wallet for Monero",
+  "monero_com_wallet_text": "Portafoglio fantastico per Monero",
 
   "haven_app": "Haven by Cake Wallet",
-  "haven_app_wallet_text": "Awesome wallet for Haven",
+  "haven_app_wallet_text": "Portafoglio fantastico per Haven",
   
-  "accounts" : "Accounts",
+  "accounts" : "Conti",
   "edit" : "Modifica",
-  "account" : "Account",
+  "account" : "Conto",
   "add" : "Aggiungi",
 
 
@@ -24,7 +24,7 @@
   "cancel" : "Cancella",
   "ok" : "OK",
   "contact_name" : "Nome Contatto",
-  "reset" : "Resetta",
+  "reset" : "Ripristina",
   "save" : "Salva",
   "address_remove_contact" : "Rimuovi contatto",
   "address_remove_content" : "Sei sicuro di voler eliminare il contatto selezionato?",
@@ -35,12 +35,12 @@
   "failed_authentication" : "Autenticazione fallita. ${state_error}",
 
 
-  "wallet_menu" : "Menu",
+  "wallet_menu" : "Menù",
   "Blocks_remaining" : "${status} Blocchi Rimanenti",
   "please_try_to_connect_to_another_node" : "Gentilmente prova a connetterti ad un altro nodo",
   "xmr_hidden" : "Nascosto",
   "xmr_available_balance" : "Saldo Disponibile",
-  "xmr_full_balance" : "Saldo Completo",
+  "xmr_full_balance" : "Saldo Totale",
   "send" : "Invia",
   "receive" : "Ricevi",
   "transactions" : "Transazioni",
@@ -53,7 +53,7 @@
   "yesterday" : "Ieri",
   "received" : "Ricevuto",
   "sent" : "Inviato",
-  "pending" : " (pendente)",
+  "pending" : " (non confermati)",
   "rescan" : "Scansiona di nuovo",
   "reconnect" : "Riconnetti",
   "wallets" : "Portafogli",
@@ -70,19 +70,19 @@
   "change_exchange_provider" : "Cambia Exchange",
   "you_will_send" : "Conveti da",
   "you_will_get" : "Converti a",
-  "amount_is_guaranteed" : "L'ammonare da ricevere è fissato",
+  "amount_is_guaranteed" : "L'ammontare da ricevere è fisso",
   "amount_is_estimate" : "L'ammontare da ricevere è una stima",
   "powered_by" : "Sviluppato da ${title}",
   "error" : "Errore",
   "estimated" : "Stimato",
   "min_value" : "Min: ${value} ${currency}",
   "max_value" : "Max: ${value} ${currency}",
-  "change_currency" : "Cambia Moneta",
-  "overwrite_amount" : "Overwrite amount",
-  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
+  "change_currency" : "Cambia Valuta",
+  "overwrite_amount" : "Sovrascrivi quantità",
+  "qr_payment_amount" : "Questo codice QR contiene l'ammontare del pagamento. Vuoi sovrascrivere il varlore attuale?",
 
   "copy_id" : "Copia ID",
-  "exchange_result_write_down_trade_id" : "Gentilmente fai una copia o trascrivi l'ID dello scambio per continuare.",
+  "exchange_result_write_down_trade_id" : "Per favore fai una copia o trascrivi l'ID dello scambio per continuare.",
   "trade_id" : "ID Scambio:",
   "copied_to_clipboard" : "Copiato negli Appunti",
   "saved_the_trade_id" : "Ho salvato l'ID dello scambio",
@@ -183,7 +183,7 @@
   "restore_from_date_or_blockheight" : "Gentilmente inserisci la data di un paio di giorni prima che hai creato questo portafoglio. Oppure inserisci l'altezza del blocco se la conosci",
 
 
-  "seed_reminder" : "Gentilmente trascrivi le parole. Ti tornerà utie in caso perdessi o ripristinassi il tuo telefono",
+  "seed_reminder" : "Gentilmente trascrivi le parole. Ti tornerà utile in caso perdessi o ripristinassi il tuo telefono",
   "seed_title" : "Seme",
   "seed_share" : "Condividi seme",
   "copy" : "Copia",
@@ -201,7 +201,7 @@
   "seed_language_russian" : "Russo",
   "seed_language_spanish" : "Spagnolo",
   "seed_language_french": "Francese",
-  "seed_language_italian": "Italiana/Italiano",
+  "seed_language_italian": "Italiano",
 
 
   "send_title" : "Invia",
@@ -317,13 +317,13 @@
   "router_no_route" : "Nessun percorso definito per ${name}",
 
 
-  "error_text_account_name" : "Il nome dell'Account può contenere solo lettere, numeri\ne deve avere una lunghezza compresa tra 1 e 15 caratteri",
+  "error_text_account_name" : "Il nome del conto può contenere solo lettere, numeri\ne deve avere una lunghezza compresa tra 1 e 15 caratteri",
   "error_text_contact_name" : "Il nome del Contatto non può contenere i simboli ` , ' \" \ne deve avere una lunghezza compresa tra 1 e 32 caratteri",
   "error_text_address" : "L'indirizzo del Portafoglio deve corrispondere alla tipologia\ndi criptovaluta",
   "error_text_node_address" : "Gentilmente inserisci un indirizzo iPv4",
   "error_text_node_port" : "La porta del nodo può contenere solo numeri compresi tra 0 e 65535",
-  "error_text_payment_id" : "l'ID del pagamento può contenere solo da 16 a 64 caratteri in hex",
-  "error_text_xmr" : "Il valore XMR non può eccedere il saldo disponibile.\nIl numero delle cifre decimali deve essere inferiore o uguale a 12",
+  "error_text_payment_id" : "L'ID del pagamento può contenere solo da 16 a 64 caratteri in esadecimale",
+  "error_text_xmr" : "Il valore in XMR non può eccedere il saldo disponibile.\nIl numero delle cifre decimali deve essere inferiore o uguale a 12",
   "error_text_fiat" : "L'ammontare non può eccedere il saldo dispoinibile.\nIl numero di cifre decimali deve essere inferiore o uguale a 2",
   "error_text_subaddress_name" : "Il nome del sottoindirizzo non può contenere i simboli ` , ' \" \ne deve avere una lunghezza compresa tra 1 e 20 caratteri",
   "error_text_amount" : "L'ammontare può contenere solo numeri",
@@ -337,7 +337,7 @@
 
 
   "auth_store_ban_timeout" : "ban_timeout",
-  "auth_store_banned_for" : "Bannato per ",
+  "auth_store_banned_for" : "Bloccato per ",
   "auth_store_banned_minutes" : " minuti",
   "auth_store_incorrect_password" : "PIN non corretto",
   "wallet_store_monero_wallet" : "Portafoglio Monero",
@@ -366,7 +366,7 @@
 
 
   "trade_for_not_created" : "Lo scambio per ${title} non è stato creato.",
-  "trade_not_created" : "Scambio non creato.",
+  "trade_not_created" : "Scambio non creato",
   "trade_id_not_found" : "Scambio ${tradeId} di ${title} not trovato.",
   "trade_not_found" : "Scambio non trovato.",
 
@@ -387,7 +387,7 @@
   "trade_state_finished" : "Finito",
 
   "change_language" : "Cambia lingua",
-  "change_language_to" : "Cambia lingua in ${language}?",
+  "change_language_to" : "Cambiare lingua in ${language}?",
 
   "paste" : "Incolla",
   "restore_from_seed_placeholder" : "Gentilmente inserisci o incolla il tuo seme qui",
@@ -401,7 +401,7 @@
   "openalias_alert_content" : "Invierai i tuoi fondi a\n${recipient_name}",
 
   "card_address" : "Indirizzo:",
-  "buy" : "Compra",
+  "buy" : "Comprare",
   "sell": "Vendere",
 
   "placeholder_transactions" : "Le tue transazioni saranno mostrate qui",
@@ -510,7 +510,7 @@
 
   "add_receiver" : "Aggiungi un altro ricevitore (opzionale)",
 
-  "manage_yats" : "Gestisci Yats",
+  "manage_yats" : "Gestisci gli Yat",
   "yat_alert_title" : "Invia e ricevi criptovalute più facilmente con Yat",
   "yat_alert_content" : "Gli utenti di Cake Wallet possono ora inviare e ricevere tutte le loro valute preferite con un nome utente unico basato su emoji.",
   "get_your_yat" : "Ottieni il tuo Yat",
@@ -525,9 +525,9 @@
   "yat_popup_title" : "L'indirizzo del tuo portafoglio può essere emoji.",
   "yat_popup_content" : "Ora puoi inviare e ricevere criptovalute in Cake Wallet con il tuo Yat, un breve nome utente basato su emoji. Gestisci Yats in qualsiasi momento nella schermata delle impostazioni",
   "second_intro_title" : "Un indirizzo emoji per domarli tutti",
-  "second_intro_content" : "Il tuo Yat è un unico indirizzo emoji univoco che sostituisce tutti i tuoi lunghi indirizzi esadecimali per tutte le tue valute.",
+  "second_intro_content" : "Il tuo Yat è un unico indirizzo emoji univoco che sostituisce i lunghi indirizzi per tutte le tue valute.",
   "third_intro_title" : "Yat gioca bene con gli altri",
-  "third_intro_content" : "Anche Yats vive fuori da Cake Wallet. Qualsiasi indirizzo di portafoglio sulla terra può essere sostituito con un Yat!",
+  "third_intro_content" : "Yat può funzionare anche fuori da Cake Wallet. Qualsiasi indirizzo di portafoglio sulla terra può essere sostituito con uno Yat!",
   "learn_more" : "Impara di più",
   "search": "Ricerca",
   "search_language": "Cerca lingua",
@@ -539,7 +539,7 @@
   "cake_pay_title": "Carte regalo Cake Pay",
   "cake_pay_subtitle": "Acquista carte regalo e riscattale all'istante",
   "about_cake_pay": "Cake Pay ti consente di acquistare facilmente buoni regalo con asset virtuali, spendibili istantaneamente presso oltre 150.000 commercianti negli Stati Uniti.",
-  "cake_pay_account_note": "Crea un account per vedere le carte disponibili. Alcune sono anche disponibili con uno sconto!",
+  "cake_pay_account_note": "Iscriviti con solo un indirizzo email per vedere e acquistare le carte. Alcune sono anche disponibili con uno sconto!",
   "already_have_account": "Hai già un account?",
   "create_account": "Crea account",
   "privacy_policy": "Informativa sulla privacy",
@@ -633,5 +633,24 @@
   "open_gift_card": "Apri carta regalo",
   "contact_support": "Contatta l'assistenza",
   "gift_cards_unavailable": "Le carte regalo sono disponibili per l'acquisto solo tramite Monero, Bitcoin e Litecoin in questo momento",
+  "introducing_cake_pay":  "Presentazione di Cake Pay!",
+  "cake_pay_learn_more": "Acquista e riscatta istantaneamente carte regalo nell'app!\nScorri da sinistra a destra per saperne di più.",
+  "automatic": "Automatico",
+  "fixed_pair_not_supported": "Questa coppia fissa non è supportata con gli scambi selezionati",
+  "variable_pair_not_supported": "Questa coppia di variabili non è supportata con gli scambi selezionati",
+  "none_of_selected_providers_can_exchange": "Nessuno dei fornitori selezionati può effettuare questo scambio",
+  "choose_one": "Scegline uno",
+  "choose_from_available_options": "Scegli tra le opzioni disponibili:",
+  "custom_redeem_amount": "Importo di riscatto personalizzato",
+  "add_custom_redemption": "Aggiungi riscatto personalizzato",
+  "remaining": "rimanente",
+  "delete_wallet": "Elimina portafoglio",
+  "delete_wallet_confirm_message" : "Sei sicuro di voler eliminare il portafoglio ${wallet_name}?",
+  "low_fee": "Tariffa bassa",
+  "low_fee_alert": "Attualmente stai utilizzando una priorità a tariffa di rete bassa. Ciò potrebbe causare lunghe attese, tariffe diverse o operazioni annullate. Ti consigliamo di impostare una tariffa più alta per un'esperienza migliore.",
+  "ignor": "Ignorare",
+  "use_suggested": "Usa suggerito",
+  "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nTi ruberanno i soldi!",
+  "help": "aiuto",
   "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato"
 }

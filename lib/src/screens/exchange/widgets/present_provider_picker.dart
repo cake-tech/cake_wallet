@@ -1,15 +1,13 @@
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/check_box_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 
 class PresentProviderPicker extends StatelessWidget {
-  PresentProviderPicker({@required this.exchangeViewModel});
+  PresentProviderPicker({required this.exchangeViewModel});
 
   final ExchangeViewModel exchangeViewModel;
 
@@ -20,10 +18,14 @@ class PresentProviderPicker extends StatelessWidget {
         color: Colors.white,
         height: 6);
 
-    return FlatButton(
+    return TextButton(
         onPressed: () => _presentProviderPicker(context),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
+        style: ButtonStyle(
+          padding: MaterialStateProperty.all(EdgeInsets.zero),
+          splashFactory: NoSplash.splashFactory,
+          foregroundColor: MaterialStateProperty.all(Colors.transparent),
+          overlayColor: MaterialStateProperty.all(Colors.transparent),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,11 +40,16 @@ class PresentProviderPicker extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: Colors.white)),
                 Observer(
-                    builder: (_) => Text('${exchangeViewModel.provider.title}',
-                        style: TextStyle(
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.headline.color)))
+                    builder: (_) => Text(
+                        exchangeViewModel.selectedProviders.isEmpty
+                            ? S.of(context).choose_one
+                            : exchangeViewModel.selectedProviders.length > 1
+                              ? S.of(context).automatic
+                              : exchangeViewModel.selectedProviders.first.title,
+                            style: TextStyle(
+                                fontSize: 10.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.headline5!.color!)))
               ],
             ),
             SizedBox(width: 5),
@@ -54,38 +61,19 @@ class PresentProviderPicker extends StatelessWidget {
         ));
   }
 
-  void _presentProviderPicker(BuildContext context) {
-    final items = exchangeViewModel.providersForCurrentPair();
-    final selectedItem = items.indexOf(exchangeViewModel.provider);
-    final images = <Image>[];
-    String description;
-
-    for (var provider in items) {
-      switch (provider.description) {
-        case ExchangeProviderDescription.xmrto:
-          images.add(Image.asset('assets/images/xmr_btc.png'));
-          break;
-        case ExchangeProviderDescription.changeNow:
-          images.add(Image.asset('assets/images/change_now.png'));
-          break;
-        case ExchangeProviderDescription.morphToken:
-          images.add(Image.asset('assets/images/morph_icon.png'));
-          break;
-        case ExchangeProviderDescription.sideShift:
-          images.add(Image.asset('assets/images/sideshift.png', width: 20));
-          break;
-      }
-    }
-
-    showPopUp<void>(
-        builder: (BuildContext popUpContext) => Picker(
-            items: items,
-            images: images,
-            selectedAtIndex: selectedItem,
+  void _presentProviderPicker(BuildContext context) async {
+    await showPopUp<void>(
+        builder: (BuildContext popUpContext) => CheckBoxPicker(
+            items: exchangeViewModel.providerList
+                .map((e) => CheckBoxItem(
+                      e.title,
+                      exchangeViewModel.selectedProviders.contains(e),
+                      isDisabled: !exchangeViewModel.providersForCurrentPair().contains(e),
+                    ))
+                .toList(),
             title: S.of(context).change_exchange_provider,
-            description: description,
-            onItemSelected: (ExchangeProvider provider) {
-              if (!provider.isAvailable) {
+            onChanged: (int index, bool value) {
+              if (!exchangeViewModel.providerList[index].isAvailable) {
                 showPopUp<void>(
                     builder: (BuildContext popUpContext) => AlertWithOneAction(
                         alertTitle: 'Error',
@@ -95,8 +83,14 @@ class PresentProviderPicker extends StatelessWidget {
                     context: context);
                 return;
               }
-              exchangeViewModel.changeProvider(provider: provider);
+              if (value) {
+                exchangeViewModel.addExchangeProvider(exchangeViewModel.providerList[index]);
+              } else {
+                exchangeViewModel.removeExchangeProvider(exchangeViewModel.providerList[index]);
+              }
             }),
         context: context);
+
+    exchangeViewModel.saveSelectedProviders();
   }
 }

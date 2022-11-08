@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
@@ -14,10 +15,9 @@ class AuthViewModel = AuthViewModelBase with _$AuthViewModel;
 
 abstract class AuthViewModelBase with Store {
   AuthViewModelBase(this._authService, this._sharedPreferences,
-      this._settingsStore, this._biometricAuth) {
-    state = InitialExecutionState();
-    _failureCounter = 0;
-  }
+      this._settingsStore, this._biometricAuth)
+      : _failureCounter = 0,
+        state = InitialExecutionState();
 
   static const maxFailedLogins = 3;
   static const banTimeout = 180; // 3 minutes
@@ -40,7 +40,7 @@ abstract class AuthViewModelBase with Store {
   final SettingsStore _settingsStore;
 
   @action
-  Future<void> auth({String password}) async {
+  Future<void> auth({required String password}) async {
     state = InitialExecutionState();
     final _banDuration = banDuration();
 
@@ -56,8 +56,10 @@ abstract class AuthViewModelBase with Store {
     final isSuccessfulAuthenticated = await _authService.authenticate(password);
 
     if (isSuccessfulAuthenticated) {
-      state = ExecutedSuccessfullyState();
-      _failureCounter = 0;
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        state = ExecutedSuccessfullyState();
+        _failureCounter = 0;
+      });
     } else {
       _failureCounter += 1;
 
@@ -74,7 +76,7 @@ abstract class AuthViewModelBase with Store {
     }
   }
 
-  Duration banDuration() {
+  Duration? banDuration() {
     final unbanTimestamp = _sharedPreferences.getInt(banTimeoutKey);
 
     if (unbanTimestamp == null) {

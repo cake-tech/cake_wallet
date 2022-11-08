@@ -2,19 +2,29 @@ import 'package:cw_core/enumerable_item.dart';
 
 class ExchangeProviderDescription extends EnumerableItem<int>
     with Serializable<int> {
-  const ExchangeProviderDescription({String title, int raw})
+  const ExchangeProviderDescription({
+    required String title,
+    required int raw,
+    required this.image,
+    this.horizontalLogo = false})
       : super(title: title, raw: raw);
 
-  static const xmrto = ExchangeProviderDescription(title: 'XMR.TO', raw: 0);
+  final bool horizontalLogo;
+  final String image;
+
+  static const xmrto = ExchangeProviderDescription(title: 'XMR.TO', raw: 0, image: 'assets/images/xmrto.png');
   static const changeNow =
-      ExchangeProviderDescription(title: 'ChangeNOW', raw: 1);
+      ExchangeProviderDescription(title: 'ChangeNOW', raw: 1, image: 'assets/images/changenow.png');
   static const morphToken =
-      ExchangeProviderDescription(title: 'MorphToken', raw: 2);
+      ExchangeProviderDescription(title: 'MorphToken', raw: 2, image: 'assets/images/morph.png');
 
    static const sideShift =
-      ExchangeProviderDescription(title: 'SideShift', raw: 3);
+      ExchangeProviderDescription(title: 'SideShift', raw: 3, image: 'assets/images/sideshift.png');
 
-  static ExchangeProviderDescription deserialize({int raw}) {
+  static const simpleSwap =
+      ExchangeProviderDescription(title: 'SimpleSwap', raw: 4, image: 'assets/images/simpleSwap.png');
+
+  static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return xmrto;
@@ -24,8 +34,10 @@ class ExchangeProviderDescription extends EnumerableItem<int>
         return morphToken;
       case 3:
         return sideShift;
+      case 4:
+        return simpleSwap;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }
   }
 }

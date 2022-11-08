@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton(
-      {@required this.onPressed,
-      @required this.text,
-      @required this.color,
-      @required this.textColor,
+      {required this.text,
+      required this.color,
+      required this.textColor,
+      this.onPressed,
       this.isDisabled = false,
       this.isDottedBorder = false,
       this.borderColor = Colors.black,
       this.onDisabledPressed});
 
-  final VoidCallback onPressed;
-  final VoidCallback onDisabledPressed;
+  final VoidCallback? onPressed;
+  final VoidCallback? onDisabledPressed;
   final Color color;
   final Color textColor;
   final Color borderColor;
@@ -24,20 +24,19 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = ButtonTheme(
-        minWidth: double.infinity,
+    final content = SizedBox(
+        width: double.infinity,
         height: 52.0,
-        child: FlatButton(
+        child: TextButton(
           onPressed: isDisabled
-              ? (onDisabledPressed != null ? onDisabledPressed : null)
-              : onPressed,
-          color: isDisabled ? color.withOpacity(0.5) : color,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          disabledColor: color.withOpacity(0.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26.0),
-          ),
+              ? (onDisabledPressed != null ? onDisabledPressed : null) : onPressed,
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(26.0),
+                ),
+              ),
+            overlayColor: MaterialStateProperty.all(Colors.transparent)),
           child: Text(text,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -62,10 +61,10 @@ class PrimaryButton extends StatelessWidget {
 
 class LoadingPrimaryButton extends StatelessWidget {
   const LoadingPrimaryButton(
-      {@required this.onPressed,
-        @required this.text,
-        @required this.color,
-        @required this.textColor,
+      {required this.onPressed,
+        required this.text,
+        required this.color,
+        required this.textColor,
         this.isDisabled = false,
         this.isLoading = false});
 
@@ -78,15 +77,18 @@ class LoadingPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ButtonTheme(
-        minWidth: double.infinity,
+    return SizedBox(
+        width: double.infinity,
         height: 52.0,
-        child: FlatButton(
+        child: TextButton(
           onPressed: (isLoading || isDisabled) ? null : onPressed,
-          color: color,
-          disabledColor: color.withOpacity(0.5),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(26.0)),
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(26.0),
+              ),
+            )),
+
           child: isLoading
               ? CupertinoActivityIndicator(animating: true)
               : Text(text,
@@ -103,14 +105,14 @@ class LoadingPrimaryButton extends StatelessWidget {
 
 class PrimaryIconButton extends StatelessWidget {
   const PrimaryIconButton({
-    @required this.onPressed,
-    @required this.iconData,
-    @required this.text,
-    @required this.color,
-    @required this.borderColor,
-    @required this.iconColor,
-    @required this.iconBackgroundColor,
-    @required this.textColor,
+    required this.onPressed,
+    required this.iconData,
+    required this.text,
+    required this.color,
+    required this.borderColor,
+    required this.iconColor,
+    required this.iconBackgroundColor,
+    required this.textColor,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.radius = 26
   });
@@ -128,15 +130,17 @@ class PrimaryIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ButtonTheme(
-        minWidth: double.infinity,
+    return SizedBox(
+        width: double.infinity,
         height: 52.0,
-        child: FlatButton(
+        child: TextButton(
           onPressed: onPressed,
-          color: color,
-          shape: RoundedRectangleBorder(
-              side: BorderSide(color: borderColor),
-              borderRadius: BorderRadius.circular(radius)),
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(color),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(radius),
+                ),
+              )),
           child: Stack(
             children: <Widget>[
               Row(
@@ -170,11 +174,11 @@ class PrimaryIconButton extends StatelessWidget {
 
 class PrimaryImageButton extends StatelessWidget {
   const PrimaryImageButton(
-      {@required this.onPressed,
-      @required this.image,
-      @required this.text,
-      @required this.color,
-      @required this.textColor,
+      {required this.onPressed,
+      required this.image,
+      required this.text,
+      required this.color,
+      required this.textColor,
       this.borderColor = Colors.transparent});
 
   final VoidCallback onPressed;
@@ -186,15 +190,17 @@ class PrimaryImageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ButtonTheme(
-        minWidth: double.infinity,
+    return SizedBox(
+        width: double.infinity,
         height: 52.0,
-        child: FlatButton(
+        child: TextButton(
           onPressed: onPressed,
-          color: color,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: borderColor),
-            borderRadius: BorderRadius.circular(26.0)),
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(color),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(26.0),
+                ),
+              )),
           child:Center(
             child: Row(
               mainAxisSize: MainAxisSize.min,

@@ -1,37 +1,37 @@
-abstract class Amount {
-  Amount(this.value);
+// abstract class Amount {
+//   Amount(this.value);
 
-  int value;
+//   int value;
 
-  int minorDigits;
+//   int minorDigits;
 
-  String code;
+//   String code;
 
-  String formatted();
-}
+//   String formatted();
+// }
 
-class MoneroAmount extends Amount {
-  MoneroAmount(int value) : super(value) {
-    minorDigits = 12;
-    code = 'XMR';
-  }
+// class MoneroAmount extends Amount {
+//   MoneroAmount(int value) : super(value) {
+//     minorDigits = 12;
+//     code = 'XMR';
+//   }
 
-  // const moneroAmountLength = 12;
-  // const moneroAmountDivider = 1000000000000;
-  // final moneroAmountFormat = NumberFormat()
-  //   ..maximumFractionDigits = moneroAmountLength
-  //   ..minimumFractionDigits = 1;
+//   // const moneroAmountLength = 12;
+//   // const moneroAmountDivider = 1000000000000;
+//   // final moneroAmountFormat = NumberFormat()
+//   //   ..maximumFractionDigits = moneroAmountLength
+//   //   ..minimumFractionDigits = 1;
 
-  // String moneroAmountToString({int amount}) =>
-  //     moneroAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider));
+//   // String moneroAmountToString({int amount}) =>
+//   //     moneroAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider));
 
-  // double moneroAmountToDouble({int amount}) => cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider);
+//   // double moneroAmountToDouble({int amount}) => cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider);
 
-  // int moneroParseAmount({String amount}) => moneroAmountFormat.parse(amount).toInt();
+//   // int moneroParseAmount({String amount}) => moneroAmountFormat.parse(amount).toInt();
 
-  @override
-  String formatted() {
-    // TODO: implement formatted
-    throw UnimplementedError();
-  }
-}
+//   @override
+//   String formatted() {
+//     // TODO: implement formatted
+//     throw UnimplementedError();
+//   }
+// }
