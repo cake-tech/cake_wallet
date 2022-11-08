@@ -45,6 +45,7 @@ Future<DateTime?> _buildCupertinoDataPicker(
             initialDateTime: initialDate,
             minimumDate: firstDate,
             maximumDate: lastDate,
+            backgroundColor: Theme.of(context).backgroundColor,
           ),
         );
       }
