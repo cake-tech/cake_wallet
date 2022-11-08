@@ -5,12 +5,17 @@ part 'crypto_currency.g.dart';
 
 @HiveType(typeId: 0)
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
-  const CryptoCurrency({final String title, this.tag, this.name, this.iconPath, final int raw})
+  const CryptoCurrency({
+    String title = '',
+    int raw = -1,
+    this.name,
+    this.iconPath,
+    this.tag,})
       : super(title: title, raw: raw);
 
-  final String tag;
-  final String name;
-  final String iconPath;
+  final String? tag;
+  final String? name;
+  final String? iconPath;
 
   static const all = [
     CryptoCurrency.xmr,
@@ -23,16 +28,49 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.eos,
     CryptoCurrency.eth,
     CryptoCurrency.ltc,
+    CryptoCurrency.nano,
     CryptoCurrency.trx,
     CryptoCurrency.usdt,
     CryptoCurrency.usdterc20,
     CryptoCurrency.xlm,
     CryptoCurrency.xrp,
     CryptoCurrency.xhv,
-    //CryptoCurrency.zaddr,
-    //CryptoCurrency.zec
+    CryptoCurrency.ape,
+    CryptoCurrency.avaxc,
+    CryptoCurrency.btt,
+    CryptoCurrency.bttbsc,
+    CryptoCurrency.doge,
+    CryptoCurrency.firo,
+    CryptoCurrency.usdttrc20,
+    CryptoCurrency.hbar,
+    CryptoCurrency.sc,
+    CryptoCurrency.sol,
+    CryptoCurrency.usdc,
+    CryptoCurrency.usdcsol,
+    CryptoCurrency.zaddr,
+    CryptoCurrency.zec,
+    CryptoCurrency.zen,
+    CryptoCurrency.xvg,
+    CryptoCurrency.usdcpoly,
+    CryptoCurrency.dcr,
+    CryptoCurrency.husd,
+    CryptoCurrency.kmd,
+    CryptoCurrency.mana,
+    CryptoCurrency.maticpoly,
+    CryptoCurrency.matic,
+    CryptoCurrency.mkr,
+    CryptoCurrency.near,
+    CryptoCurrency.oxt,
+    CryptoCurrency.paxg,
+    CryptoCurrency.pivx,
+    CryptoCurrency.rune,
+    CryptoCurrency.rvn,
+    CryptoCurrency.scrt,
+    CryptoCurrency.uni,
+    CryptoCurrency.stx,
   ];
-  static const xmr = CryptoCurrency(title: 'XMR', iconPath: 'assets/images/monero_icon.png', name: 'Monero',  raw: 0);
+
+  static const xmr = CryptoCurrency(title: 'XMR', iconPath: 'assets/images/monero_icon.png', name: 'Monero', raw: 0);
   static const ada = CryptoCurrency(title: 'ADA', iconPath: 'assets/images/ada_icon.png', name: 'Cardano', raw: 1);
   static const bch = CryptoCurrency(title: 'BCH', iconPath: 'assets/images/bch_icon.png',name: 'Bitcoin Cash', raw: 2);
   static const bnb = CryptoCurrency(title: 'BNB', iconPath: 'assets/images/bnb_icon.png', tag: 'BSC', name: 'Binance Coin', raw: 3);
@@ -41,7 +79,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const dash = CryptoCurrency(title: 'DASH', iconPath: 'assets/images/dash_icon.png', name: 'Dash', raw: 6);
   static const eos = CryptoCurrency(title: 'EOS', iconPath: 'assets/images/eos_icon.png', name: 'EOS', raw: 7);
   static const eth = CryptoCurrency(title: 'ETH', iconPath: 'assets/images/eth_icon.png', name: 'Ethereum', raw: 8);
-  static const ltc = CryptoCurrency(title: 'LTC', iconPath: 'assets/images/litecoin-ltc_icon.png', name: 'Litecoin',raw: 9);
+  static const ltc = CryptoCurrency(title: 'LTC', iconPath: 'assets/images/litecoin-ltc_icon.png', name: 'Litecoin', raw: 9);
   static const nano = CryptoCurrency(title: 'NANO', raw: 10);
   static const trx = CryptoCurrency(title: 'TRX', iconPath: 'assets/images/trx_icon.png', name: 'TRON', raw: 11);
   static const usdt = CryptoCurrency(title: 'USDT', iconPath: 'assets/images/usdt_icon.png', tag: 'OMNI', name: 'USDT', raw: 12);
@@ -64,10 +102,44 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const xnzd = CryptoCurrency(title: 'XNZD', tag: 'XHV', raw: 28);
   static const xusd = CryptoCurrency(title: 'XUSD', tag: 'XHV', raw: 29);
 
-  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', name: 'Shielded Zcash', iconPath: 'assets/images/zaddr_icon.png', raw: 30);
-  static const zec = CryptoCurrency(title: 'TZEC', tag: 'ZEC', name: 'Transparent Zcash', iconPath: 'assets/images/zec_icon.png', raw: 31);
+  static const ape = CryptoCurrency(title: 'APE', iconPath: 'assets/images/ape_icon.png', tag: 'ETH', raw: 30);
+  static const avaxc = CryptoCurrency(title: 'AVAX', iconPath: 'assets/images/avaxc_icon.png', tag: 'C-CHAIN', raw: 31);
+  static const btt = CryptoCurrency(title: 'BTT', iconPath: 'assets/images/btt_icon.png', raw: 32);
+  static const bttbsc = CryptoCurrency(title: 'BTT', iconPath: 'assets/images/bttbsc_icon.png', tag: 'BSC', raw: 33);
+  static const doge = CryptoCurrency(title: 'DOGE', iconPath: 'assets/images/doge_icon.png', raw: 34);
+  static const firo = CryptoCurrency(title: 'FIRO', iconPath: 'assets/images/firo_icon.png', raw: 35);
+  static const usdttrc20 = CryptoCurrency(title: 'USDT', iconPath: 'assets/images/usdttrc20_icon.png', tag: 'TRX', raw: 36);
+  static const hbar = CryptoCurrency(title: 'HBAR', iconPath: 'assets/images/hbar_icon.png', raw: 37);
+  static const sc = CryptoCurrency(title: 'SC', iconPath: 'assets/images/sc_icon.png', raw: 38);
+  static const sol = CryptoCurrency(title: 'SOL', iconPath: 'assets/images/sol_icon.png', raw: 39);
+  static const usdc = CryptoCurrency(title: 'USDC', iconPath: 'assets/images/usdc_icon.png', tag: 'ETH', raw: 40);
+  static const usdcsol = CryptoCurrency(title: 'USDC', iconPath: 'assets/images/usdcsol_icon.png', tag: 'SOL', raw: 41);
+  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', name: 'Shielded Zcash', iconPath: 'assets/images/zaddr_icon.png', raw: 42);
+  static const zec = CryptoCurrency(title: 'TZEC', tag: 'ZEC', name: 'Transparent Zcash', iconPath: 'assets/images/zec_icon.png', raw: 43);
+  static const zen = CryptoCurrency(title: 'ZEN', iconPath: 'assets/images/zen_icon.png', raw: 44);
+  static const xvg = CryptoCurrency(title: 'XVG', name: 'Verge', iconPath: 'assets/images/xvg_icon.png', raw: 45);
 
-  static CryptoCurrency deserialize({int raw}) {
+  static const usdcpoly = CryptoCurrency(title: 'USDC', iconPath: 'assets/images/usdc_icon.png', tag: 'POLY', raw: 46);
+  static const dcr = CryptoCurrency(title: 'DCR', iconPath: 'assets/images/dcr_icon.png', raw: 47);
+  static const husd = CryptoCurrency(title: 'HUSD', iconPath: 'assets/images/husd_icon.png', tag: 'ETH', raw: 48);
+  static const kmd = CryptoCurrency(title: 'KMD', iconPath: 'assets/images/kmd_icon.png', raw: 49);
+  static const mana = CryptoCurrency(title: 'MANA', iconPath: 'assets/images/mana_icon.png', tag: 'ETH', raw: 50);
+  static const maticpoly = CryptoCurrency(title: 'MATIC', iconPath: 'assets/images/matic_icon.png', tag: 'POLY', raw: 51);
+  static const matic = CryptoCurrency(title: 'MATIC', iconPath: 'assets/images/matic_icon.png', tag: 'ETH', raw: 52);
+  static const mkr = CryptoCurrency(title: 'MKR', iconPath: 'assets/images/mkr_icon.png', tag: 'ETH', raw: 53);
+  static const near = CryptoCurrency(title: 'NEAR', iconPath: 'assets/images/near_icon.png', raw: 54);
+  static const oxt = CryptoCurrency(title: 'OXT', iconPath: 'assets/images/oxt_icon.png', tag: 'ETH', raw: 55);
+  static const paxg = CryptoCurrency(title: 'PAXG', iconPath: 'assets/images/paxg_icon.png', tag: 'ETH', raw: 56);
+  static const pivx = CryptoCurrency(title: 'PIVX', iconPath: 'assets/images/pivx_icon.png', raw: 57);
+  static const rune = CryptoCurrency(title: 'RUNE', iconPath: 'assets/images/rune_icon.png', raw: 58);
+  static const rvn = CryptoCurrency(title: 'RVN', iconPath: 'assets/images/rvn_icon.png', raw: 59);
+  static const scrt = CryptoCurrency(title: 'SCRT', iconPath: 'assets/images/scrt_icon.png', raw: 60);
+  static const uni = CryptoCurrency(title: 'UNI', iconPath: 'assets/images/uni_icon.png', tag: 'ETH', raw: 61);
+  static const stx = CryptoCurrency(title: 'STX', iconPath: 'assets/images/stx_icon.png', raw: 62);
+
+
+
+  static CryptoCurrency deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return CryptoCurrency.xmr;
@@ -130,11 +202,73 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
       case 29:
         return CryptoCurrency.xusd;
       case 30:
-        return CryptoCurrency.zaddr;
+        return CryptoCurrency.ape;
       case 31:
+        return CryptoCurrency.avaxc;
+      case 32:
+        return CryptoCurrency.btt;
+      case 33:
+        return CryptoCurrency.bttbsc;
+      case 34:
+        return CryptoCurrency.doge;
+      case 35:
+        return CryptoCurrency.firo;
+      case 36:
+        return CryptoCurrency.usdttrc20;
+      case 37:
+        return CryptoCurrency.hbar;
+      case 38:
+        return CryptoCurrency.sc;
+      case 39:
+        return CryptoCurrency.sol;
+      case 40:
+        return CryptoCurrency.usdc;
+      case 41:
+        return CryptoCurrency.usdcsol;
+      case 42:
+        return CryptoCurrency.zaddr;
+      case 43:
         return CryptoCurrency.zec;
+      case 44:
+        return CryptoCurrency.zen;
+      case 45:
+        return CryptoCurrency.xvg;
+      case 46:
+        return CryptoCurrency.usdcpoly;
+      case 47:
+        return CryptoCurrency.dcr;
+      case 48:
+        return CryptoCurrency.husd;
+      case 49:
+        return CryptoCurrency.kmd;
+      case 50:
+        return CryptoCurrency.mana;
+      case 51:
+        return CryptoCurrency.maticpoly;
+      case 52:
+        return CryptoCurrency.matic;
+      case 53:
+        return CryptoCurrency.mkr;
+      case 54:
+        return CryptoCurrency.near;
+      case 55:
+        return CryptoCurrency.oxt;
+      case 56:
+        return CryptoCurrency.paxg;
+      case 57:
+        return CryptoCurrency.pivx;
+      case 58:
+        return CryptoCurrency.rune;
+      case 59:
+        return CryptoCurrency.rvn;
+      case 60:
+        return CryptoCurrency.scrt;
+      case 61:
+        return CryptoCurrency.uni;
+      case 62:
+        return CryptoCurrency.stx;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for CryptoCurrency deserialize');
     }
   }
 
@@ -164,8 +298,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.nano;
       case 'trx':
         return CryptoCurrency.trx;
-      case 'usdt':
-        return CryptoCurrency.usdt;
+      case 'usdc':
+        return CryptoCurrency.usdc;
       case 'usdterc20':
         return CryptoCurrency.usdterc20;
       case 'xlm':
@@ -200,12 +334,74 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xnzd;
       case 'xusd':
         return CryptoCurrency.xusd;
+      case 'ape':
+        return CryptoCurrency.ape;
+      case 'avax':
+        return CryptoCurrency.avaxc;
+      case 'btt':
+        return CryptoCurrency.btt;
+      case 'bttbsc':
+        return CryptoCurrency.bttbsc;
+      case 'doge':
+        return CryptoCurrency.doge;
+      case 'firo':
+        return CryptoCurrency.firo;
+      case 'usdttrc20':
+        return CryptoCurrency.usdttrc20;
+      case 'hbar':
+        return CryptoCurrency.hbar;
+      case 'sc':
+        return CryptoCurrency.sc;
+      case 'sol':
+        return CryptoCurrency.sol;
+      case 'usdt':
+        return CryptoCurrency.usdt;
+      case 'usdcsol':
+        return CryptoCurrency.usdcsol;
       case 'zaddr':
         return CryptoCurrency.zaddr;
       case 'zec':
         return CryptoCurrency.zec;
+      case 'zen':
+        return CryptoCurrency.zen;
+      case 'xvg':
+        return CryptoCurrency.xvg;
+      case 'usdcpoly':
+        return CryptoCurrency.usdcpoly;
+      case 'dcr':
+        return CryptoCurrency.dcr;
+      case 'husd':
+        return CryptoCurrency.husd;
+      case 'kmd':
+        return CryptoCurrency.kmd;
+      case 'mana':
+        return CryptoCurrency.mana;
+      case 'maticpoly':
+        return CryptoCurrency.maticpoly;
+      case 'matic':
+        return CryptoCurrency.matic;
+      case 'mkr':
+        return CryptoCurrency.mkr;
+      case 'near':
+        return CryptoCurrency.near;
+      case 'oxt':
+        return CryptoCurrency.oxt;
+      case 'paxg':
+        return CryptoCurrency.paxg;
+      case 'pivx':
+        return CryptoCurrency.pivx;
+      case 'rune':
+        return CryptoCurrency.rune;
+      case 'rvn':
+        return CryptoCurrency.rvn;
+      case 'scrt':
+        return CryptoCurrency.scrt;
+      case 'uni':
+        return CryptoCurrency.uni;
+      case 'stx':
+        return CryptoCurrency.stx;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for CryptoCurrency fromString');
     }
   }
 

@@ -6,7 +6,7 @@ class IoniaGiftCardInstruction {
 
     factory IoniaGiftCardInstruction.fromJsonMap(Map<String, dynamic> element) {
         return IoniaGiftCardInstruction(
-            toBeginningOfSentenceCase(element['title'] as String ?? ''),
+            toBeginningOfSentenceCase(element['title'] as String? ?? '') ?? '',
             element['description'] as String);
     }
 

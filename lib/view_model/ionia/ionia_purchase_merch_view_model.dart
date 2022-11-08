@@ -14,19 +14,20 @@ class IoniaMerchPurchaseViewModel = IoniaMerchPurchaseViewModelBase with _$Ionia
 
 abstract class IoniaMerchPurchaseViewModelBase with Store {
   IoniaMerchPurchaseViewModelBase({
-    @required this.ioniaAnyPayService,
-    @required this.amount,
-    @required this.ioniaMerchant,
-  }) {
-    tipAmount = 0.0;
-    percentage = 0.0;
-    tips = <IoniaTip>[
-      IoniaTip(percentage: 0, originalAmount: amount),
-      IoniaTip(percentage: 15, originalAmount: amount),
-      IoniaTip(percentage: 18, originalAmount: amount),
-      IoniaTip(percentage: 20, originalAmount: amount),
-      IoniaTip(percentage: 0, originalAmount: amount, isCustom: true),
-    ];
+    required this.ioniaAnyPayService,
+    required this.amount,
+    required this.ioniaMerchant,
+  }) : tipAmount = 0.0,
+        percentage = 0.0,
+        invoiceCreationState = InitialExecutionState(),
+        invoiceCommittingState = InitialExecutionState(),
+        tips = <IoniaTip>[
+          IoniaTip(percentage: 0, originalAmount: amount),
+          IoniaTip(percentage: 15, originalAmount: amount),
+          IoniaTip(percentage: 18, originalAmount: amount),
+          IoniaTip(percentage: 20, originalAmount: amount),
+          IoniaTip(percentage: 0, originalAmount: amount, isCustom: true),
+        ] {
     selectedTip = tips.first;
   }
 
@@ -35,17 +36,17 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   List<IoniaTip> tips;
 
   @observable
-  IoniaTip selectedTip;
+  IoniaTip? selectedTip;
 
   final IoniaMerchant ioniaMerchant;
 
   final IoniaAnyPay ioniaAnyPayService;
 
-  IoniaAnyPayPaymentInfo paymentInfo;
+  IoniaAnyPayPaymentInfo? paymentInfo;
 
-  AnyPayPayment get invoice => paymentInfo?.anyPayPayment;
+  AnyPayPayment? get invoice => paymentInfo?.anyPayPayment;
 
-  AnyPayPaymentCommittedInfo committedInfo;
+  AnyPayPaymentCommittedInfo? committedInfo;
 
   @observable
   ExecutionState invoiceCreationState;
@@ -85,9 +86,13 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   @action
   Future<void> commitPaymentInvoice() async {
     try {
+      if (invoice == null) {
+        throw Exception('Invoice is created. Invoince is null');
+      }
+
       invoiceCommittingState = IsExecutingState();
-      committedInfo = await ioniaAnyPayService.commitInvoice(invoice);
-      invoiceCommittingState = ExecutedSuccessfullyState(payload: committedInfo);
+      committedInfo = await ioniaAnyPayService.commitInvoice(invoice!);
+      invoiceCommittingState = ExecutedSuccessfullyState(payload: committedInfo!);
     } catch (e) {
       invoiceCommittingState = FailureState(e.toString());
     }

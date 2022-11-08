@@ -55,7 +55,7 @@ WalletType deserializeFromInt(int raw) {
     case 3:
       return WalletType.haven;
     default:
-      return null;
+      throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
 }
 
@@ -100,6 +100,6 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
     case WalletType.haven:
       return CryptoCurrency.xhv;
     default:
-      return null;
+      throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
 }

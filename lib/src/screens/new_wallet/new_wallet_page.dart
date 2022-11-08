@@ -49,16 +49,18 @@ class WalletNameForm extends StatefulWidget {
 }
 
 class _WalletNameFormState extends State<WalletNameForm> {
-  _WalletNameFormState(this._walletNewVM);
+  _WalletNameFormState(this._walletNewVM)
+    : _formKey = GlobalKey<FormState>(),
+      _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
+      _controller = TextEditingController();
 
   static const aspectRatioImage = 1.22;
 
-  final _formKey = GlobalKey<FormState>();
-  final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
-  ReactionDisposer _stateReaction;
+  final GlobalKey<FormState> _formKey;
+  final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
   final WalletNewVM _walletNewVM;
-
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller;
+  ReactionDisposer? _stateReaction;
 
   @override
   void initState() {
@@ -116,29 +118,29 @@ class _WalletNameFormState extends State<WalletNameForm> {
                           fontSize: 20.0,
                           fontWeight: FontWeight.w600,
                           color:
-                              Theme.of(context).primaryTextTheme.title.color),
+                              Theme.of(context).primaryTextTheme!.headline6!.color!),
                       decoration: InputDecoration(
                         hintStyle: TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context)
-                                .accentTextTheme
-                                .display3
-                                .color),
+                                .accentTextTheme!
+                                .headline2!
+                                .color!),
                         hintText: S.of(context).wallet_name,
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                                 color: Theme.of(context)
-                                    .accentTextTheme
-                                    .display3
-                                    .decorationColor,
+                                    .accentTextTheme!
+                                    .headline2!
+                                    .decorationColor!,
                                 width: 1.0)),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Theme.of(context)
-                                  .accentTextTheme
-                                  .display3
-                                  .decorationColor,
+                                  .accentTextTheme!
+                                  .headline2!
+                                  .decorationColor!,
                               width: 1.0),
                         ),
                         suffixIcon: IconButton(
@@ -164,9 +166,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             child: Image.asset(
                               'assets/images/refresh_icon.png',
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .display1
-                                  .decorationColor,
+                                  .primaryTextTheme!
+                                  .headline4!
+                                  .decorationColor!,
                             ),
                           ),
                         ),
@@ -186,7 +188,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   style: TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme.title.color),
+                      color: Theme.of(context).primaryTextTheme!.headline6!.color!),
                 ),
               ),
               Padding(
@@ -215,7 +217,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
   }
 
   void _confirmForm() {
-    if (!_formKey.currentState.validate()) {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
       return;
     }
     if (_walletNewVM.nameExists(_walletNewVM.name)) {
@@ -231,7 +233,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
     } else {
       _walletNewVM.create(
           options: _walletNewVM.hasLanguageSelector
-              ? _languageSelectorKey.currentState.selected
+              ? _languageSelectorKey.currentState!.selected
               : null);
     }
   }

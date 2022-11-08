@@ -14,15 +14,13 @@ import 'package:cw_core/wallet_type.dart';
 
 class WalletCreationService {
   WalletCreationService(
-      {WalletType initialType,
-      this.secureStorage,
-      this.keyService,
-      this.sharedPreferences,
-      this.walletInfoSource})
+      {required WalletType initialType,
+      required this.secureStorage,
+      required this.keyService,
+      required this.sharedPreferences,
+      required this.walletInfoSource})
       : type = initialType {
-    if (type != null) {
-      changeWalletType(type: type);
-    }
+    changeWalletType(type: type);
   }
 
   WalletType type;
@@ -30,11 +28,11 @@ class WalletCreationService {
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
   final Box<WalletInfo> walletInfoSource;
-  WalletService _service;
+  WalletService? _service;
 
   static const _isNewMoneroWalletPasswordUpdated = true;
 
-  void changeWalletType({@required WalletType type}) {
+  void changeWalletType({required WalletType type}) {
     this.type = type;
     _service = getIt.get<WalletService>(param1: type);
   }
@@ -64,7 +62,7 @@ class WalletCreationService {
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    final wallet =  await _service.create(credentials);
+    final wallet =  await _service!.create(credentials);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences
@@ -82,7 +80,7 @@ class WalletCreationService {
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    final wallet = await _service.restoreFromKeys(credentials);
+    final wallet = await _service!.restoreFromKeys(credentials);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences
@@ -100,7 +98,7 @@ class WalletCreationService {
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    final wallet = await _service.restoreFromSeed(credentials);
+    final wallet = await _service!.restoreFromSeed(credentials);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences

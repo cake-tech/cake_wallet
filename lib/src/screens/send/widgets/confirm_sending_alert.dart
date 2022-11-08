@@ -7,18 +7,18 @@ import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 
 class ConfirmSendingAlert extends BaseAlertDialog {
   ConfirmSendingAlert({
-    @required this.alertTitle,
-    @required this.amount,
-    @required this.amountValue,
-    @required this.fiatAmountValue,
-    @required this.fee,
-    @required this.feeValue,
-    @required this.feeFiatAmount,
-    @required this.outputs,
-    @required this.leftButtonText,
-    @required this.rightButtonText,
-    @required this.actionLeftButton,
-    @required this.actionRightButton,
+    required this.alertTitle,
+    required this.amount,
+    required this.amountValue,
+    required this.fiatAmountValue,
+    required this.fee,
+    required this.feeValue,
+    required this.feeFiatAmount,
+    required this.outputs,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
     this.alertBarrierDismissible = true});
 
   final String alertTitle;
@@ -70,13 +70,13 @@ class ConfirmSendingAlert extends BaseAlertDialog {
 
 class ConfirmSendingAlertContent extends StatefulWidget {
   ConfirmSendingAlertContent({
-    @required this.amount,
-    @required this.amountValue,
-    @required this.fiatAmountValue,
-    @required this.fee,
-    @required this.feeValue,
-    @required this.feeFiatAmount,
-    @required this.outputs});
+    required this.amount,
+    required this.amountValue,
+    required this.fiatAmountValue,
+    required this.fee,
+    required this.feeValue,
+    required this.feeFiatAmount,
+    required this.outputs});
 
   final String amount;
   final String amountValue;
@@ -100,14 +100,15 @@ class ConfirmSendingAlertContent extends StatefulWidget {
 
 class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> {
   ConfirmSendingAlertContentState({
-    @required this.amount,
-    @required this.amountValue,
-    @required this.fiatAmountValue,
-    @required this.fee,
-    @required this.feeValue,
-    @required this.feeFiatAmount,
-    @required this.outputs}) {
-
+    required this.amount,
+    required this.amountValue,
+    required this.fiatAmountValue,
+    required this.fee,
+    required this.feeValue,
+    required this.feeFiatAmount,
+    required this.outputs})
+      : itemCount = 0,
+        recipientTitle = '' {
     itemCount = outputs.length;
     recipientTitle = itemCount > 1
         ? S.current.transaction_details_recipient_address
@@ -161,9 +162,9 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                             fontWeight: FontWeight.normal,
                             fontFamily: 'Lato',
                             color: Theme.of(context)
-                                .primaryTextTheme
-                                .title
-                                .color,
+                                .primaryTextTheme!
+                                .headline6!
+                                .color!,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -177,8 +178,8 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Lato',
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
+                                    .primaryTextTheme!
+                                    .headline6!
                                     .color,
                                 decoration: TextDecoration.none,
                               ),
@@ -210,10 +211,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color,
+                                color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -226,10 +224,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .title
-                                        .color,
+                                    color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -259,9 +254,9 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               fontWeight: FontWeight.normal,
                               fontFamily: 'Lato',
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .title
-                                  .color,
+                                  .primaryTextTheme!
+                                  .headline6!
+                                  .color!,
                               decoration: TextDecoration.none,
                             ),
                           ),

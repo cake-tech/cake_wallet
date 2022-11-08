@@ -5,7 +5,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:connectivity/connectivity.dart';
 
-Timer _checkConnectionTimer;
+Timer? _checkConnectionTimer;
 
 void startCheckConnectionReaction(
     WalletBase wallet, SettingsStore settingsStore,

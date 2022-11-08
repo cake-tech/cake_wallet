@@ -23,7 +23,7 @@ class IoniaActivateDebitCardPage extends BasePage {
     return Text(
       S.current.debit_card,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -76,7 +76,7 @@ class IoniaActivateDebitCardPage extends BasePage {
         },
         isLoading: _cardsListViewModel.createCardState is IoniaCreateCardLoading,
         text: S.of(context).agree_and_continue,
-        color: Theme.of(context).accentTextTheme.body2.color,
+        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
         textColor: Colors.white,
       ),
     );

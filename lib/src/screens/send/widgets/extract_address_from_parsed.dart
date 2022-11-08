@@ -46,7 +46,7 @@ Future<String> extractAddressFromParsed(
 
       content += S.of(context).choose_address;
 
-      address = await showPopUp<String>(
+      address = await showPopUp<String?>(
           context: context,
           builder: (BuildContext context) {
 
@@ -56,9 +56,9 @@ Future<String> extractAddressFromParsed(
                 alertContent: content,
                 addresses: parsedAddress.addresses),
               onWillPop: () async => false);
-          });
+          }) ?? '';
 
-      if (address?.isEmpty ?? true) {
+      if (address.isEmpty) {
         return parsedAddress.name;
       }
 

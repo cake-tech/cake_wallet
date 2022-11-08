@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SettingsVersionCell extends StatelessWidget {
-  SettingsVersionCell({@required this.title});
+  SettingsVersionCell({required this.title});
 
   final String title;
 
@@ -18,7 +18,7 @@ class SettingsVersionCell extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
-                color: Theme.of(context).primaryTextTheme.overline.color
+                color: Theme.of(context).primaryTextTheme!.overline!.color!
             ),
           )
         ],

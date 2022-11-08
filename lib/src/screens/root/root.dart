@@ -8,11 +8,11 @@ import 'package:cake_wallet/entities/qr_scanner.dart';
 
 class Root extends StatefulWidget {
   Root(
-      {Key key,
-      this.authenticationStore,
-      this.appStore,
-      this.child,
-      this.navigatorKey})
+      {required Key key,
+      required this.authenticationStore,
+      required this.appStore,
+      required this.child,
+      required this.navigatorKey})
       : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -25,6 +25,11 @@ class Root extends StatefulWidget {
 }
 
 class RootState extends State<Root> with WidgetsBindingObserver {
+  RootState()
+    : _isInactiveController = StreamController<bool>.broadcast(),
+    _isInactive = false,
+    _postFrameCallback = false;
+
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
   bool _isInactive;
@@ -63,7 +68,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     if (_isInactive && !_postFrameCallback) {
       _postFrameCallback = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.navigatorKey.currentState.pushNamed(Routes.unlock,
+        widget.navigatorKey.currentState?.pushNamed(Routes.unlock,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
           if (!isAuthenticatedSuccessfully) {
             return;

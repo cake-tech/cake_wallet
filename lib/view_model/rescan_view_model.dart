@@ -8,20 +8,20 @@ class RescanViewModel = RescanViewModelBase with _$RescanViewModel;
 enum RescanWalletState { rescaning, none }
 
 abstract class RescanViewModelBase with Store {
-  RescanViewModelBase(this._wallet) {
-    state = RescanWalletState.none;
-    isButtonEnabled = false;
-  }
+  RescanViewModelBase(this._wallet)
+    : state = RescanWalletState.none,
+      isButtonEnabled = false;
+
+  final WalletBase _wallet;
 
   @observable
   RescanWalletState state;
-  final WalletBase _wallet;
 
   @observable
   bool isButtonEnabled;
 
   @action
-  Future<void> rescanCurrentWallet({int restoreHeight}) async {
+  Future<void> rescanCurrentWallet({required int restoreHeight}) async {
     state = RescanWalletState.rescaning;
     await _wallet.rescan(height: restoreHeight);
     state = RescanWalletState.none;

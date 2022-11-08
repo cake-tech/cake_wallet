@@ -20,7 +20,15 @@ abstract class NodeListViewModelBase with Store {
   }
 
   @computed
-  Node get currentNode => settingsStore.nodes[wallet.type];
+  Node get currentNode {
+    final node = settingsStore.nodes[wallet.type];
+
+    if (node == null) {
+      throw Exception('No node for wallet type: ${wallet.type}');
+    }
+
+    return node;
+  }
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
@@ -34,16 +42,19 @@ abstract class NodeListViewModelBase with Store {
 
     switch (wallet.type) {
       case WalletType.bitcoin:
-        node = getBitcoinDefaultElectrumServer(nodes: _nodeSource);
+        node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
         break;
       case WalletType.monero:
         node = getMoneroDefaultNode(nodes: _nodeSource);
         break;
       case WalletType.litecoin:
-        node = getLitecoinDefaultElectrumServer(nodes: _nodeSource);
+        node = getLitecoinDefaultElectrumServer(nodes: _nodeSource)!;
+        break;
+      case WalletType.haven:
+        node = getHavenDefaultNode(nodes: _nodeSource)!;
         break;
       default:
-        break;
+        throw Exception('Unexpected wallet type: ${wallet.type}');
     }
 
     await setAsCurrent(node);

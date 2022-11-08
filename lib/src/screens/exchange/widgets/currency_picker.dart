@@ -6,13 +6,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
+import 'package:cake_wallet/palette.dart';
 import 'currency_picker_widget.dart';
 
 class CurrencyPicker extends StatefulWidget {
   CurrencyPicker(
-      {@required this.selectedAtIndex,
-      @required this.items,
-      @required this.onItemSelected,
+      {required this.selectedAtIndex,
+      required this.items,
+      required this.onItemSelected,
       this.title,
       this.hintText,
       this.isMoneroWallet = false,
@@ -20,11 +21,11 @@ class CurrencyPicker extends StatefulWidget {
 
   int selectedAtIndex;
   final List<CryptoCurrency> items;
-  final String title;
+  final String? title;
   final Function(CryptoCurrency) onItemSelected;
   final bool isMoneroWallet;
   final bool isConvertFrom;
-  final String hintText;
+  final String? hintText;
 
   @override
   CurrencyPickerState createState() => CurrencyPickerState(items);
@@ -36,9 +37,8 @@ class CurrencyPickerState extends State<CurrencyPicker> {
         textFieldValue = '',
         subPickerItemsList = items,
         appBarTextStyle =
-        TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white);
-
-
+          TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white),
+        pickerItemsList = <PickerItem<CryptoCurrency>>[];
 
   List<PickerItem<CryptoCurrency>> pickerItemsList;
   List<CryptoCurrency> items;
@@ -55,8 +55,8 @@ class CurrencyPickerState extends State<CurrencyPicker> {
         subPickerItemsList = items
             .where((element) =>
         (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
-            (element.tag != null ? element.tag.toLowerCase().contains(subString.toLowerCase()) : false) ||
-            (element.name != null ? element.name.toLowerCase().contains(subString.toLowerCase()) : false))
+            (element.tag != null ? element.tag!.toLowerCase().contains(subString.toLowerCase()) : false) ||
+            (element.name != null ? element.name!.toLowerCase().contains(subString.toLowerCase()) : false))
             .toList();
         return;
       }
@@ -77,7 +77,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
-                    widget.title,
+                    widget.title!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -93,7 +93,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
-                    color: Theme.of(context).accentTextTheme.title.color,
+                    color: Theme.of(context).accentTextTheme!.headline6!.color!,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height * 0.65,
@@ -105,7 +105,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             Padding(
                               padding: const EdgeInsets.all(16),
                               child: TextFormField(
-                                style: TextStyle(color: Theme.of(context).primaryTextTheme.title.color),
+                                style: TextStyle(color: Palette.darkBlueCraiola),
                                 decoration: InputDecoration(
                                   hintText: widget.hintText,
                                   prefixIcon: Image.asset("assets/images/search_icon.png"),
@@ -132,7 +132,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                               ),
                             ),
                           Divider(
-                            color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                            color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
                             height: 1,
                           ),
                           if (widget.selectedAtIndex != -1)

@@ -8,7 +8,7 @@ String addressFromOutput(Uint8List script, bitcoin.NetworkType networkType) {
         data: PaymentData(output: script),
         network: networkType)
       .data
-      .address;
+      .address!;
   } catch (_) {}
 
   try {
@@ -16,8 +16,8 @@ String addressFromOutput(Uint8List script, bitcoin.NetworkType networkType) {
         data: PaymentData(output: script),
         network: networkType)
       .data
-      .address;
+      .address!;
   } catch(_) {}
 
-  return null;
+  return '';
 }

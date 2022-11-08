@@ -6,9 +6,13 @@ import 'package:cw_core/keyable.dart';
 void connectMapToListWithTransform<T extends Keyable, Y extends Keyable>(
     ObservableMap<dynamic, T> source,
     ObservableList<Y> dest,
-    Y Function(T) transform,
-    {bool Function(T) filter}) {
+    Y Function(T?) transform,
+    {bool Function(T?)? filter}) {
   source.observe((MapChange<dynamic, T> change) {
+    if (change.type == null) {
+      return;
+    }
+    
     switch (change.type) {
       case OperationType.add:
         if (filter?.call(change.newValue) ?? true) {
@@ -18,7 +22,7 @@ void connectMapToListWithTransform<T extends Keyable, Y extends Keyable>(
       case OperationType.remove:
         // Hive could has equal index and key
         dest.removeWhere((elem) =>
-            elem.keyIndex == (change.key ?? change.newValue.keyIndex));
+            elem.keyIndex == (change.key ?? change.newValue?.keyIndex));
         break;
       case OperationType.update:
         for (var i = 0; i < dest.length; i++) {
@@ -28,6 +32,8 @@ void connectMapToListWithTransform<T extends Keyable, Y extends Keyable>(
             dest[i] = transform(change.newValue);
           }
         }
+        break;
+      default:
         break;
     }
   });
@@ -51,7 +57,7 @@ extension MobxBindable<T extends Keyable> on Box<T> {
   StreamSubscription<BoxEvent> bindToList(
     ObservableList<T> dest, {
     bool initialFire = false,
-    Filter<T> filter,
+    Filter<T>? filter,
   }) {
     if (initialFire) {
       final res = filter != null ? values.where(filter) : values;
@@ -71,7 +77,7 @@ extension MobxBindable<T extends Keyable> on Box<T> {
     ObservableList<Y> dest,
     Transform<T, Y> transform, {
     bool initialFire = false,
-    Filter<T> filter,
+    Filter<T>? filter,
   }) {
     if (initialFire) {
       dest.addAll(values.map((value) => transform(value)));
@@ -94,7 +100,7 @@ extension HiveBindable<T extends Keyable> on ObservableList<T> {
     final controller = StreamController<EntityChange<T>>();
 
     observe((ListChange<T> change) {
-      change.elementChanges.forEach((change) {
+      change.elementChanges?.forEach((change) {
         ChangeType type;
 
         switch (change.type) {
@@ -121,7 +127,7 @@ extension HiveBindable<T extends Keyable> on ObservableList<T> {
   StreamSubscription<EntityChange<T>> bindToList(ObservableList<T> dest) =>
       listen().listen((event) => dest.acceptEntityChange(event));
 
-  void acceptBoxChange(BoxEvent event, {T transformed}) {
+  void acceptBoxChange(BoxEvent event, {T? transformed}) {
     if (event.deleted) {
       removeWhere((el) {
         return el.keyIndex == event.key;

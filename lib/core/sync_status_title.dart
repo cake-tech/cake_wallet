@@ -33,4 +33,6 @@ String syncStatusTitle(SyncStatus syncStatus) {
   if (syncStatus is LostConnectionSyncStatus) {
     return S.current.sync_status_failed_connect;
   }
+
+  return '';
 }

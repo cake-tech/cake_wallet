@@ -634,7 +634,7 @@
   "contact_support": "Contatta l'assistenza",
   "gift_cards_unavailable": "Le carte regalo sono disponibili per l'acquisto solo tramite Monero, Bitcoin e Litecoin in questo momento",
   "introducing_cake_pay":  "Presentazione di Cake Pay!",
-  "cake_pay_learn_more": "Acquista e riscatta istantaneamente le carte nell'app!\nScorri verso destra per saperne di più!",
+  "cake_pay_learn_more": "Acquista e riscatta istantaneamente carte regalo nell'app!\nScorri da sinistra a destra per saperne di più.",
   "automatic": "Automatico",
   "fixed_pair_not_supported": "Questa coppia fissa non è supportata con gli scambi selezionati",
   "variable_pair_not_supported": "Questa coppia di variabili non è supportata con gli scambi selezionati",
@@ -643,5 +643,13 @@
   "choose_from_available_options": "Scegli tra le opzioni disponibili:",
   "custom_redeem_amount": "Importo di riscatto personalizzato",
   "add_custom_redemption": "Aggiungi riscatto personalizzato",
-  "remaining": "rimanente"
+  "remaining": "rimanente",
+  "delete_wallet": "Elimina portafoglio",
+  "delete_wallet_confirm_message" : "Sei sicuro di voler eliminare il portafoglio ${wallet_name}?",
+  "low_fee": "Tariffa bassa",
+  "low_fee_alert": "Attualmente stai utilizzando una priorità a tariffa di rete bassa. Ciò potrebbe causare lunghe attese, tariffe diverse o operazioni annullate. Ti consigliamo di impostare una tariffa più alta per un'esperienza migliore.",
+  "ignor": "Ignorare",
+  "use_suggested": "Usa suggerito",
+  "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nTi ruberanno i soldi!",
+  "help": "aiuto"
 }

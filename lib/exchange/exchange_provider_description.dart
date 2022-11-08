@@ -2,7 +2,11 @@ import 'package:cw_core/enumerable_item.dart';
 
 class ExchangeProviderDescription extends EnumerableItem<int>
     with Serializable<int> {
-  const ExchangeProviderDescription({String title, int raw, this.horizontalLogo = false, this.image})
+  const ExchangeProviderDescription({
+    required String title,
+    required int raw,
+    required this.image,
+    this.horizontalLogo = false})
       : super(title: title, raw: raw);
 
   final bool horizontalLogo;
@@ -20,7 +24,7 @@ class ExchangeProviderDescription extends EnumerableItem<int>
   static const simpleSwap =
       ExchangeProviderDescription(title: 'SimpleSwap', raw: 4, image: 'assets/images/simpleSwap.png');
 
-  static ExchangeProviderDescription deserialize({int raw}) {
+  static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return xmrto;
@@ -33,7 +37,7 @@ class ExchangeProviderDescription extends EnumerableItem<int>
       case 4:
         return simpleSwap;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }
   }
 }

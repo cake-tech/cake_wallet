@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class StandartSwitch extends StatefulWidget {
-  const StandartSwitch({@required this.value, @required this.onTaped});
+  const StandartSwitch({required this.value, required this.onTaped});
 
   final bool value;
   final VoidCallback onTaped;
@@ -24,8 +24,8 @@ class StandartSwitchState extends State<StandartSwitch> {
         height: 28,
         decoration: BoxDecoration(
             color: widget.value
-                ? Theme.of(context).accentTextTheme.body2.color
-                : Theme.of(context).accentTextTheme.display4.color,
+                ? Theme.of(context).accentTextTheme!.bodyText1!.color!
+                : Theme.of(context).accentTextTheme!.headline1!.color!,
             borderRadius: BorderRadius.all(Radius.circular(14.0))),
         child: Container(
           width: 24.0,
