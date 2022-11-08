@@ -1,5 +1,5 @@
 class WalletRestoreFromSeedException implements Exception {
-  WalletRestoreFromSeedException({this.message});
+  WalletRestoreFromSeedException({required this.message});
   
   final String message;
 }

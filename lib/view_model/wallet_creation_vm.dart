@@ -17,10 +17,9 @@ class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
   WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
-      {@required this.type, @required this.isRecovery}) {
-    state = InitialExecutionState();
-    name = '';
-  }
+      {required this.type, required this.isRecovery})
+      : state = InitialExecutionState(),
+        name = '';
 
   @observable
   String name;
@@ -43,7 +42,7 @@ abstract class WalletCreationVMBase with Store {
   Future<void> create({dynamic options}) async {
     try {
       state = IsExecutingState();
-      if (name?.isEmpty ?? true) {
+      if (name.isEmpty) {
             name = await generateName();
       }
 
@@ -60,6 +59,7 @@ abstract class WalletCreationVMBase with Store {
           date: DateTime.now(),
           path: path,
           dirPath: dirPath,
+          address: '',
           showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
       credentials.walletInfo = walletInfo;
       final wallet = await process(credentials);

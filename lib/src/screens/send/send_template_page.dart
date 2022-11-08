@@ -16,7 +16,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/send/widgets/prefix_currency_icon_widget.dart';
 
 class SendTemplatePage extends BasePage {
-  SendTemplatePage({@required this.sendTemplateViewModel}) {
+  SendTemplatePage({required this.sendTemplateViewModel}) {
     sendTemplateViewModel.output.reset();
   }
 
@@ -51,7 +51,7 @@ class SendTemplatePage extends BasePage {
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor:
-                Theme.of(context).accentTextTheme.body2.backgroundColor,
+                Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -75,8 +75,8 @@ class SendTemplatePage extends BasePage {
                   bottomRight: Radius.circular(24),
                 ),
                 gradient: LinearGradient(colors: [
-                  Theme.of(context).primaryTextTheme.subhead.color,
-                  Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                  Theme.of(context).primaryTextTheme!.subtitle1!.color!,
+                  Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
                 ], begin: Alignment.topLeft, end: Alignment.bottomRight),
               ),
               child: Form(
@@ -91,18 +91,18 @@ class SendTemplatePage extends BasePage {
                             controller: _nameController,
                             hintText: S.of(context).send_name,
                             borderColor: Theme.of(context)
-                                .primaryTextTheme
-                                .headline
-                                .color,
+                                .primaryTextTheme!
+                                .headline5!
+                                .color!,
                             textStyle: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white),
                             placeholderTextStyle: TextStyle(
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .decorationColor,
+                                    .primaryTextTheme!
+                                    .headline5!
+                                    .decorationColor!,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14),
                             validator: sendTemplateViewModel.templateValidator,
@@ -122,13 +122,13 @@ class SendTemplatePage extends BasePage {
                                 AddressTextFieldOption.addressBook
                               ],
                               buttonColor: Theme.of(context)
-                                  .primaryTextTheme
-                                  .display1
-                                  .color,
+                                  .primaryTextTheme!
+                                  .headline4!
+                                  .color!,
                               borderColor: Theme.of(context)
-                                  .primaryTextTheme
-                                  .headline
-                                  .color,
+                                  .primaryTextTheme!
+                                  .headline5!
+                                  .color!,
                               textStyle: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -137,9 +137,9 @@ class SendTemplatePage extends BasePage {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .headline
-                                      .decorationColor),
+                                      .primaryTextTheme!
+                                      .headline5!
+                                      .decorationColor!),
                             ),
                           ),
                           Padding(
@@ -169,18 +169,18 @@ class SendTemplatePage extends BasePage {
                                       )),
                                   hintText: '0.0000',
                                   borderColor: Theme.of(context)
-                                      .primaryTextTheme
-                                      .headline
-                                      .color,
+                                      .primaryTextTheme!
+                                      .headline5!
+                                      .color!,
                                   textStyle: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.white),
                                   placeholderTextStyle: TextStyle(
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline
-                                          .decorationColor,
+                                          .primaryTextTheme!
+                                          .headline5!
+                                          .decorationColor!,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14),
                                   validator:
@@ -211,18 +211,18 @@ class SendTemplatePage extends BasePage {
                                     )),
                                 hintText: '0.00',
                                 borderColor: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .color,
+                                    .primaryTextTheme!
+                                    .headline5!
+                                    .color!,
                                 textStyle: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.white),
                                 placeholderTextStyle: TextStyle(
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headline
-                                        .decorationColor,
+                                        .primaryTextTheme!
+                                        .headline5!
+                                        .decorationColor!,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 14),
                               ))),
@@ -237,7 +237,7 @@ class SendTemplatePage extends BasePage {
                 EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: PrimaryButton(
               onPressed: () {
-                if (_formKey.currentState.validate()) {
+                if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                   sendTemplateViewModel.addTemplate(
                       isCurrencySelected: sendTemplateViewModel.isCurrencySelected,
                       name: _nameController.text,

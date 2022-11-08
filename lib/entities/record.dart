@@ -27,7 +27,7 @@ abstract class Record<T extends HiveObject> with Keyable {
 
   final Box<T> _source;
 
-  StreamSubscription<BoxEvent> _listener;
+  StreamSubscription<BoxEvent>? _listener;
 
   void fromBind(T original);
 

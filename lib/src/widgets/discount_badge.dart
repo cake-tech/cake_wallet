@@ -3,15 +3,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class DiscountBadge extends StatelessWidget {
   const DiscountBadge({
-    Key key,
-    this.isAmount = false,
-    @required this.percentage,
+    Key? key,
+    required this.percentage,
     this.discountBackground,
+    this.isAmount = false,
   }) : super(key: key);
 
   final double percentage;
   final bool isAmount;
-  final AssetImage discountBackground;
+  final AssetImage? discountBackground;
 
   @override
   Widget build(BuildContext context) {

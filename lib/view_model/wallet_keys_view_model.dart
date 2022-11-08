@@ -17,25 +17,33 @@ abstract class WalletKeysViewModelBase with Store {
             : S.current.wallet_keys,
         items = ObservableList<StandartListItem>() {
     if (wallet.type == WalletType.monero) {
-      final keys = monero.getKeys(wallet);
+      final keys = monero!.getKeys(wallet);
 
       items.addAll([
-        StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']),
-        StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']),
-        StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']),
-        StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']),
+        if (keys['publicSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
+        if (keys['privateSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
+        if (keys['publicViewKey'] != null)
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
+        if (keys['privateViewKey'] != null)
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
         StandartListItem(title: S.current.wallet_seed, value: wallet.seed),
       ]);
     }
 
     if (wallet.type == WalletType.haven) {
-      final keys = haven.getKeys(wallet);
+      final keys = haven!.getKeys(wallet);
 
       items.addAll([
-        StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']),
-        StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']),
-        StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']),
-        StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']),
+        if (keys['publicSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
+        if (keys['privateSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
+        if (keys['publicViewKey'] != null)
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
+        if (keys['privateViewKey'] != null)
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
         StandartListItem(title: S.current.wallet_seed, value: wallet.seed),
       ]);
     }

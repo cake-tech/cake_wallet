@@ -6,7 +6,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -14,7 +14,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 
 class WalletSeedPage extends BasePage {
-  WalletSeedPage(this.walletSeedViewModel, {@required this.isNewWalletCreated});
+  WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
   final imageLight = Image.asset('assets/images/crypto_lock_light.png');
   final imageDark = Image.asset('assets/images/crypto_lock.png');
@@ -52,7 +52,7 @@ class WalletSeedPage extends BasePage {
   }
 
   @override
-  Widget leading(BuildContext context) =>
+  Widget? leading(BuildContext context) =>
       isNewWalletCreated ? Offstage() : super.leading(context);
 
   @override
@@ -67,7 +67,7 @@ class WalletSeedPage extends BasePage {
               margin: EdgeInsets.only(left: 10),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(16)),
-                  color: Theme.of(context).accentTextTheme.caption.color),
+                  color: Theme.of(context).accentTextTheme!.caption!.color!),
               child: Text(
                 S.of(context).seed_language_next,
                 style: TextStyle(
@@ -110,9 +110,9 @@ class WalletSeedPage extends BasePage {
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
                                   color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .title
-                                      .color),
+                                      .primaryTextTheme!
+                                      .headline6!
+                                      .color!),
                             ),
                             Padding(
                               padding:
@@ -124,9 +124,9 @@ class WalletSeedPage extends BasePage {
                                     fontSize: 14,
                                     fontWeight: FontWeight.normal,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .caption
-                                        .color),
+                                        .primaryTextTheme!
+                                        .caption!
+                                        .color!),
                               ),
                             )
                           ],
@@ -146,9 +146,9 @@ class WalletSeedPage extends BasePage {
                                       fontSize: 12,
                                       fontWeight: FontWeight.normal,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .overline
-                                          .color),
+                                          .primaryTextTheme!
+                                          .overline!
+                                          .color!),
                                 ),
                               )
                             : Offstage(),
@@ -159,10 +159,8 @@ class WalletSeedPage extends BasePage {
                                 child: Container(
                               padding: EdgeInsets.only(right: 8.0),
                               child: PrimaryButton(
-                                  onPressed: () => Share.text(
-                                      S.of(context).seed_share,
-                                      walletSeedViewModel.seed,
-                                      'text/plain'),
+                                  onPressed: () =>
+                                    Share.share(walletSeedViewModel.seed),
                                   text: S.of(context).save,
                                   color: Colors.green,
                                   textColor: Colors.white),
@@ -180,9 +178,9 @@ class WalletSeedPage extends BasePage {
                                       },
                                       text: S.of(context).copy,
                                       color: Theme.of(context)
-                                          .accentTextTheme
-                                          .body2
-                                          .color,
+                                          .accentTextTheme!
+                                          .bodyText2!
+                                          .color!,
                                       textColor: Colors.white)),
                             ))
                           ],

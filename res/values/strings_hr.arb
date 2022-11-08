@@ -634,7 +634,7 @@
   "contact_support": "Kontaktirajte podršku",
   "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina",
   "introducing_cake_pay":  "Predstavljamo Cake Pay!",
-  "cake_pay_learn_more": "Odmah kupite i iskoristite kartice u aplikaciji!\nPrijeđite prstom udesno da biste saznali više!",
+  "cake_pay_learn_more": "Azonnal vásárolhat és válthat be ajándékutalványokat az alkalmazásban!\nTovábbi információért csúsztassa balról jobbra az ujját.",
   "automatic": "Automatski",
   "fixed_pair_not_supported": "Ovaj fiksni par nije podržan s odabranim burzama",
   "variable_pair_not_supported": "Ovaj par varijabli nije podržan s odabranim burzama",
@@ -643,5 +643,13 @@
   "choose_from_available_options": "Odaberite neku od dostupnih opcija:",
   "custom_redeem_amount": "Prilagođeni iznos otkupa",
   "add_custom_redemption": "Dodaj prilagođeni otkup",
-  "remaining": "preostalo"
+  "remaining": "preostalo",
+  "delete_wallet": "Izbriši novčanik",
+  "delete_wallet_confirm_message" : "Jeste li sigurni da želite izbrisati ${wallet_name} novčanik?",
+  "low_fee": "Niska naknada",
+  "low_fee_alert": "Trenutačno koristite niski prioritet mrežne naknade. To bi moglo uzrokovati duga čekanja, različite tečajeve ili otkazane trgovine. Preporučujemo postavljanje veće naknade za bolje iskustvo.",
+  "ignor": "Zanemariti",
+  "use_suggested": "Koristite predloženo",
+  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
+  "help": "pomozite"
 }
