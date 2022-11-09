@@ -10,8 +10,8 @@ import 'package:mobx/mobx.dart';
 
 class NodeForm extends StatelessWidget {
   NodeForm({
-    @required this.nodeViewModel,
-    @required this.formKey,
+    required this.nodeViewModel,
+    required this.formKey,
   })  : _addressController = TextEditingController(),
         _portController = TextEditingController(),
         _loginController = TextEditingController(),

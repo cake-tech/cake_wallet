@@ -9,13 +9,13 @@ class PrivacySettingsViewModel = PrivacySettingsViewModelBase
     with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
-  PrivacySettingsViewModelBase(this.type) {
-    _disableFiat = false;
-    _disableExchange = false;
-    _addCustomNode = false;
-
+  PrivacySettingsViewModelBase(this.type)
+      : _disableFiat = false,
+        _disableExchange = false,
+        _addCustomNode = false {
     settings = [
       SwitcherListItem(
+        // TODO: replace when Disable Fiat PR is merged
         title: "Disable Fiat API",
         // title: S.current.disable_fiat,
         value: () => _disableFiat,
@@ -36,16 +36,16 @@ abstract class PrivacySettingsViewModelBase with Store {
     ];
   }
 
-  List<SwitcherListItem> settings;
+  late List<SwitcherListItem> settings;
 
   @observable
-  bool _disableFiat;
+  bool _disableFiat = false;
 
   @observable
-  bool _disableExchange;
+  bool _disableExchange = false;
 
   @observable
-  bool _addCustomNode;
+  bool _addCustomNode = false;
 
   final WalletType type;
 

@@ -478,8 +478,9 @@ Future setup(
 
   getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
 
-  getIt.registerFactory(() =>
-      NodeCreateOrEditViewModel(_nodeSource, getIt.get<AppStore>().wallet!));
+  getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, void>(
+      (WalletType? type, _) =>
+      NodeCreateOrEditViewModel(_nodeSource, type ?? getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));

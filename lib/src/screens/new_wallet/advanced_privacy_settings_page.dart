@@ -4,7 +4,6 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/privacy_settings_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -25,7 +24,7 @@ class AdvancedPrivacySettingsPage extends BasePage {
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
-  const AdvancedPrivacySettingsBody(this.privacySettingsViewModel, this.nodeViewModel, {Key key})
+  const AdvancedPrivacySettingsBody(this.privacySettingsViewModel, this.nodeViewModel, {Key? key})
       : super(key: key);
 
   final PrivacySettingsViewModel privacySettingsViewModel;
@@ -85,7 +84,7 @@ class _AdvancedPrivacySettingsBodyState
             LoadingPrimaryButton(
               onPressed: () {},
               text: S.of(context).continue_text,
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.bodyText1!.color!,
               textColor: Colors.white,
             ),
             const SizedBox(height: 25),
@@ -96,7 +95,7 @@ class _AdvancedPrivacySettingsBodyState
                 S.of(context).settings_can_be_changed_later,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Theme.of(context).accentTextTheme.display3.color,
+                  color: Theme.of(context).accentTextTheme.headline2?.color,
                 ),
               ),
             ),

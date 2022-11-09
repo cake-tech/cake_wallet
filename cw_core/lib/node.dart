@@ -17,7 +17,7 @@ class Node extends HiveObject with Keyable {
       {this.login,
       this.password,
       this.useSSL,
-      this.trusted,
+      this.trusted = false,
       String? uri,
       WalletType? type,}) {
     if (uri != null) {
@@ -33,7 +33,7 @@ class Node extends HiveObject with Keyable {
         login = map['login'] as String?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
-        useSSL = map['trusted'] as bool? ?? false;
+        trusted = map['trusted'] as bool? ?? false;
 
   static const typeId = 1;
   static const boxName = 'Nodes';
@@ -57,8 +57,6 @@ class Node extends HiveObject with Keyable {
   bool trusted;
 
   bool get isSSL => useSSL ?? false;
-
-  bool get isTrusted => trusted ?? false;
 
   Uri get uri {
     switch (type) {
