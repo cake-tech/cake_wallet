@@ -1,9 +1,9 @@
 import 'package:intl/intl.dart';
 
-// FIXME: Hardcoded values; Works only for monero
+// TODO/FIXME: Hardcoded values; Works only for monero
 
 final dateFormat = DateFormat('yyyy-MM');
-final dates = {
+final moneroDates = {
   "2014-5": 18844,
   "2014-6": 65406,
   "2014-7": 108882,
@@ -85,19 +85,22 @@ final dates = {
   "2020-11": 2220000
 };
 
+final wowneroDates = {"2022-09": 453069, "2022-10": 461682, "2022-11": 470555}; // TODO expand this list via script
+
 int getMoneroHeigthByDate({required DateTime date}) {
   final raw = '${date.year}' + '-' + '${date.month}';
-  final lastHeight = dates.values.last;
+  final lastHeight = moneroDates.values.last;
   int? startHeight;
   int? endHeight;
   int height = 0;
 
   try {
-    if ((dates[raw] == null) || (dates[raw] == lastHeight)) {
-      startHeight = dates.values.toList()[dates.length - 2];
-      endHeight = dates.values.toList()[dates.length - 1];
+    if ((moneroDates[raw] == null) || (moneroDates[raw] == lastHeight)) {
+      startHeight = moneroDates.values.toList()[moneroDates.length - 2];
+      endHeight = moneroDates.values.toList()[moneroDates.length - 1];
       final heightPerDay = (endHeight - startHeight) / 31;
-      final endDateRaw = dates.keys.toList()[dates.length - 1].split('-');
+      final endDateRaw =
+          moneroDates.keys.toList()[moneroDates.length - 1].split('-');
       final endYear = int.parse(endDateRaw[0]);
       final endMonth = int.parse(endDateRaw[1]);
       final endDate = DateTime(endYear, endMonth);
@@ -105,9 +108,44 @@ int getMoneroHeigthByDate({required DateTime date}) {
       final daysHeight = (differenceInDays * heightPerDay).round();
       height = endHeight + daysHeight;
     } else {
-      startHeight = dates[raw];
-      final index = dates.values.toList().indexOf(startHeight!);
-      endHeight = dates.values.toList()[index + 1];
+      startHeight = moneroDates[raw];
+      final index = moneroDates.values.toList().indexOf(startHeight!);
+      endHeight = moneroDates.values.toList()[index + 1];
+      final heightPerDay = ((endHeight - startHeight) / 31).round();
+      final daysHeight = (date.day - 1) * heightPerDay;
+      height = startHeight + daysHeight - heightPerDay;
+    }
+  } catch (e) {
+    print(e.toString());
+  }
+
+  return height;
+}
+
+int getWowneroHeightByDate({required DateTime date}) {
+  final raw = '${date.year}' + '-' + '${date.month}';
+  final lastHeight = wowneroDates.values.last;
+  int? startHeight;
+  int? endHeight;
+  int height = 0;
+
+  try {
+    if ((wowneroDates[raw] == null) || (wowneroDates[raw] == lastHeight)) {
+      startHeight = wowneroDates.values.toList()[wowneroDates.length - 2];
+      endHeight = wowneroDates.values.toList()[wowneroDates.length - 1];
+      final heightPerDay = (endHeight - startHeight) / 31;
+      final endDateRaw =
+          wowneroDates.keys.toList()[wowneroDates.length - 1].split('-');
+      final endYear = int.parse(endDateRaw[0]);
+      final endMonth = int.parse(endDateRaw[1]);
+      final endDate = DateTime(endYear, endMonth);
+      final differenceInDays = date.difference(endDate).inDays;
+      final daysHeight = (differenceInDays * heightPerDay).round();
+      height = endHeight + daysHeight;
+    } else {
+      startHeight = wowneroDates[raw];
+      final index = wowneroDates.values.toList().indexOf(startHeight!);
+      endHeight = wowneroDates.values.toList()[index + 1];
       final heightPerDay = ((endHeight - startHeight) / 31).round();
       final daysHeight = (date.day - 1) * heightPerDay;
       height = startHeight + daysHeight - heightPerDay;
