@@ -103,7 +103,7 @@ import UnstoppableDomainsResolution
                 result(disableWakeScreen())
             
             case "requestAppReview":
-                AppStoreReviewManager.requestReviewIfAppropriate()
+                requestReviewIfAppropriate()
                 result(nil)
 
             default:
