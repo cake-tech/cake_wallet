@@ -5,20 +5,18 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class TradeDetailsListCardItem extends StandartListItem {
   TradeDetailsListCardItem(
-      {String title,
-      String value,
-      this.id,
-      this.createdAt,
-      this.pair,
-      this.onTap})
-      : super(title: title, value: value);
+      {required this.id,
+      required this.createdAt,
+      required this.pair,
+      required this.onTap})
+      : super(title: '', value: '');
 
   factory TradeDetailsListCardItem.tradeDetails(
-      {@required String id,
-      @required String createdAt,
-      @required CryptoCurrency from,
-      @required CryptoCurrency to,
-      @required Function onTap}) {
+      {required String id,
+      required String createdAt,
+      required CryptoCurrency from,
+      required CryptoCurrency to,
+      required void Function(BuildContext) onTap}) {
     return TradeDetailsListCardItem(
         id: '${S.current.trade_details_id}  ${formatAsText(id)}',
         createdAt: formatAsText(createdAt),
@@ -29,7 +27,7 @@ class TradeDetailsListCardItem extends StandartListItem {
   final String id;
   final String createdAt;
   final String pair;
-  final Function onTap;
+  final void Function(BuildContext) onTap;
 
   static String formatAsText<T>(T value) => value?.toString() ?? '';
 }

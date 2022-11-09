@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class SelectButton extends StatelessWidget {
   SelectButton({
-    @required this.image,
-    @required this.text,
-    @required this.onTap,
+    required this.text,
+    required this.onTap,
+    this.image,
     this.isSelected = false,
   });
 
-  final Image image;
+  final Image? image;
   final String text;
   final bool isSelected;
   final VoidCallback onTap;
@@ -17,13 +17,13 @@ class SelectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isSelected
           ? Colors.green
-          : Theme.of(context).accentTextTheme.caption.color;
+          : Theme.of(context).accentTextTheme!.caption!.color!;
     final textColor = isSelected
-          ? Theme.of(context).accentTextTheme.headline.decorationColor
-          : Theme.of(context).primaryTextTheme.title.color;
+          ? Theme.of(context).accentTextTheme!.headline5!.decorationColor!
+          : Theme.of(context).primaryTextTheme!.headline6!.color!;
     final arrowColor = isSelected
-        ? Theme.of(context).accentTextTheme.headline.decorationColor
-        : Theme.of(context).accentTextTheme.subhead.color;
+        ? Theme.of(context).accentTextTheme!.headline5!.decorationColor!
+        : Theme.of(context).accentTextTheme!.subtitle1!.color!;
 
     final selectArrowImage = Image.asset('assets/images/select_arrow.png',
           color: arrowColor);

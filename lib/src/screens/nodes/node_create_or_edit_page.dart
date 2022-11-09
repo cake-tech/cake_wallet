@@ -118,7 +118,7 @@ class NodeCreateOrEditPage extends BasePage {
                         padding: EdgeInsets.only(right: 8.0),
                         child: LoadingPrimaryButton(
                             onPressed: () async {
-                              if (!_formKey.currentState.validate()) {
+                              if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                                 return;
                               }
 
@@ -136,7 +136,7 @@ class NodeCreateOrEditPage extends BasePage {
                         padding: EdgeInsets.only(left: 8.0),
                         child: PrimaryButton(
                           onPressed: () async {
-                            if (!_formKey.currentState.validate()) {
+                            if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                               return;
                             }
 
@@ -144,7 +144,7 @@ class NodeCreateOrEditPage extends BasePage {
                             Navigator.of(context).pop();
                           },
                           text: S.of(context).save,
-                          color: Theme.of(context).accentTextTheme.body2.color,
+                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                           textColor: Colors.white,
                           isDisabled: (!nodeCreateOrEditViewModel.isReady)||
                               (nodeCreateOrEditViewModel

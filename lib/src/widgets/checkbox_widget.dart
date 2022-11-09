@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 
 class CheckboxWidget extends StatefulWidget {
   CheckboxWidget({
-    @required this.value,
-    @required this.caption,
-    @required this.onChanged});
+    required this.value,
+    required this.caption,
+    required this.onChanged});
 
   final bool value;
   final String caption;
@@ -42,12 +42,12 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
             decoration: BoxDecoration(
                 color: value
                     ? Palette.blueCraiola
-                    : Theme.of(context).accentTextTheme.subhead.decorationColor,
+                    : Theme.of(context).accentTextTheme!.subtitle1!.decorationColor!,
                 borderRadius: BorderRadius.all(Radius.circular(2)),
                 border: Border.all(
                     color: value
                         ? Palette.blueCraiola
-                        : Theme.of(context).accentTextTheme.overline.color,
+                        : Theme.of(context).accentTextTheme!.overline!.color!,
                     width: 1
                 )
             ),
@@ -66,7 +66,7 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
             child: Text(
               caption,
               style: TextStyle(
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                   fontSize: 18,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w500,

@@ -10,7 +10,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
       this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
 
-  MoneroTransactionInfo.fromMap(Map map)
+  MoneroTransactionInfo.fromMap(Map<String, Object?> map)
       : id = (map['hash'] ?? '') as String,
         height = (map['height'] ?? 0) as int,
         direction =
@@ -24,7 +24,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         addressIndex = map['addressIndex'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int ?? 0 {
-          additionalInfo = {
+          additionalInfo = <String, dynamic>{
             'key': key,
             'accountIndex': accountIndex,
             'addressIndex': addressIndex
@@ -43,7 +43,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         addressIndex = row.subaddrIndex,
         key = getTxKey(row.getHash()),
         fee = row.fee {
-          additionalInfo = {
+          additionalInfo = <String, dynamic>{
             'key': key,
             'accountIndex': accountIndex,
             'addressIndex': addressIndex
@@ -59,10 +59,9 @@ class MoneroTransactionInfo extends TransactionInfo {
   final int amount;
   final int fee;
   final int addressIndex;
-  String recipientAddress;
-  String key;
-
-  String _fiatAmount;
+  String? recipientAddress;
+  String? key;
+  String? _fiatAmount;
 
   @override
   String amountFormatted() =>

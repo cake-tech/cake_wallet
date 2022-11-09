@@ -1,5 +1,8 @@
 class FilterItem {
-  FilterItem({this.value, this.caption, this.onChanged});
+  FilterItem({
+    required this.value,
+    required this.caption,
+    required this.onChanged});
 
   bool Function() value;
   String caption;

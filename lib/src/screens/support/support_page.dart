@@ -5,7 +5,6 @@ import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -20,9 +19,10 @@ class SupportPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final iconColor =
-        Theme.of(context).accentTextTheme.display4.backgroundColor;
-
+        Theme.of(context).accentTextTheme!.headline1!.backgroundColor!;
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
+        context: context,
         sectionCount: 1,
         itemCounter: (int _) => supportViewModel.items.length,
         itemBuilder: (_, __, index) {

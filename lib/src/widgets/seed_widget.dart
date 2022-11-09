@@ -12,21 +12,27 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/widgets.dart';
 
 class SeedWidget extends StatefulWidget {
-  SeedWidget({Key key, this.language, this.type, this.onSeedChange}) : super(key: key);
+  SeedWidget({
+    Key? key,
+    required this.language,
+    required this.type,
+    this.onSeedChange}) : super(key: key);
 
   final String language;
   final WalletType type;
-  final void Function(String) onSeedChange;
+  final void Function(String)? onSeedChange;
 
   @override
   SeedWidgetState createState() => SeedWidgetState(language, type);
 }
 
 class SeedWidgetState extends State<SeedWidget> {
+
   SeedWidgetState(String language, this.type)
       : controller = TextEditingController(),
         focusNode = FocusNode(),
-        words = SeedValidator.getWordList(type: type, language: language) {
+        words = SeedValidator.getWordList(type: type, language: language),
+        _showPlaceholder = false {
     focusNode.addListener(() {
       setState(() {
         if (!focusNode.hasFocus && controller.text.isEmpty) {
@@ -83,7 +89,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   cursorColor: Colors.blue,
                   backgroundCursorColor: Colors.blue,
                   validStyle: TextStyle(
-                      color: Theme.of(context).primaryTextTheme.title.color,
+                      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                       backgroundColor: Colors.transparent,
                       fontWeight: FontWeight.normal,
                       fontSize: 16),
@@ -96,7 +102,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   controller: controller,
                   words: words,
                   textStyle: TextStyle(
-                      color: Theme.of(context).primaryTextTheme.title.color,
+                      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                       backgroundColor: Colors.transparent,
                       fontWeight: FontWeight.normal,
                       fontSize: 16),
@@ -117,15 +123,15 @@ class SeedWidgetState extends State<SeedWidget> {
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/paste_ios.png',
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .display1
-                                  .decorationColor)),
+                                  .primaryTextTheme!
+                                  .headline4!
+                                  .decorationColor!)),
                     )))
           ]),
           Container(
               margin: EdgeInsets.only(top: 15),
               height: 1.0,
-              color: Theme.of(context).primaryTextTheme.title.backgroundColor),
+              color: Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!),
         ]));
   }
 
@@ -135,7 +141,7 @@ class SeedWidgetState extends State<SeedWidget> {
     if (value?.text?.isNotEmpty ?? false) {
       setState(() {
         _showPlaceholder = false;
-        controller.text = value.text;
+        controller.text = value!.text!;
       });
     }
   }

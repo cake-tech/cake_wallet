@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FilterTile extends StatelessWidget {
-  FilterTile({@required this.child});
+  FilterTile({required this.child});
 
   final Widget child;
 

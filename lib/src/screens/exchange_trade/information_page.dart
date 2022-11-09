@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 
 class InformationPage extends StatelessWidget {
-  InformationPage({@required this.information});
+  InformationPage({required this.information});
 
   final String information;
 
@@ -21,7 +21,7 @@ class InformationPage extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(30)),
-            color: Theme.of(context).textTheme.body2.decorationColor
+            color: Theme.of(context).textTheme!.bodyText1!.decorationColor!
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -35,7 +35,7 @@ class InformationPage extends StatelessWidget {
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Lato',
                     decoration: TextDecoration.none,
-                    color: Theme.of(context).accentTextTheme.caption.decorationColor
+                    color: Theme.of(context).accentTextTheme!.caption!.decorationColor!
                   ),
                 ),
               ),
@@ -44,8 +44,8 @@ class InformationPage extends StatelessWidget {
                 child: PrimaryButton(
                   onPressed: () => Navigator.of(context).pop(),
                   text: S.of(context).send_got_it,
-                  color: Theme.of(context).accentTextTheme.caption.backgroundColor,
-                  textColor: Theme.of(context).primaryTextTheme.title.color
+                  color: Theme.of(context).accentTextTheme!.caption!.backgroundColor!,
+                  textColor: Theme.of(context).primaryTextTheme!.headline6!.color!
                 ),
               )
             ],

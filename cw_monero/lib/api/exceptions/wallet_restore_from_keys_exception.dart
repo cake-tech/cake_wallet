@@ -1,5 +1,5 @@
 class WalletRestoreFromKeysException implements Exception {
-  WalletRestoreFromKeysException({this.message});
+  WalletRestoreFromKeysException({required this.message});
   
   final String message;
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class AlertBackground extends StatelessWidget {
-  AlertBackground({@required this.child});
+  AlertBackground({required this.child});
 
   final Widget child;
 

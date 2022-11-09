@@ -10,7 +10,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 
 class SeedLanguage extends BasePage {
-  SeedLanguage({this.onConfirm});
+  SeedLanguage({required this.onConfirm});
 
   final Function(BuildContext, String) onConfirm;
 
@@ -30,7 +30,7 @@ class SeedLanguage extends BasePage {
 }
 
 class SeedLanguageForm extends StatefulWidget {
-  SeedLanguageForm({this.onConfirm, this.walletImage});
+  SeedLanguageForm({required this.onConfirm, required this.walletImage});
 
   final Function(BuildContext, String) onConfirm;
   final Image walletImage;
@@ -66,7 +66,7 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
                 style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).primaryTextTheme.title.color),
+                    color: Theme.of(context).primaryTextTheme!.headline6!.color!),
               ),
             ),
             Padding(
@@ -82,7 +82,7 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
             builder: (context) {
               return PrimaryButton(
                   onPressed: () => widget.onConfirm(
-                      context, _languageSelectorKey.currentState.selected),
+                      context, _languageSelectorKey.currentState!.selected),
                   text: S.of(context).seed_language_next,
                   color: Colors.green,
                   textColor: Colors.white);

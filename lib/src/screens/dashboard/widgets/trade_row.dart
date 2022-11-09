@@ -4,19 +4,19 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 
 class TradeRow extends StatelessWidget {
   TradeRow({
-    this.provider,
-    this.from,
-    this.to,
-    this.createdAtFormattedDate,
-    this.formattedAmount,
-    @required this.onTap});
+    required this.provider,
+    required this.from,
+    required this.to,
+    required this.createdAtFormattedDate,
+    this.onTap,
+    this.formattedAmount,});
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final ExchangeProviderDescription provider;
   final CryptoCurrency from;
   final CryptoCurrency to;
-  final String createdAtFormattedDate;
-  final String formattedAmount;
+  final String? createdAtFormattedDate;
+  final String? formattedAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class TradeRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _getPoweredImage(provider),
+              _getPoweredImage(provider)!,
               SizedBox(width: 12),
               Expanded(
                   child: Column(
@@ -44,16 +44,14 @@ class TradeRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor
+                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
                                 )),
                             formattedAmount != null
-                                ? Text(formattedAmount + ' ' + amountCrypto,
+                                ? Text(formattedAmount! + ' ' + amountCrypto,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor
+                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
                                 ))
                                 : Container()
                           ]),
@@ -61,11 +59,12 @@ class TradeRow extends StatelessWidget {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text(createdAtFormattedDate,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).textTheme
-                                        .overline.backgroundColor))
+                            if (createdAtFormattedDate != null)
+                              Text(createdAtFormattedDate!,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).textTheme!
+                                          .overline!.backgroundColor!))
                           ])
                     ],
                   )
@@ -75,8 +74,9 @@ class TradeRow extends StatelessWidget {
         ));
   }
 
-  Image _getPoweredImage(ExchangeProviderDescription provider) {
-    Image image;
+  Image? _getPoweredImage(ExchangeProviderDescription provider) {
+    Image? image;
+
     switch (provider) {
       case ExchangeProviderDescription.xmrto:
         image = Image.asset('assets/images/xmrto.png', height: 36, width: 36);
@@ -96,6 +96,7 @@ class TradeRow extends StatelessWidget {
       default:
         image = null;
     }
+
     return image;
   }
 }

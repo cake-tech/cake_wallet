@@ -4,7 +4,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 
 class DateSectionRaw extends StatelessWidget {
-  DateSectionRaw({this.date});
+  DateSectionRaw({required this.date});
 
   final DateTime date;
 
@@ -36,6 +36,6 @@ class DateSectionRaw extends StatelessWidget {
         child: Text(title,
             style: TextStyle(
                 fontSize: 12,
-                color: Theme.of(context).textTheme.overline.backgroundColor)));
+                color: Theme.of(context).textTheme!.overline!.backgroundColor!)));
   }
 }

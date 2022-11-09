@@ -5,21 +5,22 @@ import 'package:url_launcher/url_launcher.dart';
 
 class SettingsLinkProviderCell extends StandardListRow {
   SettingsLinkProviderCell(
-      {@required String title,
-        @required this.icon,
-        this.iconColor,
-        @required this.link,
-        @required this.linkTitle})
+      {required String title,
+        required this.link,
+        required this.linkTitle,
+        this.icon,
+        this.iconColor})
       : super(title: title, isSelected: false, onTap: (BuildContext context) => _launchUrl(link) );
 
-  final String icon;
+  
   final String link;
   final String linkTitle;
-  final Color iconColor;
+  final String? icon;
+  final Color? iconColor;
 
   @override
-  Widget buildLeading(BuildContext context) =>
-      icon != null ? Image.asset(icon, color: iconColor, height: 30, width: 30) : null;
+  Widget? buildLeading(BuildContext context) =>
+      icon != null ? Image.asset(icon!, color: iconColor, height: 24, width: 24) : null;
 
   @override
   Widget buildTrailing(BuildContext context) => Text(linkTitle,

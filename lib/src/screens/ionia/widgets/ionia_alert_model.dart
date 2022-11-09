@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 
 class IoniaAlertModal extends StatelessWidget {
   const IoniaAlertModal({
-    Key key,
-    @required this.title,
-    @required this.content,
-    @required this.actionTitle,
+    Key? key,
+    required this.title,
+    required this.content,
+    required this.actionTitle,
     this.heightFactor = 0.4,
     this.showCloseButton = true,
   }) : super(key: key);
@@ -41,7 +41,7 @@ class IoniaAlertModal extends StatelessWidget {
                     Text(
                       title,
                       style: textLargeSemiBold(
-                        color: Theme.of(context).textTheme.body1.color,
+                        color: Theme.of(context).textTheme!.bodyText2!.color!,
                       ),
                     ),
                   Container(
@@ -56,8 +56,8 @@ class IoniaAlertModal extends StatelessWidget {
                   PrimaryButton(
                     onPressed: () => Navigator.pop(context),
                     text: actionTitle,
-                    color: Theme.of(context).accentTextTheme.caption.color,
-                    textColor: Theme.of(context).primaryTextTheme.title.color,
+                    color: Theme.of(context).accentTextTheme!.caption!.color!,
+                    textColor: Theme.of(context).primaryTextTheme!.headline6!.color!,
                   ),
                   SizedBox(height: 21),
                 ],

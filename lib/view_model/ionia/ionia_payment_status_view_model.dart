@@ -12,17 +12,18 @@ class IoniaPaymentStatusViewModel = IoniaPaymentStatusViewModelBase with _$Ionia
 
 abstract class IoniaPaymentStatusViewModelBase with Store {
   IoniaPaymentStatusViewModelBase(
-    this.ioniaService,{
-      @required this.paymentInfo,
-      @required this.committedInfo}) {
-    _timer = Timer.periodic(updateTime, (timer) async {
-      await updatePaymentStatus();
+    this.ioniaService, {
+      required this.paymentInfo,
+      required this.committedInfo})
+    : error = '' {
+      _timer = Timer.periodic(updateTime, (timer) async {
+        await updatePaymentStatus();
 
-      if (giftCard != null) {
-        timer?.cancel();
-      }
-    });
-  }
+        if (giftCard != null) {
+          timer?.cancel();
+        }
+      });
+    }
 
   static const updateTime = Duration(seconds: 3);
 
@@ -31,14 +32,14 @@ abstract class IoniaPaymentStatusViewModelBase with Store {
   final AnyPayPaymentCommittedInfo committedInfo;
 
   @observable
-  IoniaGiftCard giftCard;
+  IoniaGiftCard? giftCard;
 
   @observable
   String error;
 
-  Timer get timer => _timer;
+  Timer? get timer => _timer;
 
-  Timer _timer;
+  Timer? _timer;
 
   @action
   Future<void> updatePaymentStatus() async {
