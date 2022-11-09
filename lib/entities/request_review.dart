@@ -17,6 +17,7 @@ Future<void> reviewApp()async{
         Future.delayed(const Duration(seconds: _delayDuration), () async {
             await startReview();
         });
+      return;
     }
 
    await sharedPref.setInt(PreferencesKey.transactionsCommitted, transactionsCommitted++);
