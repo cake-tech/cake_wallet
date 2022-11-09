@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "DESCONECTADO",
   "sync_status_connecting" : "CONECTANDO",
   "sync_status_connected" : "CONECTADO",
+  "sync_status_attempting_sync" : "INTENTAR SINCRONIZAR",
 
 
   "transaction_priority_slow" : "Lento",

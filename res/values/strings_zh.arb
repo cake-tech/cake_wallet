@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "断线",
   "sync_status_connecting" : "连接中",
   "sync_status_connected" : "已连接",
+  "sync_status_attempting_sync" : "嘗試同步",
 
 
   "transaction_priority_slow" : "慢速",

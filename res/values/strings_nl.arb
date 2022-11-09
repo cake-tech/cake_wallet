@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "LOSGEKOPPELD",
   "sync_status_connecting" : "AANSLUITING",
   "sync_status_connected" : "VERBONDEN",
+  "sync_status_attempting_sync" : "SYNCHRONISATIE PROBEREN",
 
 
   "transaction_priority_slow" : "Langzaam",

@@ -355,6 +355,7 @@
   "sync_status_failed_connect" : "ВІДКЛЮЧЕНО",
   "sync_status_connecting" : "ПІДКЛЮЧЕННЯ",
   "sync_status_connected" : "ПІДКЛЮЧЕНО",
+  "sync_status_attempting_sync" : "СПРОБА СИНХРОНІЗАЦІЇ",
 
 
   "transaction_priority_slow" : "Повільний",

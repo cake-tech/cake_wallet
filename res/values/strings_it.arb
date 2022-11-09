@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "DISCONNESSO",
   "sync_status_connecting" : "CONNESSIONE",
   "sync_status_connected" : "CONNESSO",
+  "sync_status_attempting_sync" : "TENTATIVO DI SINCRONIZZAZIONE",
 
 
   "transaction_priority_slow" : "Bassa",

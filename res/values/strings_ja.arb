@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "切断されました",
   "sync_status_connecting" : "接続中",
   "sync_status_connected" : "接続済み",
+  "sync_status_attempting_sync" : "同期を試みています",
 
 
   "transaction_priority_slow" : "スロー",

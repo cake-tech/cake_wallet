@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "ISKLJUČENO",
   "sync_status_connecting" : "SPAJANJE",
   "sync_status_connected" : "SPOJENO",
+  "sync_status_attempting_sync" : "POKUŠAJ SINKRONIZACIJE",
 
 
   "transaction_priority_slow" : "Sporo",

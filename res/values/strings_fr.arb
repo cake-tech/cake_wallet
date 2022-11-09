@@ -354,6 +354,7 @@
   "sync_status_failed_connect" : "DÉCONNECTÉ",
   "sync_status_connecting" : "CONNEXION EN COURS",
   "sync_status_connected" : "CONNECTÉ",
+  "sync_status_attempting_sync" : "TENTATIVE DE SYNCHRONISATION",
 
 
   "transaction_priority_slow" : "Lent",
