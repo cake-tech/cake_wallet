@@ -82,7 +82,9 @@ class _AdvancedPrivacySettingsBodyState
         bottomSection: Column(
           children: [
             LoadingPrimaryButton(
-              onPressed: () {},
+              onPressed: () {
+                nodeViewModel.save();
+              },
               text: S.of(context).continue_text,
               color: Theme.of(context).accentTextTheme.bodyText1!.color!,
               textColor: Colors.white,
