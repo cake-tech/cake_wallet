@@ -14,10 +14,12 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class WowneroNewWalletCredentials extends WalletCredentials {
-  WowneroNewWalletCredentials({String? name, String? password, this.language})
+  WowneroNewWalletCredentials(
+      {String? name, String? password, this.language, int seedWordsLength = 14})
       : super(name: name, password: password);
 
   final String? language;
+  final int seedWordsLength = 14;
 }
 
 class WowneroRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -195,7 +197,8 @@ class WowneroWalletService extends WalletService<
       String seedString = credentials.mnemonic ?? '';
       int seedWordsLength = seedString.split(' ').length;
       if (seedWordsLength == 14) {
-        wallet.walletInfo.restoreHeight = wallet.getSeedHeight(credentials.mnemonic!);
+        wallet.walletInfo.restoreHeight =
+            wallet.getSeedHeight(credentials.mnemonic!);
       } else {
         wallet.walletInfo.restoreHeight = 0;
         // TODO use an alternative to wow_seed's get_seed_height
