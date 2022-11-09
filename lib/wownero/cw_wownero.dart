@@ -213,7 +213,7 @@ class CWWownero extends Wownero {
   WalletCredentials createWowneroNewWalletCredentials(
       {String? name, String? password, String? language, int seedWordsLength = 14}) {
     return WowneroNewWalletCredentials(
-        name: name, password: password, language: language);
+        name: name, password: password, language: language, seedWordsLength: seedWordsLength);
   }
 
   Map<String, String?> getKeys(Object wallet) {

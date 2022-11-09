@@ -96,7 +96,7 @@ abstract class Wownero {
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority? deserializeMoneroTransactionPriority({int raw});
   List<TransactionPriority> getTransactionPriorities();
-  List<String> getWowneroWordList(String language, {int seedWordsLength});
+  List<String> getWowneroWordList(String language, {int seedWordsLength = 14});
 
   WalletCredentials createWowneroRestoreWalletFromKeysCredentials(
       {String name,
