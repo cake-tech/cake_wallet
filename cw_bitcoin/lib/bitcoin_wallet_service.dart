@@ -10,6 +10,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
+import 'package:collection/collection.dart';
 
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -25,10 +26,10 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
-    final wallet = BitcoinWallet(
+    final wallet = await BitcoinWalletBase.create(
         mnemonic: await generateMnemonic(),
-        password: credentials.password,
-        walletInfo: credentials.walletInfo,
+        password: credentials.password!,
+        walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
@@ -41,9 +42,8 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhere(
-        (info) => info.id == WalletBase.idFor(name, getType()),
-        orElse: () => null);
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(name, getType()))!;
     final wallet = await BitcoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource);
@@ -68,10 +68,10 @@ class BitcoinWalletService extends WalletService<
       throw BitcoinMnemonicIsIncorrectException();
     }
 
-    final wallet = BitcoinWallet(
-        password: credentials.password,
+    final wallet = await BitcoinWalletBase.create(
+        password: credentials.password!,
         mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo,
+        walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();

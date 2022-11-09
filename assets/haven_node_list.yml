@@ -1,6 +1,4 @@
 -
-  uri: vault.havenprotocol.org:443
-  login: super
-  password: super
+  uri: nodes.havenprotocol.org:443
   useSSL: true
   is_default: true

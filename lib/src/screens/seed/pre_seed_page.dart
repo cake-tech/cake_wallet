@@ -21,10 +21,10 @@ class PreSeedPage extends BasePage {
   final int wordsCount;
 
   @override
-  Widget leading(BuildContext context) => null;
+  Widget? leading(BuildContext context) => null;
 
   @override
-  String get title => S.current.pre_seed_title;
+  String? get title => S.current.pre_seed_title;
 
   @override
   Widget body(BuildContext context) {
@@ -57,16 +57,16 @@ class PreSeedPage extends BasePage {
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .caption
-                                  .color),
+                                  .primaryTextTheme!
+                                  .caption!
+                                  .color!),
                         ),
                       ),
                       PrimaryButton(
                           onPressed: () => Navigator.of(context)
                               .popAndPushNamed(Routes.seed, arguments: true),
                           text: S.of(context).pre_seed_button_text,
-                          color: Theme.of(context).accentTextTheme.body2.color,
+                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                           textColor: Colors.white)
                     ],
                   ))

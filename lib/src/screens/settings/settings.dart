@@ -1,4 +1,6 @@
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,7 +28,9 @@ class SettingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
+        context: context,
         sectionCount: settingsViewModel.sections.length,
         itemCounter: (int sectionIndex) {
           if (sectionIndex < settingsViewModel.sections.length) {
@@ -40,12 +44,16 @@ class SettingsPage extends BasePage {
 
           if (item is PickerListItem) {
             return Observer(builder: (_) {
-              return SettingsPickerCell<dynamic>(
+              return SettingsPickerCell<Object>(
                 displayItem: item.displayItem,
                 title: item.title,
                 selectedItem: item.selectedItem(),
                 items: item.items,
                 onItemSelected: (dynamic value) => item.onItemSelected(value),
+                images: item.images,
+                searchHintText: item.searchHintText,
+                isGridView: item.isGridView,
+                matchingCriteria: (dynamic value, String searchText) => item.matchingCriteria(value, searchText),
               );
             });
           }
@@ -78,6 +86,10 @@ class SettingsPage extends BasePage {
                   title:
                       S.of(context).version(settingsViewModel.currentVersion));
             });
+          }
+
+          if (item is ChoicesListItem) {
+            return SettingsChoicesCell(item);
           }
 
           return Container();

@@ -9,9 +9,9 @@ import 'package:lottie/lottie.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SecondIntroduction extends StatelessWidget {
-  SecondIntroduction({this.onClose, this.onNext});
+  SecondIntroduction({required this.onNext, this.onClose});
 
-  final VoidCallback onClose;
+  final VoidCallback? onClose;
   final VoidCallback onNext;
   final animation = Lottie.asset('assets/animation/anim2.json');
 

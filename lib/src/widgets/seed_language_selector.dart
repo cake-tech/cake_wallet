@@ -5,7 +5,7 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 
 class SeedLanguageSelector extends StatefulWidget {
-  SeedLanguageSelector({Key key, this.initialSelected}) : super(key: key);
+  SeedLanguageSelector({Key? key, required this.initialSelected}) : super(key: key);
 
   final String initialSelected;
 
@@ -15,7 +15,7 @@ class SeedLanguageSelector extends StatefulWidget {
 }
 
 class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
-  SeedLanguageSelectorState({this.selected});
+  SeedLanguageSelectorState({required this.selected});
 
   final seedLocales = [
     S.current.seed_language_english,

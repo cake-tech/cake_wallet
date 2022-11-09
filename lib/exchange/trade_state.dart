@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cw_core/enumerable_item.dart';
 
 class TradeState extends EnumerableItem<String> with Serializable<String> {
-  const TradeState({@required String raw, @required String title})
+  const TradeState({required String raw, required String title})
       : super(raw: raw, title: title);
 
   @override
@@ -33,8 +33,9 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       TradeState(raw: 'waitingAuthorization', title: 'Waiting authorization');
   static const failed = TradeState(raw: 'failed', title: 'Failed');
   static const completed = TradeState(raw: 'completed', title: 'Completed');
-
-  static TradeState deserialize({String raw}) {
+  static const settling = TradeState(raw: 'settling', title: 'Settlement in progress');
+  static const settled = TradeState(raw: 'settled', title: 'Settlement completed');
+  static TradeState deserialize({required String raw}) {
     switch (raw) {
       case 'pending':
         return pending;
@@ -77,7 +78,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'completed':
         return completed;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw in TradeState deserialize');
     }
   }
 

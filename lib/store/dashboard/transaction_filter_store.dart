@@ -18,10 +18,10 @@ abstract class TransactionFilterStoreBase with Store {
   bool displayOutgoing;
 
   @observable
-  DateTime startDate;
+  DateTime? startDate;
 
   @observable
-  DateTime endDate;
+  DateTime? endDate;
 
   @action
   void toggleIncoming() => displayIncoming = !displayIncoming;
@@ -35,7 +35,7 @@ abstract class TransactionFilterStoreBase with Store {
   @action
   void changeEndDate(DateTime date) => endDate = date;
 
-  List<TransactionListItem> filtered({List<TransactionListItem> transactions}) {
+  List<TransactionListItem> filtered({required List<TransactionListItem> transactions}) {
     var _transactions = <TransactionListItem>[];
     final needToFilter = !displayOutgoing ||
         !displayIncoming ||
@@ -46,8 +46,8 @@ abstract class TransactionFilterStoreBase with Store {
         var allowed = true;
 
         if (allowed && startDate != null && endDate != null) {
-          allowed = startDate.isBefore(item.transaction.date) &&
-              endDate.isAfter(item.transaction.date);
+          allowed = (startDate?.isBefore(item.transaction.date) ?? false)
+              && (endDate?.isAfter(item.transaction.date) ?? false);
         }
 
         if (allowed && (!displayOutgoing || !displayIncoming)) {

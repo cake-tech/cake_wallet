@@ -24,4 +24,10 @@ class PreferencesKey {
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const transactionsCommitted = 'transactions_committed';
   static const hasReviewedApp = 'has_reviewed_app';
+  static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
+
+  static String moneroWalletUpdateV1Key(String name)
+    => '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
+
+  static const exchangeProvidersSelection = 'exchange-providers-selection';
 }

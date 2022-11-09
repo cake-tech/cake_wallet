@@ -88,7 +88,7 @@ class YatEmojiId extends StatelessWidget {
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Lato',
-                                      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                                      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                                       decoration: TextDecoration.none,
                                     )
                                 ),
@@ -102,9 +102,9 @@ class YatEmojiId extends StatelessWidget {
                                           fontWeight: FontWeight.normal,
                                           fontFamily: 'Lato',
                                           color: Theme.of(context)
-                                            .accentTextTheme
-                                            .display2
-                                            .backgroundColor,
+                                            .accentTextTheme!
+                                            .headline3!
+                                            .backgroundColor!,
                                           decoration: TextDecoration.none,
                                         )
                                     )

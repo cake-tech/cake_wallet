@@ -19,8 +19,8 @@ class SendTemplateViewModel = SendTemplateViewModelBase
 
 abstract class SendTemplateViewModelBase with Store {
   SendTemplateViewModelBase(this._wallet, this._settingsStore,
-      this._sendTemplateStore, this._fiatConversationStore) {
-
+      this._sendTemplateStore, this._fiatConversationStore)
+  : output = Output(_wallet, _settingsStore, _fiatConversationStore, () => _wallet.currency) {
     output = Output(_wallet, _settingsStore, _fiatConversationStore, () => currency);
   }
 
@@ -36,6 +36,24 @@ abstract class SendTemplateViewModelBase with Store {
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
+  @observable
+  bool isCurrencySelected = true;
+
+  @observable
+  bool isFiatSelected = false;
+
+  @action
+  void selectCurrency () {
+    isCurrencySelected = true;
+    isFiatSelected = false;
+  }
+
+  @action
+  void selectFiat () {
+    isFiatSelected = true;
+    isCurrencySelected = false;
+  }
+
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
@@ -47,19 +65,25 @@ abstract class SendTemplateViewModelBase with Store {
   void updateTemplate() => _sendTemplateStore.update();
 
   void addTemplate(
-      {String name,
-        String address,
-        String cryptoCurrency,
-        String amount}) {
+      {required String name,
+        required bool isCurrencySelected,
+        required String address,
+        required String cryptoCurrency,
+        required String fiatCurrency,
+        required String amount,
+        required String amountFiat}) {
     _sendTemplateStore.addTemplate(
         name: name,
+        isCurrencySelected: isCurrencySelected,
         address: address,
         cryptoCurrency: cryptoCurrency,
-        amount: amount);
+        fiatCurrency: fiatCurrency,
+        amount: amount,
+        amountFiat: amountFiat);
     updateTemplate();
   }
 
-  void removeTemplate({Template template}) {
+  void removeTemplate({required Template template}) {
     _sendTemplateStore.remove(template: template);
     updateTemplate();
   }

@@ -2,7 +2,7 @@ import 'package:cw_haven/api/structs/pending_transaction.dart';
 import 'package:cw_haven/api/transaction_history.dart'
     as haven_transaction_history;
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/core/amount_converter.dart';
+import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/pending_transaction.dart';
 
 class DoubleSpendException implements Exception {
@@ -21,6 +21,9 @@ class PendingHavenTransaction with PendingTransaction {
 
   @override
   String get id => pendingTransactionDescription.hash;
+
+  @override
+  String get hex => '';
 
   @override
   String get amountFormatted => AmountConverter.amountIntToString(

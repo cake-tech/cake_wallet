@@ -23,6 +23,11 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).openalias_alert_content(parsedAddress.name);
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.fio:
+      title = S.of(context).address_detected;
+      content = S.of(context).openalias_alert_content(parsedAddress.name);
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
         title = S.of(context).yat_error;
@@ -41,7 +46,7 @@ Future<String> extractAddressFromParsed(
 
       content += S.of(context).choose_address;
 
-      address = await showPopUp<String>(
+      address = await showPopUp<String?>(
           context: context,
           builder: (BuildContext context) {
 
@@ -51,9 +56,9 @@ Future<String> extractAddressFromParsed(
                 alertContent: content,
                 addresses: parsedAddress.addresses),
               onWillPop: () async => false);
-          });
+          }) ?? '';
 
-      if (address?.isEmpty ?? true) {
+      if (address.isEmpty) {
         return parsedAddress.name;
       }
 

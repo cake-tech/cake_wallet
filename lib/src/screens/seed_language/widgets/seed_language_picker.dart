@@ -50,7 +50,9 @@ const List<String> seedLanguages = [
 enum Places { topLeft, topRight, bottomLeft, bottomRight, inside }
 
 class SeedLanguagePicker extends StatefulWidget {
-  SeedLanguagePicker({Key key, this.selected = defaultSeedLanguage})
+  SeedLanguagePicker({
+    Key? key,
+    this.selected = defaultSeedLanguage})
       : super(key: key);
 
   final String selected;
@@ -61,7 +63,7 @@ class SeedLanguagePicker extends StatefulWidget {
 }
 
 class SeedLanguagePickerState extends State<SeedLanguagePicker> {
-  SeedLanguagePickerState({this.selected});
+  SeedLanguagePickerState({required this.selected});
 
   final closeButton = Image.asset('assets/images/close.png');
   String selected;
@@ -96,7 +98,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                   height: 300,
                   width: 300,
                   color:
-                      Theme.of(context).accentTextTheme.title.backgroundColor,
+                      Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
                   child: GridView.count(
                     padding: EdgeInsets.all(0),
                     shrinkWrap: true,
@@ -111,7 +113,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                             isCurrent: false,
                             image: null,
                             text: '',
-                            onTap: null);
+                            onTap: () {});
                       }
 
                       final code = languageCodes[index];
@@ -140,16 +142,16 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
   }
 
   Widget gridTile(
-      {@required bool isCurrent,
-      @required Image image,
-      @required String text,
-      @required VoidCallback onTap}) {
+      {required bool isCurrent,
+      required String text,
+      required VoidCallback onTap,
+      Image? image}) {
     final color = isCurrent
-        ? Theme.of(context).textTheme.body2.color
-        : Theme.of(context).accentTextTheme.title.color;
+        ? Theme.of(context).textTheme!.bodyText1!.color!
+        : Theme.of(context).accentTextTheme!.headline6!.color!;
     final textColor = isCurrent
         ? Palette.blueCraiola
-        : Theme.of(context).primaryTextTheme.title.color;
+        : Theme.of(context).primaryTextTheme!.headline6!.color!;
 
     return GestureDetector(
         onTap: onTap,

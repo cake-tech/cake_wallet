@@ -20,9 +20,10 @@ class WalletRestorationFromSeedVM = WalletRestorationFromSeedVMBase
 abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
     with Store {
   WalletRestorationFromSeedVMBase(AppStore appStore,
-      this._walletCreationService, Box<WalletInfo> walletInfoSource,
-      {@required WalletType type, @required this.language, this.seed})
-      : super(appStore, walletInfoSource, type: type, isRecovery: true);
+      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
+      {required WalletType type, required this.language, this.seed = ''})
+      : height = 0,
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   String seed;
@@ -33,25 +34,24 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
   bool get hasRestorationHeight => type == WalletType.monero;
 
   final String language;
-  final WalletCreationService _walletCreationService;
 
   @override
   WalletCredentials getCredentials(dynamic options) {
-    final password = generateWalletPassword(type);
+    final password = generateWalletPassword();
 
     switch (type) {
       case WalletType.monero:
-        return monero.createMoneroRestoreWalletFromSeedCredentials(
+        return monero!.createMoneroRestoreWalletFromSeedCredentials(
             name: name, height: height, mnemonic: seed, password: password);
       case WalletType.bitcoin:
-        return bitcoin.createBitcoinRestoreWalletFromSeedCredentials(
+        return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name, mnemonic: seed, password: password);
       default:
-        return null;
+        throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async =>
-      _walletCreationService.restoreFromSeed(credentials);
+      walletCreationService.restoreFromSeed(credentials);
 }

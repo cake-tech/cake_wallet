@@ -12,20 +12,21 @@ class MoneroWalletAddresses = MoneroWalletAddressesBase
     with _$MoneroWalletAddresses;
 
 abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
-  MoneroWalletAddressesBase(WalletInfo walletInfo) : super(walletInfo) {
-    accountList = MoneroAccountList();
-    subaddressList = MoneroSubaddressList();
-  }
+  MoneroWalletAddressesBase(WalletInfo walletInfo)
+    : accountList = MoneroAccountList(),
+      subaddressList = MoneroSubaddressList(),
+      address = '',
+      super(walletInfo);
 
   @override
   @observable
   String address;
+  
+  @observable
+  Account? account;
 
   @observable
-  Account account;
-
-  @observable
-  Subaddress subaddress;
+  Subaddress? subaddress;
 
   MoneroSubaddressList subaddressList;
 
@@ -35,7 +36,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.first;
-    updateSubaddressList(accountIndex: account.id ?? 0);
+    updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
 
@@ -61,14 +62,14 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   bool validate() {
     accountList.update();
-    final accountListLength = accountList.accounts?.length ?? 0;
+    final accountListLength = accountList.accounts.length ?? 0;
 
     if (accountListLength <= 0) {
       return false;
     }
 
     subaddressList.update(accountIndex: accountList.accounts.first.id);
-    final subaddressListLength = subaddressList.subaddresses?.length ?? 0;
+    final subaddressListLength = subaddressList.subaddresses.length ?? 0;
 
     if (subaddressListLength <= 0) {
       return false;
@@ -77,9 +78,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     return true;
   }
 
-  void updateSubaddressList({int accountIndex}) {
+  void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
     subaddress = subaddressList.subaddresses.first;
-    address = subaddress.address;
+    address = subaddress!.address;
   }
 }

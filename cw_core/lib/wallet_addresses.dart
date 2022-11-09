@@ -1,9 +1,8 @@
 import 'package:cw_core/wallet_info.dart';
 
 abstract class WalletAddresses {
-  WalletAddresses(this.walletInfo) {
-    addressesMap = {};
-  }
+  WalletAddresses(this.walletInfo)
+    : addressesMap = {};
 
   final WalletInfo walletInfo;
 
@@ -19,10 +18,6 @@ abstract class WalletAddresses {
 
   Future<void> saveAddressesInBox() async {
     try {
-      if (walletInfo == null) {
-        return;
-      }
-
       walletInfo.address = address;
       walletInfo.addresses = addressesMap;
 

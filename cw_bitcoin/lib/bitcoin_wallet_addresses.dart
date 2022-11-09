@@ -16,13 +16,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses
     with Store {
   BitcoinWalletAddressesBase(
       WalletInfo walletInfo,
-      {@required List<BitcoinAddressRecord> initialAddresses,
+      {required bitcoin.HDWallet mainHd,
+        required bitcoin.HDWallet sideHd,
+        required bitcoin.NetworkType networkType,
+        required ElectrumClient electrumClient,
+        List<BitcoinAddressRecord>? initialAddresses,
         int initialRegularAddressIndex = 0,
-        int initialChangeAddressIndex = 0,
-        ElectrumClient electrumClient,
-        @required bitcoin.HDWallet mainHd,
-        @required bitcoin.HDWallet sideHd,
-        @required bitcoin.NetworkType networkType})
+        int initialChangeAddressIndex = 0})
       : super(
         walletInfo,
         initialAddresses: initialAddresses,
@@ -34,6 +34,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses
         networkType: networkType);
 
   @override
-  String getAddress({@required int index, @required bitcoin.HDWallet hd}) =>
+  String getAddress({required int index, required bitcoin.HDWallet hd}) =>
       generateP2WPKHAddress(hd: hd, index: index, networkType: networkType);
 }

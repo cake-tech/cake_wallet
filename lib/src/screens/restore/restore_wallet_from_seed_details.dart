@@ -3,7 +3,7 @@ import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
@@ -15,7 +15,7 @@ import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 
 class RestoreWalletFromSeedDetailsPage extends BasePage {
   RestoreWalletFromSeedDetailsPage(
-      {@required this.walletRestorationFromSeedVM});
+      {required this.walletRestorationFromSeedVM});
 
   final WalletRestorationFromSeedVM walletRestorationFromSeedVM;
 
@@ -28,7 +28,7 @@ class RestoreWalletFromSeedDetailsPage extends BasePage {
 }
 
 class RestoreFromSeedDetailsForm extends StatefulWidget {
-  RestoreFromSeedDetailsForm({@required this.walletRestorationFromSeedVM});
+  RestoreFromSeedDetailsForm({required this.walletRestorationFromSeedVM});
 
   final WalletRestorationFromSeedVM walletRestorationFromSeedVM;
 
@@ -42,7 +42,7 @@ class _RestoreFromSeedDetailsFormState
   final _formKey = GlobalKey<FormState>();
   final _blockchainHeightKey = GlobalKey<BlockchainHeightState>();
   final _nameController = TextEditingController();
-  ReactionDisposer _stateReaction;
+  ReactionDisposer? _stateReaction;
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _RestoreFromSeedDetailsFormState
   @override
   void dispose() {
     _nameController.dispose();
-    _stateReaction.reaction.dispose();
+    _stateReaction?.reaction.dispose();
     super.dispose();
   }
 
@@ -127,14 +127,14 @@ class _RestoreFromSeedDetailsFormState
         bottomSection: Observer(builder: (_) {
           return LoadingPrimaryButton(
             onPressed: () {
-              if (_formKey.currentState.validate()) {
+              if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                 widget.walletRestorationFromSeedVM.create();
               }
             },
             isLoading:
                 widget.walletRestorationFromSeedVM.state is IsExecutingState,
             text: S.of(context).restore_recover,
-            color: Theme.of(context).accentTextTheme.body2.color,
+            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
             textColor: Colors.white,
             isDisabled: _nameController.text.isNotEmpty,
           );

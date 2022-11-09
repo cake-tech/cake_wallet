@@ -1,4 +1,6 @@
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/src/widgets/standart_list_card.dart';
+import 'package:cake_wallet/src/widgets/standart_list_status_row.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 
 class TradeDetailsPage extends BasePage {
   TradeDetailsPage(this.tradeDetailsViewModel);
@@ -47,7 +51,9 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
+      // FIX-ME: Added `context` it was not used here before, maby bug ?
       return SectionStandardList(
+          context: context,
           sectionCount: 1,
           itemCounter: (int _) => tradeDetailsViewModel.items.length,
           itemBuilder: (_, __, index) {
@@ -58,7 +64,23 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   onTap: item.onTap,
                   child: StandartListRow(
                       title: '${item.title}', value: '${item.value}'));
-            } else {
+            }
+
+            if (item is DetailsListStatusItem) {
+              return StandartListStatusRow(
+                  title: item.title,
+                  value: item.value);
+            }
+
+            if (item is TradeDetailsListCardItem) {
+              return TradeDatailsStandartListCard(
+                  id: item.id,
+                  create: item.createdAt,
+                  pair: item.pair,
+                  currentTheme: tradeDetailsViewModel.settingsStore.currentTheme.type,
+                  onTap: item.onTap,);
+            }
+
               return GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: '${item.value}'));
@@ -66,7 +88,6 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   },
                   child: StandartListRow(
                       title: '${item.title}', value: '${item.value}'));
-            }
           });
     });
   }

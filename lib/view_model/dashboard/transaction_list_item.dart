@@ -13,7 +13,9 @@ import 'package:cw_core/wallet_type.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
-      {this.transaction, this.balanceViewModel, this.settingsStore});
+      {required this.transaction,
+      required this.balanceViewModel,
+      required this.settingsStore});
 
   final TransactionInfo transaction;
   final BalanceViewModel balanceViewModel;
@@ -40,20 +42,20 @@ class TransactionListItem extends ActionListItem with Keyable {
     switch(balanceViewModel.wallet.type) {
       case WalletType.monero:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: monero.formatterMoneroAmountToDouble(amount: transaction.amount),
+          cryptoAmount: monero!.formatterMoneroAmountToDouble(amount: transaction.amount),
           price: price);
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: bitcoin.formatterBitcoinAmountToDouble(amount: transaction.amount),
+          cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
           price: price);
         break;
       case WalletType.haven:
-        final asset = haven.assetOfTransaction(transaction);
+        final asset = haven!.assetOfTransaction(transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: haven.formatterMoneroAmountToDouble(amount: transaction.amount),
+          cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
           price: price);
         break;
       default:

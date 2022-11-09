@@ -1,6 +1,6 @@
+import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/settings/link_list_item.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -39,13 +39,13 @@ class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 List<TransactionPriority> priorityForWalletType(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return monero.getTransactionPriorities();
+      return monero!.getTransactionPriorities();
     case WalletType.bitcoin:
-      return bitcoin.getTransactionPriorities();
+      return bitcoin!.getTransactionPriorities();
     case WalletType.litecoin:
-      return bitcoin.getLitecoinTransactionPriorities();
+      return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.haven:
-      return haven.getTransactionPriorities();
+      return haven!.getTransactionPriorities();
     default:
       return [];
   }
@@ -60,8 +60,9 @@ abstract class SettingsViewModelBase with Store {
           wallet)
       : itemHeaders = {},
         _walletType = wallet.type,
-        _biometricAuth = BiometricAuth() {
-    currentVersion = '';
+        _biometricAuth = BiometricAuth(),
+        sections = <List<SettingsListItem>>[],
+        currentVersion = '' {
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
@@ -75,7 +76,7 @@ abstract class SettingsViewModelBase with Store {
     //var connectYatUrl = YatLink.baseUrl + YatLink.signInSuffix;
     //final connectYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (connectYatUrlParameters.isNotEmpty) {
     //  connectYatUrl += YatLink.queryParameter + connectYatUrlParameters;
     //}
@@ -83,7 +84,7 @@ abstract class SettingsViewModelBase with Store {
     //var manageYatUrl = YatLink.baseUrl + YatLink.managePath;
     //final manageYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (manageYatUrlParameters.isNotEmpty) {
     //  manageYatUrl += YatLink.queryParameter + manageYatUrlParameters;
     //}
@@ -91,27 +92,41 @@ abstract class SettingsViewModelBase with Store {
     //var createNewYatUrl = YatLink.startFlowUrl;
     //final createNewYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (createNewYatUrlParameters.isNotEmpty) {
     //  createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
     //}
 
-    
+
     sections = [
       [
-        PickerListItem(
-            title: S.current.settings_display_balance_as,
-            items: BalanceDisplayMode.all,
-            selectedItem: () => balanceDisplayMode,
-            onItemSelected: (BalanceDisplayMode mode) =>
-                _settingsStore.balanceDisplayMode = mode),
+        SwitcherListItem(
+            title: S.current.settings_display_balance,
+            value: () => balanceDisplayMode == BalanceDisplayMode.displayableBalance,
+            onValueChange: (_, bool value) {
+              if (value) {
+                _settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
+              } else {
+                _settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
+              }
+            },
+        ),
         if (!isHaven)
           PickerListItem(
               title: S.current.settings_currency,
+              searchHintText: S.current.search_currency,
               items: FiatCurrency.all,
               selectedItem: () => fiatCurrency,
               onItemSelected: (FiatCurrency currency) =>
-                  setFiatCurrency(currency)),
+                  setFiatCurrency(currency),
+              images: FiatCurrency.all.map(
+                    (e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                .toList(),
+              isGridView: true,
+              matchingCriteria: (FiatCurrency currency, String searchText) {
+                return currency.title.toLowerCase().contains(searchText) || currency.fullName.toLowerCase().contains(searchText);
+              },
+          ),
         PickerListItem(
             title: S.current.settings_fee_priority,
             items: priorityForWalletType(wallet.type),
@@ -120,8 +135,8 @@ abstract class SettingsViewModelBase with Store {
 
               if (wallet.type == WalletType.bitcoin
                   || wallet.type == WalletType.litecoin) {
-                final rate = bitcoin.getFeeRate(wallet, _priority);
-                return '${priority.labelWithRate(rate)}';
+                final rate = bitcoin!.getFeeRate(wallet, _priority);
+                return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
               }
 
               return priority.toString();
@@ -141,19 +156,32 @@ abstract class SettingsViewModelBase with Store {
             handler: (BuildContext context) {
               Navigator.of(context).pushNamed(Routes.auth, arguments:
                   (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                auth.close();
-                if (isAuthenticatedSuccessfully) {
-                  Navigator.of(context).pushNamed(Routes.setupPin, arguments:
-                      (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                auth.close(
+                  route: isAuthenticatedSuccessfully ? Routes.setupPin : null,
+                  arguments: (PinCodeState<PinCodeWidget> setupPinContext,
+                      String _) {
                     setupPinContext.close();
-                  });
-                }
+                  },
+                );
               });
             }),
-        RegularListItem(
-          title: S.current.settings_change_language,
-          handler: (BuildContext context) =>
-              Navigator.of(context).pushNamed(Routes.changeLanguage),
+        PickerListItem(
+            title: S.current.settings_change_language,
+            searchHintText: S.current.search_language,
+            items: LanguageService.list.keys.toList(),
+            displayItem: (dynamic code) {
+              return LanguageService.list[code] ?? '';
+            },
+            selectedItem: () => _settingsStore.languageCode,
+            onItemSelected: (String code) {
+              _settingsStore.languageCode = code;
+            },
+            images: LanguageService.list.keys.map(
+              (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
+              .toList(),
+            matchingCriteria: (String code, String searchText) {
+              return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
+            },
         ),
         SwitcherListItem(
             title: S.current.settings_allow_biometrical_authentication,
@@ -180,12 +208,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
-        PickerListItem(
-            title: S.current.color_theme,
-            items: ThemeList.all,
-            selectedItem: () => theme,
-            onItemSelected: (ThemeBase theme) =>
-                _settingsStore.currentTheme = theme)
+        ChoicesListItem(
+          title: S.current.color_theme,
+          items: ThemeList.all,
+          selectedItem: theme,
+          onItemSelected: (ThemeBase theme) => _settingsStore.currentTheme = theme,
+        ),
       ],
       //[
         //if (_yatStore.emoji.isNotEmpty) ...[
@@ -229,8 +257,15 @@ abstract class SettingsViewModelBase with Store {
       _settingsStore.actionlistDisplayMode;
 
   @computed
-  TransactionPriority get transactionPriority =>
-      _settingsStore.priority[_walletType];
+  TransactionPriority get transactionPriority {
+    final priority = _settingsStore.priority[_walletType];
+
+    if (priority == null) {
+      throw Exception('Unexpected type ${_walletType.toString()}');
+    }
+
+    return priority;
+  }
 
   @computed
   BalanceDisplayMode get balanceDisplayMode =>

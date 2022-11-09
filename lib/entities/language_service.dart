@@ -20,6 +20,25 @@ class LanguageService {
     'hr': 'Hrvatski (Croatian)',
     'it': 'Italiano (Italian)'
   };
+
+  static const Map<String, String> localeCountryCode = {
+    'en': 'usa',
+    'de': 'deu',
+    'es': 'esp',
+    'fr': 'fra',
+    'hi': 'ind',
+    'ja': 'jpn',
+    'ko': 'kor',
+    'nl': 'nld',
+    'pl': 'pol',
+    'pt': 'prt',
+    'ru': 'rus',
+    'uk': 'ukr',
+    'zh': 'chn',
+    'hr': 'hrv',
+    'it': 'ita'
+  };
+
   static final list = <String, String> {};
 
   static void loadLocaleList() {
@@ -31,7 +50,7 @@ class LanguageService {
   }
 
   static Future<String> localeDetection() async {
-    var locale = await Devicelocale.currentLocale;
+    var locale = await Devicelocale.currentLocale ?? '';
     locale = Intl.shortLocale(locale);
 
     return list.keys.contains(locale) ? locale : 'en';

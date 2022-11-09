@@ -1,4 +1,4 @@
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 
 var isQrScannerShown = false;
 

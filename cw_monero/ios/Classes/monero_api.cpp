@@ -166,6 +166,8 @@ extern "C"
         uint64_t amount;
         uint64_t fee;
         char *hash;
+        char *hex;
+        char *txKey;
         Monero::PendingTransaction *transaction;
 
         PendingTransactionRaw(Monero::PendingTransaction *_transaction)
@@ -174,6 +176,8 @@ extern "C"
             amount = _transaction->amount();
             fee = _transaction->fee();
             hash = strdup(_transaction->txid()[0].c_str());
+            hex = strdup(_transaction->hex()[0].c_str());
+            txKey = strdup(_transaction->txKey()[0].c_str());
         }
     };
 
@@ -228,8 +232,6 @@ extern "C"
 
     bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
-        Monero::WalletManagerFactory::setLogLevel(4);
-
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->createWallet(path, password, language, _networkType);
@@ -465,6 +467,16 @@ extern "C"
         get_current_wallet()->store(std::string(path));
         is_storing = false;
         store_lock.unlock();
+    }
+
+    bool set_password(char *password, Utf8Box &error) {
+        bool is_changed = get_current_wallet()->setPassword(std::string(password));
+
+        if (!is_changed) {
+            error = Utf8Box(strdup(get_current_wallet()->errorString().c_str()));
+        }
+
+        return is_changed;
     }
 
     bool transaction_create(char *address, char *payment_id, char *amount,
@@ -764,6 +776,11 @@ extern "C"
     char * get_tx_key(char * txId)
     {
         return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
+    }
+
+    char *get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
+    {
+        return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
     }
 
 #ifdef __cplusplus
