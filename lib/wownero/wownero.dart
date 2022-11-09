@@ -19,6 +19,7 @@ import 'package:cw_wownero/wownero_wallet.dart';
 import 'package:cw_wownero/wownero_wallet_service.dart';
 import 'package:flutter_libmonero/view_model/send/output.dart';
 import 'package:hive/hive.dart';
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:mobx/mobx.dart';
 
 part 'cw_wownero.dart';
@@ -90,6 +91,8 @@ abstract class Wownero {
 
   String getTransactionAddress(
       Object wallet, int accountIndex, int addressIndex);
+
+  int getHeightByDate({DateTime? date});
 
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
 
