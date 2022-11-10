@@ -138,4 +138,4 @@ typedef get_subaddress_label = Pointer<Utf8> Function(
     Int32 accountIndex, Int32 addressIndex);
 
 typedef validate_address = Int8 Function(
-    String address);
+    Pointer<Utf8> address);

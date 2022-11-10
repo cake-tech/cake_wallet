@@ -391,5 +391,8 @@ String getSubaddressLabel(int accountIndex, int addressIndex) {
 }
 
 bool validateAddress(String address) {
-  return validateAddressNative(address) != 0;
+  final addressPointer = address.toNativeUtf8();
+  final valid = validateAddressNative(addressPointer) != 0;
+  pkgffi.calloc.free(addressPointer);
+  return valid;
 }
