@@ -883,6 +883,11 @@ extern "C"
         return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
     }
 
+    bool validate_address(char *address)
+    {
+        return get_current_wallet()->validateAddress(std::string(address));
+    }
+
 #ifdef __cplusplus
 }
 #endif
