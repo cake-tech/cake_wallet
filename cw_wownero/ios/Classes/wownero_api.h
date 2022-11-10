@@ -8,7 +8,8 @@ extern "C" {
 #endif
 
 bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error);
-bool restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error);
+bool restore_wallet_from_14_word_seed(char *path, char *password, char *seed, int32_t networkType, char *error);
+bool restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error);
 bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error);
 void load_wallet(char *path, char *password, int32_t nettype);
 bool is_wallet_exist(char *path);
