@@ -301,4 +301,9 @@ class CWWownero extends Wownero {
     final wowneroWallet = wallet as WowneroWallet;
     return wowneroWallet.getSubaddressLabel(accountIndex, addressIndex);
   }
+
+  bool validateAddress(Object wallet, String address) {
+    final wowneroWallet = wallet as WowneroWallet;
+    return wowneroWallet.validateAddress(address);
+  }
 }

@@ -298,4 +298,9 @@ class CWMonero extends Monero {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.getTransactionAddress(accountIndex, addressIndex);
   }
+
+  bool validateAddress(Object wallet, String address) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.validateAddress(address);
+  }
 }
