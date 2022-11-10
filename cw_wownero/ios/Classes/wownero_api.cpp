@@ -347,13 +347,10 @@ extern "C"
         return true;
     }
 
-    bool restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, char *error)
+    bool restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
-
-        uint64_t restoreHeight = 0;
-        // TODO use reasonable height or parameter
 
         // 25 word seeds /*
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
