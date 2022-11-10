@@ -650,6 +650,6 @@
   "low_fee_alert": "You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience.",
   "ignor": "Ignore",
   "use_suggested": "Use Suggested",
-  "do_not_share_warning_text" : "Do not share these with anyone else, including support.\n\nThey will steal your money!",
+  "do_not_share_warning_text" : "Do not share these with anyone else, including support.\n\nYour funds can and will be stolen!",
   "help": "help"
 }

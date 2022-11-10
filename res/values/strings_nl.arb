@@ -650,6 +650,6 @@
   "low_fee_alert": "U gebruikt momenteel een lage prioriteit voor netwerkkosten. Dit kan lange wachttijden, andere tarieven of geannuleerde transacties veroorzaken. We raden aan een hogere vergoeding in te stellen voor een betere ervaring.",
   "ignor": "Negeren",
   "use_suggested": "Gebruik aanbevolen",
-  "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
+  "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nUw geld kan en zal worden gestolen!",
   "help": "helpen"
 }

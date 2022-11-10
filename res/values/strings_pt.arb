@@ -650,6 +650,6 @@
   "low_fee_alert": "No momento, você está usando uma prioridade de taxa de rede baixa. Isso pode causar longas esperas, taxas diferentes ou negociações canceladas. Recomendamos definir uma taxa mais alta para uma melhor experiência.",
   "ignor": "Ignorar",
   "use_suggested": "Uso sugerido",
-  "do_not_share_warning_text" : "Não os compartilhe com mais ninguém, incluindo suporte.\n\nEles vão roubar seu dinheiro!",
+  "do_not_share_warning_text" : "Não os compartilhe com mais ninguém, incluindo suporte.\n\nSeus fundos podem e serão roubados!",
   "help": "ajuda"
 }

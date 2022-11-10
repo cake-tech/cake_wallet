@@ -650,6 +650,6 @@
   "low_fee_alert": "Obecnie korzystasz z niskiego priorytetu opłaty sieciowej. Może to spowodować długie oczekiwanie, różne stawki lub anulowane transakcje. Zalecamy ustawienie wyższej opłaty, aby zapewnić lepsze wrażenia.",
   "ignor": "Ignorować",
   "use_suggested": "Użyj sugerowane",
-  "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
+  "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym pomocy.\n\nTwoje środki mogą i zostaną skradzione!",
   "help": "pomoc"
 }
