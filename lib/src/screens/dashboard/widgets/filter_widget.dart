@@ -28,16 +28,6 @@ class FilterWidget extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(
-                S.of(context).filters,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Lato',
-                  decoration: TextDecoration.none,
-                ),
-              ),
               Padding(
                 padding: EdgeInsets.only(left: 24, right: 24, top: 24),
                 child: ClipRRect(
@@ -55,10 +45,8 @@ class FilterWidget extends StatelessWidget {
                             child: Text(
                               S.of(context).filters,
                               style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme!
-                                    .bodyText1!
-                                    .decorationColor!,
+                                color: Theme.of(context).primaryTextTheme
+                                    .overline!.color!,
                                 fontSize: 16,
                                 fontFamily: 'Lato',
                                 decoration: TextDecoration.none,
@@ -182,7 +170,7 @@ class SectionDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 1,
-      color: Colors.red,//Fixme Theme.of(context).accentTextTheme.subhead.backgroundColor,
+      color: Theme.of(context).dividerColor,
     );
   }
 }

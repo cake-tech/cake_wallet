@@ -20,8 +20,8 @@ class RoundedCheckboxWidget extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final baseGradient = LinearGradient(colors: [
-      Colors.red, //Fixme Theme.of(context).primaryTextTheme!.subtitle!.color!,
-      Colors.red //Fixme Theme.of(context).primaryTextTheme!.subtitle!.decorationColor!,
+      Theme.of(context).primaryTextTheme.subtitle1!.color!,
+      Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!,
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final darkThemeGradient = LinearGradient(colors: [
@@ -32,11 +32,11 @@ class RoundedCheckboxWidget extends StatelessWidget {
     final gradient = darkTheme ? darkThemeGradient : baseGradient;
 
     final uncheckedColor = darkTheme
-        ? Colors.red //Fixme Theme.of(context).accentTextTheme.subhead.decorationColor
+        ? Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!
         : Colors.white;
 
     final borderColor = darkTheme
-        ? Colors.red //Fixme Theme.of(context).accentTextTheme.subtitle.backgroundColor
+        ? Theme.of(context).accentTextTheme.subtitle2!.backgroundColor!
         : Colors.transparent;
 
     final checkedOuterBoxDecoration =
@@ -77,7 +77,7 @@ class RoundedCheckboxWidget extends StatelessWidget {
             child: Text(
               caption,
               style: TextStyle(
-                  color: Colors.red, //Fixme Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.headline6!.color!,
                   fontSize: 18,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w500,
