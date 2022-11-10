@@ -48,7 +48,7 @@
   "outgoing" : "In uscita",
   "transactions_by_date" : "Transazioni per data",
   "trades" : "Scambi",
-  "filters" : "Filtri",
+  "filters" : "Filtrirati po",
   "today" : "Oggi",
   "yesterday" : "Ieri",
   "received" : "Ricevuto",
@@ -651,5 +651,7 @@
   "ignor": "Ignorare",
   "use_suggested": "Usa suggerito",
   "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nTi ruberanno i soldi!",
-  "help": "aiuto"
+  "help": "aiuto",
+  "all_transactions": "Sve transakcije",
+  "all_trades": "Svi obrti"
 }

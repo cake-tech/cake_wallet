@@ -48,7 +48,7 @@
   "outgoing" : "Towarzyski",
   "transactions_by_date" : "Transakcje według daty",
   "trades" : "Transakcje",
-  "filters" : "Filtr",
+  "filters" : "Filtruj według",
   "today" : "Dzisiaj",
   "yesterday" : "Wczoraj",
   "received" : "Odebrane",
@@ -651,5 +651,7 @@
   "ignor": "Ignorować",
   "use_suggested": "Użyj sugerowane",
   "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
-  "help": "pomoc"
+  "help": "pomoc",
+  "all_transactions": "Wszystkie transakcje",
+  "all_trades": "Wszystkie operacje"
 }

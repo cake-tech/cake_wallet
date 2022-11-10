@@ -48,7 +48,7 @@
   "outgoing" : "Ausgehend",
   "transactions_by_date" : "Transaktionen nach Datum",
   "trades" : "Börsen",
-  "filters" : "Filter",
+  "filters" : "Filtern nach",
   "today" : "Heute",
   "yesterday" : "Gestern",
   "received" : "Empfangen",
@@ -651,5 +651,7 @@
   "ignor": "Ignorieren",
   "use_suggested": "Vorgeschlagen verwenden",
   "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich des Supports.\n\nSie werden Ihr Geld stehlen!",
-  "help": "hilfe"
+  "help": "hilfe",
+  "all_transactions": "Alle Transaktionen",
+  "all_trades": "Alle Gewerke"
 }

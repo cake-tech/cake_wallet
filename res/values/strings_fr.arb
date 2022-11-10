@@ -46,7 +46,7 @@
   "outgoing" : "Sortantes",
   "transactions_by_date" : "Transactions par date",
   "trades" : "Échanges",
-  "filters" : "Filtre",
+  "filters" : "Filtrer par",
   "today" : "Aujourd'hui",
   "yesterday" : "Hier",
   "received" : "Reçus",
@@ -649,5 +649,7 @@
   "ignor": "Ignorer",
   "use_suggested": "Utilisation suggérée",
   "do_not_share_warning_text" : "Ne les partagez avec personne d'autre, y compris avec l'assistance.\n\nIls vont voler votre argent!",
-  "help": "aider"
+  "help": "aider",
+  "all_transactions": "Toutes transactions",
+  "all_trades": "Tous métiers"
 }

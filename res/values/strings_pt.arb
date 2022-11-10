@@ -48,7 +48,7 @@
   "outgoing" : "Enviadas",
   "transactions_by_date" : "Transações por data",
   "trades" : "Trocas",
-  "filters" : "Filtro",
+  "filters" : "Filtrar por",
   "today" : "Hoje",
   "yesterday" : "Ontem",
   "received" : "Recebida",
@@ -651,5 +651,7 @@
   "ignor": "Ignorar",
   "use_suggested": "Uso sugerido",
   "do_not_share_warning_text" : "Não os compartilhe com mais ninguém, incluindo suporte.\n\nEles vão roubar seu dinheiro!",
-  "help": "ajuda"
+  "help": "ajuda",
+  "all_transactions": "Todas as transacções",
+  "all_trades": "Todas as negociações"
 }

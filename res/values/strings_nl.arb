@@ -48,7 +48,7 @@
   "outgoing" : "Uitgaande",
   "transactions_by_date" : "Transacties op datum",
   "trades" : "Trades",
-  "filters" : "Filter",
+  "filters" : "Filteren op",
   "today" : "Vandaag",
   "yesterday" : "Gisteren",
   "received" : "Ontvangen",
@@ -651,5 +651,7 @@
   "ignor": "Negeren",
   "use_suggested": "Gebruik aanbevolen",
   "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
-  "help": "helpen"
+  "help": "helpen",
+  "all_transactions": "Alle transacties",
+  "all_trades": "Alle transacties"
 }

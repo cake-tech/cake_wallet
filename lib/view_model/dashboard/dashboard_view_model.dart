@@ -61,7 +61,7 @@ abstract class DashboardViewModelBase with Store {
       S.current.transactions: [
         FilterItem(
             value: transactionFilterStore.displayAll,
-            caption: 'S.current.all_transactions',//Fixme
+            caption: S.current.all_transactions,
             onChanged: () => transactionFilterStore.toggleIAll()),
         FilterItem(
             value: transactionFilterStore.displayIncoming,
@@ -79,7 +79,7 @@ abstract class DashboardViewModelBase with Store {
       S.current.trades: [
         FilterItem(
             value: tradeFilterStore.displayAllTrades,
-            caption: 'S.current.all_trades',//Fixme
+            caption: S.current.all_trades,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.all)),
         FilterItem(
