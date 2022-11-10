@@ -1,6 +1,8 @@
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'transaction_filter_store.g.dart';
 
@@ -8,14 +10,11 @@ class TransactionFilterStore = TransactionFilterStoreBase
     with _$TransactionFilterStore;
 
 abstract class TransactionFilterStoreBase with Store {
-  TransactionFilterStoreBase(
-      {this.displayIncoming = true, this.displayOutgoing = true});
+  TransactionFilterStoreBase();
 
-  @observable
-  bool displayIncoming;
-
-  @observable
-  bool displayOutgoing;
+  Observable<bool> displayAll = Observable(true);
+  Observable<bool> displayIncoming = Observable(true);
+  Observable<bool> displayOutgoing = Observable(true);
 
   @observable
   DateTime? startDate;
@@ -24,10 +23,40 @@ abstract class TransactionFilterStoreBase with Store {
   DateTime? endDate;
 
   @action
-  void toggleIncoming() => displayIncoming = !displayIncoming;
+  void toggleIAll() {
+    displayAll.value = (!displayAll.value);
+    if (displayAll.value) {
+      displayOutgoing.value = true;
+      displayIncoming.value = true;
+    }
+    if (!displayAll.value) {
+      displayOutgoing.value = false;
+      displayIncoming.value = false;
+    }
+  }
 
   @action
-  void toggleOutgoing() => displayOutgoing = !displayOutgoing;
+  void toggleIncoming() {
+    displayIncoming.value = (!displayIncoming.value);
+    if (displayIncoming.value && displayOutgoing.value) {
+      displayAll.value = true;
+    }
+    if (!displayIncoming.value || !displayOutgoing.value) {
+      displayAll.value = false;
+    }
+  }
+
+
+  @action
+  void toggleOutgoing() {
+    displayOutgoing.value = (!displayOutgoing.value);
+    if (displayIncoming.value && displayOutgoing.value) {
+      displayAll.value = true;
+    }
+    if (!displayIncoming.value || !displayOutgoing.value) {
+      displayAll.value = false;
+    }
+  }
 
   @action
   void changeStartDate(DateTime date) => startDate = date;
@@ -37,8 +66,8 @@ abstract class TransactionFilterStoreBase with Store {
 
   List<TransactionListItem> filtered({required List<TransactionListItem> transactions}) {
     var _transactions = <TransactionListItem>[];
-    final needToFilter = !displayOutgoing ||
-        !displayIncoming ||
+    final needToFilter = !displayOutgoing.value ||
+        !displayIncoming.value ||
         (startDate != null && endDate != null);
 
     if (needToFilter) {
@@ -50,11 +79,11 @@ abstract class TransactionFilterStoreBase with Store {
               && (endDate?.isAfter(item.transaction.date) ?? false);
         }
 
-        if (allowed && (!displayOutgoing || !displayIncoming)) {
-          allowed = (displayOutgoing &&
+        if (allowed && (!displayOutgoing.value || !displayIncoming.value)) {
+          allowed = (displayOutgoing.value &&
               item.transaction.direction ==
                   TransactionDirection.outgoing) ||
-              (displayIncoming &&
+              (displayIncoming.value &&
                   item.transaction.direction == TransactionDirection.incoming);
         }
 

@@ -60,13 +60,17 @@ abstract class DashboardViewModelBase with Store {
     filterItems = {
       S.current.transactions: [
         FilterItem(
-            value: () => transactionFilterStore.displayIncoming,
-            caption: S.current.incoming,
-            onChanged: (value) => transactionFilterStore.toggleIncoming()),
+            value: transactionFilterStore.displayAll,
+            caption: 'S.current.all_transactions',//Fixme
+            onChanged: () => transactionFilterStore.toggleIAll()),
         FilterItem(
-            value: () => transactionFilterStore.displayOutgoing,
+            value: transactionFilterStore.displayIncoming,
+            caption: S.current.incoming,
+            onChanged: () => transactionFilterStore.toggleIncoming()),
+        FilterItem(
+            value: transactionFilterStore.displayOutgoing,
             caption: S.current.outgoing,
-            onChanged: (value) => transactionFilterStore.toggleOutgoing()),
+            onChanged: () => transactionFilterStore.toggleOutgoing()),
         // FilterItem(
         //     value: () => false,
         //     caption: S.current.transactions_by_date,
@@ -74,10 +78,20 @@ abstract class DashboardViewModelBase with Store {
       ],
       S.current.trades: [
         FilterItem(
-            value: () => tradeFilterStore.displayChangeNow,
+            value: tradeFilterStore.displayAllTrades,
+            caption: 'S.current.all_trades',//Fixme
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.all)),
+        FilterItem(
+            value: tradeFilterStore.displayChangeNow,
             caption: 'Change.NOW',
-            onChanged: (value) => tradeFilterStore
+            onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+        FilterItem(
+            value:  tradeFilterStore.displaySideShift,
+            caption: 'SideShift',
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
       ]
     },
     subname = '',
