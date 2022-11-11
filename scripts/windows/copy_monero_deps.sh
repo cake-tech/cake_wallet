@@ -30,7 +30,6 @@ do
 	cp -r ${PREFIX}/lib/* $LIB_DIR
 	cp -r ${PREFIX}/include/* $INCLUDE_DIR
 
-
 	mkdir -p ${CW_MONERO_EXTERNAL_DIR}/include
 
 	cp $PREFIX/include/monero/wallet2_api.h ${CW_MONERO_EXTERNAL_DIR}/include

@@ -16,33 +16,21 @@ do
 	cd $UNBOUND_SRC_DIR
 	test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
-	if [ ! -z "${MSYSTEM}" ]; then
-		./configure \
-			CFLAGS=-fPIC \
-			CXXFLAGS=-fPIC \
-			--prefix=${PREFIX} \
-			--host=${HOST} \
-			--enable-static \
-			--disable-shared \
-			--disable-flto \
-			--enable-static-openssl \
-			--with-openssl-includes=${PREFIX} \
-			--with-ssl=${PREFIX} \
-			--with-libexpat=${PREFIX}
-	else
+	if [ -z "${MSYSTEM}" ]; then
 		CROSS_COMPILE="x86_64-w64-mingw32.static-"
-		./configure \
-			CFLAGS=-fPIC \
-			CXXFLAGS=-fPIC \
-			--prefix=${PREFIX} \
-			--host=${HOST} \
-			--enable-static \
-			--disable-shared \
-			--disable-flto \
-			--enable-static-openssl \
-			--with-ssl=${PREFIX} \
-			--with-libexpat=${PREFIX}
 	fi
+	./configure \
+		CFLAGS=-fPIC \
+		CXXFLAGS=-fPIC \
+		--prefix=${PREFIX} \
+		--host=${HOST} \
+		--enable-static \
+		--disable-shared \
+		--disable-flto \
+		--enable-static-openssl \
+		--with-openssl-includes=${PREFIX} \
+		--with-ssl=${PREFIX} \
+		--with-libexpat=${PREFIX}
 	make -j$THREADS
 	make -j$THREADS install
 done
