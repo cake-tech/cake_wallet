@@ -139,3 +139,8 @@ build/
 scripts/android/downloads
 lib/git_versions.dart
 scripts/windows/cache/
+
+scripts/mingw64/build/
+scripts/mingw64/cache/
+scripts/mingw64/cmakefiles/x86_64/CMakeLists.txt
+scripts/mingw64/cmakefiles/aarch64/CMakeLists.txt
