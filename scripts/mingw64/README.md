@@ -29,8 +29,9 @@ Run `build_all.sh`
 
 Libraries will be output to `scripts/winwin/build`
 
-###
-MSYS2 MinGW64 Progress:
+See https://fossies.org/linux/unbound/winrc/README.txt "+++ Cross compile"
+
+See http://wiki.zeromq.org/build:mingw
 
 ## Building on Windows with MSVC
 
@@ -87,6 +88,8 @@ nmake -f .\win32\Makefile.msc
 ```
 
 ### `openssl`
+See `build_openssl.sh` for downloading OpenSSL
+
 ```shell
 perl Configure --no-shared --with-zlib-include="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64\include" --with-zlib-lib="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64\lib" VC-WIN32
 
@@ -94,12 +97,16 @@ nmake
 ```
 
 ### `sodium`
-Build `libsodium.sln` for releawse
+See `build_sodium.sh` for downloading Sodium
+
+Build `libsodium.sln` for release
 ```shell
 msbuild .\libsodium.sln /p:PlatformTarget=x86_64 /property:Configuration=Release -m /p:OutputPath="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\libsodium\output"
 ```
 
 ### `expat`
+See `build_expat.sh` for downloading Expat
+
 ```shell
 cmake -G"Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 msbuild /m expat.sln
