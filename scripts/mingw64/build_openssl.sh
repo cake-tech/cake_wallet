@@ -7,21 +7,6 @@ OPENSSL_FILENAME=openssl-1.1.1q.tar.gz
 OPENSSL_FILE_PATH=$CACHEDIR/$OPENSSL_FILENAME
 OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1q
 OPENSSL_SHA256="d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca"
-ZLIB_DIR=$WORKDIR/zlib
-ZLIB_TAG=v1.2.11
-ZLIB_COMMIT_HASH="cacf7f1d4e3d44d871b605da3b647f07d718623f"
-
-if [ ! -d "$ZLIB_DIR" ] ; then
-  git clone -b $ZLIB_TAG --depth 1 https://github.com/madler/zlib $ZLIB_DIR
-fi
-cd $ZLIB_DIR
-git reset --hard $ZLIB_COMMIT_HASH
-if [ ! -z "${MSYSTEM}" ]; then
-	cmake -G"MSYS Makefiles"
-else
-	./configure --static
-fi
-make
 
 if [ ! -e "$OPENSSL_FILE_PATH" ]; then
   curl https://www.openssl.org/source/$OPENSSL_FILENAME -o $OPENSSL_FILE_PATH

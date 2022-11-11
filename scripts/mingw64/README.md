@@ -33,6 +33,8 @@ See https://fossies.org/linux/unbound/winrc/README.txt "+++ Cross compile"
 
 See http://wiki.zeromq.org/build:mingw
 
+See https://github.com/monero-project/monero/blob/master/README.md#on-windows
+
 ## Building on Windows with MSVC
 
 - [x] `iconv`
