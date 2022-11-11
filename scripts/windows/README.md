@@ -1,5 +1,17 @@
-# `flutter_libmonero`
-## Building for Windows on Ubuntu 20.04
+# `flutter_libmonero` for Windows
+Supported platforms: Ubuntu and Windows 11 (MSYS2 MinGW 64-bit)
+
+## Cross-compiling for Windows from Ubuntu 20.04
+- [x] `iconv`
+- [x] `boost`
+- [x] `zlib`
+- [x] `openssl`
+- [x] `sodium`
+- [x] `expat`
+- [ ] `unbound`
+- [ ] `zmq`
+- [ ] `monero`
+
 ### Install dependencies
 Run `monerodeps.sh` to install Monero dependencies, or use the command below:
 ```bash
@@ -8,7 +20,7 @@ sudo apt install libsecret-1-dev libjsoncpp-dev libsecret-1-0
 
 Run `mxedeps.sh` to install MXE and its dependencies, or use the commands below:
 ```bash
-sudo apt-get install p7zip-full autoconf automake autopoint bash bison bzip2 cmake flex gettext git g++ gperf intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config python ruby scons sed unzip wget xz-utils g++-multilib libc6-dev-i386 lzip
+sudo apt-get install p7zip-full autoconf automake autopoint bash bison bzip2 cmake flex gettext git g++ gperf intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config python ruby scons sed unzip wget xz-utils g++-multilib libc6-dev-i386 lzip gcc-mingw-w64-x86-64
 
 # Install MXE to ~/development/mxe
 mkdir -p ~/development
@@ -20,7 +32,7 @@ if ! [[ $PATH == *"/mxe"* ]]; then
   echo 'export PATH="$HOME/development/mxe/usr/bin:$PATH"' >> ~/.bashrc  # Prepend to PATH
   source ~/.bashrc
 fi
-make cmake openssl MXE_TARGETS='x86_64-w64-mingw32.static'
+make cmake MXE_TARGETS='x86_64-w64-mingw32.static'
 ```
 
 ### Build
@@ -28,37 +40,78 @@ Run `build_all.sh` (may need to alter permissions like `chmod +x *.sh`)
 
 Libraries will be output to `scripts/windows/build`
 
-## Building on Windows
-Windows builds are broken, but the following notes may assist in setup:
+## Building on Windows with MSYS2 MinGW64
+- [x] `iconv`
+- [x] `boost`
+See https://gist.github.com/zrsmithson/0b72e0cb58d0cb946fc48b5c88511da8
+- [x] `zlib`
+See https://gist.github.com/baoilleach/5975580
+- [x] `openssl`
+See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
+- [x] `sodium`
+- [x] `expat`
+- [ ] `unbound`
+- [ ] `zmq`
+- [ ] `monero`
+
+### Prerequisites
+ - [MSYS2](https://www.msys2.org/)
+
+### MSYS2 Dependencies
+In a MSYS2 MinGW64 shell run `mingw64deps.sh` , or use the commands below:
+```shell
+pacman -S base-devel gcc cmake libtool autoconf automake
+```
+<!-- TODO: Check if we need to also install mingw-w64-x86_64-cmake -->
+
+### Build
+Run `build_all.sh`
+
+Libraries will be output to `scripts/windows/build`
+
+See:
+ - https://fossies.org/linux/unbound/winrc/README.txt "+++ Cross compile"
+ - http://wiki.zeromq.org/build:mingw
+ - https://github.com/monero-project/monero/blob/master/README.md#on-windows
+
+## Building on Windows with MSVC
+- [x] `iconv`
+- [x] `boost`
+- [x] `zlib`
+- [x] `openssl`
+- [x] `sodium`
+- [ ] `expat`
+- [ ] `unbound`
+- [ ] `zmq`
+- [ ] `monero`
 
 ### Prerequisites
  - Visual Studio Code 2019
- 	Also install C/C++ build tools, the Windows 10 SDK, and the .NET 6.0 SDK
- - Boost 1.80.0 source code
- 	Download boost from https://www.boost.org/users/download/
- - Perl
-	https://strawberryperl.com/
+  Also install C/C++ build tools, the Windows 10 SDK, and the .NET 6.0 SDK
+ - [Strawberry Perl](https://strawberryperl.com/)
 
 ### `cypherstack/flutter-libmonero`
 Clone `cypherstack/flutter-libmonero`
 ```shell
-	git clone https://github.com/cypherstack/flutter-libmonero
+  git clone https://github.com/cypherstack/flutter-libmonero
 ```
 
-We will place all statically-built libraries in `flutter_libmonero\scripts\windows\build\prefix_x86_64`
+Place all statically-built libraries in `flutter_libmonero\scripts\windows\build\prefix_x86_64`
 
 ### `libiconv`
 Clone `kiyolee/libiconv-win-build`
 ```shell
-	git clone https://github.com/kiyolee/libiconv-win-build
+  git clone https://github.com/kiyolee/libiconv-win-build
 ```
 
-Open up the relevant solution file (`libiconv-win-build\build-VS2019\libiconv.sln`) and build a x64 image for release.  Copy the statically-generated library file `build-VS2019\x64\Release\libiconv-static.lib` to `flutter_libmonero\scripts\windows\build\prefix_x86_64` and rename it to `libiconv.lib`
+Open the relevant solution file (`libiconv-win-build\build-VS2019\libiconv.sln`) and build a x64 image for release.  Copy the statically-generated library file `build-VS2019\x64\Release\libiconv-static.lib` to `flutter_libmonero\scripts\windows\build\prefix_x86_64` and rename it to `libiconv.lib`
 ```shell
-	Copy-Item "libiconv-win-build\build-VS2019\x64\Release\libiconv-static.lib" -Destination "\flutter_libmonero\scripts\windows\build\prefix_x86_64\libiconv.lib"
+  Copy-Item "libiconv-win-build\build-VS2019\x64\Release\libiconv-static.lib" -Destination "\flutter_libmonero\scripts\windows\build\prefix_x86_64\libiconv.lib"
 ```
 
 ### `boost`
+See `build_boost.sh` for downloading Boost
+
 ```shell
 .\bootstrap.bat --prefix="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64"
 
@@ -72,23 +125,35 @@ nmake -f .\win32\Makefile.msc
 ```
 
 ### `openssl`
+See `build_openssl.sh` for downloading OpenSSL
+
 ```shell
 perl Configure --no-shared --with-zlib-include="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64\include" --with-zlib-lib="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\prefix_x86_64\lib" VC-WIN32
-
 nmake
 ```
 
-### `libsodium`
-open up visual studio solutions file and build the release version
+### `sodium`
+See `build_sodium.sh` for downloading Sodium
+
+Build `libsodium.sln` for release
 ```shell
-msbuild .\libsodium.sln /p:PlatformTarget=x86 /property:Configuration=Release -m /p:OutputPath="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\libsodium\output"
+msbuild .\libsodium.sln /p:PlatformTarget=x86_64 /property:Configuration=Release -m /p:OutputPath="C:\AndroidStudioproj\firo_wallet\crypto_plugins\flutter_libmonero\scripts\windows\build\libsodium\output"
 ```
 
-### `libexpat`
+### `expat`
+See `build_expat.sh` for downloading Expat
+
+Build `expat.sln` for release
 ```shell
 cmake -G"Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 msbuild /m expat.sln
 ```
 
-## Notes
-See https://www.oodlestechnologies.com/blogs/how-to-compile-altcoin-for-windows-on-linux-using-mxe-and-mingw/
+### `unbound`
+TODO
+
+### `zmq`
+TODO
+
+### `monero`
+TODO

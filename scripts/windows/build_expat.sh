@@ -28,11 +28,10 @@ do
 	CXX=x86_64-w64-mingw32-g++
 	if [ ! -z "${MSYSTEM}" ]; then
 		HOST=x86_64-w64-mingw32
-		#./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --enable-static --disable-shared --prefix=${PREFIX} --host=${HOST}
 	else
 		CROSS_COMPILE="x86_64-w64-mingw32.static-"
-		#./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --enable-static --disable-shared --prefix=${PREFIX} --host=${HOST}
 	fi
-	#make -j$THREADS
-	#make -j$THREADS install
+	./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --enable-static --disable-shared --prefix=${PREFIX} --host=${HOST}
+	make -j$THREADS
+	make -j$THREADS install
 done
