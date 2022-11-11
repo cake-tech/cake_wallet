@@ -12,7 +12,7 @@ See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 - [x] `expat`
 - [ ] `unbound`
 - [ ] `zmq`
-- [x] `monero`
+- [ ] `monero`
 
 ### Prerequisites
  - [MSYS2](https://www.msys2.org/)
@@ -20,7 +20,7 @@ See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 ### MSYS2 Dependencies
 In a MSYS2 MinGW64 shell:
 ```shell
-pacman -S base-devel gcc cmake libtool autoconf automake
+pacman -S base-devel gcc cmake libtool autoconf automake libtool
 ```
 <!-- Do we need to also install mingw-w64-x86_64-cmake ? -->
 

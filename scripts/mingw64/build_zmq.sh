@@ -16,12 +16,12 @@ case $arch in
 	*)	   HOST="x86_64-windows-gnu";;
 esac
 
-cd $WORKDIR
-rm -rf $ZMQ_SRC_DIR
-git clone https://github.com/zeromq/libzmq.git ${ZMQ_SRC_DIR} -b ${ZMQ_BRANCH}
+#cd $WORKDIR
+#rm -rf $ZMQ_SRC_DIR
+#git clone https://github.com/zeromq/libzmq.git ${ZMQ_SRC_DIR} -b ${ZMQ_BRANCH}
 cd $ZMQ_SRC_DIR
-git checkout ${ZMQ_COMMIT_HASH}
-./autogen.sh
+#git checkout ${ZMQ_COMMIT_HASH}
+#./autogen.sh
 ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
 make -j$THREADS
 make install
