@@ -2,12 +2,28 @@
 
 . ./config.sh
 
+: '
+UNBOUND_VERSION=release-1.16.2
+UNBOUND_HASH="cbed768b8ff9bfcf11089a5f1699b7e5707f1ea5"
+UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
+
+# Alternate version for troubleshooting
+UNBOUND_VERSION=release-1.17.0
+UNBOUND_HASH="d25e0cd9b0545ff13120430c94326ceaf14b074f"
+UNBOUND_SRC_DIR=$WORKDIR/unbound-1.17.0
+
+'
+
 UNBOUND_VERSION=release-1.16.2
 UNBOUND_HASH="cbed768b8ff9bfcf11089a5f1699b7e5707f1ea5"
 UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
 
 for arch in $TYPES_OF_BUILD
 do
+	case $arch in
+		*)
+			HOST="${arch}-windows-gnu";;
+	esac
 	PREFIX=$WORKDIR/prefix_${arch}
 
 	cd $WORKDIR
@@ -16,9 +32,10 @@ do
 	cd $UNBOUND_SRC_DIR
 	test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
-	if [ -z "${MSYSTEM}" ]; then
-		CROSS_COMPILE="x86_64-w64-mingw32.static-"
+	if [ ! -z "${MSYSTEM}" ]; then # If running on Ubuntu, not MSYS2 on Windows (MSYSTEM)
+		HOST=x86_64-w64-mingw32
 	fi
+	CROSS_COMPILE="x86_64-w64-mingw32.static-"
 	./configure \
 		CFLAGS=-fPIC \
 		CXXFLAGS=-fPIC \
