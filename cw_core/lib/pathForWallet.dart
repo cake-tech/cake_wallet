@@ -36,7 +36,7 @@ Future<Directory> applicationRootDirectory() async {
   Directory appDirectory;
 
 // todo: can merge and do same as regular linux home dir?
-  if (Logging.isArmLinux) {
+  if (bool.fromEnvironment("IS_ARM")) {
     appDirectory = await getApplicationDocumentsDirectory();
     appDirectory = Directory("${appDirectory.path}/.stackwallet");
   } else if (Platform.isLinux) {
