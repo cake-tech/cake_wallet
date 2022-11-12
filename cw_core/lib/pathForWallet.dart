@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 Future<String> pathForWalletDir(
@@ -49,7 +48,7 @@ Future<Directory> applicationRootDirectory() async {
     throw Exception("Unsupported platform");
   } else if (Platform.isIOS) {
 // todo: check if we need different behaviour here
-    if (Util.isDesktop) {
+    if (await isDesktop()) {
       appDirectory = await getLibraryDirectory();
     } else {
       appDirectory = await getLibraryDirectory();
@@ -63,4 +62,15 @@ Future<Directory> applicationRootDirectory() async {
     await appDirectory.create(recursive: true);
   }
   return appDirectory;
+}
+
+Future<bool> isDesktop() async {
+  if (Platform.isIOS) {
+    Directory libraryPath = await getLibraryDirectory();
+    if (!libraryPath.path.contains("/var/mobile/")) {
+      return true;
+    }
+  }
+
+  return Platform.isLinux || Platform.isMacOS || Platform.isWindows;
 }
