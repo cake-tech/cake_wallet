@@ -142,17 +142,5 @@ abstract class TradeDetailsViewModelBase with Store {
       items.add(TrackTradeListItem(
           title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
     }
-
-    if (trade.createdAt != null) {
-      items.add(StandartListItem(
-          title: S.current.trade_details_created_at,
-          value: trade.createdAt != null ? dateFormat.format(trade.createdAt!).toString() : ''));
-    }
-
-    if (trade.from != null && trade.to != null) {
-      items.add(StandartListItem(
-          title: S.current.trade_details_pair,
-          value: '${trade.from.toString()} → ${trade.to.toString()}'));
-    }
   }
 }
