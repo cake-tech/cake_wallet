@@ -250,8 +250,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final deposits = responseJSON['deposits'] as List?;
     TradeState? state;
 
-    if (deposits != null && deposits.isNotEmpty) {
-      final status = deposits[0]['status'] as String;
+    if (deposits != null && deposits.isEmpty) {
+      state = TradeState.deserialize(raw: 'created');
+    } else {
+      final status = deposits?[0]['status'] as String;
       state = TradeState.deserialize(raw: status);
     }
 
