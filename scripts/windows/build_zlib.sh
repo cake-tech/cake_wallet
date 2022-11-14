@@ -14,6 +14,9 @@ git reset --hard $ZLIB_COMMIT_HASH
 #if [ ! -z "${MSYSTEM}" ]; then
 #	cmake -G"MSYS Makefiles"
 #else
-	./configure --static
+	./configure \
+		--static \
+		--prefix=${PREFIX}
 #fi
 make
+make install
