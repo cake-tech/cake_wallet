@@ -32,9 +32,8 @@ do
 	cd $UNBOUND_SRC_DIR
 	test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
-	if [ ! -z "${MSYSTEM}" ]; then # If running on Ubuntu, not MSYS2 on Windows (MSYSTEM)
-		HOST=x86_64-w64-mingw32
-	fi
+	HOST=x86_64-w64-mingw32
+	# May need to set HOST differently Windows builds
 	CROSS_COMPILE="x86_64-w64-mingw32.static-"
 	./configure \
 		CFLAGS=-fPIC \
