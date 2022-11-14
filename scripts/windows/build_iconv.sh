@@ -16,6 +16,7 @@ for arch in $TYPES_OF_BUILD
 do
 	PREFIX=${WORKDIR}/prefix_${arch}
 
+	: '
 	case $arch in
 		"x86_64" )
 			HOST="x86_64-windows-gnu";;
@@ -25,16 +26,27 @@ do
 			HOST="x86_64-windows-gnu";;
 	esac
 
-	#if [ ! -z "${MSYSTEM}" ]; then
-	#	HOST=x86_64-w64-mingw32
-	#fi
+	if [ ! -z "${MSYSTEM}" ]; then
+		HOST=x86_64-w64-mingw32
+	fi
+	'
+	HOST=x86_64-w64-mingw32
 
 	cd $WORKDIR
 	rm -rf $ICONV_SRC_DIR
 	tar -xzf $ICONV_FILE_PATH -C $WORKDIR
 	cd $ICONV_SRC_DIR
 
-	./configure --build=${HOST} --host=${HOST} --prefix=${PREFIX} --disable-rpath
+	CC=x86_64-w64-mingw32-gcc
+	CXX=x86_64-w64-mingw32-g++
+	HOST=x86_64-w64-mingw32
+	CROSS_COMPILE="x86_64-w64-mingw32.static-"
+	./configure \
+		--host=${HOST} \
+		--prefix=${PREFIX} \
+		--enable-static \
+		--disable-rpath \
+		--disable-nls
 	make -j$THREADS
 	make install
 done

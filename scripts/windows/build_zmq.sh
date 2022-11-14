@@ -21,7 +21,23 @@ do
 	cd $ZMQ_SRC_DIR
 	git checkout ${ZMQ_COMMIT_HASH}
 	./autogen.sh
-	./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
+	#CC=x86_64-w64-mingw32-gcc
+	#CXX=x86_64-w64-mingw32-g++
+	#HOST=x86_64-w64-mingw32
+	#CROSS_COMPILE="x86_64-w64-mingw32.static-"
+	#CXXFLAGS=-std=c++11
+	./configure \
+		--without-documentation \
+		--disable-shared \
+		--without-libsodium \
+		--disable-curve \
+		--prefix=${PREFIX} \
+		--host=${HOST} \
+		--enable-static #\
+		#CFLAGS="-Wall -Wno-pedantic-ms-format -DLIBCZMQ_EXPORTS -DZMQ_DEFINED_STDINT -lzmq -lws2_32 -liphlpapi -lrpcrt4"
 	make -j$THREADS
 	make install
 done
+
+# See http://vrecan.github.io/post/crosscompile_go_zeromq/
+# See https://stackoverflow.com/questions/21322707/zlib-header-not-found-when-cross-compiling-with-mingw

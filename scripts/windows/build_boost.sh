@@ -23,10 +23,86 @@ do
 	cd $BOOST_SRC_DIR
 
 	./bootstrap.sh --prefix="${WORKDIR}/prefix_${arch}" --with-toolset=gcc
-
-	#if [ ! -z "${MSYSTEM}" ]; then
-	#	./b2 release address-model=64 --prefix="${WORKDIR}/prefix_${arch}" --verbose link=static runtime-link=static target-os=windows --build-dir=windows --stagedir=windows_staging --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale -sICONV_PATH=${PREFIX} -j$THREADS install
-	#else
-		./b2 release address-model=64 --verbose link=static runtime-link=static toolset=gcc-mingw target-os=windows --build-dir=windows --stagedir=windows_staging --user-config=user-config.jam --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale -sICONV_PATH=${PREFIX} -j$THREADS install
-	#fi
+	: '
+	if [ ! -z "${MSYSTEM}" ]; then
+		./b2 release \
+			address-model=64 \
+			--prefix="${WORKDIR}/prefix_${arch}" \
+			--verbose \
+			link=static \
+			runtime-link=static \
+			target-os=windows \
+			--build-dir=windows \
+			--stagedir=windows_staging \
+			--with-chrono \
+			--with-date_time \
+			--with-filesystem \
+			--with-program_options \
+			--with-regex \
+			--with-serialization \
+			--with-system \
+			--with-thread \
+			--with-locale \
+			-sICONV_PATH=${PREFIX} \
+			-j$THREADS install
+	else'
+		CC=x86_64-w64-mingw32-gcc
+		CXX=x86_64-w64-mingw32-g++
+		HOST=x86_64-w64-mingw32
+		CROSS_COMPILE="x86_64-w64-mingw32.static-"
+		./b2 release \
+			cxxflags=-fPIC \
+			cflags=-fPIC \
+			--layout=tagged \
+			--build-type=minimal \
+			threading=multi \
+			link=static \
+			-sNO_BZIP2=1 \
+			-sNO_ZLIB=1 \
+			binary-format=pe \
+			target-os=windows \
+			threadapi=win32 \
+			runtime-link=static \
+			address-model=64 \
+			--verbose \
+			runtime-link=static \
+			toolset=gcc-mingw \
+			--build-dir=windows \
+			--stagedir=windows \
+			--user-config=user-config.jam \
+			--with-chrono \
+			--with-date_time \
+			--with-filesystem \
+			--with-program_options \
+			--with-regex \
+			--with-serialization \
+			--with-system \
+			--with-thread \
+			--with-locale \
+			-sICONV_PATH=${PREFIX} \
+			-j$THREADS install
+			: '
+			cxxflags=-fPIC \
+			cflags=-fPIC \
+			--verbose \
+			--build-type=minimal \
+			link=static \
+			runtime-link=static \
+			--with-chrono \
+			--with-date_time \
+			--with-filesystem \
+			--with-program_options \
+			--with-regex \
+			--with-serialization \
+			--with-system \
+			--with-thread \
+			--with-locale \
+			--build-dir=android \
+			--stagedir=android \
+			threading=multi \
+			threadapi=pthread \
+			target-os=linux \
+			-sICONV_PATH=${PREFIX} \
+			-j$THREADS install
+	fi'
 done

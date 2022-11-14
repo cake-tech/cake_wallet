@@ -17,3 +17,4 @@ if [ -z "$IS_ARM" ]; then
 else
   export TYPES_OF_BUILD="aarch64"
 fi
+export PREFIX=$WORKDIR/prefix_${TYPES_OF_BUILD}

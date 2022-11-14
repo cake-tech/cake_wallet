@@ -17,16 +17,24 @@ do
 			HOST="x86_64-windows-gnu";;
 	esac
 
-	if [ ! -z "${MSYSTEM}" ]; then
+	#if [ ! -z "${MSYSTEM}" ]; then
 		HOST=x86_64-w64-mingw32
-	fi
+	#fi
 
 	cd $WORKDIR
 	rm -rf $SODIUM_SRC_DIR
 	git clone https://github.com/jedisct1/libsodium.git $SODIUM_SRC_DIR -b $SODIUM_BRANCH
 	cd $SODIUM_SRC_DIR
 	./autogen.sh
-	./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
+	CC=x86_64-w64-mingw32-gcc
+	CXX=x86_64-w64-mingw32-g++
+	HOST=x86_64-w64-mingw32
+	CROSS_COMPILE="x86_64-w64-mingw32.static-"
+	./configure \
+		--prefix=${PREFIX} \
+		--host=${HOST} \
+		--enable-static \
+		--disable-shared
 	make -j$THREADS
 	make install
 done

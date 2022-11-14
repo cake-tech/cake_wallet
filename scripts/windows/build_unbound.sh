@@ -32,8 +32,9 @@ do
 	cd $UNBOUND_SRC_DIR
 	test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
+	CC=x86_64-w64-mingw32-gcc
+	CXX=x86_64-w64-mingw32-g++
 	HOST=x86_64-w64-mingw32
-	# May need to set HOST differently Windows builds
 	CROSS_COMPILE="x86_64-w64-mingw32.static-"
 	./configure \
 		CFLAGS=-fPIC \

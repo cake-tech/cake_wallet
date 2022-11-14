@@ -14,9 +14,16 @@ git reset --hard $ZLIB_COMMIT_HASH
 #if [ ! -z "${MSYSTEM}" ]; then
 #	cmake -G"MSYS Makefiles"
 #else
+	CC=x86_64-w64-mingw32-gcc
+	CXX=x86_64-w64-mingw32-g++
+	HOST=x86_64-w64-mingw32
+	CROSS_COMPILE="x86_64-w64-mingw32.static-"
 	./configure \
 		--static \
 		--prefix=${PREFIX}
 #fi
 make
 make install
+
+# TODO make sure we are using MinGW64
+# See https://stackoverflow.com/questions/21322707/zlib-header-not-found-when-cross-compiling-with-mingw

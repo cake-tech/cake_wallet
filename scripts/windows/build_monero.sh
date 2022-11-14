@@ -42,8 +42,21 @@ do
 	rm -rf ./build/release
 	mkdir -p ./build/release
 	cd ./build/release
-	cmake -DCMAKE_CXX_FLAGS="-fPIC" -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH=${ARCH} -D BUILD_64=${BUILD_64} -D CMAKE_BUILD_TYPE=release -D INSTALL_VENDORED_LIBUNBOUND=ON -D BUILD_TAG=${TAG} $FLAGS ../..
-	    
+
+	CC=x86_64-w64-mingw32-gcc
+	CXX=x86_64-w64-mingw32-g++
+	HOST=x86_64-w64-mingw32
+	CROSS_COMPILE="x86_64-w64-mingw32.static-"
+	cmake -DCMAKE_CXX_FLAGS="-fPIC" \
+		-D USE_DEVICE_TREZOR=OFF \
+		-D BUILD_GUI_DEPS=1 \
+		-D BUILD_TESTS=OFF \
+		-D ARCH=${ARCH} \
+		-D BUILD_64=${BUILD_64} \
+		-D CMAKE_BUILD_TYPE=release \
+		-D INSTALL_VENDORED_LIBUNBOUND=ON \
+		-D BUILD_TAG=${TAG} $FLAGS ../..
+	
 	make wallet_api -j$THREADS
 	find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
 
