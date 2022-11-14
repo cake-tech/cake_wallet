@@ -24,9 +24,9 @@ do
 
 	./bootstrap.sh --prefix="${WORKDIR}/prefix_${arch}" --with-toolset=gcc
 
-	if [ ! -z "${MSYSTEM}" ]; then
-		./b2 release address-model=64 --prefix="${WORKDIR}/prefix_${arch}" --verbose link=static runtime-link=static target-os=windows --build-dir=windows --stagedir=windows_staging --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale -sICONV_PATH=${PREFIX} -j$THREADS install
-	else
+	#if [ ! -z "${MSYSTEM}" ]; then
+	#	./b2 release address-model=64 --prefix="${WORKDIR}/prefix_${arch}" --verbose link=static runtime-link=static target-os=windows --build-dir=windows --stagedir=windows_staging --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale -sICONV_PATH=${PREFIX} -j$THREADS install
+	#else
 		./b2 release address-model=64 --verbose link=static runtime-link=static toolset=gcc-mingw target-os=windows --build-dir=windows --stagedir=windows_staging --user-config=user-config.jam --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale -sICONV_PATH=${PREFIX} -j$THREADS install
-	fi
+	#fi
 done

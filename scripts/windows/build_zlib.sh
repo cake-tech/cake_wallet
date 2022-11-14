@@ -11,9 +11,9 @@ if [ ! -d "$ZLIB_DIR" ] ; then
 fi
 cd $ZLIB_DIR
 git reset --hard $ZLIB_COMMIT_HASH
-if [ ! -z "${MSYSTEM}" ]; then
-	cmake -G"MSYS Makefiles"
-else
+#if [ ! -z "${MSYSTEM}" ]; then
+#	cmake -G"MSYS Makefiles"
+#else
 	./configure --static
-fi
+#fi
 make

@@ -25,9 +25,9 @@ do
 			HOST="x86_64-windows-gnu";;
 	esac
 
-	if [ ! -z "${MSYSTEM}" ]; then
-		HOST=x86_64-w64-mingw32
-	fi
+	#if [ ! -z "${MSYSTEM}" ]; then
+	#	HOST=x86_64-w64-mingw32
+	#fi
 
 	cd $WORKDIR
 	rm -rf $ICONV_SRC_DIR

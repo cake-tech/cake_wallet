@@ -36,8 +36,7 @@ do
 	cd $OPENSSL_SRC_DIR
 
 	#./Configure --cross-compile-prefix=x86_64-w64-mingw32- mingw64 no-shared --with-zlib-include=${WORKDIR}/include --with-zlib-lib=${WORKDIR}/lib --prefix=${WORKDIR}/prefix_x86_64 --openssldir=${WORKDIR}/prefix_x86_64 OPENSSL_LIBS="-lcrypt32 -lws2_32 -lwsock32"
-	# OPENSSL_LIBS="-lcrypt32 -lws2_32 -lwsock32"
-	# OPENSSL_LIBS="-lgdi32 -ladvapi32 -luser32 -lws2_32 -lwsock32 -lcrypt32"
+
 	: '
 	if [ ! -z "${MSYSTEM}" ]; then
 		./Configure mingw64 \
@@ -67,8 +66,10 @@ do
 		--with-zlib-lib=${PREFIX}/lib \
 		--prefix=${PREFIX} \
 		--openssldir=${PREFIX} \
-		OPENSSL_LIBS="-lcrypt32 -lwsock32 -lws2_32"
-		#OPENSSL_LIBS="-llibssl -llibcrypto -llibssl -lcrypt32 -luser32 -lgdi32 -lwsock32 -lws2_32"
+		OPENSSL_LIBS="-llibssl -llibcrypto -llibssl -lcrypt32 -luser32 -lgdi32 -lwsock32 -lws2_32"
+		# OPENSSL_LIBS="-lcrypt32 -lws2_32 -lwsock32"
+		# OPENSSL_LIBS="-lgdi32 -ladvapi32 -luser32 -lws2_32 -lwsock32 -lcrypt32"
+		# OPENSSL_LIBS="-llibssl -llibcrypto -llibssl -lcrypt32 -luser32 -lgdi32 -lwsock32 -lws2_32"
 	make -j$THREADS
 	make -j$THREADS install_sw
 done
