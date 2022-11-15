@@ -28,12 +28,12 @@ do
 	case $arch in
 		"x86_64"	)
 			BUILD_64=ON
-			TAG="windows-x86_64"
+			TAG="win-x64"
 			ARCH="x86-64"
 			ARCH_ABI="x86_64";;
 		"aarch64"	)
 			BUILD_64=ON
-			TAG="windows-aarch64"
+			TAG="win-x64"
 			ARCH="aarch64"
 			ARCH_ABI="aarch64";;
 	esac
