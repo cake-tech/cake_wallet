@@ -8,9 +8,10 @@ Supported platforms: Ubuntu and Windows 11 (MSYS2 MinGW 64-bit)
 - [x] `openssl`
 - [x] `sodium`
 - [x] `expat`
-- [ ] `unbound`
-- [ ] `zmq`
-- [ ] `monero`
+- [x] `unbound`
+- [x] `zmq`
+- [x] `monero`
+- [ ] Shared file
 
 ### Install dependencies
 Run `monerodeps.sh` to install Monero dependencies, or use the command below:
@@ -154,6 +155,7 @@ TODO
 
 ### `zmq`
 TODO
+See https://github.com/zeromq/libzmq/issues/3199
 
 ### `monero`
 TODO
