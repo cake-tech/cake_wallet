@@ -27,12 +27,12 @@ HOST=x86_64-w64-mingw32
 CROSS_COMPILE="x86_64-w64-mingw32.static-"
 CXXFLAGS=-fPIC
 CFLAGS=-fPIC
-./b2 release \
+./b2 release -d2 \
 	cxxflags=-fPIC \
 	cflags=-fPIC \
 	variant=release \
 	--layout=tagged \
-	--build-type=complete \
+	--build-type=minimal \
 	--user-config=user-config.jam \
 	threading=multi \
 	link=static \
@@ -54,8 +54,9 @@ CFLAGS=-fPIC
 	--with-serialization \
 	--with-locale \
 	--verbose \
-	cxxflags=-fPIC \
-	cflags=-fPIC \
+	--build-dir=windows \
+	--stagedir=windows \
+	threadapi=pthread \
 	toolset=gcc-mingw \
 	-sICONV_PATH=${PREFIX} \
 	-j$THREADS install
