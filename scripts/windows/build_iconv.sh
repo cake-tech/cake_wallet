@@ -23,6 +23,7 @@ HOST=x86_64-w64-mingw32
 CROSS_COMPILE="x86_64-w64-mingw32.static-"
 ./configure \
 	--host=${HOST} \
+	--target=${HOST} \
 	--prefix=${PREFIX} \
 	--enable-static \
 	--disable-rpath \
