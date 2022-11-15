@@ -3,10 +3,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_library( cw_monero
              SHARED
-#             ../../cw_monero/android/jni/monero_jni.cpp
-             ../../../../cw_monero/ios/Classes/monero_api.cpp)
+#             ../../../cw_monero/android/jni/monero_jni.cpp
+             ../../../../../cw_monero/ios/Classes/monero_api.cpp)
 
-             set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../build)
+             set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../../build)
 
 ############
 # libsodium

@@ -11,7 +11,17 @@ COMMIT=$(git log -1 --pretty=format:"%H")
 OS="LINUX" # TODO detect environment variable
 sed -i "/\/\*${OS}_VERSION/c\\/\*${OS}_VERSION\*\/ const ${OS}_VERSION = \"$COMMIT\";" $VERSIONS_FILE
 cd build
-x86_64-w64-mingw32.static-cmake ../cmakefiles/x86_64
+mkdir monero_build
+mkdir wownero_build
+MONERO_BUILD=$(pwd)/monero_build
+WOWNERO_BUILD=$(pwd)/wownero_build
+
+cd $MONERO_BUILD
+x86_64-w64-mingw32.static-cmake ../../cmakefiles/x86_64
 make -j$(nproc)
+cp libcw_monero.so ../
 
-
+cd $WOWNERO_BUILD
+x86_64-w64-mingw32.static-cmake ../../cmakefiles/wownero/x86_64
+make -j$(nproc)
+cp libcw_wownero.so ../
