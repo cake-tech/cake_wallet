@@ -11,7 +11,7 @@ COMMIT=$(git log -1 --pretty=format:"%H")
 OS="LINUX" # TODO detect environment variable
 sed -i "/\/\*${OS}_VERSION/c\\/\*${OS}_VERSION\*\/ const ${OS}_VERSION = \"$COMMIT\";" $VERSIONS_FILE
 cd build
-cmake ../cmakefiles/${TYPES_OF_BUILD}
+x86_64-w64-mingw32.static-cmake ../cmakefiles/x86_64
 make -j$(nproc)
 
 
