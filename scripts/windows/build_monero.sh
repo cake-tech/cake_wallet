@@ -5,15 +5,16 @@
 MONERO_BRANCH=release-v0.18.0.0-android
 MONERO_SRC_DIR=${WORKDIR}/monero
 
+rm -rf $MONERO_SRC_DIR
 git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
 cd $MONERO_SRC_DIR
 git submodule init
 git submodule update
 
-	FLAGS=""
-	DEST_LIB_DIR=${PREFIX}/lib/monero
-	DEST_INCLUDE_DIR=${PREFIX}/include/monero
-	export CMAKE_INCLUDE_PATH="${PREFIX}/include"
+FLAGS=""
+DEST_LIB_DIR=${PREFIX}/lib/monero
+DEST_INCLUDE_DIR=${PREFIX}/include/monero
+export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
 mkdir -p $DEST_LIB_DIR
