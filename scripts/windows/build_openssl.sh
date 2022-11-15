@@ -3,19 +3,18 @@
 set -e
 
 . ./config.sh
+
+OPENSSL_FILE_PATH=$CACHEDIR/$OPENSSL_FILENAME
 : '
 OPENSSL_FILENAME=openssl-1.1.1q.tar.gz
-OPENSSL_FILE_PATH=$CACHEDIR/$OPENSSL_FILENAME
 OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1q
 OPENSSL_SHA256="d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca"
 
 OPENSSL_FILENAME=openssl-1.1.1l.tar.gz
-OPENSSL_FILE_PATH=$CACHEDIR/$OPENSSL_FILENAME
 OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1l
 OPENSSL_SHA256="0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1"
 '
 OPENSSL_FILENAME=openssl-1.1.1l.tar.gz
-OPENSSL_FILE_PATH=$CACHEDIR/$OPENSSL_FILENAME
 OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1l
 OPENSSL_SHA256="0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1"
 
@@ -56,7 +55,7 @@ CROSS_COMPILE="x86_64-w64-mingw32.static-"
 	no-weak-ssl-ciphers \
 	no-zlib \
 	no-zlib-dynamic \
-	--cross-compile-prefix=x86_64-w64-mingw32- \
+	--cross-compile-prefix=x86_64-w64-mingw32.static- \
 	--with-zlib-include=${PREFIX}/include \
 	--with-zlib-lib=${PREFIX}/lib \
 	--prefix=${PREFIX} \
