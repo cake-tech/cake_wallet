@@ -58,8 +58,10 @@ CROSS_COMPILE="x86_64-w64-mingw32.static-"
 	--cross-compile-prefix=x86_64-w64-mingw32.static- \
 	--with-zlib-include=${PREFIX}/include \
 	--with-zlib-lib=${PREFIX}/lib \
-	--prefix=${PREFIX} \
-	--openssldir=${PREFIX} \
-	OPENSSL_LIBS="-lcrypt32 -lwsock32 -lws2_32"
+	--prefix=${WORKDIR}/openssl \
+	--openssldir=${WORKDIR}/openssl \
+	OPENSSL_LIBS="-lcrypt32 -lgdi32 -lwsock32 -lws2_32"
 make -j$THREADS
 make -j$THREADS install_sw
+
+cp -r ${WORKDIR}/openssl/* ${PREFIX} 
