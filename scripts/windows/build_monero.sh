@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./config.sh
 MONERO_BRANCH=release-v0.18.0.0-android

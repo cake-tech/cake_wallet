@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./config.sh
 echo ''$(git log -1 --pretty=format:"%H")' '$(date) >> build/git_commit_version.txt

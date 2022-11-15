@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./config.sh
 BOOST_FILENAME=boost_1_78_0.tar.bz2

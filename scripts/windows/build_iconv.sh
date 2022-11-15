@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./config.sh
 ICONV_FILENAME=libiconv-1.16.tar.gz

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./config.sh
 SODIUM_SRC_DIR=${WORKDIR}/libsodium
