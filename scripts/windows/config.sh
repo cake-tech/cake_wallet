@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 export API=21
-export WORKDIR="$(pwd)"/build
-export CACHEDIR="$(pwd)"/cache
+export SCRIPTDIR="$(pwd)"
+export WORKDIR=${SCRIPTDIR}/build
+export CACHEDIR=${SCRIPTDIR}/cache
 export ANDROID_NDK_ZIP=${WORKDIR}/android-ndk-r17c.zip
 export ANDROID_NDK_ROOT=${WORKDIR}/android-ndk-r17c
 export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT
