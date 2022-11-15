@@ -25,9 +25,11 @@ CC=x86_64-w64-mingw32-gcc
 CXX=x86_64-w64-mingw32-g++
 HOST=x86_64-w64-mingw32
 CROSS_COMPILE="x86_64-w64-mingw32.static-"
-#CXXFLAGS=-fPIC
-#CFLAGS=-fPIC
+CXXFLAGS=-fPIC
+CFLAGS=-fPIC
 ./b2 release \
+	cxxflags=-fPIC \
+	cflags=-fPIC \
 	variant=release \
 	--layout=tagged \
 	--build-type=complete \
