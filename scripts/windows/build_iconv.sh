@@ -12,41 +12,20 @@ fi
 
 echo $ICONV_SHA256 $ICONV_FILE_PATH | sha256sum -c - || exit 1
 
-for arch in $TYPES_OF_BUILD
-do
-	PREFIX=${WORKDIR}/prefix_${arch}
+cd $WORKDIR
+rm -rf $ICONV_SRC_DIR
+tar -xzf $ICONV_FILE_PATH -C $WORKDIR
+cd $ICONV_SRC_DIR
 
-	: '
-	case $arch in
-		"x86_64" )
-			HOST="x86_64-windows-gnu";;
-		"aarch64" )
-			HOST="aarch64-windows-gnu";;
-		*	)
-			HOST="x86_64-windows-gnu";;
-	esac
-
-	if [ ! -z "${MSYSTEM}" ]; then
-		HOST=x86_64-w64-mingw32
-	fi
-	'
-	HOST=x86_64-w64-mingw32
-
-	cd $WORKDIR
-	rm -rf $ICONV_SRC_DIR
-	tar -xzf $ICONV_FILE_PATH -C $WORKDIR
-	cd $ICONV_SRC_DIR
-
-	CC=x86_64-w64-mingw32-gcc
-	CXX=x86_64-w64-mingw32-g++
-	HOST=x86_64-w64-mingw32
-	CROSS_COMPILE="x86_64-w64-mingw32.static-"
-	./configure \
-		--host=${HOST} \
-		--prefix=${PREFIX} \
-		--enable-static \
-		--disable-rpath \
-		--disable-nls
-	make -j$THREADS
-	make install
-done
+CC=x86_64-w64-mingw32-gcc
+CXX=x86_64-w64-mingw32-g++
+HOST=x86_64-w64-mingw32
+CROSS_COMPILE="x86_64-w64-mingw32.static-"
+./configure \
+	--host=${HOST} \
+	--prefix=${PREFIX} \
+	--enable-static \
+	--disable-rpath \
+	--disable-nls
+make -j$THREADS
+make install
