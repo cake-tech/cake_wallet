@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . ./config.sh
+
 MONERO_BRANCH=release-v0.18.0.0-android
 MONERO_SRC_DIR=${WORKDIR}/monero
 
@@ -36,7 +37,7 @@ CC=x86_64-w64-mingw32-gcc
 CXX=x86_64-w64-mingw32-g++
 HOST=x86_64-w64-mingw32
 CROSS_COMPILE="x86_64-w64-mingw32.static-"
-cmake \
+x86_64-w64-mingw32.static-cmake \
 	-DCMAKE_CXX_FLAGS="-fPIC" \
 	-D USE_DEVICE_TREZOR=OFF \
 	-D BUILD_GUI_DEPS=1 \
