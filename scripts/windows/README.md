@@ -45,9 +45,9 @@ Libraries will be output to `scripts/windows/build`
 - [x] `iconv`
 - [x] `boost`
 See https://gist.github.com/zrsmithson/0b72e0cb58d0cb946fc48b5c88511da8
-- [x] `zlib`
+- [ ] `zlib`
 See https://gist.github.com/baoilleach/5975580
-- [x] `openssl`
+- [ ] `openssl`
 See https://wiki.qt.io/Compiling_OpenSSL_with_MinGW
 - [x] `sodium`
 - [x] `expat`
