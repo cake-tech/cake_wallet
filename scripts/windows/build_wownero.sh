@@ -37,7 +37,6 @@ cd $WOWNERO_SRC_DIR
 printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/contrib/epee/src/wipeable_string.cpp)" > ${WORKDIR}/wownero/contrib/epee/src/wipeable_string.cpp
 printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/contrib/epee/src/buffer.cpp)" > ${WORKDIR}/wownero/contrib/epee/src/buffer.cpp
 printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/src/wallet/wallet_rpc_helpers.h)" > ${WORKDIR}/wownero/src/wallet/wallet_rpc_helpers.h
-printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/src/wallet/wallet_rpc_payments.cpp)" > ${WORKDIR}/wownero/src/wallet/wallet_rpc_payments.cpp
 
 rm -rf ./build/release
 mkdir -p ./build/release
