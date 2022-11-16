@@ -649,5 +649,9 @@
   "ignor": "忽视",
   "use_suggested": "使用建议",
   "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
-  "help": "帮助"
+  "help": "帮助",
+  "privacy_settings": "隐私设置",
+  "privacy":"隐私",
+  "display_settings": "显示设置",
+  "other_settings": "其他设置"
 }

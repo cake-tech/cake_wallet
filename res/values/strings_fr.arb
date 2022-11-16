@@ -649,5 +649,9 @@
   "ignor": "Ignorer",
   "use_suggested": "Utilisation suggérée",
   "do_not_share_warning_text" : "Ne les partagez avec personne d'autre, y compris avec l'assistance.\n\nIls vont voler votre argent!",
-  "help": "aider"
+  "help": "aider",
+  "privacy_settings": "Paramètres de confidentialité",
+  "privacy": "Confidentialité",
+  "display_settings": "Paramètres d'affichage",
+  "other_settings": "Autres paramètres"
 }

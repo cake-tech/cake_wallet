@@ -5,9 +5,14 @@ import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/setting/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/setting/other_settings_page.dart';
+import 'package:cake_wallet/src/screens/setting/privacy_page.dart';
+import 'package:cake_wallet/src/screens/setting/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
+import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
@@ -59,7 +64,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
-import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
@@ -439,8 +443,6 @@ Future setup(
     return SettingsViewModel(appStore.settingsStore, yatStore, appStore.wallet!);
   });
 
-  getIt.registerFactory(() => SettingsPage(getIt.get<SettingsViewModel>()));
-
   getIt
       .registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
@@ -476,6 +478,16 @@ Future setup(
   });
 
   getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
+
+  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
+
+  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SettingsViewModel>()));
+
+  getIt.registerFactory(() => PrivacyPage(getIt.get<SettingsViewModel>()));
+
+  getIt.registerFactory(() => DisplaySettingsPage(getIt.get<SettingsViewModel>()));
+
+  getIt.registerFactory(() => OtherSettingsPage(getIt.get<SettingsViewModel>()));
 
   getIt.registerFactory(() =>
       NodeCreateOrEditViewModel(_nodeSource, getIt.get<AppStore>().wallet!));

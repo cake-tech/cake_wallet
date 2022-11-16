@@ -1,11 +1,6 @@
-import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
@@ -16,21 +11,12 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
-import 'package:cake_wallet/view_model/settings/version_list_item.dart';
-import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
-import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
-import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
-import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'settings_view_model.g.dart';
 
@@ -59,9 +45,9 @@ abstract class SettingsViewModelBase with Store {
               TransactionInfo>
           wallet)
       : itemHeaders = {},
-        _walletType = wallet.type,
+        walletType = wallet.type,
+        _wallet = wallet,
         _biometricAuth = BiometricAuth(),
-        sections = <List<SettingsListItem>>[],
         currentVersion = '' {
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
@@ -97,160 +83,19 @@ abstract class SettingsViewModelBase with Store {
     //  createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
     //}
 
-
-    sections = [
-      [
-        SwitcherListItem(
-            title: S.current.settings_display_balance,
-            value: () => balanceDisplayMode == BalanceDisplayMode.displayableBalance,
-            onValueChange: (_, bool value) {
-              if (value) {
-                _settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
-              } else {
-                _settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
-              }
-            },
-        ),
-        if (!isHaven)
-          PickerListItem(
-              title: S.current.settings_currency,
-              searchHintText: S.current.search_currency,
-              items: FiatCurrency.all,
-              selectedItem: () => fiatCurrency,
-              onItemSelected: (FiatCurrency currency) =>
-                  setFiatCurrency(currency),
-              images: FiatCurrency.all.map(
-                    (e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
-                .toList(),
-              isGridView: true,
-              matchingCriteria: (FiatCurrency currency, String searchText) {
-                return currency.title.toLowerCase().contains(searchText) || currency.fullName.toLowerCase().contains(searchText);
-              },
-          ),
-        PickerListItem(
-            title: S.current.settings_fee_priority,
-            items: priorityForWalletType(wallet.type),
-            displayItem: (dynamic priority) {
-              final _priority = priority as TransactionPriority;
-
-              if (wallet.type == WalletType.bitcoin
-                  || wallet.type == WalletType.litecoin) {
-                final rate = bitcoin!.getFeeRate(wallet, _priority);
-                return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
-              }
-
-              return priority.toString();
-            },
-            selectedItem: () => transactionPriority,
-            onItemSelected: (TransactionPriority priority) =>
-                _settingsStore.priority[wallet.type] = priority),
-        SwitcherListItem(
-            title: S.current.settings_save_recipient_address,
-            value: () => shouldSaveRecipientAddress,
-            onValueChange: (_, bool value) =>
-                setShouldSaveRecipientAddress(value))
-      ],
-      [
-        RegularListItem(
-            title: S.current.settings_change_pin,
-            handler: (BuildContext context) {
-              Navigator.of(context).pushNamed(Routes.auth, arguments:
-                  (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                auth.close(
-                  route: isAuthenticatedSuccessfully ? Routes.setupPin : null,
-                  arguments: (PinCodeState<PinCodeWidget> setupPinContext,
-                      String _) {
-                    setupPinContext.close();
-                  },
-                );
-              });
-            }),
-        PickerListItem(
-            title: S.current.settings_change_language,
-            searchHintText: S.current.search_language,
-            items: LanguageService.list.keys.toList(),
-            displayItem: (dynamic code) {
-              return LanguageService.list[code] ?? '';
-            },
-            selectedItem: () => _settingsStore.languageCode,
-            onItemSelected: (String code) {
-              _settingsStore.languageCode = code;
-            },
-            images: LanguageService.list.keys.map(
-              (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
-              .toList(),
-            matchingCriteria: (String code, String searchText) {
-              return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
-            },
-        ),
-        SwitcherListItem(
-            title: S.current.settings_allow_biometrical_authentication,
-            value: () => allowBiometricalAuthentication,
-            onValueChange: (BuildContext context, bool value) {
-              if (value) {
-                Navigator.of(context).pushNamed(Routes.auth, arguments:
-                    (bool isAuthenticatedSuccessfully,
-                        AuthPageState auth) async {
-                  if (isAuthenticatedSuccessfully) {
-                    if (await _biometricAuth.canCheckBiometrics() &&
-                        await _biometricAuth.isAuthenticated()) {
-                      setAllowBiometricalAuthentication(
-                          isAuthenticatedSuccessfully);
-                    }
-                  } else {
-                    setAllowBiometricalAuthentication(
-                        isAuthenticatedSuccessfully);
-                  }
-
-                  auth.close();
-                });
-              } else {
-                setAllowBiometricalAuthentication(value);
-              }
-            }),
-        ChoicesListItem(
-          title: S.current.color_theme,
-          items: ThemeList.all,
-          selectedItem: theme,
-          onItemSelected: (ThemeBase theme) => _settingsStore.currentTheme = theme,
-        ),
-      ],
-      //[
-        //if (_yatStore.emoji.isNotEmpty) ...[
-        //  LinkListItem(
-        //      title: S.current.manage_yats,
-        //      link: manageYatUrl,
-        //      linkTitle: ''),
-        //] else ...[
-        //LinkListItem(
-        //  title: S.current.connect_yats,
-        //  link: connectYatUrl,
-        //  linkTitle: ''),
-        //LinkListItem(
-        //  title: 'Create new Yats',
-        //  link: createNewYatUrl,
-        //  linkTitle: '')
-        //]
-      //],
-      [
-        RegularListItem(
-          title: S.current.settings_terms_and_conditions,
-          handler: (BuildContext context) =>
-              Navigator.of(context).pushNamed(Routes.readDisclaimer),
-        )
-      ],
-      [VersionListItem(title: currentVersion)]
-    ];
   }
 
   @observable
   String currentVersion;
 
   @computed
-  Node get node => _settingsStore.getCurrentNode(_walletType);
+  Node get node => _settingsStore.getCurrentNode(walletType);
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
+
+  @computed
+  String get languageCode => _settingsStore.languageCode;
 
   @computed
   ObservableList<ActionListDisplayMode> get actionlistDisplayMode =>
@@ -258,10 +103,10 @@ abstract class SettingsViewModelBase with Store {
 
   @computed
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[_walletType];
+    final priority = _settingsStore.priority[walletType];
 
     if (priority == null) {
-      throw Exception('Unexpected type ${_walletType.toString()}');
+      throw Exception('Unexpected type ${walletType.toString()}');
     }
 
     return priority;
@@ -285,11 +130,12 @@ abstract class SettingsViewModelBase with Store {
   bool get isBitcoinBuyEnabled => _settingsStore.isBitcoinBuyEnabled;
 
   final Map<String, String> itemHeaders;
-  List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;
   final YatStore _yatStore;
-  final WalletType _walletType;
+  final WalletType walletType;
   final BiometricAuth _biometricAuth;
+  final  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo> _wallet;
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) =>
@@ -333,4 +179,35 @@ abstract class SettingsViewModelBase with Store {
 
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
+
+  @action 
+  Future<bool> biometricAuthenticated()async{
+   return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
+  }
+
+  @action
+  void onLanguageSelected (String code) {
+    _settingsStore.languageCode = code;
+  }
+
+  @action
+  void setTheme(ThemeBase newTheme){
+     _settingsStore.currentTheme = newTheme;
+  }
+
+  String getDisplayPriority(TransactionPriority priority) {
+              final _priority = priority;
+
+              if (_wallet.type == WalletType.bitcoin
+                  || _wallet.type == WalletType.litecoin) {
+                final rate = bitcoin!.getFeeRate(_wallet, _priority);
+                return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+              }
+
+              return priority.toString();
+  }
+
+  void onDisplayPrioritySelected(TransactionPriority priority) =>
+                _settingsStore.priority[_wallet.type] = priority;
+
 }

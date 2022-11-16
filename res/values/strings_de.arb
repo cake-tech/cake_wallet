@@ -651,5 +651,9 @@
   "ignor": "Ignorieren",
   "use_suggested": "Vorgeschlagen verwenden",
   "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich des Supports.\n\nSie werden Ihr Geld stehlen!",
-  "help": "hilfe"
+  "help": "hilfe",
+  "privacy_settings": "Datenschutzeinstellungen",
+  "privacy": "Datenschutz",
+  "display_settings": "Anzeigeeinstellungen",
+  "other_settings": "Andere Einstellungen"
 }

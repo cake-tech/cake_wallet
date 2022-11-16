@@ -77,4 +77,9 @@ class Routes {
   static const ioniaMoreOptionsPage = '/ionia_more_options_page';
   static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
   static const onramperPage = '/onramper';
+  static const connectionSync = '/connection_sync_page';
+  static const securityBackupPage = '/security_and_backup_page';
+  static const privacyPage = '/privacy_page';
+  static const displaySettingsPage = '/display_settings_page';
+  static const otherSettingsPage = '/other_settings_page';
 }

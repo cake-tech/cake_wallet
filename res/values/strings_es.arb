@@ -651,5 +651,9 @@
   "ignor": "Pasar por alto",
   "use_suggested": "Usar sugerido",
   "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Te robarán tu dinero!",
-  "help": "ayuda"
+  "help": "ayuda",
+  "privacy_settings": "Configuración de privacidad",
+  "privacy": "Privacidad",
+  "display_settings": "Configuración de pantalla",
+  "other_settings": "Otras configuraciones"
 }

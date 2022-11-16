@@ -651,5 +651,9 @@
   "ignor": "Ignorare",
   "use_suggested": "Usa suggerito",
   "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nTi ruberanno i soldi!",
-  "help": "aiuto"
+  "help": "aiuto",
+  "privacy_settings": "Impostazioni privacy",
+  "privacy": "Privacy",
+  "display_settings": "Impostazioni di visualizzazione",
+  "other_settings": "Altre impostazioni"
 }
