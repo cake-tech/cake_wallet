@@ -6,28 +6,16 @@ SEED_DIR=$WORKDIR/seed
 SEED_TAG=0.3.0
 SEED_COMMIT_HASH="ef6910b6bb3b61757c36e2e5db0927d75f1731c8"
 
-for arch in $TYPES_OF_BUILD
-do
-
 FLAGS=""
-PREFIX=$WORKDIR/prefix_${arch}
 DEST_LIB_DIR=${PREFIX}/lib/
 DEST_INCLUDE_DIR=${PREFIX}/include/
 export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
-case $arch in
-	"x86_64"	)
-		BUILD_64=ON
-		TAG="linux-x86_64"
-		ARCH="x86-64"
-		ARCH_ABI="x86_64";;
-	"aarch64"	)
-		BUILD_64=ON
-		TAG="linux-aarch64"
-		ARCH="aarch64"
-		ARCH_ABI="aarch64";;
-esac
+BUILD_64=ON
+TAG="win-x86_64"
+ARCH="x86-64"
+ARCH_ABI="x86_64"
 
 cd $WORKDIR
 
@@ -46,6 +34,3 @@ x86_64-w64-mingw32.static-cmake \
 
 make -Cbuild -j$THREADS
 make -Cbuild install
-
-done
-
