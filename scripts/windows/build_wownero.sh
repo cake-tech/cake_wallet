@@ -32,10 +32,16 @@ ARCH="x86-64"
 ARCH_ABI="x86_64"
 
 cd $WOWNERO_SRC_DIR
+
+# Patch to include <limits> to avoid issues with GCC11 as in https://github.com/MultiMC/Launcher/issues/3574
+printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/contrib/epee/src/wipeable_string.cpp)" > ${WORKDIR}/wownero/contrib/epee/src/wipeable_string.cpp
+printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/contrib/epee/src/buffer.cpp)" > ${WORKDIR}/wownero/contrib/epee/src/buffer.cpp
+printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/src/wallet/wallet_rpc_helpers.h)" > ${WORKDIR}/wownero/src/wallet/wallet_rpc_helpers.h
+printf '%s\n%s\n' "#include <limits>" "$(cat ${WORKDIR}/wownero/src/wallet/wallet_rpc_payments.cpp)" > ${WORKDIR}/wownero/src/wallet/wallet_rpc_payments.cpp
+
 rm -rf ./build/release
 mkdir -p ./build/release
 cd ./build/release
-
 
 CC=x86_64-w64-mingw32-gcc
 CXX=x86_64-w64-mingw32-g++
