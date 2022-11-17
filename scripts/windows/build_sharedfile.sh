@@ -17,7 +17,7 @@ MONERO_BUILD=$(pwd)/monero_build
 WOWNERO_BUILD=$(pwd)/wownero_build
 
 cd $MONERO_BUILD
-x86_64-w64-mingw32.static-cmake ../../cmakefiles/x86_64
+x86_64-w64-mingw32.static-cmake ../../cmakefiles/monero/x86_64
 make -j$(nproc)
 cp libcw_monero.so ../
 
