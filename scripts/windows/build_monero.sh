@@ -1,13 +1,25 @@
 #!/bin/bash
 
 . ./config.sh
-
+: '
+MONERO_REPO=https://github.com/cake-tech/monero.git
 MONERO_BRANCH=release-v0.18.0.0-android
+
+MONERO_REPO=https://github.com/monero-project/monero.git
+MONERO_BRANCH=release-v0.18.0.0-android
+MONERO_SHA_HEAD="66184f30859796f3c7c22f9497e41b15b5a4a7c9"
+'
+MONERO_REPO=https://github.com/cake-tech/monero.git
+MONERO_BRANCH=release-v0.18.0.0-android
+
 MONERO_SRC_DIR=${WORKDIR}/monero
 
 rm -rf $MONERO_SRC_DIR
-git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
+git clone ${MONERO_REPO} ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
 cd $MONERO_SRC_DIR
+if [[ -v MONERO_SHA_HEAD ]]; then
+	git reset --hard $WOWNERO_SHA_HEAD
+fi
 git submodule init
 git submodule update
 
