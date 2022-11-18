@@ -166,7 +166,7 @@ class CWHaven extends Haven {
 	
   @override
 	TransactionPriority getDefaultTransactionPriority() {
-		return MoneroTransactionPriority.slow;
+		return MoneroTransactionPriority.automatic;
 	}
 
   @override

@@ -17,13 +17,13 @@ class Contact extends HiveObject with Keyable {
   static const typeId = 0;
   static const boxName = 'Contacts';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String name;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String address;
 
-  @HiveField(2)
+  @HiveField(2, defaultValue: 0)
   late int raw;
 
   CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);

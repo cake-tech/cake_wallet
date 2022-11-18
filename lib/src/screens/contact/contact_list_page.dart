@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -34,12 +35,12 @@ class ContactListPage extends BasePage {
         height: 32.0,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context).accentTextTheme!.caption!.color!),
+            color: Theme.of(context).accentTextTheme.caption!.color!),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
             Icon(Icons.add,
-                color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                color: Theme.of(context).primaryTextTheme.headline6!.color!,
                 size: 22.0),
             ButtonTheme(
               minWidth: 32.0,
@@ -66,9 +67,9 @@ class ContactListPage extends BasePage {
             return CollapsibleSectionList(
               context: context,
               sectionCount: 2,
-              themeColor: Theme.of(context).primaryTextTheme!.headline6!.color!,
+              themeColor: Theme.of(context).primaryTextTheme.headline6!.color!,
               dividerThemeColor:
-              Theme.of(context).primaryTextTheme!.caption!.decorationColor!,
+              Theme.of(context).primaryTextTheme.caption!.decorationColor!,
               sectionTitleBuilder: (_, int sectionIndex) {
                 var title = 'Contacts';
 
@@ -91,37 +92,13 @@ class ContactListPage extends BasePage {
 
                 final contact = contactListViewModel.contacts[index];
                 final content = generateRaw(context, contact);
-                // FIX-ME: Slidable
-                return content;
-                // return !isEditable
-                //     ? content
-                //     : Slidable(
-                //         key: Key('${contact.key}'),
-                //         actionPane: SlidableDrawerActionPane(),
-                //         child: content,
-                //         secondaryActions: <Widget>[
-                //             IconSlideAction(
-                //               caption: S.of(context).edit,
-                //               color: Colors.blue,
-                //               icon: Icons.edit,
-                //               onTap: () async => await Navigator.of(context)
-                //                   .pushNamed(Routes.addressBookAddContact,
-                //                       arguments: contact),
-                //             ),
-                //             IconSlideAction(
-                //               caption: S.of(context).delete,
-                //               color: Colors.red,
-                //               icon: CupertinoIcons.delete,
-                //               onTap: () async {
-                //                 final isDelete =
-                //                     await showAlertDialog(context) ?? false;
-
-                //                 if (isDelete) {
-                //                   await contactListViewModel.delete(contact);
-                //                 }
-                //               },
-                //             ),
-                //           ]);
+                return !isEditable
+                    ? content
+                    : Slidable(
+                        key: Key('${contact.key}'),
+                        endActionPane: _actionPane(context, contact),
+                        child: content,
+                      );
               },
             );
           },
@@ -141,7 +118,7 @@ class ContactListPage extends BasePage {
         final isCopied = await showNameAndAddressDialog(
             context, contact.name, contact.address);
 
-        if (isCopied != null && isCopied) {
+        if (isCopied) {
           await Clipboard.setData(ClipboardData(text: contact.address));
           await showBar<void>(context, S.of(context).copied_to_clipboard);
         }
@@ -165,7 +142,7 @@ class ContactListPage extends BasePage {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                      color: Theme.of(context).primaryTextTheme.headline6!.color!),
                 ),
               )
             )
@@ -266,4 +243,34 @@ class ContactListPage extends BasePage {
               actionLeftButton: () => Navigator.of(context).pop(false));
         }) ?? false;
   }
+
+  ActionPane _actionPane(BuildContext context, ContactRecord contact) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.4,
+    children: [
+      SlidableAction(
+        onPressed: (_) async => await Navigator.of(context)
+            .pushNamed(Routes.addressBookAddContact,
+            arguments: contact),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        icon: Icons.edit,
+        label: S.of(context).edit,
+      ),
+      SlidableAction(
+        onPressed: (_) async {
+          final isDelete =
+              await showAlertDialog(context);
+
+          if (isDelete) {
+            await contactListViewModel.delete(contact);
+          }
+        },
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        icon: CupertinoIcons.delete,
+        label: S.of(context).delete,
+      ),
+    ],
+  );
 }

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -276,7 +275,7 @@ abstract class SendViewModelBase with Store {
 
     if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return '${(priority as BitcoinTransactionPriority).labelWithRate(rate)}';
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
 
     return priority.toString();

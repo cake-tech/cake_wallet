@@ -645,5 +645,11 @@
   "add_custom_redemption": "カスタム引き換えを追加",
   "remaining": "残り",
   "delete_wallet": "ウォレットを削除",
-  "delete_wallet_confirm_message" : "${wallet_name} ウォレットを削除してもよろしいですか?"
+  "delete_wallet_confirm_message" : "${wallet_name} ウォレットを削除してもよろしいですか?",
+  "low_fee": "低料金",
+  "low_fee_alert": "現在、低ネットワーク料金優先度を使用しています。これにより、長い待ち時間、異なるレート、またはキャンセルされた取引が発生する可能性があります。より良い体験のために、より高い料金を設定することをお勧めします。",
+  "ignor": "無視",
+  "use_suggested": "推奨を使用",
+  "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
+  "help": "ヘルプ"
 }
