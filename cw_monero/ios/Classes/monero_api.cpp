@@ -18,6 +18,8 @@ void __clear_cache(void* start, void* end) { }
 #include <string.h>
 #endif
 
+// void nice(int niceness); // Prototype definition
+
 using namespace std::chrono_literals;
 #ifdef __cplusplus
 extern "C"
