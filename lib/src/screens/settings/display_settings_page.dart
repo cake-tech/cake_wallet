@@ -29,11 +29,11 @@ class DisplaySettingsPage extends BasePage {
         child: Column(
           children: [
             SettingsSwitcherCell(
-                title: S.current.settings_save_recipient_address,
-                value: settingsViewModel.shouldSaveRecipientAddress,
-                onValueChange: (BuildContext _, bool value) {
-                  settingsViewModel.setShouldSaveRecipientAddress(value);
-                }),
+            title: S.current.settings_display_balance,
+            value:  settingsViewModel.shouldDisplayBalance,
+            onValueChange: (_, bool value) {
+               settingsViewModel.setShouldDisplayBalance(value);          
+            }),
             if (!isHaven)
               SettingsPickerCell<FiatCurrency>(
                 title: S.current.settings_currency,

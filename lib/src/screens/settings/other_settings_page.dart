@@ -24,7 +24,7 @@ class OtherSettingsPage extends BasePage {
       return Container(
         padding: EdgeInsets.only(top: 10),
         child: Column(children: [
-          SettingsPickerCell<TransactionPriority>(
+          SettingsPickerCell(
             title: S.current.settings_fee_priority,
             items: priorityForWalletType(_settingsViewModel.walletType),
             displayItem: _settingsViewModel.getDisplayPriority,

@@ -117,6 +117,9 @@ abstract class SettingsViewModelBase with Store {
       _settingsStore.balanceDisplayMode;
 
   @computed
+  bool get shouldDisplayBalance => balanceDisplayMode == BalanceDisplayMode.displayableBalance;
+
+  @computed
   bool get shouldSaveRecipientAddress =>
       _settingsStore.shouldSaveRecipientAddress;
 
@@ -193,6 +196,15 @@ abstract class SettingsViewModelBase with Store {
   @action
   void setTheme(ThemeBase newTheme){
      _settingsStore.currentTheme = newTheme;
+  }
+
+  @action
+  void setShouldDisplayBalance(bool value){
+  if (value) {
+    _settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
+    } else {
+    _settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
+    }
   }
 
   String getDisplayPriority(dynamic priority) {
