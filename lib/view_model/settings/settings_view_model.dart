@@ -180,7 +180,7 @@ abstract class SettingsViewModelBase with Store {
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
 
-  @action 
+  @action
   Future<bool> biometricAuthenticated()async{
    return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
   }
@@ -195,8 +195,8 @@ abstract class SettingsViewModelBase with Store {
      _settingsStore.currentTheme = newTheme;
   }
 
-  String getDisplayPriority(TransactionPriority priority) {
-              final _priority = priority;
+  String getDisplayPriority(dynamic priority) {
+              final _priority = priority as TransactionPriority;
 
               if (_wallet.type == WalletType.bitcoin
                   || _wallet.type == WalletType.litecoin) {
