@@ -13,6 +13,5 @@ if ! [[ $PATH == *"/mxe"* ]]; then
   echo 'export PATH="$HOME/development/mxe/usr/bin:$PATH"' >> ~/.bashrc  # Prepend to PATH
   source ~/.bashrc
 fi
-make cmake MXE_TARGETS='x86_64-w64-mingw32.static'
 # make cmake openssl MXE_TARGETS='x86_64-w64-mingw32.static'
 # make expat MXE_TARGETS='x86_64-w64-mingw32.static'
