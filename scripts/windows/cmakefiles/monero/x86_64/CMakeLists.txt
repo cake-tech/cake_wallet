@@ -172,11 +172,11 @@ add_library(rpc_base STATIC IMPORTED)
 set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/librpc_base.a)
 
-add_library(wallet-crypto STATIC IMPORTED)
-set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/libwallet-crypto.a)
+# add_library(wallet-crypto STATIC IMPORTED)
+# set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
+#         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/libwallet-crypto.a)
 
-set(WALLET_CRYPTO "wallet-crypto")
+# set(WALLET_CRYPTO "wallet-crypto")
 
 include_directories( ${EXTERNAL_LIBS_DIR}/prefix_x86_64/include )
 
