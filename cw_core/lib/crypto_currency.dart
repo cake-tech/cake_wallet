@@ -137,71 +137,11 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const uni = CryptoCurrency(title: 'UNI', iconPath: 'assets/images/uni_icon.png', tag: 'ETH', raw: 61);
   static const stx = CryptoCurrency(title: 'STX', iconPath: 'assets/images/stx_icon.png', raw: 62);
 
-  static const mapFromInt = {
-    0: CryptoCurrency.xmr,
-    1: CryptoCurrency.ada,
-    2: CryptoCurrency.bch,
-    3: CryptoCurrency.bnb,
-    4: CryptoCurrency.btc,
-    5: CryptoCurrency.dai,
-    6: CryptoCurrency.dash,
-    7: CryptoCurrency.eos,
-    8: CryptoCurrency.eth,
-    9: CryptoCurrency.ltc,
-    10: CryptoCurrency.nano,
-    11: CryptoCurrency.trx,
-    12: CryptoCurrency.usdt,
-    13: CryptoCurrency.usdterc20,
-    14: CryptoCurrency.xlm,
-    15: CryptoCurrency.xrp,
-    16: CryptoCurrency.xhv,
-    17: CryptoCurrency.xag,
-    18: CryptoCurrency.xau,
-    19: CryptoCurrency.xaud,
-    20: CryptoCurrency.xbtc,
-    21: CryptoCurrency.xcad,
-    22: CryptoCurrency.xchf,
-    23: CryptoCurrency.xcny,
-    24: CryptoCurrency.xeur,
-    25: CryptoCurrency.xgbp,
-    26: CryptoCurrency.xjpy,
-    27: CryptoCurrency.xnok,
-    28: CryptoCurrency.xnzd,
-    29: CryptoCurrency.xusd,
-    30: CryptoCurrency.ape,
-    31: CryptoCurrency.avaxc,
-    32: CryptoCurrency.btt,
-    33: CryptoCurrency.bttbsc,
-    34: CryptoCurrency.doge,
-    35: CryptoCurrency.firo,
-    36: CryptoCurrency.usdttrc20,
-    37: CryptoCurrency.hbar,
-    38: CryptoCurrency.sc,
-    39: CryptoCurrency.sol,
-    40: CryptoCurrency.usdc,
-    41: CryptoCurrency.usdcsol,
-    42: CryptoCurrency.zaddr,
-    43: CryptoCurrency.zec,
-    44: CryptoCurrency.zen,
-    45: CryptoCurrency.xvg,
-    46: CryptoCurrency.usdcpoly,
-    47: CryptoCurrency.dcr,
-    48: CryptoCurrency.husd,
-    49: CryptoCurrency.kmd,
-    50: CryptoCurrency.mana,
-    51: CryptoCurrency.maticpoly,
-    52: CryptoCurrency.matic,
-    53: CryptoCurrency.mkr,
-    54: CryptoCurrency.near,
-    55: CryptoCurrency.oxt,
-    56: CryptoCurrency.paxg,
-    57: CryptoCurrency.pivx,
-    58: CryptoCurrency.rune,
-    59: CryptoCurrency.rvn,
-    60: CryptoCurrency.scrt,
-    61: CryptoCurrency.uni,
-    62: CryptoCurrency.stx
-  };
+  static Map<int, CryptoCurrency> rawCurrencyMap =
+  all.fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
+    acc.addAll({item.raw: item});
+    return acc;
+  });
 
   static const mapFromString = {
     'xmr': CryptoCurrency.xmr,
@@ -271,11 +211,11 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
 
   static CryptoCurrency deserialize({required int raw}) {
 
-    if (CryptoCurrency.mapFromInt[raw] == null) {
+    if (CryptoCurrency.rawCurrencyMap[raw] == null) {
       final s = 'Unexpected token: $raw for CryptoCurrency deserialize';
       throw  ArgumentError.value(raw, 'raw', s);
     }
-    return CryptoCurrency.mapFromInt[raw]!;
+    return CryptoCurrency.rawCurrencyMap[raw]!;
   }
 
   static CryptoCurrency fromString(String raw) {
