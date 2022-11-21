@@ -42,6 +42,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
         _hasSyncAfterStartup = false,
         walletAddresses = HavenWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
+        feeEstimate = HavenFeeEstimate(),
         super(walletInfo) {
     transactionHistory = HavenTransactionHistory();
     _onAccountChangeReaction = reaction((_) => walletAddresses.account,
@@ -52,7 +53,6 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       balance.addAll(getHavenBalance(accountIndex: account.id));
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
-    feeEstimate = HavenFeeEstimate();
   }
 
   static const int _autoSaveInterval = 30;

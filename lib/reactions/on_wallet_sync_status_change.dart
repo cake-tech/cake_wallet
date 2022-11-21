@@ -38,7 +38,7 @@ void startWalletSyncStatusChangeReaction(WalletBase<Balance, TransactionHistoryB
     }
 
     if (status is SyncedSyncStatus) {
-      wallet.feeEstimate.update(priority: settingsStore.priority[wallet.type], outputsCount: 1);
+      wallet.feeEstimate.update(priority: settingsStore.priority[wallet.type]!);
     }
   });
 }

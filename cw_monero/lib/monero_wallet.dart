@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cw_core/monero_balance.dart';
+import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_monero/monero_transaction_creation_exception.dart';
@@ -16,8 +18,6 @@ import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
-import 'package:cw_monero/monero_wallet_keys.dart';
-import 'package:cw_monero/monero_balance.dart';
 import 'package:cw_monero/monero_fee_estimate.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_core/account.dart';
@@ -26,7 +26,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 part 'monero_wallet.g.dart';
@@ -47,6 +46,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         _hasSyncAfterStartup = false,
         walletAddresses = MoneroWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
+        feeEstimate = MoneroFeeEstimate(),
         super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
     _onAccountChangeReaction = reaction((_) => walletAddresses.account,
@@ -64,7 +64,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         });
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
-    feeEstimate = MoneroFeeEstimate();
   }
 
   static const int _autoSaveInterval = 30;

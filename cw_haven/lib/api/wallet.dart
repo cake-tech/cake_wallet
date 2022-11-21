@@ -366,6 +366,6 @@ int _estimateTransactionFee(Map args) {
   return estimateTransactionFeeSync(outputsCount, priorityRaw);
 }
 
-Future<int> estimateTransactionFee({int priorityRaw, int outputsCount}) {
+Future<int> estimateTransactionFee({required int priorityRaw, required int outputsCount}) {
   return compute(_estimateTransactionFee, {'priorityRaw': priorityRaw, 'outputsCount': outputsCount});
 }

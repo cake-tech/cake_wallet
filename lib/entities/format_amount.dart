@@ -11,13 +11,13 @@ String formatAmount(String amount) {
   return amount;
 }
 
-double formatAmountToDouble({WalletType type, int amount}) {
+double formatAmountToDouble({required WalletType type, required int amount}) {
   if (type == WalletType.bitcoin || type == WalletType.litecoin) {
-    return bitcoin.formatterBitcoinAmountToDouble(amount: amount);
+    return bitcoin!.formatterBitcoinAmountToDouble(amount: amount);
   }
 
   if (type == WalletType.monero) {
-    return monero.formatterMoneroAmountToDouble(amount: amount);
+    return monero!.formatterMoneroAmountToDouble(amount: amount);
   }
 
   return 0.0;

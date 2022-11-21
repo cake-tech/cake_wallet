@@ -8,13 +8,13 @@ class ElectrumFeeEstimate extends FeeEstimate {
 
   ElectrumWalletBase _wallet;
 
-  int get({TransactionPriority priority, int amount, int outputsCount}) {
+  int get({TransactionPriority? priority, int? amount, int? outputsCount}) {
     // Electrum doesn't require an async call to obtain the estimated fee.
     // We don't bother caching and just obtain it directly.
     return _wallet.calculateEstimatedFee(priority,amount, outputsCount: outputsCount);
   }
 
-  void update({TransactionPriority priority, int amount, int outputsCount}) {}
+  void update({TransactionPriority? priority, int? amount, int? outputsCount}) {}
 
-  void set({TransactionPriority priority, int outputsCount, int fee}) {}
+  void set({TransactionPriority? priority, int? outputsCount, int? fee}) {}
 }

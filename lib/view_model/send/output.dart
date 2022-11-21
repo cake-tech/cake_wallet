@@ -150,7 +150,9 @@ abstract class OutputBase with Store {
     try {
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
-          cryptoAmount: (cryptoAmount.toUpperCase() == S.current.all) ? _cryptoNumberFormat.format(formatAmountToDouble(type: _wallet.type, amount: _estimateAmountAll())) : cryptoAmount.replaceAll(',', '.'));
+          cryptoAmount: (cryptoAmount.toUpperCase() == S.current.all)
+              ? _cryptoNumberFormat.format(formatAmountToDouble(type: _wallet.type, amount: _estimateAmountAll()))
+              : cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }
@@ -198,8 +200,11 @@ abstract class OutputBase with Store {
   }
 
   int _estimateAmountAll() {
-    final fee = _wallet.feeEstimate.get(priority: _settingsStore.priority[_wallet.type], outputsCount: 1);
-    return max(0, _wallet.balance[cryptoCurrencyHandler()].available - fee);
+    final fee = _wallet.feeEstimate.get(
+      priority: _settingsStore.priority[_wallet.type]!,
+      amount: _wallet.balance[cryptoCurrencyHandler()]!.available,
+    );
+    return max(0, _wallet.balance[cryptoCurrencyHandler()]!.available - fee);
   }
 
   Future<void> fetchParsedAddress(BuildContext context) async {

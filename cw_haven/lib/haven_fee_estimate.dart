@@ -15,7 +15,7 @@ abstract class _HavenFeeEstimate extends FeeEstimate with Store {
   ObservableMap<String, int> _estimatedFee;
 
   @override
-  void update({TransactionPriority priority, int outputsCount}) {
+  void update({required TransactionPriority priority, int outputsCount = 1}) {
     Future(() async {
       final fee = await haven_wallet.estimateTransactionFee(priorityRaw: priority.raw, outputsCount: outputsCount);
       set(priority: priority, fee: fee, outputsCount: outputsCount);
@@ -23,12 +23,12 @@ abstract class _HavenFeeEstimate extends FeeEstimate with Store {
   }
 
   @override
-  int get({TransactionPriority priority, int amount, int outputsCount}) {
+  int get({required TransactionPriority priority, required int amount, int outputsCount = 1}) {
     return _estimatedFee[_key(priority, outputsCount)] ?? 0;
   }
 
   @override
-  void set({TransactionPriority priority, int outputsCount, int fee}) {
+  void set({required TransactionPriority priority, required int outputsCount, required int fee}) {
     _estimatedFee[_key(priority, outputsCount)] = fee;
   }
 

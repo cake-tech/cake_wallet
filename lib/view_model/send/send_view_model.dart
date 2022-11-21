@@ -54,7 +54,9 @@ abstract class SendViewModelBase with Store {
     outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
     _settingsStore.priority.observe((change) async {
-      _wallet.feeEstimate.update(priority: change.newValue, outputsCount: outputs.length);
+      if (change.newValue != null) {
+        _wallet.feeEstimate.update(priority: change.newValue!, outputsCount: outputs.length);
+      }
     });
 
     estimateFee();
@@ -90,7 +92,7 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFiatAmount {
     try {
       if (pendingTransaction != null) {
-        return _calculateFiatAmount(pendingTransaction.amountFormatted);
+        return _calculateFiatAmount(pendingTransaction!.amountFormatted);
       } else {
         return '0.00';
       }
@@ -103,7 +105,7 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
-        return _calculateFiatAmount(pendingTransaction.feeFormatted);
+        return _calculateFiatAmount(pendingTransaction!.feeFormatted);
       } else {
         return '0.00';
       }
@@ -292,7 +294,7 @@ abstract class SendViewModelBase with Store {
       currency.toLowerCase() == _wallet.currency.title.toLowerCase();
 
   void estimateFee() {
-    _wallet.feeEstimate.update(priority: _settingsStore.priority[_wallet.type], outputsCount: outputs.length);
+    _wallet.feeEstimate.update(priority: _settingsStore.priority[_wallet.type]!, outputsCount: outputs.length);
   }
 
   @computed
@@ -304,7 +306,7 @@ abstract class SendViewModelBase with Store {
       }
 
       final fee = _wallet.feeEstimate.get(
-        priority: _settingsStore.priority[_wallet.type],
+        priority: _settingsStore.priority[_wallet.type]!,
         amount: totalFormattedCryptoAmount,
         outputsCount: outputs.length,
       );

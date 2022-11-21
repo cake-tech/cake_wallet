@@ -68,12 +68,12 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
            ? {currency: initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0)}
            : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
-        feeEstimate = ElectrumFeeEstimate(this),
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
     transactionHistory =
         ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+    feeEstimate = ElectrumFeeEstimate(this);
   }
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
@@ -98,7 +98,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   @override
   @observable
-  ElectrumFeeEstimate feeEstimate;
+  late ElectrumFeeEstimate feeEstimate;
 
   List<String> get scriptHashes => walletAddresses.addresses
       .map((addr) => scriptHash(addr.address, networkType: networkType))

@@ -2,9 +2,9 @@ import 'package:cw_core/transaction_priority.dart';
 
 abstract class FeeEstimate
 {
-  void update({TransactionPriority priority, int outputsCount});
+  void update({required TransactionPriority priority, int outputsCount = 1});
 
-  int get({TransactionPriority priority, int amount, int outputsCount});
+  int get({required TransactionPriority priority, required int amount, int outputsCount = 1});
 
-  void set({TransactionPriority priority, int outputsCount, int fee});
+  void set({required TransactionPriority priority, required int outputsCount, required int fee});
 }
