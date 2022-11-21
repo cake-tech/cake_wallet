@@ -97,7 +97,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   SyncStatus syncStatus;
 
   @override
-  @observable
   late ElectrumFeeEstimate feeEstimate;
 
   List<String> get scriptHashes => walletAddresses.addresses
