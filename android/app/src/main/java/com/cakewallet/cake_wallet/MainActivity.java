@@ -38,8 +38,7 @@ public class MainActivity extends FlutterFragmentActivity {
 
         utilsChannel.setMethodCallHandler(this::handle);
 
-        AppCenter.start(getApplication(), "APP_CENTER_ANDROID_SECRET_KEY",
-                Analytics.class, Crashes.class);
+        AppCenter.start(getApplication(), "APP_CENTER_ANDROID_SECRET_KEY");
     }
 
     private void handle(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
