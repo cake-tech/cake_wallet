@@ -9,7 +9,6 @@ class QrPainter extends CustomPainter {
     this.errorCorrectionLevel,
   ) : this._qr = QrCode(version, errorCorrectionLevel)..addData(data) {
     _p.color = this.color;
-    _qr.addData(data);
     _qrImage = QrImage(_qr);
   }
 
