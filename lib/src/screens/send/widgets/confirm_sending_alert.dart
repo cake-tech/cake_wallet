@@ -4,24 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'package:flutter/scheduler.dart';
 
 class ConfirmSendingAlert extends BaseAlertDialog {
   ConfirmSendingAlert({
-    @required this.alertTitle,
-    @required this.amount,
-    @required this.amountValue,
-    @required this.fiatAmountValue,
-    @required this.fee,
-    @required this.feeValue,
-    @required this.feeFiatAmount,
-    @required this.outputs,
-    @required this.leftButtonText,
-    @required this.rightButtonText,
-    @required this.actionLeftButton,
-    @required this.actionRightButton,
-    this.alertBarrierDismissible = true});
+    required this.alertTitle,
+    this.paymentId,
+    this.paymentIdValue,
+    required this.amount,
+    required this.amountValue,
+    required this.fiatAmountValue,
+    required this.fee,
+    required this.feeValue,
+    required this.feeFiatAmount,
+    required this.outputs,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
+    this.alertBarrierDismissible = true,
+    this.alertLeftActionButtonTextColor,
+    this.alertRightActionButtonTextColor,
+    this.alertLeftActionButtonColor,
+    this.alertRightActionButtonColor});
 
   final String alertTitle;
+  final String? paymentId;
+  final String? paymentIdValue;
   final String amount;
   final String amountValue;
   final String fiatAmountValue;
@@ -34,6 +43,10 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   final VoidCallback actionLeftButton;
   final VoidCallback actionRightButton;
   final bool alertBarrierDismissible;
+  final Color? alertLeftActionButtonTextColor;
+  final Color? alertRightActionButtonTextColor;
+  final Color? alertLeftActionButtonColor;
+  final Color? alertRightActionButtonColor;
 
   @override
   String get titleText => alertTitle;
@@ -57,7 +70,21 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   bool get barrierDismissible => alertBarrierDismissible;
 
   @override
+  Color? get leftActionButtonTextColor => alertLeftActionButtonTextColor;
+
+  @override
+  Color? get rightActionButtonTextColor => alertRightActionButtonTextColor;
+
+  @override
+  Color? get leftActionButtonColor => alertLeftActionButtonColor;
+
+  @override
+  Color? get rightActionButtonColor => alertRightActionButtonColor;
+
+  @override
   Widget content(BuildContext context) => ConfirmSendingAlertContent(
+      paymentId: paymentId,
+      paymentIdValue: paymentIdValue,
       amount: amount,
       amountValue: amountValue,
       fiatAmountValue: fiatAmountValue,
@@ -70,14 +97,18 @@ class ConfirmSendingAlert extends BaseAlertDialog {
 
 class ConfirmSendingAlertContent extends StatefulWidget {
   ConfirmSendingAlertContent({
-    @required this.amount,
-    @required this.amountValue,
-    @required this.fiatAmountValue,
-    @required this.fee,
-    @required this.feeValue,
-    @required this.feeFiatAmount,
-    @required this.outputs});
+    this.paymentId,
+    this.paymentIdValue,
+    required this.amount,
+    required this.amountValue,
+    required this.fiatAmountValue,
+    required this.fee,
+    required this.feeValue,
+    required this.feeFiatAmount,
+    required this.outputs});
 
+  final String? paymentId;
+  final String? paymentIdValue;
   final String amount;
   final String amountValue;
   final String fiatAmountValue;
@@ -88,6 +119,8 @@ class ConfirmSendingAlertContent extends StatefulWidget {
 
   @override
   ConfirmSendingAlertContentState createState() => ConfirmSendingAlertContentState(
+    paymentId: paymentId,
+    paymentIdValue: paymentIdValue,
     amount: amount,
     amountValue: amountValue,
     fiatAmountValue: fiatAmountValue,
@@ -100,20 +133,25 @@ class ConfirmSendingAlertContent extends StatefulWidget {
 
 class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> {
   ConfirmSendingAlertContentState({
-    @required this.amount,
-    @required this.amountValue,
-    @required this.fiatAmountValue,
-    @required this.fee,
-    @required this.feeValue,
-    @required this.feeFiatAmount,
-    @required this.outputs}) {
-
+    this.paymentId,
+    this.paymentIdValue,
+    required this.amount,
+    required this.amountValue,
+    required this.fiatAmountValue,
+    required this.fee,
+    required this.feeValue,
+    required this.feeFiatAmount,
+    required this.outputs})
+      : itemCount = 0,
+        recipientTitle = '' {
     itemCount = outputs.length;
     recipientTitle = itemCount > 1
         ? S.current.transaction_details_recipient_address
         : S.current.recipient_address;
   }
 
+  final String? paymentId;
+  final String? paymentIdValue;
   final String amount;
   final String amountValue;
   final String fiatAmountValue;
@@ -128,6 +166,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
   double fromTop = 0;
   String recipientTitle;
   int itemCount;
+  bool showScrollbar = false;
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +176,12 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
             (backgroundHeight - thumbHeight))
           : 0;
       setState(() {});
+    });
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        showScrollbar = controller.position.maxScrollExtent > 0;
+      });
     });
 
     return Stack(
@@ -149,6 +194,44 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                 controller: controller,
                 child: Column(
                   children: <Widget>[
+                    if (paymentIdValue != null && paymentId != null)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 32),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              paymentId!,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                fontFamily: 'Lato',
+                                color: Theme.of(context).primaryTextTheme!
+                                    .headline6!.color!,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  paymentIdValue!,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Lato',
+                                    color: Theme.of(context).primaryTextTheme!
+                                        .headline6!.color!,
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -161,9 +244,9 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                             fontWeight: FontWeight.normal,
                             fontFamily: 'Lato',
                             color: Theme.of(context)
-                                .primaryTextTheme
-                                .title
-                                .color,
+                                .primaryTextTheme!
+                                .headline6!
+                                .color!,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -177,8 +260,8 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Lato',
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
+                                    .primaryTextTheme!
+                                    .headline6!
                                     .color,
                                 decoration: TextDecoration.none,
                               ),
@@ -210,10 +293,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color,
+                                color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -226,10 +306,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .title
-                                        .color,
+                                    color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -259,9 +336,9 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               fontWeight: FontWeight.normal,
                               fontFamily: 'Lato',
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .title
-                                  .color,
+                                  .primaryTextTheme!
+                                  .headline6!
+                                  .color!,
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -370,7 +447,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                 )
             )
         ),
-        if (itemCount > 1) CakeScrollbar(
+        if (showScrollbar) CakeScrollbar(
               backgroundHeight: backgroundHeight,
               thumbHeight: thumbHeight,
               fromTop: fromTop,

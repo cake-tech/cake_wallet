@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class StandartListRow extends StatelessWidget {
   StandartListRow(
-      {this.title,
-      this.value,
+      {required this.title,
+      required this.value,
       this.titleFontSize = 14,
       this.valueFontSize = 16,
       this.image});
@@ -13,7 +13,7 @@ class StandartListRow extends StatelessWidget {
   final String value;
   final double titleFontSize;
   final double valueFontSize;
-  final Image image;
+  final Image? image;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class StandartListRow extends StatelessWidget {
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
                       color:
-                      Theme.of(context).primaryTextTheme.overline.color),
+                      Theme.of(context).primaryTextTheme!.overline!.color!),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),
@@ -46,9 +46,9 @@ class StandartListRow extends StatelessWidget {
                               fontSize: valueFontSize,
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .title
-                                  .color)),
+                                  .primaryTextTheme!
+                                  .headline6!
+                                  .color!)),
                     ),
                     image != null
                     ? Padding(

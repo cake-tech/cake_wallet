@@ -23,7 +23,7 @@ class IoniaDebitCardPage extends BasePage {
     return Text(
       S.current.debit_card,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -51,7 +51,7 @@ class IoniaDebitCardPage extends BasePage {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Text(
                     S.of(context).billing_address_info,
-                    style: textSmall(color: Theme.of(context).textTheme.display1.color),
+                    style: textSmall(color: Theme.of(context).textTheme!.headline4!.color!),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -60,13 +60,13 @@ class IoniaDebitCardPage extends BasePage {
                   text: S.of(context).order_physical_card,
                   onPressed: () {},
                   color: Color(0xffE9F2FC),
-                  textColor: Theme.of(context).textTheme.display2.color,
+                  textColor: Theme.of(context).textTheme!.headline3!.color!,
                 ),
                 SizedBox(height: 8),
                 PrimaryButton(
                   text: S.of(context).add_value,
                   onPressed: () {},
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
                 ),
                 SizedBox(height: 16)
@@ -112,11 +112,11 @@ class IoniaDebitCardPage extends BasePage {
                   child: RichText(
                       text: TextSpan(
                     text: S.of(context).get_a,
-                    style: textMedium(color: Theme.of(context).textTheme.display2.color),
+                    style: textMedium(color: Theme.of(context).textTheme!.headline3!.color!),
                     children: [
                       TextSpan(
                         text: S.of(context).digital_and_physical_card,
-                        style: textMediumBold(color: Theme.of(context).textTheme.display2.color),
+                        style: textMediumBold(color: Theme.of(context).textTheme!.headline3!.color!),
                       ),
                       TextSpan(
                         text: S.of(context).get_card_note,
@@ -134,7 +134,7 @@ class IoniaDebitCardPage extends BasePage {
           bottomSection: PrimaryButton(
             text: S.of(context).activate,
             onPressed: () => _showHowToUseCard(context, activate: true),
-            color: Theme.of(context).accentTextTheme.body2.color,
+            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
             textColor: Colors.white,
           ),
         );
@@ -165,7 +165,7 @@ class IoniaDebitCardPage extends BasePage {
                         Text(
                           S.of(context).how_to_use_card,
                           style: textLargeSemiBold(
-                            color: Theme.of(context).textTheme.body1.color,
+                            color: Theme.of(context).textTheme!.bodyText2!.color!,
                           ),
                         ),
                         SizedBox(height: 24),
@@ -174,7 +174,7 @@ class IoniaDebitCardPage extends BasePage {
                           child: Text(
                             S.of(context).signup_for_card_accept_terms,
                             style: textSmallSemiBold(
-                              color: Theme.of(context).textTheme.display2.color,
+                              color: Theme.of(context).textTheme!.headline3!.color!,
                             ),
                           ),
                         ),
@@ -195,7 +195,7 @@ class IoniaDebitCardPage extends BasePage {
                               : Navigator.pop(context),
                           text: S.of(context).send_got_it,
                           color: Color.fromRGBO(233, 242, 252, 1),
-                          textColor: Theme.of(context).textTheme.display2.color,
+                          textColor: Theme.of(context).textTheme!.headline3!.color!,
                         ),
                         SizedBox(height: 21),
                       ],
@@ -223,13 +223,14 @@ class IoniaDebitCardPage extends BasePage {
 }
 
 class _IoniaDebitCard extends StatefulWidget {
-  final bool isCardSample;
-  final IoniaVirtualCard cardInfo;
   const _IoniaDebitCard({
-    Key key,
-    this.isCardSample = false,
+    Key? key,
     this.cardInfo,
+    this.isCardSample = false,
   }) : super(key: key);
+
+  final bool isCardSample;
+  final IoniaVirtualCard? cardInfo;
 
   @override
   _IoniaDebitCardState createState() => _IoniaDebitCardState();
@@ -246,9 +247,9 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
     return pan.replaceAllMapped(RegExp(r'.{4}'), (match) => '${match.group(0)}  ');
   }
 
-  String get _getLast4 => widget.isCardSample ? '0000' : widget.cardInfo.pan.substring(widget.cardInfo.pan.length - 5);
+  String get _getLast4 => widget.isCardSample ? '0000' : widget.cardInfo!.pan.substring(widget.cardInfo!.pan.length - 5);
 
-  String get _getSpendLimit => widget.isCardSample ? '10000' : widget.cardInfo.spendLimit.toStringAsFixed(2);
+  String get _getSpendLimit => widget.isCardSample ? '10000' : widget.cardInfo!.spendLimit.toStringAsFixed(2);
 
   @override
   Widget build(BuildContext context) {
@@ -258,8 +259,8 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryTextTheme.subhead.color,
-            Theme.of(context).primaryTextTheme.subhead.decorationColor,
+            Theme.of(context).primaryTextTheme!.subtitle1!.color!,
+            Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -289,7 +290,7 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
           ),
           SizedBox(height: 16),
           Text(
-            _showDetails ? _formatPan(widget.cardInfo.pan) : '****  ****  ****  $_getLast4',
+            _showDetails ? _formatPan(widget.cardInfo?.pan ?? '') : '****  ****  ****  $_getLast4',
             style: textMediumSemiBold(),
           ),
           SizedBox(height: 32),
@@ -310,7 +311,7 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      _showDetails ? widget.cardInfo.cvv : '***',
+                      _showDetails ? widget.cardInfo!.cvv : '***',
                       style: textMediumSemiBold(),
                     )
                   ],
@@ -324,7 +325,7 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '${widget.cardInfo.expirationMonth ?? S.of(context).mm}/${widget.cardInfo.expirationYear ?? S.of(context).yy}',
+                      '${widget.cardInfo?.expirationMonth ?? S.of(context).mm}/${widget.cardInfo?.expirationYear ?? S.of(context).yy}',
                       style: textMediumSemiBold(),
                     )
                   ],
@@ -351,13 +352,14 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
 }
 
 class _TitleSubtitleTile extends StatelessWidget {
+  const _TitleSubtitleTile({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+  }) : super(key: key);
+
   final String title;
   final String subtitle;
-  const _TitleSubtitleTile({
-    Key key,
-    @required this.title,
-    @required this.subtitle,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -366,12 +368,12 @@ class _TitleSubtitleTile extends StatelessWidget {
       children: [
         Text(
           title,
-          style: textSmallSemiBold(color: Theme.of(context).textTheme.display2.color),
+          style: textSmallSemiBold(color: Theme.of(context).textTheme!.headline3!.color!),
         ),
         SizedBox(height: 4),
         Text(
           subtitle,
-          style: textSmall(color: Theme.of(context).textTheme.display2.color),
+          style: textSmall(color: Theme.of(context).textTheme!.headline3!.color!),
         ),
       ],
     );

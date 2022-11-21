@@ -9,7 +9,7 @@ const inactiveBalances = [
   CryptoCurrency.xnok,
   CryptoCurrency.xnzd]; 
 
-Map<CryptoCurrency, MoneroBalance> getHavenBalance({int accountIndex}) {
+Map<CryptoCurrency, MoneroBalance> getHavenBalance({required int accountIndex}) {
   final fullBalances = getHavenFullBalance(accountIndex: accountIndex);
   final unlockedBalances = getHavenUnlockedBalance(accountIndex: accountIndex);
   final havenBalances = <CryptoCurrency, MoneroBalance>{};

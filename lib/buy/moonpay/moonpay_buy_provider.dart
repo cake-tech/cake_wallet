@@ -23,7 +23,7 @@ class MoonPaySellProvider {
   final bool isTest;
   final String baseUrl;
 
-  Future<String> requestUrl({CryptoCurrency currency, String refundWalletAddress}) async {
+  Future<String> requestUrl({required CryptoCurrency currency, required String refundWalletAddress}) async {
     final originalUri = Uri.https(
       baseUrl, '', <String, dynamic>{
         'apiKey': _apiKey,
@@ -48,10 +48,9 @@ class MoonPaySellProvider {
 }
 
 class MoonPayBuyProvider extends BuyProvider {
-  MoonPayBuyProvider({WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment) {
-      baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl;
-  }
+  MoonPayBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
+      : baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl,
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseTestUrl = 'https://buy-staging.moonpay.com';
   static const _baseProductUrl = 'https://buy.moonpay.com';
@@ -109,8 +108,8 @@ class MoonPayBuyProvider extends BuyProvider {
         _quoteSuffix + '/?apiKey=' + _apiKey +
         '&baseCurrencyAmount=' + amount +
         '&baseCurrencyCode=' + sourceCurrency.toLowerCase();
-
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       throw BuyException(
@@ -133,8 +132,8 @@ class MoonPayBuyProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final url = _apiUrl + _transactionsSuffix + '/$id' +
         '?apiKey=' + _apiKey;
-
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       throw BuyException(
@@ -164,8 +163,8 @@ class MoonPayBuyProvider extends BuyProvider {
   static Future<bool> onEnabled() async {
     final url = _apiUrl + _ipAddressSuffix + '?apiKey=' + _apiKey;
     var isBuyEnable = false;
-
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     try {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;

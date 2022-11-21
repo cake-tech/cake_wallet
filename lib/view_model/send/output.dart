@@ -26,10 +26,16 @@ class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
   OutputBase(this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
-      : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern) {
-    reset();
+      : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
+        key = UniqueKey(),
+        sendAll = false,
+        cryptoAmount = '',
+        fiatAmount = '',
+        address = '',
+        note = '',
+        extractedAddress = '',
+        parsedAddress = ParsedAddress(addresses: []) {
     _setCryptoNumMaximumFractionDigits();
-    key = UniqueKey();
   }
 
   Key key;
@@ -70,18 +76,18 @@ abstract class OutputBase with Store {
         int _amount = 0;
         switch (walletType) {
           case WalletType.monero:
-            _amount = monero.formatterMoneroParseAmount(amount: _cryptoAmount);
+            _amount = monero!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.bitcoin:
             _amount =
-                bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+                bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.litecoin:
             _amount =
-                bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+                bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.haven:
-            _amount = haven.formatterMoneroParseAmount(amount: _cryptoAmount);
+            _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
           default:
             break;
@@ -143,7 +149,7 @@ abstract class OutputBase with Store {
   void updateFiatAmount() {
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[_wallet.currency],
+          price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
           cryptoAmount: (cryptoAmount.toUpperCase() == S.current.all) ? _cryptoNumberFormat.format(formatAmountToDouble(type: _wallet.type, amount: _estimateAmountAll())) : cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
@@ -157,7 +163,7 @@ abstract class OutputBase with Store {
   void _updateCryptoAmount() {
     try {
       final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
-          _fiatConversationStore.prices[cryptoCurrencyHandler()];
+          _fiatConversationStore.prices[cryptoCurrencyHandler()]!;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
 
       if (cryptoAmount != cryptoAmountTmp) {

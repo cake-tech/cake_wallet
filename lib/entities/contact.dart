@@ -8,20 +8,23 @@ part 'contact.g.dart';
 
 @HiveType(typeId: Contact.typeId)
 class Contact extends HiveObject with Keyable {
-  Contact({@required this.name, @required this.address, CryptoCurrency type})
-      : raw = type?.raw;
+  Contact({required this.name, required this.address, CryptoCurrency? type}) {
+    if (type != null) {
+      raw = type.raw;
+    }
+  }
 
   static const typeId = 0;
   static const boxName = 'Contacts';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String name;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String address;
 
-  @HiveField(2)
-  int raw;
+  @HiveField(2, defaultValue: 0)
+  late int raw;
 
   CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);
 
@@ -34,6 +37,6 @@ class Contact extends HiveObject with Keyable {
   @override
   int get hashCode => key.hashCode;
 
-  void updateCryptoCurrency({@required CryptoCurrency currency}) =>
+  void updateCryptoCurrency({required CryptoCurrency currency}) =>
       raw = currency.raw;
 }

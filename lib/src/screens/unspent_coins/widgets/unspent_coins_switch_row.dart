@@ -1,13 +1,12 @@
 import 'package:cake_wallet/src/widgets/standart_switch.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UnspentCoinsSwitchRow extends StatelessWidget {
   UnspentCoinsSwitchRow(
-       {this.title,
-        this.titleFontSize = 14,
-        this.switchValue,
-        this.onSwitchValueChange});
+       {required this.title,
+        required this.switchValue,
+        required this.onSwitchValueChange,
+        this.titleFontSize = 14});
 
   final String title;
   final double titleFontSize;
@@ -30,7 +29,7 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context)
-                          .primaryTextTheme.overline.color),
+                          .primaryTextTheme!.overline!.color!),
                   textAlign: TextAlign.left),
               Padding(
                 padding: EdgeInsets.only(top: 12),
