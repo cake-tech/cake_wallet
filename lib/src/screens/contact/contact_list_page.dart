@@ -62,14 +62,15 @@ class ContactListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final contacts =
-    contactListViewModel.getContacts(isEditable, selectedCurrency);
-    final walletContacts =
-    contactListViewModel.getWallets(isEditable, selectedCurrency);
+
     return Container(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
         builder: (_) {
+          final contacts =
+          contactListViewModel.getContacts(isEditable, selectedCurrency);
+          final walletContacts =
+          contactListViewModel.getWallets(isEditable, selectedCurrency);
           return CollapsibleSectionList(
               context: context,
               sectionCount: 2,
