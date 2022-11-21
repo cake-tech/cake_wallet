@@ -68,7 +68,9 @@ class ContactListPage extends BasePage {
     contactListViewModel.getWallets(isEditable, selectedCurrency);
     return Container(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-        child: CollapsibleSectionList(
+        child: Observer(
+        builder: (_) {
+          return CollapsibleSectionList(
               context: context,
               sectionCount: 2,
               themeColor: Theme.of(context).primaryTextTheme.headline6!.color!,
@@ -104,7 +106,7 @@ class ContactListPage extends BasePage {
                         child: content,
                       );
               },
-            )
+            );})
        );
   }
 
