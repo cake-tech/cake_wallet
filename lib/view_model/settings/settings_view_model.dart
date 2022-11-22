@@ -155,13 +155,13 @@ abstract class SettingsViewModelBase with Store {
             handler: (BuildContext context) {
               Navigator.of(context).pushNamed(Routes.auth, arguments:
                   (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                auth.close();
-                if (isAuthenticatedSuccessfully) {
-                  Navigator.of(context).pushNamed(Routes.setupPin, arguments:
-                      (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                auth.close(
+                  route: isAuthenticatedSuccessfully ? Routes.setupPin : null,
+                  arguments: (PinCodeState<PinCodeWidget> setupPinContext,
+                      String _) {
                     setupPinContext.close();
-                  });
-                }
+                  },
+                );
               });
             }),
         PickerListItem(
@@ -212,7 +212,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
-
+        SwitcherListItem(
+            title: S.current.disable_exchange,
+            value: () => _settingsStore.disableExchange,
+            onValueChange: (BuildContext context, bool value) {
+              _settingsStore.disableExchange = value;
+            }),
         ChoicesListItem(
           title: S.current.color_theme,
           items: ThemeList.all,

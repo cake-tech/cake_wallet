@@ -7,15 +7,13 @@ import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart'
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_core/monero_transaction_priority.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -200,11 +198,11 @@ abstract class ExchangeViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        return _settingsViewModel.transactionPriority == MoneroTransactionPriority.slow;
+        return _settingsViewModel.transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
-        return _settingsViewModel.transactionPriority == BitcoinTransactionPriority.slow;
+        return _settingsViewModel.transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
-        return _settingsViewModel.transactionPriority == LitecoinTransactionPriority.slow;
+        return _settingsViewModel.transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
       default:
         return false;
     }
@@ -376,96 +374,105 @@ abstract class ExchangeViewModelBase with Store {
     TradeRequest? request;
     String amount = '';
 
-    for (var provider in _sortedAvailableProviders.values) {
-      if (!(await provider.checkIsAvailable())) {
-        continue;
-      }
+    try {
+      for (var provider in _sortedAvailableProviders.values) {
+        if (!(await provider.checkIsAvailable())) {
+          continue;
+        }
 
-      if (provider is SideShiftExchangeProvider) {
-        request = SideShiftRequest(
-          depositMethod: depositCurrency,
-          settleMethod: receiveCurrency,
-          depositAmount: depositAmount.replaceAll(',', '.'),
-          settleAddress: receiveAddress,
-          refundAddress: depositAddress,
-        );
-        amount = depositAmount;
-      }
+        if (provider is SideShiftExchangeProvider) {
+          request = SideShiftRequest(
+            depositMethod: depositCurrency,
+            settleMethod: receiveCurrency,
+            depositAmount: depositAmount.replaceAll(',', '.'),
+            settleAddress: receiveAddress,
+            refundAddress: depositAddress,
+          );
+          amount = depositAmount;
+        }
 
-      if (provider is SimpleSwapExchangeProvider) {
-        request = SimpleSwapRequest(
-          from: depositCurrency,
-          to: receiveCurrency,
-          amount: depositAmount.replaceAll(',', '.'),
-          address: receiveAddress,
-          refundAddress: depositAddress,
-        );
-        amount = depositAmount;
-      }
-
-      if (provider is XMRTOExchangeProvider) {
-        request = XMRTOTradeRequest(
+        if (provider is SimpleSwapExchangeProvider) {
+          request = SimpleSwapRequest(
             from: depositCurrency,
             to: receiveCurrency,
             amount: depositAmount.replaceAll(',', '.'),
-            receiveAmount: receiveAmount.replaceAll(',', '.'),
             address: receiveAddress,
             refundAddress: depositAddress,
-            isBTCRequest: isReceiveAmountEntered);
-        amount = depositAmount;
-      }
+          );
+          amount = depositAmount;
+        }
 
-      if (provider is ChangeNowExchangeProvider) {
-        request = ChangeNowRequest(
-            from: depositCurrency,
-            to: receiveCurrency,
-            fromAmount: depositAmount.replaceAll(',', '.'),
-            toAmount: receiveAmount.replaceAll(',', '.'),
-            refundAddress: depositAddress,
-            address: receiveAddress,
-            isReverse: isReverse);
-        amount = isReverse ? receiveAmount : depositAmount;
-      }
+        if (provider is XMRTOExchangeProvider) {
+          request = XMRTOTradeRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: depositAmount.replaceAll(',', '.'),
+              receiveAmount: receiveAmount.replaceAll(',', '.'),
+              address: receiveAddress,
+              refundAddress: depositAddress,
+              isBTCRequest: isReceiveAmountEntered);
+          amount = depositAmount;
+        }
 
-      if (provider is MorphTokenExchangeProvider) {
-        request = MorphTokenRequest(
-            from: depositCurrency,
-            to: receiveCurrency,
-            amount: depositAmount.replaceAll(',', '.'),
-            refundAddress: depositAddress,
-            address: receiveAddress);
-        amount = depositAmount;
-      }
+        if (provider is ChangeNowExchangeProvider) {
+          request = ChangeNowRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              fromAmount: depositAmount.replaceAll(',', '.'),
+              toAmount: receiveAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress,
+              isReverse: isReverse);
+          amount = isReverse ? receiveAmount : depositAmount;
+        }
 
-      amount = amount.replaceAll(',', '.');
+        if (provider is MorphTokenExchangeProvider) {
+          request = MorphTokenRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: depositAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress);
+          amount = depositAmount;
+        }
 
-      if (limitsState is LimitsLoadedSuccessfully) {
-        if (double.parse(amount) < limits.min!) {
-          continue;
-        } else if (limits.max != null && double.parse(amount) > limits.max!) {
-          continue;
-        } else {
-          try {
-            tradeState = TradeIsCreating();
-            final trade = await provider.createTrade(
-                request: request!, isFixedRateMode: isFixedRateMode);
-            trade.walletId = wallet.id;
-            tradesStore.setTrade(trade);
-            await trades.add(trade);
-            tradeState = TradeIsCreatedSuccessfully(trade: trade);
-            /// return after the first successful trade
-            return;
-          } catch (e) {
+        amount = amount.replaceAll(',', '.');
+
+        if (limitsState is LimitsLoadedSuccessfully) {
+          if (double.parse(amount) < limits.min!) {
             continue;
+          } else if (limits.max != null && double.parse(amount) > limits.max!) {
+            continue;
+          } else {
+            try {
+              tradeState = TradeIsCreating();
+              final trade = await provider.createTrade(
+                  request: request!, isFixedRateMode: isFixedRateMode);
+              trade.walletId = wallet.id;
+              tradesStore.setTrade(trade);
+              await trades.add(trade);
+              tradeState = TradeIsCreatedSuccessfully(trade: trade);
+              /// return after the first successful trade
+              return;
+            } catch (e) {
+              continue;
+            }
           }
         }
       }
-    }
 
-    /// if the code reached here then none of the providers succeeded
-    tradeState = TradeIsCreatedFailure(
-        title: S.current.trade_not_created,
-        error: S.current.none_of_selected_providers_can_exchange);
+      /// if the code reached here then none of the providers succeeded
+      tradeState = TradeIsCreatedFailure(
+          title: S.current.trade_not_created,
+          error: S.current.none_of_selected_providers_can_exchange);
+    } on ConcurrentModificationError {
+      /// if create trade happened at the exact same time of the scheduled rate update
+      /// then delay the create trade a bit and try again
+      ///
+      /// this is because the limitation of the SplayTreeMap that
+      /// you can't modify it while iterating through it
+      Future.delayed(Duration(milliseconds: 500), createTrade);
+    }
   }
 
   @action
@@ -637,13 +644,13 @@ abstract class ExchangeViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        _settingsStore.priority[wallet.type] = MoneroTransactionPriority.automatic;
+        _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
         break;
       case WalletType.bitcoin:
-        _settingsStore.priority[wallet.type] = BitcoinTransactionPriority.medium;
+        _settingsStore.priority[wallet.type] = bitcoin!.getBitcoinTransactionPriorityMedium();
         break;
       case WalletType.litecoin:
-        _settingsStore.priority[wallet.type] = LitecoinTransactionPriority.medium;
+        _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
         break;
       default:
         break;

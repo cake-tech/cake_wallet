@@ -650,5 +650,6 @@
   "use_suggested": "使用建议",
   "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
   "help": "帮助",
-  "disable_fiat": "禁用法令"
+  "disable_fiat": "禁用法令",
+  "disable_exchange": "禁用交换"
 }

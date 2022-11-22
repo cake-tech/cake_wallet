@@ -11,7 +11,7 @@ class IoniaVirtualCard {
 		required this.fundsLimit,
 		required this.spendLimit});
 	
-	factory IoniaVirtualCard.fromMap(Map<String, Object> source) {
+	factory IoniaVirtualCard.fromMap(Map<String, dynamic> source) {
 		final created = source['created'] as String;
 		final createdAt = DateTime.tryParse(created);
 
