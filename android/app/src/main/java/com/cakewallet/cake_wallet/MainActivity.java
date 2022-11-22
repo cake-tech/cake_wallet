@@ -20,10 +20,6 @@ import com.unstoppabledomains.resolution.Resolution;
 
 import java.security.SecureRandom;
 
-import com.microsoft.appcenter.AppCenter;
-import com.microsoft.appcenter.analytics.Analytics;
-import com.microsoft.appcenter.crashes.Crashes;
-
 public class MainActivity extends FlutterFragmentActivity {
     final String UTILS_CHANNEL = "com.cake_wallet/native_utils";
     final int UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK = 24;
@@ -37,8 +33,6 @@ public class MainActivity extends FlutterFragmentActivity {
                         UTILS_CHANNEL);
 
         utilsChannel.setMethodCallHandler(this::handle);
-
-        AppCenter.start(getApplication(), "APP_CENTER_ANDROID_SECRET_KEY");
     }
 
     private void handle(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
