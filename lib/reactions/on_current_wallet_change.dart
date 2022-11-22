@@ -68,6 +68,12 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       if (wallet.type == WalletType.haven) {
         settingsStore.fiatCurrency = FiatCurrency.usd;
         await updateHavenRate(fiatConversionStore);
+      }else{
+        final savedFiat = await getIt
+          .get<SharedPreferences>().getString(PreferencesKey.currentFiatCurrencyKey);
+          if(savedFiat != null){
+            settingsStore.fiatCurrency = FiatCurrency.deserialize(raw: savedFiat);
+          }
       }
 
       if (wallet.walletInfo.address?.isEmpty ?? true) {
