@@ -655,5 +655,8 @@
   "privacy_settings": "Настройки конфиденциальности",
   "privacy": "Конфиденциальность",
   "display_settings": "Настройки отображения",
-  "other_settings": "Другие настройки"
+  "other_settings": "Другие настройки",
+  "require_pin_after": "Требовать ПИН после",
+  "always": "всегда",
+  "minutes_to_pin_code": "${minute} минут"
 }

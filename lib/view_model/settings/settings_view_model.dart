@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -41,6 +43,7 @@ abstract class SettingsViewModelBase with Store {
   SettingsViewModelBase(
       this._settingsStore,
       this._yatStore,
+      this._authService,
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
               TransactionInfo>
           wallet)
@@ -95,6 +98,10 @@ abstract class SettingsViewModelBase with Store {
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
   @computed
+  PinCodeRequiredDuration get pinCodeRequiredDuration =>
+    _settingsStore.pinTimeOutDuration;
+
+  @computed
   String get languageCode => _settingsStore.languageCode;
 
   @computed
@@ -135,6 +142,7 @@ abstract class SettingsViewModelBase with Store {
   final Map<String, String> itemHeaders;
   final SettingsStore _settingsStore;
   final YatStore _yatStore;
+  final AuthService _authService;
   final WalletType walletType;
   final BiometricAuth _biometricAuth;
   final  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
@@ -207,19 +215,25 @@ abstract class SettingsViewModelBase with Store {
     }
   }
 
+  @action
+  setPinCodeRequiredDuration(PinCodeRequiredDuration duration) =>
+      _settingsStore.pinTimeOutDuration = duration;
+
   String getDisplayPriority(dynamic priority) {
-              final _priority = priority as TransactionPriority;
+    final _priority = priority as TransactionPriority;
 
-              if (_wallet.type == WalletType.bitcoin
-                  || _wallet.type == WalletType.litecoin) {
-                final rate = bitcoin!.getFeeRate(_wallet, _priority);
-                return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
-              }
+    if (_wallet.type == WalletType.bitcoin
+        || _wallet.type == WalletType.litecoin) {
+      final rate = bitcoin!.getFeeRate(_wallet, _priority);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+    }
 
-              return priority.toString();
+    return priority.toString();
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-                _settingsStore.priority[_wallet.type] = priority;
+    _settingsStore.priority[_wallet.type] = priority;
+
+  bool checkPinCodeRiquired() => _authService.requireAuth();
 
 }

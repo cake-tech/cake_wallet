@@ -17,7 +17,9 @@ abstract class AuthViewModelBase with Store {
   AuthViewModelBase(this._authService, this._sharedPreferences,
       this._settingsStore, this._biometricAuth)
       : _failureCounter = 0,
-        state = InitialExecutionState();
+        state = InitialExecutionState(){
+           reaction((_) => state, _saveLastAuthTime);
+      }
 
   static const maxFailedLogins = 3;
   static const banTimeout = 180; // 3 minutes
@@ -57,7 +59,7 @@ abstract class AuthViewModelBase with Store {
 
     if (isSuccessfulAuthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        state = ExecutedSuccessfullyState();
+        state = ExecutedSuccessfullyState();   
         _failureCounter = 0;
       });
     } else {
@@ -116,6 +118,12 @@ abstract class AuthViewModelBase with Store {
       }
     } catch(e) {
       state = FailureState(e.toString());
+    }
+  }
+
+  void _saveLastAuthTime(ExecutionState state){
+    if(state is ExecutedSuccessfullyState){
+    _authService.saveLastAuthTime();
     }
   }
 }

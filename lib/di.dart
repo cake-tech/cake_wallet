@@ -440,7 +440,8 @@ Future setup(
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
     final yatStore = getIt.get<YatStore>();
-    return SettingsViewModel(appStore.settingsStore, yatStore, appStore.wallet!);
+    final authService = getIt.get<AuthService>();
+    return SettingsViewModel(appStore.settingsStore, yatStore, authService, appStore.wallet!);
   });
 
   getIt

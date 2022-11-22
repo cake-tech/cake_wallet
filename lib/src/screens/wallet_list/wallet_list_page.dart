@@ -220,7 +220,8 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    await Navigator.of(context).pushNamed(Routes.auth, arguments:
+    if(await widget.walletListViewModel.checkIfAuthRequired()){
+      await Navigator.of(context).pushNamed(Routes.auth, arguments:
         (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
         return;
@@ -241,17 +242,36 @@ class WalletListBodyState extends State<WalletListBody> {
             .wallet_list_failed_to_load(wallet.name, e.toString()));
       }
     });
+    }else{
+      try {
+        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        await widget.walletListViewModel.loadWallet(wallet);
+        hideProgressText();
+        Navigator.of(context).pop(); 
+      } catch (e) {
+        changeProcessText(S
+            .of(context)
+            .wallet_list_failed_to_load(wallet.name, e.toString()));  
+      }
+    }
   }
 
   Future<void> _removeWallet(WalletListItem wallet) async {
-    await Navigator.of(context).pushNamed(Routes.auth, arguments:
+    if(widget.walletListViewModel.checkIfAuthRequired()){
+     await Navigator.of(context).pushNamed(Routes.auth, arguments:
         (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
         return;
       }
+      _onSuccessfulAuth(wallet, auth);
+    });
+  }else{
+      _onSuccessfulAuth(wallet, null);
+    }
+  }
 
-      bool confirmed = false;
-
+  _onSuccessfulAuth(WalletListItem wallet, AuthPageState? auth)async{
+    bool confirmed = false;
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
@@ -270,18 +290,23 @@ class WalletListBodyState extends State<WalletListBody> {
 
       if (confirmed) {
         try {
-          auth.changeProcessText(
-              S.of(context).wallet_list_removing_wallet(wallet.name));
+        auth != null ? 
+        auth.changeProcessText(
+          S.of(context).wallet_list_removing_wallet(wallet.name)) 
+          : changeProcessText( S.of(context).wallet_list_removing_wallet(wallet.name));
           await widget.walletListViewModel.remove(wallet);
         } catch (e) {
-          auth.changeProcessText(S
-              .of(context)
-              .wallet_list_failed_to_remove(wallet.name, e.toString()));
+          auth != null ? 
+          auth.changeProcessText(
+            S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
+          ) 
+          : changeProcessText(
+            S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
+          );
         }
       }
 
-      auth.close();
-    });
+      auth?.close();
   }
 
   void changeProcessText(String text) {

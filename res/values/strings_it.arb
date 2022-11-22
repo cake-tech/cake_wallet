@@ -655,5 +655,8 @@
   "privacy_settings": "Impostazioni privacy",
   "privacy": "Privacy",
   "display_settings": "Impostazioni di visualizzazione",
-  "other_settings": "Altre impostazioni"
+  "other_settings": "Altre impostazioni",
+  "require_pin_after": "Richiedi PIN dopo",
+  "always": "sempre",
+  "minutes_to_pin_code": "${minute} minuti"
 }

@@ -655,5 +655,8 @@
   "privacy_settings": "Privacy-instellingen",
   "privacy": "Privacy",
   "display_settings": "Weergave-instellingen",
-  "other_settings": "Andere instellingen"
+  "other_settings": "Andere instellingen",
+  "require_pin_after": "Pincode vereist na",
+  "always": "altijd",
+  "minutes_to_pin_code": "${minute} minuten"
 }

@@ -1,9 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -17,7 +17,6 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'settings_store.g.dart';
 
@@ -39,6 +38,7 @@ abstract class SettingsStoreBase with Store {
       required this.shouldShowYatPopup,
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
+      required this.pinTimeOutDuration,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority})
   : nodes = ObservableMap<WalletType, Node>.of(nodes),
@@ -109,6 +109,11 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.currentLanguageCode, languageCode));
 
     reaction(
+        (_) => pinTimeOutDuration,
+        (PinCodeRequiredDuration pinCodeInterval) => sharedPreferences.setInt(
+            PreferencesKey.pinTimeOutDuration, pinCodeInterval.value));
+
+    reaction(
         (_) => balanceDisplayMode,
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
@@ -124,6 +129,7 @@ abstract class SettingsStoreBase with Store {
 
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
+  static const defaultPinCodeTimeOutDuration = 10;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -148,6 +154,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   int pinCodeLength;
+
+  @observable
+  PinCodeRequiredDuration pinTimeOutDuration;
 
   @computed
   ThemeData get theme => currentTheme.themeData;
@@ -227,13 +236,15 @@ abstract class SettingsStoreBase with Store {
             : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            legacyTheme ??
-            0);
+            legacyTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
             defaultActionsMode));
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
+    final pinCodeTimeOutDuration = PinCodeRequiredDuration.deserialize(raw: sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration) 
+      ?? defaultPinCodeTimeOutDuration);
+    
     // If no value
     if (pinLength == null || pinLength == 0) {
       pinLength = defaultPinLength;
@@ -287,6 +298,7 @@ abstract class SettingsStoreBase with Store {
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
+        pinTimeOutDuration: pinCodeTimeOutDuration,
         initialLanguageCode: savedLanguageCode,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,

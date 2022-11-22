@@ -655,5 +655,8 @@
   "privacy_settings": "개인정보 설정",
   "privacy": "프라이버시",
   "display_settings": "디스플레이 설정",
-  "other_settings": "기타 설정"
+  "other_settings": "기타 설정",
+  "require_pin_after": "다음 이후에 PIN 필요",
+  "always": "언제나",
+  "minutes_to_pin_code": "${minute}분"
 }

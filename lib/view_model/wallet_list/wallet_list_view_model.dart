@@ -1,5 +1,5 @@
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
@@ -54,5 +54,9 @@ abstract class WalletListViewModelBase with Store {
         isCurrent: info.name == _appStore.wallet!.name &&
             info.type == _appStore.wallet!.type,
         isEnabled: availableWalletTypes.contains(info.type))));
+  }
+
+  bool checkIfAuthRequired(){
+    return getIt.get<AuthService>().requireAuth();
   }
 }

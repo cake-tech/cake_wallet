@@ -653,5 +653,8 @@
   "privacy_settings": "Paramètres de confidentialité",
   "privacy": "Confidentialité",
   "display_settings": "Paramètres d'affichage",
-  "other_settings": "Autres paramètres"
+  "other_settings": "Autres paramètres",
+  "require_pin_after": "NIP requis après",
+  "always": "toujours",
+  "minutes_to_pin_code": "${minute} minutes"
 }
