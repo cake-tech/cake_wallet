@@ -116,5 +116,8 @@ jobs:
         run: |
           sudo apt-get install mailutils
           sudo apt-get install mutt
+          sudo postconf -e mailbox_size_limit=0
+          sudo postconf -e message_size_limit=0
+          sudo /etc/init.d/postfix restart
           echo "Kindly find attached the apk for ${GITHUB_HEAD_REF}" | mutt -a "/opt/android/cake_wallet/build/app/outputs/apk/debug/app-debug.apk" -s "Testing of ${GITHUB_HEAD_REF}" -- ${{ secrets.TESTER_EMAIL }}
 
