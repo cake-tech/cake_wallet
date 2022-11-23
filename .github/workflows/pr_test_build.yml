@@ -94,9 +94,6 @@ jobs:
           echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
 
-      - name: Add App Center Secret
-        run: bash .github/scripts/add_app_center_secrets.sh -a "${{ secrets.APP_CENTER_ANDROID_SECRET_KEY }}"
-
       - name: Build
         run: |
           cd /opt/android/cake_wallet
