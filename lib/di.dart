@@ -31,6 +31,10 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -443,6 +447,26 @@ Future setup(
     return SettingsViewModel(appStore.settingsStore, yatStore, appStore.wallet!);
   });
 
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return DisplaySettingsViewModel(appStore.settingsStore);
+  });
+
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return PrivacySettingsViewModel(appStore.settingsStore);
+  });
+
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return OtherSettingsViewModel(appStore.settingsStore, appStore.wallet!);
+  });
+
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return SecuritySettingsViewModel(appStore.settingsStore);
+  });
+
   getIt
       .registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
@@ -481,13 +505,13 @@ Future setup(
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SettingsViewModel>()));
+  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>()));
 
-  getIt.registerFactory(() => PrivacyPage(getIt.get<SettingsViewModel>()));
+  getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 
-  getIt.registerFactory(() => DisplaySettingsPage(getIt.get<SettingsViewModel>()));
+  getIt.registerFactory(() => DisplaySettingsPage(getIt.get<DisplaySettingsViewModel>()));
 
-  getIt.registerFactory(() => OtherSettingsPage(getIt.get<SettingsViewModel>()));
+  getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
 
   getIt.registerFactory(() =>
       NodeCreateOrEditViewModel(_nodeSource, getIt.get<AppStore>().wallet!));

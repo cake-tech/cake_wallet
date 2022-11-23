@@ -1,6 +1,6 @@
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:mobx/mobx.dart';
-import 'package:package_info/package_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
@@ -22,21 +22,6 @@ part 'settings_view_model.g.dart';
 
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
-List<TransactionPriority> priorityForWalletType(WalletType type) {
-  switch (type) {
-    case WalletType.monero:
-      return monero!.getTransactionPriorities();
-    case WalletType.bitcoin:
-      return bitcoin!.getTransactionPriorities();
-    case WalletType.litecoin:
-      return bitcoin!.getLitecoinTransactionPriorities();
-    case WalletType.haven:
-      return haven!.getTransactionPriorities();
-    default:
-      return [];
-  }
-}
-
 abstract class SettingsViewModelBase with Store {
   SettingsViewModelBase(
       this._settingsStore,
@@ -46,12 +31,8 @@ abstract class SettingsViewModelBase with Store {
           wallet)
       : itemHeaders = {},
         walletType = wallet.type,
-        _wallet = wallet,
-        _biometricAuth = BiometricAuth(),
-        currentVersion = '' {
-    PackageInfo.fromPlatform().then(
-        (PackageInfo packageInfo) => currentVersion = packageInfo.version);
-
+        _wallet = wallet{
+  
     final priority = _settingsStore.priority[wallet.type];
     final priorities = priorityForWalletType(wallet.type);
 
@@ -85,17 +66,8 @@ abstract class SettingsViewModelBase with Store {
 
   }
 
-  @observable
-  String currentVersion;
-
-  @computed
-  Node get node => _settingsStore.getCurrentNode(walletType);
-
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
-
-  @computed
-  String get languageCode => _settingsStore.languageCode;
 
   @computed
   ObservableList<ActionListDisplayMode> get actionlistDisplayMode =>
@@ -113,21 +85,6 @@ abstract class SettingsViewModelBase with Store {
   }
 
   @computed
-  BalanceDisplayMode get balanceDisplayMode =>
-      _settingsStore.balanceDisplayMode;
-
-  @computed
-  bool get shouldDisplayBalance => balanceDisplayMode == BalanceDisplayMode.displayableBalance;
-
-  @computed
-  bool get shouldSaveRecipientAddress =>
-      _settingsStore.shouldSaveRecipientAddress;
-
-  @computed
-  bool get allowBiometricalAuthentication =>
-      _settingsStore.allowBiometricalAuthentication;
-
-  @computed
   ThemeBase get theme => _settingsStore.currentTheme;
 
   bool get isBitcoinBuyEnabled => _settingsStore.isBitcoinBuyEnabled;
@@ -136,25 +93,12 @@ abstract class SettingsViewModelBase with Store {
   final SettingsStore _settingsStore;
   final YatStore _yatStore;
   final WalletType walletType;
-  final BiometricAuth _biometricAuth;
   final  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
               TransactionInfo> _wallet;
 
   @action
-  void setBalanceDisplayMode(BalanceDisplayMode value) =>
-      _settingsStore.balanceDisplayMode = value;
-
-  @action
   void setFiatCurrency(FiatCurrency value) =>
       _settingsStore.fiatCurrency = value;
-
-  @action
-  void setShouldSaveRecipientAddress(bool value) =>
-      _settingsStore.shouldSaveRecipientAddress = value;
-
-  @action
-  void setAllowBiometricalAuthentication(bool value) =>
-      _settingsStore.allowBiometricalAuthentication = value;
 
   @action
   void toggleTransactionsDisplay() =>
@@ -182,44 +126,5 @@ abstract class SettingsViewModelBase with Store {
 
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
-
-  @action
-  Future<bool> biometricAuthenticated()async{
-   return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
-  }
-
-  @action
-  void onLanguageSelected (String code) {
-    _settingsStore.languageCode = code;
-  }
-
-  @action
-  void setTheme(ThemeBase newTheme){
-     _settingsStore.currentTheme = newTheme;
-  }
-
-  @action
-  void setShouldDisplayBalance(bool value){
-  if (value) {
-    _settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
-    } else {
-    _settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
-    }
-  }
-
-  String getDisplayPriority(dynamic priority) {
-    final _priority = priority as TransactionPriority;
-
-    if (_wallet.type == WalletType.bitcoin
-        || _wallet.type == WalletType.litecoin) {
-      final rate = bitcoin!.getFeeRate(_wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
-    }
-
-    return priority.toString();
-  }
-
-  void onDisplayPrioritySelected(TransactionPriority priority) =>
-    _settingsStore.priority[_wallet.type] = priority;
 
 }

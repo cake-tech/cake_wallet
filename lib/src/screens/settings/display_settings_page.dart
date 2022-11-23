@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,7 +19,7 @@ class DisplaySettingsPage extends BasePage {
   @override
   String get title => S.current.display_settings;
 
-  final SettingsViewModel settingsViewModel;
+  final DisplaySettingsViewModel settingsViewModel;
 
   @override
   Widget body(BuildContext context) {
