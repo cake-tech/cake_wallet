@@ -115,3 +115,9 @@ jobs:
               --token ${{ secrets.APP_CENTER_TOKEN }} \
               --quiet
 
+      - name: Send Test APK
+        run: |
+          sudo apt-get install mailutils
+          sudo apt-get install mutt
+          echo "Kindly find attached the apk for ${GITHUB_HEAD_REF}" | mutt -a "/opt/android/cake_wallet/build/app/outputs/apk/debug/app-debug.apk" -s "Testing of ${GITHUB_HEAD_REF}" -- ${{ secrets.TESTER_EMAIL }}
+
