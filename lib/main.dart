@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:isolate';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -46,11 +49,24 @@ Future<void> main() async {
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // FlutterError.onError = ;
+    FlutterError.onError = (errorDetails) {
+      _saveException(errorDetails.exception.toString(), errorDetails.stack);
+    };
 
-    // Isolate.current.addErrorListener(RawReceivePort((pair) async {
-    //   final List<dynamic> errorAndStacktrace = pair;
-    // }).sendPort);
+    PlatformDispatcher.instance.onError = (error, stack) {
+      _saveException(error.toString(), stack);
+      return true;
+    };
+
+    Isolate.current.addErrorListener(RawReceivePort((pair) async {
+      final errorAndStacktrace = pair as List<String?>;
+      _saveException(
+        errorAndStacktrace.first,
+        errorAndStacktrace.last == null
+            ? null
+            : StackTrace.fromString(errorAndStacktrace.last!),
+      );
+    }).sendPort);
 
     final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
@@ -149,6 +165,17 @@ Future<void> main() async {
                   style: TextStyle(fontSize: 22),
                 )))));
   });
+}
+
+void _saveException(String? error, StackTrace? stackTrace) async {
+  final file = File('/error.txt');
+  final exception = {
+    "${DateTime.now()}": {
+      "error": error,
+      "stackTrace": stackTrace.toString(),
+    }
+  };
+  await file.writeAsString(jsonEncode(exception), mode: FileMode.append);
 }
 
 Future<void> initialSetup(
