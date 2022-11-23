@@ -556,13 +556,7 @@ class SendCardState extends State<SendCard>
 
     reaction((_) => output.fiatAmount, (String amount) {
       if (amount != fiatAmountController.text) {
-        if (sendViewModel.outputs[0].sendAll) {
-          final doubleAmount = double.tryParse(amount) ?? 0;
-          final doubleFee = sendViewModel.estimatedFee;
-          fiatAmountController.text = doubleAmount - doubleFee > 0 ? "${doubleAmount - doubleFee}" : "0.00";
-        } else {
-          fiatAmountController.text = amount;
-        }
+        fiatAmountController.text = amount;
       }
     });
 
