@@ -42,8 +42,15 @@ final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 
 Future<void> main() async {
-  try {
+
+  await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // FlutterError.onError = ;
+
+    // Isolate.current.addErrorListener(RawReceivePort((pair) async {
+    //   final List<dynamic> errorAndStacktrace = pair;
+    // }).sendPort);
 
     final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
@@ -130,7 +137,7 @@ Future<void> main() async {
         secureStorage: secureStorage,
         initialMigrationVersion: 17);
     runApp(App());
-  } catch (e, stacktrace) {
+  }, (error, stackTrace) {
     runApp(MaterialApp(
         debugShowCheckedModeBanner: true,
         home: Scaffold(
@@ -138,10 +145,10 @@ Future<void> main() async {
                 margin:
                     EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
                 child: Text(
-                  'Error:\n${e.toString()}\nStacktrace: $stacktrace',
+                  'Error:\n${error.toString()}\nStacktrace: $stackTrace',
                   style: TextStyle(fontSize: 22),
                 )))));
-  }
+  });
 }
 
 Future<void> initialSetup(
