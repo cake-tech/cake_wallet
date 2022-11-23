@@ -208,18 +208,18 @@ abstract class SettingsViewModelBase with Store {
   }
 
   String getDisplayPriority(dynamic priority) {
-              final _priority = priority as TransactionPriority;
+    final _priority = priority as TransactionPriority;
 
-              if (_wallet.type == WalletType.bitcoin
-                  || _wallet.type == WalletType.litecoin) {
-                final rate = bitcoin!.getFeeRate(_wallet, _priority);
-                return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
-              }
+    if (_wallet.type == WalletType.bitcoin
+        || _wallet.type == WalletType.litecoin) {
+      final rate = bitcoin!.getFeeRate(_wallet, _priority);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+    }
 
-              return priority.toString();
+    return priority.toString();
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-                _settingsStore.priority[_wallet.type] = priority;
+    _settingsStore.priority[_wallet.type] = priority;
 
 }
