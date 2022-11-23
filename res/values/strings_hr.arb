@@ -655,5 +655,6 @@
   "privacy_settings": "Postavke privatnosti",
   "privacy": "Privatnost",
   "display_settings": "Postavke zaslona",
-  "other_settings": "Ostale postavke"
+  "other_settings": "Ostale postavke",
+  "disable_exchange": "Onemogući exchange"
 }

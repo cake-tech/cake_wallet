@@ -655,5 +655,6 @@
   "privacy_settings": "Privacy-instellingen",
   "privacy": "Privacy",
   "display_settings": "Weergave-instellingen",
-  "other_settings": "Andere instellingen"
+  "other_settings": "Andere instellingen",
+  "disable_exchange": "Uitwisseling uitschakelen"
 }

@@ -655,5 +655,6 @@
   "privacy_settings": "गोपनीयता सेटिंग्स",
   "privacy": "गोपनीयता",
   "display_settings": "प्रदर्शन सेटिंग्स",
-  "other_settings": "अन्य सेटिंग्स"
+  "other_settings": "अन्य सेटिंग्स",
+  "disable_exchange": "एक्सचेंज अक्षम करें"
 }

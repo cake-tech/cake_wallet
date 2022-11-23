@@ -655,5 +655,6 @@
   "privacy_settings": "プライバシー設定",
   "privacy": "プライバシー",
   "display_settings": "表示設定",
-  "other_settings": "その他の設定"
+  "other_settings": "その他の設定",
+  "disable_exchange": "交換を無効にする"
 }

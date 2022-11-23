@@ -655,5 +655,6 @@
   "privacy_settings": "Настройки конфиденциальности",
   "privacy": "Конфиденциальность",
   "display_settings": "Настройки отображения",
-  "other_settings": "Другие настройки"
+  "other_settings": "Другие настройки",
+  "disable_exchange": "Отключить обмен"
 }

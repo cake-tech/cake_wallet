@@ -655,5 +655,6 @@
   "privacy_settings": "Datenschutzeinstellungen",
   "privacy": "Datenschutz",
   "display_settings": "Anzeigeeinstellungen",
-  "other_settings": "Andere Einstellungen"
+  "other_settings": "Andere Einstellungen",
+  "disable_exchange": "Exchange deaktivieren"
 }

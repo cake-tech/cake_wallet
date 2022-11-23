@@ -658,5 +658,6 @@
   "privacy_settings": "Privacy settings",
   "privacy": "Privacy",
   "display_settings": "Display settings",
-  "other_settings": "Other settings"
+  "other_settings": "Other settings",
+  "disable_exchange": "Disable exchange"
 }

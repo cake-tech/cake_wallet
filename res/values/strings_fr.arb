@@ -653,5 +653,6 @@
   "privacy_settings": "Paramètres de confidentialité",
   "privacy": "Confidentialité",
   "display_settings": "Paramètres d'affichage",
-  "other_settings": "Autres paramètres"
+  "other_settings": "Autres paramètres",
+  "disable_exchange": "Désactiver l'échange"
 }

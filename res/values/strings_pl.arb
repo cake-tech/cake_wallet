@@ -655,5 +655,6 @@
   "privacy_settings": "Ustawienia prywatności",
   "privacy": "Prywatność",
   "display_settings": "Ustawienia wyświetlania",
-  "other_settings": "Inne ustawienia"
+  "other_settings": "Inne ustawienia",
+  "disable_exchange": "Wyłącz wymianę"
 }
