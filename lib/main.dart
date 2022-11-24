@@ -154,6 +154,7 @@ Future<void> main() async {
         initialMigrationVersion: 17);
     runApp(App());
   }, (error, stackTrace) {
+    _saveException(error.toString(), stackTrace);
     runApp(MaterialApp(
         debugShowCheckedModeBanner: true,
         home: Scaffold(
