@@ -42,11 +42,6 @@ jobs:
           cd /opt/android/cake_wallet
           flutter pub get
         
-      - name: Generate secret salts
-        run: |
-          cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_new_secrets.dart
-        
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
@@ -55,7 +50,7 @@ jobs:
       - name: Generate key properties
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=key storeFile=key.jks storePassword=${{ secrets.STORE_PASS }} keyPassword=${{ secrets.KEY_PASS }}
+          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=${{ secrets.STORE_PASS }} keyPassword=${{ secrets.KEY_PASS }}
         
       - name: Generate localization
         run: |
@@ -74,6 +69,7 @@ jobs:
       - name: Add secrets
         run: |
           cd /opt/android/cake_wallet
+          touch lib/.secrets.g.dart
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
@@ -97,7 +93,7 @@ jobs:
       - name: Build
         run: |
           cd /opt/android/cake_wallet
-          flutter build apk --debug
+          flutter build apk --release
           
 #      - name: Push to App Center
 #        run: |
