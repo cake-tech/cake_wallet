@@ -45,12 +45,12 @@ jobs:
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
-          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass cakewallet -keypass cakewallet
+          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass ${{ secrets.STORE_PASS }} -keypass ${{ secrets.KEY_PASS }}
 
       - name: Generate key properties
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=cakewallet keyPassword=cakewallet
+          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=${{ secrets.STORE_PASS }} keyPassword=${{ secrets.KEY_PASS }}
 
       - name: Generate localization
         run: |
@@ -102,7 +102,7 @@ jobs:
 #          echo "Publishing test to App Center"
 #          appcenter distribute release \
 #              --group "Testers" \
-#              --file "/opt/android/cake_wallet/build/app/outputs/apk/debug/app-debug.apk" \
+#              --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
 #              --release-notes ${GITHUB_HEAD_REF} \
 #              --app Cake-Labs/Cake-Wallet \
 #              --token ${{ secrets.APP_CENTER_TOKEN }} \
@@ -115,5 +115,5 @@ jobs:
           sudo postconf -e mailbox_size_limit=0
           sudo postconf -e message_size_limit=0
           sudo /etc/init.d/postfix restart
-          echo "Kindly find attached the apk for ${GITHUB_HEAD_REF}" | mutt -a "/opt/android/cake_wallet/build/app/outputs/apk/debug/app-debug.apk" -s "Testing of ${GITHUB_HEAD_REF}" -- ${{ secrets.TESTER_EMAIL }}
+          echo "Kindly find attached the apk for ${GITHUB_HEAD_REF}" | mutt -a "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" -s "Testing of ${GITHUB_HEAD_REF}" -- ${{ secrets.TESTER_EMAIL }}
 
