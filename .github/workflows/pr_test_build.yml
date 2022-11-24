@@ -45,15 +45,12 @@ jobs:
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
-          keytool -genkey -v -keystore ~/key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -keystore keystore -storepass ${{ secrets.STORE_PASS }} -keypass ${{ secrets.KEY_PASS }}
-          cd ~/
-          ls
-          pwd
+          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass ${{ secrets.STORE_PASS }} -keypass ${{ secrets.KEY_PASS }}
 
       - name: Generate key properties
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=~/key.jks storePassword=${{ secrets.STORE_PASS }} keyPassword=${{ secrets.KEY_PASS }}
+          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=${{ secrets.STORE_PASS }} keyPassword=${{ secrets.KEY_PASS }}
 
       - name: Generate localization
         run: |
