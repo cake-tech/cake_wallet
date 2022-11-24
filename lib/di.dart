@@ -586,7 +586,9 @@ Future setup(
       getIt.get<FlutterSecureStorage>(),
       _walletInfoSource,
       getIt.get<KeyService>(),
-      getIt.get<SharedPreferences>()));
+      getIt.get<SharedPreferences>(),
+      getIt.get<SettingsStore>(),
+    ));
 
   getIt.registerFactory(() => BackupViewModel(getIt.get<FlutterSecureStorage>(),
       getIt.get<SecretStore>(), getIt.get<BackupService>()));

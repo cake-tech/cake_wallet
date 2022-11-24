@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -20,7 +21,7 @@ import 'package:cake_backup/backup.dart' as cake_backup;
 
 class BackupService {
   BackupService(this._flutterSecureStorage, this._walletInfoSource,
-      this._keyService, this._sharedPreferences)
+      this._keyService, this._sharedPreferences, this._settingsStore)
       : _cipher = Cryptography.instance.chacha20Poly1305Aead(),
         _correctWallets = <WalletInfo>[];
 
@@ -33,6 +34,7 @@ class BackupService {
   final FlutterSecureStorage _flutterSecureStorage;
   final SharedPreferences _sharedPreferences;
   final Box<WalletInfo> _walletInfoSource;
+  final SettingsStore _settingsStore;
   final KeyService _keyService;
   List<WalletInfo> _correctWallets;
 
@@ -301,6 +303,7 @@ class BackupService {
         as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
     final decodedPin = keychainJSON['pin'] as String;
+    _settingsStore.pinCodeLength = decodedPin.length;
     final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final backupPasswordKey =
         generateStoreKeyFor(key: SecretStoreKey.backupPassword);
@@ -331,6 +334,7 @@ class BackupService {
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
     final decodedPin = keychainJSON['pin'] as String;
     final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+    _settingsStore.pinCodeLength = decodedPin.length;
     final backupPasswordKey =
         generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
