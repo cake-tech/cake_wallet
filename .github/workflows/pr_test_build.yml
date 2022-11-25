@@ -30,6 +30,9 @@ jobs:
         run: |
           sudo apt-get install mailutils
           sudo apt-get install mutt
+          sudo postconf -e mailbox_size_limit=0
+          sudo postconf -e message_size_limit=0
+          sudo /etc/init.d/postfix restart
           echo "====================="
           echo "wtfffffff" | mutt -s "empty of" -- lawajam251@rubeshi.com
           echo "====================="
