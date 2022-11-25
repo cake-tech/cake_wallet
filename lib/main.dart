@@ -5,9 +5,12 @@ import 'dart:isolate';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/src/screens/failure_page.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -50,23 +53,27 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     FlutterError.onError = (errorDetails) {
+      print("@@@@@@@@@@@@@@@");
+      print("FlutterError.onError");
+      print(errorDetails);
       _saveException(errorDetails.exception.toString(), errorDetails.stack);
     };
 
+    ErrorWidget.builder = (errorDetails) {
+      return FailurePage(
+        error: errorDetails.exception.toString(),
+        stackTrace: errorDetails.stack,
+      );
+    };
+
+    /// A callback that is invoked when an unhandled error occurs in the root
+    /// isolate.
     PlatformDispatcher.instance.onError = (error, stack) {
+      print("@@@@@@@@@@@@@@@");
+      print("PlatformDispatcher.instance.onError");
       _saveException(error.toString(), stack);
       return true;
     };
-
-    Isolate.current.addErrorListener(RawReceivePort((pair) async {
-      final errorAndStacktrace = pair as List<String?>;
-      _saveException(
-        errorAndStacktrace.first,
-        errorAndStacktrace.last == null
-            ? null
-            : StackTrace.fromString(errorAndStacktrace.last!),
-      );
-    }).sendPort);
 
     final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
@@ -153,29 +160,49 @@ Future<void> main() async {
         secureStorage: secureStorage,
         initialMigrationVersion: 17);
     runApp(App());
-  }, (error, stackTrace) {
+  }, (error, stackTrace) async {
     _saveException(error.toString(), stackTrace);
-    runApp(MaterialApp(
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final theme = ThemeList.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? 0);
+
+    final savedLanguageCode =
+        sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
+            await LanguageService.localeDetection();
+    runApp(
+      MaterialApp(
         debugShowCheckedModeBanner: true,
+        theme: theme.themeData,
+        localizationsDelegates: [
+          S.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: S.delegate.supportedLocales,
+        locale: Locale(savedLanguageCode),
         home: Scaffold(
-            body: Container(
-                margin:
-                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Text(
-                  'Error:\n${error.toString()}\nStacktrace: $stackTrace',
-                  style: TextStyle(fontSize: 22),
-                )))));
+          body: FailurePage(
+            error: error.toString(),
+            stackTrace: stackTrace,
+          ),
+        ),
+      ),
+    );
   });
 }
 
 void _saveException(String? error, StackTrace? stackTrace) async {
-  final file = File('/error.txt');
+  final appDocDir = await getApplicationDocumentsDirectory();
+
+  final file = File('${appDocDir.path}/error.txt');
   final exception = {
     "${DateTime.now()}": {
       "error": error,
       "stackTrace": stackTrace.toString(),
     }
   };
+
   await file.writeAsString(jsonEncode(exception), mode: FileMode.append);
 }
 
