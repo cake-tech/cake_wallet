@@ -18,12 +18,25 @@ class PrivacyPage extends BasePage {
     return Container(
       padding: EdgeInsets.only(top: 10),
       child: Observer(builder: (_) {
-        return SettingsSwitcherCell(
-            title: S.current.settings_save_recipient_address,
-            value: settingsViewModel.shouldSaveRecipientAddress,
-            onValueChange: (BuildContext _, bool value) {
-              settingsViewModel.setShouldSaveRecipientAddress(value);
-            });
+        return Column(
+          mainAxisSize: MainAxisSize.min, 
+          children: [
+            SettingsSwitcherCell(
+              title: S.current.settings_save_recipient_address,
+              value: settingsViewModel.shouldSaveRecipientAddress,
+              onValueChange: (BuildContext _, bool value) {
+                settingsViewModel.setShouldSaveRecipientAddress(value);
+              },
+            ),
+            SettingsSwitcherCell(
+              title: S.current.auto_generate_subaddresses,
+              value: settingsViewModel.enableAutoGenerateSubaddresses,
+              onValueChange: (BuildContext _, bool value) {
+                settingsViewModel.setenableAutoGenerateSubaddresses(value);
+              },
+            ),
+          ],
+        );
       }),
     );
   }

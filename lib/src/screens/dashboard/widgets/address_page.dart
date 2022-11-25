@@ -1,4 +1,6 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -159,52 +161,89 @@ class AddressPage extends BasePage {
               ),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
-                    ? GestureDetector(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed(Routes.receive),
-                        child: Container(
-                          height: 50,
-                          padding: EdgeInsets.only(left: 24, right: 12),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(25)),
-                              border: Border.all(
-                                  color:
-                                      Theme.of(context).textTheme!.subtitle1!.color!,
-                                  width: 1),
-                              color: Theme.of(context).buttonColor),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Observer(
+                    ? Column(
+                      children: [
+                        GestureDetector(
+                            onTap: () async =>
+                              walletViewModel.enableAutoGenerateSubaddresses ? 
+                               await showPopUp<void>(
+                                      context: context,
+                                      builder: (_) =>
+                                          getIt.get<MoneroAccountListPage>()) :
+                              Navigator.of(context).pushNamed(Routes.receive),
+                            child: Container(
+                              height: 50,
+                              padding: EdgeInsets.only(left: 24, right: 12),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25)),
+                                  border: Border.all(
+                                      color:
+                                          Theme.of(context).textTheme!.subtitle1!.color!,
+                                      width: 1),
+                                  color: Theme.of(context).buttonColor),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                walletViewModel.enableAutoGenerateSubaddresses ?
+                                Observer(
                                   builder: (_) => Text(
-                                        addressListViewModel.hasAccounts
-                                            ? S
-                                                .of(context)
-                                                .accounts_subaddresses
-                                            : S.of(context).addresses,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(context)
-                                                .accentTextTheme!
-                                                .headline2!
-                                                .backgroundColor!),
-                                      )),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 14,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .headline2!
-                                    .backgroundColor!,
-                              )
-                            ],
+                                      addressListViewModel.hasAccounts
+                                          ? S.of(context).accounts
+                                          : S.of(context).account,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context)
+                                              .accentTextTheme!
+                                              .headline2!
+                                              .backgroundColor!),
+                                  )) :
+                                  Observer(
+                                      builder: (_) => Text(
+                                            addressListViewModel.hasAccounts
+                                                ? S
+                                                    .of(context)
+                                                    .accounts_subaddresses
+                                                : S.of(context).addresses,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Theme.of(context)
+                                                    .accentTextTheme!
+                                                    .headline2!
+                                                    .backgroundColor!),
+                                  )),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 14,
+                                    color: Theme.of(context)
+                                        .accentTextTheme!
+                                        .headline2!
+                                        .backgroundColor!,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                      if(walletViewModel.enableAutoGenerateSubaddresses)
+                      ...[
+                      SizedBox(height: 24),
+                      Text(
+                      S.of(context).electrum_address_disclaimer,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context)
+                            .accentTextTheme
+                            .headline3!
+                            .backgroundColor!,
                           ),
                         ),
-                      )
+                      ],
+                    ])
                     : Text(
                         S.of(context).electrum_address_disclaimer,
                         textAlign: TextAlign.center,

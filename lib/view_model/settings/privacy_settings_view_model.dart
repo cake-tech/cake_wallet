@@ -14,6 +14,14 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get shouldSaveRecipientAddress =>
       _settingsStore.shouldSaveRecipientAddress;
+  
+  @computed
+  bool get enableAutoGenerateSubaddresses =>
+      _settingsStore.enableAutoGenerateSubaddresses;
+
+  @action
+  void setenableAutoGenerateSubaddresses(bool value) =>
+      _settingsStore.enableAutoGenerateSubaddresses = value;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>

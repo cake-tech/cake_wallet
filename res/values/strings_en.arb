@@ -659,5 +659,6 @@
   "privacy": "Privacy",
   "display_settings": "Display settings",
   "other_settings": "Other settings",
-  "disable_exchange": "Disable exchange"
+  "disable_exchange": "Disable exchange",
+  "auto_generate_subaddresses": "Auto generate subaddresses"
 }

@@ -206,6 +206,9 @@ abstract class DashboardViewModelBase with Store {
   double get price => balanceViewModel.price;
 
   @computed
+  bool get enableAutoGenerateSubaddresses => settingsStore.enableAutoGenerateSubaddresses;
+
+  @computed
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 

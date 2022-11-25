@@ -29,4 +29,5 @@ class PreferencesKey {
     => '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
+  static const enableAutoGenerateSubaddressesKey = 'enable-auto-generate-subaddresses';
 }

@@ -3,7 +3,6 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -17,7 +16,6 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'settings_store.g.dart';
 
@@ -29,6 +27,7 @@ abstract class SettingsStoreBase with Store {
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
+      required bool initialAutoGenerateSubaddresses,
       required bool initialAllowBiometricalAuthentication,
       required bool initialExchangeEnabled,
       required ThemeBase initialTheme,
@@ -47,6 +46,7 @@ abstract class SettingsStoreBase with Store {
     fiatCurrency = initialFiatCurrency,
     balanceDisplayMode = initialBalanceDisplayMode,
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
+    enableAutoGenerateSubaddresses = initialAutoGenerateSubaddresses,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
     disableExchange = initialExchangeEnabled,
     currentTheme = initialTheme,
@@ -88,6 +88,12 @@ abstract class SettingsStoreBase with Store {
         (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
             PreferencesKey.shouldSaveRecipientAddressKey,
             shouldSaveRecipientAddress));
+    
+    reaction(
+        (_) => enableAutoGenerateSubaddresses,
+        (bool enableAutoGenerateSubaddresses) => sharedPreferences.setBool(
+            PreferencesKey.enableAutoGenerateSubaddressesKey,
+            enableAutoGenerateSubaddresses));
 
     reaction(
         (_) => currentTheme,
@@ -141,6 +147,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldSaveRecipientAddress;
+
+  @observable
+  bool enableAutoGenerateSubaddresses;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -234,8 +243,7 @@ abstract class SettingsStoreBase with Store {
             : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            legacyTheme ??
-            0);
+            legacyTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
@@ -263,7 +271,8 @@ abstract class SettingsStoreBase with Store {
     final packageInfo = await PackageInfo.fromPlatform();
     final shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
-
+    final enableAutoGenerateSubaddresses =
+        sharedPreferences.getBool(PreferencesKey.enableAutoGenerateSubaddressesKey) ?? true;
     final nodes = <WalletType, Node>{};
 
     if (moneroNode != null) {
@@ -290,6 +299,7 @@ abstract class SettingsStoreBase with Store {
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialAutoGenerateSubaddresses: enableAutoGenerateSubaddresses,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialExchangeEnabled: disableExchange,
         initialTheme: savedTheme,
