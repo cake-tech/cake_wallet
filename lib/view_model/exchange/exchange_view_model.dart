@@ -6,8 +6,8 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -42,7 +42,7 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore, this.sharedPreferences, this._settingsViewModel)
+      this.tradesStore, this._settingsStore, this.sharedPreferences)
     : _cryptoNumberFormat = NumberFormat(),
       isReverse = false,
       isFixedRateMode = false,
@@ -189,6 +189,19 @@ abstract class ExchangeViewModelBase with Store {
   ObservableList<ExchangeTemplate> get templates =>
       _exchangeTemplateStore.templates;
 
+  
+  @computed
+  TransactionPriority get transactionPriority {
+    final priority = _settingsStore.priority[wallet.type];
+
+    if (priority == null) {
+      throw Exception('Unexpected type ${wallet.type.toString()}');
+    }
+
+    return priority;
+  }
+
+
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
 
@@ -198,11 +211,11 @@ abstract class ExchangeViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        return _settingsViewModel.transactionPriority == monero!.getMoneroTransactionPrioritySlow();
+        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
-        return _settingsViewModel.transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
+        return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
-        return _settingsViewModel.transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
+        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
       default:
         return false;
     }
@@ -219,8 +232,6 @@ abstract class ExchangeViewModelBase with Store {
   NumberFormat _cryptoNumberFormat;
 
   final SettingsStore _settingsStore;
-
-  final SettingsViewModel _settingsViewModel;
 
   double _bestRate = 0.0;
 

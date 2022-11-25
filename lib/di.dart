@@ -123,7 +123,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
@@ -385,8 +384,7 @@ Future setup(
       _transactionDescriptionBox));
 
   getIt.registerFactory(
-      () => SendPage(sendViewModel: getIt.get<SendViewModel>(),
-          settingsViewModel: getIt.get<SettingsViewModel>()));
+      () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => SendTemplatePage(
       sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
@@ -442,29 +440,19 @@ Future setup(
               getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    final yatStore = getIt.get<YatStore>();
-    return SettingsViewModel(appStore.settingsStore, yatStore, appStore.wallet!);
+    return DisplaySettingsViewModel(getIt.get<SettingsStore>());
   });
 
   getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    return DisplaySettingsViewModel(appStore.settingsStore);
+    return PrivacySettingsViewModel(getIt.get<SettingsStore>());
   });
 
   getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    return PrivacySettingsViewModel(appStore.settingsStore);
+    return OtherSettingsViewModel(getIt(), getIt());
   });
 
   getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    return OtherSettingsViewModel(appStore.settingsStore, appStore.wallet!);
-  });
-
-  getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    return SecuritySettingsViewModel(appStore.settingsStore);
+    return SecuritySettingsViewModel(getIt.get<SettingsStore>());
   });
 
   getIt
@@ -530,7 +518,6 @@ Future setup(
       getIt.get<TradesStore>(),
       getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
-      getIt.get<SettingsViewModel>(),
   ));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(

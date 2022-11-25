@@ -11,12 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class OtherSettingsPage extends BasePage {
-  OtherSettingsPage(this._settingsViewModel);
+  OtherSettingsPage(this._otherSettingsViewModel);
 
   @override
   String get title => S.current.other_settings;
 
-  final OtherSettingsViewModel _settingsViewModel;
+  final OtherSettingsViewModel _otherSettingsViewModel;
 
   @override
   Widget body(BuildContext context) {
@@ -26,10 +26,10 @@ class OtherSettingsPage extends BasePage {
         child: Column(children: [
           SettingsPickerCell(
             title: S.current.settings_fee_priority,
-            items: priorityForWalletType(_settingsViewModel.walletType),
-            displayItem: _settingsViewModel.getDisplayPriority,
-            selectedItem: _settingsViewModel.transactionPriority,
-            onItemSelected: _settingsViewModel.onDisplayPrioritySelected,
+            items: priorityForWalletType(_otherSettingsViewModel.walletType),
+            displayItem: _otherSettingsViewModel.getDisplayPriority,
+            selectedItem: _otherSettingsViewModel.transactionPriority,
+            onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
           ),
           SettingsCellWithArrow(
             title: S.current.settings_terms_and_conditions,
@@ -37,7 +37,7 @@ class OtherSettingsPage extends BasePage {
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           Spacer(),
-          SettingsVersionCell(title: S.of(context).version(_settingsViewModel.currentVersion))
+          SettingsVersionCell(title: S.of(context).version(_otherSettingsViewModel.currentVersion))
         ]),
       );
     });

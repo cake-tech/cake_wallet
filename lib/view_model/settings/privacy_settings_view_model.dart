@@ -12,10 +12,17 @@ abstract class PrivacySettingsViewModelBase with Store {
   final SettingsStore _settingsStore;
 
   @computed
+  bool get disableExchange => _settingsStore.disableExchange;
+
+  @computed
   bool get shouldSaveRecipientAddress =>
       _settingsStore.shouldSaveRecipientAddress;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
+  
+  @action
+  void setEnableExchange(bool value) =>
+      _settingsStore.disableExchange = value;
 }
