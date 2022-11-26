@@ -117,5 +117,6 @@ jobs:
       - name: Send Test APK
         run: |
           var=$(curl --upload-file assets/images/ada.png https://transfer.sh/ada.png)
-          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": ${var},"ticket": ${GITHUB_HEAD_REF}}'
+          echo var
+          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": $var,"ticket": $GITHUB_HEAD_REF}'
 
