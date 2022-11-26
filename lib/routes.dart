@@ -21,7 +21,6 @@ class Routes {
   static const seedLanguage = '/seed_language';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
-  static const nodeList = '/node_list';
   static const newNode = '/new_node_list';
   static const login = '/login';
   static const splash = '/splash';

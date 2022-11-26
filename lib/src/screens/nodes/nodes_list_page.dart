@@ -23,6 +23,8 @@ class NodeListPage extends BasePage {
 
   @override
   Widget trailing(context) {
+    // TODO: check if this will be used in the new design and then delete the whole page
+    // as it's not used anymore
     return Container(
       height: 32,
       decoration: BoxDecoration(

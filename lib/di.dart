@@ -489,8 +489,6 @@ Future setup(
         _nodeSource, appStore.wallet!, appStore.settingsStore);
   });
 
-  getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
-
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>()));

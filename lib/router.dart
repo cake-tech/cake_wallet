@@ -278,10 +278,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   param2: false),
               onWillPop: () async => false));
 
-    case Routes.nodeList:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeListPage>());
-
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<ConnectionSyncPage>());
