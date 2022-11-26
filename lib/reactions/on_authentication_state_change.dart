@@ -23,12 +23,12 @@ void startAuthenticationStateChange(AuthenticationStore authenticationStore,
     }
 
     if (state == AuthenticationState.allowed) {
-      await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+      await navigatorKey.currentState?.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       return;
     }
 
     if (state == AuthenticationState.denied) {
-      await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.welcome, (_) => false);
+      await navigatorKey.currentState?.pushNamedAndRemoveUntil(Routes.welcome, (_) => false);
       return;
     }
   });
