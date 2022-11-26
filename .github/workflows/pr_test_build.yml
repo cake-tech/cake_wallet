@@ -21,8 +21,11 @@ jobs:
 #          flutter-version: '3.3.x'
 #          channel: stable
 #
+#      - name: Install package dependencies
+#        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+
       - name: Install package dependencies
-        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+        run: sudo apt-get install -y curl
 #
 #      - name: Execute Build and Setup Commands
 #        run: |
@@ -117,6 +120,7 @@ jobs:
       - name: Send Test APK
         run: |
           var=$(curl --upload-file assets/images/ada.png https://transfer.sh/ada.png)
-          echo var
+          echo ${var}
+          echo $var
           curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d "{\"apk_link\": $var,\"ticket\": $GITHUB_HEAD_REF}"
 
