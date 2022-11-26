@@ -114,5 +114,6 @@ jobs:
           sudo apt-get install mailutils
           sudo apt-get install mutt
           var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/app-release.apk)
-          echo "Kindly find here ${var} the apk for ${GITHUB_HEAD_REF}" | mutt -s "Testing of ${GITHUB_HEAD_REF}" -- ${{ secrets.TESTER_EMAIL }}
+          echo "Kindly find here ${var} the apk for ${GITHUB_HEAD_REF}" | mutt -s "Testing of ${GITHUB_HEAD_REF}" -- omar@cakewallet.com
+          echo "Kindly find here ${var} the apk for ${GITHUB_HEAD_REF}" | mutt -s "Testing of ${GITHUB_HEAD_REF}" -- nopex73334@nubotel.com
 
