@@ -448,7 +448,7 @@ Future setup(
   });
 
   getIt.registerFactory(() {
-    return OtherSettingsViewModel(getIt(), getIt());
+    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
   getIt.registerFactory(() {
