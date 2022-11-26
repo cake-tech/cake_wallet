@@ -118,5 +118,5 @@ jobs:
         run: |
           var=$(curl --upload-file assets/images/ada.png https://transfer.sh/ada.png)
           echo var
-          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": $var,"ticket": $GITHUB_HEAD_REF}'
+          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d "{\"apk_link\": $var,\"ticket\": $GITHUB_HEAD_REF}"
 
