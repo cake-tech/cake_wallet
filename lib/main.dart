@@ -161,34 +161,38 @@ Future<void> main() async {
         initialMigrationVersion: 17);
     runApp(App());
   }, (error, stackTrace) async {
+    print("@@@@@@@@@@@@@@@@");
+    print(error);
+    print(stackTrace);
     _saveException(error.toString(), stackTrace);
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final theme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? 0);
-
-    final savedLanguageCode =
-        sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
-            await LanguageService.localeDetection();
-    runApp(
-      MaterialApp(
-        debugShowCheckedModeBanner: true,
-        theme: theme.themeData,
-        localizationsDelegates: [
-          S.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        locale: Locale(savedLanguageCode),
-        home: Scaffold(
-          body: FailurePage(
-            error: error.toString(),
-            stackTrace: stackTrace,
-          ),
-        ),
-      ),
-    );
+    // TODO: this will trigger even there is no fatal error occurred so better not build a new app instance
+  //   final sharedPreferences = await SharedPreferences.getInstance();
+  //   final theme = ThemeList.deserialize(
+  //       raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? 0);
+  //
+  //   final savedLanguageCode =
+  //       sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
+  //           await LanguageService.localeDetection();
+  //   runApp(
+  //     MaterialApp(
+  //       debugShowCheckedModeBanner: true,
+  //       theme: theme.themeData,
+  //       localizationsDelegates: [
+  //         S.delegate,
+  //         GlobalCupertinoLocalizations.delegate,
+  //         GlobalMaterialLocalizations.delegate,
+  //         GlobalWidgetsLocalizations.delegate,
+  //       ],
+  //       supportedLocales: S.delegate.supportedLocales,
+  //       locale: Locale(savedLanguageCode),
+  //       home: Scaffold(
+  //         body: FailurePage(
+  //           error: error.toString(),
+  //           stackTrace: stackTrace,
+  //         ),
+  //       ),
+  //     ),
+  //   );
   });
 }
 
