@@ -11,6 +11,7 @@ class PreferencesKey {
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
+  static const disableExchangeKey = 'disable_exchange';
   static const currentTheme = 'current_theme';
   static const isDarkThemeLegacy = 'dark_theme';
   static const displayActionListModeKey = 'display_list_mode';

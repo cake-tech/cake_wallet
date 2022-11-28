@@ -658,5 +658,6 @@
   "other_settings": "अन्य सेटिंग्स",
   "require_pin_after": "इसके बाद पिन आवश्यक है",
   "always": "हमेशा",
-  "minutes_to_pin_code": "${minute} मिनट"
+  "minutes_to_pin_code": "${minute} मिनट",
+  "disable_exchange": "एक्सचेंज अक्षम करें"
 }

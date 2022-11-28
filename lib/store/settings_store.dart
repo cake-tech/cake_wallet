@@ -29,6 +29,7 @@ abstract class SettingsStoreBase with Store {
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
       required bool initialAllowBiometricalAuthentication,
+      required bool initialExchangeEnabled,
       required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
@@ -47,6 +48,7 @@ abstract class SettingsStoreBase with Store {
     balanceDisplayMode = initialBalanceDisplayMode,
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+    disableExchange = initialExchangeEnabled,
     currentTheme = initialTheme,
     pinCodeLength = initialPinLength,
     languageCode = initialLanguageCode,
@@ -150,6 +152,9 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
+  bool disableExchange;
+
+  @observable
   ThemeBase currentTheme;
 
   @observable
@@ -230,6 +235,8 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
+    final disableExchange = sharedPreferences
+            .getBool(PreferencesKey.disableExchangeKey) ?? false;
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
@@ -295,6 +302,7 @@ abstract class SettingsStoreBase with Store {
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialExchangeEnabled: disableExchange,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,

@@ -656,5 +656,6 @@
   "other_settings": "Autres paramètres",
   "require_pin_after": "NIP requis après",
   "always": "toujours",
-  "minutes_to_pin_code": "${minute} minutes"
+  "minutes_to_pin_code": "${minute} minutes",
+  "disable_exchange": "Désactiver l'échange"
 }

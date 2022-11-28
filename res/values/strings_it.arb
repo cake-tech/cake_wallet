@@ -658,5 +658,6 @@
   "other_settings": "Altre impostazioni",
   "require_pin_after": "Richiedi PIN dopo",
   "always": "sempre",
-  "minutes_to_pin_code": "${minute} minuti"
+  "minutes_to_pin_code": "${minute} minuti",
+  "disable_exchange": "Disabilita scambio"
 }

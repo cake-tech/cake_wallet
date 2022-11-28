@@ -656,5 +656,6 @@
   "other_settings": "其他设置",
   "require_pin_after": "之后需要 PIN",
   "always": "总是",
-  "minutes_to_pin_code": "${minute} 分钟"
+  "minutes_to_pin_code": "${minute} 分钟",
+  "disable_exchange": "禁用交换"
 }

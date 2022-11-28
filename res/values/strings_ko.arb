@@ -658,5 +658,6 @@
   "other_settings": "기타 설정",
   "require_pin_after": "다음 이후에 PIN 필요",
   "always": "언제나",
-  "minutes_to_pin_code": "${minute}분"
+  "minutes_to_pin_code": "${minute}분",
+  "disable_exchange": "교환 비활성화"
 }

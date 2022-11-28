@@ -658,5 +658,6 @@
   "other_settings": "Ostale postavke",
   "require_pin_after": "Zahtijevaj PIN nakon",
   "always": "Uvijek",
-  "minutes_to_pin_code": "${minute} minuta"
+  "minutes_to_pin_code": "${minute} minuta",
+  "disable_exchange": "Onemogući exchange"
 }

@@ -658,5 +658,6 @@
   "other_settings": "Другие настройки",
   "require_pin_after": "Требовать ПИН после",
   "always": "всегда",
-  "minutes_to_pin_code": "${minute} минут"
+  "minutes_to_pin_code": "${minute} минут",
+  "disable_exchange": "Отключить обмен"
 }

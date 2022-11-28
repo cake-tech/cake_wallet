@@ -658,5 +658,6 @@
   "other_settings": "Andere instellingen",
   "require_pin_after": "Pincode vereist na",
   "always": "altijd",
-  "minutes_to_pin_code": "${minute} minuten"
+  "minutes_to_pin_code": "${minute} minuten",
+  "disable_exchange": "Uitwisseling uitschakelen"
 }
