@@ -652,5 +652,6 @@
   "do_not_share_warning_text" : "Не повідомляйте їх нікому, включно зі службою підтримки.\n\nВони вкрадуть ваші гроші!",
   "help": "допомога",
   "all_transactions": "Всі транзакції",
-  "all_trades": "Всі операції"
+  "all_trades": "Всі операції",
+  "disable_exchange": "Вимкнути exchange"
 }

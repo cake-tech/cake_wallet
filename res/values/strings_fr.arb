@@ -651,5 +651,6 @@
   "do_not_share_warning_text" : "Ne les partagez avec personne d'autre, y compris avec l'assistance.\n\nIls vont voler votre argent!",
   "help": "aider",
   "all_transactions": "Toutes transactions",
-  "all_trades": "Tous métiers"
+  "all_trades": "Tous métiers",
+  "disable_exchange": "Désactiver l'échange"
 }

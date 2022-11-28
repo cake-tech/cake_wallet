@@ -653,5 +653,6 @@
   "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Te robarán tu dinero!",
   "help": "ayuda",
   "all_transactions": "Todas las transacciones",
-  "all_trades": "Todos los oficios"
+  "all_trades": "Todos los oficios",
+  "disable_exchange": "Deshabilitar intercambio"
 }

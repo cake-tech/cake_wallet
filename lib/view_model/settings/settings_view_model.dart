@@ -208,6 +208,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
+        SwitcherListItem(
+            title: S.current.disable_exchange,
+            value: () => _settingsStore.disableExchange,
+            onValueChange: (BuildContext context, bool value) {
+              _settingsStore.disableExchange = value;
+            }),
         ChoicesListItem(
           title: S.current.color_theme,
           items: ThemeList.all,

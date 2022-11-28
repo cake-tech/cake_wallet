@@ -653,5 +653,6 @@
   "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
   "help": "helpen",
   "all_transactions": "Alle transacties",
-  "all_trades": "Alle transacties"
+  "all_trades": "Alle transacties",
+  "disable_exchange": "Uitwisseling uitschakelen"
 }

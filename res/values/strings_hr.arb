@@ -653,5 +653,6 @@
   "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
   "help": "pomozite",
   "all_transactions": "Sve transakcije",
-  "all_trades": "Svi obrti"
+  "all_trades": "Svi obrti",
+  "disable_exchange": "Onemogući exchange"
 }
