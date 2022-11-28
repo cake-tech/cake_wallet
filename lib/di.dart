@@ -58,7 +58,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart'
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
-import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
