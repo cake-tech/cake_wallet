@@ -315,6 +315,8 @@ class DashboardPage extends BasePage {
   }
 
   Future<void> _onClickExchangeButton(BuildContext context) async {
-    await Navigator.of(context).pushNamed(Routes.exchange);
+    if (walletViewModel.isEnabledExchangeAction) {
+      await Navigator.of(context).pushNamed(Routes.exchange);
+    }
   }
 }
