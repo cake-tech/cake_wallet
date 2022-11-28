@@ -651,5 +651,6 @@
   "ignor": "Pasar por alto",
   "use_suggested": "Usar sugerido",
   "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Te robarán tu dinero!",
-  "help": "ayuda"
+  "help": "ayuda",
+  "disable_exchange": "Deshabilitar intercambio"
 }
