@@ -651,5 +651,6 @@
   "ignor": "Ignorować",
   "use_suggested": "Użyj sugerowane",
   "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
-  "help": "pomoc"
+  "help": "pomoc",
+  "disable_exchange": "Wyłącz wymianę"
 }
