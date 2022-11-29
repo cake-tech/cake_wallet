@@ -121,7 +121,7 @@ jobs:
           curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
 
       - name: Rename apk
-      - run: |
+        run: |
           mv pubspec_base.yaml $GITHUB_HEAD_REF.apk
           ls
 
