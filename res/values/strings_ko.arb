@@ -652,5 +652,6 @@
   "use_suggested": "추천 사용",
   "do_not_share_warning_text" : "지원을 포함하여 다른 사람과 이러한 정보를 공유하지 마십시오.\n\n그들은 당신의 돈을 훔칠 것입니다!",
   "help": "돕다",
+  "disable_exchange": "교환 비활성화",
   "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다."
 }

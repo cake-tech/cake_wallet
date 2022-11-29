@@ -652,5 +652,6 @@
   "use_suggested": "推奨を使用",
   "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
   "help": "ヘルプ",
+  "disable_exchange": "交換を無効にする",
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません"
 }

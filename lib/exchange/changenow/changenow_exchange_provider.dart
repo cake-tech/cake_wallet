@@ -232,7 +232,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['fromAmount'].toString());
       final toAmount =  double.parse(responseJSON['toAmount'].toString());
-      final rateId = responseJSON['rateId'] as String ?? '';
+      final rateId = responseJSON['rateId'] as String? ?? '';
 
       if (rateId.isNotEmpty) {
         _lastUsedRateId = rateId;

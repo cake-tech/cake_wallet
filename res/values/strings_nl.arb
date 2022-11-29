@@ -652,5 +652,6 @@
   "use_suggested": "Gebruik aanbevolen",
   "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
   "help": "helpen",
+  "disable_exchange": "Uitwisseling uitschakelen",
   "unmatched_currencies": "De valuta van uw huidige portemonnee komt niet overeen met die van de gescande QR"
 }

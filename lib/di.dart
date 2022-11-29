@@ -705,6 +705,7 @@ Future setup(
       ioniaAnyPayService: getIt.get<IoniaAnyPay>(), 
       amount: amount,
       ioniaMerchant: merchant,
+      sendViewModel: getIt.get<SendViewModel>()
     );
   });
 

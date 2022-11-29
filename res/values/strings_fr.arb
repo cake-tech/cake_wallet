@@ -650,5 +650,6 @@
   "use_suggested": "Utilisation suggérée",
   "do_not_share_warning_text" : "Ne les partagez avec personne d'autre, y compris avec l'assistance.\n\nIls vont voler votre argent!",
   "help": "aider",
+  "disable_exchange": "Désactiver l'échange",
   "unmatched_currencies": "La devise de votre portefeuille actuel ne correspond pas à celle du QR scanné"
 }
