@@ -114,15 +114,22 @@ jobs:
 #          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk)
 #          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
 
+#      - name: Rename apk
+#        run: |
+#          cd /opt/android/cake_wallet/build/app/outputs/apk/release
+#          mkdir test-apk
+#          mv app-release.apk test-apk/$GITHUB_HEAD_REF.apk
+
       - name: Rename apk
         run: |
           mkdir test-apk
-          mv pubspec_base.yaml test-apk/second-test.apk
+          mv pubspec_base.yaml test-apk/$GITHUB_HEAD_REF.apk
+          cd test-apk
           ls
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: test-apks-artifacts
-          path: test-apk/*
+          path: test-apk/"$GITHUB_HEAD_REF".apk
 
