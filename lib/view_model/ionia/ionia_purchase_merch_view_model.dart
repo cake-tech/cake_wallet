@@ -7,6 +7,7 @@ import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 
 part 'ionia_purchase_merch_view_model.g.dart';
 
@@ -17,6 +18,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
     required this.ioniaAnyPayService,
     required this.amount,
     required this.ioniaMerchant,
+    required this.sendViewModel,
   }) : tipAmount = 0.0,
         percentage = 0.0,
         invoiceCreationState = InitialExecutionState(),
@@ -39,6 +41,8 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   IoniaTip? selectedTip;
 
   final IoniaMerchant ioniaMerchant;
+
+  final SendViewModel sendViewModel;
 
   final IoniaAnyPay ioniaAnyPayService;
 
