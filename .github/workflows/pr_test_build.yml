@@ -90,6 +90,9 @@ jobs:
           echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
 
+      - name: Rename app
+        run: sed -i -e "s/\${APP_NAME}/$GITHUB_HEAD_REF/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
+
       - name: Build
         run: |
           cd /opt/android/cake_wallet
@@ -111,10 +114,10 @@ jobs:
       - name: Send Test APK
         run: |
           cd /opt/android/cake_wallet
-          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk)
+          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")
           curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
 
-      - name: Rename apk
+      - name: Rename apk file
         run: |
           cd /opt/android/cake_wallet/build/app/outputs/apk/release
           mkdir test-apk
