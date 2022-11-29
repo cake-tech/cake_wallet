@@ -111,14 +111,8 @@ jobs:
 #      - name: Send Test APK
 #        run: |
 #          cd /opt/android/cake_wallet
-#          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/app-release.apk)
+#          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk)
 #          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
-
-
-      - name: Send Test APK
-        run: |
-          var=$(curl --upload-file pubspec_base.yaml https://transfer.sh/$GITHUB_HEAD_REF.apk)
-          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
 
       - name: Rename apk
         run: |
@@ -129,5 +123,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-apks-artifacts
-          path: $GITHUB_HEAD_REF.apk
+          path: "\${{GITHUB_HEAD_REF}}.apk"
 
