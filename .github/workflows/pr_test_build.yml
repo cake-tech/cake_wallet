@@ -128,20 +128,30 @@ jobs:
           ls
           apkPath=pwd/$GITHUB_HEAD_REF.apk
           echo "===================="
-          echo apkPath
+          echo $apkPath
           echo "===================="
+          echo "artifactPath=test-apk/${{ GITHUB_HEAD_REF.apk }}" >> $GITHUB_ENV
+          echo ${{ env.artifactPath }}
 
       - name: Upload Artifact
         continue-on-error: true
         uses: actions/upload-artifact@v3
         with:
           name: test-apks-artifacts
-          path: apkPath
+          path: test-apk/${{ GITHUB_HEAD_REF }}.apk
 
       - name: Upload Artifact
         continue-on-error: true
         uses: actions/upload-artifact@v3
         with:
           name: test-apks-artifacts
-          path: $apkPath
+          path: ${{ apkPath }}
+
+      - name: Upload Artifact
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-apks-artifacts
+          path: ${{ env.artifactPath }}
+          retention-days: 30
 
