@@ -116,12 +116,13 @@ jobs:
 
       - name: Rename apk
         run: |
-          mv pubspec_base.yaml $GITHUB_HEAD_REF.apk
+          mkdir test-apk
+          mv pubspec_base.yaml test-apk/$GITHUB_HEAD_REF.apk
           ls
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: test-apks-artifacts
-          path: "\${{GITHUB_HEAD_REF}}.apk"
+          path: test-apk/*
 
