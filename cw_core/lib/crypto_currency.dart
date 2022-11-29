@@ -1,20 +1,16 @@
 import 'package:cw_core/enumerable_item.dart';
-import 'package:hive/hive.dart';
 
-part 'crypto_currency.g.dart';
-
-@HiveType(typeId: 0)
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   const CryptoCurrency({
     String title = '',
     int raw = -1,
-    this.name,
+    required this.name,
     this.fullName,
     this.iconPath,
     this.tag})
       : super(title: title, raw: raw);
 
-  final String? name;
+  final String name;
   final String? tag;
   final String? fullName;
   final String? iconPath;
