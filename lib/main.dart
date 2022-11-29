@@ -9,8 +9,10 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/src/screens/failure_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,13 +55,19 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     FlutterError.onError = (errorDetails) {
-      print("@@@@@@@@@@@@@@@");
-      print("FlutterError.onError");
-      print(errorDetails);
+      print("@@@@@@@@@@@@@@@@@ in on error");
+      print(errorDetails.exception.toString());
+      _onError(errorDetails);
       _saveException(errorDetails.exception.toString(), errorDetails.stack);
     };
 
     ErrorWidget.builder = (errorDetails) {
+      print("@@@@@@@@@@@@@@@@@ in widget error");
+      // TODO: uncomment
+      // if (kDebugMode) {
+      //   return ErrorWidget(errorDetails.exception);
+      // }
+
       return FailurePage(
         error: errorDetails.exception.toString(),
         stackTrace: errorDetails.stack,
@@ -161,38 +169,8 @@ Future<void> main() async {
         initialMigrationVersion: 17);
     runApp(App());
   }, (error, stackTrace) async {
-    print("@@@@@@@@@@@@@@@@");
-    print(error);
-    print(stackTrace);
-    _saveException(error.toString(), stackTrace);
-    // TODO: this will trigger even there is no fatal error occurred so better not build a new app instance
-  //   final sharedPreferences = await SharedPreferences.getInstance();
-  //   final theme = ThemeList.deserialize(
-  //       raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? 0);
-  //
-  //   final savedLanguageCode =
-  //       sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
-  //           await LanguageService.localeDetection();
-  //   runApp(
-  //     MaterialApp(
-  //       debugShowCheckedModeBanner: true,
-  //       theme: theme.themeData,
-  //       localizationsDelegates: [
-  //         S.delegate,
-  //         GlobalCupertinoLocalizations.delegate,
-  //         GlobalMaterialLocalizations.delegate,
-  //         GlobalWidgetsLocalizations.delegate,
-  //       ],
-  //       supportedLocales: S.delegate.supportedLocales,
-  //       locale: Locale(savedLanguageCode),
-  //       home: Scaffold(
-  //         body: FailurePage(
-  //           error: error.toString(),
-  //           stackTrace: stackTrace,
-  //         ),
-  //       ),
-  //     ),
-  //   );
+    print("@@@@@@@@@@@@@@@@ in run zone guard");
+    _onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
@@ -208,6 +186,34 @@ void _saveException(String? error, StackTrace? stackTrace) async {
   };
 
   await file.writeAsString(jsonEncode(exception), mode: FileMode.append);
+}
+
+void _onError(FlutterErrorDetails details) {
+  print("#############");
+  print(details.exception.toString());
+  WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        showPopUp<void>(
+          context: navigatorKey.currentContext!,
+          builder: (context) {
+            return AlertWithTwoActions(
+              isDividerExist: true,
+              alertTitle: S.of(context).error,
+              alertContent: "Oops, we got some error.\n\nPlease send crash report to our support team to make the application better.",
+              rightButtonText: S.of(context).send,
+              leftButtonText: "Don't send",
+              actionRightButton: () async {
+                Navigator.of(context).pop();
+              },
+              actionLeftButton: () {
+                Navigator.of(context).pop();
+                _saveException(details.exception.toString(), details.stack);
+              },
+            );
+          },
+        );
+    },
+  );
 }
 
 Future<void> initialSetup(
