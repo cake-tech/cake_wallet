@@ -117,7 +117,7 @@ jobs:
       - name: Rename apk
         run: |
           mkdir test-apk
-          mv pubspec_base.yaml test-apk/$GITHUB_HEAD_REF.apk
+          mv pubspec_base.yaml test-apk/second-test.apk
           ls
 
       - name: Upload Artifact
