@@ -126,7 +126,7 @@ jobs:
           mv pubspec_base.yaml test-apk/$GITHUB_HEAD_REF.apk
           cd test-apk
           ls
-          apkPath=pwd/$GITHUB_HEAD_REF.apk
+          apkPath=pwd/${{ GITHUB_HEAD_REF }}.apk
           echo "===================="
           echo $apkPath
           echo "===================="
