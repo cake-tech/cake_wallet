@@ -124,34 +124,8 @@ jobs:
         run: |
           mkdir test-apk
           mv pubspec_base.yaml test-apk/$GITHUB_HEAD_REF.apk
-          cd test-apk
-          ls
-          apkPath=pwd/$GITHUB_HEAD_REF.apk
-          echo "===================="
-          echo $apkPath
-          echo "===================="
-          echo "artifactPath=test-apk/$GITHUB_HEAD_REF.apk" >> $GITHUB_ENV
-          echo ${{ env.artifactPath }}
 
       - name: Upload Artifact
-        continue-on-error: true
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: test-apk/
-
-#      - name: Upload Artifact
-#        continue-on-error: true
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: test-apks-artifacts
-#          path: ${{ env.artifactPath2 }}
-#          retention-days: 1
-#
-#      - name: Upload Artifact
-#        continue-on-error: true
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: test-apks-artifacts
-#          path: ${{ env.artifactPath3 }}
-#          retention-days: 1
-
