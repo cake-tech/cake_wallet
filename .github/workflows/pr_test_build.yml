@@ -142,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-apks-artifacts
-          path: test-apk/${{ GITHUB_HEAD_REF }}.apk
+          path: test-apk/${{ $GITHUB_HEAD_REF }}.apk
 
       - name: Upload Artifact
         continue-on-error: true
