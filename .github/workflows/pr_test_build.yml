@@ -131,11 +131,7 @@ jobs:
           echo $apkPath
           echo "===================="
           echo "artifactPath=test-apk/$GITHUB_HEAD_REF.apk" >> $GITHUB_ENV
-#          echo "artifactPath2=test-apk/\$GITHUB_HEAD_REF.apk" >> $GITHUB_ENV
-#          echo "artifactPath3=test-apk/\${{ GITHUB_HEAD_REF.apk }}" >> $GITHUB_ENV
           echo ${{ env.artifactPath }}
-#          echo ${{ env.artifactPath2 }}
-#          echo ${{ env.artifactPath3 }}
 
       - name: Upload Artifact
         continue-on-error: true
