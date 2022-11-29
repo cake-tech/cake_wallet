@@ -131,11 +131,11 @@ jobs:
           echo $apkPath
           echo "===================="
           echo "artifactPath=test-apk/$GITHUB_HEAD_REF.apk" >> $GITHUB_ENV
-          echo "artifactPath2=test-apk/\$GITHUB_HEAD_REF.apk" >> $GITHUB_ENV
-          echo "artifactPath3=test-apk/\${{ GITHUB_HEAD_REF.apk }}" >> $GITHUB_ENV
+#          echo "artifactPath2=test-apk/\$GITHUB_HEAD_REF.apk" >> $GITHUB_ENV
+#          echo "artifactPath3=test-apk/\${{ GITHUB_HEAD_REF.apk }}" >> $GITHUB_ENV
           echo ${{ env.artifactPath }}
-          echo ${{ env.artifactPath2 }}
-          echo ${{ env.artifactPath3 }}
+#          echo ${{ env.artifactPath2 }}
+#          echo ${{ env.artifactPath3 }}
 
       - name: Upload Artifact
         continue-on-error: true
@@ -145,19 +145,19 @@ jobs:
           path: ${{ env.artifactPath }}
           retention-days: 1
 
-      - name: Upload Artifact
-        continue-on-error: true
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-apks-artifacts
-          path: ${{ env.artifactPath2 }}
-          retention-days: 1
-
-      - name: Upload Artifact
-        continue-on-error: true
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-apks-artifacts
-          path: ${{ env.artifactPath3 }}
-          retention-days: 1
+#      - name: Upload Artifact
+#        continue-on-error: true
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: test-apks-artifacts
+#          path: ${{ env.artifactPath2 }}
+#          retention-days: 1
+#
+#      - name: Upload Artifact
+#        continue-on-error: true
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: test-apks-artifacts
+#          path: ${{ env.artifactPath3 }}
+#          retention-days: 1
 
