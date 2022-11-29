@@ -142,13 +142,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-apks-artifacts
-          path: ${{ apkPath }}
-
-      - name: Upload Artifact
-        continue-on-error: true
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-apks-artifacts
           path: ${{ env.artifactPath }}
           retention-days: 1
 
