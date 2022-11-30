@@ -130,19 +130,19 @@ class IoniaGiftCardDetailPage extends BasePage {
             if (!viewModel.giftCard.isEmpty) {
               return Column(
                 children: [
-                  //PrimaryButton(
-                  //  onPressed: () async {
-                  //    final amount = await Navigator.of(context)
-                  //        .pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as String;
-                  //    if (amount != null) {
-                  //      viewModel.updateRemaining(double.parse(amount));
-                  //    }
-                  //  },
-                  //  text: S.of(context).more_options,
-                  //  color: Theme.of(context).accentTextTheme!.caption!.color!,
-                  //  textColor: Theme.of(context).primaryTextTheme!.headline6!.color!,
-                  //),
-                  //SizedBox(height: 12),
+                  PrimaryButton(
+                   onPressed: () async {
+                     final amount = await Navigator.of(context)
+                         .pushNamed(Routes.ioniaMoreOptionsPage, arguments: [viewModel.giftCard]) as List<String>?;
+                     if (amount != null) {
+                       viewModel.updateRemaining( balance: double.parse(amount.first), customAmount: double.parse(amount.last));
+                     }
+                   },
+                   text: S.of(context).more_options,
+                   color: Theme.of(context).accentTextTheme.caption!.color!,
+                   textColor: Theme.of(context).primaryTextTheme.headline6!.color!,
+                  ),
+                  SizedBox(height: 12),
                   LoadingPrimaryButton(
                     isLoading: viewModel.redeemState is IsExecutingState,
                     onPressed: () => viewModel.redeem().then(
@@ -152,7 +152,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                       },
                     ),
                     text: S.of(context).mark_as_redeemed,
-                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                    color: Theme.of(context).accentTextTheme.bodyText1!.color!,
                     textColor: Colors.white,
                   ),
                 ],

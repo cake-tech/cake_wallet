@@ -37,7 +37,7 @@ class IoniaGiftCard {
             purchaseAmount: element['PurchaseAmount'] as double,
             actualAmount: element['ActualAmount'] as double,
             totalTransactionAmount: element['TotalTransactionAmount'] as double,
-            totalDashTransactionAmount: element['TotalDashTransactionAmount'] as double,
+            totalDashTransactionAmount: element['TotalDashTransactionAmount'] != null ? element['TotalDashTransactionAmount'] as double : 0.0,
             remainingAmount: element['RemainingAmount'] as double,
             isActive: element['IsActive'] as bool,
             isEmpty: element['IsEmpty'] as bool,

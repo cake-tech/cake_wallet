@@ -149,7 +149,7 @@ class IoniaCustomRedeemPage extends BasePage {
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
                   onPressed: () {
-                    Navigator.of(context).pop(ioniaCustomRedeemViewModel.remaining.toString());
+                    Navigator.of(context).pop([ioniaCustomRedeemViewModel.remaining.toString(), ioniaCustomRedeemViewModel.amount.toString()]);
                   },
                   isDisabled: ioniaCustomRedeemViewModel.disableRedeem,
                   text: S.of(context).add_custom_redemption,

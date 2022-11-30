@@ -15,6 +15,7 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
     required this.giftCard}) 
     : redeemState = InitialExecutionState(),
       remainingAmount = giftCard.remainingAmount,
+      adjustedAmount = 0,
       brightness = 0;
 
   final IoniaService ioniaService;
@@ -27,6 +28,8 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
   @observable
   double remainingAmount;
 
+  double adjustedAmount;
+
   @observable
   ExecutionState redeemState;
 
@@ -35,7 +38,7 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
     giftCard.remainingAmount = remainingAmount;
     try {
       redeemState = IsExecutingState();
-      await ioniaService.redeem(giftCard);
+      await ioniaService.redeem(giftCardId: giftCard.id, amount : adjustedAmount > 0 ? adjustedAmount : giftCard.remainingAmount);
       giftCard = await ioniaService.getGiftCard(id: giftCard.id);
       redeemState = ExecutedSuccessfullyState();
     } catch(e) {
@@ -44,8 +47,9 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
   }
 
   @action
-  void updateRemaining(double amount){
-    remainingAmount = amount;
+  void updateRemaining({required double balance, required double customAmount}) {
+    remainingAmount = balance;
+    adjustedAmount = customAmount;
   }
 
   void increaseBrightness() async {

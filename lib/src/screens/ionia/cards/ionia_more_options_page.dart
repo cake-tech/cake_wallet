@@ -35,9 +35,9 @@ class IoniaMoreOptionsPage extends BasePage {
             SizedBox(height: 40,),
             InkWell(
               onTap: () async {
-                final amount = await  Navigator.of(context).pushNamed(Routes.ioniaCustomRedeemPage, arguments: [giftCard]) as String;
-                if(amount.isNotEmpty){
-                  Navigator.pop(context, amount);
+                final amounts = await  Navigator.of(context).pushNamed(Routes.ioniaCustomRedeemPage, arguments: [giftCard]) as List<String>;
+                if(amounts.first.isNotEmpty){
+                  Navigator.pop(context, amounts);
                 }
               },
               child: _GradiantContainer(

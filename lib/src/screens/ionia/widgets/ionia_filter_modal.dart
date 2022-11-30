@@ -53,7 +53,7 @@ class IoniaFilterModal extends StatelessWidget {
                           prefixIcon: searchIcon,
                           hintText: S.of(context).search_category,
                           contentPadding: EdgeInsets.only(bottom: 5),
-                          fillColor: Theme.of(context).textTheme!.subtitle1!.backgroundColor!,
+                          fillColor: Theme.of(context).textTheme.subtitle1?.backgroundColor,
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(8),
