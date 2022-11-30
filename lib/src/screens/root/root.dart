@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -28,15 +30,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   RootState()
     : _isInactiveController = StreamController<bool>.broadcast(),
     _isInactive = false,
+   _requestAuth = getIt.get<AuthService>().requireAuth(),
     _postFrameCallback = false;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
   bool _isInactive;
   bool _postFrameCallback;
+  bool _requestAuth;
 
   @override
   void initState() {
+
     _isInactiveController = StreamController<bool>.broadcast();
     _isInactive = false;
     _postFrameCallback = false;
@@ -52,6 +57,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
+        setState(() {
+          _requestAuth = getIt.get<AuthService>().requireAuth();
+        });
+
         if (!_isInactive &&
             widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
@@ -65,7 +74,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    if (_isInactive && !_postFrameCallback) {
+    if (_isInactive && !_postFrameCallback && _requestAuth) {
       _postFrameCallback = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.navigatorKey.currentState?.pushNamed(Routes.unlock,
