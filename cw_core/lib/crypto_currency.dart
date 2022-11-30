@@ -36,7 +36,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.ape,
     CryptoCurrency.avaxc,
     CryptoCurrency.btt,
-    CryptoCurrency.bttbsc,
+    CryptoCurrency.bttc,
     CryptoCurrency.doge,
     CryptoCurrency.firo,
     CryptoCurrency.usdttrc20,
@@ -51,7 +51,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.xvg,
     CryptoCurrency.usdcpoly,
     CryptoCurrency.dcr,
-    CryptoCurrency.husd,
     CryptoCurrency.kmd,
     CryptoCurrency.mana,
     CryptoCurrency.maticpoly,
@@ -103,7 +102,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const ape = CryptoCurrency(title: 'APE', iconPath: 'assets/images/ape_icon.png', tag: 'ETH', raw: 30, name: 'ape');
   static const avaxc = CryptoCurrency(title: 'AVAX', iconPath: 'assets/images/avaxc_icon.png', tag: 'C-CHAIN', raw: 31, name: 'avaxc');
   static const btt = CryptoCurrency(title: 'BTT', iconPath: 'assets/images/btt_icon.png', raw: 32, name: 'btt');
-  static const bttbsc = CryptoCurrency(title: 'BTT', iconPath: 'assets/images/bttbsc_icon.png', tag: 'BSC', raw: 33, name: 'bttbsc');
+  static const bttc = CryptoCurrency(title: 'BTTC', iconPath: 'assets/images/bttbsc_icon.png',fullName: 'BitTorrent-NEW (Binance Smart Chain)', tag: 'BSC', raw: 33, name: 'bttc');
   static const doge = CryptoCurrency(title: 'DOGE', iconPath: 'assets/images/doge_icon.png', raw: 34, name: 'doge');
   static const firo = CryptoCurrency(title: 'FIRO', iconPath: 'assets/images/firo_icon.png', raw: 35, name: 'firo');
   static const usdttrc20 = CryptoCurrency(title: 'USDT', iconPath: 'assets/images/usdttrc20_icon.png', tag: 'TRX', raw: 36, name: 'usdttrc20');
@@ -119,21 +118,20 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
 
   static const usdcpoly = CryptoCurrency(title: 'USDC', iconPath: 'assets/images/usdc_icon.png', tag: 'POLY', raw: 46, name: 'usdcpoly');
   static const dcr = CryptoCurrency(title: 'DCR', iconPath: 'assets/images/dcr_icon.png', raw: 47, name: 'dcr');
-  static const husd = CryptoCurrency(title: 'HUSD', iconPath: 'assets/images/husd_icon.png', tag: 'ETH', raw: 48, name: 'husd');
-  static const kmd = CryptoCurrency(title: 'KMD', iconPath: 'assets/images/kmd_icon.png', raw: 49, name: 'kmd');
-  static const mana = CryptoCurrency(title: 'MANA', iconPath: 'assets/images/mana_icon.png', tag: 'ETH', raw: 50, name: 'mana');
-  static const maticpoly = CryptoCurrency(title: 'MATIC', iconPath: 'assets/images/matic_icon.png', tag: 'POLY', raw: 51, name: 'maticpoly');
-  static const matic = CryptoCurrency(title: 'MATIC', iconPath: 'assets/images/matic_icon.png', tag: 'ETH', raw: 52, name: 'matic');
-  static const mkr = CryptoCurrency(title: 'MKR', iconPath: 'assets/images/mkr_icon.png', tag: 'ETH', raw: 53, name: 'mkr');
-  static const near = CryptoCurrency(title: 'NEAR', iconPath: 'assets/images/near_icon.png', raw: 54, name: 'near');
-  static const oxt = CryptoCurrency(title: 'OXT', iconPath: 'assets/images/oxt_icon.png', tag: 'ETH', raw: 55, name: 'oxt');
-  static const paxg = CryptoCurrency(title: 'PAXG', iconPath: 'assets/images/paxg_icon.png', tag: 'ETH', raw: 56, name: 'paxg');
-  static const pivx = CryptoCurrency(title: 'PIVX', iconPath: 'assets/images/pivx_icon.png', raw: 57, name: 'pivx');
-  static const rune = CryptoCurrency(title: 'RUNE', iconPath: 'assets/images/rune_icon.png', raw: 58, name: 'rune');
-  static const rvn = CryptoCurrency(title: 'RVN', iconPath: 'assets/images/rvn_icon.png', raw: 59, name: 'rvn');
-  static const scrt = CryptoCurrency(title: 'SCRT', iconPath: 'assets/images/scrt_icon.png', raw: 60, name: 'scrt');
-  static const uni = CryptoCurrency(title: 'UNI', iconPath: 'assets/images/uni_icon.png', tag: 'ETH', raw: 61, name: 'uni');
-  static const stx = CryptoCurrency(title: 'STX', iconPath: 'assets/images/stx_icon.png', raw: 62, name: 'stx');
+  static const kmd = CryptoCurrency(title: 'KMD', iconPath: 'assets/images/kmd_icon.png', raw: 48, name: 'kmd');
+  static const mana = CryptoCurrency(title: 'MANA', iconPath: 'assets/images/mana_icon.png', tag: 'ETH', raw: 49, name: 'mana');
+  static const maticpoly = CryptoCurrency(title: 'MATIC', iconPath: 'assets/images/matic_icon.png', tag: 'POLY', raw: 50, name: 'maticpoly');
+  static const matic = CryptoCurrency(title: 'MATIC', iconPath: 'assets/images/matic_icon.png', tag: 'ETH', raw: 51, name: 'matic');
+  static const mkr = CryptoCurrency(title: 'MKR', iconPath: 'assets/images/mkr_icon.png', tag: 'ETH', raw: 52, name: 'mkr');
+  static const near = CryptoCurrency(title: 'NEAR', iconPath: 'assets/images/near_icon.png', raw: 53, name: 'near');
+  static const oxt = CryptoCurrency(title: 'OXT', iconPath: 'assets/images/oxt_icon.png', tag: 'ETH', raw: 54, name: 'oxt');
+  static const paxg = CryptoCurrency(title: 'PAXG', iconPath: 'assets/images/paxg_icon.png', tag: 'ETH', raw: 55, name: 'paxg');
+  static const pivx = CryptoCurrency(title: 'PIVX', iconPath: 'assets/images/pivx_icon.png', raw: 56, name: 'pivx');
+  static const rune = CryptoCurrency(title: 'RUNE', iconPath: 'assets/images/rune_icon.png', raw: 57, name: 'rune');
+  static const rvn = CryptoCurrency(title: 'RVN', iconPath: 'assets/images/rvn_icon.png', raw: 58, name: 'rvn');
+  static const scrt = CryptoCurrency(title: 'SCRT', iconPath: 'assets/images/scrt_icon.png', raw: 59, name: 'scrt');
+  static const uni = CryptoCurrency(title: 'UNI', iconPath: 'assets/images/uni_icon.png', tag: 'ETH', raw: 60, name: 'uni');
+  static const stx = CryptoCurrency(title: 'STX', iconPath: 'assets/images/stx_icon.png', raw: 61, name: 'stx');
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
   all.fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
