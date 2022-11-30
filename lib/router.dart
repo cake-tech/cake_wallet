@@ -41,7 +41,6 @@ import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
-import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
@@ -277,10 +276,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   param1: settings.arguments as OnAuthenticationFinished,
                   param2: false),
               onWillPop: () async => false));
-
-    case Routes.nodeList:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeListPage>());
 
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(
