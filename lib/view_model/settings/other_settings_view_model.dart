@@ -15,18 +15,17 @@ part 'other_settings_view_model.g.dart';
 class OtherSettingsViewModel = OtherSettingsViewModelBase with _$OtherSettingsViewModel;
 
 abstract class OtherSettingsViewModelBase with Store {
-  OtherSettingsViewModelBase(
-      this._settingsStore, WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet)
-      : walletType = wallet.type,
-        _wallet = wallet,
+  OtherSettingsViewModelBase(this._settingsStore, this._wallet)
+      : walletType = _wallet.type,
         currentVersion = '' {
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
+    PackageInfo.fromPlatform()
+        .then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
-    final priority = _settingsStore.priority[wallet.type];
-    final priorities = priorityForWalletType(wallet.type);
+    final priority = _settingsStore.priority[_wallet.type];
+    final priorities = priorityForWalletType(_wallet.type);
 
     if (!priorities.contains(priority)) {
-      _settingsStore.priority[wallet.type] = priorities.first;
+      _settingsStore.priority[_wallet.type] = priorities.first;
     }
   }
 
@@ -60,5 +59,6 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority.toString();
   }
 
-  void onDisplayPrioritySelected(TransactionPriority priority) => _settingsStore.priority[_wallet.type] = priority;
+  void onDisplayPrioritySelected(TransactionPriority priority) =>
+      _settingsStore.priority[_wallet.type] = priority;
 }
