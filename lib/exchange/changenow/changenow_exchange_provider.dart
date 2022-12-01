@@ -128,8 +128,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
-    final inputAddress = responseJSON['payinAddress'] as String?;
-    final refundAddress = responseJSON['refundAddress'] as String?;
+    final inputAddress = responseJSON['payinAddress'] as String;
+    final refundAddress = responseJSON['refundAddress'] as String;
     final extraId = responseJSON['payinExtraId'] as String?;
 
     return Trade(
