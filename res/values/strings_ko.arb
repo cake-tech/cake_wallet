@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "연결 해제",
   "sync_status_connecting" : "연결 중",
   "sync_status_connected" : "연결됨",
+  "sync_status_attempting_sync" : "동기화 시도 중",
 
 
   "transaction_priority_slow" : "느린",

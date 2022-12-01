@@ -150,7 +150,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     } catch (_) {}
 
     try {
-      syncStatus = StartingSyncStatus();
+      syncStatus = AttemptingSyncStatus();
       monero_wallet.startRefresh();
       _setListeners();
       _listener?.start();

@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "डिस्कनेक्ट किया गया",
   "sync_status_connecting" : "कनेक्ट",
   "sync_status_connected" : "जुड़े हुए",
+  "sync_status_attempting_sync" : "सिंक करने का प्रयास",
 
 
   "transaction_priority_slow" : "धीरे",

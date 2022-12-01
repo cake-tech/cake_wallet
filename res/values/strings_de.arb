@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "GETRENNT",
   "sync_status_connecting" : "VERBINDEN",
   "sync_status_connected" : "VERBUNDEN",
+  "sync_status_attempting_sync" : "SYNC VERSUCHEN",
 
 
   "transaction_priority_slow" : "Langsam",
