@@ -653,5 +653,12 @@
   "use_suggested": "Use Suggested",
   "do_not_share_warning_text" : "Do not share these with anyone else, including support.\n\nThey will steal your money!",
   "help": "help",
+  "connection_sync": "Connection and sync",
+  "security_and_backup": "Security and backup",
+  "create_backup": "Create backup",
+  "privacy_settings": "Privacy settings",
+  "privacy": "Privacy",
+  "display_settings": "Display settings",
+  "other_settings": "Other settings",
   "disable_exchange": "Disable exchange"
 }

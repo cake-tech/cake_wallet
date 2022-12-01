@@ -653,5 +653,12 @@
   "use_suggested": "推奨を使用",
   "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
   "help": "ヘルプ",
+  "connection_sync": "接続と同期",
+  "security_and_backup": "セキュリティとバックアップ",
+  "create_backup": "バックアップを作成",
+  "privacy_settings": "プライバシー設定",
+  "privacy": "プライバシー",
+  "display_settings": "表示設定",
+  "other_settings": "その他の設定",
   "disable_exchange": "交換を無効にする"
 }

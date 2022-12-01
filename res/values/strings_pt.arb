@@ -653,5 +653,12 @@
   "use_suggested": "Uso sugerido",
   "do_not_share_warning_text" : "Não os compartilhe com mais ninguém, incluindo suporte.\n\nEles vão roubar seu dinheiro!",
   "help": "ajuda",
+  "connection_sync": "Conexão e sincronização",
+  "security_and_backup": "Segurança e backup",
+  "create_backup": "Criar backup",
+  "privacy_settings": "Configurações de privacidade",
+  "privacy": "Privacidade",
+  "display_settings": "Configurações de exibição",
+  "other_settings": "Outras configurações",
   "disable_exchange": "Desativar troca"
 }

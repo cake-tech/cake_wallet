@@ -653,5 +653,12 @@
   "use_suggested": "Gebruik aanbevolen",
   "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
   "help": "helpen",
+  "connection_sync": "Verbinding en synchronisatie",
+  "security_and_backup": "Beveiliging en back-up",
+  "create_backup": "Maak een back-up",
+  "privacy_settings": "Privacy-instellingen",
+  "privacy": "Privacy",
+  "display_settings": "Weergave-instellingen",
+  "other_settings": "Andere instellingen",
   "disable_exchange": "Uitwisseling uitschakelen"
 }

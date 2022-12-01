@@ -651,5 +651,12 @@
   "use_suggested": "Utilisation suggérée",
   "do_not_share_warning_text" : "Ne les partagez avec personne d'autre, y compris avec l'assistance.\n\nIls vont voler votre argent!",
   "help": "aider",
+  "connection_sync": "Connexion et synchronisation",
+  "security_and_backup": "Sécurité et sauvegarde",
+  "create_backup": "Créer une sauvegarde",
+  "privacy_settings": "Paramètres de confidentialité",
+  "privacy": "Confidentialité",
+  "display_settings": "Paramètres d'affichage",
+  "other_settings": "Autres paramètres",
   "disable_exchange": "Désactiver l'échange"
 }
