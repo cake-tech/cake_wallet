@@ -3,8 +3,7 @@ import 'package:mobx/mobx.dart';
 
 part 'privacy_settings_view_model.g.dart';
 
-class PrivacySettingsViewModel = PrivacySettingsViewModelBase
-    with _$PrivacySettingsViewModel;
+class PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore);
@@ -15,14 +14,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get disableExchange => _settingsStore.disableExchange;
 
   @computed
-  bool get shouldSaveRecipientAddress =>
-      _settingsStore.shouldSaveRecipientAddress;
+  bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
   @action
-  void setShouldSaveRecipientAddress(bool value) =>
-      _settingsStore.shouldSaveRecipientAddress = value;
-  
+  void setShouldSaveRecipientAddress(bool value) => _settingsStore.shouldSaveRecipientAddress = value;
+
   @action
-  void setEnableExchange(bool value) =>
-      _settingsStore.disableExchange = value;
+  void setEnableExchange(bool value) => _settingsStore.disableExchange = value;
 }

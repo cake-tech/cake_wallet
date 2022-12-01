@@ -4,26 +4,22 @@ import 'package:mobx/mobx.dart';
 
 part 'security_settings_view_model.g.dart';
 
-class SecuritySettingsViewModel = SecuritySettingsViewModelBase
-    with _$SecuritySettingsViewModel;
+class SecuritySettingsViewModel = SecuritySettingsViewModelBase with _$SecuritySettingsViewModel;
 
 abstract class SecuritySettingsViewModelBase with Store {
-  SecuritySettingsViewModelBase(this._settingsStore): _biometricAuth = BiometricAuth();
+  SecuritySettingsViewModelBase(this._settingsStore) : _biometricAuth = BiometricAuth();
 
   final BiometricAuth _biometricAuth;
   final SettingsStore _settingsStore;
-  
+
   @computed
-  bool get allowBiometricalAuthentication =>
-      _settingsStore.allowBiometricalAuthentication;
+  bool get allowBiometricalAuthentication => _settingsStore.allowBiometricalAuthentication;
 
   @action
-  Future<bool> biometricAuthenticated()async{
-   return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
+  Future<bool> biometricAuthenticated() async {
+    return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
   }
 
   @action
-  void setAllowBiometricalAuthentication(bool value) =>
-      _settingsStore.allowBiometricalAuthentication = value;
-
+  void setAllowBiometricalAuthentication(bool value) => _settingsStore.allowBiometricalAuthentication = value;
 }

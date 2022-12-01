@@ -19,24 +19,24 @@ class PrivacyPage extends BasePage {
       padding: EdgeInsets.only(top: 10),
       child: Observer(builder: (_) {
         return Observer(builder: (_) {
-        return Column(
-          mainAxisSize: MainAxisSize.min, 
-          children: [
-             SettingsSwitcherCell(
-              title: S.current.disable_exchange,
-              value: _privacySettingsViewModel.disableExchange,
-              onValueChange: (BuildContext context, bool value) {
-                _privacySettingsViewModel.setEnableExchange(value);
-            }),
-            SettingsSwitcherCell(
-            title: S.current.settings_save_recipient_address,
-            value: _privacySettingsViewModel.shouldSaveRecipientAddress,
-            onValueChange: (BuildContext _, bool value) {
-              _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
-            })         
-          ],
-        );
-      });
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SettingsSwitcherCell(
+                  title: S.current.disable_exchange,
+                  value: _privacySettingsViewModel.disableExchange,
+                  onValueChange: (BuildContext context, bool value) {
+                    _privacySettingsViewModel.setEnableExchange(value);
+                  }),
+              SettingsSwitcherCell(
+                  title: S.current.settings_save_recipient_address,
+                  value: _privacySettingsViewModel.shouldSaveRecipientAddress,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
+                  })
+            ],
+          );
+        });
       }),
     );
   }
