@@ -157,7 +157,10 @@ Future defaultSettingsMigration(
 Future<void> addOnionNode(Box<Node> nodes) async {
   final onionNodeUri = "cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081";
 
-  await nodes.add(Node(uri: onionNodeUri, type: WalletType.monero));
+  // check if the user has this node before (added it manually)
+  if (nodes.values.firstWhereOrNull((element) => element.uriRaw == onionNodeUri) == null) {
+    await nodes.add(Node(uri: onionNodeUri, type: WalletType.monero));
+  }
 }
 
 Future<void> replaceNodesMigration({required Box<Node> nodes}) async {
