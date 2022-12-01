@@ -296,12 +296,14 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   Future<void> _calculateBestRate() async {
+    final amount = double.tryParse(depositAmount) ?? double.tryParse(receiveAmount) ?? 1;
+
     final result = await Future.wait<double>(
         _tradeAvailableProviders
             .map((element) => element.calculateAmount(
                 from: depositCurrency,
                 to: receiveCurrency,
-                amount: 1,
+                amount: amount,
                 isFixedRateMode: isFixedRateMode,
                 isReceiveAmount: false))
     );
@@ -311,7 +313,7 @@ abstract class ExchangeViewModelBase with Store {
     for (int i=0;i<result.length;i++) {
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
-        _sortedAvailableProviders[result[i]] = _tradeAvailableProviders[i];
+        _sortedAvailableProviders[result[i] / amount] = _tradeAvailableProviders[i];
       }
     }
     if (_sortedAvailableProviders.isNotEmpty) {
