@@ -111,7 +111,10 @@ class ContactListPage extends BasePage {
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
-    final image = _getCurrencyImage(contact.type);
+    final image = contact.type.iconPath;
+    final currencyIcon = image != null ? Image.asset(image, height: 24, width: 24)
+        : const SizedBox(height: 24, width: 24);
+
 
     return GestureDetector(
       onTap: () async {
@@ -136,12 +139,10 @@ class ContactListPage extends BasePage {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            image ?? Offstage(),
+            currencyIcon,
             Expanded(
               child: Padding(
-                padding: image != null
-                    ? EdgeInsets.only(left: 12)
-                    : EdgeInsets.only(left: 0),
+                padding: EdgeInsets.only(left: 12),
                 child: Text(
                   contact.name,
                   style: TextStyle(
@@ -155,69 +156,6 @@ class ContactListPage extends BasePage {
         ),
       ),
     );
-  }
-
-  Image? _getCurrencyImage(CryptoCurrency currency) {
-    Image? image;
-
-    switch (currency) {
-      case CryptoCurrency.xmr:
-        image =
-            Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.ada:
-        image = Image.asset('assets/images/ada.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.bch:
-        image = Image.asset('assets/images/bch.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.bnb:
-        image = Image.asset('assets/images/bnb.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.btc:
-        image = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.dai:
-        image = Image.asset('assets/images/dai.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.dash:
-        image = Image.asset('assets/images/dash.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.eos:
-        image = Image.asset('assets/images/eos.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.eth:
-        image = Image.asset('assets/images/eth.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.ltc:
-        image =
-            Image.asset('assets/images/litecoin.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.nano:
-        image = Image.asset('assets/images/nano.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.trx:
-        image = Image.asset('assets/images/trx.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.usdt:
-        image = Image.asset('assets/images/usdt.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.usdterc20:
-        image = Image.asset('assets/images/usdterc.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.xlm:
-        image = Image.asset('assets/images/xlm.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.xrp:
-        image = Image.asset('assets/images/xrp.png', height: 24, width: 24);
-        break;
-      case CryptoCurrency.xhv:
-        image = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
-        break;
-      default:
-        image = null;
-    }
-    return image;
   }
 
   Future<bool> showAlertDialog(BuildContext context) async {
