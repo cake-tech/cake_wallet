@@ -53,7 +53,6 @@ abstract class DashboardViewModelBase with Store {
     hasBuyAction = false,
     isEnabledBuyAction = false,
     hasExchangeAction = false,
-    isEnabledExchangeAction = false,
     isShowFirstYatIntroduction = false,
     isShowSecondYatIntroduction = false,
     isShowThirdYatIntroduction = false,
@@ -249,8 +248,8 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) =>
       settingsStore.shouldShowYatPopup = shouldShow;
 
-  @observable
-  bool isEnabledExchangeAction;
+  @computed
+  bool get isEnabledExchangeAction => !settingsStore.disableExchange;
 
   @observable
   bool hasExchangeAction;
@@ -365,7 +364,6 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    isEnabledExchangeAction = true;
     hasExchangeAction = !isHaven;
     isEnabledBuyAction = wallet.type != WalletType.haven
       && wallet.type != WalletType.monero;

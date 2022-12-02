@@ -60,7 +60,7 @@ class DashboardPage extends BasePage {
   Widget middle(BuildContext context) {
     return SyncIndicator(dashboardViewModel: walletViewModel,
         onTap: () => Navigator.of(context, rootNavigator: true)
-            .pushNamed(Routes.nodeList));
+            .pushNamed(Routes.connectionSync));
   }
 
   @override
@@ -315,6 +315,8 @@ class DashboardPage extends BasePage {
   }
 
   Future<void> _onClickExchangeButton(BuildContext context) async {
-    await Navigator.of(context).pushNamed(Routes.exchange);
+    if (walletViewModel.isEnabledExchangeAction) {
+      await Navigator.of(context).pushNamed(Routes.exchange);
+    }
   }
 }
