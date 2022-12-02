@@ -40,26 +40,26 @@ class Trade extends HiveObject {
   static const boxName = 'Trades';
   static const boxKey = 'tradesBoxKey';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String id;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: 0)
   late int providerRaw;
 
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  @HiveField(2)
+  @HiveField(2, defaultValue: 0)
   late int fromRaw;
 
   CryptoCurrency get from => CryptoCurrency.deserialize(raw: fromRaw);
 
-  @HiveField(3)
+  @HiveField(3, defaultValue: 0)
   late int toRaw;
 
   CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw);
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: '')
   late String stateRaw;
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
@@ -70,7 +70,7 @@ class Trade extends HiveObject {
   @HiveField(6)
   DateTime? expiredAt;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: '')
   String amount;
 
   @HiveField(8)

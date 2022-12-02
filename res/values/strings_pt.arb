@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "DESCONECTADO",
   "sync_status_connecting" : "CONECTANDO",
   "sync_status_connected" : "CONECTADO",
+  "sync_status_attempting_sync" : "TENTANDO SINCRONIZAR",
 
 
   "transaction_priority_slow" : "Lenta",
@@ -645,5 +646,19 @@
   "add_custom_redemption": "Adicionar resgate personalizado",
   "remaining": "restante",
   "delete_wallet": "Excluir carteira",
-  "delete_wallet_confirm_message" : "Tem certeza de que deseja excluir a carteira ${wallet_name}?"
+  "delete_wallet_confirm_message" : "Tem certeza de que deseja excluir a carteira ${wallet_name}?",
+  "low_fee": "Taxa baixa",
+  "low_fee_alert": "No momento, você está usando uma prioridade de taxa de rede baixa. Isso pode causar longas esperas, taxas diferentes ou negociações canceladas. Recomendamos definir uma taxa mais alta para uma melhor experiência.",
+  "ignor": "Ignorar",
+  "use_suggested": "Uso sugerido",
+  "do_not_share_warning_text" : "Não os compartilhe com mais ninguém, incluindo suporte.\n\nEles vão roubar seu dinheiro!",
+  "help": "ajuda",
+  "connection_sync": "Conexão e sincronização",
+  "security_and_backup": "Segurança e backup",
+  "create_backup": "Criar backup",
+  "privacy_settings": "Configurações de privacidade",
+  "privacy": "Privacidade",
+  "display_settings": "Configurações de exibição",
+  "other_settings": "Outras configurações",
+  "disable_exchange": "Desativar troca"
 }

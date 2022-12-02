@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "ISKLJUČENO",
   "sync_status_connecting" : "SPAJANJE",
   "sync_status_connected" : "SPOJENO",
+  "sync_status_attempting_sync" : "POKUŠAJ SINKRONIZACIJE",
 
 
   "transaction_priority_slow" : "Sporo",
@@ -645,5 +646,19 @@
   "add_custom_redemption": "Dodaj prilagođeni otkup",
   "remaining": "preostalo",
   "delete_wallet": "Izbriši novčanik",
-  "delete_wallet_confirm_message" : "Jeste li sigurni da želite izbrisati ${wallet_name} novčanik?"
+  "delete_wallet_confirm_message" : "Jeste li sigurni da želite izbrisati ${wallet_name} novčanik?",
+  "low_fee": "Niska naknada",
+  "low_fee_alert": "Trenutačno koristite niski prioritet mrežne naknade. To bi moglo uzrokovati duga čekanja, različite tečajeve ili otkazane trgovine. Preporučujemo postavljanje veće naknade za bolje iskustvo.",
+  "ignor": "Zanemariti",
+  "use_suggested": "Koristite predloženo",
+  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
+  "help": "pomozite",
+  "connection_sync": "Povezivanje i sinkronizacija",
+  "security_and_backup": "Sigurnost i sigurnosna kopija",
+  "create_backup": "Stvori sigurnosnu kopiju",
+  "privacy_settings": "Postavke privatnosti",
+  "privacy": "Privatnost",
+  "display_settings": "Postavke zaslona",
+  "other_settings": "Ostale postavke",
+  "disable_exchange": "Onemogući exchange"
 }

@@ -30,10 +30,10 @@ class Order extends HiveObject {
   static const boxName = 'Orders';
   static const boxKey = 'ordersBoxKey';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String id;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String transferId;
 
   @HiveField(2)
@@ -42,7 +42,7 @@ class Order extends HiveObject {
   @HiveField(3)
   String? to;
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: '')
   late String stateRaw;
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
@@ -50,16 +50,16 @@ class Order extends HiveObject {
   @HiveField(5)
   DateTime createdAt;
 
-  @HiveField(6)
+  @HiveField(6, defaultValue: '')
   String amount;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: '')
   String receiveAddress;
 
-  @HiveField(8)
+  @HiveField(8, defaultValue: '')
   String walletId;
 
-  @HiveField(9)
+  @HiveField(9, defaultValue: 0)
   late int providerRaw;
 
   BuyProviderDescription get provider =>

@@ -26,7 +26,9 @@ class SecretKey {
     SecretKey('sideShiftAffiliateId', () => ''),
     SecretKey('sideShiftApiKey', () => ''),
     SecretKey('simpleSwapApiKey', () => ''),
+    SecretKey('anypayToken', () => ''),
     SecretKey('onramperApiKey', () => ''),
+    SecretKey('ioniaClientId', () => ''),
   ];
 
   final String name;

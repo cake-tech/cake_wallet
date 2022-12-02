@@ -150,7 +150,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     } catch (_) {}
 
     try {
-      syncStatus = StartingSyncStatus();
+      syncStatus = AttemptingSyncStatus();
       monero_wallet.startRefresh();
       _setListeners();
       _listener?.start();
@@ -242,7 +242,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       switch (priority) {
         case MoneroTransactionPriority.slow:
           return 24590000;
-        case MoneroTransactionPriority.regular:
+        case MoneroTransactionPriority.automatic:
           return 123050000;
         case MoneroTransactionPriority.medium:
           return 245029999;

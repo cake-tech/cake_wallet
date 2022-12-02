@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "DISCONNESSO",
   "sync_status_connecting" : "CONNESSIONE",
   "sync_status_connected" : "CONNESSO",
+  "sync_status_attempting_sync" : "TENTATIVO DI SINCRONIZZAZIONE",
 
 
   "transaction_priority_slow" : "Bassa",
@@ -645,5 +646,19 @@
   "add_custom_redemption": "Aggiungi riscatto personalizzato",
   "remaining": "rimanente",
   "delete_wallet": "Elimina portafoglio",
-  "delete_wallet_confirm_message" : "Sei sicuro di voler eliminare il portafoglio ${wallet_name}?"
+  "delete_wallet_confirm_message" : "Sei sicuro di voler eliminare il portafoglio ${wallet_name}?",
+  "low_fee": "Tariffa bassa",
+  "low_fee_alert": "Attualmente stai utilizzando una priorità a tariffa di rete bassa. Ciò potrebbe causare lunghe attese, tariffe diverse o operazioni annullate. Ti consigliamo di impostare una tariffa più alta per un'esperienza migliore.",
+  "ignor": "Ignorare",
+  "use_suggested": "Usa suggerito",
+  "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nTi ruberanno i soldi!",
+  "help": "aiuto",
+  "connection_sync": "Connessione e sincronizzazione",
+  "security_and_backup": "Sicurezza e backup",
+  "create_backup": "Crea backup",
+  "privacy_settings": "Impostazioni privacy",
+  "privacy": "Privacy",
+  "display_settings": "Impostazioni di visualizzazione",
+  "other_settings": "Altre impostazioni",
+  "disable_exchange": "Disabilita scambio"
 }

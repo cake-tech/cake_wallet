@@ -135,7 +135,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     } catch (_) {}
 
     try {
-      syncStatus = StartingSyncStatus();
+      syncStatus = AttemptingSyncStatus();
       haven_wallet.startRefresh();
       _setListeners();
       _listener?.start();
@@ -187,7 +187,9 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           accountIndex: walletAddresses.account!.id);
     } else {
       final output = outputs.first;
-      final address = output.address;
+      final address = output.isParsedAddress && (output.extractedAddress?.isNotEmpty ?? false)
+          ? output.extractedAddress!
+          : output.address;
       final amount = output.sendAll
           ? null
           : output.cryptoAmount!.replaceAll(',', '.');
@@ -223,7 +225,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       switch (priority) {
         case MoneroTransactionPriority.slow:
           return 24590000;
-        case MoneroTransactionPriority.regular:
+        case MoneroTransactionPriority.automatic:
           return 123050000;
         case MoneroTransactionPriority.medium:
           return 245029999;
