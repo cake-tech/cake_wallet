@@ -296,7 +296,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   Future<void> _calculateBestRate() async {
-    final amount = limits.min ?? limits.max ?? 1;
+    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
 
     final result = await Future.wait<double>(
         _tradeAvailableProviders
