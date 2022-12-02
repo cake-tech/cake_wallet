@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "NIEPOWIĄZANY",
   "sync_status_connecting" : "ZŁĄCZONY",
   "sync_status_connected" : "POŁĄCZONY",
+  "sync_status_attempting_sync" : "PRÓBA SYNCHRONIZACJI",
 
 
   "transaction_priority_slow" : "Powolny",
@@ -652,5 +653,12 @@
   "use_suggested": "Użyj sugerowane",
   "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
   "help": "pomoc",
+  "connection_sync": "Połączenie i synchronizacja",
+  "security_and_backup": "Bezpieczeństwo i kopia zapasowa",
+  "create_backup": "Utwórz kopię zapasową",
+  "privacy_settings": "Ustawienia prywatności",
+  "privacy": "Prywatność",
+  "display_settings": "Ustawienia wyświetlania",
+  "other_settings": "Inne ustawienia",
   "disable_exchange": "Wyłącz wymianę"
 }

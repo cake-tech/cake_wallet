@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "切断されました",
   "sync_status_connecting" : "接続中",
   "sync_status_connected" : "接続済み",
+  "sync_status_attempting_sync" : "同期を試みています",
 
 
   "transaction_priority_slow" : "スロー",
@@ -652,5 +653,12 @@
   "use_suggested": "推奨を使用",
   "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
   "help": "ヘルプ",
+  "connection_sync": "接続と同期",
+  "security_and_backup": "セキュリティとバックアップ",
+  "create_backup": "バックアップを作成",
+  "privacy_settings": "プライバシー設定",
+  "privacy": "プライバシー",
+  "display_settings": "表示設定",
+  "other_settings": "その他の設定",
   "disable_exchange": "交換を無効にする"
 }

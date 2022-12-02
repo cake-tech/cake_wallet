@@ -135,7 +135,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     } catch (_) {}
 
     try {
-      syncStatus = StartingSyncStatus();
+      syncStatus = AttemptingSyncStatus();
       haven_wallet.startRefresh();
       _setListeners();
       _listener?.start();
