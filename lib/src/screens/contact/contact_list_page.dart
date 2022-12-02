@@ -17,10 +17,9 @@ import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
   ContactListPage(this.contactListViewModel,
-      {this.isEditable = true, required this.selectedCurrency});
+      {this.selectedCurrency});
 
   final ContactListViewModel contactListViewModel;
-  final bool isEditable;
   final CryptoCurrency? selectedCurrency;
 
   @override
@@ -28,7 +27,7 @@ class ContactListPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    if (!isEditable) {
+    if (selectedCurrency != null) {
       return null;
     }
 
@@ -68,9 +67,9 @@ class ContactListPage extends BasePage {
         child: Observer(
         builder: (_) {
           final contacts =
-          contactListViewModel.getContacts(isEditable, selectedCurrency);
+          contactListViewModel.getContacts(selectedCurrency);
           final walletContacts =
-          contactListViewModel.getWallets(isEditable, selectedCurrency);
+          contactListViewModel.getWallets(selectedCurrency);
           return CollapsibleSectionList(
               context: context,
               sectionCount: 2,
@@ -99,7 +98,7 @@ class ContactListPage extends BasePage {
 
                 final contact = contacts[index];
                 final content = generateRaw(context, contact);
-                return !isEditable
+                return selectedCurrency != null
                     ? content
                     : Slidable(
                         key: Key('${contact.key}'),
@@ -116,7 +115,7 @@ class ContactListPage extends BasePage {
 
     return GestureDetector(
       onTap: () async {
-        if (!isEditable) {
+        if (selectedCurrency != null) {
           Navigator.of(context).pop(contact);
           return;
         }

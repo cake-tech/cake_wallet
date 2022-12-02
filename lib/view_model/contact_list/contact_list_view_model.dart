@@ -46,16 +46,16 @@ abstract class ContactListViewModelBase with Store {
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 
-  List<ContactRecord> getContacts(bool isEditable, CryptoCurrency? cur) {
-    if (!isEditable) {
+  List<ContactRecord> getContacts(CryptoCurrency? cur) {
+    if (cur != null) {
       return contacts.where((element) => element.type == cur).toList();
     }
 
     return contacts;
   }
 
-  List<WalletContact> getWallets(bool isEditable, CryptoCurrency? cur) {
-    if (!isEditable) {
+  List<WalletContact> getWallets(CryptoCurrency? cur) {
+    if (cur != null) {
       return walletContacts.where((element) => element.type == cur).toList();
     }
 
