@@ -114,7 +114,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final uri = Uri.https(apiAuthority, createTradePath);
     final response = await post(uri, headers: headers, body: json.encode(body));
-    
+
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
@@ -130,7 +130,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['payinAddress'] as String;
     final refundAddress = responseJSON['refundAddress'] as String;
-    final extraId = responseJSON['payinExtraId'] as String;
+    final extraId = responseJSON['payinExtraId'] as String?;
 
     return Trade(
         id: id,
