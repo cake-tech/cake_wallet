@@ -27,7 +27,7 @@ import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -494,13 +494,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.onramperPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
 
-    case Routes.privacySettings:
+    case Routes.advancedPrivacySettings:
       final type = settings.arguments as WalletType;
-      final privacySettingsViewModel = getIt.get<PrivacySettingsViewModel>(param1: type);
-      final nodeCreateViewModel = getIt.get<NodeCreateOrEditViewModel>(param1: type);
 
       return CupertinoPageRoute<void>(
-          builder: (_) => AdvancedPrivacySettingsPage(privacySettingsViewModel, nodeCreateViewModel));
+          builder: (_) => AdvancedPrivacySettingsPage(
+            getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+            getIt.get<NodeCreateOrEditViewModel>(param1: type),
+          ));
 
     default:
       return MaterialPageRoute<void>(

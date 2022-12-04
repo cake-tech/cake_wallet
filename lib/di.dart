@@ -35,7 +35,7 @@ import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
-import 'package:cake_wallet/view_model/privacy_settings_view_model.dart'
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -816,8 +816,8 @@ Future setup(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)
       => IoniaPaymentStatusPage(getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
 
-  getIt.registerFactoryParam<PrivacySettingsViewModel, WalletType, void>((type, _) =>
-      PrivacySettingsViewModel(type))
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>((type, _) =>
+      AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   _isSetupFinished = true;
 }

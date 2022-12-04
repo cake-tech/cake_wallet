@@ -663,5 +663,6 @@
   "other_settings": "अन्य सेटिंग्स",
   "disable_exchange": "एक्सचेंज अक्षम करें",
   "advanced_privacy_settings": "उन्नत गोपनीयता सेटिंग्स",
-  "settings_can_be_changed_later": "इन सेटिंग्स को बाद में ऐप सेटिंग में बदला जा सकता है"
+  "settings_can_be_changed_later": "इन सेटिंग्स को बाद में ऐप सेटिंग में बदला जा सकता है",
+  "add_custom_node": "नया कस्टम नोड जोड़ें"
 }

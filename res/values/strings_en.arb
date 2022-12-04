@@ -663,5 +663,6 @@
   "other_settings": "Other settings",
   "disable_exchange": "Disable exchange",
   "advanced_privacy_settings": "Advanced Privacy Settings",
-  "settings_can_be_changed_later": "These settings can be changed later in the app settings"
+  "settings_can_be_changed_later": "These settings can be changed later in the app settings",
+  "add_custom_node": "Add New Custom Node"
 }

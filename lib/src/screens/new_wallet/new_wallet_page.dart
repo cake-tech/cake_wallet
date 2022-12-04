@@ -219,7 +219,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context)
-                      .pushNamed(Routes.privacySettings, arguments: _walletNewVM.type);
+                      .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
                 },
                 child: Text(S.of(context).advanced_privacy_settings),
               ),

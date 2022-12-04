@@ -662,5 +662,6 @@
   "other_settings": "Outras configurações",
   "disable_exchange": "Desativar troca",
   "advanced_privacy_settings": "Configurações de privacidade avançadas",
-  "settings_can_be_changed_later": "Essas configurações podem ser alteradas posteriormente nas configurações do aplicativo"
+  "settings_can_be_changed_later": "Essas configurações podem ser alteradas posteriormente nas configurações do aplicativo",
+  "add_custom_node": "Adicionar novo nó personalizado"
 }

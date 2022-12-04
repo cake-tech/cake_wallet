@@ -663,5 +663,6 @@
   "other_settings": "Inne ustawienia",
   "disable_exchange": "Wyłącz wymianę",
   "advanced_privacy_settings": "Zaawansowane ustawienia prywatności",
-  "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji"
+  "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji",
+  "add_custom_node": "Dodaj nowy węzeł niestandardowy"
 }

@@ -663,5 +663,6 @@
   "other_settings": "その他の設定",
   "disable_exchange": "交換を無効にする",
   "advanced_privacy_settings": "高度なプライバシー設定",
-  "settings_can_be_changed_later": "これらの設定は、後でアプリの設定で変更できます"
+  "settings_can_be_changed_later": "これらの設定は、後でアプリの設定で変更できます",
+  "add_custom_node": "新しいカスタム ノードを追加"
 }

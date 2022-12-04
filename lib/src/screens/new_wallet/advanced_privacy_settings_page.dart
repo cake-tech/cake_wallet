@@ -1,7 +1,7 @@
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -12,7 +12,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 class AdvancedPrivacySettingsPage extends BasePage {
   AdvancedPrivacySettingsPage(this.privacySettingsViewModel, this.nodeViewModel);
 
-  final PrivacySettingsViewModel privacySettingsViewModel;
+  final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
 
   @override
@@ -27,7 +27,7 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
   const AdvancedPrivacySettingsBody(this.privacySettingsViewModel, this.nodeViewModel, {Key? key})
       : super(key: key);
 
-  final PrivacySettingsViewModel privacySettingsViewModel;
+  final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
 
   @override
@@ -39,7 +39,7 @@ class _AdvancedPrivacySettingsBodyState
     extends State<AdvancedPrivacySettingsBody> {
   _AdvancedPrivacySettingsBodyState(this.privacySettingsViewModel, this.nodeViewModel);
 
-  final PrivacySettingsViewModel privacySettingsViewModel;
+  final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
 
   final _formKey = GlobalKey<FormState>();
@@ -84,6 +84,7 @@ class _AdvancedPrivacySettingsBodyState
             LoadingPrimaryButton(
               onPressed: () {
                 nodeViewModel.save();
+                Navigator.pop(context);
               },
               text: S.of(context).continue_text,
               color: Theme.of(context).accentTextTheme.bodyText1!.color!,

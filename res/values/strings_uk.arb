@@ -662,5 +662,6 @@
   "other_settings": "Інші налаштування",
   "disable_exchange": "Вимкнути exchange",
   "advanced_privacy_settings": "Розширені налаштування конфіденційності",
-  "settings_can_be_changed_later": "Ці параметри можна змінити пізніше в налаштуваннях програми"
+  "settings_can_be_changed_later": "Ці параметри можна змінити пізніше в налаштуваннях програми",
+  "add_custom_node": "Додати новий спеціальний вузол"
 }
