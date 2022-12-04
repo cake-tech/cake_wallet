@@ -31,16 +31,11 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
   final NodeCreateOrEditViewModel nodeViewModel;
 
   @override
-  _AdvancedPrivacySettingsBodyState createState() =>
-      _AdvancedPrivacySettingsBodyState(privacySettingsViewModel, nodeViewModel);
+  _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
 }
 
-class _AdvancedPrivacySettingsBodyState
-    extends State<AdvancedPrivacySettingsBody> {
-  _AdvancedPrivacySettingsBodyState(this.privacySettingsViewModel, this.nodeViewModel);
-
-  final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
-  final NodeCreateOrEditViewModel nodeViewModel;
+class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBody> {
+  _AdvancedPrivacySettingsBodyState();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -53,7 +48,7 @@ class _AdvancedPrivacySettingsBodyState
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ...privacySettingsViewModel.settings.map(
+            ...widget.privacySettingsViewModel.settings.map(
               (item) => Observer(
                 builder: (_) => SettingsSwitcherCell(
                   title: item.title,
@@ -64,12 +59,12 @@ class _AdvancedPrivacySettingsBodyState
             ),
             Observer(
               builder: (_) {
-                if (privacySettingsViewModel.addCustomNode) {
+                if (widget.privacySettingsViewModel.addCustomNode) {
                   return Padding(
                     padding: EdgeInsets.only(left: 24, right: 24, top: 24),
                     child: NodeForm(
                       formKey: _formKey,
-                      nodeViewModel: nodeViewModel,
+                      nodeViewModel: widget.nodeViewModel,
                     ),
                   );
                 }
@@ -83,7 +78,7 @@ class _AdvancedPrivacySettingsBodyState
           children: [
             LoadingPrimaryButton(
               onPressed: () {
-                nodeViewModel.save();
+                widget.nodeViewModel.save();
                 Navigator.pop(context);
               },
               text: S.of(context).continue_text,
@@ -92,8 +87,7 @@ class _AdvancedPrivacySettingsBodyState
             ),
             const SizedBox(height: 25),
             Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width * 0.15),
+              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
               child: Text(
                 S.of(context).settings_can_be_changed_later,
                 textAlign: TextAlign.center,
