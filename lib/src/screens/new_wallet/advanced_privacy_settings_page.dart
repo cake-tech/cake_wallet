@@ -10,9 +10,9 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
-  AdvancedPrivacySettingsPage(this.privacySettingsViewModel, this.nodeViewModel);
+  AdvancedPrivacySettingsPage(this.advancedPrivacySettingsViewModel, this.nodeViewModel);
 
-  final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
+  final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
 
   @override
@@ -20,7 +20,7 @@ class AdvancedPrivacySettingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) =>
-      AdvancedPrivacySettingsBody(privacySettingsViewModel, nodeViewModel);
+      AdvancedPrivacySettingsBody(advancedPrivacySettingsViewModel, nodeViewModel);
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
@@ -78,7 +78,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
           children: [
             LoadingPrimaryButton(
               onPressed: () {
-                widget.nodeViewModel.save();
+                widget.nodeViewModel.save(saveAsCurrent: true);
                 Navigator.pop(context);
               },
               text: S.of(context).continue_text,

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/node.dart';
@@ -10,7 +11,7 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
     with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType)
+  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -63,6 +64,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   final WalletType _walletType;
   final Box<Node> _nodeSource;
+  final SettingsStore _settingsStore;
 
   @action
   void reset() {
@@ -75,13 +77,18 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  Future<void> save() async {
+  Future<void> save({bool saveAsCurrent = false}) async {
     try {
       state = IsExecutingState();
       final node =
           Node(uri: uri, type: _walletType, login: login, password: password,
               useSSL: useSSL, trusted: trusted);
       await _nodeSource.add(node);
+
+      if (saveAsCurrent) {
+        _settingsStore.nodes[_walletType] = node;
+      }
+
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());

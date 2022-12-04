@@ -500,8 +500,11 @@ Future setup(
   getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
 
   getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, void>(
-      (WalletType? type, _) =>
-      NodeCreateOrEditViewModel(_nodeSource, type ?? getIt.get<AppStore>().wallet!.type));
+    (WalletType? type, _) => NodeCreateOrEditViewModel(
+        _nodeSource,
+        type ?? getIt.get<AppStore>().wallet!.type,
+        getIt.get<SettingsStore>(),
+    ));
 
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
