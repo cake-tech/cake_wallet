@@ -14,11 +14,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
-        trusted = false,
         address = '',
         port = '',
         login = '',
-        password = '';
+        password = '',
+        trusted = false;
 
   @observable
   ExecutionState state;

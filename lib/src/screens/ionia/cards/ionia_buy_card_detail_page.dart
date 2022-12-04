@@ -3,7 +3,6 @@ import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_model.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -18,6 +17,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 
 class IoniaBuyGiftCardDetailPage extends BasePage {
   IoniaBuyGiftCardDetailPage(this.ioniaPurchaseViewModel);
@@ -295,73 +295,35 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
     
     final amount = ioniaPurchaseViewModel.invoice!.totalAmount;
     final addresses = ioniaPurchaseViewModel.invoice!.outAddresses;
+    ioniaPurchaseViewModel.sendViewModel.outputs.first.setCryptoAmount(amount);
+    ioniaPurchaseViewModel.sendViewModel.outputs.first.address = addresses.first;
 
     await showPopUp<void>(
       context: context,
       builder: (_) {
-        return IoniaConfirmModal(
+        return ConfirmSendingAlert(
             alertTitle: S.of(context).confirm_sending,
-            alertContent: Container(
-                height: 200,
-                padding: EdgeInsets.all(15),
-                child: Column(children: [
-                  Row(children: [
-                    Text(S.of(context).payment_id,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: PaletteDark.pigeonBlue,
-                            decoration: TextDecoration.none)),
-                    Text(ioniaPurchaseViewModel.invoice!.paymentId,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: PaletteDark.pigeonBlue,
-                            decoration: TextDecoration.none))
-                  ], mainAxisAlignment: MainAxisAlignment.spaceBetween),
-                  SizedBox(height: 10),
-                  Row(children: [
-                    Text(S.of(context).amount,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: PaletteDark.pigeonBlue,
-                            decoration: TextDecoration.none)),
-                    Text('$amount ${ioniaPurchaseViewModel.invoice!.chain}',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: PaletteDark.pigeonBlue,
-                            decoration: TextDecoration.none))
-                  ], mainAxisAlignment: MainAxisAlignment.spaceBetween),
-                  SizedBox(height: 25),
-                  Row(children: [
-                    Text(S.of(context).recipient_address,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: PaletteDark.pigeonBlue,
-                            decoration: TextDecoration.none))
-                  ], mainAxisAlignment: MainAxisAlignment.center),
-                  Expanded(
-                      child: ListView.builder(
-                          itemBuilder: (_, int index) {
-                            return Text(addresses[index],
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: PaletteDark.pigeonBlue,
-                                    decoration: TextDecoration.none));
-                          },
-                          itemCount: addresses.length,
-                          physics: NeverScrollableScrollPhysics()))
-                ])),
+            paymentId: S.of(context).payment_id,
+            paymentIdValue: ioniaPurchaseViewModel.invoice!.paymentId,
+            amount: S.of(context).send_amount,
+            amountValue: '$amount ${ioniaPurchaseViewModel.invoice!.chain}',
+            fiatAmountValue:
+            '~ ${ioniaPurchaseViewModel.sendViewModel.outputs.first.fiatAmount} '
+                '${ioniaPurchaseViewModel.sendViewModel.fiat.title}',
+            fee: S.of(context).send_fee,
+            feeValue:
+            '${ioniaPurchaseViewModel.sendViewModel.outputs.first.estimatedFee} '
+                '${ioniaPurchaseViewModel.invoice!.chain}',
+            feeFiatAmount:
+            '${ioniaPurchaseViewModel.sendViewModel.outputs.first.estimatedFeeFiatAmount} '
+                '${ioniaPurchaseViewModel.sendViewModel.fiat.title}',
+            outputs: ioniaPurchaseViewModel.sendViewModel.outputs,
             rightButtonText: S.of(context).ok,
             leftButtonText: S.of(context).cancel,
-            leftActionColor: Color(0xffFF6600),
-            rightActionColor: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+            alertLeftActionButtonTextColor: Colors.white,
+            alertRightActionButtonTextColor: Colors.white,
+            alertLeftActionButtonColor: Palette.brightOrange,
+            alertRightActionButtonColor: Theme.of(context).textTheme!.subtitle2!.color,
             actionRightButton: () async {
               Navigator.of(context).pop();
               await ioniaPurchaseViewModel.commitPaymentInvoice();

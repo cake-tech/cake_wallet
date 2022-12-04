@@ -109,28 +109,28 @@ class Node extends HiveObject with Keyable {
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
     final body = {
-        'jsonrpc': '2.0', 
-        'id': '0', 
+        'jsonrpc': '2.0',
+        'id': '0',
         'method': 'get_info'
     };
 
     try {
       final authenticatingClient = HttpClient();
-    
+
       authenticatingClient.addCredentials(
           rpcUri,
-          realm, 
+          realm,
           HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
-    
+
       final http.Client client = ioc.IOClient(authenticatingClient);
-    
+
       final response = await client.post(
           rpcUri,
           headers: {'Content-Type': 'application/json'},
           body: json.encode(body),
       );
-    
+
       client.close();
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;

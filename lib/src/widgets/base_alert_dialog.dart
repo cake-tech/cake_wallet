@@ -11,6 +11,10 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
+  Color? get leftActionButtonTextColor => null;
+  Color? get rightActionButtonTextColor => null;
+  Color? get leftActionButtonColor => null;
+  Color? get rightActionButtonColor => null;
 
   Widget title(BuildContext context) {
     return Text(
@@ -45,52 +49,64 @@ class BaseAlertDialog extends StatelessWidget {
       height: 52,
       child: Row(
       mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Flexible(
-          child: Container(
-            width: double.infinity,
-            color: Theme.of(context).accentTextTheme!.bodyText1!.decorationColor!,
-            child: TextButton(
-                onPressed: actionLeft,
-                child: Text(
-                  leftActionButtonText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme!.bodyText1!.backgroundColor!,
-                    decoration: TextDecoration.none,
-                  ),
-                )),
-          ),
-        ),
+            Expanded(
+              child: TextButton(
+                  onPressed: actionLeft,
+                  style: TextButton.styleFrom(
+                      backgroundColor: leftActionButtonColor ??
+                          Theme.of(context)
+                              .accentTextTheme!
+                              .bodyText1!
+                              .decorationColor!,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.zero))),
+                  child: Text(
+                    leftActionButtonText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w600,
+                      color: leftActionButtonTextColor ??
+                          Theme.of(context).primaryTextTheme!
+                              .bodyText1!.backgroundColor!,
+                      decoration: TextDecoration.none,
+                    ),
+                  )),
+            ),
         Container(
           width: 1,
           color: Theme.of(context).dividerColor,
         ),
-        Flexible(
-          child: Container(
-            width: double.infinity,
-            color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
-            child: TextButton(
-                onPressed: actionRight,
-                child: Text(
-                  rightActionButtonText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme!.bodyText2!.backgroundColor!,
-                    decoration: TextDecoration.none,
-                  ),
-                )),
-          ),
-        ),
-      ],
-    ));
+            Expanded(
+              child: TextButton(
+                  onPressed: actionRight,
+                  style: TextButton.styleFrom(
+                      backgroundColor: rightActionButtonColor ??
+                          Theme.of(context).accentTextTheme!
+                              .bodyText2!.backgroundColor!,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.zero))),
+                  child: Text(
+                    rightActionButtonText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w600,
+                      color: rightActionButtonTextColor ??
+                          Theme.of(context)
+                              .primaryTextTheme!
+                              .bodyText2!
+                              .backgroundColor!,
+                      decoration: TextDecoration.none,
+                    ),
+                  )),
+            ),
+          ],
+        ));
   }
 
   @override
