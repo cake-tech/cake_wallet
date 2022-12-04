@@ -139,8 +139,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     return acc;
   });
 
-  static final Map<String?, CryptoCurrency> _nameCurrencyMap =
-  all.fold<Map<String?, CryptoCurrency>>(<String?, CryptoCurrency>{}, (acc, item) {
+  static final Map<String, CryptoCurrency> _nameCurrencyMap =
+  all.fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
     acc.addAll({item.name: item});
     return acc;
   });
