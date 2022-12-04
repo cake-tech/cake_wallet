@@ -437,6 +437,7 @@
   "provider_error" : "${provider} pomyłka",
 
   "use_ssl" : "Użyj SSL",
+  "trusted" : "zaufany",
 
   "color_theme" : "Motyw kolorystyczny",
   "light_theme" : "Lekki",

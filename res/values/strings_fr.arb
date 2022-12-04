@@ -435,6 +435,7 @@
   "provider_error" : "Erreur de ${provider}",
 
   "use_ssl" : "Utiliser SSL",
+  "trusted" : "de confiance",
 
   "color_theme" : "Thème",
   "light_theme" : "Clair",

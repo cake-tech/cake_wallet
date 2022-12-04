@@ -437,6 +437,7 @@
   "provider_error" : "${provider} ошибка",
 
   "use_ssl" : "Использовать SSL",
+  "trusted" : "доверенный",
 
   "color_theme" : "Цветовая тема",
   "light_theme" : "Светлая",

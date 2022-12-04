@@ -437,6 +437,7 @@
   "provider_error" : "${provider} त्रुटि",
 
   "use_ssl" : "उपयोग SSL",
+  "trusted" : "भरोसा",
 
   "color_theme" : "रंग विषय",
   "light_theme" : "रोशनी",

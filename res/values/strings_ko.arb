@@ -437,6 +437,7 @@
   "provider_error" : "${provider} 오류",
 
   "use_ssl" : "SSL 사용",
+  "trusted" : "신뢰할 수 있는",
 
   "color_theme" : "색상 테마",
   "light_theme" : "빛",
