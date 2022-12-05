@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -5,18 +6,17 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
-import 'package:cw_core/transaction_priority.dart';
+import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class OtherSettingsPage extends BasePage {
-  OtherSettingsPage(this._settingsViewModel);
+  OtherSettingsPage(this._otherSettingsViewModel);
 
   @override
   String get title => S.current.other_settings;
 
-  final SettingsViewModel _settingsViewModel;
+  final OtherSettingsViewModel _otherSettingsViewModel;
 
   @override
   Widget body(BuildContext context) {
@@ -26,10 +26,10 @@ class OtherSettingsPage extends BasePage {
         child: Column(children: [
           SettingsPickerCell(
             title: S.current.settings_fee_priority,
-            items: priorityForWalletType(_settingsViewModel.walletType),
-            displayItem: _settingsViewModel.getDisplayPriority,
-            selectedItem: _settingsViewModel.transactionPriority,
-            onItemSelected: _settingsViewModel.onDisplayPrioritySelected,
+            items: priorityForWalletType(_otherSettingsViewModel.walletType),
+            displayItem: _otherSettingsViewModel.getDisplayPriority,
+            selectedItem: _otherSettingsViewModel.transactionPriority,
+            onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
           ),
           SettingsCellWithArrow(
             title: S.current.settings_terms_and_conditions,
@@ -37,7 +37,7 @@ class OtherSettingsPage extends BasePage {
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           Spacer(),
-          SettingsVersionCell(title: S.of(context).version(_settingsViewModel.currentVersion))
+          SettingsVersionCell(title: S.of(context).version(_otherSettingsViewModel.currentVersion))
         ]),
       );
     });

@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "डिस्कनेक्ट किया गया",
   "sync_status_connecting" : "कनेक्ट",
   "sync_status_connected" : "जुड़े हुए",
+  "sync_status_attempting_sync" : "सिंक करने का प्रयास",
 
 
   "transaction_priority_slow" : "धीरे",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} त्रुटि",
 
   "use_ssl" : "उपयोग SSL",
+  "trusted" : "भरोसा",
 
   "color_theme" : "रंग विषय",
   "light_theme" : "रोशनी",
@@ -652,6 +654,9 @@
   "use_suggested": "सुझाए गए का प्रयोग करें",
   "do_not_share_warning_text" : "इन्हें समर्थन सहित किसी और के साथ साझा न करें।\n\nवे आपका पैसा चुरा लेंगे!",
   "help": "मदद करना",
+  "connection_sync": "कनेक्शन और सिंक",
+  "security_and_backup": "सुरक्षा और बैकअप",
+  "create_backup": "बैकअप बनाएँ",
   "privacy_settings": "गोपनीयता सेटिंग्स",
   "privacy": "गोपनीयता",
   "display_settings": "प्रदर्शन सेटिंग्स",

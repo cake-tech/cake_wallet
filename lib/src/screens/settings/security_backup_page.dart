@@ -8,42 +8,45 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class SecurityBackupPage extends BasePage {
-  SecurityBackupPage(this.settingsViewModel);
+  SecurityBackupPage(this._securitySettingsViewModel);
 
   @override
   String get title => S.current.security_and_backup;
 
-  final SettingsViewModel settingsViewModel;
+  final SecuritySettingsViewModel _securitySettingsViewModel;
 
   @override
   Widget body(BuildContext context) {
-
     return Container(
       padding: EdgeInsets.only(top: 10),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SettingsCellWithArrow(
           title: S.current.show_keys,
-          handler: (_) => settingsViewModel.checkPinCodeRiquired() ? Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.showKeys);
-            }
-          }) : Navigator.of(context).pushNamed(Routes.showKeys),
+          handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
+              ? Navigator.of(context).pushNamed(Routes.auth,
+                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                  if (isAuthenticatedSuccessfully) {
+                    auth.close(route: Routes.showKeys);
+                  }
+                })
+              : Navigator.of(context).pushNamed(Routes.showKeys),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
-          handler: (_) => settingsViewModel.checkPinCodeRiquired() ? Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.backup);
-            }
-          }) : Navigator.of(context).pushNamed(Routes.backup),
+          handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
+              ? Navigator.of(context).pushNamed(Routes.auth,
+                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                  if (isAuthenticatedSuccessfully) {
+                    auth.close(route: Routes.backup);
+                  }
+                })
+              : Navigator.of(context).pushNamed(Routes.backup),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
@@ -63,37 +66,38 @@ class SecurityBackupPage extends BasePage {
             children: [
               SettingsSwitcherCell(
                   title: S.current.settings_allow_biometrical_authentication,
-                  value: settingsViewModel.allowBiometricalAuthentication,
+                  value: _securitySettingsViewModel.allowBiometricalAuthentication,
                   onValueChange: (BuildContext context, bool value) {
                     if (value) {
                       Navigator.of(context).pushNamed(Routes.auth,
                           arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
                         if (isAuthenticatedSuccessfully) {
-                          if (await settingsViewModel.biometricAuthenticated()) {
-                            settingsViewModel.setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                          if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                            _securitySettingsViewModel
+                                .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                           }
                         } else {
-                          settingsViewModel.setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                          _securitySettingsViewModel
+                              .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                         }
 
                         auth.close();
                       });
                     } else {
-                      settingsViewModel.setAllowBiometricalAuthentication(value);
+                      _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
                     }
                   }),
-                SettingsPickerCell<PinCodeRequiredDuration>(
+              SettingsPickerCell<PinCodeRequiredDuration>(
                 title: S.current.require_pin_after,
                 items: PinCodeRequiredDuration.values,
-                selectedItem: settingsViewModel.pinCodeRequiredDuration,
+                selectedItem: _securitySettingsViewModel.pinCodeRequiredDuration,
                 onItemSelected: (PinCodeRequiredDuration code) {
-                  settingsViewModel.setPinCodeRequiredDuration(code);
+                  _securitySettingsViewModel.setPinCodeRequiredDuration(code);
                 },
               ),
             ],
           );
         }),
-
       ]),
     );
   }

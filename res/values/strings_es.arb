@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "DESCONECTADO",
   "sync_status_connecting" : "CONECTANDO",
   "sync_status_connected" : "CONECTADO",
+  "sync_status_attempting_sync" : "INTENTAR SINCRONIZAR",
 
 
   "transaction_priority_slow" : "Lento",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} error",
 
   "use_ssl" : "Utilice SSL",
+  "trusted" : "de confianza",
 
   "color_theme" : "Tema de color",
   "light_theme" : "Ligera",
@@ -652,6 +654,9 @@
   "use_suggested": "Usar sugerido",
   "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Te robarán tu dinero!",
   "help": "ayuda",
+  "connection_sync": "Conexión y sincronización",
+  "security_and_backup": "Seguridad y respaldo",
+  "create_backup": "Crear copia de seguridad",
   "privacy_settings": "Configuración de privacidad",
   "privacy": "Privacidad",
   "display_settings": "Configuración de pantalla",

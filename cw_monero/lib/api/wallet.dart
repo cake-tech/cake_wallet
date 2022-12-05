@@ -120,6 +120,14 @@ final getSubaddressLabelNative = moneroApi
     .lookup<NativeFunction<get_subaddress_label>>('get_subaddress_label')
     .asFunction<GetSubaddressLabel>();
 
+final setTrustedDaemonNative = moneroApi
+    .lookup<NativeFunction<set_trusted_daemon>>('set_trusted_daemon')
+    .asFunction<SetTrustedDaemon>();
+
+final trustedDaemonNative = moneroApi
+    .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
+    .asFunction<TrustedDaemon>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -360,3 +368,7 @@ void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
 String getSubaddressLabel(int accountIndex, int addressIndex) {
   return convertUTF8ToString(pointer: getSubaddressLabelNative(accountIndex, addressIndex));
 }
+
+Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
+
+Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;

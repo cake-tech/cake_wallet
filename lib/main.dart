@@ -128,7 +128,7 @@ Future<void> main() async {
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 17);
+        initialMigrationVersion: 18);
     runApp(App());
   } catch (e, stacktrace) {
     runApp(MaterialApp(

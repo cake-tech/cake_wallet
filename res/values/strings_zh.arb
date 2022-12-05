@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "断线",
   "sync_status_connecting" : "连接中",
   "sync_status_connected" : "已连接",
+  "sync_status_attempting_sync" : "嘗試同步",
 
 
   "transaction_priority_slow" : "慢速",
@@ -435,6 +436,7 @@
   "provider_error" : "${provider} 错误",
 
   "use_ssl" : "使用SSL",
+  "trusted" : "值得信赖",
 
   "color_theme" : "主题",
   "light_theme" : "艳丽",
@@ -650,6 +652,9 @@
   "use_suggested": "使用建议",
   "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
   "help": "帮助",
+  "connection_sync": "连接和同步",
+  "security_and_backup": "安全和备份",
+  "create_backup": "创建备份",
   "privacy_settings": "隐私设置",
   "privacy":"隐私",
   "display_settings": "显示设置",

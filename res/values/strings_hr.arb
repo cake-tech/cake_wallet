@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "ISKLJUČENO",
   "sync_status_connecting" : "SPAJANJE",
   "sync_status_connected" : "SPOJENO",
+  "sync_status_attempting_sync" : "POKUŠAJ SINKRONIZACIJE",
 
 
   "transaction_priority_slow" : "Sporo",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} greška",
 
   "use_ssl" : "Koristi SSL",
+  "trusted" : "vjerovao",
 
   "color_theme" : "Shema boja",
   "light_theme" : "Svijetla",
@@ -652,6 +654,9 @@
   "use_suggested": "Koristite predloženo",
   "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
   "help": "pomozite",
+  "connection_sync": "Povezivanje i sinkronizacija",
+  "security_and_backup": "Sigurnost i sigurnosna kopija",
+  "create_backup": "Stvori sigurnosnu kopiju",
   "privacy_settings": "Postavke privatnosti",
   "privacy": "Privatnost",
   "display_settings": "Postavke zaslona",
