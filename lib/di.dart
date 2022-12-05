@@ -459,13 +459,11 @@ Future setup(
       (ContactRecord? contact, _) =>
           ContactViewModel(_contactSource, contact: contact));
 
-  getIt.registerFactory(
-      () => ContactListViewModel(_contactSource, _walletInfoSource));
+  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
+      (CryptoCurrency? cur, _) => ContactListViewModel(_contactSource, _walletInfoSource, cur));
 
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _)
-  => ContactListPage(
-      getIt.get<ContactListViewModel>(),
-      selectedCurrency: cur));
+      => ContactListPage(getIt.get<ContactListViewModel>(param1: cur)));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) =>

@@ -9,25 +9,22 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
-  ContactListPage(this.contactListViewModel,
-      {this.selectedCurrency});
+  ContactListPage(this.contactListViewModel);
 
   final ContactListViewModel contactListViewModel;
-  final CryptoCurrency? selectedCurrency;
 
   @override
   String get title => S.current.address_book;
 
   @override
   Widget? trailing(BuildContext context) {
-    if (selectedCurrency != null) {
+    if (!contactListViewModel.isEditable) {
       return null;
     }
 
@@ -66,10 +63,8 @@ class ContactListPage extends BasePage {
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
         builder: (_) {
-          final contacts =
-          contactListViewModel.getContacts(selectedCurrency);
-          final walletContacts =
-          contactListViewModel.getWallets(selectedCurrency);
+          final contacts = contactListViewModel.contactsToShow;
+          final walletContacts = contactListViewModel.walletContactsToShow;
           return CollapsibleSectionList(
               context: context,
               sectionCount: 2,
@@ -98,13 +93,13 @@ class ContactListPage extends BasePage {
 
                 final contact = contacts[index];
                 final content = generateRaw(context, contact);
-                return selectedCurrency != null
-                    ? content
-                    : Slidable(
+                return contactListViewModel.isEditable
+                    ? Slidable(
                         key: Key('${contact.key}'),
                         endActionPane: _actionPane(context, contact),
                         child: content,
-                      );
+                      )
+                    : content;
               },
             );})
        );
@@ -118,7 +113,7 @@ class ContactListPage extends BasePage {
 
     return GestureDetector(
       onTap: () async {
-        if (selectedCurrency != null) {
+        if (!contactListViewModel.isEditable) {
           Navigator.of(context).pop(contact);
           return;
         }
