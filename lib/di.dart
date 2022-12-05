@@ -434,7 +434,7 @@ Future setup(
   });
 
   getIt.registerFactory(() {
-    return SecuritySettingsViewModel(getIt.get<SettingsStore>());
+    return SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>());
   });
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
