@@ -331,7 +331,7 @@ class SendCardState extends State<SendCard>
                             ],
                           ),
                         )),
-                    if (sendViewModel.balanceViewModel.disableFiat)
+                    if (!sendViewModel.balanceViewModel.disableFiat)
                     Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: BaseTextFormField(

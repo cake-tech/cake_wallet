@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -10,7 +11,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 
 part 'balance_view_model.g.dart';
@@ -72,7 +72,7 @@ abstract class BalanceViewModelBase with Store {
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
 
   @computed
-  bool get disableFiat => settingsStore.shouldDisableFiat;
+  bool get disableFiat => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
   String get asset {

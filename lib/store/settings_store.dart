@@ -17,7 +17,9 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+
 
 part 'settings_store.g.dart';
 
@@ -29,7 +31,7 @@ abstract class SettingsStoreBase with Store {
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
-      required bool initialDisableFiat,
+      required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required bool initialExchangeEnabled,
       required ThemeBase initialTheme,
@@ -48,7 +50,7 @@ abstract class SettingsStoreBase with Store {
     fiatCurrency = initialFiatCurrency,
     balanceDisplayMode = initialBalanceDisplayMode,
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
-    shouldDisableFiat = initialDisableFiat,
+    fiatApiMode = initialFiatMode,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
     disableExchange = initialExchangeEnabled,
     currentTheme = initialTheme,
@@ -92,10 +94,9 @@ abstract class SettingsStoreBase with Store {
             shouldSaveRecipientAddress));
 
     reaction(
-            (_) => shouldDisableFiat,
-            (bool shouldDisableFiat) => sharedPreferences.setBool(
-            PreferencesKey.shouldDisableFiatKey,
-            shouldDisableFiat));
+            (_) => fiatApiMode,
+            (FiatApiMode mode) => sharedPreferences.setInt(
+            PreferencesKey.currentFiatApiModeKey, mode.serialize()));
 
     reaction(
         (_) => currentTheme,
@@ -148,10 +149,10 @@ abstract class SettingsStoreBase with Store {
   BalanceDisplayMode balanceDisplayMode;
 
   @observable
-  bool shouldSaveRecipientAddress;
+  FiatApiMode fiatApiMode;
 
   @observable
-  bool shouldDisableFiat;
+  bool shouldSaveRecipientAddress;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -234,8 +235,9 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
-    final shouldDisableFiat =
-    sharedPreferences.getBool(PreferencesKey.shouldDisableFiatKey) ?? false;
+    final currentFiatApiMode = FiatApiMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.currentFiatApiModeKey)!);
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
@@ -303,7 +305,7 @@ abstract class SettingsStoreBase with Store {
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
-        initialDisableFiat: shouldDisableFiat,
+        initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialExchangeEnabled: disableExchange,
         initialTheme: savedTheme,

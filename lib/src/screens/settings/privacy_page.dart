@@ -1,9 +1,12 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 class PrivacyPage extends BasePage {
   PrivacyPage(this._privacySettingsViewModel);
@@ -18,10 +21,17 @@ class PrivacyPage extends BasePage {
     return Container(
       padding: EdgeInsets.only(top: 10),
       child: Observer(builder: (_) {
-        return Observer(builder: (_) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SettingsChoicesCell(
+                ChoicesListItem<FiatApiMode>(
+                title: 'Fiat api',
+                items: FiatApiMode.all,
+                selectedItem: _privacySettingsViewModel.fiatApiMode,
+                onItemSelected: (FiatApiMode mode) => _privacySettingsViewModel.setFiatMode(mode),
+              ),
+            ),
               SettingsSwitcherCell(
                   title: S.current.disable_exchange,
                   value: _privacySettingsViewModel.disableExchange,
@@ -36,7 +46,6 @@ class PrivacyPage extends BasePage {
                   })
             ],
           );
-        });
       }),
     );
   }
