@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "LOSGEKOPPELD",
   "sync_status_connecting" : "AANSLUITING",
   "sync_status_connected" : "VERBONDEN",
+  "sync_status_attempting_sync" : "SYNCHRONISATIE PROBEREN",
 
 
   "transaction_priority_slow" : "Langzaam",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} fout",
 
   "use_ssl" : "Gebruik SSL",
+  "trusted" : "vertrouwd",
 
   "color_theme" : "Kleur thema",
   "light_theme" : "Licht",
@@ -653,5 +655,12 @@
   "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
   "help": "helpen",
   "disable_fiat": "법정화폐 비활성화",
-  "disable_exchange": "Uitwisseling uitschakelen"
+  "disable_exchange": "Uitwisseling uitschakelen",
+  "connection_sync": "Verbinding en synchronisatie",
+  "security_and_backup": "Beveiliging en back-up",
+  "create_backup": "Maak een back-up",
+  "privacy_settings": "Privacy-instellingen",
+  "privacy": "Privacy",
+  "display_settings": "Weergave-instellingen",
+  "other_settings": "Andere instellingen"
 }

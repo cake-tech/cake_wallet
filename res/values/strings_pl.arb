@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "NIEPOWIĄZANY",
   "sync_status_connecting" : "ZŁĄCZONY",
   "sync_status_connected" : "POŁĄCZONY",
+  "sync_status_attempting_sync" : "PRÓBA SYNCHRONIZACJI",
 
 
   "transaction_priority_slow" : "Powolny",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} pomyłka",
 
   "use_ssl" : "Użyj SSL",
+  "trusted" : "zaufany",
 
   "color_theme" : "Motyw kolorystyczny",
   "light_theme" : "Lekki",
@@ -653,5 +655,12 @@
   "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
   "help": "pomoc",
   "disable_fiat": "Wyłącz fiat",
-  "disable_exchange": "Wyłącz wymianę"
+  "disable_exchange": "Wyłącz wymianę",
+  "connection_sync": "Połączenie i synchronizacja",
+  "security_and_backup": "Bezpieczeństwo i kopia zapasowa",
+  "create_backup": "Utwórz kopię zapasową",
+  "privacy_settings": "Ustawienia prywatności",
+  "privacy": "Prywatność",
+  "display_settings": "Ustawienia wyświetlania",
+  "other_settings": "Inne ustawienia"
 }

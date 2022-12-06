@@ -28,7 +28,7 @@ class NotConnectedSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class StartingSyncStatus extends SyncStatus {
+class AttemptingSyncStatus extends SyncStatus {
   @override
   double progress() => 0.0;
 }

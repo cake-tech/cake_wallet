@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "연결 해제",
   "sync_status_connecting" : "연결 중",
   "sync_status_connected" : "연결됨",
+  "sync_status_attempting_sync" : "동기화 시도 중",
 
 
   "transaction_priority_slow" : "느린",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} 오류",
 
   "use_ssl" : "SSL 사용",
+  "trusted" : "신뢰할 수 있는",
 
   "color_theme" : "색상 테마",
   "light_theme" : "빛",
@@ -653,5 +655,12 @@
   "do_not_share_warning_text" : "지원을 포함하여 다른 사람과 이러한 정보를 공유하지 마십시오.\n\n그들은 당신의 돈을 훔칠 것입니다!",
   "help": "돕다",
   "disable_fiat": "법정화폐 비활성화",
-  "disable_exchange": "교환 비활성화"
+  "disable_exchange": "교환 비활성화",
+  "connection_sync": "연결 및 동기화",
+  "security_and_backup": "보안 및 백업",
+  "create_backup": "백업 생성",
+  "privacy_settings": "개인정보 설정",
+  "privacy": "프라이버시",
+  "display_settings": "디스플레이 설정",
+  "other_settings": "기타 설정"
 }

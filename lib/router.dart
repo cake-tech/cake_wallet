@@ -5,6 +5,10 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
+import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
@@ -16,6 +20,7 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
@@ -36,7 +41,6 @@ import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
-import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
@@ -56,7 +60,6 @@ import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_wallet_from_seed_details.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
@@ -274,10 +277,26 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   param2: false),
               onWillPop: () async => false));
 
-    case Routes.nodeList:
+    case Routes.connectionSync:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeListPage>());
+          builder: (_) => getIt.get<ConnectionSyncPage>());
 
+    case Routes.securityBackupPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SecurityBackupPage>());
+    
+     case Routes.privacyPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<PrivacyPage>());
+
+     case Routes.displaySettingsPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<DisplaySettingsPage>());
+
+    case Routes.otherSettingsPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<OtherSettingsPage>());
+    
     case Routes.newNode:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NodeCreateOrEditPage>());
@@ -359,9 +378,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.exchangeTemplate:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<ExchangeTemplatePage>());
-
-    case Routes.settings:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<SettingsPage>());
 
     case Routes.rescan:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<RescanPage>());

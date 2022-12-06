@@ -355,6 +355,7 @@
   "sync_status_failed_connect" : "ВІДКЛЮЧЕНО",
   "sync_status_connecting" : "ПІДКЛЮЧЕННЯ",
   "sync_status_connected" : "ПІДКЛЮЧЕНО",
+  "sync_status_attempting_sync" : "СПРОБА СИНХРОНІЗАЦІЇ",
 
 
   "transaction_priority_slow" : "Повільний",
@@ -435,6 +436,7 @@
   "provider_error" : "${provider} помилка",
 
   "use_ssl" : "Використати SSL",
+  "trusted" : "довіряють",
 
   "color_theme" : "Кольорова тема",
   "light_theme" : "Світла",
@@ -652,5 +654,13 @@
   "do_not_share_warning_text" : "Не повідомляйте їх нікому, включно зі службою підтримки.\n\nВони вкрадуть ваші гроші!",
   "help": "допомога",
   "disable_fiat": "Вимкнути фиат",
-  "disable_exchange": "Вимкнути exchange"
+  "disable_exchange": "Вимкнути exchange",
+  "connection_sync": "Підключення та синхронізація",
+  "security_and_backup": "Безпека та резервне копіювання",
+  "create_backup": "Створити резервну копію",
+  "privacy_settings": "Налаштування конфіденційності",
+  "privacy": "Конфіденційність",
+  "display_settings": "Налаштування дисплея",
+  "other_settings": "Інші налаштування"
+
 }

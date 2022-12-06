@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "DESCONECTADO",
   "sync_status_connecting" : "CONECTANDO",
   "sync_status_connected" : "CONECTADO",
+  "sync_status_attempting_sync" : "TENTANDO SINCRONIZAR",
 
 
   "transaction_priority_slow" : "Lenta",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} erro",
 
   "use_ssl" : "Use SSL",
+  "trusted" : "confiável",
 
   "color_theme" : "Tema de cor",
   "light_theme" : "Luz",
@@ -544,7 +546,6 @@
   "create_account": "Criar conta",
   "privacy_policy": "Política de privacidade",
   "welcome_to_cakepay": "Bem-vindo ao Cake Pay!",
-  "create_account": "Registar-se",
   "forgot_password": "Esqueci a senha",
   "reset_password": "Redefinir senha",
   "gift_cards": "Cartões de presente",
@@ -653,5 +654,12 @@
   "do_not_share_warning_text" : "Não os compartilhe com mais ninguém, incluindo suporte.\n\nEles vão roubar seu dinheiro!",
   "help": "ajuda",
   "disable_fiat": "Desativar fiat",
-  "disable_exchange": "Desativar troca"
+  "disable_exchange": "Desativar troca",
+  "connection_sync": "Conexão e sincronização",
+  "security_and_backup": "Segurança e backup",
+  "create_backup": "Criar backup",
+  "privacy_settings": "Configurações de privacidade",
+  "privacy": "Privacidade",
+  "display_settings": "Configurações de exibição",
+  "other_settings": "Outras configurações"
 }
