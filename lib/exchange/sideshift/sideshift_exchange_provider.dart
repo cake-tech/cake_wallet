@@ -252,7 +252,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     String? status;
 
     if (deposits?.isNotEmpty ?? false) {
-      status = deposits![0]['status'] as String;
+      status = deposits![0]['status'] as String?;
     }
     state = TradeState.deserialize(raw: status ?? 'created');
 
