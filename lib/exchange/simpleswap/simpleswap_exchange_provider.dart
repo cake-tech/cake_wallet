@@ -53,7 +53,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         'currency_from': fromCurrency,
         'currency_to': toCurrency,
         'amount': amount.toString(),
-        'fixed': (!isFixedRateMode).toString()
+        'fixed': isFixedRateMode.toString()
       };
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await get(uri);
@@ -86,7 +86,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "currency_from": _normalizeCryptoCurrency(_request.from),
       "currency_to": _normalizeCryptoCurrency(_request.to),
       "amount": _request.amount,
-      "fixed": !isFixedRateMode,
+      "fixed": isFixedRateMode,
       "user_refund_address": _request.refundAddress,
       "address_to": _request.address
     };
