@@ -306,10 +306,11 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   Future<void> _calculateBestRate() async {
-    final amount = double.tryParse(depositAmount) ?? 1;
+    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
 
     final result = await Future.wait<double>(
         _tradeAvailableProviders
+            .where((element) => element.supportsFixedRate)
             .map((element) => element.calculateAmount(
                 from: depositCurrency,
                 to: receiveCurrency,

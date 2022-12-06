@@ -11,7 +11,6 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider()
@@ -21,8 +20,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
                 .where((i) => i != CryptoCurrency.xhv)
                 .map((i) => CryptoCurrency.all
                     .where((i) => i != CryptoCurrency.xhv)
-                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
-                    .where((c) => c != null))
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true)))
                 .expand((i) => i)
                 .toList());
 
@@ -42,6 +40,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   bool get isEnabled => true;
+
+  @override
+  bool get supportsFixedRate => true;
 
   @override
   ExchangeProviderDescription get description =>
@@ -109,6 +110,15 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     };
 
     if (isFixedRateMode) {
+      // since we schedule to calculate the rate every 5 seconds we need to ensure that
+      // we have the latest rate id with the given inputs before creating the trade
+      await calculateAmount(
+        from: _request.to,
+        to: _request.from,
+        amount: double.tryParse(_request.toAmount) ?? 0,
+        isFixedRateMode: true,
+        isReceiveAmount: true,
+      );
       body['rateId'] = _lastUsedRateId;
     }
 
@@ -180,9 +190,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final extraId = responseJSON['payinExtraId'] as String;
     final outputTransaction = responseJSON['payoutHash'] as String;
     final expiredAtRaw = responseJSON['validUntil'] as String;
-    final expiredAt = expiredAtRaw != null
-        ? DateTime.parse(expiredAtRaw).toLocal()
-        : null;
+    final expiredAt = DateTime.tryParse(expiredAtRaw)?.toLocal();
 
     return Trade(
         id: id,

@@ -210,6 +210,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
+  bool get supportsFixedRate => false;
+
+  @override
   String get title => 'SimpleSwap';
 
   static String _normalizeCryptoCurrency(CryptoCurrency currency) {

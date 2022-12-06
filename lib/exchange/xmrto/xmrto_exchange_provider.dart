@@ -49,6 +49,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
+  bool get supportsFixedRate => false;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.xmrto;
 
