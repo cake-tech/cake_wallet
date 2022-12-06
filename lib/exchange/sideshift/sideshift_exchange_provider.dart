@@ -249,12 +249,14 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final expectedSendAmount = responseJSON['depositAmount'].toString();
     final deposits = responseJSON['deposits'] as List?;
     TradeState? state;
-
-    if (deposits != null && deposits.isEmpty) {
-      state = TradeState.deserialize(raw: 'created');
-    } else {
-      final status = deposits?[0]['status'] as String;
-      state = TradeState.deserialize(raw: status);
+    
+    if (deposits != null) {
+      if (deposits.isEmpty) {
+        state = TradeState.deserialize(raw: 'created');
+      } else {
+        final status = deposits[0]['status'] as String;
+        state = TradeState.deserialize(raw: status);
+      }
     }
 
     final expiredAtRaw = responseJSON['expiresAtISO'] as String;
