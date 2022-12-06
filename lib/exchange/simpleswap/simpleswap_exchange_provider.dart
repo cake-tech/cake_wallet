@@ -20,8 +20,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
                 .where((i) => i != CryptoCurrency.zaddr)
                 .map((i) => CryptoCurrency.all
                     .where((i) => i != CryptoCurrency.zaddr)
-                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
-                    .where((c) => c != null))
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true)))
                 .expand((i) => i)
                 .toList());
 
@@ -54,12 +53,12 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         'currency_from': fromCurrency,
         'currency_to': toCurrency,
         'amount': amount.toString(),
-        'fixed': isFixedRateMode.toString()
+        'fixed': (!isFixedRateMode).toString()
       };
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await get(uri);
 
-      if (response.body == null || response.body == "null") return 0.00;
+      if (response.body == "null") return 0.00;
       final data = json.decode(response.body) as String;
       return double.parse(data);
     } catch (_) {
@@ -87,7 +86,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "currency_from": _normalizeCryptoCurrency(_request.from),
       "currency_to": _normalizeCryptoCurrency(_request.to),
       "amount": _request.amount,
-      "fixed": isFixedRateMode,
+      "fixed": !isFixedRateMode,
       "user_refund_address": _request.refundAddress,
       "address_to": _request.address
     };
