@@ -3,7 +3,6 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -234,8 +233,7 @@ abstract class SettingsStoreBase with Store {
             : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            legacyTheme ??
-            0);
+            legacyTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
@@ -281,7 +279,7 @@ abstract class SettingsStoreBase with Store {
     if (havenNode != null) {
         nodes[WalletType.haven] = havenNode;
     }
-    
+
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         nodes: nodes,
@@ -301,48 +299,35 @@ abstract class SettingsStoreBase with Store {
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
-  // FIX-ME: Dead code
+  Future<void> reload(
+      {required Box<Node> nodeSource,
+        FiatCurrency initialFiatCurrency = FiatCurrency.usd,
+        TransactionPriority? initialMoneroTransactionPriority,
+        TransactionPriority? initialBitcoinTransactionPriority,
+        BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance}) async {
+    if (initialBitcoinTransactionPriority == null) {
+      initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
+    }
 
-  //Future<void> reload(
-  //    {required Box<Node> nodeSource,
-  //    FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-  //    TransactionPriority? initialMoneroTransactionPriority,
-  //    TransactionPriority? initialBitcoinTransactionPriority,
-  //    BalanceDisplayMode initialBalanceDisplayMode =
-  //        BalanceDisplayMode.availableBalance}) async {
-    
-  //  if (initialBitcoinTransactionPriority == null) {
-  //      initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
-  //  }
+    if (initialMoneroTransactionPriority == null) {
+      initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
+    }
 
-  //  if (initialMoneroTransactionPriority == null) {
-  //      initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
-  //  }
+    final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
+        (secrets.wyreApiKey.isNotEmpty) &&
+        (secrets.wyreAccountId.isNotEmpty);
 
-  //  final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
-  //      (secrets.wyreApiKey?.isNotEmpty ?? false) &&
-  //      (secrets.wyreAccountId?.isNotEmpty ?? false);
+    final settings = await SettingsStoreBase.load(
+        nodeSource: nodeSource,
+        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+        initialBalanceDisplayMode: initialBalanceDisplayMode,
+        initialFiatCurrency: initialFiatCurrency,
+        initialMoneroTransactionPriority: initialMoneroTransactionPriority,
+        initialBitcoinTransactionPriority: initialBitcoinTransactionPriority);
 
-  //  final settings = await SettingsStoreBase.load(
-  //      nodeSource: nodeSource,
-  //      isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-  //      initialBalanceDisplayMode: initialBalanceDisplayMode,
-  //      initialFiatCurrency: initialFiatCurrency,
-  //      initialMoneroTransactionPriority: initialMoneroTransactionPriority,
-  //      initialBitcoinTransactionPriority: initialBitcoinTransactionPriority);
-  //  fiatCurrency = settings.fiatCurrency;
-  //  actionlistDisplayMode = settings.actionlistDisplayMode;
-  //  priority[WalletType.monero] = initialMoneroTransactionPriority;
-  //  priority[WalletType.bitcoin] = initialBitcoinTransactionPriority;
-  //  balanceDisplayMode = settings.balanceDisplayMode;
-  //  shouldSaveRecipientAddress = settings.shouldSaveRecipientAddress;
-  //  allowBiometricalAuthentication = settings.allowBiometricalAuthentication;
-  //  currentTheme = settings.currentTheme;
-  //  pinCodeLength = settings.pinCodeLength;
-  //  languageCode = settings.languageCode;
-  //  appVersion = settings.appVersion;
-  //  shouldShowYatPopup = settings.shouldShowYatPopup;
-  //}
+    getIt.unregister<SettingsStore>();
+    getIt.registerSingleton<SettingsStore>(settings);
+  }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
     switch (walletType) {
