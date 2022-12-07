@@ -24,14 +24,12 @@ class PrivacyPage extends BasePage {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SettingsChoicesCell(
-                ChoicesListItem<FiatApiMode>(
+              SettingsSwitcherCell(
                 title: S.current.fiat_api,
-                items: FiatApiMode.all,
-                selectedItem: _privacySettingsViewModel.fiatApiMode,
-                onItemSelected: (FiatApiMode mode) => _privacySettingsViewModel.setFiatMode(mode),
-              ),
-            ),
+                value: _privacySettingsViewModel.fiatApiMode,
+                onValueChange: (BuildContext context, bool value) {
+                  _privacySettingsViewModel.setFiatMode(value);
+                }),
               SettingsSwitcherCell(
                   title: S.current.disable_exchange,
                   value: _privacySettingsViewModel.disableExchange,

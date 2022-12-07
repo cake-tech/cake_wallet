@@ -18,7 +18,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
   @computed
-  FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
+  bool get fiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @action
   void setShouldSaveRecipientAddress(bool value) => _settingsStore.shouldSaveRecipientAddress = value;
@@ -27,5 +27,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setEnableExchange(bool value) => _settingsStore.disableExchange = value;
 
   @action
-  void setFiatMode(FiatApiMode mode) => _settingsStore.fiatApiMode = mode;
+  void setFiatMode(bool value) {
+    if (value) {
+      _settingsStore.fiatApiMode = FiatApiMode.disabled;
+      return;
+    }
+    _settingsStore.fiatApiMode = FiatApiMode.enabled;
+  }
+
 }
