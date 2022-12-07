@@ -97,15 +97,17 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       apiHeaderKey: apiKey,
       'Content-Type': 'application/json'};
     final flow = getFlow(isFixedRateMode);
+    final type = isFixedRateMode ? 'reverse' : 'direct';
     final body = <String, String>{
       'fromCurrency': normalizeCryptoCurrency(_request.from),
       'toCurrency': normalizeCryptoCurrency(_request.to),
       'fromNetwork': networkFor(_request.from),
       'toNetwork': networkFor(_request.to),
-      'fromAmount': _request.fromAmount,
-      'toAmount': _request.toAmount,
+      if (!isFixedRateMode) 'fromAmount': _request.fromAmount,
+      if (isFixedRateMode) 'toAmount': _request.toAmount,
       'address': _request.address,
       'flow': flow,
+      'type': type,
       'refundAddress': _request.refundAddress
     };
 
@@ -151,7 +153,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         refundAddress: refundAddress,
         extraId: extraId,
         createdAt: DateTime.now(),
-        amount: _request.fromAmount,
+        amount: responseJSON['fromAmount']?.toString() ?? _request.fromAmount,
         state: TradeState.created);
   }
 
