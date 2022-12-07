@@ -653,7 +653,6 @@
   "use_suggested": "Використати запропоноване",
   "do_not_share_warning_text" : "Не повідомляйте їх нікому, включно зі службою підтримки.\n\nВони вкрадуть ваші гроші!",
   "help": "допомога",
-  "fiat_api": "Фіат API",
   "disable_exchange": "Вимкнути exchange",
   "connection_sync": "Підключення та синхронізація",
   "security_and_backup": "Безпека та резервне копіювання",
@@ -662,6 +661,8 @@
   "privacy": "Конфіденційність",
   "display_settings": "Налаштування дисплея",
   "other_settings": "Інші налаштування",
+  "disable_fiat": "Вимкнути фиат",
+  "fiat_api": "Фіат API",
   "disabled": "Вимкнено",
   "enabled": "Увімкнено",
   "tor_only": "Тільки Tor"

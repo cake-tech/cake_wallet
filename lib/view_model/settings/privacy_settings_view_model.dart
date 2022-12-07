@@ -18,7 +18,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
   @computed
-  bool get fiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
+  bool get isFiatDisabled => _settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @action
   void setShouldSaveRecipientAddress(bool value) => _settingsStore.shouldSaveRecipientAddress = value;

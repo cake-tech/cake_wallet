@@ -652,7 +652,6 @@
   "use_suggested": "Utilisation suggérée",
   "do_not_share_warning_text" : "Ne les partagez avec personne d'autre, y compris avec l'assistance.\n\nIls vont voler votre argent!",
   "help": "aider",
-  "fiat_api": "Fiat API",
   "disable_exchange": "Désactiver l'échange",
   "connection_sync": "Connexion et synchronisation",
   "security_and_backup": "Sécurité et sauvegarde",
@@ -661,6 +660,8 @@
   "privacy": "Confidentialité",
   "display_settings": "Paramètres d'affichage",
   "other_settings": "Autres paramètres",
+  "disable_fiat": "Désactiver fiat",
+  "fiat_api": "Fiat API",
   "disabled": "Handicapé",
   "enabled": "Activé",
   "tor_only": "Tor uniquement"

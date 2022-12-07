@@ -654,7 +654,6 @@
   "use_suggested": "推奨を使用",
   "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
   "help": "ヘルプ",
-  "fiat_api": "不換紙幣 API",
   "disable_exchange": "交換を無効にする",
   "connection_sync": "接続と同期",
   "security_and_backup": "セキュリティとバックアップ",
@@ -663,6 +662,8 @@
   "privacy": "プライバシー",
   "display_settings": "表示設定",
   "other_settings": "その他の設定",
+  "disable_fiat": "フィアットを無効にする",
+  "fiat_api": "不換紙幣 API",
   "disabled": "無効",
   "enabled": "有効",
   "tor_only": "Torのみ"

@@ -20,8 +20,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
 
-import 'fiat_api_mode.dart';
-
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
@@ -63,9 +61,6 @@ Future defaultSettingsMigration(
           await sharedPreferences.setInt(
               PreferencesKey.currentBalanceDisplayModeKey,
               BalanceDisplayMode.availableBalance.raw);
-          await sharedPreferences.setInt(
-              PreferencesKey.currentFiatApiModeKey,
-              FiatApiMode.enabled.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
           await resetToDefault(nodes);
           await changeMoneroCurrentNodeToDefault(
@@ -142,10 +137,6 @@ Future defaultSettingsMigration(
 
         case 18:
           await addOnionNode(nodes);
-          break;
-
-        case 19:
-          await updateFiatApiModes(sharedPreferences);
           break;
 
         default:
@@ -356,14 +347,6 @@ Future<void> updateDisplayModes(SharedPreferences sharedPreferences) async {
   final balanceDisplayMode = currentBalanceDisplayMode < 2 ? 3 : 2;
   await sharedPreferences.setInt(
       PreferencesKey.currentBalanceDisplayModeKey, balanceDisplayMode);
-}
-
-Future<void> updateFiatApiModes(SharedPreferences sharedPreferences) async {
-  final currentFiatApiMode =
-      sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ?? -1;
-  final fiatApiMode = currentFiatApiMode < 1 ? 2 : 1;
-  await sharedPreferences.setInt(
-      PreferencesKey.currentFiatApiModeKey, fiatApiMode);
 }
 
 Future<void> generateBackupPassword(FlutterSecureStorage secureStorage) async {

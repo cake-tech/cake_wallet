@@ -654,7 +654,6 @@
   "use_suggested": "Koristite predloženo",
   "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
   "help": "pomozite",
-  "fiat_api": "Fiat API",
   "disable_exchange": "Onemogući exchange",
   "connection_sync": "Povezivanje i sinkronizacija",
   "security_and_backup": "Sigurnost i sigurnosna kopija",
@@ -663,6 +662,8 @@
   "privacy": "Privatnost",
   "display_settings": "Postavke zaslona",
   "other_settings": "Ostale postavke",
+  "disable_fiat": "Isključi, fiat",
+  "fiat_api": "Fiat API",
   "disabled": "Onemogućeno",
   "enabled": "Omogućeno",
   "tor_only": "Samo Tor"

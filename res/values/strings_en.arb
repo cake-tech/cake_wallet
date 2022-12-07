@@ -654,7 +654,6 @@
   "use_suggested": "Use Suggested",
   "do_not_share_warning_text" : "Do not share these with anyone else, including support.\n\nThey will steal your money!",
   "help": "help",
-  "fiat_api": "Fiat API",
   "disable_exchange": "Disable exchange",
   "connection_sync": "Connection and sync",
   "security_and_backup": "Security and backup",
@@ -663,6 +662,8 @@
   "privacy": "Privacy",
   "display_settings": "Display settings",
   "other_settings": "Other settings",
+  "disable_fiat": "Disable fiat",
+  "fiat_api": "Fiat API",
   "disabled": "Disabled",
   "enabled": "Enabled",
   "tor_only": "Tor only"
