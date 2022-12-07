@@ -79,9 +79,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
       if (amount > max) return 0.00;
 
-      final estimatedAmount = rate * amount;
-
-      return estimatedAmount;
+      return rate;
     } catch (_) {
       return 0.00;
     }

@@ -113,8 +113,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       // since we schedule to calculate the rate every 5 seconds we need to ensure that
       // we have the latest rate id with the given inputs before creating the trade
       await calculateAmount(
-        from: _request.to,
-        to: _request.from,
+        from: _request.from,
+        to: _request.to,
         amount: double.tryParse(_request.toAmount) ?? 0,
         isFixedRateMode: true,
         isReceiveAmount: true,
@@ -222,10 +222,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final type = isReverse ? 'reverse' : 'direct';
       final flow = getFlow(isFixedRateMode);
       final params = <String, String>{
-        'fromCurrency': isReverse ? normalizeCryptoCurrency(to) : normalizeCryptoCurrency(from),
-        'toCurrency': isReverse ? normalizeCryptoCurrency(from) : normalizeCryptoCurrency(to),
-        'fromNetwork': isReverse ? networkFor(to) : networkFor(from),
-        'toNetwork': isReverse ? networkFor(from) : networkFor(to),
+        'fromCurrency': normalizeCryptoCurrency(from),
+        'toCurrency': normalizeCryptoCurrency(to),
+        'fromNetwork': networkFor(from),
+        'toNetwork': networkFor(to),
         'type': type,
         'flow': flow};
 
@@ -246,7 +246,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         _lastUsedRateId = rateId;
       }
 
-      return isReverse ? fromAmount : toAmount;
+      return isReverse ? (amount / fromAmount) : (toAmount / amount);
     } catch(e) {
       print(e.toString());
       return 0.0;

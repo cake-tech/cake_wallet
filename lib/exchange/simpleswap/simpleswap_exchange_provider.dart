@@ -60,7 +60,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
       if (response.body == "null") return 0.00;
       final data = json.decode(response.body) as String;
-      return double.parse(data);
+      return double.parse(data) / amount;
     } catch (_) {
       return 0.00;
     }

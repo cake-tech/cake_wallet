@@ -316,7 +316,7 @@ abstract class ExchangeViewModelBase with Store {
                 to: receiveCurrency,
                 amount: amount,
                 isFixedRateMode: isFixedRateMode,
-                isReceiveAmount: false))
+                isReceiveAmount: isFixedRateMode))
     );
 
     _sortedAvailableProviders.clear();
@@ -324,7 +324,7 @@ abstract class ExchangeViewModelBase with Store {
     for (int i=0;i<result.length;i++) {
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
-        _sortedAvailableProviders[result[i] / amount] = _tradeAvailableProviders[i];
+        _sortedAvailableProviders[result[i]] = _tradeAvailableProviders[i];
       }
     }
     if (_sortedAvailableProviders.isNotEmpty) {
