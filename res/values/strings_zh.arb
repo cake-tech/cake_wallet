@@ -652,7 +652,7 @@
   "use_suggested": "使用建议",
   "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
   "help": "帮助",
-  "disable_fiat": "禁用法令",
+  "fiat_api": "法币API",
   "disable_exchange": "禁用交换",
   "connection_sync": "连接和同步",
   "security_and_backup": "安全和备份",
@@ -660,5 +660,8 @@
   "privacy_settings": "隐私设置",
   "privacy":"隐私",
   "display_settings": "显示设置",
-  "other_settings": "其他设置"
+  "other_settings": "其他设置",
+  "disabled": "禁用",
+  "enabled": "启用",
+  "tor_only": "仅限 Tor"
 }

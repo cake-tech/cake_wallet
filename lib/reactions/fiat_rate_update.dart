@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -28,7 +29,7 @@ Future<void> startFiatRateUpdate(AppStore appStore, SettingsStore settingsStore,
             await updateHavenRate(fiatConversionStore);
           } else {
             fiatConversionStore.prices[appStore.wallet!.currency] =
-            settingsStore.shouldDisableFiat ? 0.0
+            settingsStore.fiatApiMode == FiatApiMode.disabled ? 0.0
                 : await FiatConversionService.fetchPrice(
               appStore.wallet!.currency, settingsStore.fiatCurrency);
           }

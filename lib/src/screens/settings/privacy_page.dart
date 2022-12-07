@@ -26,7 +26,7 @@ class PrivacyPage extends BasePage {
             children: [
               SettingsChoicesCell(
                 ChoicesListItem<FiatApiMode>(
-                title: 'Fiat api',
+                title: S.current.fiat_api,
                 items: FiatApiMode.all,
                 selectedItem: _privacySettingsViewModel.fiatApiMode,
                 onItemSelected: (FiatApiMode mode) => _privacySettingsViewModel.setFiatMode(mode),

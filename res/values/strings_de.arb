@@ -654,7 +654,7 @@
   "use_suggested": "Vorgeschlagen verwenden",
   "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich des Supports.\n\nSie werden Ihr Geld stehlen!",
   "help": "hilfe",
-  "disable_fiat": "Fiat deaktivieren",
+  "fiat_api": "Fiat API",
   "disable_exchange": "Exchange deaktivieren",
   "connection_sync": "Verbindung und Synchronisierung",
   "security_and_backup": "Sicherheit und Datensicherung",
@@ -662,5 +662,8 @@
   "privacy_settings": "Datenschutzeinstellungen",
   "privacy": "Datenschutz",
   "display_settings": "Anzeigeeinstellungen",
-  "other_settings": "Andere Einstellungen"
+  "other_settings": "Andere Einstellungen",
+  "disabled": "Deaktiviert",
+  "enabled": "Ermöglicht",
+  "tor_only": "Nur Tor"
 }

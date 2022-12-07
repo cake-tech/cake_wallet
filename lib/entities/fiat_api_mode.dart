@@ -27,11 +27,11 @@ class FiatApiMode extends EnumerableItem<int> with Serializable<int> {
   String toString() {
     switch (this) {
       case FiatApiMode.enabled:
-        return 'enable';
+        return S.current.enabled;
       case FiatApiMode.torOnly:
-        return 'torOnly';
+        return S.current.tor_only;
       case FiatApiMode.disabled:
-        return 'disable';
+        return S.current.disabled;
       default:
         return '';
     }

@@ -654,7 +654,7 @@
   "use_suggested": "Gebruik aanbevolen",
   "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
   "help": "helpen",
-  "disable_fiat": "법정화폐 비활성화",
+  "fiat_api": "Fiat API",
   "disable_exchange": "Uitwisseling uitschakelen",
   "connection_sync": "Verbinding en synchronisatie",
   "security_and_backup": "Beveiliging en back-up",
@@ -662,5 +662,8 @@
   "privacy_settings": "Privacy-instellingen",
   "privacy": "Privacy",
   "display_settings": "Weergave-instellingen",
-  "other_settings": "Andere instellingen"
+  "other_settings": "Andere instellingen",
+  "disabled": "Gehandicapt",
+  "enabled": "Ingeschakeld",
+  "tor_only": "Alleen Tor"
 }
