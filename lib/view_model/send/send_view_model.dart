@@ -143,13 +143,16 @@ abstract class SendViewModelBase with Store {
   String get balance => balanceViewModel.availableBalance;
 
   @computed
+  bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
+
+  @computed
   String get pendingTransactionFiatAmountFormatted =>
-      balanceViewModel.disableFiat ? '' : pendingTransactionFiatAmount +
+      isFiatDisabled ? '' : pendingTransactionFiatAmount +
           ' ' + fiat.title;
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      balanceViewModel.disableFiat ? '' : pendingTransactionFeeFiatAmount +
+      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount +
           ' ' + fiat.title;
 
   @computed

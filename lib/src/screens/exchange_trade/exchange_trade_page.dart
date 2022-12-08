@@ -74,12 +74,9 @@ class ExchangeTradePage extends BasePage {
 }
 
 class ExchangeTradeForm extends StatefulWidget {
-  ExchangeTradeForm(this.exchangeTradeViewModel)
-  : disableFiat =
-      exchangeTradeViewModel.sendViewModel.balanceViewModel.disableFiat;
+  ExchangeTradeForm(this.exchangeTradeViewModel);
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final bool disableFiat;
 
   @override
   ExchangeTradeState createState() => ExchangeTradeState();

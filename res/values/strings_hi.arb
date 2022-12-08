@@ -655,7 +655,6 @@
   "do_not_share_warning_text" : "इन्हें समर्थन सहित किसी और के साथ साझा न करें।\n\nवे आपका पैसा चुरा लेंगे!",
   "help": "मदद करना",
   "disable_fiat": "िएट अक्षम करें",
-  "fiat_api": "फिएट पैसे API",
   "connection_sync": "कनेक्शन और सिंक",
   "security_and_backup": "सुरक्षा और बैकअप",
   "create_backup": "बैकअप बनाएँ",
@@ -663,6 +662,8 @@
   "privacy": "गोपनीयता",
   "display_settings": "प्रदर्शन सेटिंग्स",
   "other_settings": "अन्य सेटिंग्स",
+  "disable_exchange": "एक्सचेंज अक्षम करें",
+  "fiat_api": "फिएट पैसे API",
   "disabled": "अक्षम",
   "enabled": "सक्रिय",
   "tor_only": "Tor केवल"

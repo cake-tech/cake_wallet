@@ -74,13 +74,13 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted =>
-      sendViewModel.balanceViewModel.disableFiat
+      sendViewModel.isFiatDisabled
           ? '' : sendViewModel.pendingTransactionFiatAmount
           + ' ' + sendViewModel.fiat.title;
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      sendViewModel.balanceViewModel.disableFiat
+      sendViewModel.isFiatDisabled
           ? '' : sendViewModel.pendingTransactionFeeFiatAmount
           +  ' ' + sendViewModel.fiat.title;
 

@@ -654,7 +654,6 @@
   "use_suggested": "Gebruik aanbevolen",
   "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
   "help": "helpen",
-  "fiat_api": "Fiat API",
   "disable_exchange": "Uitwisseling uitschakelen",
   "connection_sync": "Verbinding en synchronisatie",
   "security_and_backup": "Beveiliging en back-up",
@@ -663,6 +662,8 @@
   "privacy": "Privacy",
   "display_settings": "Weergave-instellingen",
   "other_settings": "Andere instellingen",
+  "disable_fiat": "Schakel Fiat uit",
+  "fiat_api": "Fiat API",
   "disabled": "Gehandicapt",
   "enabled": "Ingeschakeld",
   "tor_only": "Alleen Tor"

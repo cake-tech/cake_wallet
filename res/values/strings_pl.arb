@@ -654,7 +654,6 @@
   "use_suggested": "Użyj sugerowane",
   "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
   "help": "pomoc",
-  "fiat_api": "API Fiata",
   "disable_exchange": "Wyłącz wymianę",
   "connection_sync": "Połączenie i synchronizacja",
   "security_and_backup": "Bezpieczeństwo i kopia zapasowa",
@@ -663,6 +662,8 @@
   "privacy": "Prywatność",
   "display_settings": "Ustawienia wyświetlania",
   "other_settings": "Inne ustawienia",
+  "disable_fiat": "Wyłącz fiat",
+  "fiat_api": "API Fiata",
   "disabled": "Wyłączone",
   "enabled": "Włączony",
   "tor_only": "Tylko Tor"
