@@ -44,7 +44,6 @@ abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore, this.sharedPreferences)
     : _cryptoNumberFormat = NumberFormat(),
-      isReverse = false,
       isFixedRateMode = false,
       isReceiveAmountEntered = false,
       depositAmount = '',
@@ -112,7 +111,11 @@ abstract class ExchangeViewModelBase with Store {
     loadLimits();
     reaction(
       (_) => isFixedRateMode,
-      (Object _) => loadLimits());
+      (Object _) {
+        loadLimits();
+        _bestRate = 0;
+        _calculateBestRate();
+      });
   }
 
   final WalletBase wallet;
@@ -227,8 +230,6 @@ abstract class ExchangeViewModelBase with Store {
 
   Limits limits;
 
-  bool isReverse;
-
   NumberFormat _cryptoNumberFormat;
 
   final SettingsStore _settingsStore;
@@ -258,7 +259,6 @@ abstract class ExchangeViewModelBase with Store {
   @action
   Future<void> changeReceiveAmount({required String amount}) async {
     receiveAmount = amount;
-    isReverse = true;
 
     if (amount.isEmpty) {
       depositAmount = '';
@@ -283,7 +283,6 @@ abstract class ExchangeViewModelBase with Store {
   @action
   Future<void> changeDepositAmount({required String amount}) async {
     depositAmount = amount;
-    isReverse = false;
 
     if (amount.isEmpty) {
       depositAmount = '';
@@ -311,12 +310,13 @@ abstract class ExchangeViewModelBase with Store {
 
     final result = await Future.wait<double>(
         _tradeAvailableProviders
-            .map((element) => element.calculateAmount(
+            .where((element) => !isFixedRateMode || element.supportsFixedRate)
+            .map((element) => element.fetchRate(
                 from: depositCurrency,
                 to: receiveCurrency,
                 amount: amount,
                 isFixedRateMode: isFixedRateMode,
-                isReceiveAmount: false))
+                isReceiveAmount: isFixedRateMode))
     );
 
     _sortedAvailableProviders.clear();
@@ -324,7 +324,7 @@ abstract class ExchangeViewModelBase with Store {
     for (int i=0;i<result.length;i++) {
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
-        _sortedAvailableProviders[result[i] / amount] = _tradeAvailableProviders[i];
+        _sortedAvailableProviders[result[i]] = _tradeAvailableProviders[i];
       }
     }
     if (_sortedAvailableProviders.isNotEmpty) {
@@ -401,7 +401,7 @@ abstract class ExchangeViewModelBase with Store {
             settleAddress: receiveAddress,
             refundAddress: depositAddress,
           );
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is SimpleSwapExchangeProvider) {
@@ -412,7 +412,7 @@ abstract class ExchangeViewModelBase with Store {
             address: receiveAddress,
             refundAddress: depositAddress,
           );
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is XMRTOExchangeProvider) {
@@ -424,7 +424,7 @@ abstract class ExchangeViewModelBase with Store {
               address: receiveAddress,
               refundAddress: depositAddress,
               isBTCRequest: isReceiveAmountEntered);
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is ChangeNowExchangeProvider) {
@@ -435,8 +435,8 @@ abstract class ExchangeViewModelBase with Store {
               toAmount: receiveAmount.replaceAll(',', '.'),
               refundAddress: depositAddress,
               address: receiveAddress,
-              isReverse: isReverse);
-          amount = isReverse ? receiveAmount : depositAmount;
+              isReverse: isFixedRateMode);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is MorphTokenExchangeProvider) {
@@ -446,13 +446,13 @@ abstract class ExchangeViewModelBase with Store {
               amount: depositAmount.replaceAll(',', '.'),
               refundAddress: depositAddress,
               address: receiveAddress);
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
-          if (double.parse(amount) < limits.min!) {
+          if (limits.max != null && double.parse(amount) < limits.min!) {
             continue;
           } else if (limits.max != null && double.parse(amount) > limits.max!) {
             continue;
