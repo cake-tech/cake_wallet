@@ -78,7 +78,14 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
           children: [
             LoadingPrimaryButton(
               onPressed: () {
-                widget.nodeViewModel.save(saveAsCurrent: true);
+                if (widget.privacySettingsViewModel.addCustomNode) {
+                  if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+                    return;
+                  }
+
+                  widget.nodeViewModel.save(saveAsCurrent: true);
+                }
+
                 Navigator.pop(context);
               },
               text: S.of(context).continue_text,
