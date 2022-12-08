@@ -26,7 +26,7 @@ abstract class ExchangeProvider {
     required TradeRequest request,
     required bool isFixedRateMode});
   Future<Trade> findTradeById({required String id});
-  Future<double> calculateAmount({
+  Future<double> fetchRate({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required double amount,

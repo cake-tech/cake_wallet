@@ -36,7 +36,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       ExchangeProviderDescription.simpleSwap;
 
   @override
-  Future<double> calculateAmount(
+  Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required double amount,

@@ -311,7 +311,7 @@ abstract class ExchangeViewModelBase with Store {
     final result = await Future.wait<double>(
         _tradeAvailableProviders
             .where((element) => !isFixedRateMode || element.supportsFixedRate)
-            .map((element) => element.calculateAmount(
+            .map((element) => element.fetchRate(
                 from: depositCurrency,
                 to: receiveCurrency,
                 amount: amount,

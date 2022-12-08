@@ -114,7 +114,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     if (isFixedRateMode) {
       // since we schedule to calculate the rate every 5 seconds we need to ensure that
       // we have the latest rate id with the given inputs before creating the trade
-      await calculateAmount(
+      await fetchRate(
         from: _request.from,
         to: _request.to,
         amount: double.tryParse(_request.toAmount) ?? 0,
@@ -208,7 +208,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> calculateAmount(
+  Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required double amount,

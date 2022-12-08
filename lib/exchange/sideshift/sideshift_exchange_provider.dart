@@ -57,7 +57,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       ExchangeProviderDescription.sideShift;
 
   @override
-  Future<double> calculateAmount(
+  Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required double amount,
