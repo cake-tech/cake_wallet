@@ -148,6 +148,11 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction(
+            (_) => disableExchange,
+            (bool disableExchange) => sharedPreferences.setBool(
+            PreferencesKey.disableExchangeKey, disableExchange));
+
     this
         .nodes
         .observe((change) { 
