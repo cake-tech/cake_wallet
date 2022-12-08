@@ -661,5 +661,8 @@
   "privacy": "Конфиденциальность",
   "display_settings": "Настройки отображения",
   "other_settings": "Другие настройки",
-  "disable_exchange": "Отключить обмен"
+  "disable_exchange": "Отключить обмен",
+  "advanced_privacy_settings": "Расширенные настройки конфиденциальности",
+  "settings_can_be_changed_later": "Эти настройки можно изменить позже в настройках приложения.",
+  "add_custom_node": "Добавить новый пользовательский узел"
 }

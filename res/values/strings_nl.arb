@@ -661,5 +661,8 @@
   "privacy": "Privacy",
   "display_settings": "Weergave-instellingen",
   "other_settings": "Andere instellingen",
-  "disable_exchange": "Uitwisseling uitschakelen"
+  "disable_exchange": "Uitwisseling uitschakelen",
+  "advanced_privacy_settings": "Geavanceerde privacy-instellingen",
+  "settings_can_be_changed_later": "Deze instellingen kunnen later worden gewijzigd in de app-instellingen",
+  "add_custom_node": "Voeg een nieuw aangepast knooppunt toe"
 }

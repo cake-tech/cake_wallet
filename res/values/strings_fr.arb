@@ -659,5 +659,8 @@
   "privacy": "Confidentialité",
   "display_settings": "Paramètres d'affichage",
   "other_settings": "Autres paramètres",
-  "disable_exchange": "Désactiver l'échange"
+  "disable_exchange": "Désactiver l'échange",
+  "advanced_privacy_settings": "Paramètres de confidentialité avancés",
+  "settings_can_be_changed_later": "Ces paramètres peuvent être modifiés ultérieurement dans les paramètres de l'application",
+  "add_custom_node": "Ajouter un nouveau nœud personnalisé"
 }

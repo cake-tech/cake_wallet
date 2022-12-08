@@ -661,5 +661,8 @@
   "privacy": "Datenschutz",
   "display_settings": "Anzeigeeinstellungen",
   "other_settings": "Andere Einstellungen",
-  "disable_exchange": "Exchange deaktivieren"
+  "disable_exchange": "Exchange deaktivieren",
+  "advanced_privacy_settings": "Erweiterte Datenschutzeinstellungen",
+  "settings_can_be_changed_later": "Diese Einstellungen können später in den App-Einstellungen geändert werden",
+  "add_custom_node": "Neuen benutzerdefinierten Knoten hinzufügen"
 }

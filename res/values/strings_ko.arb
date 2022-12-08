@@ -661,5 +661,8 @@
   "privacy": "프라이버시",
   "display_settings": "디스플레이 설정",
   "other_settings": "기타 설정",
-  "disable_exchange": "교환 비활성화"
+  "disable_exchange": "교환 비활성화",
+  "advanced_privacy_settings": "고급 개인 정보 설정",
+  "settings_can_be_changed_later": "이 설정은 나중에 앱 설정에서 변경할 수 있습니다.",
+  "add_custom_node": "새 사용자 정의 노드 추가"
 }
