@@ -44,7 +44,9 @@ abstract class SettingsStoreBase with Store {
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
       TransactionPriority? initialBitcoinTransactionPriority,
-      TransactionPriority? initialMoneroTransactionPriority})
+      TransactionPriority? initialMoneroTransactionPriority,
+      TransactionPriority? initialHavenTransactionPriority,
+      TransactionPriority? initialLitecoinTransactionPriority})
   : nodes = ObservableMap<WalletType, Node>.of(nodes),
     _sharedPreferences = sharedPreferences,
     fiatCurrency = initialFiatCurrency,
@@ -67,6 +69,14 @@ abstract class SettingsStoreBase with Store {
         priority[WalletType.bitcoin] = initialBitcoinTransactionPriority;
     }
 
+    if (initialHavenTransactionPriority != null) {
+        priority[WalletType.haven] = initialHavenTransactionPriority;
+    }
+
+    if (initialLitecoinTransactionPriority != null) {
+        priority[WalletType.litecoin] = initialLitecoinTransactionPriority;
+    }
+
     reaction(
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
@@ -78,11 +88,25 @@ abstract class SettingsStoreBase with Store {
              .setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
 
     priority.observe((change) {
-      final key = change.key == WalletType.monero
-          ? PreferencesKey.moneroTransactionPriority
-          : PreferencesKey.bitcoinTransactionPriority;
+      final String? key;
+      switch (change.key) {
+        case WalletType.monero:
+          key = PreferencesKey.moneroTransactionPriority;
+          break;
+        case WalletType.bitcoin:
+          key = PreferencesKey.bitcoinTransactionPriority;
+          break;
+        case WalletType.litecoin:
+          key = PreferencesKey.litecoinTransactionPriority;
+          break;
+        case WalletType.haven:
+          key = PreferencesKey.havenTransactionPriority;
+          break;
+        default:
+          key = null;
+      }
 
-      if (change.newValue != null) {
+      if (change.newValue != null && key != null) {
         sharedPreferences.setInt(key, change.newValue!.serialize());
       }
     });
@@ -202,33 +226,39 @@ abstract class SettingsStoreBase with Store {
   static Future<SettingsStore> load(
       {required Box<Node> nodeSource,
       required bool isBitcoinBuyEnabled,
-      TransactionPriority? initialMoneroTransactionPriority,
-      TransactionPriority? initialBitcoinTransactionPriority,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
-    if (initialBitcoinTransactionPriority == null) {
-        initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
-    }
-
-    if (initialMoneroTransactionPriority == null) {
-        initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
-    }
 
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final currentFiatCurrency = FiatCurrency.deserialize(raw:
             sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
-    final savedMoneroTransactionPriority =
+
+    TransactionPriority? moneroTransactionPriority =
         monero?.deserializeMoneroTransactionPriority(
             raw: sharedPreferences
                 .getInt(PreferencesKey.moneroTransactionPriority)!);
-    final savedBitcoinTransactionPriority =
+    TransactionPriority? bitcoinTransactionPriority =
         bitcoin?.deserializeBitcoinTransactionPriority(sharedPreferences
                 .getInt(PreferencesKey.bitcoinTransactionPriority)!);
-    final moneroTransactionPriority =
-        savedMoneroTransactionPriority ?? initialMoneroTransactionPriority;
-    final bitcoinTransactionPriority =
-        savedBitcoinTransactionPriority ?? initialBitcoinTransactionPriority;
+
+    TransactionPriority? havenTransactionPriority;
+    TransactionPriority? litecoinTransactionPriority;
+
+    if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
+      havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
+      litecoinTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
+    }
+
+    moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
+    bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
+    havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
+    litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
+
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences
             .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -249,8 +279,7 @@ abstract class SettingsStoreBase with Store {
             : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            legacyTheme ??
-            0);
+            legacyTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
@@ -296,7 +325,7 @@ abstract class SettingsStoreBase with Store {
     if (havenNode != null) {
         nodes[WalletType.haven] = havenNode;
     }
-    
+
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         nodes: nodes,
@@ -314,6 +343,8 @@ abstract class SettingsStoreBase with Store {
         initialLanguageCode: savedLanguageCode,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+        initialHavenTransactionPriority: havenTransactionPriority,
+        initialLitecoinTransactionPriority: litecoinTransactionPriority,
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
@@ -326,7 +357,7 @@ abstract class SettingsStoreBase with Store {
   //    TransactionPriority? initialBitcoinTransactionPriority,
   //    BalanceDisplayMode initialBalanceDisplayMode =
   //        BalanceDisplayMode.availableBalance}) async {
-    
+
   //  if (initialBitcoinTransactionPriority == null) {
   //      initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
   //  }

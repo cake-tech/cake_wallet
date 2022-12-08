@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/reactions/fiat_rate_update.dart';
 import 'package:cake_wallet/reactions/on_current_node_change.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
@@ -31,4 +32,5 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
       appStore, settingsStore, fiatConversionStore);
   startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore);
   startOnCurrentNodeChangeReaction(appStore);
+  startFiatRateUpdate(appStore, settingsStore, fiatConversionStore);
 }
