@@ -80,6 +80,7 @@ import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 late RouteSettings currentRouteSettings;
 
@@ -320,11 +321,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: true));
+          builder: (_) =>
+              getIt.get<ContactListPage>());
 
     case Routes.pickerAddressBook:
+      final selectedCurrency = settings.arguments as CryptoCurrency;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: false));
+          builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
 
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(

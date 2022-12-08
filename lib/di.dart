@@ -160,6 +160,7 @@ import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 final getIt = GetIt.instance;
 
@@ -472,12 +473,11 @@ Future setup(
       (ContactRecord? contact, _) =>
           ContactViewModel(_contactSource, contact: contact));
 
-  getIt.registerFactory(
-      () => ContactListViewModel(_contactSource, _walletInfoSource));
+  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
+      (CryptoCurrency? cur, _) => ContactListViewModel(_contactSource, _walletInfoSource, cur));
 
-  getIt.registerFactoryParam<ContactListPage, bool, void>(
-      (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
-          isEditable: isEditable));
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _)
+      => ContactListPage(getIt.get<ContactListViewModel>(param1: cur)));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) =>
