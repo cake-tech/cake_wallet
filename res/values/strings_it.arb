@@ -652,7 +652,7 @@
   "low_fee_alert": "Attualmente stai utilizzando una priorità a tariffa di rete bassa. Ciò potrebbe causare lunghe attese, tariffe diverse o operazioni annullate. Ti consigliamo di impostare una tariffa più alta per un'esperienza migliore.",
   "ignor": "Ignorare",
   "use_suggested": "Usa suggerito",
-  "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nTi ruberanno i soldi!",
+  "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nI tuoi fondi possono e saranno rubati!",
   "help": "aiuto",
   "connection_sync": "Connessione e sincronizzazione",
   "security_and_backup": "Sicurezza e backup",
