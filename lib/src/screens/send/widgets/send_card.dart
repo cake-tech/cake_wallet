@@ -154,6 +154,7 @@ class SendCardState extends State<SendCard>
                           await output.fetchParsedAddress(context);
                         },
                         validator: validator,
+                        selectedCurrency: sendViewModel.currency,
                       );
                     }),
                     if (output.isParsedAddress) Padding(
@@ -331,7 +332,8 @@ class SendCardState extends State<SendCard>
                             ],
                           ),
                         )),
-                    Padding(
+                    if (!sendViewModel.isFiatDisabled)
+                      Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: BaseTextFormField(
                           focusNode: fiatAmountFocus,
@@ -437,8 +439,9 @@ class SendCardState extends State<SendCard>
                                           Padding(
                                               padding:
                                               EdgeInsets.only(top: 5),
-                                              child: Text(
-                                                  output
+                                              child: sendViewModel.isFiatDisabled
+                                                  ? const SizedBox(height: 14)
+                                                  : Text(output
                                                       .estimatedFeeFiatAmount
                                                       +  ' ' +
                                                       sendViewModel

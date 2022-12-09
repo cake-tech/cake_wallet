@@ -81,4 +81,5 @@ class Routes {
   static const privacyPage = '/privacy_page';
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';
+  static const advancedPrivacySettings = '/advanced_privacy_settings';
 }

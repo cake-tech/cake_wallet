@@ -650,7 +650,7 @@
   "low_fee_alert": "您当前正在使用低网络费用优先级。这可能会导致长时间等待、不同的费率或取消交易。我们建议设置更高的费用以获得更好的体验。",
   "ignor": "忽视",
   "use_suggested": "使用建议",
-  "do_not_share_warning_text" : "不要與其他任何人分享這些內容，包括支持。\n\n他們會偷你的錢！",
+  "do_not_share_warning_text" : "请勿与其他任何人分享这些信息，包括支持人员。\n\n您的资金可能而且将会被盗！",
   "help": "帮助",
   "connection_sync": "连接和同步",
   "security_and_backup": "安全和备份",
@@ -662,5 +662,13 @@
   "require_pin_after": "之后需要 PIN",
   "always": "总是",
   "minutes_to_pin_code": "${minute} 分钟",
-  "disable_exchange": "禁用交换"
+  "disable_exchange": "禁用交换",
+  "advanced_privacy_settings": "高级隐私设置",
+  "settings_can_be_changed_later": "稍后可以在应用设置中更改这些设置",
+  "add_custom_node": "添加新的自定义节点",
+  "disable_fiat": "禁用法令",
+  "fiat_api": "法币API",
+  "disabled": "禁用",
+  "enabled": "启用",
+  "tor_only": "仅限 Tor"
 }

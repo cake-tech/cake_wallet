@@ -652,7 +652,7 @@
   "low_fee_alert": "Trenutačno koristite niski prioritet mrežne naknade. To bi moglo uzrokovati duga čekanja, različite tečajeve ili otkazane trgovine. Preporučujemo postavljanje veće naknade za bolje iskustvo.",
   "ignor": "Zanemariti",
   "use_suggested": "Koristite predloženo",
-  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
+  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nVaša sredstva mogu i bit će ukradena!",
   "help": "pomozite",
   "connection_sync": "Povezivanje i sinkronizacija",
   "security_and_backup": "Sigurnost i sigurnosna kopija",
@@ -664,5 +664,13 @@
   "require_pin_after": "Zahtijevaj PIN nakon",
   "always": "Uvijek",
   "minutes_to_pin_code": "${minute} minuta",
-  "disable_exchange": "Onemogući exchange"
+  "disable_exchange": "Onemogući exchange",
+  "advanced_privacy_settings": "Napredne postavke privatnosti",
+  "settings_can_be_changed_later": "Te se postavke mogu promijeniti kasnije u postavkama aplikacije",
+  "add_custom_node": "Dodaj novi prilagođeni čvor",
+  "disable_fiat": "Isključi, fiat",
+  "fiat_api": "Fiat API",
+  "disabled": "Onemogućeno",
+  "enabled": "Omogućeno",
+  "tor_only": "Samo Tor"
 }

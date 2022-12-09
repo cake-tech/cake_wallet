@@ -18,10 +18,15 @@ class PrivacyPage extends BasePage {
     return Container(
       padding: EdgeInsets.only(top: 10),
       child: Observer(builder: (_) {
-        return Observer(builder: (_) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SettingsSwitcherCell(
+                title: S.current.disable_fiat,
+                value: _privacySettingsViewModel.isFiatDisabled,
+                onValueChange: (BuildContext context, bool value) {
+                  _privacySettingsViewModel.setFiatMode(value);
+                }),
               SettingsSwitcherCell(
                   title: S.current.disable_exchange,
                   value: _privacySettingsViewModel.disableExchange,
@@ -36,7 +41,6 @@ class PrivacyPage extends BasePage {
                   })
             ],
           );
-        });
       }),
     );
   }

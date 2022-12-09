@@ -395,7 +395,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                     buttonColor: widget.addressButtonsColor,
                     validator: widget.addressTextFieldValidator,
                     onPushPasteButton: widget.onPushPasteButton,
-                    onPushAddressBookButton: widget.onPushAddressBookButton
+                    onPushAddressBookButton: widget.onPushAddressBookButton,
+                    selectedCurrency: _selectedCurrency
                 ),
 
               )

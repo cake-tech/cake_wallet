@@ -652,7 +652,7 @@
   "low_fee_alert": "Actualmente está utilizando una prioridad de tarifa de red baja. Esto podría causar largas esperas, tarifas diferentes o transacciones canceladas. Recomendamos establecer una tarifa más alta para una mejor experiencia.",
   "ignor": "Pasar por alto",
   "use_suggested": "Usar sugerido",
-  "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Te robarán tu dinero!",
+  "do_not_share_warning_text" : "No comparta estos con nadie más, incluido el soporte.\n\n¡Sus fondos pueden ser y serán robados!",
   "help": "ayuda",
   "connection_sync": "Conexión y sincronización",
   "security_and_backup": "Seguridad y respaldo",
@@ -664,5 +664,13 @@
   "require_pin_after": "Requerir PIN después de",
   "always": "siempre",
   "minutes_to_pin_code": "${minute} minutos",
-  "disable_exchange": "Deshabilitar intercambio"
+  "disable_exchange": "Deshabilitar intercambio",
+  "advanced_privacy_settings": "Configuración avanzada de privacidad",
+  "settings_can_be_changed_later": "Estas configuraciones se pueden cambiar más tarde en la configuración de la aplicación",
+  "add_custom_node": "Agregar nuevo nodo personalizado",
+  "disable_fiat": "Deshabilitar fiat",
+  "fiat_api": "Fiat API",
+  "disabled": "Desactivado",
+  "enabled": "Activado",
+  "tor_only": "solo Tor"
 }

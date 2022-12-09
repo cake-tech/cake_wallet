@@ -34,7 +34,8 @@ class DisplaySettingsPage extends BasePage {
             onValueChange: (_, bool value) {
                _displaySettingsViewModel.setShouldDisplayBalance(value);          
             }),
-            if (!isHaven)
+            //if (!isHaven) it does not work correctly
+            if(!_displaySettingsViewModel.disabledFiatApiMode)
               SettingsPickerCell<FiatCurrency>(
                 title: S.current.settings_currency,
                 searchHintText: S.current.search_currency,
