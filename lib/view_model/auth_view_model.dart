@@ -14,12 +14,12 @@ part 'auth_view_model.g.dart';
 class AuthViewModel = AuthViewModelBase with _$AuthViewModel;
 
 abstract class AuthViewModelBase with Store {
-  AuthViewModelBase(this._authService, this._sharedPreferences,
-      this._settingsStore, this._biometricAuth)
+  AuthViewModelBase(
+      this._authService, this._sharedPreferences, this._settingsStore, this._biometricAuth)
       : _failureCounter = 0,
-        state = InitialExecutionState(){
-           reaction((_) => state, _saveLastAuthTime);
-      }
+        state = InitialExecutionState() {
+    reaction((_) => state, _saveLastAuthTime);
+  }
 
   static const maxFailedLogins = 3;
   static const banTimeout = 180; // 3 minutes
@@ -30,8 +30,7 @@ abstract class AuthViewModelBase with Store {
 
   int get pinLength => _settingsStore.pinCodeLength;
 
-  bool get isBiometricalAuthenticationAllowed =>
-      _settingsStore.allowBiometricalAuthentication;
+  bool get isBiometricalAuthenticationAllowed => _settingsStore.allowBiometricalAuthentication;
 
   @observable
   int _failureCounter;
@@ -59,7 +58,7 @@ abstract class AuthViewModelBase with Store {
 
     if (isSuccessfulAuthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        state = ExecutedSuccessfullyState();   
+        state = ExecutedSuccessfullyState();
         _failureCounter = 0;
       });
     } else {
@@ -116,14 +115,14 @@ abstract class AuthViewModelBase with Store {
           state = ExecutedSuccessfullyState();
         }
       }
-    } catch(e) {
+    } catch (e) {
       state = FailureState(e.toString());
     }
   }
 
   void _saveLastAuthTime(ExecutionState state) {
-    if(state is ExecutedSuccessfullyState) {
-    _authService.saveLastAuthTime();
+    if (state is ExecutedSuccessfullyState) {
+      _authService.saveLastAuthTime();
     }
   }
 }

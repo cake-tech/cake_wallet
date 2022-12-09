@@ -21,8 +21,7 @@ class AuthService with Store {
 
   Future<bool> canAuthenticate() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final walletName =
-        sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';
+    final walletName = sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';
     var password = '';
 
     try {
@@ -43,26 +42,23 @@ class AuthService with Store {
   }
 
   void saveLastAuthTime() {
-    
     int timestamp = DateTime.now().millisecondsSinceEpoch;
     sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
   }
 
-  bool requireAuth() {  
-
+  bool requireAuth() {
     final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
-    final duration =  _durationToRequireAuth(timestamp ?? 0);
+    final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = getIt.get<SettingsStore>().pinTimeOutDuration;
-     
+
     return duration >= requiredPinInterval.value;
   }
 
   int _durationToRequireAuth(int timestamp) {
-
     DateTime before = DateTime.fromMillisecondsSinceEpoch(timestamp);
     DateTime now = DateTime.now();
     Duration timeDifference = now.difference(before);
 
-    return timeDifference.inMinutes; 
+    return timeDifference.inMinutes;
   }
 }
