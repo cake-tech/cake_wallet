@@ -121,7 +121,7 @@ abstract class SettingsStoreBase with Store {
 
     this
         .nodes
-        .observe((change) { 
+        .observe((change) {
             if (change.newValue != null && change.key != null) {
                 _saveCurrentNode(change.newValue!, change.key!);
             }
@@ -304,34 +304,78 @@ abstract class SettingsStoreBase with Store {
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
-  Future<void> reload(
-      {required Box<Node> nodeSource,
-        FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-        TransactionPriority? initialMoneroTransactionPriority,
-        TransactionPriority? initialBitcoinTransactionPriority,
-        BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance}) async {
-    if (initialBitcoinTransactionPriority == null) {
-      initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
+  Future<void> reload({required Box<Node> nodeSource}) async {
+
+    final sharedPreferences = await getIt.getAsync<SharedPreferences>();
+
+    fiatCurrency = FiatCurrency.deserialize(
+        raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+
+    priority[WalletType.monero] = monero?.deserializeMoneroTransactionPriority(
+        raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
+        priority[WalletType.monero]!;
+    priority[WalletType.bitcoin] = bitcoin?.deserializeBitcoinTransactionPriority(
+        sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
+        priority[WalletType.bitcoin]!;
+    // TODO: Add litecoin and haven after CW-118 is merged
+
+    balanceDisplayMode = BalanceDisplayMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
+    shouldSaveRecipientAddress =
+        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
+    allowBiometricalAuthentication = sharedPreferences
+        .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+        allowBiometricalAuthentication;
+    disableExchange = sharedPreferences.getBool(PreferencesKey.disableExchangeKey) ?? disableExchange;
+    final legacyTheme =
+        (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
+            ? ThemeType.dark.index
+            : ThemeType.bright.index;
+    currentTheme = ThemeList.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
+            legacyTheme);
+    actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
+    actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
+        sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
+            defaultActionsMode));
+    var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
+    // If no value
+    if (pinLength == null || pinLength == 0) {
+      pinLength = pinCodeLength;
+    }
+    pinCodeLength = pinLength;
+
+    languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
+    shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
+
+    final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
+    final bitcoinElectrumServerId = sharedPreferences
+        .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+    final litecoinElectrumServerId = sharedPreferences
+        .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+    final havenNodeId = sharedPreferences
+        .getInt(PreferencesKey.currentHavenNodeIdKey);
+    final moneroNode = nodeSource.get(nodeId);
+    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
+    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
+    final havenNode = nodeSource.get(havenNodeId);
+
+    if (moneroNode != null) {
+      nodes[WalletType.monero] = moneroNode;
     }
 
-    if (initialMoneroTransactionPriority == null) {
-      initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
+    if (bitcoinElectrumServer != null) {
+      nodes[WalletType.bitcoin] = bitcoinElectrumServer;
     }
 
-    final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
-        (secrets.wyreApiKey.isNotEmpty) &&
-        (secrets.wyreAccountId.isNotEmpty);
+    if (litecoinElectrumServer != null) {
+      nodes[WalletType.litecoin] = litecoinElectrumServer;
+    }
 
-    final settings = await SettingsStoreBase.load(
-        nodeSource: nodeSource,
-        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        initialBalanceDisplayMode: initialBalanceDisplayMode,
-        initialFiatCurrency: initialFiatCurrency,
-        initialMoneroTransactionPriority: initialMoneroTransactionPriority,
-        initialBitcoinTransactionPriority: initialBitcoinTransactionPriority);
-
-    getIt.unregister<SettingsStore>();
-    getIt.registerSingleton<SettingsStore>(settings);
+    if (havenNode != null) {
+      nodes[WalletType.haven] = havenNode;
+    }
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
