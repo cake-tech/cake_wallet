@@ -354,6 +354,7 @@
   "sync_status_failed_connect" : "DÉCONNECTÉ",
   "sync_status_connecting" : "CONNEXION EN COURS",
   "sync_status_connected" : "CONNECTÉ",
+  "sync_status_attempting_sync" : "TENTATIVE DE SYNCHRONISATION",
 
 
   "transaction_priority_slow" : "Lent",
@@ -434,6 +435,7 @@
   "provider_error" : "Erreur de ${provider}",
 
   "use_ssl" : "Utiliser SSL",
+  "trusted" : "de confiance",
 
   "color_theme" : "Thème",
   "light_theme" : "Clair",
@@ -649,5 +651,16 @@
   "ignor": "Ignorer",
   "use_suggested": "Utilisation suggérée",
   "do_not_share_warning_text" : "Ne les partagez avec personne d'autre, y compris avec l'assistance.\n\nVos fonds peuvent et seront volés!",
-  "help": "aider"
+  "help": "aider",
+  "connection_sync": "Connexion et synchronisation",
+  "security_and_backup": "Sécurité et sauvegarde",
+  "create_backup": "Créer une sauvegarde",
+  "privacy_settings": "Paramètres de confidentialité",
+  "privacy": "Confidentialité",
+  "display_settings": "Paramètres d'affichage",
+  "other_settings": "Autres paramètres",
+  "disable_exchange": "Désactiver l'échange",
+  "advanced_privacy_settings": "Paramètres de confidentialité avancés",
+  "settings_can_be_changed_later": "Ces paramètres peuvent être modifiés ultérieurement dans les paramètres de l'application",
+  "add_custom_node": "Ajouter un nouveau nœud personnalisé"
 }

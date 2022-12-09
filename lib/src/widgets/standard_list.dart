@@ -123,6 +123,7 @@ class SectionStandardList extends StatelessWidget {
       required this.itemBuilder,
       required this.sectionCount,
       required BuildContext context,
+      this.dividerPadding = const EdgeInsets.only(left: 24),
       this.themeColor,
       this.dividerThemeColor,
       this.sectionTitleBuilder,
@@ -149,6 +150,7 @@ class SectionStandardList extends StatelessWidget {
   final List<Widget> totalRows;
   final Color? themeColor;
   final Color? dividerThemeColor;
+  final EdgeInsets dividerPadding;
 
   List<Widget> transform(
       bool hasTopSeparator,
@@ -178,7 +180,7 @@ class SectionStandardList extends StatelessWidget {
 
       items.add(sectionIndex + 1 != sectionCount
           ? SectionHeaderListRow()
-          : StandardListSeparator(padding: EdgeInsets.only(left: 24)));
+          : StandardListSeparator(padding: dividerPadding));
     }
 
     return items;

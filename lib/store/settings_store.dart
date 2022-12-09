@@ -30,6 +30,7 @@ abstract class SettingsStoreBase with Store {
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
       required bool initialAllowBiometricalAuthentication,
+      required bool initialExchangeEnabled,
       required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
@@ -47,6 +48,7 @@ abstract class SettingsStoreBase with Store {
     balanceDisplayMode = initialBalanceDisplayMode,
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+    disableExchange = initialExchangeEnabled,
     currentTheme = initialTheme,
     pinCodeLength = initialPinLength,
     languageCode = initialLanguageCode,
@@ -113,6 +115,11 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction(
+            (_) => disableExchange,
+            (bool disableExchange) => sharedPreferences.setBool(
+            PreferencesKey.disableExchangeKey, disableExchange));
+
     this
         .nodes
         .observe((change) { 
@@ -142,6 +149,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool allowBiometricalAuthentication;
+
+  @observable
+  bool disableExchange;
 
   @observable
   ThemeBase currentTheme;
@@ -221,6 +231,8 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
+    final disableExchange = sharedPreferences
+            .getBool(PreferencesKey.disableExchangeKey) ?? false;
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
@@ -284,6 +296,7 @@ abstract class SettingsStoreBase with Store {
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialExchangeEnabled: disableExchange,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,

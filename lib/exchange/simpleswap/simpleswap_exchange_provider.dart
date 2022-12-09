@@ -20,8 +20,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
                 .where((i) => i != CryptoCurrency.zaddr)
                 .map((i) => CryptoCurrency.all
                     .where((i) => i != CryptoCurrency.zaddr)
-                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
-                    .where((c) => c != null))
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true)))
                 .expand((i) => i)
                 .toList());
 
@@ -37,7 +36,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       ExchangeProviderDescription.simpleSwap;
 
   @override
-  Future<double> calculateAmount(
+  Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required double amount,
@@ -59,9 +58,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await get(uri);
 
-      if (response.body == null || response.body == "null") return 0.00;
+      if (response.body == "null") return 0.00;
       final data = json.decode(response.body) as String;
-      return double.parse(data);
+      return double.parse(data) / amount;
     } catch (_) {
       return 0.00;
     }
@@ -209,6 +208,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
   @override
   bool get isEnabled => true;
+
+  @override
+  bool get supportsFixedRate => false;
 
   @override
   String get title => 'SimpleSwap';

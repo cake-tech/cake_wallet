@@ -6,9 +6,8 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -43,9 +42,8 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore, this.sharedPreferences, this._settingsViewModel)
+      this.tradesStore, this._settingsStore, this.sharedPreferences)
     : _cryptoNumberFormat = NumberFormat(),
-      isReverse = false,
       isFixedRateMode = false,
       isReceiveAmountEntered = false,
       depositAmount = '',
@@ -113,7 +111,11 @@ abstract class ExchangeViewModelBase with Store {
     loadLimits();
     reaction(
       (_) => isFixedRateMode,
-      (Object _) => loadLimits());
+      (Object _) {
+        loadLimits();
+        _bestRate = 0;
+        _calculateBestRate();
+      });
   }
 
   final WalletBase wallet;
@@ -190,6 +192,19 @@ abstract class ExchangeViewModelBase with Store {
   ObservableList<ExchangeTemplate> get templates =>
       _exchangeTemplateStore.templates;
 
+  
+  @computed
+  TransactionPriority get transactionPriority {
+    final priority = _settingsStore.priority[wallet.type];
+
+    if (priority == null) {
+      throw Exception('Unexpected type ${wallet.type.toString()}');
+    }
+
+    return priority;
+  }
+
+
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
 
@@ -199,11 +214,11 @@ abstract class ExchangeViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        return _settingsViewModel.transactionPriority == monero!.getMoneroTransactionPrioritySlow();
+        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
-        return _settingsViewModel.transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
+        return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
-        return _settingsViewModel.transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
+        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
       default:
         return false;
     }
@@ -215,13 +230,9 @@ abstract class ExchangeViewModelBase with Store {
 
   Limits limits;
 
-  bool isReverse;
-
   NumberFormat _cryptoNumberFormat;
 
   final SettingsStore _settingsStore;
-
-  final SettingsViewModel _settingsViewModel;
 
   double _bestRate = 0.0;
 
@@ -248,7 +259,6 @@ abstract class ExchangeViewModelBase with Store {
   @action
   Future<void> changeReceiveAmount({required String amount}) async {
     receiveAmount = amount;
-    isReverse = true;
 
     if (amount.isEmpty) {
       depositAmount = '';
@@ -273,7 +283,6 @@ abstract class ExchangeViewModelBase with Store {
   @action
   Future<void> changeDepositAmount({required String amount}) async {
     depositAmount = amount;
-    isReverse = false;
 
     if (amount.isEmpty) {
       depositAmount = '';
@@ -297,14 +306,17 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   Future<void> _calculateBestRate() async {
+    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
+
     final result = await Future.wait<double>(
         _tradeAvailableProviders
-            .map((element) => element.calculateAmount(
+            .where((element) => !isFixedRateMode || element.supportsFixedRate)
+            .map((element) => element.fetchRate(
                 from: depositCurrency,
                 to: receiveCurrency,
-                amount: 1,
+                amount: amount,
                 isFixedRateMode: isFixedRateMode,
-                isReceiveAmount: false))
+                isReceiveAmount: isFixedRateMode))
     );
 
     _sortedAvailableProviders.clear();
@@ -335,7 +347,7 @@ abstract class ExchangeViewModelBase with Store {
         ? depositCurrency
         : receiveCurrency;
 
-    double lowestMin = double.maxFinite;
+    double? lowestMin = double.maxFinite;
     double? highestMax = 0.0;
 
     for (var provider in selectedProviders) {
@@ -350,8 +362,8 @@ abstract class ExchangeViewModelBase with Store {
             to: to,
             isFixedRateMode: isFixedRateMode);
 
-        if (tempLimits.min != null && tempLimits.min! < lowestMin) {
-          lowestMin = tempLimits.min!;
+        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) {
+          lowestMin = tempLimits.min;
         }
         if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax) {
           highestMax = tempLimits.max;
@@ -361,7 +373,7 @@ abstract class ExchangeViewModelBase with Store {
       }
     }
 
-    if (lowestMin < double.maxFinite) {
+    if (lowestMin != double.maxFinite) {
       limits = Limits(min: lowestMin, max: highestMax);
 
       limitsState = LimitsLoadedSuccessfully(limits: limits);
@@ -375,96 +387,105 @@ abstract class ExchangeViewModelBase with Store {
     TradeRequest? request;
     String amount = '';
 
-    for (var provider in _sortedAvailableProviders.values) {
-      if (!(await provider.checkIsAvailable())) {
-        continue;
-      }
+    try {
+      for (var provider in _sortedAvailableProviders.values) {
+        if (!(await provider.checkIsAvailable())) {
+          continue;
+        }
 
-      if (provider is SideShiftExchangeProvider) {
-        request = SideShiftRequest(
-          depositMethod: depositCurrency,
-          settleMethod: receiveCurrency,
-          depositAmount: depositAmount.replaceAll(',', '.'),
-          settleAddress: receiveAddress,
-          refundAddress: depositAddress,
-        );
-        amount = depositAmount;
-      }
+        if (provider is SideShiftExchangeProvider) {
+          request = SideShiftRequest(
+            depositMethod: depositCurrency,
+            settleMethod: receiveCurrency,
+            depositAmount: depositAmount.replaceAll(',', '.'),
+            settleAddress: receiveAddress,
+            refundAddress: depositAddress,
+          );
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
 
-      if (provider is SimpleSwapExchangeProvider) {
-        request = SimpleSwapRequest(
-          from: depositCurrency,
-          to: receiveCurrency,
-          amount: depositAmount.replaceAll(',', '.'),
-          address: receiveAddress,
-          refundAddress: depositAddress,
-        );
-        amount = depositAmount;
-      }
-
-      if (provider is XMRTOExchangeProvider) {
-        request = XMRTOTradeRequest(
+        if (provider is SimpleSwapExchangeProvider) {
+          request = SimpleSwapRequest(
             from: depositCurrency,
             to: receiveCurrency,
             amount: depositAmount.replaceAll(',', '.'),
-            receiveAmount: receiveAmount.replaceAll(',', '.'),
             address: receiveAddress,
             refundAddress: depositAddress,
-            isBTCRequest: isReceiveAmountEntered);
-        amount = depositAmount;
-      }
+          );
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
 
-      if (provider is ChangeNowExchangeProvider) {
-        request = ChangeNowRequest(
-            from: depositCurrency,
-            to: receiveCurrency,
-            fromAmount: depositAmount.replaceAll(',', '.'),
-            toAmount: receiveAmount.replaceAll(',', '.'),
-            refundAddress: depositAddress,
-            address: receiveAddress,
-            isReverse: isReverse);
-        amount = isReverse ? receiveAmount : depositAmount;
-      }
+        if (provider is XMRTOExchangeProvider) {
+          request = XMRTOTradeRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: depositAmount.replaceAll(',', '.'),
+              receiveAmount: receiveAmount.replaceAll(',', '.'),
+              address: receiveAddress,
+              refundAddress: depositAddress,
+              isBTCRequest: isReceiveAmountEntered);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
 
-      if (provider is MorphTokenExchangeProvider) {
-        request = MorphTokenRequest(
-            from: depositCurrency,
-            to: receiveCurrency,
-            amount: depositAmount.replaceAll(',', '.'),
-            refundAddress: depositAddress,
-            address: receiveAddress);
-        amount = depositAmount;
-      }
+        if (provider is ChangeNowExchangeProvider) {
+          request = ChangeNowRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              fromAmount: depositAmount.replaceAll(',', '.'),
+              toAmount: receiveAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress,
+              isReverse: isFixedRateMode);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
 
-      amount = amount.replaceAll(',', '.');
+        if (provider is MorphTokenExchangeProvider) {
+          request = MorphTokenRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: depositAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
 
-      if (limitsState is LimitsLoadedSuccessfully) {
-        if (double.parse(amount) < limits.min!) {
-          continue;
-        } else if (limits.max != null && double.parse(amount) > limits.max!) {
-          continue;
-        } else {
-          try {
-            tradeState = TradeIsCreating();
-            final trade = await provider.createTrade(
-                request: request!, isFixedRateMode: isFixedRateMode);
-            trade.walletId = wallet.id;
-            tradesStore.setTrade(trade);
-            await trades.add(trade);
-            tradeState = TradeIsCreatedSuccessfully(trade: trade);
-            /// return after the first successful trade
-            return;
-          } catch (e) {
+        amount = amount.replaceAll(',', '.');
+
+        if (limitsState is LimitsLoadedSuccessfully) {
+          if (limits.max != null && double.parse(amount) < limits.min!) {
             continue;
+          } else if (limits.max != null && double.parse(amount) > limits.max!) {
+            continue;
+          } else {
+            try {
+              tradeState = TradeIsCreating();
+              final trade = await provider.createTrade(
+                  request: request!, isFixedRateMode: isFixedRateMode);
+              trade.walletId = wallet.id;
+              tradesStore.setTrade(trade);
+              await trades.add(trade);
+              tradeState = TradeIsCreatedSuccessfully(trade: trade);
+              /// return after the first successful trade
+              return;
+            } catch (e) {
+              continue;
+            }
           }
         }
       }
-    }
 
-    /// if the code reached here then none of the providers succeeded
-    tradeState = TradeIsCreatedFailure(
-        title: S.current.trade_not_created,
-        error: S.current.none_of_selected_providers_can_exchange);
+      /// if the code reached here then none of the providers succeeded
+      tradeState = TradeIsCreatedFailure(
+          title: S.current.trade_not_created,
+          error: S.current.none_of_selected_providers_can_exchange);
+    } on ConcurrentModificationError {
+      /// if create trade happened at the exact same time of the scheduled rate update
+      /// then delay the create trade a bit and try again
+      ///
+      /// this is because the limitation of the SplayTreeMap that
+      /// you can't modify it while iterating through it
+      Future.delayed(Duration(milliseconds: 500), createTrade);
+    }
   }
 
   @action

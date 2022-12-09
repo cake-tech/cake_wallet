@@ -4,7 +4,6 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 
 class AddressResolver {
@@ -51,7 +50,7 @@ class AddressResolver {
         return ParsedAddress(addresses: [text]);
       }
 
-      if (unstoppableDomains.any((domain) => name.contains(domain))) {
+      if (unstoppableDomains.any((domain) => name.trim() == domain)) {
         final address = await fetchUnstoppableDomainAddress(text, ticker);
         return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
       }

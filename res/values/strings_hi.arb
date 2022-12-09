@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "डिस्कनेक्ट किया गया",
   "sync_status_connecting" : "कनेक्ट",
   "sync_status_connected" : "जुड़े हुए",
+  "sync_status_attempting_sync" : "सिंक करने का प्रयास",
 
 
   "transaction_priority_slow" : "धीरे",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} त्रुटि",
 
   "use_ssl" : "उपयोग SSL",
+  "trusted" : "भरोसा",
 
   "color_theme" : "रंग विषय",
   "light_theme" : "रोशनी",
@@ -651,5 +653,16 @@
   "ignor": "नज़रअंदाज़ करना",
   "use_suggested": "सुझाए गए का प्रयोग करें",
   "do_not_share_warning_text" : "समर्थन सहित, इन्हें किसी और के साथ साझा न करें।\n\nआपके धन की चोरी हो सकती है और होगी!",
-  "help": "मदद करना"
+  "help": "मदद करना",
+  "connection_sync": "कनेक्शन और सिंक",
+  "security_and_backup": "सुरक्षा और बैकअप",
+  "create_backup": "बैकअप बनाएँ",
+  "privacy_settings": "गोपनीयता सेटिंग्स",
+  "privacy": "गोपनीयता",
+  "display_settings": "प्रदर्शन सेटिंग्स",
+  "other_settings": "अन्य सेटिंग्स",
+  "disable_exchange": "एक्सचेंज अक्षम करें",
+  "advanced_privacy_settings": "उन्नत गोपनीयता सेटिंग्स",
+  "settings_can_be_changed_later": "इन सेटिंग्स को बाद में ऐप सेटिंग में बदला जा सकता है",
+  "add_custom_node": "नया कस्टम नोड जोड़ें"
 }

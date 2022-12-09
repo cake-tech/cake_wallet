@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "ОТКЛЮЧЕНО",
   "sync_status_connecting" : "ПОДКЛЮЧЕНИЕ",
   "sync_status_connected" : "ПОДКЛЮЧЕНО",
+  "sync_status_attempting_sync" : "ПОПЫТКА СИНХРОНИЗАЦИИ",
 
 
   "transaction_priority_slow" : "Медленный",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} ошибка",
 
   "use_ssl" : "Использовать SSL",
+  "trusted" : "доверенный",
 
   "color_theme" : "Цветовая тема",
   "light_theme" : "Светлая",
@@ -651,5 +653,16 @@
   "ignor": "Игнорировать",
   "use_suggested": "Использовать предложенный",
   "do_not_share_warning_text" : "Не сообщайте их никому, включая техподдержку.\n\nВаши средства могут и будут украдены!",
-  "help": "помощь"
+  "help": "помощь",
+  "connection_sync": "Подключение и синхронизация",
+  "security_and_backup": "Безопасность и резервное копирование",
+  "create_backup": "Создать резервную копию",
+  "privacy_settings": "Настройки конфиденциальности",
+  "privacy": "Конфиденциальность",
+  "display_settings": "Настройки отображения",
+  "other_settings": "Другие настройки",
+  "disable_exchange": "Отключить обмен",
+  "advanced_privacy_settings": "Расширенные настройки конфиденциальности",
+  "settings_can_be_changed_later": "Эти настройки можно изменить позже в настройках приложения.",
+  "add_custom_node": "Добавить новый пользовательский узел"
 }
