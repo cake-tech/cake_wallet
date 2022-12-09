@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -87,7 +88,7 @@ void startCurrentWalletChangeReaction(AppStore appStore,
               TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
           wallet) async {
     try {
-      if (wallet == null) {
+      if (wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
         return;
       }
 

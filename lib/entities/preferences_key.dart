@@ -9,6 +9,7 @@ class PreferencesKey {
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
+  static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
   static const disableExchangeKey = 'disable_exchange';
@@ -21,6 +22,8 @@ class PreferencesKey {
       'current_default_settings_migration_version';
   static const moneroTransactionPriority = 'current_fee_priority_monero';
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
+  static const havenTransactionPriority = 'current_fee_priority_haven';
+  static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';

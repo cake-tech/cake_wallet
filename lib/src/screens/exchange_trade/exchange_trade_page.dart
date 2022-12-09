@@ -378,12 +378,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           });
                     },
                     actionLeftButton: () => Navigator.of(context).pop(),
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmount
-                        +  ' ' + widget.exchangeTradeViewModel.sendViewModel.fiat.title,
-                    fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel
-                            .pendingTransactionFiatAmount +
-                        ' ' +
-                        widget.exchangeTradeViewModel.sendViewModel.fiat.title,
+                    feeFiatAmount: widget.exchangeTradeViewModel
+                        .pendingTransactionFeeFiatAmountFormatted,
+                    fiatAmountValue: widget.exchangeTradeViewModel
+                        .pendingTransactionFiatAmountValueFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel
                                  .outputs);
               });

@@ -652,7 +652,7 @@
   "low_fee_alert": "You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience.",
   "ignor": "Ignore",
   "use_suggested": "Use Suggested",
-  "do_not_share_warning_text" : "Do not share these with anyone else, including support.\n\nThey will steal your money!",
+  "do_not_share_warning_text" : "Do not share these with anyone else, including support.\n\nYour funds can and will be stolen!",
   "help": "help",
   "connection_sync": "Connection and sync",
   "security_and_backup": "Security and backup",
@@ -664,5 +664,10 @@
   "disable_exchange": "Disable exchange",
   "advanced_privacy_settings": "Advanced Privacy Settings",
   "settings_can_be_changed_later": "These settings can be changed later in the app settings",
-  "add_custom_node": "Add New Custom Node"
+  "add_custom_node": "Add New Custom Node",
+  "disable_fiat": "Disable fiat",
+  "fiat_api": "Fiat API",
+  "disabled": "Disabled",
+  "enabled": "Enabled",
+  "tor_only": "Tor only"
 }
