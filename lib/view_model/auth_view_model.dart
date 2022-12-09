@@ -121,8 +121,8 @@ abstract class AuthViewModelBase with Store {
     }
   }
 
-  void _saveLastAuthTime(ExecutionState state){
-    if(state is ExecutedSuccessfullyState){
+  void _saveLastAuthTime(ExecutionState state) {
+    if(state is ExecutedSuccessfullyState) {
     _authService.saveLastAuthTime();
     }
   }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -14,12 +13,15 @@ class Root extends StatefulWidget {
       required this.authenticationStore,
       required this.appStore,
       required this.child,
-      required this.navigatorKey})
+      required this.navigatorKey,
+      required this.authService,
+      })
       : super(key: key);
 
   final AuthenticationStore authenticationStore;
   final AppStore appStore;
   final GlobalKey<NavigatorState> navigatorKey;
+  final AuthService authService;
   final Widget child;
 
   @override
@@ -30,7 +32,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   RootState()
     : _isInactiveController = StreamController<bool>.broadcast(),
     _isInactive = false,
-   _requestAuth = getIt.get<AuthService>().requireAuth(),
+    _requestAuth = true,
     _postFrameCallback = false;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
@@ -41,7 +43,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void initState() {
-
+    _requestAuth = widget.authService.requireAuth();
     _isInactiveController = StreamController<bool>.broadcast();
     _isInactive = false;
     _postFrameCallback = false;
@@ -58,7 +60,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         }
 
         setState(() {
-          _requestAuth = getIt.get<AuthService>().requireAuth();
+          _requestAuth = widget.authService.requireAuth();
         });
 
         if (!_isInactive &&

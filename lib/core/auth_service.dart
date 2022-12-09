@@ -42,25 +42,27 @@ class AuthService with Store {
     return decodedPin == pin;
   }
 
-  void saveLastAuthTime(){
+  void saveLastAuthTime() {
+    
     int timestamp = DateTime.now().millisecondsSinceEpoch;
     sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
   }
 
-  bool requireAuth(){  
-      final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
-      final duration =  _durationToRequireAuth(timestamp ?? 0);
-      final requiredPinInterval = getIt.get<SettingsStore>().pinTimeOutDuration;
+  bool requireAuth() {  
+
+    final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
+    final duration =  _durationToRequireAuth(timestamp ?? 0);
+    final requiredPinInterval = getIt.get<SettingsStore>().pinTimeOutDuration;
      
-      return duration >= requiredPinInterval.value;
-    }
+    return duration >= requiredPinInterval.value;
+  }
 
-  int _durationToRequireAuth(int timestamp){
+  int _durationToRequireAuth(int timestamp) {
 
-      DateTime before = DateTime.fromMillisecondsSinceEpoch(timestamp);
-      DateTime now = DateTime.now();
-      Duration timeDifference = now.difference(before);
+    DateTime before = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    DateTime now = DateTime.now();
+    Duration timeDifference = now.difference(before);
 
-      return timeDifference.inMinutes; 
+    return timeDifference.inMinutes; 
   }
 }
