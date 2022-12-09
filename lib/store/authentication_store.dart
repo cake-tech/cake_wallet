@@ -4,7 +4,7 @@ part 'authentication_store.g.dart';
 
 class AuthenticationStore = AuthenticationStoreBase with _$AuthenticationStore;
 
-enum AuthenticationState { uninitialized, installed, allowed, denied }
+enum AuthenticationState { uninitialized, installed, allowed }
 
 abstract class AuthenticationStoreBase with Store {
   AuthenticationStoreBase() : state = AuthenticationState.uninitialized;
@@ -17,7 +17,4 @@ abstract class AuthenticationStoreBase with Store {
 
   @action
   void allowed() => state = AuthenticationState.allowed;
-
-  @action
-  void denied() => state = AuthenticationState.denied;
 }

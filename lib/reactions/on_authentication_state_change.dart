@@ -26,10 +26,5 @@ void startAuthenticationStateChange(AuthenticationStore authenticationStore,
       await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       return;
     }
-
-    if (state == AuthenticationState.denied) {
-      await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.welcome, (_) => false);
-      return;
-    }
   });
 }

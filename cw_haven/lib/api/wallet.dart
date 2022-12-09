@@ -116,6 +116,14 @@ final rescanBlockchainAsyncNative = havenApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
 
+final setTrustedDaemonNative = havenApi
+    .lookup<NativeFunction<set_trusted_daemon>>('set_trusted_daemon')
+    .asFunction<SetTrustedDaemon>();
+
+final trustedDaemonNative = havenApi
+    .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
+    .asFunction<TrustedDaemon>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -351,3 +359,7 @@ Future<bool> isConnected() => compute(_isConnected, 0);
 Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
 
 void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
+
+Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
+
+Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;

@@ -72,6 +72,18 @@ abstract class ExchangeTradeViewModelBase with Store {
     ? '\n\n' + S.current.xrp_extra_info
     : '';
 
+  @computed
+  String get pendingTransactionFiatAmountValueFormatted =>
+      sendViewModel.isFiatDisabled
+          ? '' : sendViewModel.pendingTransactionFiatAmount
+          + ' ' + sendViewModel.fiat.title;
+
+  @computed
+  String get pendingTransactionFeeFiatAmountFormatted =>
+      sendViewModel.isFiatDisabled
+          ? '' : sendViewModel.pendingTransactionFeeFiatAmount
+          +  ' ' + sendViewModel.fiat.title;
+
   @observable
   ObservableList<ExchangeTradeItem> items;
 

@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "LOSGEKOPPELD",
   "sync_status_connecting" : "AANSLUITING",
   "sync_status_connected" : "VERBONDEN",
+  "sync_status_attempting_sync" : "SYNCHRONISATIE PROBEREN",
 
 
   "transaction_priority_slow" : "Langzaam",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} fout",
 
   "use_ssl" : "Gebruik SSL",
+  "trusted" : "vertrouwd",
 
   "color_theme" : "Kleur thema",
   "light_theme" : "Licht",
@@ -650,9 +652,24 @@
   "low_fee_alert": "U gebruikt momenteel een lage prioriteit voor netwerkkosten. Dit kan lange wachttijden, andere tarieven of geannuleerde transacties veroorzaken. We raden aan een hogere vergoeding in te stellen voor een betere ervaring.",
   "ignor": "Negeren",
   "use_suggested": "Gebruik aanbevolen",
-  "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nZe zullen je geld stelen!",
+  "do_not_share_warning_text" : "Deel deze met niemand anders, ook niet met support.\n\nUw geld kan en zal worden gestolen!",
   "help": "helpen",
   "all_transactions": "Alle transacties",
   "all_trades": "Alle transacties",
-  "disable_exchange": "Uitwisseling uitschakelen"
+  "connection_sync": "Verbinding en synchronisatie",
+  "security_and_backup": "Beveiliging en back-up",
+  "create_backup": "Maak een back-up",
+  "privacy_settings": "Privacy-instellingen",
+  "privacy": "Privacy",
+  "display_settings": "Weergave-instellingen",
+  "other_settings": "Andere instellingen",
+  "disable_exchange": "Uitwisseling uitschakelen",
+  "advanced_privacy_settings": "Geavanceerde privacy-instellingen",
+  "settings_can_be_changed_later": "Deze instellingen kunnen later worden gewijzigd in de app-instellingen",
+  "add_custom_node": "Voeg een nieuw aangepast knooppunt toe",
+  "disable_fiat": "Schakel Fiat uit",
+  "fiat_api": "Fiat API",
+  "disabled": "Gehandicapt",
+  "enabled": "Ingeschakeld",
+  "tor_only": "Alleen Tor"
 }

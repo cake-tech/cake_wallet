@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "NIEPOWIĄZANY",
   "sync_status_connecting" : "ZŁĄCZONY",
   "sync_status_connected" : "POŁĄCZONY",
+  "sync_status_attempting_sync" : "PRÓBA SYNCHRONIZACJI",
 
 
   "transaction_priority_slow" : "Powolny",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} pomyłka",
 
   "use_ssl" : "Użyj SSL",
+  "trusted" : "zaufany",
 
   "color_theme" : "Motyw kolorystyczny",
   "light_theme" : "Lekki",
@@ -650,9 +652,24 @@
   "low_fee_alert": "Obecnie korzystasz z niskiego priorytetu opłaty sieciowej. Może to spowodować długie oczekiwanie, różne stawki lub anulowane transakcje. Zalecamy ustawienie wyższej opłaty, aby zapewnić lepsze wrażenia.",
   "ignor": "Ignorować",
   "use_suggested": "Użyj sugerowane",
-  "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym wsparcia.\n\nUkradną twoje pieniądze!",
+  "do_not_share_warning_text" : "Nie udostępniaj ich nikomu innemu, w tym pomocy.\n\nTwoje środki mogą i zostaną skradzione!",
   "help": "pomoc",
   "all_transactions": "Wszystkie transakcje",
   "all_trades": "Wszystkie operacje",
-  "disable_exchange": "Wyłącz wymianę"
+  "connection_sync": "Połączenie i synchronizacja",
+  "security_and_backup": "Bezpieczeństwo i kopia zapasowa",
+  "create_backup": "Utwórz kopię zapasową",
+  "privacy_settings": "Ustawienia prywatności",
+  "privacy": "Prywatność",
+  "display_settings": "Ustawienia wyświetlania",
+  "other_settings": "Inne ustawienia",
+  "disable_exchange": "Wyłącz wymianę",
+  "advanced_privacy_settings": "Zaawansowane ustawienia prywatności",
+  "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji",
+  "add_custom_node": "Dodaj nowy węzeł niestandardowy",
+  "disable_fiat": "Wyłącz fiat",
+  "fiat_api": "API Fiata",
+  "disabled": "Wyłączone",
+  "enabled": "Włączony",
+  "tor_only": "Tylko Tor"
 }

@@ -1,11 +1,10 @@
-import 'dart:ui';
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -155,6 +154,7 @@ class SendCardState extends State<SendCard>
                           await output.fetchParsedAddress(context);
                         },
                         validator: validator,
+                        selectedCurrency: sendViewModel.currency,
                       );
                     }),
                     if (output.isParsedAddress) Padding(
@@ -332,7 +332,8 @@ class SendCardState extends State<SendCard>
                             ],
                           ),
                         )),
-                    Padding(
+                    if (!sendViewModel.isFiatDisabled)
+                      Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: BaseTextFormField(
                           focusNode: fiatAmountFocus,
@@ -438,8 +439,9 @@ class SendCardState extends State<SendCard>
                                           Padding(
                                               padding:
                                               EdgeInsets.only(top: 5),
-                                              child: Text(
-                                                  output
+                                              child: sendViewModel.isFiatDisabled
+                                                  ? const SizedBox(height: 14)
+                                                  : Text(output
                                                       .estimatedFeeFiatAmount
                                                       +  ' ' +
                                                       sendViewModel
