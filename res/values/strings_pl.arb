@@ -437,6 +437,7 @@
   "provider_error" : "${provider} pomyłka",
 
   "use_ssl" : "Użyj SSL",
+  "trusted" : "zaufany",
 
   "color_theme" : "Motyw kolorystyczny",
   "light_theme" : "Lekki",
@@ -660,5 +661,8 @@
   "privacy": "Prywatność",
   "display_settings": "Ustawienia wyświetlania",
   "other_settings": "Inne ustawienia",
-  "disable_exchange": "Wyłącz wymianę"
+  "disable_exchange": "Wyłącz wymianę",
+  "advanced_privacy_settings": "Zaawansowane ustawienia prywatności",
+  "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji",
+  "add_custom_node": "Dodaj nowy węzeł niestandardowy"
 }

@@ -437,6 +437,7 @@
   "provider_error" : "${provider} erro",
 
   "use_ssl" : "Use SSL",
+  "trusted" : "confiável",
 
   "color_theme" : "Tema de cor",
   "light_theme" : "Luz",
@@ -545,7 +546,6 @@
   "create_account": "Criar conta",
   "privacy_policy": "Política de privacidade",
   "welcome_to_cakepay": "Bem-vindo ao Cake Pay!",
-  "create_account": "Registar-se",
   "forgot_password": "Esqueci a senha",
   "reset_password": "Redefinir senha",
   "gift_cards": "Cartões de presente",
@@ -660,5 +660,8 @@
   "privacy": "Privacidade",
   "display_settings": "Configurações de exibição",
   "other_settings": "Outras configurações",
-  "disable_exchange": "Desativar troca"
+  "disable_exchange": "Desativar troca",
+  "advanced_privacy_settings": "Configurações de privacidade avançadas",
+  "settings_can_be_changed_later": "Essas configurações podem ser alteradas posteriormente nas configurações do aplicativo",
+  "add_custom_node": "Adicionar novo nó personalizado"
 }

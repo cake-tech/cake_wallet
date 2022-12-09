@@ -437,6 +437,7 @@
   "provider_error" : "${provider} greška",
 
   "use_ssl" : "Koristi SSL",
+  "trusted" : "vjerovao",
 
   "color_theme" : "Shema boja",
   "light_theme" : "Svijetla",
@@ -660,5 +661,8 @@
   "privacy": "Privatnost",
   "display_settings": "Postavke zaslona",
   "other_settings": "Ostale postavke",
-  "disable_exchange": "Onemogući exchange"
+  "disable_exchange": "Onemogući exchange",
+  "advanced_privacy_settings": "Napredne postavke privatnosti",
+  "settings_can_be_changed_later": "Te se postavke mogu promijeniti kasnije u postavkama aplikacije",
+  "add_custom_node": "Dodaj novi prilagođeni čvor"
 }

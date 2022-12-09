@@ -437,6 +437,7 @@
   "provider_error" : "${provider} エラー",
 
   "use_ssl" : "SSLを使用する",
+  "trusted" : "信頼できる",
 
   "color_theme" : "カラーテーマ",
   "light_theme" : "光",
@@ -660,5 +661,8 @@
   "privacy": "プライバシー",
   "display_settings": "表示設定",
   "other_settings": "その他の設定",
-  "disable_exchange": "交換を無効にする"
+  "disable_exchange": "交換を無効にする",
+  "advanced_privacy_settings": "高度なプライバシー設定",
+  "settings_can_be_changed_later": "これらの設定は、後でアプリの設定で変更できます",
+  "add_custom_node": "新しいカスタム ノードを追加"
 }

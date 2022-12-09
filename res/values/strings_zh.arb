@@ -436,6 +436,7 @@
   "provider_error" : "${provider} 错误",
 
   "use_ssl" : "使用SSL",
+  "trusted" : "值得信赖",
 
   "color_theme" : "主题",
   "light_theme" : "艳丽",
@@ -658,5 +659,8 @@
   "privacy":"隐私",
   "display_settings": "显示设置",
   "other_settings": "其他设置",
-  "disable_exchange": "禁用交换"
+  "disable_exchange": "禁用交换",
+  "advanced_privacy_settings": "高级隐私设置",
+  "settings_can_be_changed_later": "稍后可以在应用设置中更改这些设置",
+  "add_custom_node": "添加新的自定义节点"
 }

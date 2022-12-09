@@ -436,6 +436,7 @@
   "provider_error" : "${provider} помилка",
 
   "use_ssl" : "Використати SSL",
+  "trusted" : "довіряють",
 
   "color_theme" : "Кольорова тема",
   "light_theme" : "Світла",
@@ -659,5 +660,8 @@
   "privacy": "Конфіденційність",
   "display_settings": "Налаштування дисплея",
   "other_settings": "Інші налаштування",
-  "disable_exchange": "Вимкнути exchange"
+  "disable_exchange": "Вимкнути exchange",
+  "advanced_privacy_settings": "Розширені налаштування конфіденційності",
+  "settings_can_be_changed_later": "Ці параметри можна змінити пізніше в налаштуваннях програми",
+  "add_custom_node": "Додати новий спеціальний вузол"
 }

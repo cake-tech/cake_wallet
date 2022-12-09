@@ -115,8 +115,8 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
     reaction(
-        (_) => disableExchange,
-        (bool disableExchange) => sharedPreferences.setBool(
+            (_) => disableExchange,
+            (bool disableExchange) => sharedPreferences.setBool(
             PreferencesKey.disableExchangeKey, disableExchange));
 
     this
