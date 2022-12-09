@@ -15,26 +15,28 @@ Future<void> startFiatRateUpdate(
     return;
   }
 
-  if (appStore.wallet != null && settingsStore.fiatApiMode == FiatApiMode.enabled) {
-    fiatConversionStore.prices[appStore.wallet!.currency] = await FiatConversionService.fetchPrice(
-        appStore.wallet!.currency, settingsStore.fiatCurrency);
-  }
+  _updateFiatRate(appStore, settingsStore, fiatConversionStore);
 
   _timer = Timer.periodic(Duration(seconds: 30), (_) async {
-    if (settingsStore.fiatApiMode == FiatApiMode.disabled) {
-      return;
-    }
-
     try {
       if (appStore.wallet!.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
       } else {
-        fiatConversionStore.prices[appStore.wallet!.currency] =
-            await FiatConversionService.fetchPrice(
-                appStore.wallet!.currency, settingsStore.fiatCurrency);
+        _updateFiatRate(appStore, settingsStore, fiatConversionStore);
       }
     } catch (e) {
       print(e);
     }
   });
+}
+
+void _updateFiatRate(
+  AppStore appStore,
+  SettingsStore settingsStore,
+  FiatConversionStore fiatConversionStore,
+) async {
+  if (appStore.wallet != null && settingsStore.fiatApiMode == FiatApiMode.enabled) {
+    fiatConversionStore.prices[appStore.wallet!.currency] = await FiatConversionService.fetchPrice(
+        appStore.wallet!.currency, settingsStore.fiatCurrency);
+  }
 }
