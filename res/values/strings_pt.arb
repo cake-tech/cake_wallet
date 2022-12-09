@@ -663,5 +663,10 @@
   "disable_exchange": "Desativar troca",
   "advanced_privacy_settings": "Configurações de privacidade avançadas",
   "settings_can_be_changed_later": "Essas configurações podem ser alteradas posteriormente nas configurações do aplicativo",
-  "add_custom_node": "Adicionar novo nó personalizado"
+  "add_custom_node": "Adicionar novo nó personalizado",
+  "disable_fiat": "Desativar fiat",
+  "fiat_api": "API da Fiat",
+  "disabled": "Desabilitado",
+  "enabled": "Habilitado",
+  "tor_only": "Tor apenas"
 }

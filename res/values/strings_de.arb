@@ -664,5 +664,10 @@
   "disable_exchange": "Exchange deaktivieren",
   "advanced_privacy_settings": "Erweiterte Datenschutzeinstellungen",
   "settings_can_be_changed_later": "Diese Einstellungen können später in den App-Einstellungen geändert werden",
-  "add_custom_node": "Neuen benutzerdefinierten Knoten hinzufügen"
+  "add_custom_node": "Neuen benutzerdefinierten Knoten hinzufügen",
+  "disable_fiat": "Fiat deaktivieren",
+  "fiat_api": "Fiat API",
+  "disabled": "Deaktiviert",
+  "enabled": "Ermöglicht",
+  "tor_only": "Nur Tor"
 }

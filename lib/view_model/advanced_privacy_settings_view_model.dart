@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -11,15 +12,13 @@ class AdvancedPrivacySettingsViewModel = AdvancedPrivacySettingsViewModelBase
 
 abstract class AdvancedPrivacySettingsViewModelBase with Store {
   AdvancedPrivacySettingsViewModelBase(this.type, this._settingsStore)
-      : _disableFiat = false,
-        _addCustomNode = false {
+      : _addCustomNode = false {
     settings = [
-      // TODO: uncomment when Disable Fiat PR is merged
-      // SwitcherListItem(
-      //   title: S.current.disable_fiat,
-      //   value: () => _disableFiat,
-      //   onValueChange: (_, bool value) => _disableFiat = value,
-      // ),
+      SwitcherListItem(
+        title: S.current.disable_fiat,
+        value: () => _settingsStore.fiatApiMode == FiatApiMode.disabled,
+        onValueChange: (_, bool value) => setFiatMode(value),
+      ),
       SwitcherListItem(
         title: S.current.disable_exchange,
         value: () => _settingsStore.disableExchange,
@@ -38,9 +37,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   late List<SwitcherListItem> settings;
 
   @observable
-  bool _disableFiat = false;
-
-  @observable
   bool _addCustomNode = false;
 
   final WalletType type;
@@ -48,4 +44,13 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @computed
   bool get addCustomNode => _addCustomNode;
+
+  @action
+  void setFiatMode(bool value) {
+    if (value) {
+      _settingsStore.fiatApiMode = FiatApiMode.disabled;
+      return;
+    }
+    _settingsStore.fiatApiMode = FiatApiMode.enabled;
+  }
 }

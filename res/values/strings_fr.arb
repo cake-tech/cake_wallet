@@ -662,5 +662,10 @@
   "disable_exchange": "Désactiver l'échange",
   "advanced_privacy_settings": "Paramètres de confidentialité avancés",
   "settings_can_be_changed_later": "Ces paramètres peuvent être modifiés ultérieurement dans les paramètres de l'application",
-  "add_custom_node": "Ajouter un nouveau nœud personnalisé"
+  "add_custom_node": "Ajouter un nouveau nœud personnalisé",
+  "disable_fiat": "Désactiver fiat",
+  "fiat_api": "Fiat API",
+  "disabled": "Handicapé",
+  "enabled": "Activé",
+  "tor_only": "Tor uniquement"
 }

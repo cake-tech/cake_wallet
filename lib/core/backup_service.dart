@@ -214,6 +214,7 @@ class BackupService {
     final currentBitcoinElectrumSererId = data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
+    final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
     final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
@@ -265,6 +266,10 @@ class BackupService {
     if (displayActionListMode != null)
       await _sharedPreferences.setInt(PreferencesKey.displayActionListModeKey,
         displayActionListMode);
+
+    if (fiatApiMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey,
+          fiatApiMode);
 
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength,
@@ -427,6 +432,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority),
       PreferencesKey.moneroTransactionPriority:
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
+      PreferencesKey.currentFiatApiModeKey:
+      _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
     };
 
     return json.encode(preferences);

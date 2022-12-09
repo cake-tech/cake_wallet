@@ -663,5 +663,11 @@
   "disable_exchange": "Вимкнути exchange",
   "advanced_privacy_settings": "Розширені налаштування конфіденційності",
   "settings_can_be_changed_later": "Ці параметри можна змінити пізніше в налаштуваннях програми",
-  "add_custom_node": "Додати новий спеціальний вузол"
+  "add_custom_node": "Додати новий спеціальний вузол",
+  "disable_fiat": "Вимкнути фиат",
+  "fiat_api": "Фіат API",
+  "disabled": "Вимкнено",
+  "enabled": "Увімкнено",
+  "tor_only": "Тільки Tor"
+
 }

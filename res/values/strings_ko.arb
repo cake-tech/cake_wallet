@@ -664,5 +664,10 @@
   "disable_exchange": "교환 비활성화",
   "advanced_privacy_settings": "고급 개인 정보 설정",
   "settings_can_be_changed_later": "이 설정은 나중에 앱 설정에서 변경할 수 있습니다.",
-  "add_custom_node": "새 사용자 정의 노드 추가"
+  "add_custom_node": "새 사용자 정의 노드 추가",
+  "disable_fiat": "법정화폐 비활성화",
+  "fiat_api": "명목 화폐 API",
+  "disabled": "장애가 있는",
+  "enabled": "사용",
+  "tor_only": "Tor 뿐"
 }

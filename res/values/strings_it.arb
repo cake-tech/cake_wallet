@@ -664,5 +664,10 @@
   "disable_exchange": "Disabilita scambio",
   "advanced_privacy_settings": "Impostazioni avanzate sulla privacy",
   "settings_can_be_changed_later": "Queste impostazioni possono essere modificate in seguito nelle impostazioni dell'app",
-  "add_custom_node": "Aggiungi nuovo nodo personalizzato"
+  "add_custom_node": "Aggiungi nuovo nodo personalizzato",
+  "disable_fiat": "Disabilita fiat",
+  "fiat_api": "Fiat API",
+  "disabled": "Disabilitato",
+  "enabled": "Abilitato",
+  "tor_only": "Solo Tor"
 }

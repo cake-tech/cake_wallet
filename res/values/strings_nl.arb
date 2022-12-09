@@ -664,5 +664,10 @@
   "disable_exchange": "Uitwisseling uitschakelen",
   "advanced_privacy_settings": "Geavanceerde privacy-instellingen",
   "settings_can_be_changed_later": "Deze instellingen kunnen later worden gewijzigd in de app-instellingen",
-  "add_custom_node": "Voeg een nieuw aangepast knooppunt toe"
+  "add_custom_node": "Voeg een nieuw aangepast knooppunt toe",
+  "disable_fiat": "Schakel Fiat uit",
+  "fiat_api": "Fiat API",
+  "disabled": "Gehandicapt",
+  "enabled": "Ingeschakeld",
+  "tor_only": "Alleen Tor"
 }

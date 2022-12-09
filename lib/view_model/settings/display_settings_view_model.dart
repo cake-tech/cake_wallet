@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 part 'display_settings_view_model.g.dart';
 
@@ -29,6 +30,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @computed
   ThemeBase get theme => _settingsStore.currentTheme;
+
+  @computed
+  bool get disabledFiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;

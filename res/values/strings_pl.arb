@@ -664,5 +664,10 @@
   "disable_exchange": "Wyłącz wymianę",
   "advanced_privacy_settings": "Zaawansowane ustawienia prywatności",
   "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji",
-  "add_custom_node": "Dodaj nowy węzeł niestandardowy"
+  "add_custom_node": "Dodaj nowy węzeł niestandardowy",
+  "disable_fiat": "Wyłącz fiat",
+  "fiat_api": "API Fiata",
+  "disabled": "Wyłączone",
+  "enabled": "Włączony",
+  "tor_only": "Tylko Tor"
 }
