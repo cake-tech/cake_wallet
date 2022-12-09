@@ -8,15 +8,14 @@ import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 
 class Root extends StatefulWidget {
-  Root(
-      {required Key key,
-      required this.authenticationStore,
-      required this.appStore,
-      required this.child,
-      required this.navigatorKey,
-      required this.authService,
-      })
-      : super(key: key);
+  Root({
+    required Key key,
+    required this.authenticationStore,
+    required this.appStore,
+    required this.child,
+    required this.navigatorKey,
+    required this.authService,
+  }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
   final AppStore appStore;
@@ -30,10 +29,10 @@ class Root extends StatefulWidget {
 
 class RootState extends State<Root> with WidgetsBindingObserver {
   RootState()
-    : _isInactiveController = StreamController<bool>.broadcast(),
-    _isInactive = false,
-    _requestAuth = true,
-    _postFrameCallback = false;
+      : _isInactiveController = StreamController<bool>.broadcast(),
+        _isInactive = false,
+        _requestAuth = true,
+        _postFrameCallback = false;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
@@ -63,8 +62,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           _requestAuth = widget.authService.requireAuth();
         });
 
-        if (!_isInactive &&
-            widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
