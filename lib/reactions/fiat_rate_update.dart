@@ -17,13 +17,16 @@ Future<void> startFiatRateUpdate(
 
   _timer = Timer.periodic(Duration(seconds: 30), (_) async {
     try {
+      if (appStore.wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
+        return;
+      }
+
       if (appStore.wallet!.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
       } else {
-        if (appStore.wallet != null && settingsStore.fiatApiMode == FiatApiMode.enabled) {
-          fiatConversionStore.prices[appStore.wallet!.currency] = await FiatConversionService.fetchPrice(
-              appStore.wallet!.currency, settingsStore.fiatCurrency);
-        }
+        fiatConversionStore.prices[appStore.wallet!.currency] =
+            await FiatConversionService.fetchPrice(
+                appStore.wallet!.currency, settingsStore.fiatCurrency);
       }
     } catch (e) {
       print(e);
