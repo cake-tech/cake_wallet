@@ -364,7 +364,17 @@ abstract class SettingsStoreBase with Store {
     priority[WalletType.bitcoin] = bitcoin?.deserializeBitcoinTransactionPriority(
         sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
         priority[WalletType.bitcoin]!;
-    // TODO: Add litecoin and haven after CW-118 is merged
+
+    if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
+      priority[WalletType.haven] = monero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!) ??
+          priority[WalletType.haven]!;
+    }
+    if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
+      priority[WalletType.litecoin] = bitcoin?.deserializeLitecoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!) ??
+          priority[WalletType.litecoin]!;
+    }
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences
