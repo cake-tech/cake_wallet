@@ -83,12 +83,12 @@ abstract class DashboardViewModelBase with Store {
                 .toggleDisplayExchange(ExchangeProviderDescription.all)),
         FilterItem(
             value: tradeFilterStore.displayChangeNow,
-            caption: 'Change.NOW',
+            caption: ExchangeProviderDescription.changeNow.title,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
         FilterItem(
             value:  tradeFilterStore.displaySideShift,
-            caption: 'SideShift',
+            caption: ExchangeProviderDescription.sideShift.title,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
       ]
