@@ -7,11 +7,17 @@ class StandardCheckbox extends StatefulWidget {
     Key? key,
     required this.value,
     this.caption = '',
+    this.gradientBackground = false,
+    this.borderColor,
+    this.iconColor,
     required this.onChanged})
     : super(key: key);
 
   final bool value;
   final String caption;
+  final bool gradientBackground;
+  final Color? borderColor;
+  final Color? iconColor;
   final Function(bool) onChanged;
 
   @override
@@ -32,6 +38,31 @@ class StandardCheckboxState extends State<StandardCheckbox> {
 
   @override
   Widget build(BuildContext context) {
+
+    final baseGradient = LinearGradient(colors: [
+      Theme.of(context).primaryTextTheme.subtitle1!.color!,
+      Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!,
+    ], begin: Alignment.centerLeft, end: Alignment.centerRight);
+
+    final boxBorder = Border.all(
+        color: widget.borderColor ?? Theme.of(context)
+            .primaryTextTheme
+            .caption!
+            .color!,
+        width: 1.0);
+
+
+    final checkedBoxDecoration = BoxDecoration(
+        gradient: widget.gradientBackground ? baseGradient : null,
+        border: widget.gradientBackground ? null : boxBorder,
+        borderRadius: BorderRadius.all(
+            Radius.circular(8.0)));
+
+    final uncheckedBoxDecoration = BoxDecoration(
+        border: boxBorder,
+        borderRadius: BorderRadius.all(
+            Radius.circular(8.0)));
+
     return GestureDetector(
       onTap: () {
         value = !value;
@@ -45,20 +76,11 @@ class StandardCheckboxState extends State<StandardCheckbox> {
           Container(
             height: 24.0,
             width: 24.0,
-            decoration: BoxDecoration(
-                border: Border.all(
-                    color: Theme.of(context)
-                        .primaryTextTheme!
-                        .caption!
-                        .color!,
-                    width: 1.0),
-                borderRadius: BorderRadius.all(
-                    Radius.circular(8.0)),
-                color: Theme.of(context).backgroundColor),
+            decoration: value ? checkedBoxDecoration : uncheckedBoxDecoration,
             child: value
               ? Icon(
                 Icons.check,
-                color: Colors.blue,
+                color: widget.iconColor ?? Colors.blue,
                 size: 20.0,
               )
               : Offstage(),

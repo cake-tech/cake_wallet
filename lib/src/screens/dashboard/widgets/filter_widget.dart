@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_tile.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/src/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 //import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
@@ -97,14 +97,13 @@ class FilterWidget extends StatelessWidget {
                                       final content = item.onChanged != null
                                           ? Observer(
                                           builder: (_) =>
-                                              RoundedCheckboxWidget(
+                                              StandardCheckbox(
                                                 value: item.value.value,
                                                 caption: item.caption,
-                                                onChanged: item.onChanged,
-                                                currentTheme:
-                                                dashboardViewModel
-                                                    .settingsStore
-                                                    .currentTheme,
+                                                gradientBackground: true,
+                                                borderColor: Theme.of(context).dividerColor,
+                                                iconColor: Colors.white,
+                                                onChanged: (bool val){},
                                               ))
                                           : GestureDetector(
                                         onTap: () async {
