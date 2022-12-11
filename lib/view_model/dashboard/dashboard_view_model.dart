@@ -61,15 +61,15 @@ abstract class DashboardViewModelBase with Store {
         FilterItem(
             value: transactionFilterStore.displayAll,
             caption: S.current.all_transactions,
-            onChanged: () => transactionFilterStore.toggleIAll()),
+            onChanged:  transactionFilterStore.toggleIAll),
         FilterItem(
             value: transactionFilterStore.displayIncoming,
             caption: S.current.incoming,
-            onChanged: () => transactionFilterStore.toggleIncoming()),
+            onChanged:transactionFilterStore.toggleIncoming),
         FilterItem(
             value: transactionFilterStore.displayOutgoing,
             caption: S.current.outgoing,
-            onChanged: () => transactionFilterStore.toggleOutgoing()),
+            onChanged: transactionFilterStore.toggleOutgoing),
         // FilterItem(
         //     value: () => false,
         //     caption: S.current.transactions_by_date,

@@ -2,16 +2,14 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class StandardCheckbox extends StatefulWidget {
+class StandardCheckbox extends StatelessWidget {
   StandardCheckbox({
-    Key? key,
     required this.value,
     this.caption = '',
     this.gradientBackground = false,
     this.borderColor,
     this.iconColor,
-    required this.onChanged})
-    : super(key: key);
+    required this.onChanged});
 
   final bool value;
   final String caption;
@@ -20,21 +18,7 @@ class StandardCheckbox extends StatefulWidget {
   final Color? iconColor;
   final Function(bool) onChanged;
 
-  @override
-  StandardCheckboxState createState() =>
-      StandardCheckboxState(value, caption, onChanged);
-}
 
-class StandardCheckboxState extends State<StandardCheckbox> {
-  StandardCheckboxState(this.value, this.caption, this.onChanged);
-
-  bool value;
-  String caption;
-  Function(bool) onChanged;
-
-  void changeValue(bool newValue) {
-    setState(() => value = newValue);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +29,7 @@ class StandardCheckboxState extends State<StandardCheckbox> {
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(
-        color: widget.borderColor ?? Theme.of(context)
+        color: borderColor ?? Theme.of(context)
             .primaryTextTheme
             .caption!
             .color!,
@@ -53,8 +37,8 @@ class StandardCheckboxState extends State<StandardCheckbox> {
 
 
     final checkedBoxDecoration = BoxDecoration(
-        gradient: widget.gradientBackground ? baseGradient : null,
-        border: widget.gradientBackground ? null : boxBorder,
+        gradient: gradientBackground ? baseGradient : null,
+        border: gradientBackground ? null : boxBorder,
         borderRadius: BorderRadius.all(
             Radius.circular(8.0)));
 
@@ -64,11 +48,7 @@ class StandardCheckboxState extends State<StandardCheckbox> {
             Radius.circular(8.0)));
 
     return GestureDetector(
-      onTap: () {
-        value = !value;
-        onChanged(value);
-        setState(() {});
-      },
+      onTap: () => onChanged(!value),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -80,7 +60,7 @@ class StandardCheckboxState extends State<StandardCheckbox> {
             child: value
               ? Icon(
                 Icons.check,
-                color: widget.iconColor ?? Colors.blue,
+                color: iconColor ?? Colors.blue,
                 size: 20.0,
               )
               : Offstage(),

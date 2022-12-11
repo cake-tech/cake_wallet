@@ -103,7 +103,7 @@ class FilterWidget extends StatelessWidget {
                                                 gradientBackground: true,
                                                 borderColor: Theme.of(context).dividerColor,
                                                 iconColor: Colors.white,
-                                                onChanged: (bool val){},
+                                                onChanged: (value) => item.onChanged(),
                                               ))
                                           : GestureDetector(
                                         onTap: () async {
