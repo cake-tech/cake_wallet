@@ -29,18 +29,18 @@ class WalletMenu {
       Navigator.of(context).pushNamed(Routes.securityBackupPage);
 	  }),
     WalletMenuItem(
-      title: S.current.privacy,
-      image:
-          Image.asset('assets/images/eye_menu.png', height: 16, width: 16),
-      handler: () {
-      Navigator.of(context).pushNamed(Routes.privacyPage);
-	  }),
-    WalletMenuItem(
       title: S.current.address_book_menu,
       image: Image.asset('assets/images/open_book_menu.png',
       height: 16, width: 16),
       handler: () => Navigator.of(context).pushNamed(Routes.addressBook),
     ),
+    WalletMenuItem(
+      title: S.current.privacy_settings,
+      image:
+          Image.asset('assets/images/privacy_menu.png', height: 16, width: 16),
+      handler: () {
+      Navigator.of(context).pushNamed(Routes.privacyPage);
+	  }),
     WalletMenuItem(
       title: S.current.display_settings,
       image: Image.asset('assets/images/eye_menu.png',
