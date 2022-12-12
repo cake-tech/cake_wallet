@@ -53,8 +53,8 @@ class Node extends HiveObject with Keyable {
   @HiveField(4)
   bool? useSSL;
 
-  @HiveField(5)
-  bool? trusted;
+  @HiveField(5, defaultValue: false)
+  bool trusted;
 
   bool get isSSL => useSSL ?? false;
 
