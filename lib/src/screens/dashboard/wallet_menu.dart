@@ -22,18 +22,18 @@ class WalletMenu {
       handler: () => Navigator.of(context).pushNamed(Routes.walletList),
     ),
     WalletMenuItem(
+      title: S.current.address_book_menu,
+      image: Image.asset('assets/images/open_book_menu.png',
+      height: 16, width: 16),
+      handler: () => Navigator.of(context).pushNamed(Routes.addressBook),
+    ),
+    WalletMenuItem(
       title: S.current.security_and_backup,
       image:
           Image.asset('assets/images/key_menu.png', height: 16, width: 16),
       handler: () {
       Navigator.of(context).pushNamed(Routes.securityBackupPage);
 	  }),
-    WalletMenuItem(
-      title: S.current.address_book_menu,
-      image: Image.asset('assets/images/open_book_menu.png',
-      height: 16, width: 16),
-      handler: () => Navigator.of(context).pushNamed(Routes.addressBook),
-    ),
     WalletMenuItem(
       title: S.current.privacy_settings,
       image:
