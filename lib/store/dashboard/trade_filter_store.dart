@@ -79,6 +79,8 @@ abstract class TradeFilterStoreBase with Store {
         .where((item) =>
     (displayXMRTO.value &&
         item.trade.provider == ExchangeProviderDescription.xmrto) ||
+        (displaySideShift.value &&
+            item.trade.provider == ExchangeProviderDescription.sideShift) ||
         (displayChangeNow.value &&
             item.trade.provider ==
                 ExchangeProviderDescription.changeNow) ||
