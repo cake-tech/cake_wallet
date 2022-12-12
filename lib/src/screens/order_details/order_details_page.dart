@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/standard_list_row.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 
 class OrderDetailsPage extends BasePage {
@@ -57,7 +57,7 @@ class OrderDetailsPageBodyState extends State<OrderDetailsPageBody> {
             if (item is TrackTradeListItem) {
               return GestureDetector(
                   onTap: item.onTap,
-                  child: StandartListRow(
+                  child: AnotherStandardListRow(
                       title: '${item.title}', value: '${item.value}'));
             } else {
               return GestureDetector(
@@ -65,7 +65,7 @@ class OrderDetailsPageBodyState extends State<OrderDetailsPageBody> {
                     Clipboard.setData(ClipboardData(text: '${item.value}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
-                  child: StandartListRow(
+                  child: AnotherStandardListRow(
                       title: '${item.title}', value: '${item.value}'));
             }
           });
