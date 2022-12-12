@@ -1,31 +1,24 @@
 -
-  uri: xmr-node-uk.cakewallet.com:18081
+  uri: xmr-node.cakewallet.com:18081
   is_default: true
 -
-  uri: xmr-node-eu.cakewallet.com:18081
+  uri: cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081
   is_default: false
 -
-  uri: xmr-node-usa-east.cakewallet.com:18081
+  uri: node.sethforprivacy.com:18089
+  is_default: false
+-
+  uri: nodes.hashvault.pro:18081
+  is_default: false
+-
+  uri: node.c3pool.com:18081
+  is_default: false
+-
+  uri: node.supportxmr.com:18081
+  is_default: false
+-
+  uri: node.community.rino.io:18081
   is_default: false
 -
   uri: node.moneroworld.com:18089
   is_default: false
--
-  uri: node.xmr.pt:18081
-  is_default: false
--
-  uri: node.monero.net:18081
-  is_default: false
--
-  uri: opennode.xmr-tw.org:18089
-  is_default: false
--
-  uri: node.imonero.org:18081
-  is_default: false
-
-  uri: node.c3pool.com:18081
-  is_default: false
-  
-  uri: xmr.prprpr.icu:18081
-  is_default: false
-

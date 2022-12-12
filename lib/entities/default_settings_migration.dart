@@ -69,6 +69,8 @@ Future defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           await changeLitecoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeHavenCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
 
           break;
         case 2:
@@ -133,19 +135,32 @@ Future defaultSettingsMigration(
           await changeDefaultHavenNode(nodes);
           break;
 
+        case 18:
+          await addOnionNode(nodes);
+          break;
+
         default:
           break;
       }
 
       await sharedPreferences.setInt(
-          'current_default_settings_migration_version', version);
+          PreferencesKey.currentDefaultSettingsMigrationVersion, version);
     } catch (e) {
       print('Migration error: ${e.toString()}');
     }
   });
 
   await sharedPreferences.setInt(
-      'current_default_settings_migration_version', version);
+      PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> addOnionNode(Box<Node> nodes) async {
+  final onionNodeUri = "cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081";
+
+  // check if the user has this node before (added it manually)
+  if (nodes.values.firstWhereOrNull((element) => element.uriRaw == onionNodeUri) == null) {
+    await nodes.add(Node(uri: onionNodeUri, type: WalletType.monero));
+  }
 }
 
 Future<void> replaceNodesMigration({required Box<Node> nodes}) async {
@@ -176,7 +191,7 @@ Future<void> changeMoneroCurrentNodeToDefault(
   final node = getMoneroDefaultNode(nodes: nodes);
   final nodeId = node?.key as int ?? 0; // 0 - England
 
-  await sharedPreferences.setInt('current_node_id', nodeId);
+  await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, nodeId);
 }
 
 Node? getBitcoinDefaultElectrumServer({required Box<Node> nodes}) {
@@ -223,7 +238,7 @@ Future<void> changeBitcoinCurrentElectrumServerToDefault(
   final server = getBitcoinDefaultElectrumServer(nodes: nodes);
   final serverId = server?.key as int ?? 0;
 
-  await sharedPreferences.setInt('current_node_id_btc', serverId);
+  await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, serverId);
 }
 
 Future<void> changeLitecoinCurrentElectrumServerToDefault(
@@ -232,7 +247,7 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
   final server = getLitecoinDefaultElectrumServer(nodes: nodes);
   final serverId = server?.key as int ?? 0;
 
-  await sharedPreferences.setInt('current_node_id_ltc', serverId);
+  await sharedPreferences.setInt(PreferencesKey.currentLitecoinElectrumSererIdKey, serverId);
 }
 
 Future<void> changeHavenCurrentNodeToDefault(
@@ -252,7 +267,7 @@ Future<void> replaceDefaultNode(
     'eu-node.cakewallet.io:18081',
     'node.cakewallet.io:18081'
   ];
-  final currentNodeId = sharedPreferences.getInt('current_node_id');
+  final currentNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentNode =
       nodes.values.firstWhereOrNull((Node node) => node.key == currentNodeId);
   final needToReplace =
@@ -277,17 +292,29 @@ Future<void> updateNodeTypes({required Box<Node> nodes}) async {
 
 Future<void> addBitcoinElectrumServerList({required Box<Node> nodes}) async {
   final serverList = await loadBitcoinElectrumServerList();
-  await nodes.addAll(serverList);
+  for (var node in serverList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
 }
 
 Future<void> addLitecoinElectrumServerList({required Box<Node> nodes}) async {
   final serverList = await loadLitecoinElectrumServerList();
-  await nodes.addAll(serverList);
+  for (var node in serverList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
 }
 
 Future<void> addHavenNodeList({required Box<Node> nodes}) async {
   final nodeList = await loadDefaultHavenNodes();
-  await nodes.addAll(nodeList);
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
 }
 
 Future<void> addAddressesForMoneroWallets(
@@ -431,7 +458,7 @@ Future<void> resetBitcoinElectrumServer(
   final oldElectrumServer = nodeSource.values.firstWhereOrNull(
       (node) => node.uri.toString().contains('electrumx.cakewallet.com'));
   var cakeWalletNode = nodeSource.values.firstWhereOrNull(
-      (node) => node.uri.toString() == cakeWalletBitcoinElectrumUri);
+      (node) => node.uriRaw.toString() == cakeWalletBitcoinElectrumUri);
 
   if (cakeWalletNode == null) {
     cakeWalletNode =

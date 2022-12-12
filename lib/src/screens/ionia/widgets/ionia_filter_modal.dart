@@ -20,7 +20,7 @@ class IoniaFilterModal extends StatelessWidget {
       padding: EdgeInsets.all(10),
       child: Image.asset(
         'assets/images/mini_search_icon.png',
-        color: Theme.of(context).accentColor,
+        color: Theme.of(context).textTheme.subtitle2!.color!,
       ),
     );
     return Scaffold(
@@ -53,7 +53,7 @@ class IoniaFilterModal extends StatelessWidget {
                           prefixIcon: searchIcon,
                           hintText: S.of(context).search_category,
                           contentPadding: EdgeInsets.only(bottom: 5),
-                          fillColor: Theme.of(context).textTheme!.subtitle1!.backgroundColor!,
+                          fillColor: Theme.of(context).primaryTextTheme!.caption!.decorationColor!.withOpacity(0.5),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(8),

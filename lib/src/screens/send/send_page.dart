@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
@@ -6,8 +5,6 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -28,13 +25,11 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class SendPage extends BasePage {
-  SendPage({required this.sendViewModel,required this.settingsViewModel }) : _formKey = GlobalKey<FormState>(),fiatFromSettings = settingsViewModel.fiatCurrency;
+  SendPage({required this.sendViewModel}) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
-  final SettingsViewModel settingsViewModel;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
-  final FiatCurrency fiatFromSettings ;
 
   bool _effectsInstalled = false;
 
@@ -55,7 +50,7 @@ class SendPage extends BasePage {
 
   @override
   void onClose(BuildContext context) {
-    settingsViewModel.setFiatCurrency(fiatFromSettings);
+    sendViewModel.onClose();
     Navigator.of(context).pop();
   }
 
@@ -236,7 +231,7 @@ class SendPage extends BasePage {
                                   if(template.isCurrencySelected){
                                     output.setCryptoAmount(template.amount);
                                   }else{
-                                    settingsViewModel.setFiatCurrency(fiatFromTemplate);
+                                    sendViewModel.setFiatCurrency(fiatFromTemplate);
                                     output.setFiatAmount(template.amountFiat);
                                   }
                                   output.resetParsedAddress();
@@ -386,16 +381,10 @@ class SendPage extends BasePage {
                     amount: S.of(context).send_amount,
                     amountValue:
                         sendViewModel.pendingTransaction!.amountFormatted,
-                    fiatAmountValue:
-                        sendViewModel.pendingTransactionFiatAmount +
-                            ' ' +
-                            sendViewModel.fiat.title,
+                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                    feeFiatAmount:
-                        sendViewModel.pendingTransactionFeeFiatAmount +
-                            ' ' +
-                            sendViewModel.fiat.title,
+                    feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                     outputs: sendViewModel.outputs,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
