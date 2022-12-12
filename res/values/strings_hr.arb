@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "ISKLJUČENO",
   "sync_status_connecting" : "SPAJANJE",
   "sync_status_connected" : "SPOJENO",
+  "sync_status_attempting_sync" : "POKUŠAJ SINKRONIZACIJE",
 
 
   "transaction_priority_slow" : "Sporo",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} greška",
 
   "use_ssl" : "Koristi SSL",
+  "trusted" : "vjerovao",
 
   "color_theme" : "Shema boja",
   "light_theme" : "Svijetla",
@@ -650,8 +652,23 @@
   "low_fee_alert": "Trenutačno koristite niski prioritet mrežne naknade. To bi moglo uzrokovati duga čekanja, različite tečajeve ili otkazane trgovine. Preporučujemo postavljanje veće naknade za bolje iskustvo.",
   "ignor": "Zanemariti",
   "use_suggested": "Koristite predloženo",
-  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nUkrast će vam novac!",
+  "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nVaša sredstva mogu i bit će ukradena!",
   "help": "pomozite",
+  "connection_sync": "Povezivanje i sinkronizacija",
+  "security_and_backup": "Sigurnost i sigurnosna kopija",
+  "create_backup": "Stvori sigurnosnu kopiju",
+  "privacy_settings": "Postavke privatnosti",
+  "privacy": "Privatnost",
+  "display_settings": "Postavke zaslona",
+  "other_settings": "Ostale postavke",
   "disable_exchange": "Onemogući exchange",
+  "advanced_privacy_settings": "Napredne postavke privatnosti",
+  "settings_can_be_changed_later": "Te se postavke mogu promijeniti kasnije u postavkama aplikacije",
+  "add_custom_node": "Dodaj novi prilagođeni čvor",
+  "disable_fiat": "Isključi, fiat",
+  "fiat_api": "Fiat API",
+  "disabled": "Onemogućeno",
+  "enabled": "Omogućeno",
+  "tor_only": "Samo Tor",
   "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u"
 }

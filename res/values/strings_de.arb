@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "GETRENNT",
   "sync_status_connecting" : "VERBINDEN",
   "sync_status_connected" : "VERBUNDEN",
+  "sync_status_attempting_sync" : "SYNC VERSUCHEN",
 
 
   "transaction_priority_slow" : "Langsam",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider}-Fehler",
 
   "use_ssl" : "SSL verwenden",
+  "trusted" : "Vertrauenswürdige",
 
   "color_theme" : "Farbthema",
   "light_theme" : "Hell",
@@ -650,8 +652,23 @@
   "low_fee_alert": "Sie verwenden derzeit eine niedrige Netzwerkgebührenpriorität. Dies kann zu langen Wartezeiten, unterschiedlichen Kursen oder stornierten Trades führen. Wir empfehlen, für ein besseres Erlebnis eine höhere Gebühr festzulegen.",
   "ignor": "Ignorieren",
   "use_suggested": "Vorgeschlagen verwenden",
-  "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich des Supports.\n\nSie werden Ihr Geld stehlen!",
+  "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich Support.\n\nIhr Geld kann und wird gestohlen werden!",
   "help": "hilfe",
+  "connection_sync": "Verbindung und Synchronisierung",
+  "security_and_backup": "Sicherheit und Datensicherung",
+  "create_backup": "Backup erstellen",
+  "privacy_settings": "Datenschutzeinstellungen",
+  "privacy": "Datenschutz",
+  "display_settings": "Anzeigeeinstellungen",
+  "other_settings": "Andere Einstellungen",
   "disable_exchange": "Exchange deaktivieren",
+  "advanced_privacy_settings": "Erweiterte Datenschutzeinstellungen",
+  "settings_can_be_changed_later": "Diese Einstellungen können später in den App-Einstellungen geändert werden",
+  "add_custom_node": "Neuen benutzerdefinierten Knoten hinzufügen",
+  "disable_fiat": "Fiat deaktivieren",
+  "fiat_api": "Fiat API",
+  "disabled": "Deaktiviert",
+  "enabled": "Ermöglicht",
+  "tor_only": "Nur Tor",
   "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein"
 }

@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "연결 해제",
   "sync_status_connecting" : "연결 중",
   "sync_status_connected" : "연결됨",
+  "sync_status_attempting_sync" : "동기화 시도 중",
 
 
   "transaction_priority_slow" : "느린",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} 오류",
 
   "use_ssl" : "SSL 사용",
+  "trusted" : "신뢰할 수 있는",
 
   "color_theme" : "색상 테마",
   "light_theme" : "빛",
@@ -650,8 +652,23 @@
   "low_fee_alert": "현재 낮은 네트워크 요금 우선 순위를 사용하고 있습니다. 이로 인해 긴 대기 시간, 다른 요금 또는 취소된 거래가 발생할 수 있습니다. 더 나은 경험을 위해 더 높은 요금을 설정하는 것이 좋습니다.",
   "ignor": "무시하다",
   "use_suggested": "추천 사용",
-  "do_not_share_warning_text" : "지원을 포함하여 다른 사람과 이러한 정보를 공유하지 마십시오.\n\n그들은 당신의 돈을 훔칠 것입니다!",
+  "do_not_share_warning_text" : "지원을 포함하여 다른 사람과 이러한 정보를 공유하지 마십시오.\n\n귀하의 자금은 도난당할 수 있고 도난당할 수 있습니다!",
   "help": "돕다",
+  "connection_sync": "연결 및 동기화",
+  "security_and_backup": "보안 및 백업",
+  "create_backup": "백업 생성",
+  "privacy_settings": "개인정보 설정",
+  "privacy": "프라이버시",
+  "display_settings": "디스플레이 설정",
+  "other_settings": "기타 설정",
   "disable_exchange": "교환 비활성화",
+  "advanced_privacy_settings": "고급 개인 정보 설정",
+  "settings_can_be_changed_later": "이 설정은 나중에 앱 설정에서 변경할 수 있습니다.",
+  "add_custom_node": "새 사용자 정의 노드 추가",
+  "disable_fiat": "법정화폐 비활성화",
+  "fiat_api": "명목 화폐 API",
+  "disabled": "장애가 있는",
+  "enabled": "사용",
+  "tor_only": "Tor 뿐",
   "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다."
 }

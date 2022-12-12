@@ -129,7 +129,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @override
   Future<void> startSync() async {
     try {
-      syncStatus = StartingSyncStatus();
+      syncStatus = AttemptingSyncStatus();
       await walletAddresses.discoverAddresses();
       await updateTransactions();
       _subscribeForUpdates();

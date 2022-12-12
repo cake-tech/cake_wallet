@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/exchange_pair.dart';
@@ -14,6 +13,7 @@ abstract class ExchangeProvider {
   ExchangeProviderDescription get description;
   bool get isAvailable;
   bool get isEnabled;
+  bool get supportsFixedRate;
 
   @override
   String toString() => title;
@@ -26,7 +26,7 @@ abstract class ExchangeProvider {
     required TradeRequest request,
     required bool isFixedRateMode});
   Future<Trade> findTradeById({required String id});
-  Future<double> calculateAmount({
+  Future<double> fetchRate({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required double amount,
