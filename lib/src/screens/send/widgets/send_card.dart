@@ -640,7 +640,7 @@ class SendCardState extends State<SendCard>
     });
 
     if (initialPaymentRequest != null &&
-        sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
+        sendViewModel.walletCurrencyName == initialPaymentRequest!.scheme.toLowerCase()) {
       addressController.text = initialPaymentRequest!.address;
       cryptoAmountController.text = initialPaymentRequest!.amount;
       noteController.text = initialPaymentRequest!.note;
