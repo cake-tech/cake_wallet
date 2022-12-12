@@ -29,12 +29,11 @@ class SendPage extends BasePage {
   SendPage({
     required this.sendViewModel,
     this.initialPaymentRequest,
-  }) : _formKey = GlobalKey<FormState>(),fiatFromSettings = settingsViewModel.fiatCurrency;
+  }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
-  final FiatCurrency fiatFromSettings;
   final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;

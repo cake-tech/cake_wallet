@@ -43,8 +43,8 @@ class SendCardState extends State<SendCard>
     required this.output,
     required this.sendViewModel,
     this.initialPaymentRequest})
-      : addressController = TextEditingController(text: initialPaymentRequest?.address.toLowerCase()),
-        cryptoAmountController = TextEditingController(text: initialPaymentRequest?.amount),
+      : addressController = TextEditingController(),
+        cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
         noteController = TextEditingController(),
         extractedAddressController = TextEditingController(),
@@ -545,8 +545,7 @@ class SendCardState extends State<SendCard>
     if (output.address.isNotEmpty) {
       addressController.text = output.address;
     }
-    if (output.cryptoAmount.isNotEmpty ||
-        sendViewModel.walletCurrencyName != initialPaymentRequest?.scheme.toLowerCase()) {
+    if (output.cryptoAmount.isNotEmpty) {
       cryptoAmountController.text = output.cryptoAmount;
     }
     fiatAmountController.text = output.fiatAmount;
@@ -639,6 +638,13 @@ class SendCardState extends State<SendCard>
     reaction((_) => output.extractedAddress, (String extractedAddress) {
       extractedAddressController.text = extractedAddress;
     });
+
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
+      addressController.text = initialPaymentRequest!.address;
+      cryptoAmountController.text = initialPaymentRequest!.amount;
+      noteController.text = initialPaymentRequest!.note;
+    }
 
     _effectsInstalled = true;
   }
