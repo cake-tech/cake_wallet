@@ -31,15 +31,14 @@ class IoniaMoreOptionsPage extends BasePage {
             height: 10,
           ),
           Center(
-              child: Text(
-            S.of(context).choose_from_available_options,
-            style: textMedium(
-              color: Theme.of(context).primaryTextTheme.headline6!.color!,
+            child: Text(
+              S.of(context).choose_from_available_options,
+              style: textMedium(
+                color: Theme.of(context).primaryTextTheme.headline6!.color!,
+              ),
             ),
-          )),
-          SizedBox(
-            height: 40,
           ),
+          SizedBox(height: 40),
           InkWell(
             onTap: () async {
               final amount = await Navigator.of(context)

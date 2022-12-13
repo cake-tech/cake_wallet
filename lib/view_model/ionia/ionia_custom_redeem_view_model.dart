@@ -35,7 +35,7 @@ abstract class IoniaCustomRedeemViewModelBase with Store {
 
   @action
   void updateAmount(String text) {
-    amount = text.isEmpty ? 0 : (double.parse(text.replaceAll(',', '.')));
+    amount = double.tryParse(text.replaceAll(',', '.')) ?? 0;
   }
 
   @action
