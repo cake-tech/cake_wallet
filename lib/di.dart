@@ -785,7 +785,8 @@ Future setup(
     return IoniaMoreOptionsPage(giftCard);
   });
 
-  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) => IoniaCustomRedeemViewModel(giftCard));
+  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) 
+    => IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _){
     final giftCard = args.first as IoniaGiftCard;
