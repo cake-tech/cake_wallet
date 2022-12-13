@@ -4,6 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook }
 
@@ -26,7 +27,8 @@ class AddressTextField extends StatelessWidget {
       this.hintStyle,
       this.validator,
       this.onPushPasteButton,
-      this.onPushAddressBookButton});
+      this.onPushAddressBookButton,
+      this.selectedCurrency});
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -47,6 +49,7 @@ class AddressTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
+  final CryptoCurrency? selectedCurrency;
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +210,7 @@ class AddressTextField extends StatelessWidget {
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
     final contact = await Navigator.of(context, rootNavigator: true)
-        .pushNamed(Routes.pickerAddressBook);
+        .pushNamed(Routes.pickerAddressBook,arguments: selectedCurrency);
 
     if (contact is ContactBase && contact.address != null) {
       controller?.text = contact.address;

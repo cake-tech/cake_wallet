@@ -137,4 +137,8 @@ typedef SizeOfRate = int Function();
 
 typedef UpdateRate = void Function();
 
+typedef SetTrustedDaemon = void Function(int);
+
+typedef TrustedDaemon = int Function();
+
 typedef EstimateTransactionFee = int Function(int, int);

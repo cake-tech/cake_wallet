@@ -1,5 +1,6 @@
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 part 'privacy_settings_view_model.g.dart';
 
@@ -16,9 +17,22 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
+  @computed
+  bool get isFiatDisabled => _settingsStore.fiatApiMode == FiatApiMode.disabled;
+
   @action
   void setShouldSaveRecipientAddress(bool value) => _settingsStore.shouldSaveRecipientAddress = value;
 
   @action
   void setEnableExchange(bool value) => _settingsStore.disableExchange = value;
+
+  @action
+  void setFiatMode(bool value) {
+    if (value) {
+      _settingsStore.fiatApiMode = FiatApiMode.disabled;
+      return;
+    }
+    _settingsStore.fiatApiMode = FiatApiMode.enabled;
+  }
+
 }

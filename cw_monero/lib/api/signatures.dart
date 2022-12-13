@@ -127,6 +127,10 @@ typedef get_subaddress_label = Pointer<Utf8> Function(
     Int32 accountIndex,
     Int32 addressIndex);
 
+typedef set_trusted_daemon = Void Function(Int8 trusted);
+
+typedef trusted_daemon = Int8 Function();
+
 typedef estimate_transaction_fee = Int64 Function(
     Int32 outputs,
     Int8 priorityRaw);
