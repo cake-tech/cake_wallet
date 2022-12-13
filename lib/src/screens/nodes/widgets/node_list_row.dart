@@ -37,7 +37,10 @@ class NodeHeaderListRow extends StandardListRow {
 
   @override
   Widget buildTrailing(BuildContext context) {
-    return Icon(Icons.add,
-        color: Theme.of(context).accentTextTheme!.subtitle1!.color!, size: 24.0);
+    return SizedBox(
+      width: 20,
+      child: Icon(Icons.add,
+          color: Theme.of(context).accentTextTheme!.subtitle1!.color!, size: 24.0),
+    );
   }
 }

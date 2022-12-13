@@ -356,6 +356,7 @@
   "sync_status_failed_connect" : "切断されました",
   "sync_status_connecting" : "接続中",
   "sync_status_connected" : "接続済み",
+  "sync_status_attempting_sync" : "同期を試みています",
 
 
   "transaction_priority_slow" : "スロー",
@@ -436,6 +437,7 @@
   "provider_error" : "${provider} エラー",
 
   "use_ssl" : "SSLを使用する",
+  "trusted" : "信頼できる",
 
   "color_theme" : "カラーテーマ",
   "light_theme" : "光",
@@ -650,7 +652,22 @@
   "low_fee_alert": "現在、低ネットワーク料金優先度を使用しています。これにより、長い待ち時間、異なるレート、またはキャンセルされた取引が発生する可能性があります。より良い体験のために、より高い料金を設定することをお勧めします。",
   "ignor": "無視",
   "use_suggested": "推奨を使用",
-  "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\n彼らはあなたのお金を盗みます！",
+  "do_not_share_warning_text" : "サポートを含め、これらを他の誰とも共有しないでください。\n\nあなたの資金は盗まれる可能性があります!",
   "help": "ヘルプ",
-  "disable_exchange": "交換を無効にする"
+  "connection_sync": "接続と同期",
+  "security_and_backup": "セキュリティとバックアップ",
+  "create_backup": "バックアップを作成",
+  "privacy_settings": "プライバシー設定",
+  "privacy": "プライバシー",
+  "display_settings": "表示設定",
+  "other_settings": "その他の設定",
+  "disable_exchange": "交換を無効にする",
+  "advanced_privacy_settings": "高度なプライバシー設定",
+  "settings_can_be_changed_later": "これらの設定は、後でアプリの設定で変更できます",
+  "add_custom_node": "新しいカスタム ノードを追加",
+  "disable_fiat": "フィアットを無効にする",
+  "fiat_api": "不換紙幣 API",
+  "disabled": "無効",
+  "enabled": "有効",
+  "tor_only": "Torのみ"
 }

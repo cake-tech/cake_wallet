@@ -31,13 +31,8 @@ abstract class TradesStoreBase with Store {
   void setTrade(Trade trade) => this.trade = trade;
 
   @action
-  Future<void> updateTradeList() async {
-    if (trade == null) {
-      return;
-    }
-
-    trades = tradesSource.values.map((trade) => TradeListItem(
-      trade: trade!,
-      settingsStore: settingsStore)).toList();
-  }
+  Future<void> updateTradeList() async => trades =
+      tradesSource.values.map((trade) => TradeListItem(
+          trade: trade,
+          settingsStore: settingsStore)).toList();
 }

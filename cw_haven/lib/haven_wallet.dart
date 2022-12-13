@@ -121,6 +121,8 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           password: node.password,
           useSSL: node.useSSL ?? false,
           isLightWallet: false); // FIXME: hardcoded value
+
+      haven_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
@@ -135,7 +137,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     } catch (_) {}
 
     try {
-      syncStatus = StartingSyncStatus();
+      syncStatus = AttemptingSyncStatus();
       haven_wallet.startRefresh();
       _setListeners();
       _listener?.start();

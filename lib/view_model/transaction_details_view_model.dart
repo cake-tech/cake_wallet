@@ -184,7 +184,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://www.blockchain.com/btc/tx/${txId}';
+        return 'https://mempool.space/tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.haven:
@@ -199,7 +199,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return S.current.view_transaction_on + 'Monero.com';
       case WalletType.bitcoin:
-        return S.current.view_transaction_on + 'Blockchain.com';
+        return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:

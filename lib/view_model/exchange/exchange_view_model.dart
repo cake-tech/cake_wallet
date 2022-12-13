@@ -6,8 +6,8 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -42,9 +42,8 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore, this.sharedPreferences, this._settingsViewModel)
+      this.tradesStore, this._settingsStore, this.sharedPreferences)
     : _cryptoNumberFormat = NumberFormat(),
-      isReverse = false,
       isFixedRateMode = false,
       isReceiveAmountEntered = false,
       depositAmount = '',
@@ -112,7 +111,11 @@ abstract class ExchangeViewModelBase with Store {
     loadLimits();
     reaction(
       (_) => isFixedRateMode,
-      (Object _) => loadLimits());
+      (Object _) {
+        loadLimits();
+        _bestRate = 0;
+        _calculateBestRate();
+      });
   }
 
   final WalletBase wallet;
@@ -189,6 +192,19 @@ abstract class ExchangeViewModelBase with Store {
   ObservableList<ExchangeTemplate> get templates =>
       _exchangeTemplateStore.templates;
 
+  
+  @computed
+  TransactionPriority get transactionPriority {
+    final priority = _settingsStore.priority[wallet.type];
+
+    if (priority == null) {
+      throw Exception('Unexpected type ${wallet.type.toString()}');
+    }
+
+    return priority;
+  }
+
+
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
 
@@ -198,11 +214,11 @@ abstract class ExchangeViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
-        return _settingsViewModel.transactionPriority == monero!.getMoneroTransactionPrioritySlow();
+        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
-        return _settingsViewModel.transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
+        return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
-        return _settingsViewModel.transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
+        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
       default:
         return false;
     }
@@ -214,13 +230,9 @@ abstract class ExchangeViewModelBase with Store {
 
   Limits limits;
 
-  bool isReverse;
-
   NumberFormat _cryptoNumberFormat;
 
   final SettingsStore _settingsStore;
-
-  final SettingsViewModel _settingsViewModel;
 
   double _bestRate = 0.0;
 
@@ -247,7 +259,6 @@ abstract class ExchangeViewModelBase with Store {
   @action
   Future<void> changeReceiveAmount({required String amount}) async {
     receiveAmount = amount;
-    isReverse = true;
 
     if (amount.isEmpty) {
       depositAmount = '';
@@ -272,7 +283,6 @@ abstract class ExchangeViewModelBase with Store {
   @action
   Future<void> changeDepositAmount({required String amount}) async {
     depositAmount = amount;
-    isReverse = false;
 
     if (amount.isEmpty) {
       depositAmount = '';
@@ -296,14 +306,17 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   Future<void> _calculateBestRate() async {
+    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
+
     final result = await Future.wait<double>(
         _tradeAvailableProviders
-            .map((element) => element.calculateAmount(
+            .where((element) => !isFixedRateMode || element.supportsFixedRate)
+            .map((element) => element.fetchRate(
                 from: depositCurrency,
                 to: receiveCurrency,
-                amount: 1,
+                amount: amount,
                 isFixedRateMode: isFixedRateMode,
-                isReceiveAmount: false))
+                isReceiveAmount: isFixedRateMode))
     );
 
     _sortedAvailableProviders.clear();
@@ -334,7 +347,7 @@ abstract class ExchangeViewModelBase with Store {
         ? depositCurrency
         : receiveCurrency;
 
-    double lowestMin = double.maxFinite;
+    double? lowestMin = double.maxFinite;
     double? highestMax = 0.0;
 
     for (var provider in selectedProviders) {
@@ -349,8 +362,8 @@ abstract class ExchangeViewModelBase with Store {
             to: to,
             isFixedRateMode: isFixedRateMode);
 
-        if (tempLimits.min != null && tempLimits.min! < lowestMin) {
-          lowestMin = tempLimits.min!;
+        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) {
+          lowestMin = tempLimits.min;
         }
         if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax) {
           highestMax = tempLimits.max;
@@ -360,7 +373,7 @@ abstract class ExchangeViewModelBase with Store {
       }
     }
 
-    if (lowestMin < double.maxFinite) {
+    if (lowestMin != double.maxFinite) {
       limits = Limits(min: lowestMin, max: highestMax);
 
       limitsState = LimitsLoadedSuccessfully(limits: limits);
@@ -388,7 +401,7 @@ abstract class ExchangeViewModelBase with Store {
             settleAddress: receiveAddress,
             refundAddress: depositAddress,
           );
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is SimpleSwapExchangeProvider) {
@@ -399,7 +412,7 @@ abstract class ExchangeViewModelBase with Store {
             address: receiveAddress,
             refundAddress: depositAddress,
           );
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is XMRTOExchangeProvider) {
@@ -411,7 +424,7 @@ abstract class ExchangeViewModelBase with Store {
               address: receiveAddress,
               refundAddress: depositAddress,
               isBTCRequest: isReceiveAmountEntered);
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is ChangeNowExchangeProvider) {
@@ -422,8 +435,8 @@ abstract class ExchangeViewModelBase with Store {
               toAmount: receiveAmount.replaceAll(',', '.'),
               refundAddress: depositAddress,
               address: receiveAddress,
-              isReverse: isReverse);
-          amount = isReverse ? receiveAmount : depositAmount;
+              isReverse: isFixedRateMode);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         if (provider is MorphTokenExchangeProvider) {
@@ -433,13 +446,13 @@ abstract class ExchangeViewModelBase with Store {
               amount: depositAmount.replaceAll(',', '.'),
               refundAddress: depositAddress,
               address: receiveAddress);
-          amount = depositAmount;
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
-          if (double.parse(amount) < limits.min!) {
+          if (limits.max != null && double.parse(amount) < limits.min!) {
             continue;
           } else if (limits.max != null && double.parse(amount) > limits.max!) {
             continue;

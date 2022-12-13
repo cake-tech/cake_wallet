@@ -21,7 +21,6 @@ class Routes {
   static const seedLanguage = '/seed_language';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
-  static const nodeList = '/node_list';
   static const newNode = '/new_node_list';
   static const login = '/login';
   static const splash = '/splash';
@@ -77,4 +76,10 @@ class Routes {
   static const ioniaMoreOptionsPage = '/ionia_more_options_page';
   static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
   static const onramperPage = '/onramper';
+  static const connectionSync = '/connection_sync_page';
+  static const securityBackupPage = '/security_and_backup_page';
+  static const privacyPage = '/privacy_page';
+  static const displaySettingsPage = '/display_settings_page';
+  static const otherSettingsPage = '/other_settings_page';
+  static const advancedPrivacySettings = '/advanced_privacy_settings';
 }
