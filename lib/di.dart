@@ -309,7 +309,10 @@ Future setup(
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
-      sharedPreferences: getIt.get<SharedPreferences>()));
+      sharedPreferences: getIt.get<SharedPreferences>(),
+      settingsStore: getIt.get<SettingsStore>(),
+      ),
+    );
 
   getIt.registerFactory<AuthViewModel>(() => AuthViewModel(
       getIt.get<AuthService>(),
@@ -397,7 +400,10 @@ Future setup(
   getIt.registerFactory(() => WalletListViewModel(
       _walletInfoSource,
       getIt.get<AppStore>(),
-      getIt.get<WalletLoadingService>()));
+      getIt.get<WalletLoadingService>(),
+      getIt.get<AuthService>(),
+    ),
+  );
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
@@ -457,7 +463,7 @@ Future setup(
   });
 
   getIt.registerFactory(() {
-    return SecuritySettingsViewModel(getIt.get<SettingsStore>());
+    return SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>());
   });
 
   getIt

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -9,17 +10,19 @@ import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:uni_links/uni_links.dart';
 
 class Root extends StatefulWidget {
-  Root(
-      {required Key key,
-      required this.authenticationStore,
-      required this.appStore,
-      required this.child,
-      required this.navigatorKey})
-      : super(key: key);
+  Root({
+    required Key key,
+    required this.authenticationStore,
+    required this.appStore,
+    required this.child,
+    required this.navigatorKey,
+    required this.authService,
+  }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
   final AppStore appStore;
   final GlobalKey<NavigatorState> navigatorKey;
+  final AuthService authService;
   final Widget child;
 
   @override
@@ -28,20 +31,23 @@ class Root extends StatefulWidget {
 
 class RootState extends State<Root> with WidgetsBindingObserver {
   RootState()
-    : _isInactiveController = StreamController<bool>.broadcast(),
-    _isInactive = false,
-    _postFrameCallback = false;
+      : _isInactiveController = StreamController<bool>.broadcast(),
+        _isInactive = false,
+        _requestAuth = true,
+        _postFrameCallback = false;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
   bool _isInactive;
   bool _postFrameCallback;
+  bool _requestAuth;
 
   StreamSubscription<Uri?>? stream;
   Uri? launchUri;
 
   @override
   void initState() {
+    _requestAuth = widget.authService.requireAuth();
     _isInactiveController = StreamController<bool>.broadcast();
     _isInactive = false;
     _postFrameCallback = false;
@@ -85,8 +91,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive &&
-            widget.authenticationStore.state == AuthenticationState.allowed) {
+        setState(() {
+          _requestAuth = widget.authService.requireAuth();
+        });
+
+        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
@@ -98,7 +107,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    if (_isInactive && !_postFrameCallback) {
+    if (_isInactive && !_postFrameCallback && _requestAuth) {
       _postFrameCallback = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.navigatorKey.currentState?.pushNamed(Routes.unlock,
