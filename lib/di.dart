@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
@@ -387,8 +388,11 @@ Future setup(
       getIt.get<BalanceViewModel>(),
       _transactionDescriptionBox));
 
-  getIt.registerFactory(
-      () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
+  getIt.registerFactoryParam<SendPage, PaymentRequest?, void>(
+      (PaymentRequest? initialPaymentRequest, _) => SendPage(
+        sendViewModel: getIt.get<SendViewModel>(),
+        initialPaymentRequest: initialPaymentRequest,
+      ));
 
   getIt.registerFactory(() => SendTemplatePage(
       sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
@@ -791,7 +795,8 @@ Future setup(
     return IoniaMoreOptionsPage(giftCard);
   });
 
-  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) => IoniaCustomRedeemViewModel(giftCard));
+  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) 
+    => IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _){
     final giftCard = args.first as IoniaGiftCard;

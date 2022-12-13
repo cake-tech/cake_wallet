@@ -672,5 +672,6 @@
   "fiat_api": "Fiat API",
   "disabled": "Disabilitato",
   "enabled": "Abilitato",
-  "tor_only": "Solo Tor"
+  "tor_only": "Solo Tor",
+  "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato"
 }

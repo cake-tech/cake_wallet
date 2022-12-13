@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -25,11 +26,15 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class SendPage extends BasePage {
-  SendPage({required this.sendViewModel}) : _formKey = GlobalKey<FormState>();
+  SendPage({
+    required this.sendViewModel,
+    this.initialPaymentRequest,
+  }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
+  final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;
 
@@ -116,6 +121,7 @@ class SendPage extends BasePage {
                               key: output.key,
                               output: output,
                               sendViewModel: sendViewModel,
+                              initialPaymentRequest: initialPaymentRequest,
                             );
                           });
                     },

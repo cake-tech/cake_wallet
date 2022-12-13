@@ -671,6 +671,6 @@
   "fiat_api": "Фіат API",
   "disabled": "Вимкнено",
   "enabled": "Увімкнено",
-  "tor_only": "Тільки Tor"
-
+  "tor_only": "Тільки Tor",
+  "unmatched_currencies": "Валюта вашого гаманця не збігається з валютою сканованого QR-коду"
 }

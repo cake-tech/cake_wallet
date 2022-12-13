@@ -672,5 +672,6 @@
   "fiat_api": "Fiat API",
   "disabled": "Gehandicapt",
   "enabled": "Ingeschakeld",
-  "tor_only": "Alleen Tor"
+  "tor_only": "Alleen Tor",
+  "unmatched_currencies": "De valuta van uw huidige portemonnee komt niet overeen met die van de gescande QR"
 }

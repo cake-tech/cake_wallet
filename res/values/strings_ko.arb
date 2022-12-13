@@ -672,5 +672,6 @@
   "fiat_api": "명목 화폐 API",
   "disabled": "장애가 있는",
   "enabled": "사용",
-  "tor_only": "Tor 뿐"
+  "tor_only": "Tor 뿐",
+  "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다."
 }

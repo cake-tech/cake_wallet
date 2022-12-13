@@ -672,5 +672,6 @@
   "fiat_api": "不換紙幣 API",
   "disabled": "無効",
   "enabled": "有効",
-  "tor_only": "Torのみ"
+  "tor_only": "Torのみ",
+  "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません"
 }
