@@ -669,5 +669,6 @@
   "fiat_api": "Fiat API",
   "disabled": "Onemogućeno",
   "enabled": "Omogućeno",
-  "tor_only": "Samo Tor"
+  "tor_only": "Samo Tor",
+  "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u"
 }

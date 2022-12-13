@@ -669,5 +669,6 @@
   "fiat_api": "Fiat API",
   "disabled": "Desactivado",
   "enabled": "Activado",
-  "tor_only": "solo Tor"
+  "tor_only": "solo Tor",
+  "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado"
 }

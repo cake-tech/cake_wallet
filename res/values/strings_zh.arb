@@ -667,5 +667,6 @@
   "fiat_api": "法币API",
   "disabled": "禁用",
   "enabled": "启用",
-  "tor_only": "仅限 Tor"
+  "tor_only": "仅限 Tor",
+  "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配"
 }

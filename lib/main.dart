@@ -204,12 +204,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     //_handleInitialUri();
   }
 
-  @override
-  void dispose() {
-    stream?.cancel();
-    super.dispose();
-  }
-
   Future<void> _handleInitialUri() async {
     try {
       final uri = await getInitialUri();

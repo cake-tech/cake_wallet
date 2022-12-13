@@ -53,7 +53,7 @@ abstract class SendViewModelBase with Store {
     
     outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
-  
+
   @observable
   ExecutionState state;
 
@@ -179,6 +179,8 @@ abstract class SendViewModelBase with Store {
       out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
+
+  String? get walletCurrencyName => _wallet.currency.name?.toLowerCase();
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
 
@@ -306,7 +308,7 @@ abstract class SendViewModelBase with Store {
   @action
   void onClose() =>
       _settingsStore.fiatCurrency = fiatFromSettings;
-  
+
   @action
   void setFiatCurrency(FiatCurrency fiat) =>
       _settingsStore.fiatCurrency = fiat;

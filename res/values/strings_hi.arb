@@ -665,9 +665,9 @@
   "advanced_privacy_settings": "उन्नत गोपनीयता सेटिंग्स",
   "settings_can_be_changed_later": "इन सेटिंग्स को बाद में ऐप सेटिंग में बदला जा सकता है",
   "add_custom_node": "नया कस्टम नोड जोड़ें",
-  "disable_exchange": "एक्सचेंज अक्षम करें",
   "fiat_api": "फिएट पैसे API",
   "disabled": "अक्षम",
   "enabled": "सक्रिय",
-  "tor_only": "Tor केवल"
+  "tor_only": "Tor केवल",
+  "unmatched_currencies": "आपके वर्तमान वॉलेट की मुद्रा स्कैन किए गए क्यूआर से मेल नहीं खाती"
 }
