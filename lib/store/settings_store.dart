@@ -18,7 +18,6 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'settings_store.g.dart';
 
@@ -169,7 +168,7 @@ abstract class SettingsStoreBase with Store {
 
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
-  static const defaultPinCodeTimeOutDuration = 10;
+  static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -299,8 +298,10 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
             defaultActionsMode));
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
-    final pinCodeTimeOutDuration = PinCodeRequiredDuration.deserialize(raw: sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration) 
-      ?? defaultPinCodeTimeOutDuration);
+    final timeOutDuration =  sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration);
+    final pinCodeTimeOutDuration = timeOutDuration != null
+        ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
+        : defaultPinCodeTimeOutDuration;
     
     // If no value
     if (pinLength == null || pinLength == 0) {

@@ -8,10 +8,15 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 
 class AuthService with Store {
-  AuthService({required this.secureStorage, required this.sharedPreferences});
+  AuthService({
+    required this.secureStorage,
+    required this.sharedPreferences,
+    required this.settingsStore,
+  });
 
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
+  final SettingsStore settingsStore;
 
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
@@ -49,7 +54,7 @@ class AuthService with Store {
   bool requireAuth() {
     final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
     final duration = _durationToRequireAuth(timestamp ?? 0);
-    final requiredPinInterval = getIt.get<SettingsStore>().pinTimeOutDuration;
+    final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
     return duration >= requiredPinInterval.value;
   }

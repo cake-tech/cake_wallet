@@ -62,40 +62,38 @@ class SecurityBackupPage extends BasePage {
                 })),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         Observer(builder: (_) {
-          return Column(
-            children: [
-              SettingsSwitcherCell(
-                  title: S.current.settings_allow_biometrical_authentication,
-                  value: _securitySettingsViewModel.allowBiometricalAuthentication,
-                  onValueChange: (BuildContext context, bool value) {
-                    if (value) {
-                      Navigator.of(context).pushNamed(Routes.auth,
-                          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-                        if (isAuthenticatedSuccessfully) {
-                          if (await _securitySettingsViewModel.biometricAuthenticated()) {
-                            _securitySettingsViewModel
-                                .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
-                          }
-                        } else {
-                          _securitySettingsViewModel
-                              .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
-                        }
-
-                        auth.close();
-                      });
+          return SettingsSwitcherCell(
+              title: S.current.settings_allow_biometrical_authentication,
+              value: _securitySettingsViewModel.allowBiometricalAuthentication,
+              onValueChange: (BuildContext context, bool value) {
+                if (value) {
+                  Navigator.of(context).pushNamed(Routes.auth,
+                      arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+                    if (isAuthenticatedSuccessfully) {
+                      if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                        _securitySettingsViewModel
+                            .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                      }
                     } else {
-                      _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
+                      _securitySettingsViewModel
+                          .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                     }
-                  }),
-              SettingsPickerCell<PinCodeRequiredDuration>(
-                title: S.current.require_pin_after,
-                items: PinCodeRequiredDuration.values,
-                selectedItem: _securitySettingsViewModel.pinCodeRequiredDuration,
-                onItemSelected: (PinCodeRequiredDuration code) {
-                  _securitySettingsViewModel.setPinCodeRequiredDuration(code);
-                },
-              ),
-            ],
+
+                    auth.close();
+                  });
+                } else {
+                  _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
+                }
+              });
+        }),
+        Observer(builder: (_) {
+          return SettingsPickerCell<PinCodeRequiredDuration>(
+            title: S.current.require_pin_after,
+            items: PinCodeRequiredDuration.values,
+            selectedItem: _securitySettingsViewModel.pinCodeRequiredDuration,
+            onItemSelected: (PinCodeRequiredDuration code) {
+              _securitySettingsViewModel.setPinCodeRequiredDuration(code);
+            },
           );
         }),
       ]),

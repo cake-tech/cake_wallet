@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
@@ -257,6 +258,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
       final appStore = getIt.get<AppStore>();
+      final authService = getIt.get<AuthService>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
@@ -281,6 +283,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
+          authService: authService,
           child: MaterialApp(
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
