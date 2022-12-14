@@ -22,7 +22,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
+        return medium;
     }
   }
 
@@ -73,7 +73,7 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
+        return medium;
     }
   }
 

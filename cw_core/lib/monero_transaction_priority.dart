@@ -50,7 +50,7 @@ class MoneroTransactionPriority extends TransactionPriority {
       case 4:
         return fastest;
       default:
-        throw Exception('Unexpected token: $raw for MoneroTransactionPriority deserialize');
+        return automatic;
     }
   }
 
