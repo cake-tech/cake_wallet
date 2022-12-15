@@ -13,8 +13,6 @@ class BitcoinTransactionPriority extends TransactionPriority {
   static const BitcoinTransactionPriority fast =
       BitcoinTransactionPriority(title: 'Fast', raw: 2);
 
-  static const BitcoinTransactionPriority defaultPriority = medium;
-
   static BitcoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
       case 0:
