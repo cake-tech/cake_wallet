@@ -161,7 +161,8 @@ Future defaultSettingsMigration(
 }
 
 Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPreferences) async {
-  int? savedBitcoinPriority = sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority);
+  final int? savedBitcoinPriority =
+      sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority);
   if (!BitcoinTransactionPriority.all.any((element) => element.raw == savedBitcoinPriority)) {
     await sharedPreferences.setInt(
         PreferencesKey.bitcoinTransactionPriority, BitcoinTransactionPriority.defaultPriority.raw);
