@@ -91,14 +91,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        setState(() {
-          _requestAuth = widget.authService.requireAuth();
-        });
-
         if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
+        break;
+      case AppLifecycleState.resumed:
+        setState(() {
+          _requestAuth = widget.authService.requireAuth();
+        });
         break;
       default:
         break;
