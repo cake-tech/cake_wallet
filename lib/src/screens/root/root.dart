@@ -124,6 +124,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           launchUri = null;
         });
       });
+    } else if (launchUri != null) {
+      widget.navigatorKey.currentState?.pushNamed(
+        Routes.send,
+        arguments: PaymentRequest.fromUri(launchUri),
+      );
+      launchUri = null;
     }
 
     return WillPopScope(onWillPop: () async => false, child: widget.child);
