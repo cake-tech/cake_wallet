@@ -1,12 +1,10 @@
 import 'dart:io' show File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -161,11 +159,14 @@ Future defaultSettingsMigration(
 }
 
 Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPreferences) async {
+  if (bitcoin == null) {
+    return;
+  }
   final int? savedBitcoinPriority =
       sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority);
-  if (!BitcoinTransactionPriority.all.any((element) => element.raw == savedBitcoinPriority)) {
+  if (!bitcoin!.getTransactionPriorities().any((element) => element.raw == savedBitcoinPriority)) {
     await sharedPreferences.setInt(
-        PreferencesKey.bitcoinTransactionPriority, BitcoinTransactionPriority.defaultPriority.raw);
+        PreferencesKey.bitcoinTransactionPriority, bitcoin!.getMediumTransactionPriority().serialize());
   }
 }
 
