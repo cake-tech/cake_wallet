@@ -13,6 +13,8 @@ class BitcoinTransactionPriority extends TransactionPriority {
   static const BitcoinTransactionPriority fast =
       BitcoinTransactionPriority(title: 'Fast', raw: 2);
 
+  static const BitcoinTransactionPriority defaultPriority = medium;
+
   static BitcoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
       case 0:
@@ -22,7 +24,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
       case 2:
         return fast;
       default:
-        return medium;
+        throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
     }
   }
 
@@ -73,7 +75,7 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
       case 2:
         return fast;
       default:
-        return medium;
+        throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
     }
   }
 

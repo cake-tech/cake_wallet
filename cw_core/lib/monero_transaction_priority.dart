@@ -21,22 +21,6 @@ class MoneroTransactionPriority extends TransactionPriority {
   static const fastest = MoneroTransactionPriority(title: 'Fastest', raw: 4);
   static const standard = slow;
 
-
-  static List<MoneroTransactionPriority> forWalletType(WalletType type) {
-    switch (type) {
-      case WalletType.monero:
-        return MoneroTransactionPriority.all;
-      case WalletType.bitcoin:
-        return [
-          MoneroTransactionPriority.slow,
-          MoneroTransactionPriority.automatic,
-          MoneroTransactionPriority.fast
-        ];
-      default:
-        return [];
-    }
-  }
-
   static MoneroTransactionPriority deserialize({required int raw}) {
     switch (raw) {
       case 0:
@@ -50,7 +34,7 @@ class MoneroTransactionPriority extends TransactionPriority {
       case 4:
         return fastest;
       default:
-        return automatic;
+        throw Exception('Unexpected token: $raw for MoneroTransactionPriority deserialize');
     }
   }
 
