@@ -55,7 +55,9 @@ class IoniaAnyPay {
 								address: out.address,
 								formattedCryptoAmount: out.amount,
 								sendAll: false)).toList(),
-							feeRate: instruction.requiredFeeRate);
+							feeRate: instruction.requiredFeeRate,
+              priority: bitcoin!.getBitcoinTransactionPriorityMedium(),
+            );
 					case AnyPayChain.ltc:
 						return bitcoin!.createBitcoinTransactionCredentialsRaw(
 							instruction.outputs.map((out) =>
@@ -64,7 +66,9 @@ class IoniaAnyPay {
 								address: out.address,
 								formattedCryptoAmount: out.amount,
 								sendAll: false)).toList(),
-							feeRate: instruction.requiredFeeRate);
+							feeRate: instruction.requiredFeeRate,
+              priority: bitcoin!.getLitecoinTransactionPriorityMedium(),
+            );
 					default:
 						throw Exception('Incorrect transaction chain: ${payment.chain.toUpperCase()}');
 				}
