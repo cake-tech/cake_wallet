@@ -139,6 +139,10 @@ Future defaultSettingsMigration(
           await addOnionNode(nodes);
           break;
 
+        case 19:
+          await validateBitcoinSavedTransactionPriority(sharedPreferences);
+          break;
+
         default:
           break;
       }
@@ -152,6 +156,18 @@ Future defaultSettingsMigration(
 
   await sharedPreferences.setInt(
       PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPreferences) async {
+  if (bitcoin == null) {
+    return;
+  }
+  final int? savedBitcoinPriority =
+      sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority);
+  if (!bitcoin!.getTransactionPriorities().any((element) => element.raw == savedBitcoinPriority)) {
+    await sharedPreferences.setInt(
+        PreferencesKey.bitcoinTransactionPriority, bitcoin!.getMediumTransactionPriority().serialize());
+  }
 }
 
 Future<void> addOnionNode(Box<Node> nodes) async {

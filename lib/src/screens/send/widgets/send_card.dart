@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
@@ -20,21 +21,28 @@ class SendCard extends StatefulWidget {
   SendCard({
     Key? key,
     required this.output,
-    required this.sendViewModel}) : super(key: key);
+    required this.sendViewModel,
+    this.initialPaymentRequest,
+  }) : super(key: key);
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentRequest? initialPaymentRequest;
 
   @override
   SendCardState createState() => SendCardState(
     output: output,
-    sendViewModel: sendViewModel
+    sendViewModel: sendViewModel,
+    initialPaymentRequest: initialPaymentRequest,
   );
 }
 
 class SendCardState extends State<SendCard>
     with AutomaticKeepAliveClientMixin<SendCard> {
-  SendCardState({required this.output, required this.sendViewModel})
+  SendCardState({
+    required this.output,
+    required this.sendViewModel,
+    this.initialPaymentRequest})
       : addressController = TextEditingController(),
         cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
@@ -49,6 +57,7 @@ class SendCardState extends State<SendCard>
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentRequest? initialPaymentRequest;
 
   final TextEditingController addressController;
   final TextEditingController cryptoAmountController;
@@ -60,6 +69,27 @@ class SendCardState extends State<SendCard>
   final FocusNode addressFocusNode;
 
   bool _effectsInstalled = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// if the current wallet doesn't match the one in the qr code
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: S.of(context).unmatched_currencies,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -512,8 +542,12 @@ class SendCardState extends State<SendCard>
   }
 
   void _setEffects(BuildContext context) {
-    addressController.text = output.address;
-    cryptoAmountController.text = output.cryptoAmount;
+    if (output.address.isNotEmpty) {
+      addressController.text = output.address;
+    }
+    if (output.cryptoAmount.isNotEmpty) {
+      cryptoAmountController.text = output.cryptoAmount;
+    }
     fiatAmountController.text = output.fiatAmount;
     noteController.text = output.note;
     extractedAddressController.text = output.extractedAddress;
@@ -604,6 +638,13 @@ class SendCardState extends State<SendCard>
     reaction((_) => output.extractedAddress, (String extractedAddress) {
       extractedAddressController.text = extractedAddress;
     });
+
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName == initialPaymentRequest!.scheme.toLowerCase()) {
+      addressController.text = initialPaymentRequest!.address;
+      cryptoAmountController.text = initialPaymentRequest!.amount;
+      noteController.text = initialPaymentRequest!.note;
+    }
 
     _effectsInstalled = true;
   }

@@ -662,6 +662,9 @@
   "privacy": "Конфіденційність",
   "display_settings": "Налаштування дисплея",
   "other_settings": "Інші налаштування",
+  "require_pin_after": "Вимагати PIN після",
+  "always": "Завжди",
+  "minutes_to_pin_code": "${minute} хвилин",
   "disable_exchange": "Вимкнути exchange",
   "advanced_privacy_settings": "Розширені налаштування конфіденційності",
   "settings_can_be_changed_later": "Ці параметри можна змінити пізніше в налаштуваннях програми",
@@ -670,5 +673,6 @@
   "fiat_api": "Фіат API",
   "disabled": "Вимкнено",
   "enabled": "Увімкнено",
-  "tor_only": "Тільки Tor"
+  "tor_only": "Тільки Tor",
+  "unmatched_currencies": "Валюта вашого гаманця не збігається з валютою сканованого QR-коду"
 }

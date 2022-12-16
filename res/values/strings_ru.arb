@@ -369,7 +369,7 @@
   "trade_for_not_created" : "Сделка для ${title} не создана.",
   "trade_not_created" : "Сделка не создана",
   "trade_id_not_found" : "Сделка ${tradeId} ${title} не найдена.",
-  "trade_not_found" : "Trade not found.",
+  "trade_not_found" : "Торговля не найдена.",
 
 
   "trade_state_pending" : "Ожидание",
@@ -663,6 +663,9 @@
   "privacy": "Конфиденциальность",
   "display_settings": "Настройки отображения",
   "other_settings": "Другие настройки",
+  "require_pin_after": "Требовать ПИН после",
+  "always": "всегда",
+  "minutes_to_pin_code": "${minute} минут",
   "disable_exchange": "Отключить обмен",
   "advanced_privacy_settings": "Расширенные настройки конфиденциальности",
   "settings_can_be_changed_later": "Эти настройки можно изменить позже в настройках приложения.",
@@ -671,5 +674,6 @@
   "fiat_api": "Фиат API",
   "disabled": "Отключено",
   "enabled": "Включено",
-  "tor_only": "Только Tor"
+  "tor_only": "Только Tor",
+  "unmatched_currencies": "Валюта вашего текущего кошелька не соответствует валюте отсканированного QR-кода."
 }

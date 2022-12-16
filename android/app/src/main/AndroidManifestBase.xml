@@ -16,7 +16,7 @@
         android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleInstance"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -38,6 +38,15 @@
                 <data
                     android:scheme="cakewallet"
                     android:host="y.at" />
+            </intent-filter>
+            <!-- currencies qr code scheme -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bitcoin" />
+                <data android:scheme="monero" />
+                <data android:scheme="litecoin" />
             </intent-filter>
         </activity>
         <meta-data

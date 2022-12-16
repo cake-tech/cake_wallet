@@ -663,6 +663,9 @@
   "privacy": "Privacy",
   "display_settings": "Display settings",
   "other_settings": "Other settings",
+  "require_pin_after": "Require PIN after",
+  "always": "Always",
+  "minutes_to_pin_code": "${minute} minutes",
   "disable_exchange": "Disable exchange",
   "advanced_privacy_settings": "Advanced Privacy Settings",
   "settings_can_be_changed_later": "These settings can be changed later in the app settings",
@@ -671,5 +674,6 @@
   "fiat_api": "Fiat API",
   "disabled": "Disabled",
   "enabled": "Enabled",
-  "tor_only": "Tor only"
+  "tor_only": "Tor only",
+  "unmatched_currencies": "Your current wallet's currency does not match that of the scanned QR"
 }

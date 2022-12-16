@@ -4,12 +4,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 
 class AuthService with Store {
-  AuthService({required this.secureStorage, required this.sharedPreferences});
+  AuthService({
+    required this.secureStorage,
+    required this.sharedPreferences,
+    required this.settingsStore,
+  });
 
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
+  final SettingsStore settingsStore;
 
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
@@ -19,8 +26,7 @@ class AuthService with Store {
 
   Future<bool> canAuthenticate() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final walletName =
-        sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';
+    final walletName = sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';
     var password = '';
 
     try {
@@ -38,5 +44,26 @@ class AuthService with Store {
     final decodedPin = decodedPinCode(pin: encodedPin!);
 
     return decodedPin == pin;
+  }
+
+  void saveLastAuthTime() {
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+    sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
+  }
+
+  bool requireAuth() {
+    final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
+    final duration = _durationToRequireAuth(timestamp ?? 0);
+    final requiredPinInterval = settingsStore.pinTimeOutDuration;
+
+    return duration >= requiredPinInterval.value;
+  }
+
+  int _durationToRequireAuth(int timestamp) {
+    DateTime before = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    DateTime now = DateTime.now();
+    Duration timeDifference = now.difference(before);
+
+    return timeDifference.inMinutes;
   }
 }

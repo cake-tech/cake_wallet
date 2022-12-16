@@ -661,6 +661,9 @@
   "privacy": "Confidentialité",
   "display_settings": "Paramètres d'affichage",
   "other_settings": "Autres paramètres",
+  "require_pin_after": "NIP requis après",
+  "always": "toujours",
+  "minutes_to_pin_code": "${minute} minutes",
   "disable_exchange": "Désactiver l'échange",
   "advanced_privacy_settings": "Paramètres de confidentialité avancés",
   "settings_can_be_changed_later": "Ces paramètres peuvent être modifiés ultérieurement dans les paramètres de l'application",
@@ -669,5 +672,6 @@
   "fiat_api": "Fiat API",
   "disabled": "Handicapé",
   "enabled": "Activé",
-  "tor_only": "Tor uniquement"
+  "tor_only": "Tor uniquement",
+  "unmatched_currencies": "La devise de votre portefeuille actuel ne correspond pas à celle du QR scanné"
 }

@@ -663,6 +663,9 @@
   "privacy": "Prywatność",
   "display_settings": "Ustawienia wyświetlania",
   "other_settings": "Inne ustawienia",
+  "require_pin_after": "Wymagaj kodu PIN po",
+  "always": "zawsze",
+  "minutes_to_pin_code": "${minute} minut",
   "disable_exchange": "Wyłącz wymianę",
   "advanced_privacy_settings": "Zaawansowane ustawienia prywatności",
   "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji",
@@ -671,5 +674,6 @@
   "fiat_api": "API Fiata",
   "disabled": "Wyłączone",
   "enabled": "Włączony",
-  "tor_only": "Tylko Tor"
+  "tor_only": "Tylko Tor",
+  "unmatched_currencies": "Waluta Twojego obecnego portfela nie odpowiada walucie zeskanowanego kodu QR"
 }

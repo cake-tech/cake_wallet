@@ -663,6 +663,9 @@
   "privacy": "Privatnost",
   "display_settings": "Postavke zaslona",
   "other_settings": "Ostale postavke",
+  "require_pin_after": "Zahtijevaj PIN nakon",
+  "always": "Uvijek",
+  "minutes_to_pin_code": "${minute} minuta",
   "disable_exchange": "Onemogući exchange",
   "advanced_privacy_settings": "Napredne postavke privatnosti",
   "settings_can_be_changed_later": "Te se postavke mogu promijeniti kasnije u postavkama aplikacije",
@@ -671,5 +674,6 @@
   "fiat_api": "Fiat API",
   "disabled": "Onemogućeno",
   "enabled": "Omogućeno",
-  "tor_only": "Samo Tor"
+  "tor_only": "Samo Tor",
+  "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u"
 }

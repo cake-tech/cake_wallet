@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -18,12 +19,11 @@ class IoniaCustomRedeemPage extends BasePage {
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
     _amountController.addListener(() {
-     ioniaCustomRedeemViewModel.updateAmount(_amountController.text);
+      ioniaCustomRedeemViewModel.updateAmount(_amountController.text);
     });
   }
 
   final IoniaCustomRedeemViewModel ioniaCustomRedeemViewModel;
- 
 
   @override
   String get title => S.current.custom_redeem_amount;
@@ -50,7 +50,7 @@ class IoniaCustomRedeemPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+          keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -67,10 +67,11 @@ class IoniaCustomRedeemPage extends BasePage {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 25),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme!.subtitle1!.color!,
-                    Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
+                    Theme.of(context).primaryTextTheme.subtitle1!.color!,
+                    Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -85,11 +86,11 @@ class IoniaCustomRedeemPage extends BasePage {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\-|\ ]'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
-                        color: Theme.of(context).primaryTextTheme!.headline5!.color!,
+                        color: Theme.of(context).primaryTextTheme.headline5!.color!,
                         fontWeight: FontWeight.w500,
                         fontSize: 36,
                       ),
-                      borderColor: Theme.of(context).primaryTextTheme!.headline5!.color!,
+                      borderColor: Theme.of(context).primaryTextTheme.headline5!.color!,
                       textColor: Colors.white,
                       textStyle: TextStyle(
                         color: Colors.white,
@@ -114,14 +115,17 @@ class IoniaCustomRedeemPage extends BasePage {
                       ),
                     ),
                     SizedBox(height: 8),
-                    Observer(builder: (_)=>
-                      !ioniaCustomRedeemViewModel.disableRedeem  ? 
-                       Center(
-                        child: Text('\$${giftCard.remainingAmount} - \$${ioniaCustomRedeemViewModel.amount} = \$${ioniaCustomRedeemViewModel.formattedRemaining} ${S.of(context).remaining}', 
-                        style: TextStyle(
-                                color: Theme.of(context).primaryTextTheme!.headline5!.color!,
-                              ),),
-                      ) : SizedBox.shrink(),
+                    Observer(
+                      builder: (_) => !ioniaCustomRedeemViewModel.disableRedeem
+                          ? Center(
+                              child: Text(
+                                '\$${giftCard.remainingAmount} - \$${ioniaCustomRedeemViewModel.amount} = \$${ioniaCustomRedeemViewModel.formattedRemaining} ${S.of(context).remaining}',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                                ),
+                              ),
+                            )
+                          : SizedBox.shrink(),
                     ),
                     SizedBox(height: 24),
                   ],
@@ -131,30 +135,37 @@ class IoniaCustomRedeemPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: giftCard.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
+                  backgroundColor: Theme.of(context)
+                      .accentTextTheme
+                      .headline1!
+                      .backgroundColor!
+                      .withOpacity(0.1),
                   discount: giftCard.remainingAmount,
                   isAmount: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+                  titleColor: Theme.of(context).accentTextTheme.headline1!.backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: S.of(context).online,
                   logoUrl: giftCard.logoUrl,
                 ),
-              ), 
+              ),
             ],
           ),
           bottomSection: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: 12),
-                child: PrimaryButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(_amountController.text);
-                  },
-                  isDisabled: ioniaCustomRedeemViewModel.disableRedeem,
-                  text: S.of(context).add_custom_redemption,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
-                  textColor: Colors.white,
+              Observer(
+                builder: (_) => Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: LoadingPrimaryButton(
+                    isLoading: ioniaCustomRedeemViewModel.redeemState is IsExecutingState,
+                    isDisabled: ioniaCustomRedeemViewModel.disableRedeem,
+                    text: S.of(context).add_custom_redemption,
+                    color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                    textColor: Colors.white,
+                    onPressed: () => ioniaCustomRedeemViewModel.addCustomRedeem().then((value) {
+                      Navigator.of(context).pop(ioniaCustomRedeemViewModel.remaining.toString());
+                    }),
+                  ),
                 ),
               ),
               SizedBox(height: 30),

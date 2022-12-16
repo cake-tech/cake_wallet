@@ -661,6 +661,9 @@
   "privacy":"隐私",
   "display_settings": "显示设置",
   "other_settings": "其他设置",
+  "require_pin_after": "之后需要 PIN",
+  "always": "总是",
+  "minutes_to_pin_code": "${minute} 分钟",
   "disable_exchange": "禁用交换",
   "advanced_privacy_settings": "高级隐私设置",
   "settings_can_be_changed_later": "稍后可以在应用设置中更改这些设置",
@@ -669,5 +672,6 @@
   "fiat_api": "法币API",
   "disabled": "禁用",
   "enabled": "启用",
-  "tor_only": "仅限 Tor"
+  "tor_only": "仅限 Tor",
+  "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配"
 }
