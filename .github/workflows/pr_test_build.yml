@@ -34,6 +34,24 @@ jobs:
           ./install_ndk.sh
           source ./app_env.sh cakewallet
           ./app_config.sh
+
+      - name: Cache Externals
+        id: cache-externals
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/android/cake_wallet/cw_haven/android/.cxx
+            /opt/android/cake_wallet/cw_haven/ios/External
+            /opt/android/cake_wallet/cw_monero/android/.cxx
+            /opt/android/cake_wallet/cw_haven/ios/External
+            /opt/android/cake_wallet/cw_shared_external/ios/External
+          key: externals-cache-key
+
+      - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
+        name: Generate Externals
+        run: |
+          cd cake_wallet/scripts/android/
+          source ./app_env.sh cakewallet
           ./build_all.sh
           ./copy_monero_deps.sh
 
