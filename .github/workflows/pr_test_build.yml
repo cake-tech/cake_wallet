@@ -43,9 +43,33 @@ jobs:
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/cw_haven/ios/External
             /opt/android/cake_wallet/cw_monero/android/.cxx
-            /opt/android/cake_wallet/cw_haven/ios/External
+            /opt/android/cake_wallet/cw_monero/ios/External
             /opt/android/cake_wallet/cw_shared_external/ios/External
           key: externals-cache-key
+
+      - name: Test Cache
+        run: |
+          echo steps.cache-externals.outputs.cache-hit
+          cd /opt/android/cake_wallet/cw_shared_external/ios
+          ls
+          echo "=================================="
+          echo "=================================="
+          cd ../../cw_haven/ios
+          ls
+          echo "=================================="
+          echo "=================================="
+          cd ../android
+          ls
+          echo "=================================="
+          echo "=================================="
+          cd ../../cw_monero/ios
+          ls
+          echo "=================================="
+          echo "=================================="
+          cd ../android
+          ls
+          echo "=================================="
+          echo "=================================="
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
