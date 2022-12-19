@@ -49,7 +49,7 @@ jobs:
 
       - name: Test Cache
         run: |
-          echo steps.cache-externals.outputs.cache-hit
+          echo ${{ steps.cache-externals.outputs.cache-hit }}
           cd /opt/android/cake_wallet/cw_shared_external/ios
           ls
           echo "=================================="
