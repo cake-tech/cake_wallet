@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . ./config.sh
+
 BOOST_FILENAME=boost_1_78_0.tar.bz2
 BOOST_FILE_PATH=$CACHEDIR/$BOOST_FILENAME
 BOOST_SRC_DIR=$WORKDIR/boost_1_78_0
@@ -19,14 +20,15 @@ tar -xjf $BOOST_FILE_PATH -C $WORKDIR
 cp ../user-config.jam $BOOST_SRC_DIR/user-config.jam
 cd $BOOST_SRC_DIR
 
-./bootstrap.sh --prefix="${PREFIX}" --with-toolset=gcc
+./bootstrap.sh \
+  --prefix="${PREFIX}" \
+  --with-toolset=gcc
 
-CC=x86_64-w64-mingw32-gcc
-CXX=x86_64-w64-mingw32-g++
-HOST=x86_64-w64-mingw32
-CROSS_COMPILE="x86_64-w64-mingw32.static-"
-CXXFLAGS=-fPIC
-CFLAGS=-fPIC
+# See https://gist.github.com/Shauren/5c28f646bf7a28b470a8 for boost link flags (add -lws2_32?)
+
+CC=x86_64-w64-mingw32.static-gcc
+CXX=x86_64-w64-mingw32.static-g++
+HOST=x86_64-w64-mingw32.static
 ./b2 release -d2 \
 	cxxflags=-fPIC \
 	cflags=-fPIC \
@@ -59,6 +61,7 @@ CFLAGS=-fPIC
 	threadapi=pthread \
 	toolset=gcc-mingw \
 	-sICONV_PATH=${PREFIX} \
+	define=BOOST_USE_WINDOWS_H \
 	-j$THREADS install
 
 cd ${PREFIX}/lib
@@ -76,6 +79,7 @@ mv libboost_date_time-mt-s-x64.a			libboost_date_time.a
 mv libboost_prg_exec_monitor-mt-s-x64.a		libboost_prg_exec_monitor.a
 mv libboost_serialization-mt-s-x64.a		libboost_serialization.a
 mv libboost_thread-mt-s-x64.a				libboost_thread.a
+echo 'Renaming files if needed, mv issues above are warnings, not errors'
 
 : 'Having to rename libraries may be a sign that we should build boost differently in order to match the expected names:
 -- [ /usr/share/cmake-3.16/Modules/FindBoost.cmake:2058 ] Searching for SYSTEM_LIBRARY_RELEASE: boost_system-gcc9-mt-1_78;boost_system-gcc9-mt;boost_system-gcc9-mt;boost_system-mt-1_78;boost_system-mt;boost_system-mt;boost_system-mt;boost_system

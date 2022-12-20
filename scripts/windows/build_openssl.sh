@@ -30,10 +30,9 @@ tar -xzf $OPENSSL_FILE_PATH -C $WORKDIR
 
 cd $OPENSSL_SRC_DIR
 
-CC=x86_64-w64-mingw32-gcc
-CXX=x86_64-w64-mingw32-g++
-HOST=x86_64-w64-mingw32
-CROSS_COMPILE="x86_64-w64-mingw32.static-"
+CC=gcc
+CXX=g++
+HOST=x86_64-w64-mingw32.static
 ./Configure mingw64 \
 	no-shared \
 	no-tests \

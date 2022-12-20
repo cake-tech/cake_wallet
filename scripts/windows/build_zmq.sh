@@ -21,16 +21,16 @@ rm -rf $ZMQ_SRC_DIR
 git clone https://github.com/zeromq/libzmq.git ${ZMQ_SRC_DIR} -b ${ZMQ_BRANCH}
 cd $ZMQ_SRC_DIR
 git checkout ${ZMQ_COMMIT_HASH}
+
 ./autogen.sh
-CC=x86_64-w64-mingw32-gcc
-CXX=x86_64-w64-mingw32-g++
-HOST=x86_64-w64-mingw32
+CC=x86_64-w64-mingw32.static-gcc
+CXX=x86_64-w64-mingw32.static-g++
+HOST=x86_64-w64-mingw32.static
 CROSS_COMPILE="x86_64-w64-mingw32.static-"
 ./configure \
 	--without-documentation \
 	--without-docs \
 	--disable-shared \
-	--without-libsodium \
 	--disable-curve \
 	--prefix=${PREFIX} \
 	--host=${HOST} \
