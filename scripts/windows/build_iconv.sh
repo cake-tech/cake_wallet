@@ -1,6 +1,6 @@
 #!/bin/bash
-
 . ./config.sh
+
 ICONV_FILENAME=libiconv-1.16.tar.gz
 ICONV_FILE_PATH=$CACHEDIR/$ICONV_FILENAME
 ICONV_SRC_DIR=$WORKDIR/libiconv-1.16

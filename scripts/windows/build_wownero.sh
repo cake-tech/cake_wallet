@@ -49,9 +49,9 @@ rm -rf ./build/release
 mkdir -p ./build/release
 cd ./build/release
 
-CC=x86_64-w64-mingw32-gcc
-CXX=x86_64-w64-mingw32-g++
-HOST=x86_64-w64-mingw32
+CC=x86_64-w64-mingw32.static-gcc
+CXX=x86_64-w64-mingw32.static-g++
+HOST=x86_64-w64-mingw32.static
 CROSS_COMPILE="x86_64-w64-mingw32.static-"
 x86_64-w64-mingw32.static-cmake \
 	-DCMAKE_FIND_ROOT_PATH="${PREFIX};${PREFIX}/include;${PREFIX}/lib" \

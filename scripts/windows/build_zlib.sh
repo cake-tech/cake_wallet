@@ -1,5 +1,4 @@
 #!/bin/bash
-
 . ./config.sh
 
 ZLIB_SRC_DIR=$WORKDIR/zlib

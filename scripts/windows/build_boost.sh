@@ -1,6 +1,7 @@
 #!/bin/bash
-
 . ./config.sh
+
+./build_iconv.sh
 
 BOOST_FILENAME=boost_1_78_0.tar.bz2
 BOOST_FILE_PATH=$CACHEDIR/$BOOST_FILENAME

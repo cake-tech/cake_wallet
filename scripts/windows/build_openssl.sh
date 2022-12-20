@@ -1,9 +1,8 @@
 #!/bin/bash
-
 set -e
-
 . ./config.sh
 
+./build_zlib.sh
 : '
 OPENSSL_FILENAME=openssl-1.1.1q.tar.gz
 OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1q

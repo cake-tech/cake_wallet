@@ -1,5 +1,4 @@
 #!/bin/bash
-
 . ./config.sh
 : '
 EXPAT_VERSION=R_2_4_1

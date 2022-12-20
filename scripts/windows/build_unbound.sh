@@ -1,6 +1,7 @@
 #!/bin/bash
-
 . ./config.sh
+
+./build_expat.sh
 : '
 UNBOUND_VERSION=release-1.15.0
 UNBOUND_HASH="c29b0e0a96c4d281aef40d69a11c564d6ed1a2c6"

@@ -1,6 +1,7 @@
 #!/bin/bash
-
 . ./config.sh
+
+. ./copy_monero_deps.sh
 
 echo ''$(git log -1 --pretty=format:"%H")' '$(date) >> build/git_commit_version.txt
 VERSIONS_FILE=../../lib/git_versions.dart
@@ -23,7 +24,7 @@ x86_64-w64-mingw32.static-cmake ../../cmakefiles/monero/x86_64
 make -j$(nproc)
 cp libcw_monero.so ../
 
-cd $WOWNERO_BUILD
-x86_64-w64-mingw32.static-cmake ../../cmakefiles/wownero/x86_64
-make -j$(nproc)
-cp libcw_wownero.so ../
+#cd $WOWNERO_BUILD
+#x86_64-w64-mingw32.static-cmake ../../cmakefiles/wownero/x86_64
+#make -j$(nproc)
+#cp libcw_wownero.so ../
