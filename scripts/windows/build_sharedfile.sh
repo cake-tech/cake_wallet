@@ -22,9 +22,9 @@ WOWNERO_BUILD=${WORKDIR}/wownero_build
 cd $MONERO_BUILD
 x86_64-w64-mingw32.static-cmake ../../cmakefiles/monero/x86_64
 make -j$(nproc)
-cp libcw_monero.so ../
+cp libcw_monero.dll ../
 
 cd $WOWNERO_BUILD
 x86_64-w64-mingw32.static-cmake ../../cmakefiles/wownero/x86_64
 make -j$(nproc)
-cp libcw_wownero.so ../
+cp libcw_wownero.dll ../

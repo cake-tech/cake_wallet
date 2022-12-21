@@ -42,6 +42,6 @@ HOST=x86_64-w64-mingw32.static
 	--with-pic \
 	--with-ssl=${PREFIX} \
 	--with-libexpat=${PREFIX} \
-  LDFLAGS="-lws2_32 -liphlpapi -lrpcrt4"
+  LDFLAGS="-liphlpapi -lrpcrt4"
 make -j$THREADS
 make -j$THREADS install

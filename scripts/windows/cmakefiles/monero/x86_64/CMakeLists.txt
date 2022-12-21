@@ -68,6 +68,14 @@ add_library(boost_wserialization STATIC IMPORTED)
 set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/libboost_wserialization.a)
 
+add_library(boost_locale STATIC IMPORTED)
+set_target_properties(boost_locale PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/libboost_locale.a)
+
+add_library(iconv STATIC IMPORTED)
+set_target_properties(iconv PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/libiconv.a)
+
 #############
 # Monero
 #############
@@ -90,7 +98,7 @@ set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
 
 add_library(cryptonote_format_utils_basic STATIC IMPORTED)
 set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/libcryptonote_format_utils_basic.a)        
+        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/libcryptonote_format_utils_basic.a)
 
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
@@ -159,7 +167,7 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 add_library(net STATIC IMPORTED)
 set_target_properties(net PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/libnet.a)
-        
+
 add_library(hardforks STATIC IMPORTED)
 set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/monero/libhardforks.a)
@@ -181,7 +189,6 @@ set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
 include_directories( ${EXTERNAL_LIBS_DIR}/prefix_x86_64/include )
 
 target_link_libraries(  cw_monero
-                       
                         wallet_api
                         wallet
                         cryptonote_core
@@ -218,8 +225,15 @@ target_link_libraries(  cw_monero
                         boost_system
                         boost_thread
                         boost_wserialization
+                        boost_locale
 
                         ssl
                         crypto
-                        
-                        sodium)
+
+                        sodium
+                        # Windows-Exclusive Linking
+                        iconv
+                        # Linking Windows Libraries
+                        crypt32
+                        iphlpapi
+                        wsock32 ws2_32)
