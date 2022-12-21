@@ -24,7 +24,7 @@ x86_64-w64-mingw32.static-cmake ../../cmakefiles/monero/x86_64
 make -j$(nproc)
 cp libcw_monero.so ../
 
-#cd $WOWNERO_BUILD
-#x86_64-w64-mingw32.static-cmake ../../cmakefiles/wownero/x86_64
-#make -j$(nproc)
-#cp libcw_wownero.so ../
+cd $WOWNERO_BUILD
+x86_64-w64-mingw32.static-cmake ../../cmakefiles/wownero/x86_64
+make -j$(nproc)
+cp libcw_wownero.so ../
