@@ -6,6 +6,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MarketPlacePage extends StatelessWidget {
 
@@ -48,6 +49,15 @@ class MarketPlacePage extends StatelessWidget {
                       title: S.of(context).cake_pay_title,
                       subTitle: S.of(context).cake_pay_subtitle,
                     ),
+                    SizedBox(height: 20),
+                    MarketPlaceItem(
+                      onTap: () => launchUrl(
+                        Uri.https("buy.cakepay.com"),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      title: S.of(context).cake_pay_web_cards_title,
+                      subTitle: S.of(context).cake_pay_web_cards_subtitle,
+                    ),
                   ],
                 ),
               ),
@@ -72,7 +82,7 @@ class MarketPlacePage extends StatelessWidget {
                   buttonAction: () => Navigator.of(context).pop());
             });
         break;
-        default:        
+        default:
          Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
     }
   }
