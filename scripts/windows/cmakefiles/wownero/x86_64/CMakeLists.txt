@@ -233,6 +233,7 @@ target_link_libraries(  cw_wownero
                         boost_system
                         boost_thread
                         boost_wserialization
+                        boost_locale
 
                         ssl
                         crypto
