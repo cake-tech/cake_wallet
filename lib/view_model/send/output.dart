@@ -1,19 +1,12 @@
-// import 'package:flutter_libmonero/di.dart';
-// import 'package:flutter_libmonero/entities/calculate_fiat_amount_raw.dart';
-// import 'package:flutter_libmonero/entities/parse_address_from_domain.dart';
-import 'package:flutter_libmonero/entities/parsed_address.dart';
-// import 'package:flutter_libmonero/src/screens/send/widgets/extract_address_from_parsed.dart';
-// import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_libmonero/entities/parsed_address.dart';
+import 'package:flutter_libmonero/monero/monero.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:flutter_libmonero/monero/monero.dart';
-// import 'package:flutter_libmonero/entities/calculate_fiat_amount.dart';
-import 'package:cw_core/wallet_type.dart';
-// import 'package:flutter_libmonero/store/dashboard/fiat_conversion_store.dart';
-// import 'package:flutter_libmonero/store/settings_store.dart';
-// import 'package:flutter_libmonero/generated/i18n.dart';
+
+import '../../wownero/wownero.dart';
 
 part 'output.g.dart';
 
@@ -72,6 +65,10 @@ abstract class OutputBase with Store {
           case WalletType.monero:
             _amount = monero.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
+          case WalletType.wownero:
+            _amount =
+                wownero.formatterWowneroParseAmount(amount: _cryptoAmount);
+            break;
           default:
             break;
         }
@@ -96,6 +93,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.monero) {
         return monero.formatterMoneroAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.wownero) {
+        return wownero.formatterWowneroAmountToDouble(amount: fee);
       }
     } catch (e) {
       print(e.toString());
@@ -200,6 +201,9 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 8;
         break;
       case WalletType.haven:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.wownero:
         maximumFractionDigits = 12;
         break;
       default:

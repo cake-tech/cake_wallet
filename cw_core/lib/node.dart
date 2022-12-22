@@ -1,11 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cw_core/keyable.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:hive/hive.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as ioc;
 
 part 'node.g.dart';
@@ -62,6 +61,8 @@ class Node extends HiveObject with Keyable {
         return createUriFromElectrumAddress(uriRaw);
       case WalletType.haven:
         return Uri.http(uriRaw!, '');
+      case WalletType.wownero:
+        return Uri.http(uriRaw!, '');
       default:
         return null;
     }
@@ -83,6 +84,7 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
+        case WalletType.wownero:
           return requestMoneroNode();
         case WalletType.bitcoin:
           return requestElectrumServer();
@@ -97,33 +99,30 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-  
     final path = '/json_rpc';
-    final rpcUri = isSSL ? Uri.https(uri!.authority, path) : Uri.http(uri!.authority, path);
+    final rpcUri = isSSL
+        ? Uri.https(uri!.authority, path)
+        : Uri.http(uri!.authority, path);
     final realm = 'monero-rpc';
-    final body = {
-        'jsonrpc': '2.0', 
-        'id': '0', 
-        'method': 'get_info'
-    };
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'};
 
     try {
       final authenticatingClient = HttpClient();
-    
+
       authenticatingClient.addCredentials(
-          rpcUri,
-          realm, 
-          HttpClientDigestCredentials(login ?? '', password ?? ''),
+        rpcUri,
+        realm,
+        HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
-    
+
       final http.Client client = ioc.IOClient(authenticatingClient);
-    
+
       final response = await client.post(
-          rpcUri,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(body),
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
       );
-    
+
       client.close();
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;
@@ -131,7 +130,7 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
-}
+  }
 
   Future<bool> requestElectrumServer() async {
     try {

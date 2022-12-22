@@ -8,7 +8,7 @@ export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT
 export TOOLCHAIN_DIR="${WORKDIR}/toolchain"
 export TOOLCHAIN_BASE_DIR=$TOOLCHAIN_DIR
 export ORIGINAL_PATH=$PATH
-export THREADS=16
+export THREADS=$(nproc)
 export TYPES_OF_BUILD="x86_64"
 
 if [ -z "$IS_ARM" ]; then

@@ -792,6 +792,12 @@ extern "C"
         return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
     }
 
+    bool validate_address(char *address)
+    {
+        return get_current_wallet()->addressValid(std::string(address), 0); // TODO fix like by making the command below work or by otherwise detecting nettype
+        //return get_current_wallet()->validateAddress(std::string(address));
+    }
+
 #ifdef __cplusplus
 }
 #endif

@@ -13,7 +13,7 @@ cd $ZMQ_PATH
 mkdir cmake-build
 cd cmake-build
 cmake -DCMAKE_CXX_FLAGS=-I\ ${EXTERNAL_IOS_INCLUDE_DIR} ..
-make
+make -j$(nproc)
 
 
 cp ${ZMQ_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR

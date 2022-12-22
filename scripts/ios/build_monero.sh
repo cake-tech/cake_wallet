@@ -53,7 +53,7 @@ cmake -D IOS=ON \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}  \
     -DUSE_DEVICE_TREZOR=OFF \
 	../..
-make wallet_api -j8
+make wallet_api -j$(nproc)
 find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
 cp -r ./lib/* $DEST_LIB_DIR
 cp ../../src/wallet/api/wallet2_api.h  $DEST_INCLUDE_DIR

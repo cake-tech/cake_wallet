@@ -116,6 +116,10 @@ cw_shared_external/ios/External/
 cw_haven/ios/External/
 cw_haven/android/.externalNativeBuild/
 cw_haven/android/.cxx/
+# cw_wownero/**
+cw_wownero/ios/External/
+cw_wownero/android/.externalNativeBuild/
+cw_wownero/android/.cxx/
 
 lib/bitcoin/bitcoin.dart
 #lib/monero/monero.dart

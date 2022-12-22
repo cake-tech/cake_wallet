@@ -97,10 +97,12 @@ abstract class Monero {
 
   MoneroWalletDetails getMoneroWalletDetails(Object wallet);
 
-  String getTransactionAddress(
-      Object wallet, int accountIndex, int addressIndex);
+  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
   int getHeigthByDate({DateTime? date});
+
+  bool validateAddress(Object wallet, String address);
+
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority? deserializeMoneroTransactionPriority({int? raw});
   List<TransactionPriority> getTransactionPriorities();

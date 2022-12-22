@@ -1,0 +1,24 @@
+-
+  uri: eu-west-2.wow.xmr.pm:34568
+  is_default: true
+  useSSL: false
+-
+  uri: eu-west-1.wow.xmr.pm:34568
+  is_default: false
+  useSSL: false
+-
+  uri: eu-west-6.wow.xmr.pm:34568
+  is_default: false
+  useSSL: false
+-
+  uri: node.wownero.club:34568
+  is_default: false
+  useSSL: false
+-
+  uri: node.suchwow.xyz:34568
+  is_default: false
+  useSSL: false
+-
+  uri: idontwanttogototoronto.wow.fail:34568
+  is_default: false
+  useSSL: false
