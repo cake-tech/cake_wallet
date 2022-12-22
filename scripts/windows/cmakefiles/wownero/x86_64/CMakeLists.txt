@@ -223,6 +223,7 @@ target_link_libraries(  cw_wownero
                         hardforks
                         rpc_base
                         ${WALLET_CRYPTO}
+                        wownero-seed
 
                         boost_chrono
                         boost_date_time
