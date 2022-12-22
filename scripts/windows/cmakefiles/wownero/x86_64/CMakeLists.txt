@@ -238,14 +238,10 @@ target_link_libraries(  cw_wownero
                         crypto
                         
                         sodium
-                        
+
                         # Windows-Exclusive Linking
                         iconv
                         # Linking Windows Libraries
                         crypt32
                         iphlpapi
                         wsock32 ws2_32)
-
-                        -Wl,--whole-archive
-                        wownero-seed
-                        -Wl,--no-whole-archive )
