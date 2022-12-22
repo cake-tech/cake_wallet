@@ -21,3 +21,13 @@ TransactionDirection parseTransactionDirectionFromNumber(String raw) {
       throw Exception('Unexpected token: raw for TransactionDirection parseTransactionDirectionFromNumber');
   }
 }
+int parseTransactionDirectionFromType(TransactionDirection raw) {
+  switch (raw) {
+    case TransactionDirection.incoming:
+      return 0;
+    case TransactionDirection.outgoing:
+      return 1;
+    default:
+      throw Exception('Unexpected token: raw for TransactionDirection parseTransactionDirectionFromType');
+  }
+}

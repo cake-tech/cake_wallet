@@ -319,7 +319,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     } else {
       feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
     }
-    
+
     final changeValue = totalInputAmount - amount - feeAmount;
 
     if (changeValue > minAmount) {
@@ -617,7 +617,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       final transactions = await fetchTransactions();
       transactionHistory.addMany(transactions);
       walletAddresses.updateReceiveAddresses();
-      await transactionHistory.save();
+      final transactionDirection = transactions.map((key, value) => MapEntry(key, value.direction));
+      await transactionHistory.save(txsDirection:transactionDirection);
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
       print(stacktrace);
@@ -651,7 +652,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       final balanceFuture = electrumClient.getBalance(sh);
       balanceFutures.add(balanceFuture);
-    } 
+    }
 
     final balances = await Future.wait(balanceFutures);
     var totalConfirmed = 0;

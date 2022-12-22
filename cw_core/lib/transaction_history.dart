@@ -1,3 +1,4 @@
+import 'package:cw_core/transaction_direction.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_info.dart';
 
@@ -8,7 +9,7 @@ abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
   @observable
   ObservableMap<String, TransactionType> transactions;
 
-  Future<void> save();
+  Future<void> save({Map<String, TransactionDirection>? txsDirection});
 
   void addOne(TransactionType transaction);
 

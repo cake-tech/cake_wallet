@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -15,7 +16,7 @@ abstract class MoneroTransactionHistoryBase
   }
 
   @override
-  Future<void> save() async {}
+  Future<void> save({Map<String, TransactionDirection>? txsDirection}) async {}
 
   @override
   void addOne(MoneroTransactionInfo transaction) =>

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -38,11 +39,26 @@ abstract class ElectrumTransactionHistoryBase
       transactions.forEach((_, tx) => _updateOrInsert(tx));
 
   @override
-  Future<void> save() async {
+  Future<void> save({Map<String, TransactionDirection>? txsDirection}) async {
     try {
       final dirPath =
           await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
       final path = '$dirPath/$_transactionsHistoryFileName';
+
+      if (txsDirection != null) {
+        transactions.forEach((key, value) {
+          txsDirection.forEach((directionKey, directionValue) {
+            if (directionKey == key) {
+              value.direction = directionValue;
+            }
+          });
+          if (!txsDirection.containsKey(key)) {
+            value.direction = TransactionDirection.outgoing;
+          }
+          ;
+        });
+      }
+
       final data =
           json.encode({'height': _height, 'transactions': transactions});
       await writeData(path: path, password: _password, data: data);
@@ -72,7 +88,7 @@ abstract class ElectrumTransactionHistoryBase
       txs.entries.forEach((entry) {
         final val = entry.value;
 
-        if (val is Map<String, Object>) {
+        if (val is Map<String, dynamic>) {
           final tx = ElectrumTransactionInfo.fromJson(val, walletInfo.type);
           _updateOrInsert(tx);
         }
@@ -85,9 +101,6 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   void _updateOrInsert(ElectrumTransactionInfo transaction) {
-    if (transaction.id == null) {
-      return;
-    }
 
     if (transactions[transaction.id] == null) {
       transactions[transaction.id] = transaction;
