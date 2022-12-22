@@ -75,6 +75,14 @@ add_library(boost_wserialization STATIC IMPORTED)
 set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/libboost_wserialization.a)
 
+add_library(boost_locale STATIC IMPORTED)
+set_target_properties(boost_locale PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/libboost_locale.a)
+
+add_library(iconv STATIC IMPORTED)
+set_target_properties(iconv PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/libiconv.a)
+
 #############
 # Wownero
 #############
@@ -166,7 +174,7 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 add_library(net STATIC IMPORTED)
 set_target_properties(net PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/wownero/libnet.a)
-        
+
 add_library(hardforks STATIC IMPORTED)
 set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/prefix_x86_64/lib/wownero/libhardforks.a)
@@ -230,6 +238,13 @@ target_link_libraries(  cw_wownero
                         crypto
                         
                         sodium
+                        
+                        # Windows-Exclusive Linking
+                        iconv
+                        # Linking Windows Libraries
+                        crypt32
+                        iphlpapi
+                        wsock32 ws2_32)
 
                         -Wl,--whole-archive
                         wownero-seed
