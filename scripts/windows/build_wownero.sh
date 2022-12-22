@@ -13,8 +13,9 @@ WOWNERO_SHA_HEAD="373b8842c6075c54cc4904b147f1c86daf7cb60d"
 
 WOWNERO_SRC_DIR=${WORKDIR}/wownero
 
-rm -rf $WOWNERO_SRC_DIR
-git clone https://git.wownero.com/wownero/wownero.git ${WOWNERO_SRC_DIR} --branch ${WOWNERO_VERSION}
+if [[ ! -d $WOWNERO_SRC_DIR ]]; then
+	git clone https://git.wownero.com/wownero/wownero.git ${WOWNERO_SRC_DIR} --branch ${WOWNERO_VERSION}
+fi
 cd $WOWNERO_SRC_DIR
 git reset --hard $WOWNERO_SHA_HEAD
 git submodule init
@@ -64,7 +65,7 @@ x86_64-w64-mingw32.static-cmake \
 	-D BUILD_64=${BUILD_64} \
 	-D CMAKE_BUILD_TYPE=release \
 	-D INSTALL_VENDORED_LIBUNBOUND=ON \
-	-D BUILD_TAG=${TAG} $FLAGS ../.. 
+	-D BUILD_TAG=${TAG} $FLAGS ../..
 
 make wallet_api -j$THREADS
 find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
@@ -73,6 +74,6 @@ cp -r ./lib/* $DEST_LIB_DIR
 cp ../../src/wallet/api/wallet2_api.h  $DEST_INCLUDE_DIR
 
 CW_DIR="$(pwd)"/../../../../../../../flutter_libmonero # 🧐
-CW_WOWNERO_EXTERNAL_DIR=${CW_DIR}/cw_wownero/ios/External/android	
-mkdir -p $CW_WOWNERO_EXTERNAL_DIR/include	
+CW_WOWNERO_EXTERNAL_DIR=${CW_DIR}/cw_wownero/ios/External/android
+mkdir -p $CW_WOWNERO_EXTERNAL_DIR/include
 cp ../../src/wallet/api/wallet2_api.h ${CW_WOWNERO_EXTERNAL_DIR}/include

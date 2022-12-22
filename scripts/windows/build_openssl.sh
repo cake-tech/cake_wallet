@@ -58,8 +58,8 @@ HOST=x86_64-w64-mingw32.static
 	--with-zlib-lib=${PREFIX}/lib \
 	--prefix=${WORKDIR}/openssl \
 	--openssldir=${WORKDIR}/openssl \
-	OPENSSL_LIBS="-lcrypt32 -lgdi32 -lwsock32 -lws2_32"
+	OPENSSL_LIBS="-lcrypt32 -lgdi32"
 make -j$THREADS
 make -j$THREADS install_sw
 
-cp -r ${WORKDIR}/openssl/* ${PREFIX} 
+cp -r ${WORKDIR}/openssl/* ${PREFIX}

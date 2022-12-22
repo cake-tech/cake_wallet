@@ -17,10 +17,11 @@ ZMQ_BRANCH=v4.3.1
 ZMQ_COMMIT_HASH=2cb1240db64ce1ea299e00474c646a2453a8435b
 
 cd $WORKDIR
-rm -rf $ZMQ_SRC_DIR
-git clone https://github.com/zeromq/libzmq.git ${ZMQ_SRC_DIR} -b ${ZMQ_BRANCH}
+if [[ ! -d $ZMQ_SRC_DIR ]]; then
+	git clone https://github.com/zeromq/libzmq.git ${ZMQ_SRC_DIR} --branch ${ZMQ_BRANCH}
+fi
 cd $ZMQ_SRC_DIR
-git checkout ${ZMQ_COMMIT_HASH}
+git reset --hard ${ZMQ_COMMIT_HASH}
 
 ./autogen.sh
 CC=x86_64-w64-mingw32.static-gcc
@@ -28,7 +29,7 @@ CXX=x86_64-w64-mingw32.static-g++
 HOST=x86_64-w64-mingw32.static
 CROSS_COMPILE="x86_64-w64-mingw32.static-"
 ./configure \
-	--without-documentation \
+	--without-docs \
 	--without-docs \
 	--disable-shared \
 	--disable-curve \

@@ -14,9 +14,12 @@ MONERO_BRANCH=release-v0.18.0.0-android
 
 MONERO_SRC_DIR=${WORKDIR}/monero
 
-rm -rf $MONERO_SRC_DIR
-git clone ${MONERO_REPO} ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
+if [[ ! -d $MONERO_SRC_DIR ]]; then
+	git clone ${MONERO_REPO} ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
+fi
 cd $MONERO_SRC_DIR
+# faster alternative than redownloading the monero repo on every build
+git reset --hard origin/$MONERO_BRANCH
 if [[ -v MONERO_SHA_HEAD ]]; then
 	git reset --hard $WOWNERO_SHA_HEAD
 fi
