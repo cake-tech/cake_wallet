@@ -14,10 +14,12 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class WowneroNewWalletCredentials extends WalletCredentials {
-  WowneroNewWalletCredentials({String? name, String? password, this.language})
+  WowneroNewWalletCredentials(
+      {String? name, String? password, this.language, int seedWordsLength = 14})
       : super(name: name, password: password);
 
   final String? language;
+  final int seedWordsLength = 14;
 }
 
 class WowneroRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -57,7 +59,7 @@ class WowneroWalletService extends WalletService<
   WowneroWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
-  
+
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
@@ -65,13 +67,16 @@ class WowneroWalletService extends WalletService<
   WalletType getType() => WalletType.wownero;
 
   @override
-  Future<WowneroWallet> create(WowneroNewWalletCredentials credentials) async {
+  Future<WowneroWallet> create(WowneroNewWalletCredentials credentials,
+      {int seedWordsLength = 14}) async {
     try {
-      final path = await pathForWallet(name: credentials.name!, type: getType());
+      final path =
+          await pathForWallet(name: credentials.name!, type: getType());
       await wownero_wallet_manager.createWallet(
           path: path,
           password: credentials.password,
-          language: credentials.language);
+          language: credentials.language,
+          seedWordsLength: seedWordsLength);
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       await wallet.init();
 
@@ -124,12 +129,12 @@ class WowneroWalletService extends WalletService<
       // TODO: Implement Exception for wallet list service.
 
       if ((e.toString().contains('bad_alloc') ||
-          (e is WalletOpeningException &&
-              (e.message == 'std::bad_alloc' ||
-                  e.message!.contains('bad_alloc')))) ||
+              (e is WalletOpeningException &&
+                  (e.message == 'std::bad_alloc' ||
+                      e.message!.contains('bad_alloc')))) ||
           (e.toString().contains('does not correspond') ||
-          (e is WalletOpeningException &&
-            e.message!.contains('does not correspond')))) {
+              (e is WalletOpeningException &&
+                  e.message!.contains('does not correspond')))) {
         await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
@@ -153,7 +158,8 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> restoreFromKeys(
       WowneroRestoreWalletFromKeysCredentials credentials) async {
     try {
-      final path = await pathForWallet(name: credentials.name!, type: getType());
+      final path =
+          await pathForWallet(name: credentials.name!, type: getType());
       await wownero_wallet_manager.restoreFromKeys(
           path: path,
           password: credentials.password,
@@ -178,7 +184,8 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> restoreFromSeed(
       WowneroRestoreWalletFromSeedCredentials credentials) async {
     try {
-      final path = await pathForWallet(name: credentials.name!, type: getType());
+      final path =
+          await pathForWallet(name: credentials.name!, type: getType());
       await wownero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password,
@@ -186,9 +193,18 @@ class WowneroWalletService extends WalletService<
           restoreHeight: credentials.height);
       final wallet = WowneroWallet(walletInfo: credentials.walletInfo!);
       wallet.walletInfo.isRecovery = true;
-      wallet.walletInfo.restoreHeight = wallet.getSeedHeight(credentials.mnemonic!);
-      await wallet.init();
 
+      String seedString = credentials.mnemonic ?? '';
+      int seedWordsLength = seedString.split(' ').length;
+      if (seedWordsLength == 14) {
+        wallet.walletInfo.restoreHeight =
+            wallet.getSeedHeight(credentials.mnemonic!);
+      } else {
+        wallet.walletInfo.restoreHeight = 0;
+        // TODO use an alternative to wow_seed's get_seed_height
+      }
+
+      await wallet.init();
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.

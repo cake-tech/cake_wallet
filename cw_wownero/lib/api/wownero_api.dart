@@ -6,7 +6,7 @@ DynamicLibrary get wowneroApi {
     return DynamicLibrary.open(
         'crypto_plugins/flutter_libmonero/scripts/linux/build/libcw_wownero.so');
   }
-  return io.Platform.isWindows
+  return Platform.isWindows
       ? DynamicLibrary.open("libcw_wownero.dll")
       : Platform.isAndroid || Platform.isLinux
           ? DynamicLibrary.open("libcw_wownero.so")

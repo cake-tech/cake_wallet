@@ -325,6 +325,10 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     return wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
   }
 
+  bool validateAddress(String address) {
+    return wownero_wallet.validateAddress(address);
+  }
+
   List<WowneroTransactionInfo> _getAllTransactions(dynamic _) =>
       wownero_transaction_history
           .getAllTransations()

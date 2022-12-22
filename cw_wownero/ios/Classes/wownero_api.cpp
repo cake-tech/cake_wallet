@@ -236,11 +236,12 @@ extern "C"
         return m_wallet;
     }
 
-    bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
+    bool create_14_word_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
 
+        // 14 word seeds /*
         time_t time = std::time(nullptr);
         wownero_seed wow_seed(time, "wownero");
 
@@ -263,6 +264,7 @@ extern "C"
             spendKey,
             1);
         wallet->setCacheAttribute("cake.seed", seed);
+        // */
 
         int status;
         std::string errorString;
@@ -279,11 +281,36 @@ extern "C"
         return true;
     }
 
-    bool restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, char *error)
+    bool create_25_word_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
 
+        // 25 word seeds /*
+        Monero::Wallet *wallet = walletManager->createWallet(path, password, language, _networkType);
+        // */
+
+        int status;
+        std::string errorString;
+
+        wallet->statusWithErrorString(status, errorString);
+
+        if (wallet->status() != Monero::Wallet::Status_Ok)
+        {
+            error = strdup(wallet->errorString().c_str());
+            return false;
+        }
+
+        change_current_wallet(wallet);
+        return true;
+    }
+
+    bool restore_wallet_from_14_word_seed(char *path, char *password, char *seed, int32_t networkType, char *error)
+    {
+        Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
+        Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
+
+        // 14 word seeds /*
         wownero_seed wow_seed(seed, "wownero");
 
         std::stringstream seed_stream;
@@ -305,6 +332,36 @@ extern "C"
             spendKey,
             1);
         wallet->setCacheAttribute("cake.seed", seed_str);
+        // */
+
+        int status;
+        std::string errorString;
+
+        wallet->statusWithErrorString(status, errorString);
+
+        if (status != Monero::Wallet::Status_Ok || !errorString.empty())
+        {
+            error = strdup(errorString.c_str());
+            return false;
+        }
+
+        change_current_wallet(wallet);
+        return true;
+    }
+
+    bool restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
+    {
+        Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
+        Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
+
+        // 25 word seeds /*
+        Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
+            std::string(path),
+            std::string(password),
+            std::string(seed),
+            _networkType,
+            (uint64_t)restoreHeight);
+        // */
 
         int status;
         std::string errorString;
@@ -826,6 +883,12 @@ extern "C"
     char *get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
     {
         return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
+    }
+
+    bool validate_address(char *address)
+    {
+        return get_current_wallet()->addressValid(std::string(address), 0); // TODO fix like by making the command below work or by otherwise detecting nettype
+        //return get_current_wallet()->validateAddress(std::string(address));
     }
 
 #ifdef __cplusplus

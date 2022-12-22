@@ -6,7 +6,7 @@ import 'package:flutter_libmonero/entities/secret_store_key.dart';
 class KeyService {
   KeyService(this._secureStorage);
 
-  final FlutterSecureStorage _secureStorage;
+  final dynamic _secureStorage;
 
   Future<String> getWalletPassword({String? walletName}) async {
     final key = generateStoreKeyFor(
