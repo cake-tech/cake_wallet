@@ -41,8 +41,7 @@ Future<Directory> applicationRootDirectory() async {
   } else if (Platform.isLinux) {
     appDirectory = Directory("${Platform.environment['HOME']}/.stackwallet");
   } else if (Platform.isWindows) {
-// TODO: windows root .stackwallet dir location
-    throw Exception("Unsupported platform");
+    appDirectory = await getApplicationSupportDirectory();
   } else if (Platform.isMacOS) {
 // currently run in ipad mode??
     throw Exception("Unsupported platform");
