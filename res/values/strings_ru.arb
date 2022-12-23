@@ -48,7 +48,7 @@
   "outgoing" : "Исходящие",
   "transactions_by_date" : "Сортировать по дате",
   "trades" : "Сделки",
-  "filters" : "Фильтровать по",
+  "filter_by": "Фильтровать по",
   "today" : "Сегодня",
   "yesterday" : "Вчера",
   "received" : "Полученные",

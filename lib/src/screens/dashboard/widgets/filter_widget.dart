@@ -108,19 +108,18 @@ class FilterWidget extends StatelessWidget {
                                             //      .changeEndDate(picked.last);
                                             //}
                                           },
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 32),
-                                            child: Text(
-                                              item.caption,
-                                              style: TextStyle(
-                                                  color: Colors.red,
-                                                  //Theme.of(context).primaryTextTheme.title.color,//
-                                                  fontSize: 18,
-                                                  fontFamily: 'Lato',
-                                                  fontWeight: FontWeight.w500,
-                                                  decoration: TextDecoration.none),
-                                            ),
-                                          ),
+                                          // child: Padding(
+                                          //   padding: EdgeInsets.only(left: 32),
+                                          //   child: Text(
+                                          //     item.caption,
+                                          //     style: TextStyle(
+                                          //         color: Theme.of(context).primaryTextTheme.title.color,
+                                          //         fontSize: 18,
+                                          //         fontFamily: 'Lato',
+                                          //         fontWeight: FontWeight.w500,
+                                          //         decoration: TextDecoration.none),
+                                          //   ),
+                                          // ),
                                         );
 
                                   return FilterTile(child: content);

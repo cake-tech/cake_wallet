@@ -48,7 +48,7 @@
   "outgoing" : "In uscita",
   "transactions_by_date" : "Transazioni per data",
   "trades" : "Scambi",
-  "filters" : "Filtrirati po",
+  "filter_by": "Filtrirati po",
   "today" : "Oggi",
   "yesterday" : "Ieri",
   "received" : "Ricevuto",

@@ -48,7 +48,7 @@
   "outgoing" : "Odlazno",
   "transactions_by_date" : "Transakcije prema datumu",
   "trades" : "Razmjene",
-  "filters" : "Filtrirati po",
+  "filter_by": "Filtrirati po",
   "today" : "Danas",
   "yesterday" : "Jučer",
   "received" : "Primljeno",

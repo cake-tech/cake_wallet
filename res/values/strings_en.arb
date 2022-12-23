@@ -48,7 +48,7 @@
   "outgoing" : "Outgoing",
   "transactions_by_date" : "Transactions by date",
   "trades" : "Trades",
-  "filters" : "Filter by",
+  "filter_by": "Filter by",
   "today" : "Today",
   "yesterday" : "Yesterday",
   "received" : "Received",

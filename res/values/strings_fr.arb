@@ -46,7 +46,7 @@
   "outgoing" : "Sortantes",
   "transactions_by_date" : "Transactions par date",
   "trades" : "Échanges",
-  "filters" : "Filtrer par",
+  "filter_by": "Filtrer par",
   "today" : "Aujourd'hui",
   "yesterday" : "Hier",
   "received" : "Reçus",

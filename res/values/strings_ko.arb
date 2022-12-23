@@ -48,7 +48,7 @@
   "outgoing" : "나가는",
   "transactions_by_date" : "날짜 별 거래",
   "trades" : "거래",
-  "filters" : "필터링 기준",
+  "filter_by": "필터링 기준",
   "today" : "오늘",
   "yesterday" : "어제",
   "received" : "받았습니다",

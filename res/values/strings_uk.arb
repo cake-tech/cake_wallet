@@ -48,7 +48,7 @@
   "outgoing" : "Вихідні",
   "transactions_by_date" : "Сортувати по даті",
   "trades" : "Торгові операції",
-  "filters" : "Фільтрувати по",
+  "filter_by": "Фільтрувати по",
   "today" : "Сьогодні",
   "yesterday" : "Вчора",
   "received" : "Отримані",

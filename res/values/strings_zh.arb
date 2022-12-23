@@ -48,7 +48,7 @@
   "outgoing" : "发送",
   "transactions_by_date" : "按日期交易",
   "trades" : "交易",
-  "filters" : "过滤",
+  "filter_by": "过滤",
   "today" : "今天",
   "yesterday" : "昨天",
   "received" : "已收到",

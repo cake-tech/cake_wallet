@@ -48,7 +48,7 @@
   "outgoing" : "Towarzyski",
   "transactions_by_date" : "Transakcje według daty",
   "trades" : "Transakcje",
-  "filters" : "Filtruj według",
+  "filter_by": "Filtruj według",
   "today" : "Dzisiaj",
   "yesterday" : "Wczoraj",
   "received" : "Odebrane",

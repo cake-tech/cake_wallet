@@ -48,7 +48,7 @@
   "outgoing" : "निवर्तमान",
   "transactions_by_date" : "तारीख से लेन-देन",
   "trades" : "ट्रेडों",
-  "filters" : "के द्वारा छनित",
+  "filter_by": "के द्वारा छनित",
   "today" : "आज",
   "yesterday" : "बिता कल",
   "received" : "प्राप्त किया",
