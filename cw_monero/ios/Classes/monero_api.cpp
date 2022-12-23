@@ -196,7 +196,7 @@ extern "C"
     std::mutex store_lock;
     bool is_storing = false;
 
-    void change_current_wallet(Monero::Wallet *wallet)
+    __declspec(dllexport) void change_current_wallet(Monero::Wallet *wallet)
     {
         m_wallet = wallet;
         m_listener = nullptr;
@@ -230,12 +230,12 @@ extern "C"
         }
     }
 
-    Monero::Wallet *get_current_wallet()
+    __declspec(dllexport) Monero::Wallet *get_current_wallet()
     {
         return m_wallet;
     }
 
-    bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
+    __declspec(dllexport) bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
         Monero::WalletManagerFactory::setLogLevel(4);
 
@@ -259,7 +259,7 @@ extern "C"
         return true;
     }
 
-    bool restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
+    __declspec(dllexport) bool restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
@@ -284,7 +284,7 @@ extern "C"
         return true;
     }
 
-    bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
+    __declspec(dllexport) bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->createWalletFromKeys(
@@ -312,7 +312,7 @@ extern "C"
         return true;
     }
 
-    bool load_wallet(char *path, char *password, int32_t nettype)
+    __declspec(dllexport) bool load_wallet(char *path, char *password, int32_t nettype)
     {
         // nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
@@ -327,43 +327,43 @@ extern "C"
         return !(status != Monero::Wallet::Status_Ok || !errorString.empty());
     }
 
-    char *error_string() {
+    __declspec(dllexport) char *error_string() {
         return strdup(get_current_wallet()->errorString().c_str());
     }
 
 
-    bool is_wallet_exist(char *path)
+    __declspec(dllexport) bool is_wallet_exist(char *path)
     {
         return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
     }
 
-    void close_current_wallet()
+    __declspec(dllexport) void close_current_wallet()
     {
         Monero::WalletManagerFactory::getWalletManager()->closeWallet(get_current_wallet());
         change_current_wallet(nullptr);
     }
 
-    char *get_filename()
+    __declspec(dllexport) char *get_filename()
     {
         return strdup(get_current_wallet()->filename().c_str());
     }
 
-    char *secret_view_key()
+    __declspec(dllexport) char *secret_view_key()
     {
         return strdup(get_current_wallet()->secretViewKey().c_str());
     }
 
-    char *public_view_key()
+    __declspec(dllexport) char *public_view_key()
     {
         return strdup(get_current_wallet()->publicViewKey().c_str());
     }
 
-    char *secret_spend_key()
+    __declspec(dllexport) char *secret_spend_key()
     {
         return strdup(get_current_wallet()->secretSpendKey().c_str());
     }
 
-    char *public_spend_key()
+    __declspec(dllexport) char *public_spend_key()
     {
         return strdup(get_current_wallet()->publicSpendKey().c_str());
     }
