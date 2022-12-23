@@ -490,7 +490,7 @@ extern "C"
         return is_changed;
     }
 
-    bool transaction_create(char *address, char *payment_id, char *amount,
+    __declspec(dllexport) bool transaction_create(char *address, char *payment_id, char *amount,
                                               uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         // nice(19);
@@ -530,7 +530,7 @@ extern "C"
         return true;
     }
 
-    bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
+    __declspec(dllexport) bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
                                                   uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         // nice(19);
@@ -572,7 +572,7 @@ extern "C"
         return true;
     }
 
-    bool transaction_commit(PendingTransactionRaw *transaction, Utf8Box &error)
+    __declspec(dllexport) bool transaction_commit(PendingTransactionRaw *transaction, Utf8Box &error)
     {
         bool committed = transaction->transaction->commit();
 
@@ -586,7 +586,7 @@ extern "C"
         return committed;
     }
 
-    uint64_t get_node_height_or_update(uint64_t base_eight)
+    __declspec(dllexport) uint64_t get_node_height_or_update(uint64_t base_eight)
     {
         if (m_cached_syncing_blockchain_height < base_eight) {
             m_cached_syncing_blockchain_height = base_eight;
@@ -659,7 +659,7 @@ extern "C"
         get_current_wallet()->setListener(m_listener);
     }
 
-    int64_t *subaddrress_get_all()
+    __declspec(dllexport) int64_t *subaddrress_get_all()
     {
         std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
         size_t size = _subaddresses.size();
@@ -675,34 +675,34 @@ extern "C"
         return subaddresses;
     }
 
-    int32_t subaddrress_size()
+    __declspec(dllexport) int32_t subaddrress_size()
     {
         std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
         return _subaddresses.size();
     }
 
-    void subaddress_add_row(uint32_t accountIndex, char *label)
+    __declspec(dllexport) void subaddress_add_row(uint32_t accountIndex, char *label)
     {
         m_subaddress->addRow(accountIndex, std::string(label));
     }
 
-    void subaddress_set_label(uint32_t accountIndex, uint32_t addressIndex, char *label)
+    __declspec(dllexport) void subaddress_set_label(uint32_t accountIndex, uint32_t addressIndex, char *label)
     {
         m_subaddress->setLabel(accountIndex, addressIndex, std::string(label));
     }
 
-    void subaddress_refresh(uint32_t accountIndex)
+    __declspec(dllexport) void subaddress_refresh(uint32_t accountIndex)
     {
         m_subaddress->refresh(accountIndex);
     }
 
-    int32_t account_size()
+    __declspec(dllexport) int32_t account_size()
     {
         std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
         return _accocunts.size();
     }
 
-    int64_t *account_get_all()
+    __declspec(dllexport) int64_t *account_get_all()
     {
         std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
         size_t size = _accocunts.size();
@@ -718,22 +718,22 @@ extern "C"
         return accocunts;
     }
 
-    void account_add_row(char *label)
+    __declspec(dllexport) void account_add_row(char *label)
     {
         m_account->addRow(std::string(label));
     }
 
-    void account_set_label_row(uint32_t account_index, char *label)
+    __declspec(dllexport) void account_set_label_row(uint32_t account_index, char *label)
     {
         m_account->setLabel(account_index, label);
     }
 
-    void account_refresh()
+    __declspec(dllexport) void account_refresh()
     {
         m_account->refresh();
     }
 
-    int64_t *transactions_get_all()
+    __declspec(dllexport) int64_t *transactions_get_all()
     {
         std::vector<Monero::TransactionInfo *> transactions = m_transaction_history->getAll();
         size_t size = transactions.size();
@@ -749,17 +749,17 @@ extern "C"
         return transactionAddresses;
     }
 
-    void transactions_refresh()
+    __declspec(dllexport) void transactions_refresh()
     {
         m_transaction_history->refresh();
     }
 
-    int64_t transactions_count()
+    __declspec(dllexport) int64_t transactions_count()
     {
         return m_transaction_history->count();
     }
 
-    int LedgerExchange(
+    __declspec(dllexport) int LedgerExchange(
         unsigned char *command,
         unsigned int cmd_len,
         unsigned char *response,
@@ -768,7 +768,7 @@ extern "C"
         return -1;
     }
 
-    int LedgerFind(char *buffer, size_t len)
+    __declspec(dllexport) int LedgerFind(char *buffer, size_t len)
     {
         return -1;
     }
