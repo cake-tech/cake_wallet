@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,10 +58,7 @@ class WalletKeysPage extends BasePage {
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
                       color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
-                      child: Container(
-                        height: 1,
-                        color: Theme.of(context).dividerColor,
-                      ),
+                      child: SectionDivider(),
                     ),
                 itemCount: walletKeysViewModel.items.length,
                 itemBuilder: (BuildContext context, int index) {

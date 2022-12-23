@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -83,11 +84,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                         ListView.separated(
                                           padding: EdgeInsets.zero,
                                           controller: controller,
-                                          separatorBuilder: (context, index) =>
-                                          Container(
-                                            height: 1,
-                                            color: Theme.of(context).dividerColor,
-                                          ),
+                                          separatorBuilder: (context, index) => SectionDivider(),
                                           itemCount: accounts.length ?? 0,
                                           itemBuilder: (context, index) {
                                             final account = accounts[index];

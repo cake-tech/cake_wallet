@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_tile.dart';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -138,18 +139,6 @@ class FilterWidget extends StatelessWidget {
           AlertCloseButton(image: closeIcon)
         ],
       ),
-    );
-  }
-}
-
-class SectionDivider extends StatelessWidget {
-  const SectionDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 1,
-      color: Theme.of(context).dividerColor,
     );
   }
 }

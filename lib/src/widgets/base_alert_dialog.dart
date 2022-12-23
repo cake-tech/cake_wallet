@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -76,10 +77,7 @@ class BaseAlertDialog extends StatelessWidget {
                     ),
                   )),
             ),
-        Container(
-          width: 1,
-          color: Theme.of(context).dividerColor,
-        ),
+            SectionDivider(),
             Expanded(
               child: TextButton(
                   onPressed: actionRight,
@@ -140,10 +138,7 @@ class BaseAlertDialog extends StatelessWidget {
                             isDividerExists
                                 ? Padding(
                                     padding: EdgeInsets.only(top: 16, bottom: 8),
-                                    child: Container(
-                                      height: 1,
-                                      color: Theme.of(context).dividerColor,
-                                    ),
+                                    child: SectionDivider(),
                                   )
                                 : Offstage(),
                             Padding(
@@ -152,10 +147,7 @@ class BaseAlertDialog extends StatelessWidget {
                             )
                           ],
                         ),
-                        Container(
-                          height: 1,
-                          color: Theme.of(context).dividerColor,
-                        ),
+                        SectionDivider(),
                         actionButtons(context)
                       ],
                     ),

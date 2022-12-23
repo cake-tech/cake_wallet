@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 
@@ -70,10 +71,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
                 controller: controller,
                 padding: EdgeInsets.all(0),
                 itemCount: itemCount,
-                separatorBuilder: (_, __) => Container(
-                  height: 1,
-                  color: Theme.of(context).dividerColor,
-                ),
+                separatorBuilder: (_, __) => SectionDivider(),
                 itemBuilder: (context, index) {
                   final address = addresses[index];
 
