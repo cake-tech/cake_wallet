@@ -10,11 +10,14 @@ class TransactionFilterStore = TransactionFilterStoreBase
     with _$TransactionFilterStore;
 
 abstract class TransactionFilterStoreBase with Store {
-  TransactionFilterStoreBase();
+  TransactionFilterStoreBase() : displayIncoming = true,
+        displayOutgoing = true;
 
-  Observable<bool> displayAll = Observable(true);
-  Observable<bool> displayIncoming = Observable(true);
-  Observable<bool> displayOutgoing = Observable(true);
+  @observable
+  bool displayIncoming;
+
+  @observable
+  bool displayOutgoing;
 
   @observable
   DateTime? startDate;
@@ -22,40 +25,30 @@ abstract class TransactionFilterStoreBase with Store {
   @observable
   DateTime? endDate;
 
+  @computed
+  bool get displayAll => displayIncoming && displayOutgoing;
+
   @action
-  void toggleIAll() {
-    displayAll.value = (!displayAll.value);
-    if (displayAll.value) {
-      displayOutgoing.value = true;
-      displayIncoming.value = true;
-    }
-    if (!displayAll.value) {
-      displayOutgoing.value = false;
-      displayIncoming.value = false;
+  void toggleAll() {
+    if (displayAll) {
+      displayOutgoing = false;
+      displayIncoming = false;
+    } else {
+      displayOutgoing = true;
+      displayIncoming = true;
     }
   }
 
+
   @action
   void toggleIncoming() {
-    displayIncoming.value = (!displayIncoming.value);
-    if (displayIncoming.value && displayOutgoing.value) {
-      displayAll.value = true;
-    }
-    if (!displayIncoming.value || !displayOutgoing.value) {
-      displayAll.value = false;
-    }
+    displayIncoming = !displayIncoming;
   }
 
 
   @action
   void toggleOutgoing() {
-    displayOutgoing.value = (!displayOutgoing.value);
-    if (displayIncoming.value && displayOutgoing.value) {
-      displayAll.value = true;
-    }
-    if (!displayIncoming.value || !displayOutgoing.value) {
-      displayAll.value = false;
-    }
+    displayOutgoing = !displayOutgoing;
   }
 
   @action
@@ -66,8 +59,7 @@ abstract class TransactionFilterStoreBase with Store {
 
   List<TransactionListItem> filtered({required List<TransactionListItem> transactions}) {
     var _transactions = <TransactionListItem>[];
-    final needToFilter = !displayOutgoing.value ||
-        !displayIncoming.value ||
+    final needToFilter = !displayAll ||
         (startDate != null && endDate != null);
 
     if (needToFilter) {
@@ -79,11 +71,11 @@ abstract class TransactionFilterStoreBase with Store {
               && (endDate?.isAfter(item.transaction.date) ?? false);
         }
 
-        if (allowed && (!displayOutgoing.value || !displayIncoming.value)) {
-          allowed = (displayOutgoing.value &&
+        if (allowed && (!displayAll)) {
+          allowed = (displayOutgoing &&
               item.transaction.direction ==
                   TransactionDirection.outgoing) ||
-              (displayIncoming.value &&
+              (displayIncoming &&
                   item.transaction.direction == TransactionDirection.incoming);
         }
 

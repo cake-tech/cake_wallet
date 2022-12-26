@@ -6,7 +6,7 @@ class FilterItem {
     required this.caption,
     required this.onChanged});
 
-  Observable<bool> value;
+  bool Function() value;
   String caption;
   Function onChanged;
 }

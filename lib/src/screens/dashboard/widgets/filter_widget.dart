@@ -82,7 +82,7 @@ class FilterWidget extends StatelessWidget {
                                   final content = item.onChanged != null
                                       ? Observer(
                                           builder: (_) => StandardCheckbox(
-                                                value: item.value.value,
+                                                value: item.value(),
                                                 caption: item.caption,
                                                 gradientBackground: true,
                                                 borderColor: Theme.of(context).dividerColor,

@@ -59,15 +59,15 @@ abstract class DashboardViewModelBase with Store {
     filterItems = {
       S.current.transactions: [
         FilterItem(
-            value: transactionFilterStore.displayAll,
+            value: () => transactionFilterStore.displayAll,
             caption: S.current.all_transactions,
-            onChanged:  transactionFilterStore.toggleIAll),
+            onChanged:  transactionFilterStore.toggleAll),
         FilterItem(
-            value: transactionFilterStore.displayIncoming,
+            value: () => transactionFilterStore.displayIncoming,
             caption: S.current.incoming,
             onChanged:transactionFilterStore.toggleIncoming),
         FilterItem(
-            value: transactionFilterStore.displayOutgoing,
+            value: () => transactionFilterStore.displayOutgoing,
             caption: S.current.outgoing,
             onChanged: transactionFilterStore.toggleOutgoing),
         // FilterItem(
@@ -77,22 +77,22 @@ abstract class DashboardViewModelBase with Store {
       ],
       S.current.trades: [
         FilterItem(
-            value: tradeFilterStore.displayAllTrades,
+            value: () => tradeFilterStore.displayAllTrades,
             caption: S.current.all_trades,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.all)),
         FilterItem(
-            value: tradeFilterStore.displayChangeNow,
+            value: () => tradeFilterStore.displayChangeNow,
             caption: ExchangeProviderDescription.changeNow.title,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
         FilterItem(
-            value:  tradeFilterStore.displaySideShift,
+            value: () => tradeFilterStore.displaySideShift,
             caption: ExchangeProviderDescription.sideShift.title,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
         FilterItem(
-            value:  tradeFilterStore.displaySimpleSwap,
+            value: () => tradeFilterStore.displaySimpleSwap,
             caption: ExchangeProviderDescription.simpleSwap.title,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),

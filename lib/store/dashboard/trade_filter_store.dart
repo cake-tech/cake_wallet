@@ -8,60 +8,61 @@ part'trade_filter_store.g.dart';
 class TradeFilterStore = TradeFilterStoreBase with _$TradeFilterStore;
 
 abstract class TradeFilterStoreBase with Store {
-  TradeFilterStoreBase();
+  TradeFilterStoreBase() : displayXMRTO = true,
+        displayChangeNow = true,
+        displaySideShift = true,
+        displayMorphToken = true,
+        displaySimpleSwap = true;
 
-  Observable<bool> displayXMRTO = Observable(true);
-  Observable<bool> displayAllTrades = Observable(true);
-  Observable<bool> displayChangeNow = Observable(true);
-  Observable<bool> displaySideShift = Observable(true);
-  Observable<bool> displayMorphToken = Observable(true);
-  Observable<bool> displaySimpleSwap = Observable(true);
+  @observable
+  bool displayXMRTO;
+
+  @observable
+  bool displayChangeNow;
+
+  @observable
+  bool displaySideShift;
+
+  @observable
+  bool displayMorphToken;
+
+  @observable
+  bool displaySimpleSwap;
+
+  @computed
+  bool get displayAllTrades => displayChangeNow && displaySideShift && displaySimpleSwap;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
     switch (provider) {
       case ExchangeProviderDescription.changeNow:
-        displayAllTrades.value = false;
-        displayChangeNow.value = !displayChangeNow.value;
-        if (displayChangeNow.value && displaySideShift.value && displaySimpleSwap.value) {
-          displayAllTrades.value = true;
-        }
+        displayChangeNow = !displayChangeNow;
         break;
       case ExchangeProviderDescription.sideShift:
-        displayAllTrades.value = false;
-        displaySideShift.value = !displaySideShift.value;
-        if (displayChangeNow.value && displaySideShift.value && displaySimpleSwap.value) {
-          displayAllTrades.value = true;
-        }
+        displaySideShift = !displaySideShift;
         break;
       case ExchangeProviderDescription.simpleSwap:
-        displayAllTrades.value = false;
-        displaySimpleSwap.value = !displaySimpleSwap.value;
-        if (displayChangeNow.value && displaySideShift.value && displaySimpleSwap.value) {
-          displayAllTrades.value = true;
-        }
+        displaySimpleSwap = !displaySimpleSwap;
         break;
       case ExchangeProviderDescription.xmrto:
-        displayXMRTO.value = !displayXMRTO.value;
+        displayXMRTO = !displayXMRTO;
         break;
       case ExchangeProviderDescription.morphToken:
-        displayMorphToken.value = !displayMorphToken.value;
+        displayMorphToken = !displayMorphToken;
         break;
       case ExchangeProviderDescription.all:
-        displayAllTrades.value = !displayAllTrades.value;
-        if (displayAllTrades.value) {
-          displayChangeNow.value = true;
-          displaySideShift.value = true;
-          displayXMRTO.value = true;
-          displayMorphToken.value = true;
-          displaySimpleSwap.value = true;
-        }
-        if (!displayAllTrades.value) {
-          displayChangeNow.value = false;
-          displaySideShift.value = false;
-          displayXMRTO.value = false;
-          displayMorphToken.value = false;
-          displaySimpleSwap.value = false;
+        if (displayAllTrades) {
+          displayChangeNow = false;
+          displaySideShift = false;
+          displayXMRTO = false;
+          displayMorphToken = false;
+          displaySimpleSwap = false;
+        } else {
+          displayChangeNow = true;
+          displaySideShift = true;
+          displayXMRTO = true;
+          displayMorphToken = true;
+          displaySimpleSwap = true;
         }
         break;
     }
@@ -70,24 +71,22 @@ abstract class TradeFilterStoreBase with Store {
   List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
     final _trades =
     trades.where((item) => item.trade.walletId == wallet.id).toList();
-    final needToFilter = !displayChangeNow.value || !displaySideShift.value
-        || !displayXMRTO.value || !displayMorphToken.value
-        || !displaySimpleSwap.value;
+    final needToFilter = !displayAllTrades;
 
     return needToFilter
         ? _trades
         .where((item) =>
-    (displayXMRTO.value &&
+    (displayXMRTO &&
         item.trade.provider == ExchangeProviderDescription.xmrto) ||
-        (displaySideShift.value &&
+        (displaySideShift &&
             item.trade.provider == ExchangeProviderDescription.sideShift) ||
-        (displayChangeNow.value &&
+        (displayChangeNow &&
             item.trade.provider ==
                 ExchangeProviderDescription.changeNow) ||
-        (displayMorphToken.value &&
+        (displayMorphToken &&
             item.trade.provider ==
                 ExchangeProviderDescription.morphToken)
-        ||(displaySimpleSwap.value &&
+        ||(displaySimpleSwap &&
             item.trade.provider ==
                 ExchangeProviderDescription.simpleSwap))
         .toList()
