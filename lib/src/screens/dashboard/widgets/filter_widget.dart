@@ -38,7 +38,7 @@ class FilterWidget extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.all(24.0),
                         child: Text(
-                          S.of(context).filters,
+                          S.of(context).filter_by,
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.overline!.color!,
                             fontSize: 16,
