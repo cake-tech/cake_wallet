@@ -6,7 +6,11 @@ add_library( cw_monero
 #             ../../../cw_monero/android/jni/monero_jni.cpp
              ../../../../../cw_monero/ios/Classes/monero_api.cpp)
 
-             set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../../build)
+set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../../build)
+
+include(GenerateExportHeader)
+generate_export_header(cw_monero)
+target_include_directories(cw_monero PUBLIC ${CMAKE_SOURCE_DIR}/../../../build/monero_build)
 
 ############
 # libsodium
