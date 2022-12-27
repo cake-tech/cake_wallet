@@ -30,7 +30,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       {required WalletBase wallet, dynamic item})
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
-        label = item?.name as String? ?? '',
+        label = item?.fullName as String? ?? '',
         _item = item,
         _wallet = wallet;
 
