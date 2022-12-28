@@ -67,5 +67,3 @@ if [ ! -f ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOKitKeys.h ]; then
 fi
 
 cp -r ./missingincludes/gnutls ${EXTERNAL_IOS_INCLUDE_DIR}
-cp ./missingincludes/cw_monero_export.h ${PREFIX}/include
-cp ./missingincludes/cw_wownero_export.h ${PREFIX}/include
