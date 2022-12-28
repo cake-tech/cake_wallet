@@ -20,7 +20,7 @@ class FilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const sectionDivider = SectionDivider();
+    const sectionDivider = const SectionDivider();
     return AlertBackground(
       child: Stack(
         alignment: Alignment.center,
@@ -79,8 +79,7 @@ class FilterWidget extends StatelessWidget {
                                 itemCount: section.length,
                                 itemBuilder: (_, index2) {
                                   final item = section[index2];
-                                  final content = item.onChanged != null
-                                      ? Observer(
+                                  final content = Observer(
                                           builder: (_) => StandardCheckbox(
                                                 value: item.value(),
                                                 caption: item.caption,
@@ -88,40 +87,7 @@ class FilterWidget extends StatelessWidget {
                                                 borderColor: Theme.of(context).dividerColor,
                                                 iconColor: Colors.white,
                                                 onChanged: (value) => item.onChanged(),
-                                              ))
-                                      : GestureDetector(
-                                          onTap: () async {
-                                            //final List<DateTime> picked =
-                                            //await date_rage_picker.showDatePicker(
-                                            //    context: context,
-                                            //    initialFirstDate: DateTime.now()
-                                            //        .subtract(Duration(days: 1)),
-                                            //    initialLastDate: (DateTime.now()),
-                                            //    firstDate: DateTime(2015),
-                                            //    lastDate: DateTime.now()
-                                            //        .add(Duration(days: 1)));
-
-                                            //if (picked != null && picked.length == 2) {
-                                            //  dashboardViewModel.transactionFilterStore
-                                            //      .changeStartDate(picked.first);
-                                            //  dashboardViewModel.transactionFilterStore
-                                            //      .changeEndDate(picked.last);
-                                            //}
-                                          },
-                                          // child: Padding(
-                                          //   padding: EdgeInsets.only(left: 32),
-                                          //   child: Text(
-                                          //     item.caption,
-                                          //     style: TextStyle(
-                                          //         color: Theme.of(context).primaryTextTheme.title.color,
-                                          //         fontSize: 18,
-                                          //         fontFamily: 'Lato',
-                                          //         fontWeight: FontWeight.w500,
-                                          //         decoration: TextDecoration.none),
-                                          //   ),
-                                          // ),
-                                        );
-
+                                              ));
                                   return FilterTile(child: content);
                                 },
                               )

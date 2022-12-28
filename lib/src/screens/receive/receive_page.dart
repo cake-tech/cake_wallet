@@ -136,7 +136,7 @@ class ReceivePage extends BasePage {
               Observer(
                   builder: (_) => ListView.separated(
                       padding: EdgeInsets.all(0),
-                      separatorBuilder: (context, _) => SectionDivider(),
+                      separatorBuilder: (context, _) => const SectionDivider(),
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: addressListViewModel.items.length,

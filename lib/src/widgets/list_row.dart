@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class AnotherStandardListRow extends StatelessWidget {
-  AnotherStandardListRow(
+class ListRow extends StatelessWidget {
+  ListRow(
       {required this.title,
       required this.value,
       this.titleFontSize = 14,

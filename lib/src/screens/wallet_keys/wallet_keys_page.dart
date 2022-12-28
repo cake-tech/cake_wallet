@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/standard_list_row.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 
 class WalletKeysPage extends BasePage {
@@ -58,7 +58,7 @@ class WalletKeysPage extends BasePage {
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
                       color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
-                      child: SectionDivider(),
+                      child: const SectionDivider(),
                     ),
                 itemCount: walletKeysViewModel.items.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -69,7 +69,7 @@ class WalletKeysPage extends BasePage {
                       Clipboard.setData(ClipboardData(text: item.value));
                       showBar<void>(context, S.of(context).copied_key_to_clipboard(item.title));
                     },
-                    child: AnotherStandardListRow(
+                    child: ListRow(
                       title: item.title + ':',
                       value: item.value,
                     ),

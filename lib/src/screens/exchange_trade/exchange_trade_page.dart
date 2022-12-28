@@ -8,7 +8,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/src/widgets/standard_list_row.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -194,7 +194,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       final item = widget.exchangeTradeViewModel.items[index];
                       final value = item.data ?? fetchingLabel;
 
-                      final content = AnotherStandardListRow(
+                      final content = ListRow(
                         title: item.title,
                         value: value,
                         valueFontSize: 14,
