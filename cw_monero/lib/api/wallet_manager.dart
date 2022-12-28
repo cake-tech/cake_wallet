@@ -1,16 +1,16 @@
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:cw_monero/api/convert_utf8_to_string.dart';
-import 'package:cw_monero/api/signatures.dart';
-import 'package:cw_monero/api/types.dart';
-import 'package:cw_monero/api/monero_api.dart';
-import 'package:cw_monero/api/wallet.dart';
-import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
+import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
+import 'package:cw_monero/api/monero_api.dart';
+import 'package:cw_monero/api/signatures.dart';
+import 'package:cw_monero/api/types.dart';
+import 'package:ffi/ffi.dart';
 import 'package:ffi/ffi.dart' as pkgffi;
+import 'package:flutter/foundation.dart';
 
 final createWalletNative = moneroApi
     .lookup<NativeFunction<create_wallet>>('create_wallet')
@@ -39,7 +39,10 @@ final errorStringNative = moneroApi
     .asFunction<ErrorString>();
 
 void createWalletSync(
-    {required String path, required String password, required String language, int nettype = 0}) {
+    {required String path,
+    required String password,
+    required String language,
+    int nettype = 0}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
@@ -142,7 +145,8 @@ void restoreWalletFromKeysSync(
   }
 }
 
-void loadWallet({required String path, required String password, int nettype = 0}) {
+void loadWallet(
+    {required String path, required String password, int nettype = 0}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final loaded = loadWalletNative(pathPointer, passwordPointer, nettype) != 0;
@@ -197,7 +201,8 @@ Future<void> _openWallet(Map<String, String> args) async =>
 
 bool _isWalletExist(String? path) => isWalletExistSync(path: path!);
 
-void openWallet({required String path, required String password, int nettype = 0}) async =>
+void openWallet(
+        {required String path, required String password, int nettype = 0}) =>
     loadWallet(path: path, password: password, nettype: nettype);
 
 Future<void> openWalletAsync(Map<String, String> args) async =>
