@@ -22,9 +22,8 @@ void __clear_cache(void* start, void* end) { }
 #ifdef linux
 #include <string.h>
 #endif
-#ifdef WIN32
+
 #include <cw_wownero_export.h>
-#endif
 
 // void nice(int niceness); // Prototype definition
 
