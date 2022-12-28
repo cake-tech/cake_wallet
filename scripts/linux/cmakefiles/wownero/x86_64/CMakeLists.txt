@@ -5,7 +5,7 @@ add_library( cw_wownero
 #             ../../../cw_wownero/android/jni/wownero_jni.cpp
              ../../../../../cw_wownero/ios/Classes/wownero_api.cpp)
 
-             set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../../build)
+set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../../build)
 
 ############
 # libsodium
