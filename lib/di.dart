@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
@@ -562,6 +563,8 @@ Future setup(
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
             _walletInfoSource, _unspentCoinsInfoSource!);
+      case WalletType.ethereum:
+        return ethereum!.createEthereumWalletService(_walletInfoSource);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }

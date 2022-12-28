@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 
 const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
+const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -13,11 +13,13 @@ Future<void> main(List<String> args) async {
   final hasBitcoin = args.contains('${prefix}bitcoin');
   final hasMonero = args.contains('${prefix}monero');
   final hasHaven = args.contains('${prefix}haven');
+  final hasEthereum = args.contains('${prefix}ethereum');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
+  await generateEthereum(hasEthereum);
+  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
+  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
@@ -469,7 +471,39 @@ abstract class HavenAccountList {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven}) async {
+Future<void> generateEthereum(bool hasImplementation) async {
+
+  final outputFile = File(ethereumOutputPath);
+  const ethereumCommonHeaders = """
+""";
+  const ethereumCWHeaders = """
+import 'package:cw_ethereum/ethereum_mnemonics.dart';
+""";
+  const ethereumCwPart = "part 'cw_ethereum.dart';";
+  const ethereumContent = """
+abstract class Ethereum {
+  List<String> getEthereumWordList(String language);
+}
+  """;
+
+  const ethereumEmptyDefinition = 'Ethereum? ethereum;\n';
+  const ethereumCWDefinition = 'Ethereum? ethereum = CWEthereum();\n';
+
+  final output = '$ethereumCommonHeaders\n'
+    + (hasImplementation ? '$ethereumCWHeaders\n' : '\n')
+    + (hasImplementation ? '$ethereumCwPart\n\n' : '\n')
+    + (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition)
+    + '\n'
+    + ethereumContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
   const cwCore =  """
   cw_core:
     path: ./cw_core
@@ -489,6 +523,10 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   const cwSharedExternal = """
   cw_shared_external:
     path: ./cw_shared_external
+  """;
+  const cwEthereum = """
+  cw_ethereum:
+    path: ./cw_ethereum
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -510,6 +548,10 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
     output += '\n$cwHaven';
   }
 
+  if (hasEthereum) {
+    output += '\n$cwEthereum';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -522,7 +564,7 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven}) async {
+Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
   final walletTypesFile = File(walletTypesPath);
   
   if (walletTypesFile.existsSync()) {
@@ -543,6 +585,10 @@ Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitc
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
+  }
+
+  if (hasEthereum) {
+    outputContent += '\tWalletType.ethereum,\n';
   }
 
   outputContent += '];\n';

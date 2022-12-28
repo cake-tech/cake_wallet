@@ -53,7 +53,7 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async =>
-      File(await pathForWalletDir(name: wallet, type: WalletType.bitcoin))
+      File(await pathForWalletDir(name: wallet, type: getType()))
           .delete(recursive: true);
 
   @override
