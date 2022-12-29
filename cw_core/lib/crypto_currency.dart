@@ -67,6 +67,22 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.stx,
   ];
 
+  static const havenCurrencies = [
+    xag,
+    xau,
+    xaud,
+    xbtc,
+    xcad,
+    xchf,
+    xcny,
+    xeur,
+    xgbp,
+    xjpy,
+    xnok,
+    xnzd,
+    xusd,
+  ];
+
   static const xmr = CryptoCurrency(title: 'XMR', iconPath: 'assets/images/monero_icon.png', fullName: 'Monero', raw: 0, name: 'xmr');
   static const ada = CryptoCurrency(title: 'ADA', iconPath: 'assets/images/ada_icon.png', fullName: 'Cardano', raw: 1, name: 'ada');
   static const bch = CryptoCurrency(title: 'BCH', iconPath: 'assets/images/bch_icon.png',fullName: 'Bitcoin Cash', raw: 2, name: 'bch');
@@ -134,16 +150,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const stx = CryptoCurrency(title: 'STX', iconPath: 'assets/images/stx_icon.png', raw: 61, name: 'stx');
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
-  all.fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
-    acc.addAll({item.raw: item});
-    return acc;
-  });
+    [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
+      acc.addAll({item.raw: item});
+      return acc;
+    });
 
   static final Map<String, CryptoCurrency> _nameCurrencyMap =
-  all.fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
-    acc.addAll({item.name: item});
-    return acc;
-  });
+    [...all, ...havenCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
+      acc.addAll({item.name: item});
+      return acc;
+    });
 
   static CryptoCurrency deserialize({required int raw}) {
 
