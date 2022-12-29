@@ -4,6 +4,7 @@ WORKDIR="$(pwd)/"build
 CW_DIR="$(pwd)"/../../../flutter_libmonero
 CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
 CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
+CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
 for arch in $TYPES_OF_BUILD
 do
 
@@ -32,7 +33,10 @@ cp -r ${PREFIX}/include/* $INCLUDE_DIR
 
 
 mkdir -p ${CW_MONERO_EXTERNAL_DIR}/include
+mkdir -p ${CW_WOWNERO_EXTERNAL_DIR}/include
 
 cp $PREFIX/include/monero/wallet2_api.h ${CW_MONERO_EXTERNAL_DIR}/include
+cp $PREFIX/include/wownero/wallet2_api.h ${CW_WOWNERO_EXTERNAL_DIR}/include
+cp -R $PREFIX/include/wownero_seed ${CW_WOWNERO_EXTERNAL_DIR}/include
 
 done
