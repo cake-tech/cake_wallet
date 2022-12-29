@@ -194,7 +194,7 @@ extern "C"
     std::mutex store_lock;
     bool is_storing = false;
 
-    #ifdef _WIN32
+#ifdef _WIN32
     __declspec(dllexport) void change_current_wallet(Monero::Wallet *wallet)
     {
         m_wallet = wallet;
@@ -453,7 +453,7 @@ extern "C"
         get_current_wallet()->startRefresh();
     }
 
-    void set_refresh_from_block_height(uint64_t height)
+    __declspec(dllexport) void set_refresh_from_block_height(uint64_t height)
     {
         get_current_wallet()->setRefreshFromBlockHeight(height);
     }
