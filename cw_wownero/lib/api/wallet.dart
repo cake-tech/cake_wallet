@@ -14,120 +14,123 @@ import 'package:flutter/foundation.dart';
 int _boolToInt(bool value) => value ? 1 : 0;
 
 final getFileNameNative = wowneroApi
-    .lookup<NativeFunction<get_filename>>('get_filename')
+    .lookup<NativeFunction<wow_get_filename>>('wow_get_filename')
     .asFunction<GetFilename>();
 
-final getSeedNative =
-    wowneroApi.lookup<NativeFunction<get_seed>>('seed').asFunction<GetSeed>();
+final getSeedNative = wowneroApi
+    .lookup<NativeFunction<wow_get_seed>>('wow_seed')
+    .asFunction<GetSeed>();
 
 final getAddressNative = wowneroApi
-    .lookup<NativeFunction<get_address>>('get_address')
+    .lookup<NativeFunction<wow_get_address>>('wow_get_address')
     .asFunction<GetAddress>();
 
 final getFullBalanceNative = wowneroApi
-    .lookup<NativeFunction<get_full_balanace>>('get_full_balance')
+    .lookup<NativeFunction<wow_get_full_balance>>('wow_get_full_balance')
     .asFunction<GetFullBalance>();
 
 final getUnlockedBalanceNative = wowneroApi
-    .lookup<NativeFunction<get_unlocked_balanace>>('get_unlocked_balance')
+    .lookup<NativeFunction<wow_get_unlocked_balance>>('wow_get_unlocked_balance')
     .asFunction<GetUnlockedBalance>();
 
 final getCurrentHeightNative = wowneroApi
-    .lookup<NativeFunction<get_current_height>>('get_current_height')
+    .lookup<NativeFunction<wow_get_current_height>>('wow_get_current_height')
     .asFunction<GetCurrentHeight>();
 
 final getNodeHeightNative = wowneroApi
-    .lookup<NativeFunction<get_node_height>>('get_node_height')
+    .lookup<NativeFunction<wow_get_node_height>>('wow_get_node_height')
     .asFunction<GetNodeHeight>();
 
 final getSeedHeightNative = wowneroApi
-    .lookup<NativeFunction<get_seed_height>>('get_seed_height')
+    .lookup<NativeFunction<wow_get_seed_height>>('wow_get_seed_height')
     .asFunction<GetSeedHeight>();
 
 final isConnectedNative = wowneroApi
-    .lookup<NativeFunction<is_connected>>('is_connected')
+    .lookup<NativeFunction<wow_is_connected>>('wow_is_connected')
     .asFunction<IsConnected>();
 
 final setupNodeNative = wowneroApi
-    .lookup<NativeFunction<setup_node>>('setup_node')
+    .lookup<NativeFunction<wow_setup_node>>('wow_setup_node')
     .asFunction<SetupNode>();
 
 final startRefreshNative = wowneroApi
-    .lookup<NativeFunction<start_refresh>>('start_refresh')
+    .lookup<NativeFunction<wow_start_refresh>>('wow_start_refresh')
     .asFunction<StartRefresh>();
 
 final connecToNodeNative = wowneroApi
-    .lookup<NativeFunction<connect_to_node>>('connect_to_node')
+    .lookup<NativeFunction<wow_connect_to_node>>('wow_connect_to_node')
     .asFunction<ConnectToNode>();
 
 final setRefreshFromBlockHeightNative = wowneroApi
-    .lookup<NativeFunction<set_refresh_from_block_height>>(
-        'set_refresh_from_block_height')
+    .lookup<NativeFunction<wow_set_refresh_from_block_height>>(
+        'wow_set_refresh_from_block_height')
     .asFunction<SetRefreshFromBlockHeight>();
 
 final setRecoveringFromSeedNative = wowneroApi
-    .lookup<NativeFunction<set_recovering_from_seed>>(
-        'set_recovering_from_seed')
+    .lookup<NativeFunction<wow_set_recovering_from_seed>>(
+        'wow_set_recovering_from_seed')
     .asFunction<SetRecoveringFromSeed>();
 
-final storeNative =
-    wowneroApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
+final storeNative = wowneroApi
+    .lookup<NativeFunction<wow_store_c>>('wow_store')
+    .asFunction<Store>();
 
 final setPasswordNative = wowneroApi
-    .lookup<NativeFunction<set_password>>('set_password')
+    .lookup<NativeFunction<wow_set_password>>('wow_set_password')
     .asFunction<SetPassword>();
 
 final setListenerNative = wowneroApi
-    .lookup<NativeFunction<set_listener>>('set_listener')
+    .lookup<NativeFunction<wow_set_listener>>('wow_set_listener')
     .asFunction<SetListener>();
 
 final getSyncingHeightNative = wowneroApi
-    .lookup<NativeFunction<get_syncing_height>>('get_syncing_height')
+    .lookup<NativeFunction<wow_get_syncing_height>>('wow_get_syncing_height')
     .asFunction<GetSyncingHeight>();
 
 final isNeededToRefreshNative = wowneroApi
-    .lookup<NativeFunction<is_needed_to_refresh>>('is_needed_to_refresh')
+    .lookup<NativeFunction<wow_is_needed_to_refresh>>('wow_is_needed_to_refresh')
     .asFunction<IsNeededToRefresh>();
 
 final isNewTransactionExistNative = wowneroApi
-    .lookup<NativeFunction<is_new_transaction_exist>>(
-        'is_new_transaction_exist')
+    .lookup<NativeFunction<wow_is_new_transaction_exist>>(
+        'wow_is_new_transaction_exist')
     .asFunction<IsNewTransactionExist>();
 
 final getSecretViewKeyNative = wowneroApi
-    .lookup<NativeFunction<secret_view_key>>('secret_view_key')
+    .lookup<NativeFunction<wow_secret_view_key>>('wow_secret_view_key')
     .asFunction<SecretViewKey>();
 
 final getPublicViewKeyNative = wowneroApi
-    .lookup<NativeFunction<public_view_key>>('public_view_key')
+    .lookup<NativeFunction<wow_public_view_key>>('wow_public_view_key')
     .asFunction<PublicViewKey>();
 
 final getSecretSpendKeyNative = wowneroApi
-    .lookup<NativeFunction<secret_spend_key>>('secret_spend_key')
+    .lookup<NativeFunction<wow_secret_spend_key>>('wow_secret_spend_key')
     .asFunction<SecretSpendKey>();
 
 final getPublicSpendKeyNative = wowneroApi
-    .lookup<NativeFunction<secret_view_key>>('public_spend_key')
+    .lookup<NativeFunction<wow_public_spend_key>>('wow_public_spend_key')
     .asFunction<PublicSpendKey>();
 
 final closeCurrentWalletNative = wowneroApi
-    .lookup<NativeFunction<close_current_wallet>>('close_current_wallet')
+    .lookup<NativeFunction<wow_close_current_wallet>>(
+        'wow_close_current_wallet')
     .asFunction<CloseCurrentWallet>();
 
 final onStartupNative = wowneroApi
-    .lookup<NativeFunction<on_startup>>('on_startup')
+    .lookup<NativeFunction<wow_on_startup>>('wow_on_startup')
     .asFunction<OnStartup>();
 
 final rescanBlockchainAsyncNative = wowneroApi
-    .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
+    .lookup<NativeFunction<wow_rescan_blockchain>>('wow_rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
 
 final getSubaddressLabelNative = wowneroApi
-    .lookup<NativeFunction<get_subaddress_label>>('get_subaddress_label')
+    .lookup<NativeFunction<wow_get_subaddress_label>>('wow_get_subaddress_label')
     .asFunction<GetSubaddressLabel>();
 
 final validateAddressNative = wowneroApi
-    .lookup<NativeFunction<validate_address>>('validate_address')
+    .lookup<NativeFunction<wow_validate_address>>('wow_validate_address')
     .asFunction<ValidateAddress>();
 
 int getSyncingHeight() => getSyncingHeightNative();
