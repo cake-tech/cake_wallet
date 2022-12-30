@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.4.1)
 add_library( cw_wownero
              SHARED
 #             ../../../cw_wownero/android/jni/wownero_jni.cpp
-             ../../../../../cw_wownero/ios/Classes/wownero_api_win.cpp)
+             ../../../../../cw_wownero/ios/Classes/wownero_api.cpp)
 
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../../build)
 
