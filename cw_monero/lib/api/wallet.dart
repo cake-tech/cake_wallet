@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:cw_monero/api/convert_utf8_to_string.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
@@ -358,23 +359,26 @@ int storeTime = 0;
 bool priorityInQueue = false;
 
 Future<bool> store({bool prioritySave = false}) async {
-  // if (priorityInQueue) {
-  //   return false;
-  // }
-  // print(
-  //     "${DateTime.now().millisecondsSinceEpoch} $prioritySave $priorityInQueue");
-  // if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
-  //     prioritySave) {
-  //   priorityInQueue = true;
-  //   await Future.delayed(Duration(seconds: 1));
-  //   priorityInQueue = false;
-  //   return store(prioritySave: prioritySave);
-  // } else if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
-  //     !prioritySave) {
-  //   return false;
-  // }
-  // print("released $storeTime");
-  // storeTime = DateTime.now().millisecondsSinceEpoch;
+  // Delay saves
+  if (Platform.isAndroid) {
+    if (priorityInQueue) {
+      return false;
+    }
+    print(
+        "${DateTime.now().millisecondsSinceEpoch} $prioritySave $priorityInQueue");
+    if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
+        prioritySave) {
+      priorityInQueue = true;
+      await Future.delayed(Duration(seconds: 1));
+      priorityInQueue = false;
+      return store(prioritySave: prioritySave);
+    } else if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
+        !prioritySave) {
+      return false;
+    }
+    print("released $storeTime");
+    storeTime = DateTime.now().millisecondsSinceEpoch;
+  }
   await compute<int, void>(_storeSync, 0);
   return true;
 }

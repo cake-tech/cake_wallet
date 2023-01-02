@@ -7,6 +7,7 @@
 #include <mutex>
 #include "thread"
 #include "CwWalletListener.h"
+
 #if __APPLE__
 // Fix for randomx on ios
 void __clear_cache(void* start, void* end) { }
@@ -17,6 +18,8 @@ void __clear_cache(void* start, void* end) { }
 #ifdef linux
 #include <string.h>
 #endif
+
+// void nice(int niceness); // Prototype definition
 
 using namespace std::chrono_literals;
 #ifdef __cplusplus
@@ -330,6 +333,7 @@ extern "C"
     #endif
      bool load_wallet(char *path, char *password, int32_t nettype)
     {
+        nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->openWallet(std::string(path), std::string(password), networkType);
@@ -461,6 +465,7 @@ extern "C"
     #endif
     bool connect_to_node(char *error)
     {
+        nice(19);
         bool is_connected = get_current_wallet()->connectToDaemon();
 
         if (!is_connected)
@@ -476,6 +481,7 @@ extern "C"
     #endif
      bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
+        nice(19);
         Monero::Wallet *wallet = get_current_wallet();
 
         std::string _login = "";
@@ -575,6 +581,8 @@ extern "C"
     bool transaction_create(char *address, char *payment_id, char *amount,
                                               uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
+        nice(19);
+        
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
         std::string _payment_id;
         Monero::PendingTransaction *transaction;
@@ -616,6 +624,8 @@ extern "C"
     bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
                                                   uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
+        nice(19);
+
         std::vector<std::string> _addresses;
         std::vector<uint64_t> _amounts;
 

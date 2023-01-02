@@ -19,9 +19,12 @@ void __clear_cache(void* start, void* end) { }
 #include <wownero_seed/wownero_seed.hpp>
 #include "../External/android/include/wallet2_api.h"
 #endif
+
 #ifdef linux
 #include <string.h>
 #endif
+
+// void nice(int niceness); // Prototype definition
 
 using namespace std::chrono_literals;
 #ifdef __cplusplus
@@ -431,6 +434,7 @@ extern "C"
     #endif
     bool wow_load_wallet(char *path, char *password, int32_t nettype)
     {
+        nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->openWallet(std::string(path), std::string(password), networkType);
@@ -570,7 +574,8 @@ extern "C"
     #endif
     bool wow_connect_to_node(char *error)
     {
-        bool wow_is_connected = wow_get_current_wallet()->connectToDaemon();
+        nice(19);
+        bool is_connected = get_current_wallet()->connectToDaemon();
 
         if (!wow_is_connected)
         {
@@ -585,7 +590,8 @@ extern "C"
     #endif
     bool wow_setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
-        Monero::Wallet *wallet = wow_get_current_wallet();
+        nice(19);
+        Monero::Wallet *wallet = get_current_wallet();
 
         std::string _login = "";
         std::string _password = "";
@@ -672,6 +678,8 @@ extern "C"
     bool wow_transaction_create(char *address, char *payment_id, char *amount,
                                               uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
+        nice(19);
+
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
         std::string _payment_id;
         Monero::PendingTransaction *transaction;
@@ -713,6 +721,8 @@ extern "C"
     bool wow_transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
                                                   uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
+        nice(19);
+
         std::vector<std::string> _addresses;
         std::vector<uint64_t> _amounts;
 
