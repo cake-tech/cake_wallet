@@ -410,9 +410,7 @@ extern "C"
 
     bool load_wallet(char *path, char *password, int32_t nettype)
     {
-        #ifndef _WIN32
         nice(19);
-        #endif
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->openWallet(std::string(path), std::string(password), networkType);
@@ -504,9 +502,7 @@ extern "C"
 
     bool connect_to_node(char *error)
     {
-        #ifndef _WIN32
         nice(19);
-        #endif
         bool is_connected = get_current_wallet()->connectToDaemon();
 
         if (!is_connected)
@@ -519,9 +515,7 @@ extern "C"
 
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
-        #ifndef _WIN32
         nice(19);
-        #endif
         Monero::Wallet *wallet = get_current_wallet();
 
         std::string _login = "";
@@ -591,9 +585,7 @@ extern "C"
     bool transaction_create(char *address, char *payment_id, char *amount,
                                               uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
-        #ifndef _WIN32
         nice(19);
-        #endif
 
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
         std::string _payment_id;
@@ -633,9 +625,7 @@ extern "C"
     bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
                                                   uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
-        #ifndef _WIN32
         nice(19);
-        #endif
 
         std::vector<std::string> _addresses;
         std::vector<uint64_t> _amounts;
