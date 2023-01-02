@@ -347,13 +347,10 @@ extern "C"
         return true;
     }
 
-    bool restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, char *error)
+    bool restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
-
-        uint64_t restoreHeight = 0;
-        // TODO use reasonable height or parameter
 
         // 25 word seeds /*
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
@@ -884,6 +881,12 @@ extern "C"
     char *get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
     {
         return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
+    }
+
+    bool validate_address(char *address)
+    {
+        return get_current_wallet()->addressValid(std::string(address), 0); // TODO fix like by making the command below work or by otherwise detecting nettype
+        //return get_current_wallet()->validateAddress(std::string(address));
     }
 
 #ifdef __cplusplus

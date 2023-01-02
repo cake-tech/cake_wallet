@@ -89,12 +89,13 @@ abstract class Wownero {
 
   WowneroWalletDetails getWowneroWalletDetails(Object wallet);
 
-  String getTransactionAddress(
-      Object wallet, int accountIndex, int addressIndex);
+  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
   int getHeightByDate({DateTime? date});
 
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
+
+  bool validateAddress(Object wallet, String address);
 
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority? deserializeMoneroTransactionPriority({int raw});

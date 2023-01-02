@@ -322,6 +322,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
   }
 
+  bool validateAddress(String address) {
+    return monero_wallet.validateAddress(address);
+  }
+
   List<MoneroTransactionInfo> _getAllTransactions(dynamic _) =>
       monero_transaction_history
           .getAllTransations()
