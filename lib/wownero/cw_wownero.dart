@@ -155,6 +155,10 @@ class CWWownero extends Wownero {
     return CWWowneroWalletDetails(wallet);
   }
 
+  int getHeightByDate({DateTime? date}) {
+    return getWowneroHeightByDate(date: date!);
+  }
+
   TransactionPriority getDefaultTransactionPriority() {
     return MoneroTransactionPriority.slow;
   }
@@ -167,12 +171,22 @@ class CWWownero extends Wownero {
     return MoneroTransactionPriority.all;
   }
 
-  List<String> getWowneroWordList(String language) {
+  List<String> getWowneroWordList(String language, {int seedWordsLength = 14}) {
     switch (language.toLowerCase()) {
       case 'english':
-        return EnglishMnemonics.words;
+        switch (seedWordsLength) {
+          case 25:
+            return EnglishMnemonics25.words;
+          default:
+            return EnglishMnemonics14.words;
+        }
       default:
-        return EnglishMnemonics.words;
+        switch (seedWordsLength) {
+          case 25:
+            return EnglishMnemonics25.words;
+          default:
+            return EnglishMnemonics14.words;
+        }
     }
   }
 
@@ -201,9 +215,15 @@ class CWWownero extends Wownero {
   }
 
   WalletCredentials createWowneroNewWalletCredentials(
-      {String? name, String? password, String? language}) {
+      {String? name,
+      String? password,
+      String? language,
+      int seedWordsLength = 14}) {
     return WowneroNewWalletCredentials(
-        name: name, password: password, language: language);
+        name: name,
+        password: password,
+        language: language,
+        seedWordsLength: seedWordsLength);
   }
 
   Map<String, String?> getKeys(Object wallet) {

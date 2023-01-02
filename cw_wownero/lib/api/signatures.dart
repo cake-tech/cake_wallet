@@ -4,10 +4,16 @@ import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:cw_wownero/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 
-typedef create_wallet = Int8 Function(
+typedef create_14_word_wallet = Int8 Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
 
-typedef restore_wallet_from_seed = Int8 Function(
+typedef create_25_word_wallet = Int8 Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
+
+typedef restore_wallet_from_14_word_seed = Int8 Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
+
+typedef restore_wallet_from_25_word_seed = Int8 Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
 
 typedef restore_wallet_from_keys = Int8 Function(
