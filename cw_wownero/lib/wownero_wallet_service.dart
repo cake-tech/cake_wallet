@@ -1,17 +1,17 @@
 import 'dart:io';
-
 import 'package:collection/collection.dart' show IterableExtension;
-import 'package:cw_core/monero_wallet_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_wownero/api/exceptions/wallet_opening_exception.dart';
-import 'package:cw_wownero/api/wallet_manager.dart' as wownero_wallet_manager;
-import 'package:cw_wownero/wownero_wallet.dart';
+import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
+import 'package:cw_wownero/api/wallet_manager.dart' as wownero_wallet_manager;
+import 'package:cw_wownero/api/wallet.dart' as wownero_wallet;
+import 'package:cw_wownero/api/exceptions/wallet_opening_exception.dart';
+import 'package:cw_wownero/wownero_wallet.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 
 class WowneroNewWalletCredentials extends WalletCredentials {
   WowneroNewWalletCredentials(
@@ -201,7 +201,7 @@ class WowneroWalletService extends WalletService<
             wallet.getSeedHeight(credentials.mnemonic!);
       } else {
         wallet.walletInfo.restoreHeight = 0;
-        // TODO use an alternative to wow_seed's wow_get_seed_height
+        // TODO use an alternative to wow_seed's get_seed_height
       }
 
       await wallet.init();

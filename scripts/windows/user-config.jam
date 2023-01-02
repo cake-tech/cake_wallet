@@ -1,1 +1,0 @@
-using gcc : mingw : x86_64-w64-mingw32-g++ : <cc>"x86_64-w64-mingw32-gcc" <cxx>"x86_64-w64-mingw32-g++" <cross_compile>"x86_64-w64-mingw32.static-" ;

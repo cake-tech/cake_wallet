@@ -10,23 +10,23 @@ import 'package:ffi/ffi.dart' as pkgffi;
 import 'package:flutter/foundation.dart';
 
 final accountSizeNative = wowneroApi
-    .lookup<NativeFunction<wow_account_size>>('wow_account_size')
+    .lookup<NativeFunction<account_size>>('account_size')
     .asFunction<SubaddressSize>();
 
 final accountRefreshNative = wowneroApi
-    .lookup<NativeFunction<wow_account_refresh>>('wow_account_refresh')
+    .lookup<NativeFunction<account_refresh>>('account_refresh')
     .asFunction<AccountRefresh>();
 
 final accountGetAllNative = wowneroApi
-    .lookup<NativeFunction<wow_account_get_all>>('wow_account_get_all')
+    .lookup<NativeFunction<account_get_all>>('account_get_all')
     .asFunction<AccountGetAll>();
 
 final accountAddNewNative = wowneroApi
-    .lookup<NativeFunction<wow_account_add_new>>('wow_account_add_row')
+    .lookup<NativeFunction<account_add_new>>('account_add_row')
     .asFunction<AccountAddNew>();
 
 final accountSetLabelNative = wowneroApi
-    .lookup<NativeFunction<wow_account_set_label>>('wow_account_set_label_row')
+    .lookup<NativeFunction<account_set_label>>('account_set_label_row')
     .asFunction<AccountSetLabel>();
 
 bool isUpdating = false;

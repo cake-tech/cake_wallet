@@ -31,7 +31,7 @@ Java_com_cakewallet_wownero_WowneroApi_setNodeAddressJNI(
     char *__uri = (char*) _uri;
     char *__login = (char*) _login;
     char *__password = (char*) _password;
-    bool inited = wow_setup_node(__uri, __login, __password, false, false, error);
+    bool inited = setup_node(__uri, __login, __password, false, false, error);
 
     if (!inited) {
         env->ThrowNew(env->FindClass("java/lang/Exception"), error);
@@ -43,9 +43,9 @@ Java_com_cakewallet_wownero_WowneroApi_connectToNodeJNI(
         JNIEnv *env,
         jobject inst) {
     char *error;
-    bool wow_is_connected = wow_connect_to_node(error);
+    bool is_connected = connect_to_node(error);
 
-    if (!wow_is_connected) {
+    if (!is_connected) {
         env->ThrowNew(env->FindClass("java/lang/Exception"), error);
     }
 }
@@ -54,7 +54,7 @@ JNIEXPORT void JNICALL
 Java_com_cakewallet_wownero_WowneroApi_startSyncJNI(
         JNIEnv *env,
         jobject inst) {
-    wow_start_refresh();
+    start_refresh();
 }
 
 JNIEXPORT void JNICALL
@@ -66,7 +66,7 @@ Java_com_cakewallet_wownero_WowneroApi_loadWalletJNI(
     char *_path = (char *) env->GetStringUTFChars(path, 0);
     char *_password = (char *) env->GetStringUTFChars(password, 0);
 
-    wow_load_wallet(_path, _password, 0);
+    load_wallet(_path, _password, 0);
 }
 
 #ifdef __cplusplus

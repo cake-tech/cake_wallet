@@ -198,10 +198,7 @@ extern "C"
     std::mutex store_lock;
     bool is_storing = false;
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_change_current_wallet(Monero::Wallet *wallet)
+    void change_current_wallet(Monero::Wallet *wallet)
     {
         m_wallet = wallet;
         m_listener = nullptr;
@@ -235,18 +232,12 @@ extern "C"
         }
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    Monero::Wallet *wow_get_current_wallet()
+    Monero::Wallet *get_current_wallet()
     {
         return m_wallet;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_create_14_word_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
+    bool create_14_word_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
@@ -287,14 +278,11 @@ extern "C"
             return false;
         }
 
-        wow_change_current_wallet(wallet);
+        change_current_wallet(wallet);
         return true;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_create_25_word_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
+    bool create_25_word_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
@@ -314,14 +302,11 @@ extern "C"
             return false;
         }
 
-        wow_change_current_wallet(wallet);
+        change_current_wallet(wallet);
         return true;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_restore_wallet_from_14_word_seed(char *path, char *password, char *seed, int32_t networkType, char *error)
+    bool restore_wallet_from_14_word_seed(char *path, char *password, char *seed, int32_t networkType, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
@@ -361,14 +346,11 @@ extern "C"
             return false;
         }
 
-        wow_change_current_wallet(wallet);
+        change_current_wallet(wallet);
         return true;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
+    bool restore_wallet_from_25_word_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
@@ -393,14 +375,11 @@ extern "C"
             return false;
         }
 
-        wow_change_current_wallet(wallet);
+        change_current_wallet(wallet);
         return true;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
+    bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         // this function is not used, restoring from keys is disabled for Wownero
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
@@ -425,14 +404,11 @@ extern "C"
             return false;
         }
 
-        wow_change_current_wallet(wallet);
+        change_current_wallet(wallet);
         return true;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_load_wallet(char *path, char *password, int32_t nettype)
+    bool load_wallet(char *path, char *password, int32_t nettype)
     {
         nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
@@ -442,153 +418,102 @@ extern "C"
         std::string errorString;
 
         wallet->statusWithErrorString(status, errorString);
-        wow_change_current_wallet(wallet);
+        change_current_wallet(wallet);
 
         return !(status != Monero::Wallet::Status_Ok || !errorString.empty());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_error_string() {
-        return strdup(wow_get_current_wallet()->errorString().c_str());
+    char *error_string() {
+        return strdup(get_current_wallet()->errorString().c_str());
     }
 
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_is_wallet_exist(char *path)
+    bool is_wallet_exist(char *path)
     {
         return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_close_current_wallet()
+    void close_current_wallet()
     {
-        Monero::WalletManagerFactory::getWalletManager()->closeWallet(wow_get_current_wallet());
-        wow_change_current_wallet(nullptr);
+        Monero::WalletManagerFactory::getWalletManager()->closeWallet(get_current_wallet());
+        change_current_wallet(nullptr);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_get_filename()
+    char *get_filename()
     {
-        return strdup(wow_get_current_wallet()->filename().c_str());
+        return strdup(get_current_wallet()->filename().c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_secret_view_key()
+    char *secret_view_key()
     {
-        return strdup(wow_get_current_wallet()->secretViewKey().c_str());
+        return strdup(get_current_wallet()->secretViewKey().c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_public_view_key()
+    char *public_view_key()
     {
-        return strdup(wow_get_current_wallet()->publicViewKey().c_str());
+        return strdup(get_current_wallet()->publicViewKey().c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_secret_spend_key()
+    char *secret_spend_key()
     {
-        return strdup(wow_get_current_wallet()->secretSpendKey().c_str());
+        return strdup(get_current_wallet()->secretSpendKey().c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_public_spend_key()
+    char *public_spend_key()
     {
-        return strdup(wow_get_current_wallet()->publicSpendKey().c_str());
+        return strdup(get_current_wallet()->publicSpendKey().c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_get_address(uint32_t account_index, uint32_t address_index)
+    char *get_address(uint32_t account_index, uint32_t address_index)
     {
-        return strdup(wow_get_current_wallet()->address(account_index, address_index).c_str());
+        return strdup(get_current_wallet()->address(account_index, address_index).c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    const char *wow_seed()
+    const char *seed()
     {
-        return strdup(wow_get_current_wallet()->getCacheAttribute("cake.seed").c_str());
+        return strdup(get_current_wallet()->getCacheAttribute("cake.seed").c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_get_full_balance(uint32_t account_index)
+    uint64_t get_full_balance(uint32_t account_index)
     {
-        return wow_get_current_wallet()->balance(account_index);
+        return get_current_wallet()->balance(account_index);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_get_unlocked_balance(uint32_t account_index)
+    uint64_t get_unlocked_balance(uint32_t account_index)
     {
-        return wow_get_current_wallet()->unlockedBalance(account_index);
+        return get_current_wallet()->unlockedBalance(account_index);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_get_current_height()
+    uint64_t get_current_height()
     {
-        return wow_get_current_wallet()->blockChainHeight();
+        return get_current_wallet()->blockChainHeight();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_get_node_height()
+    uint64_t get_node_height()
     {
-        return wow_get_current_wallet()->daemonBlockChainHeight();
+        return get_current_wallet()->daemonBlockChainHeight();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_get_seed_height(char *seed)
+    uint64_t get_seed_height(char *seed)
     {
         wownero_seed wow_seed(seed, "wownero");
         return wow_seed.blockheight();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_connect_to_node(char *error)
+    bool connect_to_node(char *error)
     {
         nice(19);
         bool is_connected = get_current_wallet()->connectToDaemon();
 
-        if (!wow_is_connected)
+        if (!is_connected)
         {
-            error = strdup(wow_get_current_wallet()->errorString().c_str());
+            error = strdup(get_current_wallet()->errorString().c_str());
         }
 
-        return wow_is_connected;
+        return is_connected;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
+    bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
         nice(19);
         Monero::Wallet *wallet = get_current_wallet();
@@ -619,47 +544,32 @@ extern "C"
         return inited;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_is_connected()
+    bool is_connected()
     {
         try {
-            return wow_get_current_wallet()->connected();
+            return get_current_wallet()->connected();
         } catch (...) {
             return false;
         }
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_start_refresh()
+    void start_refresh()
     {
-        wow_get_current_wallet()->refreshAsync();
-        wow_get_current_wallet()->startRefresh();
+        get_current_wallet()->refreshAsync();
+        get_current_wallet()->startRefresh();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_set_refresh_from_block_height(uint64_t height)
+    void set_refresh_from_block_height(uint64_t height)
     {
-        wow_get_current_wallet()->setRefreshFromBlockHeight(height);
+        get_current_wallet()->setRefreshFromBlockHeight(height);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_set_recovering_from_seed(bool is_recovery)
+    void set_recovering_from_seed(bool is_recovery)
     {
-        wow_get_current_wallet()->setRecoveringFromSeed(is_recovery);
+        get_current_wallet()->setRecoveringFromSeed(is_recovery);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_store(char *path)
+    void store(char *path)
     {
         store_lock.lock();
         if (is_storing) {
@@ -667,15 +577,12 @@ extern "C"
         }
 
         is_storing = true;
-        wow_get_current_wallet()->store(std::string(path));
+        get_current_wallet()->store(std::string(path));
         is_storing = false;
         store_lock.unlock();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_transaction_create(char *address, char *payment_id, char *amount,
+    bool transaction_create(char *address, char *payment_id, char *amount,
                                               uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         nice(19);
@@ -715,10 +622,7 @@ extern "C"
         return true;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
+    bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
                                                   uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         nice(19);
@@ -760,10 +664,7 @@ extern "C"
         return true;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_transaction_commit(PendingTransactionRaw *transaction, Utf8Box &error)
+    bool transaction_commit(PendingTransactionRaw *transaction, Utf8Box &error)
     {
         bool committed = transaction->transaction->commit();
 
@@ -777,10 +678,7 @@ extern "C"
         return committed;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_get_node_height_or_update(uint64_t base_eight)
+    uint64_t get_node_height_or_update(uint64_t base_eight)
     {
         if (m_cached_syncing_blockchain_height < base_eight) {
             m_cached_syncing_blockchain_height = base_eight;
@@ -789,10 +687,7 @@ extern "C"
         return m_cached_syncing_blockchain_height;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_get_syncing_height()
+    uint64_t get_syncing_height()
     {
         if (m_listener == nullptr) {
             return 0;
@@ -812,10 +707,7 @@ extern "C"
         return height;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint64_t wow_is_needed_to_refresh()
+    uint64_t is_needed_to_refresh()
     {
         if (m_listener == nullptr) {
             return false;
@@ -830,29 +722,23 @@ extern "C"
         return should_refresh;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    uint8_t wow_is_new_transaction_exist()
+    uint8_t is_new_transaction_exist()
     {
         if (m_listener == nullptr) {
             return false;
         }
 
-        bool wow_is_new_transaction_exist = m_listener->isNewTransactionExist();
+        bool is_new_transaction_exist = m_listener->isNewTransactionExist();
 
-        if (wow_is_new_transaction_exist)
+        if (is_new_transaction_exist)
         {
             m_listener->resetIsNewTransactionExist();
         }
 
-        return wow_is_new_transaction_exist;
+        return is_new_transaction_exist;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_set_listener()
+    void set_listener()
     {
         m_last_known_wallet_height = 0;
 
@@ -862,13 +748,10 @@ extern "C"
         }
 
         m_listener = new MoneroWalletListener();
-        wow_get_current_wallet()->setListener(m_listener);
+        get_current_wallet()->setListener(m_listener);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    int64_t *wow_subaddress_get_all()
+    int64_t *subaddrress_get_all()
     {
         std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
         size_t size = _subaddresses.size();
@@ -884,52 +767,34 @@ extern "C"
         return subaddresses;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    int32_t wow_subaddress_size()
+    int32_t subaddrress_size()
     {
         std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
         return _subaddresses.size();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_subaddress_add_row(uint32_t accountIndex, char *label)
+    void subaddress_add_row(uint32_t accountIndex, char *label)
     {
         m_subaddress->addRow(accountIndex, std::string(label));
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_subaddress_set_label(uint32_t accountIndex, uint32_t addressIndex, char *label)
+    void subaddress_set_label(uint32_t accountIndex, uint32_t addressIndex, char *label)
     {
         m_subaddress->setLabel(accountIndex, addressIndex, std::string(label));
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_subaddress_refresh(uint32_t accountIndex)
+    void subaddress_refresh(uint32_t accountIndex)
     {
         m_subaddress->refresh(accountIndex);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    int32_t wow_account_size()
+    int32_t account_size()
     {
         std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
         return _accocunts.size();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    int64_t *wow_account_get_all()
+    int64_t *account_get_all()
     {
         std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
         size_t size = _accocunts.size();
@@ -945,34 +810,22 @@ extern "C"
         return accocunts;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_account_add_row(char *label)
+    void account_add_row(char *label)
     {
         m_account->addRow(std::string(label));
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_account_set_label_row(uint32_t account_index, char *label)
+    void account_set_label_row(uint32_t account_index, char *label)
     {
         m_account->setLabel(account_index, label);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_account_refresh()
+    void account_refresh()
     {
         m_account->refresh();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    int64_t *wow_transactions_get_all()
+    int64_t *transactions_get_all()
     {
         std::vector<Monero::TransactionInfo *> transactions = m_transaction_history->getAll();
         size_t size = transactions.size();
@@ -988,25 +841,16 @@ extern "C"
         return transactionAddresses;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_transactions_refresh()
+    void transactions_refresh()
     {
         m_transaction_history->refresh();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    int64_t wow_transactions_count()
+    int64_t transactions_count()
     {
         return m_transaction_history->count();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
     int LedgerExchange(
         unsigned char *command,
         unsigned int cmd_len,
@@ -1016,54 +860,36 @@ extern "C"
         return -1;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
     int LedgerFind(char *buffer, size_t len)
     {
         return -1;
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_on_startup()
+    void on_startup()
     {
         Monero::Utils::onStartup();
         Monero::WalletManagerFactory::setLogLevel(4);
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    void wow_rescan_blockchain()
+    void rescan_blockchain()
     {
         m_wallet->rescanBlockchainAsync();
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char * wow_get_tx_key(char * txId)
+    char * get_tx_key(char * txId)
     {
         return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    char *wow_get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
+    char *get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
     {
-        return strdup(wow_get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
+        return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
     }
 
-    #ifdef _WIN32
-    __declspec(dllexport)
-    #endif
-    bool wow_validate_address(char *address)
+    bool validate_address(char *address)
     {
-        return wow_get_current_wallet()->addressValid(std::string(address), 0); // TODO fix like by making the command below work or by otherwise detecting nettype
-        //return wow_get_current_wallet()->validateAddress(std::string(address));
+        return get_current_wallet()->addressValid(std::string(address), 0); // TODO fix like by making the command below work or by otherwise detecting nettype
+        //return get_current_wallet()->validateAddress(std::string(address));
     }
 
 #ifdef __cplusplus

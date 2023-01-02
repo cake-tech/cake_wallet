@@ -10,24 +10,23 @@ import 'package:ffi/ffi.dart' as pkgffi;
 import 'package:flutter/foundation.dart';
 
 final subaddressSizeNative = wowneroApi
-    .lookup<NativeFunction<wow_subaddress_size>>('wow_subaddress_size')
+    .lookup<NativeFunction<subaddrress_size>>('subaddrress_size')
     .asFunction<SubaddressSize>();
 
 final subaddressRefreshNative = wowneroApi
-    .lookup<NativeFunction<wow_subaddress_refresh>>('wow_subaddress_refresh')
+    .lookup<NativeFunction<subaddrress_refresh>>('subaddress_refresh')
     .asFunction<SubaddressRefresh>();
 
 final subaddrressGetAllNative = wowneroApi
-    .lookup<NativeFunction<wow_subaddress_get_all>>('wow_subaddress_get_all')
+    .lookup<NativeFunction<subaddress_get_all>>('subaddrress_get_all')
     .asFunction<SubaddressGetAll>();
 
 final subaddrressAddNewNative = wowneroApi
-    .lookup<NativeFunction<wow_subaddress_add_new>>('wow_subaddress_add_row')
+    .lookup<NativeFunction<subaddress_add_new>>('subaddress_add_row')
     .asFunction<SubaddressAddNew>();
 
 final subaddrressSetLabelNative = wowneroApi
-    .lookup<NativeFunction<wow_subaddress_set_label>>(
-        'wow_subaddress_set_label')
+    .lookup<NativeFunction<subaddress_set_label>>('subaddress_set_label')
     .asFunction<SubaddressSetLabel>();
 
 bool isUpdating = false;

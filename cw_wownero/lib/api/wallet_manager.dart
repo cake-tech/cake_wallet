@@ -13,38 +13,38 @@ import 'package:ffi/ffi.dart' as pkgffi;
 import 'package:flutter/foundation.dart';
 
 final create14WordWalletNative = wowneroApi
-    .lookup<NativeFunction<wow_create_14_word_wallet>>('wow_create_14_word_wallet')
+    .lookup<NativeFunction<create_14_word_wallet>>('create_14_word_wallet')
     .asFunction<Create14WordWallet>();
 
 final create25WordWalletNative = wowneroApi
-    .lookup<NativeFunction<wow_create_25_word_wallet>>('wow_create_25_word_wallet')
+    .lookup<NativeFunction<create_25_word_wallet>>('create_25_word_wallet')
     .asFunction<Create25WordWallet>();
 
 final restoreWalletFrom14WordSeedNative = wowneroApi
-    .lookup<NativeFunction<wow_restore_wallet_from_14_word_seed>>(
-        'wow_restore_wallet_from_14_word_seed')
+    .lookup<NativeFunction<restore_wallet_from_14_word_seed>>(
+        'restore_wallet_from_14_word_seed')
     .asFunction<RestoreWalletFrom14WordSeed>();
 
 final restoreWalletFrom25WordSeedNative = wowneroApi
-    .lookup<NativeFunction<wow_restore_wallet_from_25_word_seed>>(
-        'wow_restore_wallet_from_25_word_seed')
+    .lookup<NativeFunction<restore_wallet_from_25_word_seed>>(
+        'restore_wallet_from_25_word_seed')
     .asFunction<RestoreWalletFrom25WordSeed>();
 
 final restoreWalletFromKeysNative = wowneroApi
-    .lookup<NativeFunction<wow_restore_wallet_from_keys>>(
-        'wow_restore_wallet_from_keys')
+    .lookup<NativeFunction<restore_wallet_from_keys>>(
+        'restore_wallet_from_keys')
     .asFunction<RestoreWalletFromKeys>();
 
 final isWalletExistNative = wowneroApi
-    .lookup<NativeFunction<wow_is_wallet_exist>>('wow_is_wallet_exist')
+    .lookup<NativeFunction<is_wallet_exist>>('is_wallet_exist')
     .asFunction<IsWalletExist>();
 
 final loadWalletNative = wowneroApi
-    .lookup<NativeFunction<wow_load_wallet>>('wow_load_wallet')
+    .lookup<NativeFunction<load_wallet>>('load_wallet')
     .asFunction<LoadWallet>();
 
 final errorStringNative = wowneroApi
-    .lookup<NativeFunction<wow_error_string>>('wow_error_string')
+    .lookup<NativeFunction<error_string>>('error_string')
     .asFunction<ErrorString>();
 
 void createWalletSync(

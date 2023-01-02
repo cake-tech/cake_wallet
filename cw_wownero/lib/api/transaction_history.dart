@@ -14,34 +14,32 @@ import 'package:ffi/ffi.dart' as pkgffi;
 import 'package:flutter/foundation.dart';
 
 final transactionsRefreshNative = wowneroApi
-    .lookup<NativeFunction<wow_transactions_refresh>>(
-        'wow_transactions_refresh')
+    .lookup<NativeFunction<transactions_refresh>>('transactions_refresh')
     .asFunction<TransactionsRefresh>();
 
 final transactionsCountNative = wowneroApi
-    .lookup<NativeFunction<wow_transactions_count>>('wow_transactions_count')
+    .lookup<NativeFunction<transactions_count>>('transactions_count')
     .asFunction<TransactionsCount>();
 
 final transactionsGetAllNative = wowneroApi
-    .lookup<NativeFunction<wow_transactions_get_all>>(
-        'wow_transactions_get_all')
+    .lookup<NativeFunction<transactions_get_all>>('transactions_get_all')
     .asFunction<TransactionsGetAll>();
 
 final transactionCreateNative = wowneroApi
-    .lookup<NativeFunction<wow_transaction_create>>('wow_transaction_create')
+    .lookup<NativeFunction<transaction_create>>('transaction_create')
     .asFunction<TransactionCreate>();
 
 final transactionCreateMultDestNative = wowneroApi
-    .lookup<NativeFunction<wow_transaction_create_mult_dest>>(
-        'wow_transaction_create_mult_dest')
+    .lookup<NativeFunction<transaction_create_mult_dest>>(
+        'transaction_create_mult_dest')
     .asFunction<TransactionCreateMultDest>();
 
 final transactionCommitNative = wowneroApi
-    .lookup<NativeFunction<wow_transaction_commit>>('wow_transaction_commit')
+    .lookup<NativeFunction<transaction_commit>>('transaction_commit')
     .asFunction<TransactionCommit>();
 
 final getTxKeyNative = wowneroApi
-    .lookup<NativeFunction<wow_get_tx_key>>('wow_get_tx_key')
+    .lookup<NativeFunction<get_tx_key>>('get_tx_key')
     .asFunction<GetTxKey>();
 
 String? getTxKey(String txId) {

@@ -89,18 +89,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   late bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
 
-  void Function()? _onNewBlock1;
-  void Function()? _onNewTransaction1;
-  void Function()? _syncStatusChanged1;
-
-  void Function()? get onNewBlock => _onNewBlock1;
-  void Function()? get onNewTransaction => _onNewTransaction1;
-  void Function()? get syncStatusChanged => _syncStatusChanged1;
-
-  set onNewBlock(void Function()? cb) => _onNewBlock1 = cb;
-  set onNewTransaction(void Function()? cb) => _onNewTransaction1 = cb;
-  set syncStatusChanged(void Function()? cb) => _syncStatusChanged1 = cb;
-
   Future<void> init() async {
     await walletAddresses.init();
     balance = ObservableMap<CryptoCurrency?, MoneroBalance>.of(<CryptoCurrency?,
@@ -138,7 +126,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void> connectToNode({required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();
-      syncStatusChanged?.call();
       await monero_wallet.setupNode(
           address: node.uri.toString(),
           login: node.login,
@@ -146,10 +133,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           useSSL: node.isSSL,
           isLightWallet: false); // FIXME: hardcoded value
       syncStatus = ConnectedSyncStatus();
-      syncStatusChanged?.call();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      syncStatusChanged?.call();
       print(e);
     }
   }
@@ -165,10 +150,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       monero_wallet.startRefresh();
       _setListeners();
       _listener?.start();
-      syncStatusChanged?.call();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      syncStatusChanged?.call();
       print(e);
       rethrow;
     }
@@ -421,7 +404,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         _askForUpdateBalance();
         walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
-        syncStatusChanged?.call();
 
         if (!_hasSyncAfterStartup) {
           _hasSyncAfterStartup = true;
@@ -433,12 +415,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         }
       } else {
         syncStatus = SyncingSyncStatus(blocksLeft, ptc, height);
-        syncStatusChanged?.call();
       }
     } catch (e) {
       print(e.toString());
     }
-    onNewBlock?.call();
   }
 
   void _onNewTransaction() async {
@@ -449,6 +429,5 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     } catch (e) {
       print(e.toString());
     }
-    onNewTransaction?.call();
   }
 }
