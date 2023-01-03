@@ -83,6 +83,24 @@ For instructions on how to build for Android: please view file `howto-build-andr
 
 Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull request with the changes.
 
+## Current list of language files:
+
+- English
+- Spanish
+- French
+- German
+- Italian
+- Portugese
+- Dutch
+- Polish
+- Croatian
+- Russian
+- Ukranian
+- Hindi
+- Japanese
+- Chinese
+- Korean
+
 ## Add a new language
 
 1. Create a new `strings_XX.arb` file in `res/values/`, replacing XX with the language's [ISO 639-1 code](https://en.wikipedia.org/wiki/ISO_639-1).
@@ -91,9 +109,15 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 
 `"welcome" : "Welcome to",` -> `"welcome" : "XXX",`
 
-3. Add the language to `lib/entities/language_service.dart` under both `supportedLocales` and `localeCountryCode`. Use the name of the language in the local language and in English in parentheses after for `supportedLocales`. Use the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for `localeCountryCode`. You must choose one country, so choose the country with the most native speakers of this language or is otherwise best associated with this language.
+3. For strings where there is a variable, denoted by a $ symbol and braces, such as ${status}, the string in braces should not be translated. For example, when editing line 106:
 
-4. Add a relevant flag to `assets/images/flags/XXXX.png`, replacing XXXX with the 3 digit localeCountryCode. The image must be 42x36 pizxels with a 3 pixels of transparent margin on all 4 sides.
+"time" : "${minutes}m ${seconds}s"
+
+The only parts to be translated, if needed, are the values m and s after the variables.
+
+4. Add the language to `lib/entities/language_service.dart` under both `supportedLocales` and `localeCountryCode`. Use the name of the language in the local language and in English in parentheses after for `supportedLocales`. Use the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for `localeCountryCode`. You must choose one country, so choose the country with the most native speakers of this language or is otherwise best associated with this language.
+
+5. Add a relevant flag to `assets/images/flags/XXXX.png`, replacing XXXX with the 3 digit localeCountryCode. The image must be 42x36 pizxels with a 3 pixels of transparent margin on all 4 sides.
 
 ## Add a new fiat currency
 
