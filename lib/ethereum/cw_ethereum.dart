@@ -2,11 +2,15 @@ part of 'ethereum.dart';
 
 class CWEthereum extends Ethereum {
   @override
-  List<String> getEthereumWordList(String language) {
-    return EthereumMnemonics.englishWordlist;
-  }
+  List<String> getEthereumWordList(String language) => EthereumMnemonics.englishWordlist;
 
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource) {
-    return EthereumWalletService(walletInfoSource);
-  }
+  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource) =>
+      EthereumWalletService(walletInfoSource);
+
+  @override
+  WalletCredentials createEthereumNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+  }) =>
+      EthereumNewWalletCredentials(name: name, walletInfo: walletInfo);
 }

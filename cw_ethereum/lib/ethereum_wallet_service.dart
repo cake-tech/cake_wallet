@@ -10,7 +10,10 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
+import 'package:ed25519_hd_key/ed25519_hd_key.dart';
 import 'package:hive/hive.dart';
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:hex/hex.dart';
 
 class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
     EthereumRestoreWalletFromSeedCredentials, EthereumRestoreWalletFromWIFCredentials> {
@@ -20,13 +23,15 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
 
   @override
   Future<EthereumWallet> create(EthereumNewWalletCredentials credentials) async {
-    final path = await pathForWallet(name: credentials.name, type: getType());
-    await monero_wallet_manager.createWallet(
-        path: path,
-        password: credentials.password!,
+    final mnemonic = bip39.generateMnemonic();
+    final privateKey = await getPrivateKey(mnemonic, credentials.password!);
+    final wallet = EthereumWallet(
+      walletInfo: credentials.walletInfo!,
+      mnemonic: mnemonic,
+      privateKey: privateKey,
+      password: credentials.password!,
     );
-    final wallet = EthereumWallet(credentials.walletInfo!);
-    await wallet.init();
+    await wallet.save();
 
     return wallet;
   }
@@ -60,5 +65,13 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       restoreFromSeed(credentials) {
     // TODO: implement restoreFromSeed
     throw UnimplementedError();
+  }
+
+  Future<String> getPrivateKey(String mnemonic, String password) async {
+    final seed = bip39.mnemonicToSeedHex(mnemonic);
+    final master = await ED25519_HD_KEY.getMasterKeyFromSeed(HEX.decode(seed),
+        masterSecret: password);
+    final privateKey = HEX.encode(master.key);
+    return privateKey;
   }
 }
