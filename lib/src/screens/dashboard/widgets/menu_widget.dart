@@ -30,7 +30,8 @@ class MenuWidgetState extends State<MenuWidget> {
       this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
       this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
       this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
-      this.havenIcon = Image.asset('assets/images/haven_menu.png');
+      this.havenIcon = Image.asset('assets/images/haven_menu.png'),
+      this.ethereumIcon = Image.asset('assets/images/eth_icon.png');
 
   final largeScreen = 731;
 
@@ -47,6 +48,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image bitcoinIcon;
   Image litecoinIcon;
   Image havenIcon;
+  Image ethereumIcon;
 
   @override
   void initState() {
@@ -92,8 +94,6 @@ class MenuWidgetState extends State<MenuWidget> {
         color: Theme.of(context).accentTextTheme!.overline!.decorationColor!);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
         color: Theme.of(context).accentTextTheme!.overline!.decorationColor!);
-    litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
-    havenIcon = Image.asset('assets/images/haven_menu.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -259,6 +259,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return litecoinIcon;
       case WalletType.haven:
         return havenIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

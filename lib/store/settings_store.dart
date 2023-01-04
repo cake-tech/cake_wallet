@@ -318,10 +318,13 @@ abstract class SettingsStoreBase with Store {
         .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences
         .getInt(PreferencesKey.currentHavenNodeIdKey);
+    final ethereumNodeId = sharedPreferences
+        .getInt(PreferencesKey.currentEthereumNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
+    final ethereumNode = nodeSource.get(ethereumNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -342,6 +345,10 @@ abstract class SettingsStoreBase with Store {
 
     if (havenNode != null) {
         nodes[WalletType.haven] = havenNode;
+    }
+
+    if (ethereumNode != null) {
+        nodes[WalletType.ethereum] = ethereumNode;
     }
 
     return SettingsStore(
@@ -429,10 +436,13 @@ abstract class SettingsStoreBase with Store {
         .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences
         .getInt(PreferencesKey.currentHavenNodeIdKey);
+    final ethereumNodeId = sharedPreferences
+        .getInt(PreferencesKey.currentEthereumNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
+    final ethereumNode = nodeSource.get(ethereumNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -448,6 +458,10 @@ abstract class SettingsStoreBase with Store {
 
     if (havenNode != null) {
       nodes[WalletType.haven] = havenNode;
+    }
+
+    if (ethereumNode != null) {
+      nodes[WalletType.ethereum] = ethereumNode;
     }
   }
 
@@ -468,6 +482,10 @@ abstract class SettingsStoreBase with Store {
       case WalletType.haven:
         await _sharedPreferences.setInt(
             PreferencesKey.currentHavenNodeIdKey, node.key as int);
+        break;
+      case WalletType.ethereum:
+        await _sharedPreferences.setInt(
+            PreferencesKey.currentEthereumNodeIdKey, node.key as int);
         break;
       default:
         break;
