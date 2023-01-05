@@ -11,6 +11,9 @@ class CWEthereum extends Ethereum {
   WalletCredentials createEthereumNewWalletCredentials({
     required String name,
     WalletInfo? walletInfo,
-  }) =>
-      EthereumNewWalletCredentials(name: name, walletInfo: walletInfo);
+  }) {
+    return EthereumNewWalletCredentials(name: name, walletInfo: walletInfo);
+  }
+
+  String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 }

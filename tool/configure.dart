@@ -477,10 +477,12 @@ Future<void> generateEthereum(bool hasImplementation) async {
   const ethereumCommonHeaders = """
 """;
   const ethereumCWHeaders = """
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_ethereum/ethereum_mnemonics.dart';
+import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
 import 'package:hive/hive.dart';
@@ -491,6 +493,7 @@ abstract class Ethereum {
   List<String> getEthereumWordList(String language);
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  String getAddress(WalletBase wallet);
 }
   """;
 

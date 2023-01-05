@@ -40,6 +40,7 @@ abstract class EthereumWalletBase
         super(walletInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = EthereumTransactionHistory();
+    walletAddresses.address = EthPrivateKey.fromHex(privateKey).address.toString();
   }
 
   final String mnemonic;

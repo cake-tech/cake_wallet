@@ -1,5 +1,5 @@
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/utils/list_item.dart';
@@ -11,9 +11,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'dart:async';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 
@@ -41,7 +39,7 @@ class MoneroURI extends PaymentURI {
   String toString() {
     var base = 'monero:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -59,7 +57,7 @@ class HavenURI extends PaymentURI {
   String toString() {
     var base = 'haven:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -77,7 +75,7 @@ class BitcoinURI extends PaymentURI {
   String toString() {
     var base = 'bitcoin:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -95,7 +93,25 @@ class LitecoinURI extends PaymentURI {
   String toString() {
     var base = 'litecoin:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+class EthereumURI extends PaymentURI {
+  EthereumURI({
+    required String amount,
+    required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'ethereum:' + address;
+
+    if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -150,6 +166,10 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (_wallet.type == WalletType.litecoin) {
       return LitecoinURI(amount: amount, address: address.address);
+    }
+
+    if (_wallet.type == WalletType.ethereum) {
+      return EthereumURI(amount: amount, address: address.address);
     }
 
     throw Exception('Unexpected type: ${type.toString()}');
@@ -207,6 +227,12 @@ abstract class WalletAddressListViewModelBase with Store {
             isPrimary: isPrimary, name: null, address: addr);
       });
       addressList.addAll(bitcoinAddresses);
+    }
+
+    if (wallet.type == WalletType.ethereum) {
+      final primaryAddress = ethereum!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
     return addressList;
