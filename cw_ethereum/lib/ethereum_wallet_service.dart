@@ -1,13 +1,11 @@
 import 'dart:io';
 
-import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_ethereum/ethereum_mnemonics.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
@@ -62,15 +60,26 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromKeys(credentials) {
+  Future<EthereumWallet> restoreFromKeys(credentials) {
     throw UnimplementedError();
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromSeed(credentials) {
-    // TODO: implement restoreFromSeed
-    throw UnimplementedError();
+  Future<EthereumWallet> restoreFromSeed(
+      EthereumRestoreWalletFromSeedCredentials credentials) async {
+    if (!bip39.validateMnemonic(credentials.mnemonic)) {
+      throw EthereumMnemonicIsIncorrectException();
+    }
+
+    final wallet = await EthereumWallet(
+      password: credentials.password!,
+      mnemonic: credentials.mnemonic,
+      walletInfo: credentials.walletInfo!,
+    );
+
+    await wallet.init();
+    await wallet.save();
+
+    return wallet;
   }
 }

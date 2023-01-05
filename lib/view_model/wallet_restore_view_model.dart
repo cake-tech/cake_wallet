@@ -1,6 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/mnemonic_length.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -82,6 +81,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return haven!.createHavenRestoreWalletFromSeedCredentials(
               name: name,
               height: height,
+              mnemonic: seed,
+              password: password);
+        case WalletType.ethereum:
+          return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
+              name: name,
               mnemonic: seed,
               password: password);
         default:

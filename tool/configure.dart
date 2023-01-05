@@ -493,6 +493,7 @@ abstract class Ethereum {
   List<String> getEthereumWordList(String language);
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   String getAddress(WalletBase wallet);
 }
   """;
