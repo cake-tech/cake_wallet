@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -44,7 +45,7 @@ final rootKey = GlobalKey<RootState>();
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-
+    await Permission.camera.request();
     final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
     Hive.init(appDir.path);
