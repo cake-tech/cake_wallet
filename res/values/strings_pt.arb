@@ -676,5 +676,7 @@
   "disabled": "Desabilitado",
   "enabled": "Habilitado",
   "tor_only": "Tor apenas",
-  "unmatched_currencies": "A moeda da sua carteira atual não corresponde à do QR digitalizado"
+  "unmatched_currencies": "A moeda da sua carteira atual não corresponde à do QR digitalizado",
+  "contact_list_contacts": "Contacts",
+  "contact_list_wallets": "My Wallets"
 }

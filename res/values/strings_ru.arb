@@ -677,5 +677,7 @@
   "disabled": "Отключено",
   "enabled": "Включено",
   "tor_only": "Только Tor",
-  "unmatched_currencies": "Валюта вашего текущего кошелька не соответствует валюте отсканированного QR-кода."
+  "unmatched_currencies": "Валюта вашего текущего кошелька не соответствует валюте отсканированного QR-кода.",
+  "contact_list_contacts": "Contacts",
+  "contact_list_wallets": "My Wallets"
 }

@@ -677,5 +677,7 @@
   "disabled": "Disabilitato",
   "enabled": "Abilitato",
   "tor_only": "Solo Tor",
-  "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato"
+  "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato",
+  "contact_list_contacts": "Contacts",
+  "contact_list_wallets": "My Wallets"
 }

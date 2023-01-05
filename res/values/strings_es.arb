@@ -677,5 +677,7 @@
   "disabled": "Desactivado",
   "enabled": "Activado",
   "tor_only": "solo Tor",
-  "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado"
+  "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado",
+  "contact_list_contacts": "Contacts",
+  "contact_list_wallets": "My Wallets"
 }

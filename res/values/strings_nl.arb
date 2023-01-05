@@ -677,5 +677,7 @@
   "disabled": "Gehandicapt",
   "enabled": "Ingeschakeld",
   "tor_only": "Alleen Tor",
-  "unmatched_currencies": "De valuta van uw huidige portemonnee komt niet overeen met die van de gescande QR"
+  "unmatched_currencies": "De valuta van uw huidige portemonnee komt niet overeen met die van de gescande QR",
+  "contact_list_contacts": "Contacts",
+  "contact_list_wallets": "My Wallets"
 }
