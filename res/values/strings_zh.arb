@@ -675,5 +675,6 @@
   "disabled": "禁用",
   "enabled": "启用",
   "tor_only": "仅限 Tor",
-  "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配"
+  "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配",
+  "orbot_running_alert": "请确保 Orbot 在连接到此节点之前正在运行。"
 }

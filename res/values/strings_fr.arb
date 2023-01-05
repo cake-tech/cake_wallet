@@ -675,5 +675,6 @@
   "disabled": "Handicapé",
   "enabled": "Activé",
   "tor_only": "Tor uniquement",
-  "unmatched_currencies": "La devise de votre portefeuille actuel ne correspond pas à celle du QR scanné"
+  "unmatched_currencies": "La devise de votre portefeuille actuel ne correspond pas à celle du QR scanné",
+  "orbot_running_alert": "Veuillez vous assurer qu'Orbot est en cours d'exécution avant de vous connecter à ce nœud."
 }

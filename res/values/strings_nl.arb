@@ -677,5 +677,6 @@
   "disabled": "Gehandicapt",
   "enabled": "Ingeschakeld",
   "tor_only": "Alleen Tor",
-  "unmatched_currencies": "De valuta van uw huidige portemonnee komt niet overeen met die van de gescande QR"
+  "unmatched_currencies": "De valuta van uw huidige portemonnee komt niet overeen met die van de gescande QR",
+  "orbot_running_alert": "Zorg ervoor dat Orbot actief is voordat u verbinding maakt met dit knooppunt."
 }

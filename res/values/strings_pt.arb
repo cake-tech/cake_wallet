@@ -676,5 +676,6 @@
   "disabled": "Desabilitado",
   "enabled": "Habilitado",
   "tor_only": "Tor apenas",
-  "unmatched_currencies": "A moeda da sua carteira atual não corresponde à do QR digitalizado"
+  "unmatched_currencies": "A moeda da sua carteira atual não corresponde à do QR digitalizado",
+  "orbot_running_alert": "Certifique-se de que o Orbot esteja em execução antes de se conectar a este nó."
 }
