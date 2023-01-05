@@ -18,6 +18,9 @@ import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
 import 'package:mobx/mobx.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:ed25519_hd_key/ed25519_hd_key.dart';
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:hex/hex.dart';
 
 part 'ethereum_wallet.g.dart';
 
@@ -28,24 +31,23 @@ abstract class EthereumWalletBase
     with Store {
   EthereumWalletBase({
     required WalletInfo walletInfo,
-    required this.mnemonic,
-    required this.privateKey,
+    required String mnemonic,
     required String password,
     EthereumBalance? initialBalance,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
+        _mnemonic = mnemonic,
         walletAddresses = EthereumWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EthereumBalance>.of(
-            {CryptoCurrency.eth: initialBalance ?? EthereumBalance(0, 0)}),
+            {CryptoCurrency.eth: initialBalance ?? EthereumBalance(available: 0, additional: 0)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = EthereumTransactionHistory();
-    walletAddresses.address = EthPrivateKey.fromHex(privateKey).address.toString();
   }
 
-  final String mnemonic;
-  final String privateKey;
+  final String _mnemonic;
   final String _password;
+
+  late final String privateKey;
 
   late EthereumClient _client;
 
@@ -60,6 +62,12 @@ abstract class EthereumWalletBase
   @override
   @observable
   late ObservableMap<CryptoCurrency, EthereumBalance> balance;
+
+  Future<void> init() async {
+    privateKey = await getPrivateKey(_mnemonic, _password);
+    transactionHistory = EthereumTransactionHistory();
+    walletAddresses.address = EthPrivateKey.fromHex(privateKey).address.toString();
+  }
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
@@ -119,7 +127,7 @@ abstract class EthereumWalletBase
   }
 
   @override
-  String get seed => mnemonic;
+  String get seed => _mnemonic;
 
   @override
   Future<void> startSync() async {
@@ -150,10 +158,30 @@ abstract class EthereumWalletBase
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   String toJSON() => json.encode({
-        'mnemonic': mnemonic,
+        'mnemonic': _mnemonic,
         'balance': balance[currency]!.toJSON(),
         // TODO: save other attributes
       });
+
+  static Future<EthereumWallet> open({
+    required String name,
+    required String password,
+    required WalletInfo walletInfo,
+  }) async {
+    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final jsonSource = await read(path: path, password: password);
+    final data = json.decode(jsonSource) as Map;
+    final mnemonic = data['mnemonic'] as String;
+    final balance = EthereumBalance.fromJSON(data['balance'] as String) ??
+        EthereumBalance(available: 0, additional: 0);
+
+    return EthereumWallet(
+      walletInfo: walletInfo,
+      password: password,
+      mnemonic: mnemonic,
+      initialBalance: balance,
+    );
+  }
 
   Future<void> _updateBalance() async {
     balance[currency] = await _fetchBalances();
@@ -163,6 +191,17 @@ abstract class EthereumWalletBase
   Future<EthereumBalance> _fetchBalances() async {
     final balance = await _client.getBalance(privateKey);
 
-    return EthereumBalance(balance.getInEther.toInt(), balance.getInEther.toInt());
+    return EthereumBalance(
+      available: balance.getInEther.toInt(),
+      additional: balance.getInEther.toInt(),
+    );
+  }
+
+  Future<String> getPrivateKey(String mnemonic, String password) async {
+    final seed = bip39.mnemonicToSeedHex(mnemonic);
+    final master = await ED25519_HD_KEY.getMasterKeyFromSeed(HEX.decode(seed),
+        masterSecret: password);
+    final privateKey = HEX.encode(master.key);
+    return privateKey;
   }
 }
