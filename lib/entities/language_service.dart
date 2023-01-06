@@ -19,6 +19,7 @@ class LanguageService {
     'zh': '中文 (Chinese)',
     'hr': 'Hrvatski (Croatian)',
     'it': 'Italiano (Italian)',
+    'th': 'ภาษาไทย (Thai)',
     'ar': 'العربية (Arabic)'
   };
 
@@ -38,6 +39,7 @@ class LanguageService {
     'zh': 'chn',
     'hr': 'hrv',
     'it': 'ita',
+    'th': 'tha',
     'ar': 'sau'
   };
 

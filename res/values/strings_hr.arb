@@ -677,5 +677,7 @@
   "disabled": "Onemogućeno",
   "enabled": "Omogućeno",
   "tor_only": "Samo Tor",
-  "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u"
+  "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u",
+  "contact_list_contacts": "Kontakti",
+  "contact_list_wallets": "Moji novčanici"
 }

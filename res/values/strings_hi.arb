@@ -677,5 +677,7 @@
   "disabled": "अक्षम",
   "enabled": "सक्रिय",
   "tor_only": "Tor केवल",
-  "unmatched_currencies": "आपके वर्तमान वॉलेट की मुद्रा स्कैन किए गए क्यूआर से मेल नहीं खाती"
+  "unmatched_currencies": "आपके वर्तमान वॉलेट की मुद्रा स्कैन किए गए क्यूआर से मेल नहीं खाती" ,
+  "contact_list_contacts": "संपर्क",
+  "contact_list_wallets": "मेरा बटुआ"
 }

@@ -677,5 +677,7 @@
   "disabled": "Deaktiviert",
   "enabled": "Ermöglicht",
   "tor_only": "Nur Tor",
-  "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein"
+  "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein",
+  "contact_list_contacts": "Kontakte",
+  "contact_list_wallets": "Meine Geldbörsen"
 }

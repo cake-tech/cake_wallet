@@ -72,10 +72,10 @@ class ContactListPage extends BasePage {
               dividerThemeColor:
               Theme.of(context).primaryTextTheme.caption!.decorationColor!,
               sectionTitleBuilder: (_, int sectionIndex) {
-                var title = 'Contacts';
+                var title = S.current.contact_list_contacts;
 
                 if (sectionIndex == 0) {
-                  title = 'My wallets';
+                  title = S.current.contact_list_wallets;
                 }
 
                 return Container(

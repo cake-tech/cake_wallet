@@ -677,5 +677,7 @@
   "disabled": "장애가 있는",
   "enabled": "사용",
   "tor_only": "Tor 뿐",
-  "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다."
+  "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다.",
+  "contact_list_contacts": "콘택트 렌즈",
+  "contact_list_wallets": "내 지갑"
 }
