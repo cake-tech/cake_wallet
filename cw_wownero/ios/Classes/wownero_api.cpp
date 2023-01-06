@@ -886,6 +886,16 @@ extern "C"
         return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
     }
 
+    void set_trusted_daemon(bool arg)
+    {
+        m_wallet->setTrustedDaemon(arg);
+    }
+
+    bool trusted_daemon()
+    {
+        return m_wallet->trustedDaemon();
+    }
+
     bool validate_address(char *address)
     {
         return get_current_wallet()->addressValid(std::string(address), 0); // TODO fix like by making the command below work or by otherwise detecting nettype

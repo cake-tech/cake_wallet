@@ -32,6 +32,9 @@ void set_refresh_from_block_height(uint64_t height);
 void set_recovering_from_seed(bool is_recovery);
 void store(char *path);
 
+void set_trusted_daemon(bool arg);
+bool trusted_daemon();
+
 bool validate_address(char *address);
 
 #ifdef __cplusplus
