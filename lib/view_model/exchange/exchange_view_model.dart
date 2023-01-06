@@ -27,6 +27,8 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
+import 'package:cake_wallet/exchange/majesticbank/majesticbank_exchange_provider.dart';
+import 'package:cake_wallet/exchange/majesticbank/majesticbank_request.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_trade_request.dart';
@@ -60,7 +62,7 @@ abstract class ExchangeViewModelBase with Store {
       limitsState = LimitsInitialState(),
       receiveCurrency = wallet.currency,
       depositCurrency = wallet.currency,
-      providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()],
+      providerList = [ChangeNowExchangeProvider(), MajesticBankExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()],
       selectedProviders = ObservableList<ExchangeProvider>() {
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
@@ -424,6 +426,18 @@ abstract class ExchangeViewModelBase with Store {
               address: receiveAddress,
               refundAddress: depositAddress,
               isBTCRequest: isReceiveAmountEntered);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
+
+        if (provider is MajesticBankExchangeProvider) {
+          request = MajesticBankRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              fromAmount: depositAmount.replaceAll(',', '.'),
+              toAmount: receiveAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress,
+              isReverse: isFixedRateMode);
           amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 

@@ -29,6 +29,7 @@ class SecretKey {
     SecretKey('anypayToken', () => ''),
     SecretKey('onramperApiKey', () => ''),
     SecretKey('ioniaClientId', () => ''),
+    SecretKey('majesticBankPartnerCode', () => 'ffj1Lx')
   ];
 
   final String name;
