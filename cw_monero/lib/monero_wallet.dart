@@ -145,6 +145,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           password: node.password,
           useSSL: node.isSSL,
           isLightWallet: false); // FIXME: hardcoded value
+
+      monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
       syncStatusChanged?.call();
     } catch (e) {

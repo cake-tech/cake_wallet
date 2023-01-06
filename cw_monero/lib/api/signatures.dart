@@ -137,5 +137,8 @@ typedef rescan_blockchain = Void Function();
 typedef get_subaddress_label = Pointer<Utf8> Function(
     Int32 accountIndex, Int32 addressIndex);
 
-typedef validate_address = Int8 Function(
-    Pointer<Utf8> address);
+typedef set_trusted_daemon = Void Function(Int8 trusted);
+
+typedef trusted_daemon = Int8 Function();
+
+typedef validate_address = Int8 Function(Pointer<Utf8> address);
