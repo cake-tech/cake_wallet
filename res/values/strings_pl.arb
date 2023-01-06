@@ -678,6 +678,6 @@
   "enabled": "Włączony",
   "tor_only": "Tylko Tor",
   "unmatched_currencies": "Waluta Twojego obecnego portfela nie odpowiada walucie zeskanowanego kodu QR",
-  "contact_list_contacts": "Contacts",
-  "contact_list_wallets": "My Wallets"
+  "contact_list_contacts": "Łączność",
+  "contact_list_wallets": "Moje portfele"
 }
