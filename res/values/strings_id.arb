@@ -1,1 +1,1169 @@
+{
 
+  "welcome" : "Selamat datang di",
+
+  "cake_wallet" : "Cake Wallet",
+
+  "first_wallet_text" : "Dompet luar biasa untuk Monero, Bitcoin, Litecoin, dan Haven",
+
+  "please_make_selection" : "Tentukan pilihan di bawah ini untuk membuat atau memulihkan dompet Anda.",
+
+  "create_new" : "Buat dompet baru",
+
+  "restore_wallet" : "Pulihkan Dompet",
+
+  "monero_com": "Monero.com Oleh Cake Wallet",
+
+  "monero_com_wallet_text": "Dompet luar biasa untuk Monero",
+
+  "haven_app": "Haven Oleh Cake Wallet",
+
+  "haven_app_wallet_text": "Dompet luar biasa untuk Haven",
+
+  "accounts" : "Akun",
+
+  "edit" : "Edit",
+
+  "account" : "Akun",
+
+  "add" : "Menambahkan",
+
+  "address_book" : "Buku Alamat",
+
+  "contact" : "Kontak",
+
+  "please_select" : "Silahkan pilih:",
+
+  "cancel" : "batalkan",
+
+  "ok" : "OK",
+
+  "contact_name" : "Nama kontak",
+
+  "reset" : "Atur ulang",
+
+  "save" : "Simpan",
+
+  "address_remove_contact" : "Hapus kontak",
+
+  "address_remove_content" : "Apakah Anda yakin ingin menghapus kontak yang dipilih?",
+
+  "authenticated" : "Diautentikasi",
+
+  "authentication" : "Autentikasi",
+
+  "failed_authentication" : "Otentikasi gagal. ${state_error}",
+
+  "wallet_menu" : "Menu",
+
+  "Blocks_remaining" : "${status} Blok Tersisa",
+
+  "please_try_to_connect_to_another_node" : "Silakan coba untuk terhubung ke node lain",
+
+  "xmr_hidden" : "Tersembunyi",
+
+  "xmr_available_balance" : "Saldo Tersedia",
+
+  "xmr_full_balance" : "Saldo Penuh",
+
+  "send" : "Mengirim",
+
+  "receive" : "Menerima",
+
+  "transactions" : "Transaksi",
+
+  "incoming" : "Masuk",
+
+  "outgoing" : "Keluar",
+
+  "transactions_by_date" : "Transaksi berdasarkan tanggal",
+
+  "trades" : "Perdagangan",
+
+  "filter_by": "Saring menurut",
+
+  "today" : "Hari ini",
+
+  "yesterday" : "Kemarin",
+
+  "received" : "Diterima",
+
+  "sent" : "Terkirim",
+
+  "pending" : " (tertunda)",
+
+  "rescan" : "Pindai ulang",
+
+  "reconnect" : "Hubungkan kembali",
+
+  "wallets" : "Dompet",
+
+  "show_seed" : "Tampilkan benih",
+
+  "show_keys" : "Tampilkan benih/kunci",
+
+  "address_book_menu" : "Buku alamat",
+
+  "reconnection" : "Koneksi ulang",
+
+  "reconnect_alert_text" : "Apakah Anda yakin ingin menyambung kembali?",
+
+  "exchange" : "Pertukaran",
+
+  "clear" : "kosongkan",
+
+  "refund_address" : "Alamat pengembalian dana",
+
+  "change_exchange_provider" : "Ganti Penyedia Pertukaran",
+
+  "you_will_send" : "Konversi dari",
+
+  "you_will_get" : "Konversi ke",
+
+  "amount_is_guaranteed" : "Jumlah yang diterima terjamin",
+
+  "amount_is_estimate" : "Jumlah yang diterima adalah perkiraan",
+
+  "powered_by" : "Dipersembahkan oleh ${title}",
+
+  "error" : "Kesalahan",
+
+  "estimated" : "Diperkirakan",
+
+  "min_value" : "Min: ${value} ${currency}",
+
+  "max_value" : "Max: ${value} ${currency}",
+
+  "change_currency" : "Ganti Mata Uang",
+
+  "overwrite_amount" : "Timpa jumlah",
+
+  "qr_payment_amount" : "Kode QR ini berisi jumlah pembayaran. Apakah Anda ingin menimpa nilai saat ini?",
+
+  "copy_id" : "Salin ID",
+
+  "exchange_result_write_down_trade_id" : "Harap salin atau tulis ID perdagangan untuk melanjutkan.",
+
+  "trade_id" : "ID Dagang:",
+
+  "copied_to_clipboard" : "Disalin ke Papan Klip",
+
+  "saved_the_trade_id" : "telah menyimpan ID perdagangan",
+
+  "fetching" : "Mengambil",
+
+  "id" : "ID: ",
+
+  "amount" : "Jumlah: ",
+
+  "payment_id" : "ID pembayaran: ",
+
+  "status" : "Status: ",
+
+  "offer_expires_in" : "Penawaran berakhir dalam: ",
+
+  "trade_is_powered_by" : "Perdagangan ini didukung oleh ${provider}",
+
+  "copy_address" : "Salin Alamat",
+
+  "exchange_result_confirm" : "Dengan menekan konfirmasi, Anda akan mengirim ${fetchingLabel} ${from} dari dompet Anda memanggil ${walletName} ke alamat yang ditunjukkan di bawah ini. Atau Anda dapat mengirim dari dompet eksternal Anda ke alamat/kode QR di bawah.\n\Harap tekan konfirmasi untuk melanjutkan atau kembali untuk mengubah jumlahnya.",
+
+  "exchange_result_description" : "Anda harus mengirim minimal ${fetchingLabel} ${from} ke alamat yang ditunjukkan pada halaman berikutnya. Jika Anda mengirim jumlah yang lebih rendah dari ${fetchingLabel} ${from} mungkin tidak dapat dikonversi dan tidak dapat dikembalikan.",
+
+  "exchange_result_write_down_ID" : "*Silakan salin atau tulis ID Anda yang ditunjukkan di atas.",
+
+  "confirm" : "Mengonfirmasi",
+
+  "confirm_sending" : "Konfirmasi pengiriman",
+
+  "commit_transaction_amount_fee" : "Melakukan transaksi\nJumlah: ${amount}\nBiaya: ${fee}",
+
+  "sending" : "Mengirim",
+
+  "transaction_sent" : "Transaksi terkirim!",
+
+  "expired" : "Kedaluwarsa",
+
+  "time" : "${minutes}m ${seconds}s",
+
+  "send_xmr" : "Kirim XMR",
+
+  "exchange_new_template" : "Templat baru",
+
+  "faq" : "FAQ",
+
+  
+
+  "enter_your_pin" : "Masukkan PIN Anda",
+
+  "loading_your_wallet" : "Memuat dompet Anda",
+
+  "new_wallet" : "Dompet Baru",
+
+  "wallet_name" : "Nama dompet",
+
+  "continue_text" : "Melanjutkan",
+
+  "choose_wallet_currency" : "Silakan pilih mata uang dompet:",
+
+  "node_new" : "Node Baru",
+
+  "node_address" : "Alamat Node",
+
+  "node_port" : "Port Node",
+
+  "login" : "Gabung",
+
+  "password" : "Kata sandi",
+
+  "nodes" : "Node",
+
+  "node_reset_settings_title" : "Setel ulang pengaturan",
+
+  "nodes_list_reset_to_default_message" : "Apakah Anda yakin ingin mengatur ulang pengaturan ke default?",
+
+  "change_current_node" : "Apakah Anda yakin untuk mengubah node saat ini menjadi ${node}?",
+
+  "change" : "Ganti",
+
+  "remove_node" : "Hapus Node",
+
+  "remove_node_message" : "Apakah Anda yakin ingin menghapus node yang dipilih?",
+
+  "remove" : "Mengubah",
+
+  "delete" : "Menghapus",
+
+  "add_new_node" : "Tambahkan Node baru",
+
+  "change_current_node_title" : "Ganti node saat ini",
+
+  "node_test" : "Uji",
+
+  "node_connection_successful" : "Koneksi berhasil",
+
+  "node_connection_failed" : "Koneksi gagal",
+
+  "new_node_testing" : "Pengujian node baru",
+
+  "use" : "Beralih ke ",
+
+  "digit_pin" : "-Angka PIN",
+
+  "share_address" : "Bagikan alamat",
+
+  "receive_amount" : "Jumlah",
+
+  "subaddresses" : "Subalamat",
+
+  "addresses" : "Alamat",
+
+  "scan_qr_code" : "Pindai kode QR untuk mendapatkan alamat",
+
+  "qr_fullscreen" : "Ketuk untuk membuka kode QR layar penuh",
+
+  "rename" : "Ganti nama",
+
+  "choose_account" : "Pilih akun",
+
+  "create_new_account" : "Buat akun baru",
+
+  "accounts_subaddresses" : "Akun dan subalamat",
+
+  "restore_restore_wallet" : "Pulihkan Dompet",
+
+  "restore_title_from_seed_keys" : "Kembalikan dari benih/kunci",
+
+  "restore_description_from_seed_keys" : "Dapatkan kembali dompet Anda dari benih/kunci yang telah Anda simpan ke tempat yang aman",
+
+  "restore_next" : "Lanjut",
+
+  "restore_title_from_backup" : "Pulihkan dari cadangan",
+
+  "restore_description_from_backup" : "Anda dapat memulihkan seluruh aplikasi Cake Wallet dari file cadangan Anda",
+
+  "restore_seed_keys_restore" : "Pemulihan Benih/Kunci",
+
+  "restore_title_from_seed" : "Pulihkan dari benih",
+
+  "restore_description_from_seed" : "Pulihkan dompet Anda dari kode kombinasi 25 kata atau 13 kata",
+
+  "restore_title_from_keys" : "Pulihkan dari kunci",
+
+  "restore_description_from_keys" : "Pulihkan dompet Anda dari penekanan tombol yang dihasilkan yang disimpan dari kunci pribadi Anda",
+
+  "restore_wallet_name" : "Nama dompet",
+
+  "restore_address" : "Alamat",
+
+  "restore_view_key_private" : "Lihat kunci (pribadi)",
+
+  "restore_spend_key_private" : "Menggunakan Kunci(pribadi)",
+
+  "restore_recover" : "Memulihkan",
+
+  "restore_wallet_restore_description" : "Deskripsi pemulihan dompet",
+
+  "restore_new_seed" : "Benih baru",
+
+  "restore_active_seed" : "Benih aktif",
+
+  "restore_bitcoin_description_from_seed" : "Pulihkan dompet Anda dari kode kombinasi 24 kata",
+
+  "restore_bitcoin_description_from_keys" : "Pulihkan dompet Anda dari string WIF yang dihasilkan dari kunci pribadi Anda",
+
+  "restore_bitcoin_title_from_keys" : "Pulihkan dari WIF",
+
+  "restore_from_date_or_blockheight" : "Masukkan tanggal beberapa hari sebelum Anda membuat dompet ini. Atau jika Anda mengetahui Tinggi blok, harap masukkan sebagai gantinya",
+
+"seed_reminder" : "Silakan tulis ini jika Anda kehilangan atau menghapus ponsel Anda",
+
+  "seed_title" : "Benih",
+
+  "seed_share" : "Berbagi benih",
+
+  "copy" : "Salin",
+
+  "seed_language_choose" : "Silakan pilih bahasa benih:",
+
+  "seed_choose" : "Pilih bahasa benih",
+
+  "seed_language_next" : "Lanjut",
+
+  "seed_language_english" : "English",
+
+  "seed_language_chinese" : "Chinese",
+
+  "seed_language_dutch" : "Dutch",
+
+  "seed_language_german" : "German",
+
+  "seed_language_japanese" : "Japanese",
+
+  "seed_language_portuguese" : "Portuguese",
+
+  "seed_language_russian" : "Russian",
+
+  "seed_language_spanish" : "Spanish",
+
+  "seed_language_french": "French",
+
+  "seed_language_italian": "Italian",
+
+  
+
+  "send_title" : "Mengirim",
+
+  "send_your_wallet" : "Dompet anda",
+
+  "send_address" : "${cryptoCurrency} alamat",
+
+  "send_payment_id" : "ID Pembayaran (opsional)",
+
+  "all" : "SEMUA",
+
+  "send_error_minimum_value" : "Nilai minimum jumlah adalah 0,01",
+
+  "send_error_currency" : "Mata uang hanya boleh berisi angka",
+
+  "send_estimated_fee" : "Perkiraan biaya:",
+
+  "send_priority" : "Saat ini biaya ditetapkan pada ${transactionPriority} prioritas.\nPrioritas transaksi dapat diatur di pengaturan",
+
+  "send_creating_transaction" : "Membuat transaksi",
+
+  "send_templates" : "Templat",
+
+  "send_new" : "Baru",
+
+  "send_amount" : "Jumlah:",
+
+  "send_fee" : "Biaya:",
+
+  "send_name" : "Nama",
+
+  "send_got_it" : "Mengerti",
+
+  "send_sending" : "Mengirim...",
+
+  "send_success" : "${crypto} Milik anda berhasil dikirim",
+
+  "settings_title" : "Pengaturan",
+
+  "settings_nodes" : "Node",
+
+  "settings_current_node" : "Node saat ini",
+
+  "settings_wallets" : "Dompet",
+
+  "settings_display_balance" : "Tampilan saldo",
+
+  "settings_currency" : "Mata uang",
+
+  "settings_fee_priority" : "Prioritas biaya",
+
+  "settings_save_recipient_address" : "Simpan alamat penerima",
+
+  "settings_personal" : "Pribadi",
+
+  "settings_change_pin" : "Ganti PIN",
+
+  "settings_change_language" : "Ganti BAHASA",
+
+  "settings_allow_biometrical_authentication" : "Izinkan autentikasi biometrik",
+
+  "settings_dark_mode" : "Mode gelap",
+
+  "settings_transactions" : "Transaksi",
+
+  "settings_trades" : "Perdagangan",
+
+  "settings_display_on_dashboard_list" : "Tampilan di daftar dasbor",
+
+  "settings_all" : "SEMUA",
+
+  "settings_only_trades" : "Hanya berdagang",
+
+  "settings_only_transactions" : "Hanya transaksi",
+
+  "settings_none" : "Tidak ada",
+
+  "settings_support" : "Dukungan",
+
+  "settings_terms_and_conditions" : "Syarat dan ketentuan",
+
+  "pin_is_incorrect" : "PIN salah",
+
+  
+
+  "setup_pin" : "Atur PIN",
+
+  "enter_your_pin_again" : "Masukkan pin Anda lagi",
+
+  "setup_successful" : "PIN Anda telah berhasil disiapkan!",
+
+  
+
+  "wallet_keys" : "Benih dompet/kunci",
+
+  "wallet_seed" : "benih dompet",
+
+  "private_key" : "Kunci pribadi",
+
+  "public_key" : "kunci publik",
+
+  "view_key_private" : "Lihat kunci (pribadi)",
+
+  "view_key_public" : "Lihat kunci (publik)",
+
+  "spend_key_private" : "menggunakan kunci (pribadi)",
+
+  "spend_key_public" : "menggunakan kunci (publik)",
+
+  "copied_key_to_clipboard" : "Disalin ${key} ke Papan klip",
+
+  "new_subaddress_title" : "Alamat baru",
+
+  "new_subaddress_label_name" : "Label Nama",
+
+  "new_subaddress_create" : "Membuat",
+
+  "address_label" : "Label alamat",
+
+  "subaddress_title" : "Daftar subalamat",
+
+  "trade_details_title" : "Detail Dagang",
+
+  "trade_details_id" : "ID",
+
+  "trade_details_state" : "Status",
+
+  "trade_details_fetching" : "Mengambil",
+
+  "trade_details_provider" : "Pemberi",
+
+  "trade_details_created_at" : "Dibuat di",
+
+  "trade_details_pair" : "Pasangan",
+
+  "trade_details_copied" : "${title} disalin ke Papan Klip",
+
+  "trade_history_title" : "Sejarah perdagangan",
+
+  "transaction_details_title" : "Detil transaksi",
+
+  "transaction_details_transaction_id" : "ID transaksi",
+
+  "transaction_details_date" : "Tanggal",
+
+  "transaction_details_height" : "Tinggi",
+
+  "transaction_details_amount" : "Jumlah",
+
+  "transaction_details_fee" : "Biaya",
+
+  "transaction_details_copied" : "${title} disalin ke Papan Klip",
+
+  "transaction_details_recipient_address" : "Alamat penerima",
+
+  
+
+  "wallet_list_title" : "Dompet Monero",
+
+  "wallet_list_create_new_wallet" : "Buat Dompet Baru",
+
+  "wallet_list_restore_wallet" : "Pulihkan Dompet",
+
+  "wallet_list_load_wallet" : "Muat dompet",
+
+  "wallet_list_loading_wallet" : "Memuat ${wallet_name} dompet",
+
+  "wallet_list_failed_to_load" : "Gagal untuk memuat ${wallet_name} dompet. ${error}",
+
+  "wallet_list_removing_wallet" : "Menghapus ${wallet_name} dompet",
+
+  "wallet_list_failed_to_remove" : "Gagal menghapus ${wallet_name} dompet. ${error}",
+
+  "widgets_address" : "Alamat",
+
+  "widgets_restore_from_blockheight" : "Pulihkan dari Tinggi Blok",
+
+  "widgets_restore_from_date" : "Pulihkan dari tanggal",
+
+  "widgets_or" : "atau",
+
+  "widgets_seed" : "Benih",
+
+"router_no_route" : "Tidak ada rute yang ditentukan untuk ${name}",
+
+  "error_text_account_name" : "Nama akun hanya boleh terdiri dari huruf, angka\ndan harus antara 1 dan 15 karakter",
+
+  "error_text_contact_name" : "Nama kontak tidak boleh berisi simbol ` , ' \"\ndan harus antara 1 dan 32 karakter",
+
+  "error_text_address" : "Alamat dompet harus sesuai dengan jenis\mata uang kripto",
+
+  "error_text_node_address" : "Silakan masukkan alamat iPv4",
+
+  "error_text_node_port" : "Port node hanya dapat berisi angka antara 0 dan 65535",
+
+  "error_text_payment_id" : "ID Pembayaran hanya dapat berisi 16 hingga 64 karakter dalam hex",
+
+  "error_text_xmr" : "Nilai XMR tidak boleh melebihi saldo yang tersedia.\nJumlah digit pecahan harus kurang dari atau sama dengan 12",
+
+  "error_text_fiat" : "Nilai jumlah tidak boleh melebihi saldo yang tersedia.\nJumlah digit pecahan harus kurang dari atau sama dengan 2",
+
+  "error_text_subaddress_name" : "Nama subalamat tidak boleh berisi ` , ' \" simbol\ndan harus antara 1 dan 20 karakter",
+
+  "error_text_amount" : "Jumlah hanya boleh berisi angka",
+
+  "error_text_wallet_name" : "Nama dompet hanya boleh berisi huruf, angka, _ - simbol \ndan harus antara 1 dan 33 karakter",
+
+  "error_text_keys" : "Kunci dompet hanya dapat berisi 64 karakter dalam hex",
+
+  "error_text_crypto_currency" : "Jumlah digit pecahan\harus kurang dari atau sama dengan 12",
+
+  "error_text_minimal_limit" : "Berdagang untuk ${provider} tidak dibuat. Jumlah kurang dari minimal: ${min} ${currency}",
+
+  "error_text_maximum_limit" : "Berdagang untuk ${provider} tidak dibuat. Jumlah lebih dari maksimum: ${max} ${currency}",
+
+  "error_text_limits_loading_failed" : "Berdagang untuk ${provider} tidak dibuat. Pembatasan pemuatan gagal",
+
+  "error_text_template" : "Nama dan alamat template tidak boleh mengandung simbol ` , ' \"\ndan harus antara 1 dan 106 karakter",
+
+  "auth_store_ban_timeout" : "waktu habis",
+
+  "auth_store_banned_for" : "Dilarang untuk ",
+
+  "auth_store_banned_minutes" : " menit",
+
+  "auth_store_incorrect_password" : "PIN salah",
+
+  "wallet_store_monero_wallet" : "Dompet Monero",
+
+  "wallet_restoration_store_incorrect_seed_length" : "Panjang benih salah",
+
+  "full_balance" : "Saldo Penuh",
+
+  "available_balance" : "Saldo Tersedia",
+
+  "hidden_balance" : "Saldo Tersembunyi",
+
+  "sync_status_syncronizing" : "SINKRONISASI",
+
+  "sync_status_syncronized" : "SINKRONISASI",
+
+  "sync_status_not_connected" : "TIDAK TERHUBUNG",
+
+  "sync_status_starting_sync" : "MEMULAI SINKRONISASI",
+
+  "sync_status_failed_connect" : "TERPUTUS",
+
+  "sync_status_connecting" : "MENGHUBUNGKAN",
+
+  "sync_status_connected" : "TERHUBUNG",
+
+  "sync_status_attempting_sync" : "MENCOBA SINKRONISASI",
+
+  "transaction_priority_slow" : "Lambat",
+
+  "transaction_priority_regular" : "Standar",
+
+  "transaction_priority_medium" : "Sedang",
+
+  "transaction_priority_fast" : "Cepat",
+
+  "transaction_priority_fastest" : "TERCEPAT",
+
+  "trade_for_not_created" : "Berdagang untuk ${title} tidak dibuat.",
+
+  "trade_not_created" : "Perdagangan tidak dibuat",
+
+  "trade_id_not_found" : "Berdagang ${tradeId} dari ${title} tidak ditemukan.",
+
+  "trade_not_found" : "Perdagangan tidak ditemukan.",
+
+  "trade_state_pending" : "Tertunda",
+
+  "trade_state_confirming" : "Mengkonfirmasi",
+
+  "trade_state_trading" : "Jual beli",
+
+  "trade_state_traded" : "Diperdagangkan",
+
+  "trade_state_complete" : "Menyelesaikan",
+
+  "trade_state_to_be_created" : "Lanjut Buat",
+
+  "trade_state_unpaid" : "Belum dibayar",
+
+  "trade_state_underpaid" : "Dibayar rendah",
+
+  "trade_state_paid_unconfirmed" : "Dibayar belum dikonfirmasi",
+
+  "trade_state_paid" : "Dibayar",
+
+  "trade_state_btc_sent" : "Btc terkirim",
+
+  "trade_state_timeout" : "Waktu habis",
+
+  "trade_state_created" : "Dibuat",
+
+  "trade_state_finished" : "Selesai",
+
+"change_language" : "Ganti BAHASA",
+
+  "change_language_to" : "Ubah bahasa menjadi ${language}?",
+
+  "paste" : "Tempel",
+
+  "restore_from_seed_placeholder" : "Silakan masukkan atau paste benih Anda di sini",
+
+  "add_new_word" : "Tambahkan kata baru",
+
+  "incorrect_seed" : "Teks yang dimasukkan tidak valid.",
+
+  "biometric_auth_reason" : "Pindai sidik jari Anda untuk mengautentikasi",
+
+  "version" : "Versi ${currentVersion}",
+
+  "openalias_alert_title" : "Alamat Terdeteksi",
+
+  "openalias_alert_content" : "Anda akan mengirim dana ke\n${recipient_name}",
+
+  "card_address" : "Alamat:",
+
+  "buy" : "Membeli",
+
+  "sell": "Menjual",
+
+  "placeholder_transactions" : "Transaksi Anda akan ditampilkan di sini",
+
+  "placeholder_contacts" : "Kontak Anda akan ditampilkan di sini",
+
+  "template" : "Templat",
+
+  "confirm_delete_template" : "Tindakan ini akan menghapus template ini. Apakah Anda ingin melanjutkan?",
+
+  "confirm_delete_wallet" : "Tindakan ini akan menghapus dompet ini. Apakah Anda ingin melanjutkan?",
+
+  "picker_description" : "Untuk memilih ChangeNOW atau MorphToken, silakan ganti trading pair Anda terlebih dahulu",
+
+  "change_wallet_alert_title" : "Ubah dompet saat ini",
+
+  "change_wallet_alert_content" : "Apakah Anda ingin mengubah dompet saat ini menjadi ${wallet_name}?",
+
+  "creating_new_wallet" : "Membuat dompet baru",
+
+  "creating_new_wallet_error" : "Kesalahan: ${description}",
+
+  "seed_alert_title" : "Perhatian",
+
+  "seed_alert_content" : "Benih adalah satu-satunya cara untuk memulihkan dompet Anda. Sudahkah Anda menuliskannya?",
+
+  "seed_alert_back" : "Kembali",
+
+  "seed_alert_yes" : "Ya, saya punya",
+
+  "exchange_sync_alert_content" : "Harap tunggu hingga dompet Anda disinkronkan",
+
+  "pre_seed_title" : "PENTING",
+
+  "pre_seed_description" : "Pada halaman berikutnya Anda akan melihat serangkaian ${words} kata-kata. Ini adalah benih unik dan pribadi Anda dan ini adalah SATU-SATUNYA cara untuk memulihkan dompet Anda jika hilang atau tidak berfungsi. Adalah tanggung jawab ANDA untuk menuliskannya dan menyimpannya di tempat yang aman di luar aplikasi Cake Wallet.",
+
+  "pre_seed_button_text" : "Saya mengerti. Tunjukkan benih saya",
+
+  "xmr_to_error" : "kesalahan XMR.TO",
+
+  "xmr_to_error_description" : "Jumlah tidak valid. Batas maksimal 8 angka di belakang titik desimal",
+
+  "provider_error" : "${provider} kesalahan",
+
+  "use_ssl" : "Menggunakan SSL",
+
+  "trusted" : "Tepercaya",
+
+  "color_theme" : "Tema warna",
+
+  "light_theme" : "Lampu",
+
+  "bright_theme" : "Cerah",
+
+  "dark_theme" : "Gelap",
+
+  "enter_your_note" : "Masukkan catatan Anda…",
+
+  "note_optional" : "Catatan (opsional)",
+
+  "note_tap_to_change" : "Catatan (ketuk untuk mengubah)",
+
+  "view_in_block_explorer" : "Lihat di Blok Explorer",
+
+  "view_transaction_on" : "Lihat Transaksi pada ",
+
+  "transaction_key" : "Kunci Transaksi",
+
+  "confirmations" : "Konfirmasi",
+
+  "recipient_address" : "Alamat penerima",
+
+  "extra_id" : "ID ekstra:",
+
+  "destination_tag" : "Label tujuan:",
+
+  "memo" : "Memo:",
+
+  "backup" : "Cadangan",
+
+  "change_password" : "Ganti kata sandi",
+
+  "backup_password" : "Sandi cadangan",
+
+  "write_down_backup_password" : "Harap tulis kata sandi cadangan Anda, yang digunakan untuk mengimpor file cadangan Anda.",
+
+  "export_backup" : "Ekspor cadangan",
+
+  "save_backup_password" : "Harap pastikan bahwa Anda telah menyimpan kata sandi cadangan Anda. Anda tidak akan dapat mengimpor file cadangan Anda tanpa itu.",
+
+  "backup_file" : "file cadangan",
+
+  "edit_backup_password" : "Edit Kata Sandi Cadangan",
+
+  "save_backup_password_alert" : "Simpan kata sandi cadangan",
+
+  "change_backup_password_alert" : "File cadangan Anda sebelumnya tidak akan tersedia untuk diimpor dengan kata sandi cadangan baru. Kata sandi cadangan baru hanya akan digunakan untuk file cadangan baru. Apakah Anda yakin ingin mengubah kata sandi cadangan?",
+
+  "enter_backup_password" : "Masukkan kata sandi cadangan di sini",
+
+  "select_backup_file" : "Pilih file cadangan",
+
+  "import" : "Impor",
+
+  "please_select_backup_file" : "Silakan pilih file cadangan dan masukkan kata sandi cadangan.",
+
+  "fixed_rate" : "Tarif tetap",
+
+  "fixed_rate_alert" : "Anda akan dapat memasukkan jumlah yang diterima ketika mode tarif tetap dicentang. Apakah Anda ingin beralih ke mode tarif tetap?",
+
+  "xlm_extra_info" : "Harap jangan lupa untuk menentukan ID Memo saat mengirim transaksi XLM untuk pertukaran",
+
+  "xrp_extra_info" : "Harap jangan lupa untuk menentukan Tag Tujuan saat mengirim transaksi XRP untuk pertukaran",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Jika Anda ingin menukarkan XMR dari saldo Cake Wallet Monero Anda, silakan beralih ke dompet Monero Anda terlebih dahulu.",
+
+  "confirmed" : "Dikonfirmasi",
+
+  "unconfirmed" : "Belum dikonfirmasi",
+
+  "displayable" : "Dapat ditampilkan",
+
+  "submit_request" : "Mengajukan permohonan",
+
+  "buy_alert_content" : "Saat ini kami hanya mendukung pembelian Bitcoin dan Litecoin. Untuk membeli Bitcoin atau Litecoin, harap buat atau alihkan ke dompet Bitcoin atau Litecoin Anda.",
+
+  "sell_alert_content": "Saat ini kami hanya mendukung penjualan Bitcoin. Untuk menjual Bitcoin, harap buat atau alihkan ke dompet Bitcoin Anda.",
+
+  "outdated_electrum_wallet_description" : "Dompet Bitcoin baru yang dibuat di Cake kini memiliki seed 24 kata. Anda wajib membuat dompet Bitcoin baru dan mentransfer semua dana Anda ke dompet 24 kata yang baru, dan berhenti menggunakan dompet dengan seed 12 kata. Silakan lakukan ini segera untuk mengamankan dana Anda.",
+
+  "understand" : "saya mengerti",
+
+  "apk_update" : "pembaruan APK",
+
+  "buy_bitcoin" : "Beli Bitcoin",
+
+  "buy_with" : "Beli dengan",
+
+  "moonpay_alert_text" : "Nilai jumlah harus lebih atau sama dengan ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Jika dompet ini memiliki benih 12 kata dan dibuat di Cake, JANGAN setorkan Bitcoin ke dompet ini. BTC apa pun yang ditransfer ke dompet ini mungkin akan hilang. Buat dompet 24 kata baru (ketuk menu di kanan atas, pilih Dompet, pilih Buat Dompet Baru, lalu pilih Bitcoin) dan SEGERA pindahkan BTC Anda ke sana. Dompet BTC baru (24 kata) dari Cake aman",
+
+  "do_not_show_me": "Jangan tunjukkan ini lagi",
+
+  "unspent_coins_title" : "Koin yang tidak terpakai",
+
+  "unspent_coins_details_title" : "Detail koin yang tidak terpakai",
+
+  "freeze" : "Membekukan",
+
+  "frozen" : "Beku",
+
+  "coin_control" : "Kontrol koin (opsional)",
+
+  "address_detected" : "Alamat terdeteksi",
+
+  "address_from_domain" : "Alamat ini dari ${domain} pada Unstoppable Domains",
+
+  "add_receiver" : "Tambahkan penerima lain (opsional)",
+
+  "manage_yats" : "Kelola Yats",
+
+  "yat_alert_title" : "Kirim dan terima crypto lebih mudah dengan Yat",
+
+  "yat_alert_content" : "Pengguna Cake Wallet sekarang dapat mengirim dan menerima semua mata uang favorit mereka dengan nama pengguna berbasis emoji yang unik.",
+
+  "get_your_yat" : "Dapatkan Yat Anda",
+
+  "connect_an_existing_yat" : "Hubungkan Yat yang ada",
+
+  "connect_yats": "Hubungkan Yats",
+
+  "yat_address" : "Alamat yat",
+
+  "yat" : "Yat",
+
+  "address_from_yat" : "Alamat ini dari ${emoji} pada Yat",
+
+  "yat_error" : "Kesalahan Yat",
+
+  "yat_error_content" : "Tidak ada alamat yang terhubung dengan Yat ini. Coba Yat lain",
+
+  "choose_address" : "\n\nSilakan pilih alamatnya:",
+
+  "yat_popup_title" : "Alamat dompet Anda dapat di-emoji.",
+
+  "yat_popup_content" : "Anda sekarang dapat mengirim dan menerima crypto di Cake Wallet dengan Yat Anda - nama pengguna singkat berbasis emoji. Kelola Yats kapan saja di layar pengaturan",
+
+  "second_intro_title" : "Satu alamat emoji untuk menguasai semuanya",
+
+  "second_intro_content" : "Yat Anda adalah satu alamat emoji unik yang menggantikan semua alamat heksadesimal panjang Anda untuk semua mata uang Anda.",
+
+  "third_intro_title" : "Yat bermain baik dengan orang lain",
+
+  "third_intro_content" : "Yat juga tinggal di luar Cake Wallet. Alamat dompet apa pun di bumi dapat diganti dengan Yat!",
+
+  "learn_more" : "Belajarlah lagi",
+
+  "search": "Mencari",
+
+  "search_language": "bahasa pencarian",
+
+  "search_currency": "Cari mata uang",
+
+  "new_template" : "Templat Baru",
+
+  "electrum_address_disclaimer": "Kami membuat alamat baru setiap kali Anda menggunakannya, tetapi alamat sebelumnya tetap berfungsi",
+
+  "wallet_name_exists": "Dompet dengan nama itu sudah ada. Silakan pilih nama yang berbeda atau ganti nama dompet lain terlebih dahulu.",
+
+  "market_place": "Pasar",
+
+  "cake_pay_title": "Kartu Hadiah Cake Pay",
+
+  "cake_pay_subtitle": "Beli kartu hadiah diskon (khusus AS)",
+
+  "cake_pay_web_cards_title": "Kartu Web Cake Pay",
+
+  "cake_pay_web_cards_subtitle": "Beli kartu prabayar dan kartu hadiah di seluruh dunia",
+
+  "about_cake_pay": "Cake Pay memungkinkan Anda membeli kartu hadiah dengan aset virtual dengan mudah, dapat digunakan secara instan di lebih dari 150.000 pedagang di Amerika Serikat.",
+
+  "cake_pay_account_note": "Daftar hanya dengan alamat email untuk melihat dan membeli kartu. Beberapa bahkan tersedia dengan diskon!",
+
+  "already_have_account": "Sudah memiliki akun?",
+
+  "create_account": "Buat Akun",
+
+  "privacy_policy": "Kebijakan pribadi",
+
+  "welcome_to_cakepay": "Selamat datang di Cake Pay!",
+
+  "sign_up": "Daftar",
+
+  "forgot_password": "Tidak ingat kata sandi",
+
+  "reset_password": "Atur Ulang Kata Sandi",
+
+  "gift_cards": "Kartu hadiah",
+
+  "setup_your_debit_card": "Siapkan kartu debit Anda",
+
+  "no_id_required": "Tidak diperlukan ID. Isi ulang dan belanjakan di mana saja",
+
+  "how_to_use_card": "Cara menggunakan kartu ini",
+
+  "purchase_gift_card": "Beli Kartu Hadiah",
+
+  "verification": "Verifikasi",
+
+  "fill_code": "Silakan isi kode verifikasi yang diberikan ke email Anda",
+
+  "dont_get_code": "Tidak mendapatkan kode?",
+
+  "resend_code": "kirim ulang",
+
+  "debit_card": "Kartu debit",
+
+  "cakepay_prepaid_card": "Kartu Debit Prabayar CakePay",
+
+  "no_id_needed": "Tidak perlu ID!",
+
+  "frequently_asked_questions": "Pertanyaan yang sering diajukan",
+
+  "debit_card_terms": "Penyimpanan dan penggunaan nomor kartu pembayaran Anda (dan kredensial yang sesuai dengan nomor kartu pembayaran Anda) di dompet digital ini tunduk pada Syarat dan Ketentuan pemegang kartu yang berlaku, sebagaimana berlaku dari waktu ke waktu.",
+
+  "please_reference_document": "Silakan rujuk dokumen di bawah ini untuk informasi lebih lanjut.",
+
+  "cardholder_agreement": "Perjanjian Pemegang Kartu",
+
+  "e_sign_consent": "Persetujuan Tanda Tangan Elektronik",
+
+  "agree_and_continue": "Setuju & Lanjutkan",
+
+  "email_address": "Alamat email",
+
+  "agree_to": "Dengan membuat akun, Anda menyetujui ",
+
+  "and": "dan",
+
+  "enter_code": "Memasukkan kode",
+
+  "congratulations": "Selamat!",
+
+  "you_now_have_debit_card": "Anda sekarang memiliki kartu debit",
+
+  "min_amount" : "Min: ${value}",
+
+  "max_amount" : "Max: ${value}",
+
+  "enter_amount": "Masukan jumlah",
+
+  "billing_address_info": "Jika diminta alamat penagihan, berikan alamat pengiriman Anda",
+
+  "order_physical_card": "Pesan Kartu Fisik",
+
+  "add_value": "Tambahkan nilai",
+
+  "activate": "Mengaktifkan",
+
+  "get_a": "Mendapatkan ",
+
+  "digital_and_physical_card": " kartu debit prabayar digital dan fisik",
+
+  "get_card_note": " yang dapat Anda isi ulang dengan mata uang digital. Tidak diperlukan informasi tambahan!",
+
+  "signup_for_card_accept_terms": "Mendaftar untuk kartu dan menerima persyaratan.",
+
+  "add_fund_to_card": "Tambahkan dana prabayar ke kartu (up to ${value})",
+
+  "use_card_info_two": "Dana dikonversi ke USD saat disimpan di akun prabayar, bukan dalam mata uang digital.",
+
+  "use_card_info_three": "Gunakan kartu digital secara online atau dengan metode pembayaran tanpa kontak.",
+
+  "optionally_order_card": "Opsional memesan kartu fisik.",
+
+  "hide_details" : "Sembunyikan detail",
+
+  "show_details" : "Tampilkan Detail",
+
+  "upto": "hingga ${value}",
+
+  "discount": "Menyimpan ${value}%",
+
+  "gift_card_amount": "Jumlah Kartu Hadiah",
+
+  "bill_amount": "Jumlah tagihan",
+
+  "you_pay": "Anda Membayar",
+
+  "tip": "Tip:",
+
+  "custom": "Kustom",
+
+  "by_cake_pay": "oleh Cake Pay",
+
+  "expires": "Berakhir",
+
+  "mm": "MM",
+
+  "yy": "YY",
+
+  "online": "Online",
+
+  "offline": "Offline",
+
+  "gift_card_number": "Nomor kartu hadiah",
+
+  "pin_number": "Nomor PIN",
+
+  "total_saving": "Total Tabungan",
+
+  "last_30_days": "30 hari terakhir",
+
+  "avg_savings": "Rata-rata Tabungan",
+
+  "view_all": "Lihat semua",
+
+  "active_cards": "Kartu aktif",
+
+  "delete_account": "Hapus akun",
+
+  "cards": "Kartu",
+
+  "active": "Aktif",
+
+  "redeemed": "Ditebus",
+
+  "gift_card_balance_note": "Kartu hadiah dengan sisa saldo akan muncul di sini",
+
+  "gift_card_redeemed_note": "Kartu hadiah yang telah Anda tukarkan akan muncul di sini",
+
+  "logout": "Keluar",
+
+  "add_tip": "Tambahkan Tip",
+
+  "percentageOf": "dari ${amount}",
+
+  "is_percentage": "adalah",
+
+  "search_category": "kategori pencarian",
+
+  "mark_as_redeemed": "Tandai Sebagai Ditebus",
+
+  "more_options": "Lebih banyak pilihan",
+
+  "awaiting_payment_confirmation": "Menunggu Konfirmasi Pembayarann",
+
+  "transaction_sent_notice": "Jika layar tidak melanjutkan setelah 1 menit, periksa block explorer dan email Anda.",
+
+  "agree": "Setuju",
+
+  "in_store": "Di toko",
+
+  "generating_gift_card": "Membuat Kartu Hadiah",
+
+  "payment_was_received": "Pembayaran Anda telah diterima.",
+
+  "proceed_after_one_minute": "Jika layar tidak melanjutkan setelah 1 menit, periksa email Anda.",
+
+  "order_id": "Id pemesanan",
+
+  "gift_card_is_generated": "Kartu Hadiah dibuat",
+
+  "open_gift_card": "Buka Kartu Hadiah",
+
+  "contact_support": "Hubungi Dukungan",
+
+  "gift_cards_unavailable": "Kartu hadiah hanya tersedia untuk pembelian dengan Monero, Bitcoin, dan Litecoin saat ini",
+
+  "introducing_cake_pay":  "Memperkenalkan Cake Pay!",
+
+  "cake_pay_learn_more": "Beli dan tukarkan kartu hadiah secara instan di aplikasi!\nGeser dari kiri ke kanan untuk mempelajari lebih lanjut.",
+
+  "automatic": "Otomatis",
+
+  "fixed_pair_not_supported": "Pasangan tetap ini tidak didukung dengan pertukaran yang dipilih",
+
+  "variable_pair_not_supported": "Pasangan variabel ini tidak didukung dengan pertukaran yang dipilih",
+
+  "none_of_selected_providers_can_exchange": "Tak satu pun dari penyedia yang dipilih dapat melakukan pertukaran ini",
+
+  "choose_one": "Pilih satu",
+
+  "choose_from_available_options": "Pilih dari opsi yang tersedia:",
+
+  "custom_redeem_amount": "Jumlah Penukaran Khusus",
+
+  "add_custom_redemption": "Tambahkan Penukaran Khusus",
+
+  "remaining": "tersisa",
+
+  "delete_wallet": "Hapus dompet",
+
+  "delete_wallet_confirm_message" : "Apakah Anda yakin ingin menghapus ${wallet_name} dompet?",
+
+  "low_fee": "Biaya rendah",
+
+  "low_fee_alert": "Saat ini Anda menggunakan prioritas biaya jaringan yang rendah. Hal ini dapat menyebabkan penantian yang lama, tarif yang berbeda, atau perdagangan yang dibatalkan. Kami merekomendasikan untuk menetapkan biaya yang lebih tinggi untuk pengalaman yang lebih baik.",
+
+  "ignor": "Mengabaikan",
+
+  "use_suggested": "Gunakan Disarankan",
+
+  "do_not_share_warning_text" : "Jangan bagikan ini dengan orang lain, termasuk dukungan.\n\nDana Anda dapat dan akan dicuri!",
+
+  "help": "Bantuan",
+
+  "all_transactions": "Semua Transaksi",
+
+  "all_trades": "Semua perdagangan",
+
+  "connection_sync": "Koneksi dan sinkronisasi",
+
+  "security_and_backup": "Keamanan dan cadangan",
+
+  "create_backup": "Membuat backup",
+
+  "privacy_settings": "Pengaturan Privasi",
+
+  "privacy": "Privasi",
+
+  "display_settings": "Pengaturan tampilan",
+
+  "other_settings": "Pengaturan lainnya",
+
+  "require_pin_after": "Memerlukan PIN setelah",
+
+  "always": "Selalu",
+
+  "minutes_to_pin_code": "${minute} menit",
+
+  "disable_exchange": "Nonaktifkan pertukaran",
+
+  "advanced_privacy_settings": "Pengaturan Privasi Lanjutan",
+
+  "settings_can_be_changed_later": "Pengaturan ini dapat diubah nanti di pengaturan aplikasi",
+
+  "add_custom_node": "Tambahkan Node Kustom Baru",
+
+  "disable_fiat": "Nonaktifkan fiat",
+
+  "fiat_api": "Fiat API",
+
+  "disabled": "Non-aktif",
+
+  "enabled": "Diaktifkan",
+
+  "tor_only": "Tor saja",
+
+  "unmatched_currencies": "Mata uang dompet Anda saat ini tidak cocok dengan QR yang dipindai"
+
+}
