@@ -5,6 +5,7 @@ CW_DIR="$(pwd)"/../../../flutter_libmonero
 CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
 CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
 CW_WOWNERO_EXTERNAL_DIR=${CW_DIR}/cw_wownero/ios/External/android
+if [ -z ${TYPES_OF_BUILD+x} ]; then TYPES_OF_BUILD=x86_64; fi
 
 for arch in $TYPES_OF_BUILD
 do
