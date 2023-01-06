@@ -9,7 +9,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static List<FiatCurrency> get all => _all.values.toList();
 
   static List<FiatCurrency> get currenciesAvailableToBuyWith =>
-      [aud, brl, cad, chf, czk, eur, dkk, gbp, hkd, ils, jpy, krw, mxn, myr, nok, nzd, pln, sek, sgd, thb, usd, zar];
+      [aud, brl, cad, chf, czk, eur, dkk, gbp, hkd, ils, jpy, krw, mxn, myr, nok, nzd, pln, sek, sgd, thb, usd, zar, idn];
 
   static const aud = FiatCurrency(symbol: 'AUD', countryCode: "aus", fullName: "Australian Dollar");
   static const bgn = FiatCurrency(symbol: 'BGN', countryCode: "bgr", fullName: "Bulgarian Lev");
