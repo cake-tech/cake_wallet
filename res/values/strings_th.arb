@@ -261,7 +261,7 @@
   "view_key_public" : "คีย์มุมมอง (สาธารณะ)",
   "spend_key_private" : "คีย์จ่าย (ส่วนตัว)",
   "spend_key_public" : "คีย์จ่าย (สาธารณะ)",
-  "copied_key_to_clipboard" : "คัดลอก ${key} ไปยัง Clipboard แล้ว"
+  "copied_key_to_clipboard" : "คัดลอก ${key} ไปยัง Clipboard แล้ว",
 
 
   "new_subaddress_title" : "ที่อยู่ใหม่",
@@ -279,7 +279,7 @@
   "trade_details_provider" : "ผู้ให้บริการ",
   "trade_details_created_at" : "สร้างเมื่อ",
   "trade_details_pair" : "คู่",
-  "trade_details_copied" : "${title} คัดลอกไปยัง Clipboard"
+  "trade_details_copied" : "${title} คัดลอกไปยัง Clipboard",
 
 
   "trade_history_title" : "ประวัติการซื้อขาย",
@@ -527,7 +527,7 @@
   "second_intro_title" : "อิโมจิที่อยู่เดียวที่จะควบคุมพวกเขาทั้งหมด",
   "second_intro_content" : "Yat ของคุณเป็นอิโมจิที่อยู่เดียวที่จะแทนที่ทุกที่อยู่และเลขฐานสิบหกของคุณสำหรับเหรียญคริปโตทุกชนิด",
   "third_intro_title" : "Yat ปฏิบัติตนอย่างดีกับผู้อื่น",
-  "third_intro_content" : "Yat อาศัยอยู่นอก Cake Wallet ด้วย ที่อยู่กระเป๋าใดๆ ทั่วโลกสามารถแทนด้วย Yat ได้อีกด้วย!"
+  "third_intro_content" : "Yat อาศัยอยู่นอก Cake Wallet ด้วย ที่อยู่กระเป๋าใดๆ ทั่วโลกสามารถแทนด้วย Yat ได้อีกด้วย!",
   "learn_more" : "ศึกษาเพิ่มเติม",
   "search": "ค้นหา",
   "search_language": "ค้นหาภาษา",
@@ -580,7 +580,7 @@
   "order_physical_card": "สั่งซื้อบัตรดิบิต",
   "add_value": "เพิ่มมูลค่า",
   "activate": "เปิดใช้งาน",
-  "get_a": "รับ "
+  "get_a": "รับ ",
   "digital_and_physical_card": "บัตรเดบิตดิจิตอลและบัตรพื้นฐาน",
   "get_card_note": "ที่คุณสามารถเติมเงินด้วยสกุลเงินดิจิตอล ไม่จำเป็นต้องใส่ข้อมูลเพิ่มเติม!",
   "signup_for_card_accept_terms": "ลงทะเบียนสำหรับบัตรและยอมรับเงื่อนไข",
