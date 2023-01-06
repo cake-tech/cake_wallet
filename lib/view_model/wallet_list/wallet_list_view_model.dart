@@ -1,5 +1,5 @@
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
@@ -15,9 +15,12 @@ part 'wallet_list_view_model.g.dart';
 class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
-  WalletListViewModelBase(this._walletInfoSource, this._appStore,
-      this._walletLoadingService)
-  : wallets = ObservableList<WalletListItem>() {
+  WalletListViewModelBase(
+    this._walletInfoSource,
+    this._appStore,
+    this._walletLoadingService,
+    this._authService,
+  ) : wallets = ObservableList<WalletListItem>() {
     _updateList();
   }
 
@@ -27,6 +30,7 @@ abstract class WalletListViewModelBase with Store {
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final WalletLoadingService _walletLoadingService;
+  final AuthService _authService;
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
@@ -47,12 +51,20 @@ abstract class WalletListViewModelBase with Store {
 
   void _updateList() {
     wallets.clear();
-    wallets.addAll(_walletInfoSource.values.map((info) => WalletListItem(
-        name: info.name,
-        type: info.type,
-        key: info.key,
-        isCurrent: info.name == _appStore.wallet!.name &&
-            info.type == _appStore.wallet!.type,
-        isEnabled: availableWalletTypes.contains(info.type))));
+    wallets.addAll(
+      _walletInfoSource.values.map(
+        (info) => WalletListItem(
+          name: info.name,
+          type: info.type,
+          key: info.key,
+          isCurrent: info.name == _appStore.wallet!.name && info.type == _appStore.wallet!.type,
+          isEnabled: availableWalletTypes.contains(info.type),
+        ),
+      ),
+    );
+  }
+
+  bool checkIfAuthRequired() {
+    return _authService.requireAuth();
   }
 }

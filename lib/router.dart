@@ -5,21 +5,30 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
+import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -36,7 +45,6 @@ import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
-import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
@@ -56,7 +64,6 @@ import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_wallet_from_seed_details.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
@@ -74,6 +81,7 @@ import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 late RouteSettings currentRouteSettings;
 
@@ -209,8 +217,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
+      final initialPaymentRequest = settings.arguments as PaymentRequest?;
+
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<SendPage>());
+        fullscreenDialog: true, builder: (_) => getIt.get<SendPage>(
+          param1: initialPaymentRequest,
+        ));
 
     case Routes.sendTemplate:
       return CupertinoPageRoute<void>(
@@ -274,10 +286,26 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   param2: false),
               onWillPop: () async => false));
 
-    case Routes.nodeList:
+    case Routes.connectionSync:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeListPage>());
+          builder: (_) => getIt.get<ConnectionSyncPage>());
 
+    case Routes.securityBackupPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SecurityBackupPage>());
+    
+     case Routes.privacyPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<PrivacyPage>());
+
+     case Routes.displaySettingsPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<DisplaySettingsPage>());
+
+    case Routes.otherSettingsPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<OtherSettingsPage>());
+    
     case Routes.newNode:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NodeCreateOrEditPage>());
@@ -298,11 +326,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: true));
+          builder: (_) =>
+              getIt.get<ContactListPage>());
 
     case Routes.pickerAddressBook:
+      final selectedCurrency = settings.arguments as CryptoCurrency;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: false));
+          builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
 
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(
@@ -359,9 +389,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.exchangeTemplate:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<ExchangeTemplatePage>());
-
-    case Routes.settings:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<SettingsPage>());
 
     case Routes.rescan:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<RescanPage>());
@@ -474,6 +501,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.onramperPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
+
+    case Routes.advancedPrivacySettings:
+      final type = settings.arguments as WalletType;
+
+      return CupertinoPageRoute<void>(
+          builder: (_) => AdvancedPrivacySettingsPage(
+            getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+            getIt.get<NodeCreateOrEditViewModel>(param1: type),
+          ));
 
     default:
       return MaterialPageRoute<void>(

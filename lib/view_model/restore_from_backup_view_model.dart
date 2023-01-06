@@ -35,7 +35,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
     try {
       state = IsExecutingState();
 
-      if (filePath?.isEmpty ?? true) {
+      if (filePath.isEmpty) {
         state = FailureState('Backup file is not selected.');
         return;
       }
@@ -48,8 +48,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       final store = getIt.get<AppStore>();
       ReactionDisposer? reaction;
-      // FIX-ME: SettingsStore reload
-      // await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
+      await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
 
       reaction = autorun((_) {
         final wallet = store.wallet;

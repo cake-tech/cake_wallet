@@ -1,6 +1,6 @@
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/widgets/standart_list_card.dart';
-import 'package:cake_wallet/src/widgets/standart_list_status_row.dart';
+import 'package:cake_wallet/src/widgets/standard_list_card.dart';
+import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
@@ -123,6 +123,7 @@ class SectionStandardList extends StatelessWidget {
       required this.itemBuilder,
       required this.sectionCount,
       required BuildContext context,
+      this.dividerPadding = const EdgeInsets.only(left: 24),
       this.themeColor,
       this.dividerThemeColor,
       this.sectionTitleBuilder,
@@ -149,6 +150,7 @@ class SectionStandardList extends StatelessWidget {
   final List<Widget> totalRows;
   final Color? themeColor;
   final Color? dividerThemeColor;
+  final EdgeInsets dividerPadding;
 
   List<Widget> transform(
       bool hasTopSeparator,
@@ -178,7 +180,7 @@ class SectionStandardList extends StatelessWidget {
 
       items.add(sectionIndex + 1 != sectionCount
           ? SectionHeaderListRow()
-          : StandardListSeparator(padding: EdgeInsets.only(left: 24)));
+          : StandardListSeparator(padding: dividerPadding));
     }
 
     return items;
@@ -215,7 +217,7 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          if (row is StandartListStatusRow || row is TradeDatailsStandartListCard) {
+          if (row is StandardListStatusRow || row is TradeDetailsStandardListCard) {
             return Container();
           }
 

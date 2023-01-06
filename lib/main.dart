@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -48,6 +49,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 Future<void> main() async {
 
@@ -166,7 +168,7 @@ Future<void> main() async {
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 17);
+        initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
     print("@@@@@@@@@@@@@@@@ in run zone guard");
@@ -276,12 +278,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     //_handleInitialUri();
   }
 
-  @override
-  void dispose() {
-    stream?.cancel();
-    super.dispose();
-  }
-
   Future<void> _handleInitialUri() async {
     try {
       final uri = await getInitialUri();
@@ -329,11 +325,12 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
       final appStore = getIt.get<AppStore>();
+      final authService = getIt.get<AuthService>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute =
-      authenticationStore.state == AuthenticationState.denied
+      authenticationStore.state == AuthenticationState.uninitialized
           ? Routes.disclaimer
           : Routes.login;
       final currentTheme = settingsStore.currentTheme;
@@ -353,7 +350,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
+          authService: authService,
           child: MaterialApp(
+            navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: settingsStore.theme,

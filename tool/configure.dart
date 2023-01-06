@@ -75,6 +75,7 @@ abstract class Bitcoin {
   List<TransactionPriority> getTransactionPriorities();
   List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
+  TransactionPriority deserializeLitecoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});

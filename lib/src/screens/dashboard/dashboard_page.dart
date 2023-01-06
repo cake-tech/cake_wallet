@@ -60,7 +60,7 @@ class DashboardPage extends BasePage {
   Widget middle(BuildContext context) {
     return SyncIndicator(dashboardViewModel: walletViewModel,
         onTap: () => Navigator.of(context, rootNavigator: true)
-            .pushNamed(Routes.nodeList));
+            .pushNamed(Routes.connectionSync));
   }
 
   @override

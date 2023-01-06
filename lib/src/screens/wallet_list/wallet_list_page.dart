@@ -220,68 +220,88 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    await Navigator.of(context).pushNamed(Routes.auth, arguments:
-        (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
+    if (await widget.walletListViewModel.checkIfAuthRequired()) {
+      await Navigator.of(context).pushNamed(Routes.auth,
+          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+        if (!isAuthenticatedSuccessfully) {
+          return;
+        }
 
+        try {
+          auth.changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+          await widget.walletListViewModel.loadWallet(wallet);
+          auth.hideProgressText();
+          auth.close();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pop();
+          });
+        } catch (e) {
+          auth.changeProcessText(
+              S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        }
+      });
+    } else {
       try {
-        auth.changeProcessText(
-            S.of(context).wallet_list_loading_wallet(wallet.name));
+        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
-        auth.hideProgressText();
-        auth.close();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pop();
-        });
+        hideProgressText();
+        Navigator.of(context).pop();
       } catch (e) {
-        auth.changeProcessText(S
-            .of(context)
-            .wallet_list_failed_to_load(wallet.name, e.toString()));
+        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
-    });
+    }
   }
 
   Future<void> _removeWallet(WalletListItem wallet) async {
-    await Navigator.of(context).pushNamed(Routes.auth, arguments:
-        (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
-
-      bool confirmed = false;
-
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithTwoActions(
-              alertTitle: S.of(context).delete_wallet,
-              alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
-              leftButtonText: S.of(context).cancel,
-              rightButtonText: S.of(context).delete,
-              actionLeftButton: () => Navigator.of(context).pop(),
-              actionRightButton: () {
-                confirmed = true;
-                Navigator.of(context).pop();
-              },
-            );
-          });
-
-      if (confirmed) {
-        try {
-          auth.changeProcessText(
-              S.of(context).wallet_list_removing_wallet(wallet.name));
-          await widget.walletListViewModel.remove(wallet);
-        } catch (e) {
-          auth.changeProcessText(S
-              .of(context)
-              .wallet_list_failed_to_remove(wallet.name, e.toString()));
+    if (widget.walletListViewModel.checkIfAuthRequired()) {
+      await Navigator.of(context).pushNamed(Routes.auth,
+          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+        if (!isAuthenticatedSuccessfully) {
+          return;
         }
-      }
+        _onSuccessfulAuth(wallet, auth);
+      });
+    } else {
+      _onSuccessfulAuth(wallet, null);
+    }
+  }
 
-      auth.close();
-    });
+  void _onSuccessfulAuth(WalletListItem wallet, AuthPageState? auth) async {
+    bool confirmed = false;
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+            alertTitle: S.of(context).delete_wallet,
+            alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
+            leftButtonText: S.of(context).cancel,
+            rightButtonText: S.of(context).delete,
+            actionLeftButton: () => Navigator.of(context).pop(),
+            actionRightButton: () {
+              confirmed = true;
+              Navigator.of(context).pop();
+            },
+          );
+        });
+
+    if (confirmed) {
+      try {
+        auth != null
+            ? auth.changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name))
+            : changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
+        await widget.walletListViewModel.remove(wallet);
+      } catch (e) {
+        auth != null
+            ? auth.changeProcessText(
+                S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
+              )
+            : changeProcessText(
+                S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
+              );
+      }
+    }
+
+    auth?.close();
   }
 
   void changeProcessText(String text) {
@@ -294,16 +314,16 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   ActionPane _actionPane(WalletListItem wallet) => ActionPane(
-    motion: const ScrollMotion(),
-    extentRatio: 0.3,
-    children: [
-      SlidableAction(
-        onPressed: (_) => _removeWallet(wallet),
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        icon: CupertinoIcons.delete,
-        label: S.of(context).delete,
-      ),
-    ],
-  );
+        motion: const ScrollMotion(),
+        extentRatio: 0.3,
+        children: [
+          SlidableAction(
+            onPressed: (_) => _removeWallet(wallet),
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            icon: CupertinoIcons.delete,
+            label: S.of(context).delete,
+          ),
+        ],
+      );
 }
