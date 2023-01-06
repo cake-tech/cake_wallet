@@ -75,6 +75,9 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
   Widget build(BuildContext context) {
     return InAppWebView(
         key: _webViewkey,
+        initialOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(transparentBackground: true),
+        ),
         initialUrlRequest: URLRequest(url: Uri.tryParse(widget.url ?? '')),
         onWebViewCreated: (InAppWebViewController controller) =>
             setState(() => _webViewController = controller));

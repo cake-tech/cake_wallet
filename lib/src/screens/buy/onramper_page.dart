@@ -4,8 +4,8 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class OnRamperPage extends BasePage {
   OnRamperPage({
@@ -71,16 +71,14 @@ class OnRamperPageBodyState extends State<OnRamperPageBody> {
   OnRamperPageBodyState();
 
   @override
-  void initState() {
-    super.initState();
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return WebView(
-        initialUrl: widget.uri.toString(),
-        backgroundColor: widget.backgroundColor,
-        javascriptMode: JavascriptMode.unrestricted);
+    return InAppWebView(
+          initialOptions: InAppWebViewGroupOptions(
+            crossPlatform: InAppWebViewOptions(transparentBackground: true),
+          ),
+          initialUrlRequest: URLRequest(url: Uri.tryParse(widget.uri.toString(),
+        ),
+      )
+    );
   }
 }
