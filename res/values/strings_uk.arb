@@ -677,6 +677,6 @@
   "enabled": "Увімкнено",
   "tor_only": "Тільки Tor",
   "unmatched_currencies": "Валюта вашого гаманця не збігається з валютою сканованого QR-коду",
-  "contact_list_contacts": "Contacts",
-  "contact_list_wallets": "My Wallets"
+  "contact_list_contacts": "Контакти",
+  "contact_list_wallets": "Мої гаманці"
 }
