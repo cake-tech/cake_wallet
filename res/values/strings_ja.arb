@@ -681,5 +681,5 @@
   "contact_list_contacts": "連絡先",
   "contact_list_wallets": "マイウォレット",
   "do_not_send": "送信しない",
-  "error_dialog_content": "エラーが発生しました。\n\nアプリケーションを改善するために、クラッシュ レポートをサポート チームに送信してください。"
+  "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione."
 }

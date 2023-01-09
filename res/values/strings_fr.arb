@@ -679,5 +679,5 @@
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "Mes portefeuilles (wallets)",
   "do_not_send": "N'envoyez pas",
-  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer un rapport de plantage à notre équipe d'assistance pour améliorer l'application."
+  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application."
 }

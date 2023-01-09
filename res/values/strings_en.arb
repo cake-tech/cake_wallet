@@ -681,5 +681,5 @@
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "My Wallets",
   "do_not_send": "Don't send",
-  "error_dialog_content": "Oops, we got some error.\n\nPlease send crash report to our support team to make the application better."
+  "error_dialog_content": "Oops, we got some error.\n\nPlease send the crash report to our support team to make the application better."
 }

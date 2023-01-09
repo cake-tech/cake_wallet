@@ -681,5 +681,5 @@
   "contact_list_contacts": "Contactos",
   "contact_list_wallets": "Mis billeteras",
   "do_not_send": "no enviar",
-  "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe un informe de fallas a nuestro equipo de soporte para mejorar la aplicación."
+  "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe el informe de bloqueo a nuestro equipo de soporte para mejorar la aplicación."
 }

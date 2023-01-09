@@ -681,5 +681,5 @@
   "contact_list_contacts": "Contacten",
   "contact_list_wallets": "Mijn portefeuilles",
   "do_not_send": "Niet sturen",
-  "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur een crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren."
+  "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren."
 }
