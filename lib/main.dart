@@ -57,7 +57,10 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     FlutterError.onError = (errorDetails) {
-      _onError(errorDetails);
+      // if not a UI error
+      if (errorDetails.library != "widgets library") {
+        _onError(errorDetails);
+      }
     };
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -193,8 +196,8 @@ void _sendExceptionFile() async {
 
   final result = await FlutterMailer.send(mailOptions);
 
-  // clear file content if the error was sent or saved
-  // on android we can't know if it was sent or saved
+  // Clear file content if the error was sent or saved.
+  // On android we can't know if it was sent or saved
   if (result.name == MailerResponse.sent.name ||
       result.name == MailerResponse.saved.name ||
       result.name == MailerResponse.android.name) {
