@@ -679,5 +679,7 @@
   "tor_only": "Nur Tor",
   "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein",
   "contact_list_contacts": "Kontakte",
-  "contact_list_wallets": "Meine Geldbörsen"
+  "contact_list_wallets": "Meine Geldbörsen",
+  "do_not_send": "Nicht senden",
+  "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie einen Absturzbericht an unser Support-Team, um die Anwendung zu verbessern."
 }

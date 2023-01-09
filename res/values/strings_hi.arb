@@ -679,5 +679,7 @@
   "tor_only": "Tor केवल",
   "unmatched_currencies": "आपके वर्तमान वॉलेट की मुद्रा स्कैन किए गए क्यूआर से मेल नहीं खाती" ,
   "contact_list_contacts": "संपर्क",
-  "contact_list_wallets": "मेरा बटुआ"
+  "contact_list_wallets": "मेरा बटुआ",
+  "do_not_send": "मत भेजो",
+  "error_dialog_content": "ओह, हमसे कुछ गड़बड़ी हुई है.\n\nएप्लिकेशन को बेहतर बनाने के लिए कृपया हमारी सहायता टीम को क्रैश रिपोर्ट भेजें।"
 }

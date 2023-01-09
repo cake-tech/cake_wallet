@@ -679,5 +679,7 @@
   "tor_only": "Torのみ",
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
   "contact_list_contacts": "連絡先",
-  "contact_list_wallets": "マイウォレット"
+  "contact_list_wallets": "マイウォレット",
+  "do_not_send": "送信しない",
+  "error_dialog_content": "エラーが発生しました。\n\nアプリケーションを改善するために、クラッシュ レポートをサポート チームに送信してください。"
 }

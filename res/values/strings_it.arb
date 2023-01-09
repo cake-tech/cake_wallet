@@ -679,5 +679,7 @@
   "tor_only": "Solo Tor",
   "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato",
   "contact_list_contacts": "Contatti",
-  "contact_list_wallets": "I miei portafogli"
+  "contact_list_wallets": "I miei portafogli",
+  "do_not_send": "Non inviare",
+  "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare un rapporto sugli arresti anomali al nostro team di supporto per migliorare l'applicazione."
 }

@@ -679,5 +679,7 @@
   "tor_only": "Samo Tor",
   "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u",
   "contact_list_contacts": "Kontakti",
-  "contact_list_wallets": "Moji novčanici"
+  "contact_list_wallets": "Moji novčanici",
+  "do_not_send": "Ne šalji",
+  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju."
 }

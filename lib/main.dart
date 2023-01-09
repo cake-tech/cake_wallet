@@ -154,7 +154,6 @@ Future<void> main() async {
         initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
-    print("@@@@@@@@@@@@@@@@ in run zone guard");
     _onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
@@ -165,8 +164,8 @@ void _saveException(String? error, StackTrace? stackTrace) async {
   final file = File('${appDocDir.path}/error.txt');
   final exception = {
     "${DateTime.now()}": {
-      "error": error,
-      "stackTrace": stackTrace.toString(),
+      "Error": error,
+      "StackTrace": stackTrace.toString(),
     }
   };
 
@@ -214,9 +213,9 @@ void _onError(FlutterErrorDetails errorDetails) {
             return AlertWithTwoActions(
               isDividerExist: true,
               alertTitle: S.of(context).error,
-              alertContent: "Oops, we got some error.\n\nPlease send crash report to our support team to make the application better.",
+              alertContent: S.of(context).error_dialog_content,
               rightButtonText: S.of(context).send,
-              leftButtonText: "Don't send",
+              leftButtonText: S.of(context).do_not_send,
               actionRightButton: () {
                 Navigator.of(context).pop();
                 _sendExceptionFile();

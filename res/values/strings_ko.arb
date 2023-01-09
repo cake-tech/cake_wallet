@@ -679,5 +679,7 @@
   "tor_only": "Tor 뿐",
   "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다.",
   "contact_list_contacts": "콘택트 렌즈",
-  "contact_list_wallets": "내 지갑"
+  "contact_list_wallets": "내 지갑",
+  "do_not_send": "보내지 마세요",
+  "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오."
 }
