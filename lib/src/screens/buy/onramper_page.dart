@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -73,12 +72,15 @@ class OnRamperPageBodyState extends State<OnRamperPageBody> {
   @override
   Widget build(BuildContext context) {
     return InAppWebView(
-          initialOptions: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(transparentBackground: true),
-          ),
-          initialUrlRequest: URLRequest(url: Uri.tryParse(widget.uri.toString(),
-        ),
-      )
+      initialOptions: InAppWebViewGroupOptions(
+        crossPlatform: InAppWebViewOptions(transparentBackground: true),
+      ),
+      androidOnPermissionRequest: (_, __, resources) async {
+        return PermissionRequestResponse(
+          resources: resources,
+          action: PermissionRequestResponseAction.GRANT,
+        );
+      },
     );
   }
 }
