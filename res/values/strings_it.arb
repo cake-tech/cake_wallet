@@ -48,7 +48,7 @@
   "outgoing" : "In uscita",
   "transactions_by_date" : "Transazioni per data",
   "trades" : "Scambi",
-  "filters" : "Filtri",
+  "filter_by": "Filtrirati po",
   "today" : "Oggi",
   "yesterday" : "Ieri",
   "received" : "Ricevuto",
@@ -656,6 +656,8 @@
   "use_suggested": "Usa suggerito",
   "do_not_share_warning_text" : "Non condividerli con nessun altro, incluso il supporto.\n\nI tuoi fondi possono e saranno rubati!",
   "help": "aiuto",
+  "all_transactions": "Sve transakcije",
+  "all_trades": "Svi obrti",
   "connection_sync": "Connessione e sincronizzazione",
   "security_and_backup": "Sicurezza e backup",
   "create_backup": "Crea backup",
@@ -675,5 +677,7 @@
   "disabled": "Disabilitato",
   "enabled": "Abilitato",
   "tor_only": "Solo Tor",
-  "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato"
+  "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato",
+  "contact_list_contacts": "Contatti",
+  "contact_list_wallets": "I miei portafogli"
 }

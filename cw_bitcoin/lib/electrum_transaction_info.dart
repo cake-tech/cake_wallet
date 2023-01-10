@@ -228,9 +228,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['id'] = id;
     m['height'] = height;
     m['amount'] = amount;
-    // FIX-ME: Hardcoded value
-    // m['direction'] = direction.index;
-    m['direction'] = 0;
+    m['direction'] = direction.index;
     m['date'] = date.millisecondsSinceEpoch;
     m['isPending'] = isPending;
     m['confirmations'] = confirmations;

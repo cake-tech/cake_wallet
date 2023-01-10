@@ -48,7 +48,7 @@
   "outgoing" : "Ausgehend",
   "transactions_by_date" : "Transaktionen nach Datum",
   "trades" : "Börsen",
-  "filters" : "Filter",
+  "filter_by": "Filtern nach",
   "today" : "Heute",
   "yesterday" : "Gestern",
   "received" : "Empfangen",
@@ -656,6 +656,8 @@
   "use_suggested": "Vorgeschlagen verwenden",
   "do_not_share_warning_text" : "Teilen Sie diese nicht mit anderen, einschließlich Support.\n\nIhr Geld kann und wird gestohlen werden!",
   "help": "hilfe",
+  "all_transactions": "Alle Transaktionen",
+  "all_trades": "Alle Gewerke",
   "connection_sync": "Verbindung und Synchronisierung",
   "security_and_backup": "Sicherheit und Datensicherung",
   "create_backup": "Backup erstellen",
@@ -675,5 +677,7 @@
   "disabled": "Deaktiviert",
   "enabled": "Ermöglicht",
   "tor_only": "Nur Tor",
-  "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein"
+  "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein",
+  "contact_list_contacts": "Kontakte",
+  "contact_list_wallets": "Meine Geldbörsen"
 }

@@ -1,6 +1,8 @@
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'transaction_filter_store.g.dart';
 
@@ -8,8 +10,8 @@ class TransactionFilterStore = TransactionFilterStoreBase
     with _$TransactionFilterStore;
 
 abstract class TransactionFilterStoreBase with Store {
-  TransactionFilterStoreBase(
-      {this.displayIncoming = true, this.displayOutgoing = true});
+  TransactionFilterStoreBase() : displayIncoming = true,
+        displayOutgoing = true;
 
   @observable
   bool displayIncoming;
@@ -23,11 +25,31 @@ abstract class TransactionFilterStoreBase with Store {
   @observable
   DateTime? endDate;
 
-  @action
-  void toggleIncoming() => displayIncoming = !displayIncoming;
+  @computed
+  bool get displayAll => displayIncoming && displayOutgoing;
 
   @action
-  void toggleOutgoing() => displayOutgoing = !displayOutgoing;
+  void toggleAll() {
+    if (displayAll) {
+      displayOutgoing = false;
+      displayIncoming = false;
+    } else {
+      displayOutgoing = true;
+      displayIncoming = true;
+    }
+  }
+
+
+  @action
+  void toggleIncoming() {
+    displayIncoming = !displayIncoming;
+  }
+
+
+  @action
+  void toggleOutgoing() {
+    displayOutgoing = !displayOutgoing;
+  }
 
   @action
   void changeStartDate(DateTime date) => startDate = date;
@@ -37,8 +59,7 @@ abstract class TransactionFilterStoreBase with Store {
 
   List<TransactionListItem> filtered({required List<TransactionListItem> transactions}) {
     var _transactions = <TransactionListItem>[];
-    final needToFilter = !displayOutgoing ||
-        !displayIncoming ||
+    final needToFilter = !displayAll ||
         (startDate != null && endDate != null);
 
     if (needToFilter) {
@@ -50,7 +71,7 @@ abstract class TransactionFilterStoreBase with Store {
               && (endDate?.isAfter(item.transaction.date) ?? false);
         }
 
-        if (allowed && (!displayOutgoing || !displayIncoming)) {
+        if (allowed && (!displayAll)) {
           allowed = (displayOutgoing &&
               item.transaction.direction ==
                   TransactionDirection.outgoing) ||

@@ -48,7 +48,7 @@
   "outgoing" : "Odlazno",
   "transactions_by_date" : "Transakcije prema datumu",
   "trades" : "Razmjene",
-  "filters" : "Filter",
+  "filter_by": "Filtrirati po",
   "today" : "Danas",
   "yesterday" : "Jučer",
   "received" : "Primljeno",
@@ -656,6 +656,8 @@
   "use_suggested": "Koristite predloženo",
   "do_not_share_warning_text" : "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nVaša sredstva mogu i bit će ukradena!",
   "help": "pomozite",
+  "all_transactions": "Sve transakcije",
+  "all_trades": "Svi obrti",
   "connection_sync": "Povezivanje i sinkronizacija",
   "security_and_backup": "Sigurnost i sigurnosna kopija",
   "create_backup": "Stvori sigurnosnu kopiju",
@@ -675,5 +677,7 @@
   "disabled": "Onemogućeno",
   "enabled": "Omogućeno",
   "tor_only": "Samo Tor",
-  "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u"
+  "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u",
+  "contact_list_contacts": "Kontakti",
+  "contact_list_wallets": "Moji novčanici"
 }

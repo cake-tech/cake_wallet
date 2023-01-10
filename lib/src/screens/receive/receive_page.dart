@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -135,8 +136,7 @@ class ReceivePage extends BasePage {
               Observer(
                   builder: (_) => ListView.separated(
                       padding: EdgeInsets.all(0),
-                      separatorBuilder: (context, _) => Container(
-                          height: 1, color: Theme.of(context).dividerColor),
+                      separatorBuilder: (context, _) => const SectionDivider(),
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: addressListViewModel.items.length,
