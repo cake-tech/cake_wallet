@@ -56,7 +56,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
             .where((element) =>
         (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
             (element.tag != null ? element.tag!.toLowerCase().contains(subString.toLowerCase()) : false) ||
-            (element.name != null ? element.name!.toLowerCase().contains(subString.toLowerCase()) : false))
+            (element.fullName != null ? element.fullName!.toLowerCase().contains(subString.toLowerCase()) : false))
             .toList();
         return;
       }

@@ -27,7 +27,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.xhv,
     CryptoCurrency.dcr,
-    CryptoCurrency.husd,
     CryptoCurrency.kmd,
     CryptoCurrency.mkr,
     CryptoCurrency.near,
@@ -38,6 +37,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     CryptoCurrency.rvn,
     CryptoCurrency.scrt,
     CryptoCurrency.stx,
+    CryptoCurrency.bttc,
   ];
 
   static List<ExchangePair> _supportedPairs() {

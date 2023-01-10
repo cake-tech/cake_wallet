@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
@@ -40,6 +41,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 Future<void> main() async {
   try {
@@ -127,7 +129,7 @@ Future<void> main() async {
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 18);
+        initialMigrationVersion: 19);
     runApp(App());
   } catch (e, stacktrace) {
     runApp(MaterialApp(
@@ -203,12 +205,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     //_handleInitialUri();
   }
 
-  @override
-  void dispose() {
-    stream?.cancel();
-    super.dispose();
-  }
-
   Future<void> _handleInitialUri() async {
     try {
       final uri = await getInitialUri();
@@ -256,6 +252,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
       final appStore = getIt.get<AppStore>();
+      final authService = getIt.get<AuthService>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
@@ -280,7 +277,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
+          authService: authService,
           child: MaterialApp(
+            navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: settingsStore.theme,

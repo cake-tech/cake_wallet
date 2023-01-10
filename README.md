@@ -76,3 +76,56 @@ We have 24/7 free support. Please contact support@cakewallet.com
 More instructions to follow
 
 For instructions on how to build for Android: please view file `howto-build-android.md`
+
+# Contributing
+
+## Improving translations
+
+Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull request with the changes.
+
+## Current list of language files:
+
+- English
+- Spanish
+- French
+- German
+- Italian
+- Portugese
+- Dutch
+- Polish
+- Croatian
+- Russian
+- Ukranian
+- Hindi
+- Japanese
+- Chinese
+- Korean
+- Arabic
+
+## Add a new language
+
+1. Create a new `strings_XX.arb` file in `res/values/`, replacing XX with the language's [ISO 639-1 code](https://en.wikipedia.org/wiki/ISO_639-1).
+
+2. Edit the strings in this file, replacing XXX below with the translation for each string.
+
+`"welcome" : "Welcome to",` -> `"welcome" : "XXX",`
+
+3. For strings where there is a variable, denoted by a $ symbol and braces, such as ${status}, the string in braces should not be translated. For example, when editing line 106:
+
+"time" : "${minutes}m ${seconds}s"
+
+The only parts to be translated, if needed, are the values m and s after the variables.
+
+4. Add the language to `lib/entities/language_service.dart` under both `supportedLocales` and `localeCountryCode`. Use the name of the language in the local language and in English in parentheses after for `supportedLocales`. Use the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for `localeCountryCode`. You must choose one country, so choose the country with the most native speakers of this language or is otherwise best associated with this language.
+
+5. Add a relevant flag to `assets/images/flags/XXXX.png`, replacing XXXX with the 3 digit localeCountryCode. The image must be 42x36 pixels with a 3 pixels of transparent margin on all 4 sides.
+
+## Add a new fiat currency
+
+1. Check with [Cake Wallet support](https://guides.cakewallet.com) to see if the desired new fiat currency is available through our fiat API. Not all fiat currencies are.
+
+2. If the currency is associated strongly with a specific issuing country, map the [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code with the applicable [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) in `lib/entities/fiat_currency.dart`. If the currency is used in a whole region or organization, then map with a reasonable interpretation of this (eg: eur countryCode for EUR symbol).
+
+3. Add the raw mapping underneath in `lib/entities/fiat_currency.dart` following the same format as the others.
+
+4. Add a flag of the issuing country or organization to `assets/images/flags/XXXX.png`, replacing XXXX with the ISO 3166-1 alpha-3 code used above (eg: `usa.png`, `eur.png`). Do not add this if the flag with the same name already exists. The image must be 42x36 pixels with a 3 pixels of transparent margin on all 4 sides.

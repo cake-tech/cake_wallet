@@ -1,9 +1,11 @@
+import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
@@ -25,22 +27,26 @@ class SecurityBackupPage extends BasePage {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SettingsCellWithArrow(
           title: S.current.show_keys,
-          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.showKeys);
-            }
-          }),
+          handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
+              ? Navigator.of(context).pushNamed(Routes.auth,
+                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                  if (isAuthenticatedSuccessfully) {
+                    auth.close(route: Routes.showKeys);
+                  }
+                })
+              : Navigator.of(context).pushNamed(Routes.showKeys),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
-          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.backup);
-            }
-          }),
+          handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
+              ? Navigator.of(context).pushNamed(Routes.auth,
+                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                  if (isAuthenticatedSuccessfully) {
+                    auth.close(route: Routes.backup);
+                  }
+                })
+              : Navigator.of(context).pushNamed(Routes.backup),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
@@ -65,10 +71,12 @@ class SecurityBackupPage extends BasePage {
                       arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
                     if (isAuthenticatedSuccessfully) {
                       if (await _securitySettingsViewModel.biometricAuthenticated()) {
-                        _securitySettingsViewModel.setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                        _securitySettingsViewModel
+                            .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                       }
                     } else {
-                      _securitySettingsViewModel.setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                      _securitySettingsViewModel
+                          .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                     }
 
                     auth.close();
@@ -77,6 +85,16 @@ class SecurityBackupPage extends BasePage {
                   _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
                 }
               });
+        }),
+        Observer(builder: (_) {
+          return SettingsPickerCell<PinCodeRequiredDuration>(
+            title: S.current.require_pin_after,
+            items: PinCodeRequiredDuration.values,
+            selectedItem: _securitySettingsViewModel.pinCodeRequiredDuration,
+            onItemSelected: (PinCodeRequiredDuration code) {
+              _securitySettingsViewModel.setPinCodeRequiredDuration(code);
+            },
+          );
         }),
       ]),
     );

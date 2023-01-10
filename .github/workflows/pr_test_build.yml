@@ -8,6 +8,9 @@ jobs:
   test:
 
     runs-on: ubuntu-18.04
+    env:
+      STORE_PASS: test@cake_wallet
+      KEY_PASS: test@cake_wallet
 
     steps:
       - uses: actions/checkout@v2
@@ -34,6 +37,24 @@ jobs:
           ./install_ndk.sh
           source ./app_env.sh cakewallet
           ./app_config.sh
+
+      - name: Cache Externals
+        id: cache-externals
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/android/cake_wallet/cw_haven/android/.cxx
+            /opt/android/cake_wallet/cw_haven/ios/External
+            /opt/android/cake_wallet/cw_monero/android/.cxx
+            /opt/android/cake_wallet/cw_monero/ios/External
+            /opt/android/cake_wallet/cw_shared_external/ios/External
+          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh') }}
+
+      - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
+        name: Generate Externals
+        run: |
+          cd /opt/android/cake_wallet/scripts/android/
+          source ./app_env.sh cakewallet
           ./build_all.sh
           ./copy_monero_deps.sh
 
@@ -45,12 +66,12 @@ jobs:
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
-          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass ${{ secrets.STORE_PASS }} -keypass ${{ secrets.KEY_PASS }}
+          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
 
       - name: Generate key properties
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=${{ secrets.STORE_PASS }} keyPassword=${{ secrets.KEY_PASS }}
+          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
 
       - name: Generate localization
         run: |
@@ -111,19 +132,20 @@ jobs:
 #              --token ${{ secrets.APP_CENTER_TOKEN }} \
 #              --quiet
 
-      - name: Send Test APK
-        run: |
-          cd /opt/android/cake_wallet
-          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")
-          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
-
       - name: Rename apk file
         run: |
           cd /opt/android/cake_wallet/build/app/outputs/apk/release
           mkdir test-apk
-          mv app-release.apk test-apk/$GITHUB_HEAD_REF.apk
+          cp app-release.apk test-apk/$GITHUB_HEAD_REF.apk
 
       - name: Upload Artifact
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
+
+      - name: Send Test APK
+        continue-on-error: true
+        run: |
+          cd /opt/android/cake_wallet
+          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")
+          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
