@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -45,7 +46,8 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
-      TransactionPriority? initialLitecoinTransactionPriority})
+      TransactionPriority? initialLitecoinTransactionPriority,
+      TransactionPriority? initialEthereumTransactionPriority})
   : nodes = ObservableMap<WalletType, Node>.of(nodes),
     _sharedPreferences = sharedPreferences,
     fiatCurrency = initialFiatCurrency,
@@ -76,6 +78,10 @@ abstract class SettingsStoreBase with Store {
         priority[WalletType.litecoin] = initialLitecoinTransactionPriority;
     }
 
+    if (initialEthereumTransactionPriority != null) {
+        priority[WalletType.ethereum] = initialEthereumTransactionPriority;
+    }
+
     reaction(
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
@@ -100,6 +106,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.haven:
           key = PreferencesKey.havenTransactionPriority;
+          break;
+        case WalletType.ethereum:
+          key = PreferencesKey.ethereumTransactionPriority;
           break;
         default:
           key = null;
@@ -257,6 +266,7 @@ abstract class SettingsStoreBase with Store {
 
     TransactionPriority? havenTransactionPriority;
     TransactionPriority? litecoinTransactionPriority;
+    TransactionPriority? ethereumTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -266,11 +276,16 @@ abstract class SettingsStoreBase with Store {
       litecoinTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
+      ethereumTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
     havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
+    ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences
@@ -371,6 +386,7 @@ abstract class SettingsStoreBase with Store {
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
         initialLitecoinTransactionPriority: litecoinTransactionPriority,
+        initialEthereumTransactionPriority: ethereumTransactionPriority,
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
@@ -397,6 +413,11 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.litecoin] = bitcoin?.deserializeLitecoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!) ??
           priority[WalletType.litecoin]!;
+    }
+    if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
+      priority[WalletType.ethereum] = ethereum?.deserializeEthereumTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
+          priority[WalletType.ethereum]!;
     }
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(

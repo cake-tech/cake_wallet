@@ -14,6 +14,7 @@ import 'package:cw_ethereum/ethereum_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
 import 'package:cw_ethereum/ethereum_transaction_info.dart';
+import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
 import 'package:mobx/mobx.dart';
@@ -37,6 +38,7 @@ abstract class EthereumWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
+        _feeRates = [],
         walletAddresses = EthereumWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EthereumBalance>.of(
             {CryptoCurrency.eth: initialBalance ?? EthereumBalance(available: 0, additional: 0)}),
@@ -51,7 +53,8 @@ abstract class EthereumWalletBase
 
   late EthereumClient _client;
 
-  EtherAmount? _gasPrice;
+  List<int> _feeRates;
+  int? _gasPrice;
 
   @override
   WalletAddresses walletAddresses;
@@ -134,10 +137,13 @@ abstract class EthereumWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
-      _gasPrice = await _client.getGasPrice();
+      _gasPrice = await _client.getGasUnitPrice();
+      _feeRates = await _client.getEstimatedGasForPriorities();
 
       Timer.periodic(
-          const Duration(minutes: 1), (timer) async => _gasPrice = await _client.getGasPrice());
+          const Duration(minutes: 1), (timer) async => _gasPrice = await _client.getGasUnitPrice());
+      Timer.periodic(const Duration(minutes: 1),
+          (timer) async => _feeRates = await _client.getEstimatedGasForPriorities());
 
       syncStatus = SyncedSyncStatus();
     } catch (e, stacktrace) {
@@ -147,12 +153,16 @@ abstract class EthereumWalletBase
     }
   }
 
-  int feeRate() {
-    if (_gasPrice != null) {
-      return _gasPrice!.getInEther.toInt();
-    }
+  int feeRate(TransactionPriority priority) {
+    try {
+      if (priority is EthereumTransactionPriority) {
+        return _feeRates[priority.raw] * _gasPrice!;
+      }
 
-    return 0;
+      return 0;
+    } catch (e) {
+      return 0;
+    }
   }
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
@@ -199,8 +209,10 @@ abstract class EthereumWalletBase
 
   Future<String> getPrivateKey(String mnemonic, String password) async {
     final seed = bip39.mnemonicToSeedHex(mnemonic);
-    final master = await ED25519_HD_KEY.getMasterKeyFromSeed(HEX.decode(seed),
-        masterSecret: password);
+    final master = await ED25519_HD_KEY.getMasterKeyFromSeed(
+      HEX.decode(seed),
+      masterSecret: password,
+    );
     final privateKey = HEX.encode(master.key);
     return privateKey;
   }

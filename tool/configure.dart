@@ -477,6 +477,7 @@ Future<void> generateEthereum(bool hasImplementation) async {
   const ethereumCommonHeaders = """
 """;
   const ethereumCWHeaders = """
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -485,6 +486,7 @@ import 'package:cw_ethereum/ethereum_mnemonics.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
+import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:hive/hive.dart';
 """;
   const ethereumCwPart = "part 'cw_ethereum.dart';";
@@ -495,6 +497,10 @@ abstract class Ethereum {
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   String getAddress(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeEthereumTransactionPriority(int raw);
+  int getEstimatedFee(Object wallet, TransactionPriority priority);
 }
   """;
 

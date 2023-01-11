@@ -24,4 +24,20 @@ class CWEthereum extends Ethereum {
 
   @override
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
+
+  @override
+  TransactionPriority getDefaultTransactionPriority() => EthereumTransactionPriority.medium;
+
+  @override
+  List<TransactionPriority> getTransactionPriorities() => EthereumTransactionPriority.all;
+
+  @override
+  TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
+      EthereumTransactionPriority.deserialize(raw: raw);
+
+  @override
+  int getEstimatedFee(Object wallet, TransactionPriority priority) {
+    final ethereumWallet = wallet as EthereumWallet;
+    return ethereumWallet.feeRate(priority);
+  }
 }
