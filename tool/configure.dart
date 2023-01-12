@@ -598,15 +598,19 @@ Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitc
   }
 
   if (hasBitcoin) {
-    outputContent += '\tWalletType.bitcoin,\n\tWalletType.litecoin,\n';
-  }
-
-  if (hasHaven) {
-    outputContent += '\tWalletType.haven,\n';
+    outputContent += '\tWalletType.bitcoin,\n';
   }
 
   if (hasEthereum) {
     outputContent += '\tWalletType.ethereum,\n';
+  }
+
+  if (hasBitcoin) {
+    outputContent += '\tWalletType.litecoin,\n';
+  }
+
+  if (hasHaven) {
+    outputContent += '\tWalletType.haven,\n';
   }
 
   outputContent += '];\n';
