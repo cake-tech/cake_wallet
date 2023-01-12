@@ -1,11 +1,14 @@
 #!/bin/sh
 
 . ./config.sh
-WOWNERO_VERSION=fix-armv7a-compile
-WOWNERO_SRC_DIR=${WORKDIR}/wownero
-WOWNERO_SHA_HEAD="373b8842c6075c54cc4904b147f1c86daf7cb60d"
 
-git clone https://git.wownero.com/wownero/wownero.git ${WOWNERO_SRC_DIR} --branch ${WOWNERO_VERSION}
+WOWNERO_URL="https://git.wownero.com/wownero/wownero.git"
+WOWNERO_VERSION=v0.10.2.0
+WOWNERO_SHA_HEAD="ab42be18f25c7bdfa6171a890ad11ae262bc44d0"
+WOWNERO_SRC_DIR=${WORKDIR}/wownero
+
+echo "Cloning wownero from - $WOWNERO_URL to - $WOWNERO_DIR_PATH"		
+git clone ${WOWNERO_URL} ${WOWNERO_SRC_DIR} --branch ${WOWNERO_VERSION}
 cd $WOWNERO_SRC_DIR
 git reset --hard $WOWNERO_SHA_HEAD
 git submodule init
