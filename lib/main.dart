@@ -172,8 +172,9 @@ void _saveException(String? error, StackTrace? stackTrace) async {
     }
   };
 
-  String separator = "\n\n==========================================================" +
-      "\n==========================================================\n\n";
+  const String separator =
+      '''\n\n==========================================================
+      ==========================================================\n\n''';
 
   await file.writeAsString(
     jsonEncode(exception) + separator,
@@ -182,26 +183,28 @@ void _saveException(String? error, StackTrace? stackTrace) async {
 }
 
 void _sendExceptionFile() async {
-  final appDocDir = await getApplicationDocumentsDirectory();
+  try {
+    final appDocDir = await getApplicationDocumentsDirectory();
 
-  final file = File('${appDocDir.path}/error.txt');
+    final file = File('${appDocDir.path}/error.txt');
 
-  print(file.readAsStringSync());
+    final MailOptions mailOptions = MailOptions(
+      subject: 'Mobile App Issue',
+      recipients: ['support@cakewallet.com'],
+      attachments: [file.path],
+    );
 
-  final MailOptions mailOptions = MailOptions(
-    subject: 'Mobile App Issue',
-    recipients: ['support@cakewallet.com'],
-    attachments: [file.path],
-  );
+    final result = await FlutterMailer.send(mailOptions);
 
-  final result = await FlutterMailer.send(mailOptions);
-
-  // Clear file content if the error was sent or saved.
-  // On android we can't know if it was sent or saved
-  if (result.name == MailerResponse.sent.name ||
-      result.name == MailerResponse.saved.name ||
-      result.name == MailerResponse.android.name) {
-    file.writeAsString("", mode: FileMode.write);
+    // Clear file content if the error was sent or saved.
+    // On android we can't know if it was sent or saved
+    if (result.name == MailerResponse.sent.name ||
+        result.name == MailerResponse.saved.name ||
+        result.name == MailerResponse.android.name) {
+      file.writeAsString("", mode: FileMode.write);
+    }
+  } catch (e, s) {
+    _saveException(e.toString(), s);
   }
 }
 
