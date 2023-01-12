@@ -75,6 +75,11 @@ class OnRamperPageBodyState extends State<OnRamperPageBody> {
       initialOptions: InAppWebViewGroupOptions(
         crossPlatform: InAppWebViewOptions(transparentBackground: true),
       ),
+      initialUrlRequest: URLRequest(
+        url: Uri.tryParse(
+          widget.uri.toString(),
+        ),
+      ),
       androidOnPermissionRequest: (_, __, resources) async {
         return PermissionRequestResponse(
           resources: resources,
