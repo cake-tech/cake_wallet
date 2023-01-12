@@ -1,18 +1,18 @@
 import 'package:cw_core/transaction_priority.dart';
 
 class EthereumTransactionPriority extends TransactionPriority {
-  final int value;
+  final int tip;
 
-  const EthereumTransactionPriority({required String title, required int raw, required this.value})
+  const EthereumTransactionPriority({required String title, required int raw, required this.tip})
       : super(title: title, raw: raw);
 
   static const List<EthereumTransactionPriority> all = [fast, medium, slow];
   static const EthereumTransactionPriority slow =
-      EthereumTransactionPriority(title: 'Slow', raw: 0, value: 2);
+      EthereumTransactionPriority(title: 'Slow', raw: 0, tip: 2);
   static const EthereumTransactionPriority medium =
-      EthereumTransactionPriority(title: 'Medium', raw: 1, value: 5);
+      EthereumTransactionPriority(title: 'Medium', raw: 1, tip: 5);
   static const EthereumTransactionPriority fast =
-      EthereumTransactionPriority(title: 'Fast', raw: 2, value: 10);
+      EthereumTransactionPriority(title: 'Fast', raw: 2, tip: 10);
 
   static EthereumTransactionPriority deserialize({required int raw}) {
     switch (raw) {

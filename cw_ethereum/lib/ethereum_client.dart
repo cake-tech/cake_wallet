@@ -30,7 +30,7 @@ class EthereumClient {
   Future<List<int>> getEstimatedGasForPriorities() async {
     final result = await Future.wait(EthereumTransactionPriority.all.map((priority) =>
         _client.estimateGas(
-            maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.value))));
+            maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip))));
 
     return result.map((e) => e.toInt()).toList();
   }
