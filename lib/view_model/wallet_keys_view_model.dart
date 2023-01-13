@@ -12,7 +12,9 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(WalletBase wallet)
-      : title = wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin
+      : title = wallet.type == WalletType.bitcoin ||
+                wallet.type == WalletType.litecoin ||
+                wallet.type == WalletType.ethereum
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         items = ObservableList<StandartListItem>() {
@@ -48,7 +50,9 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
+    if (wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.litecoin ||
+        wallet.type == WalletType.ethereum) {
       items.addAll([
         StandartListItem(title: S.current.wallet_seed, value: wallet.seed),
       ]);
