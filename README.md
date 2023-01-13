@@ -119,7 +119,7 @@ The only parts to be translated, if needed, are the values m and s after the var
 
 4. Add the language to `lib/entities/language_service.dart` under both `supportedLocales` and `localeCountryCode`. Use the name of the language in the local language and in English in parentheses after for `supportedLocales`. Use the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for `localeCountryCode`. You must choose one country, so choose the country with the most native speakers of this language or is otherwise best associated with this language.
 
-5. Add a relevant flag to `assets/images/flags/XXXX.png`, replacing XXXX with the 3 digit localeCountryCode. The image must be 42x36 pixels with a 3 pixels of transparent margin on all 4 sides.
+5. Add a relevant flag to `assets/images/flags/XXXX.png`, replacing XXXX with the 3 digit localeCountryCode. The image must be 42x26 pixels with a 3 pixels of transparent margin on all 4 sides. You can resize the flag with [paint.net](https://www.getpaint.net/) to 36x20 pixels, expand the canvas to 42x26 pixels with the flag anchored in the middle, and then manually delete the 3 pixels on each side to make transparent. Or you can use another program like Photoshop.
 
 ## Add a new fiat currency
 
@@ -129,4 +129,4 @@ The only parts to be translated, if needed, are the values m and s after the var
 
 3. Add the raw mapping underneath in `lib/entities/fiat_currency.dart` following the same format as the others.
 
-4. Add a flag of the issuing country or organization to `assets/images/flags/XXXX.png`, replacing XXXX with the ISO 3166-1 alpha-3 code used above (eg: `usa.png`, `eur.png`). Do not add this if the flag with the same name already exists. The image must be 42x36 pixels with a 3 pixels of transparent margin on all 4 sides.
+4. Add a flag of the issuing country or organization to `assets/images/flags/XXXX.png`, replacing XXXX with the ISO 3166-1 alpha-3 code used above (eg: `usa.png`, `eur.png`). Do not add this if the flag with the same name already exists. The image must be 42x26 pixels with a 3 pixels of transparent margin on all 4 sides.
