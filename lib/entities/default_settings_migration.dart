@@ -24,7 +24,7 @@ const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
-const ethereumDefaultNodeUri = '10.0.2.2:7545';
+const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 
 Future defaultSettingsMigration(
     {required int version,

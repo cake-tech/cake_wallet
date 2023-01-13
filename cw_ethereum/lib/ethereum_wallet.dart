@@ -39,6 +39,7 @@ abstract class EthereumWalletBase
         _password = password,
         _mnemonic = mnemonic,
         _feeRates = [],
+        _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EthereumBalance>.of(
             {CryptoCurrency.eth: initialBalance ?? EthereumBalance(available: 0, additional: 0)}),
@@ -60,6 +61,7 @@ abstract class EthereumWalletBase
   WalletAddresses walletAddresses;
 
   @override
+  @observable
   SyncStatus syncStatus;
 
   @override
@@ -85,6 +87,7 @@ abstract class EthereumWalletBase
   @override
   void close() {}
 
+  @action
   @override
   Future<void> connectToNode({required Node node}) async {
     try {
@@ -132,6 +135,7 @@ abstract class EthereumWalletBase
   @override
   String get seed => _mnemonic;
 
+  @action
   @override
   Future<void> startSync() async {
     try {
