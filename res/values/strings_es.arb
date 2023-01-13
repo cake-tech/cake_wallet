@@ -678,6 +678,7 @@
   "enabled": "Activado",
   "tor_only": "solo Tor",
   "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado",
+  "orbot_running_alert": "Asegúrese de que Orbot se esté ejecutando antes de conectarse a este nodo.",
   "contact_list_contacts": "Contactos",
   "contact_list_wallets": "Mis billeteras"
 }
