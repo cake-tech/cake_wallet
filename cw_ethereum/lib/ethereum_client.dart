@@ -6,7 +6,7 @@ import 'package:web3dart/web3dart.dart';
 class EthereumClient {
   Web3Client? _client;
 
-  Future<bool> connect(Node node) async {
+  bool connect(Node node) {
     try {
       _client = Web3Client(node.uri.toString(), Client());
 
@@ -28,9 +28,13 @@ class EthereumClient {
   }
 
   Future<List<int>> getEstimatedGasForPriorities() async {
-    final result = await Future.wait(EthereumTransactionPriority.all.map((priority) => _client!
-        .estimateGas(
-            maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip))));
+    final result = await Future.wait(EthereumTransactionPriority.all.map(
+      (priority) => _client!.estimateGas(
+        maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
+        maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 100),
+
+      ),
+    ));
 
     return result.map((e) => e.toInt()).toList();
   }

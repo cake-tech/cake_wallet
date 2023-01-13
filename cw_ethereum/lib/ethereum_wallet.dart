@@ -38,7 +38,7 @@ abstract class EthereumWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _feeRates = [],
+        _priorityFees = [],
         _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EthereumBalance>.of(
@@ -54,7 +54,7 @@ abstract class EthereumWalletBase
 
   late EthereumClient _client;
 
-  List<int> _feeRates;
+  List<int> _priorityFees;
   int? _gasPrice;
 
   @override
@@ -76,7 +76,15 @@ abstract class EthereumWalletBase
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    throw UnimplementedError("calculateEstimatedFee");
+    try {
+      if (priority is EthereumTransactionPriority) {
+        return _gasPrice! * _priorityFees[priority.raw];
+      }
+
+      return 0;
+    } catch (e) {
+      return 0;
+    }
   }
 
   @override
@@ -93,7 +101,7 @@ abstract class EthereumWalletBase
     try {
       syncStatus = ConnectingSyncStatus();
 
-      final isConnected = await _client.connect(node);
+      final isConnected = _client.connect(node);
 
       if (!isConnected) {
         throw Exception("Ethereum Node connection failed");
@@ -142,12 +150,12 @@ abstract class EthereumWalletBase
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
       _gasPrice = await _client.getGasUnitPrice();
-      _feeRates = await _client.getEstimatedGasForPriorities();
+      _priorityFees = await _client.getEstimatedGasForPriorities();
 
       Timer.periodic(
           const Duration(minutes: 1), (timer) async => _gasPrice = await _client.getGasUnitPrice());
       Timer.periodic(const Duration(minutes: 1),
-          (timer) async => _feeRates = await _client.getEstimatedGasForPriorities());
+          (timer) async => _priorityFees = await _client.getEstimatedGasForPriorities());
 
       syncStatus = SyncedSyncStatus();
     } catch (e, stacktrace) {
@@ -160,7 +168,7 @@ abstract class EthereumWalletBase
   int feeRate(TransactionPriority priority) {
     try {
       if (priority is EthereumTransactionPriority) {
-        return _feeRates[priority.raw] * _gasPrice!;
+        return _priorityFees[priority.raw];
       }
 
       return 0;
