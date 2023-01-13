@@ -678,5 +678,7 @@
   "enabled": "Включено",
   "tor_only": "Только Tor",
   "unmatched_currencies": "Валюта вашего текущего кошелька не соответствует валюте отсканированного QR-кода.",
-  "orbot_running_alert": "Перед подключением к этому узлу убедитесь, что Orbot запущен."
+  "orbot_running_alert": "Перед подключением к этому узлу убедитесь, что Orbot запущен.",
+  "contact_list_contacts": "Контакты",
+  "contact_list_wallets": "Мои кошельки"
 }

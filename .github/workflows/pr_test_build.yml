@@ -8,6 +8,9 @@ jobs:
   test:
 
     runs-on: ubuntu-18.04
+    env:
+      STORE_PASS: test@cake_wallet
+      KEY_PASS: test@cake_wallet
 
     steps:
       - uses: actions/checkout@v2
@@ -63,12 +66,12 @@ jobs:
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
-          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass ${{ secrets.STORE_PASS }} -keypass ${{ secrets.KEY_PASS }}
+          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
 
       - name: Generate key properties
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=${{ secrets.STORE_PASS }} keyPassword=${{ secrets.KEY_PASS }}
+          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
 
       - name: Generate localization
         run: |
@@ -141,6 +144,7 @@ jobs:
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
 
       - name: Send Test APK
+        continue-on-error: true
         run: |
           cd /opt/android/cake_wallet
           var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")

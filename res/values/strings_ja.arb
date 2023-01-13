@@ -678,5 +678,7 @@
   "enabled": "有効",
   "tor_only": "Torのみ",
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
-  "orbot_running_alert": "このノードに接続する前に、Orbot が実行されていることを確認してください"
+  "orbot_running_alert": "このノードに接続する前に、Orbot が実行されていることを確認してください",
+  "contact_list_contacts": "連絡先",
+  "contact_list_wallets": "マイウォレット"
 }

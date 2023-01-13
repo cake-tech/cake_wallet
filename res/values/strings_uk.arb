@@ -677,5 +677,7 @@
   "enabled": "Увімкнено",
   "tor_only": "Тільки Tor",
   "unmatched_currencies": "Валюта вашого гаманця не збігається з валютою сканованого QR-коду",
-  "orbot_running_alert": "Перед підключенням до цього вузла переконайтеся, що Orbot запущено."
+  "orbot_running_alert": "Перед підключенням до цього вузла переконайтеся, що Orbot запущено.",
+  "contact_list_contacts": "Контакти",
+  "contact_list_wallets": "Мої гаманці"
 }
