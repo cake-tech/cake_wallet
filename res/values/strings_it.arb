@@ -680,5 +680,7 @@
   "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato",
   "orbot_running_alert": "Assicurati che Orbot sia in esecuzione prima di connetterti a questo nodo.",
   "contact_list_contacts": "Contatti",
-  "contact_list_wallets": "I miei portafogli"
+  "contact_list_wallets": "I miei portafogli",
+  "send_to_this_address" : "Invia ${currency} a questo indirizzo",
+  "arrive_in_this_address" : "${currency} arriverà a questo indirizzo"
 }

@@ -678,5 +678,7 @@
   "unmatched_currencies" : "สกุลเงินของกระเป๋าปัจจุบันของคุณไม่ตรงกับของ QR ที่สแกน",
   "orbot_running_alert": "โปรดตรวจสอบว่า Orbot กำลังทำงานก่อนที่จะเชื่อมต่อกับโหนดนี้",
   "contact_list_contacts": "ติดต่อ",
-  "contact_list_wallets": "กระเป๋าเงินของฉัน"
+  "contact_list_wallets": "กระเป๋าเงินของฉัน",
+  "send_to_this_address" : "ส่ง ${currency} ไปยังที่อยู่นี้",
+  "arrive_in_this_address" : "${currency} จะมาถึงที่อยู่นี้"
 }

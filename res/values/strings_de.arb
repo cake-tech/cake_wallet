@@ -680,5 +680,7 @@
   "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein",
   "orbot_running_alert": "Bitte stellen Sie sicher, dass Orbot läuft, bevor Sie sich mit diesem Knoten verbinden.",
   "contact_list_contacts": "Kontakte",
-  "contact_list_wallets": "Meine Geldbörsen"
+  "contact_list_wallets": "Meine Geldbörsen",
+  "send_to_this_address" : "Senden Sie ${currency} an diese Adresse",
+  "arrive_in_this_address" : "${currency} wird an dieser Adresse ankommen"
 }

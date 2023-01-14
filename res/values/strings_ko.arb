@@ -680,5 +680,7 @@
   "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다.",
   "orbot_running_alert": "이 노드에 연결하기 전에 Orbot이 실행 중인지 확인하십시오.",
   "contact_list_contacts": "콘택트 렌즈",
-  "contact_list_wallets": "내 지갑"
+  "contact_list_wallets": "내 지갑",
+  "send_to_this_address" : "이 주소로 ${currency} 송금",
+  "arrive_in_this_address" : "${currency}이(가) 이 주소로 도착합니다"
 }

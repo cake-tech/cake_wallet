@@ -680,5 +680,7 @@
   "unmatched_currencies": "Валюта вашего текущего кошелька не соответствует валюте отсканированного QR-кода.",
   "orbot_running_alert": "Перед подключением к этому узлу убедитесь, что Orbot запущен.",
   "contact_list_contacts": "Контакты",
-  "contact_list_wallets": "Мои кошельки"
+  "contact_list_wallets": "Мои кошельки",
+  "send_to_this_address" : "Отправить ${currency} на этот адрес",
+  "arrive_in_this_address" : "${currency} придет на этот адрес"
 }

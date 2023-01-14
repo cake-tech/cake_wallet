@@ -680,5 +680,7 @@
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
   "orbot_running_alert": "このノードに接続する前に、Orbot が実行されていることを確認してください",
   "contact_list_contacts": "連絡先",
-  "contact_list_wallets": "マイウォレット"
+  "contact_list_wallets": "マイウォレット",
+  "send_to_this_address" : "${currency} をこのアドレスに送金",
+  "arrive_in_this_address" : "${currency} はこの住所に到着します"
 }

@@ -679,5 +679,7 @@
   "unmatched_currencies": "Валюта вашого гаманця не збігається з валютою сканованого QR-коду",
   "orbot_running_alert": "Перед підключенням до цього вузла переконайтеся, що Orbot запущено.",
   "contact_list_contacts": "Контакти",
-  "contact_list_wallets": "Мої гаманці"
+  "contact_list_wallets": "Мої гаманці",
+  "send_to_this_address" : "Надіслати ${currency} на цю адресу",
+  "arrive_in_this_address" : "${currency} надійде на цю адресу"
 }

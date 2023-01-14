@@ -143,7 +143,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       ExchangeTradeItem(
           title: S.current.status, data: '${trade.state}', isCopied: false),
       ExchangeTradeItem(
-          title: S.current.widgets_address + ':',
+          title: S.current.send_to_this_address('${trade.from} ${trade.from.tag ?? ''}') + ':',
           data: trade.inputAddress ?? '',
           isCopied: true),
     ]);
