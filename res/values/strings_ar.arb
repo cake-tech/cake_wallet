@@ -677,5 +677,6 @@
    "disabled":"معطلة",
    "enabled":"ممكنة",
    "tor_only":"Tor فقط",
-   "unmatched_currencies": "عملة محفظتك الحالية لا تتطابق مع عملة QR الممسوحة ضوئيًا"
+   "unmatched_currencies": "عملة محفظتك الحالية لا تتطابق مع عملة QR الممسوحة ضوئيًا",
+   "orbot_running_alert": "يرجى التأكد من تشغيل Orbot قبل الاتصال بهذه العقدة."
 }
