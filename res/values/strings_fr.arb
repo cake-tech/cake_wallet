@@ -675,6 +675,7 @@
   "disabled": "Désactivé",
   "enabled": "Activé",
   "tor_only": "Tor uniquement",
+  "orbot_running_alert": "Veuillez vous assurer qu'Orbot est en cours d'exécution avant de vous connecter à ce nœud.",
   "unmatched_currencies": "La devise de votre portefeuille (wallet) actuel ne correspond pas à celle du QR code scanné",
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "Mes portefeuilles (wallets)"
