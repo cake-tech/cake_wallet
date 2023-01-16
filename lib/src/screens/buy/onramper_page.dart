@@ -8,9 +8,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class OnRamperPage extends BasePage {
-  OnRamperPage({
-      required this.settingsStore,
-      required this.wallet});
+  OnRamperPage({required this.settingsStore, required this.wallet});
 
   final SettingsStore settingsStore;
   final WalletBase wallet;
@@ -25,22 +23,20 @@ class OnRamperPage extends BasePage {
         settingsStore: settingsStore,
         wallet: wallet,
         darkMode: darkMode,
-        backgroundColor: darkMode
-          ? backgroundDarkColor
-          : backgroundLightColor,
+        backgroundColor: darkMode ? backgroundDarkColor : backgroundLightColor,
         supportSell: false,
         supportSwap: false);
   }
 }
 
 class OnRamperPageBody extends StatefulWidget {
-  OnRamperPageBody({
-    required this.settingsStore,
-    required this.wallet,
-    required this.darkMode,
-    required this.supportSell,
-    required this.supportSwap,
-    required this.backgroundColor});
+  OnRamperPageBody(
+      {required this.settingsStore,
+      required this.wallet,
+      required this.darkMode,
+      required this.supportSell,
+      required this.supportSwap,
+      required this.backgroundColor});
 
   static const baseUrl = 'widget.onramper.com';
   final SettingsStore settingsStore;
@@ -50,18 +46,15 @@ class OnRamperPageBody extends StatefulWidget {
   final bool supportSell;
   final bool supportSwap;
 
-  Uri get uri
-    => Uri.https(
-      baseUrl,
-      '',
-      <String, dynamic>{
+  Uri get uri => Uri.https(baseUrl, '', <String, dynamic>{
         'apiKey': secrets.onramperApiKey,
         'defaultCrypto': wallet.currency.title,
         'defaultFiat': settingsStore.fiatCurrency.title,
         'wallets': '${wallet.currency.title}:${wallet.walletAddresses.address}',
         'darkMode': darkMode.toString(),
         'supportSell': supportSell.toString(),
-        'supportSwap': supportSwap.toString()});
+        'supportSwap': supportSwap.toString()
+      });
 
   @override
   OnRamperPageBodyState createState() => OnRamperPageBodyState();
@@ -82,14 +75,16 @@ class OnRamperPageBodyState extends State<OnRamperPageBody> {
         ),
       ),
       androidOnPermissionRequest: (_, __, resources) async {
-
-        if (await Permission.camera.status != PermissionStatus.granted){
-          await Permission.camera.request();
+        bool permissionNotGranted = await Permission.camera.status != PermissionStatus.granted;
+        if (permissionNotGranted) {
+          permissionNotGranted = await Permission.camera.request().isGranted;
         }
 
         return PermissionRequestResponse(
           resources: resources,
-          action: PermissionRequestResponseAction.GRANT,
+          action: permissionNotGranted
+              ? PermissionRequestResponseAction.DENY
+              : PermissionRequestResponseAction.GRANT,
         );
       },
     );
