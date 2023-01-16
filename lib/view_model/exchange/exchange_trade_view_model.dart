@@ -146,6 +146,10 @@ abstract class ExchangeTradeViewModelBase with Store {
           title: S.current.send_to_this_address('${trade.from} ${trade.from.tag ?? ''}') + ':',
           data: trade.inputAddress ?? '',
           isCopied: true),
+      ExchangeTradeItem(
+          title: S.current.arrive_in_this_address('${trade.to} ${trade.to.tag ?? ''}') + ':',
+          data: trade.payoutAddress ?? '',
+          isCopied: true),
     ]);
   }
 }
