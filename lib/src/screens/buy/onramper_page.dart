@@ -5,6 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class OnRamperPage extends BasePage {
   OnRamperPage({
@@ -81,6 +82,11 @@ class OnRamperPageBodyState extends State<OnRamperPageBody> {
         ),
       ),
       androidOnPermissionRequest: (_, __, resources) async {
+
+        if (await Permission.camera.status != PermissionStatus.granted){
+          await Permission.camera.request();
+        }
+
         return PermissionRequestResponse(
           resources: resources,
           action: PermissionRequestResponseAction.GRANT,
