@@ -46,7 +46,7 @@ final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    
+
     final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
     Hive.init(appDir.path);
