@@ -69,9 +69,7 @@ class OnRamperPageBodyState extends State<OnRamperPageBody> {
       initialOptions: InAppWebViewGroupOptions(
         crossPlatform: InAppWebViewOptions(transparentBackground: true),
       ),
-      initialUrlRequest: URLRequest(
-        url: widget.uri,
-      ),
+      initialUrlRequest: URLRequest(url: widget.uri),
       androidOnPermissionRequest: (_, __, resources) async {
         bool permissionGranted = await Permission.camera.status == PermissionStatus.granted;
         if (!permissionGranted) {
