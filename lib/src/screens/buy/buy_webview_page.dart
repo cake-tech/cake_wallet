@@ -91,14 +91,13 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
           return;
         }
 
-        final url = await _webViewController!.getUrl();
-        final urlString = url.toString();
+        final url = (await _webViewController!.getUrl())?.toString();
         if (url == null) {
           throw Exception('_saveOrder: Url is null');
         }
 
-        if (urlString.toString().contains(keyword)) {
-          final urlParts = urlString.split(splitSymbol);
+        if (url.contains(keyword)) {
+          final urlParts = url.split(splitSymbol);
           orderId = urlParts.last;
           widget.ordersStore.orderId = orderId;
 
