@@ -101,11 +101,8 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - Chinese
 - Korean
 - Arabic
-<<<<<<< HEAD
-- Hausa
-=======
 - Burmese
->>>>>>> 707bea466ee001f3cb269d5a664e01d49a4e030f
+- Hausa
 
 ## Add a new language
 
