@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -10,7 +9,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
@@ -23,8 +21,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -93,14 +89,6 @@ class DashboardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final sendImage = Image.asset('assets/images/upload.png',
-        height: 24,
-        width: 24,
-        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
-    final receiveImage = Image.asset('assets/images/received.png',
-        height: 24,
-        width: 24,
-        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
     _setEffects(context);
 
     return SafeArea(
@@ -238,58 +226,5 @@ class DashboardPage extends BasePage {
 
       needToPresentYat = true;
     });
-  }
-
-  Future<void> _onClickBuyButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.bitcoin:
-        Navigator.of(context).pushNamed(Routes.onramperPage);
-        break;
-      case WalletType.litecoin:
-        Navigator.of(context).pushNamed(Routes.onramperPage);
-        break;
-      default:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).buy,
-                  alertContent: S.of(context).buy_alert_content,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-    }
-  }
-
-  Future<void> _onClickSellButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.bitcoin:
-        final moonPaySellProvider = MoonPaySellProvider();
-        final uri = await moonPaySellProvider.requestUrl(
-            currency: walletViewModel.wallet.currency,
-            refundWalletAddress: walletViewModel.wallet.walletAddresses.address);
-        await launch(uri);
-        break;
-      default:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).sell,
-                  alertContent: S.of(context).sell_alert_content,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-    }
-  }
-
-  Future<void> _onClickExchangeButton(BuildContext context) async {
-    if (walletViewModel.isEnabledExchangeAction) {
-      await Navigator.of(context).pushNamed(Routes.exchange);
-    }
   }
 }
