@@ -20,7 +20,8 @@ class LanguageService {
     'hr': 'Hrvatski (Croatian)',
     'it': 'Italiano (Italian)',
     'th': 'ภาษาไทย (Thai)',
-    'ar': 'العربية (Arabic)'
+    'ar': 'العربية (Arabic)',
+    'my': 'မြန်မာ (Burmese)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -40,7 +41,8 @@ class LanguageService {
     'hr': 'hrv',
     'it': 'ita',
     'th': 'tha',
-    'ar': 'sau'
+    'ar': 'sau',
+    'my': 'mmr'
   };
 
   static final list = <String, String> {};
