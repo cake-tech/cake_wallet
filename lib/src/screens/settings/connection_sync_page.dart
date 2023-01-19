@@ -73,7 +73,7 @@ class ConnectionSyncPage extends BasePage {
                             builder: (BuildContext context) {
                               return AlertWithTwoActions(
                                 alertTitle: S.of(context).change_current_node_title,
-                                alertContent: S.of(context).change_current_node(node.uriRaw),
+                                alertContent: nodeListViewModel.getAlertContent(node.uriRaw),
                                 leftButtonText: S.of(context).cancel,
                                 rightButtonText: S.of(context).change,
                                 actionLeftButton: () => Navigator.of(context).pop(),
