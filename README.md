@@ -102,6 +102,7 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - Korean
 - Arabic
 - Burmese
+- Turkish
 
 ## Add a new language
 

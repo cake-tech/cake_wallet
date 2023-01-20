@@ -586,7 +586,7 @@
   "digital_and_physical_card": " Dijital para birimleri ile para yükleyebileceğiniz ve ek bilgiye gerek olmayan",
   "get_card_note": " dijital ve fiziksel ön ödemeli banka kartı edinin!",
   "signup_for_card_accept_terms": "Kart için kaydol ve koşulları kabul et.",
-  "add_fund_to_card": "Ön ödemeli kartlara para ekle (En fazla yüklenebilir tutar: ${değer})",
+  "add_fund_to_card": "Ön ödemeli kartlara para ekle (En fazla yüklenebilir tutar: ${value})",
   "use_card_info_two": "Paralar, dijital para birimlerinde değil, ön ödemeli hesapta tutulduğunda USD'ye dönüştürülür.",
   "use_card_info_three": "Dijital kartı çevrimiçi olarak veya temassız ödeme yöntemleriyle kullanın.",
   "optionally_order_card": "İsteğe bağlı olarak fiziksel bir kart sipariş edin.",
