@@ -89,7 +89,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   late bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
 
-  void Function()? onNewBlock;
+  void Function({required int height, required int blocksLeft})? onNewBlock;
   void Function()? onNewTransaction;
   void Function()? syncStatusChanged;
 
@@ -435,7 +435,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     } catch (e) {
       print(e.toString());
     }
-    onNewBlock?.call();
+    onNewBlock?.call(height: height, blocksLeft: blocksLeft);
   }
 
   void _onNewTransaction() async {
