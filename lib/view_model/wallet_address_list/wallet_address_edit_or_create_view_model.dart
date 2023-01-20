@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -27,10 +28,10 @@ class AddressEditOrCreateStateFailure extends AddressEditOrCreateState {
 
 abstract class WalletAddressEditOrCreateViewModelBase with Store {
   WalletAddressEditOrCreateViewModelBase(
-      {required WalletBase wallet, dynamic item})
+      {required WalletBase wallet, WalletAddressListItem? item})
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
-        label = item?.name as String? ?? '',
+        label = item?.name ?? '',
         _item = item,
         _wallet = wallet;
 
@@ -42,7 +43,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
 
   bool isEdit;
 
-  final dynamic _item;
+  final WalletAddressListItem? _item;
   final WalletBase _wallet;
 
   Future<void> save() async {
@@ -105,7 +106,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
         .setLabelSubaddress(
           wallet,
           accountIndex: monero!.getCurrentAccount(wallet).id,
-          addressIndex: _item.id as int,
+          addressIndex: _item?.id as int,
           label: label);
       await wallet.save();
     }
@@ -116,7 +117,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
         .setLabelSubaddress(
           wallet,
           accountIndex: haven!.getCurrentAccount(wallet).id,
-          addressIndex: _item.id as int,
+          addressIndex: _item?.id as int,
           label: label);
       await wallet.save();
     }
