@@ -99,27 +99,22 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       await wallet.walletAddresses.updateAddress(_item.address as String);
       await wallet.save();
     }*/
-
-    if (wallet.type == WalletType.monero) {
-      await monero
-        !.getSubaddressList(wallet)
-        .setLabelSubaddress(
-          wallet,
-          accountIndex: monero!.getCurrentAccount(wallet).id,
-          addressIndex: _item?.id as int,
-          label: label);
-      await wallet.save();
-    }
-
-    if (wallet.type == WalletType.haven) {
-      await haven
-        !.getSubaddressList(wallet)
-        .setLabelSubaddress(
-          wallet,
-          accountIndex: haven!.getCurrentAccount(wallet).id,
-          addressIndex: _item?.id as int,
-          label: label);
-      await wallet.save();
+    final index = _item?.id;
+    if (index != null) {
+      if (wallet.type == WalletType.monero) {
+        await monero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
+            accountIndex: monero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
+        await wallet.save();
+        return;
+      }
+      if (wallet.type == WalletType.haven) {
+        await haven!.getSubaddressList(wallet).setLabelSubaddress(wallet,
+            accountIndex: haven!.getCurrentAccount(wallet).id,
+            addressIndex: _item?.id as int,
+            label: label);
+        await wallet.save();
+        return;
+      }
     }
   }
 }
