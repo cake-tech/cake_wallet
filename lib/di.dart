@@ -366,8 +366,8 @@ Future setup(
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       walletViewModel: getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem, void>(
-      (WalletAddressListItem item, _) => WalletAddressEditOrCreateViewModel(
+  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
+      (WalletAddressListItem? item, _) => WalletAddressEditOrCreateViewModel(
           wallet: getIt.get<AppStore>().wallet!, item: item));
 
   getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>(
