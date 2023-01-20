@@ -89,17 +89,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   late bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
 
-  void Function()? _onNewBlock1;
-  void Function()? _onNewTransaction1;
-  void Function()? _syncStatusChanged1;
-
-  void Function()? get onNewBlock => _onNewBlock1;
-  void Function()? get onNewTransaction => _onNewTransaction1;
-  void Function()? get syncStatusChanged => _syncStatusChanged1;
-
-  set onNewBlock(void Function()? cb) => _onNewBlock1 = cb;
-  set onNewTransaction(void Function()? cb) => _onNewTransaction1 = cb;
-  set syncStatusChanged(void Function()? cb) => _syncStatusChanged1 = cb;
+  void Function({required int height, required int blocksLeft})? onNewBlock;
+  void Function()? onNewTransaction;
+  void Function()? syncStatusChanged;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -440,7 +432,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     } catch (e) {
       print(e.toString());
     }
-    onNewBlock?.call();
+    onNewBlock?.call(height: height, blocksLeft: blocksLeft);
   }
 
   void _onNewTransaction() async {
