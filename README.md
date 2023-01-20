@@ -103,6 +103,7 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - Arabic
 - Burmese
 - Turkish
+- Hausa
 
 ## Add a new language
 
