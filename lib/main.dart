@@ -57,10 +57,7 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     FlutterError.onError = (errorDetails) {
-      // if not a UI error
-      if (errorDetails.library != "widgets library") {
-        _onError(errorDetails);
-      }
+      _onError(errorDetails);
     };
 
     /// A callback that is invoked when an unhandled error occurs in the root
