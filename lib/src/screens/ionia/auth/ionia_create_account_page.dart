@@ -32,8 +32,8 @@ class IoniaCreateAccountPage extends BasePage {
   final FocusNode _emailFocus;
   final TextEditingController _emailController;
 
-  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jaqsmbq9w7dzvnqf';
-  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/hi9awnwxr6mqgiqj';
+  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jhjvdn7qq7k3ukwt';
+  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/uceirymz2ijacq5g';
 
   @override
   Widget middle(BuildContext context) {
