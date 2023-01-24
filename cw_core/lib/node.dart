@@ -98,6 +98,8 @@ class Node extends HiveObject with Keyable {
           return requestElectrumServer();
         case WalletType.haven:
           return requestMoneroNode();
+        case WalletType.ethereum:
+          return requestElectrumServer();
         default:
           return false;
       }
