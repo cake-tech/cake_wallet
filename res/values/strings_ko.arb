@@ -678,6 +678,7 @@
   "enabled": "사용",
   "tor_only": "Tor 뿐",
   "unmatched_currencies": "현재 지갑의 통화가 스캔한 QR의 통화와 일치하지 않습니다.",
+  "orbot_running_alert": "이 노드에 연결하기 전에 Orbot이 실행 중인지 확인하십시오.",
   "contact_list_contacts": "콘택트 렌즈",
   "contact_list_wallets": "내 지갑",
   "do_not_send": "보내지 마세요",

@@ -678,6 +678,7 @@
   "enabled": "Omogućeno",
   "tor_only": "Samo Tor",
   "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u",
+  "orbot_running_alert": "Provjerite radi li Orbot prije spajanja na ovaj čvor.",
   "contact_list_contacts": "Kontakti",
   "contact_list_wallets": "Moji novčanici",
   "do_not_send": "Ne šalji",

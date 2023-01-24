@@ -676,6 +676,7 @@
   "enabled" : "เปิดใช้งาน",
   "tor_only" : "Tor เท่านั้น",
   "unmatched_currencies" : "สกุลเงินของกระเป๋าปัจจุบันของคุณไม่ตรงกับของ QR ที่สแกน",
+  "orbot_running_alert": "โปรดตรวจสอบว่า Orbot กำลังทำงานก่อนที่จะเชื่อมต่อกับโหนดนี้",
   "contact_list_contacts": "ติดต่อ",
   "contact_list_wallets": "กระเป๋าเงินของฉัน",
   "do_not_send": "อย่าส่ง",

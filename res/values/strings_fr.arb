@@ -149,7 +149,7 @@
   "subaddresses" : "Sous-adresses",
   "addresses" : "Adresses",
   "scan_qr_code" : "Scannez le QR code pour obtenir l'adresse",
-  "qr_fullscreen" : "Appuyez pour ouvrir le QR code en plein écran",
+  "qr_fullscreen" : "Appuyez pour ouvrir le QR code en mode plein écran",
   "rename" : "Renommer",
   "choose_account" : "Choisir le compte",
   "create_new_account" : "Créer un nouveau compte",
@@ -267,7 +267,7 @@
   "new_subaddress_label_name" : "Nom",
   "new_subaddress_create" : "Créer",
 
-  "address_label" : "Étiquette de l'adresse",
+  "address_label" : "Nom de l'adresse",
 
   "subaddress_title" : "Liste des sous-adresses",
 
@@ -675,6 +675,7 @@
   "disabled": "Désactivé",
   "enabled": "Activé",
   "tor_only": "Tor uniquement",
+  "orbot_running_alert": "Veuillez vous assurer qu'Orbot est en cours d'exécution avant de vous connecter à ce nœud.",
   "unmatched_currencies": "La devise de votre portefeuille (wallet) actuel ne correspond pas à celle du QR code scanné",
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "Mes portefeuilles (wallets)",
