@@ -680,5 +680,6 @@
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
   "orbot_running_alert": "このノードに接続する前に、Orbot が実行されていることを確認してください",
   "contact_list_contacts": "連絡先",
-  "contact_list_wallets": "マイウォレット"
+  "contact_list_wallets": "マイウォレット",
+  "bitcoin_payments_require_1_confirmation": "ビットコインの支払いには 1 回の確認が必要で、これには 20 分以上かかる場合があります。お待ち頂きまして、ありがとうございます！支払いが確認されると、メールが送信されます。"
 }

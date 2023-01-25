@@ -679,5 +679,6 @@
   "tor_only": "Yalnızca Tor",
   "unmatched_currencies": "Mevcut cüzdanınızın para birimi taranan QR ile eşleşmiyor",
   "contact_list_contacts": "Rehberim",
-  "contact_list_wallets": "Cüzdanlarım"
+  "contact_list_wallets": "Cüzdanlarım",
+  "bitcoin_payments_require_1_confirmation": "Bitcoin ödemeleri, 20 dakika veya daha uzun sürebilen 1 onay gerektirir. Sabrınız için teşekkürler! Ödeme onaylandığında e-posta ile bilgilendirileceksiniz."
 }

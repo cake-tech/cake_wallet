@@ -680,5 +680,6 @@
   "unmatched_currencies": "Your current wallet's currency does not match that of the scanned QR",
   "orbot_running_alert": "Please make sure Orbot is running prior to connecting to this node.",
   "contact_list_contacts": "Contacts",
-  "contact_list_wallets": "My Wallets"
+  "contact_list_wallets": "My Wallets",
+  "bitcoin_payments_require_1_confirmation": "Bitcoin payments require 1 confirmation, which can take 20 minutes or longer. Thanks for your patience! You will be emailed when the payment is confirmed."
 }

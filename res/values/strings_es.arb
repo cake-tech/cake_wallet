@@ -680,5 +680,6 @@
   "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado",
   "orbot_running_alert": "Asegúrese de que Orbot se esté ejecutando antes de conectarse a este nodo.",
   "contact_list_contacts": "Contactos",
-  "contact_list_wallets": "Mis billeteras"
+  "contact_list_wallets": "Mis billeteras",
+  "bitcoin_payments_require_1_confirmation": "Los pagos de Bitcoin requieren 1 confirmación, que puede demorar 20 minutos o más. ¡Gracias por su paciencia! Se le enviará un correo electrónico cuando se confirme el pago."
 }

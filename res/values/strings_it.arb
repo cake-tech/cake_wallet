@@ -680,5 +680,6 @@
   "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato",
   "orbot_running_alert": "Assicurati che Orbot sia in esecuzione prima di connetterti a questo nodo.",
   "contact_list_contacts": "Contatti",
-  "contact_list_wallets": "I miei portafogli"
+  "contact_list_wallets": "I miei portafogli",
+  "bitcoin_payments_require_1_confirmation": "I pagamenti in bitcoin richiedono 1 conferma, che può richiedere 20 minuti o più. Grazie per la vostra pazienza! Riceverai un'e-mail quando il pagamento sarà confermato."
 }

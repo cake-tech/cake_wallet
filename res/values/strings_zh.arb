@@ -678,5 +678,6 @@
   "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配",
   "orbot_running_alert": "请确保 Orbot 在连接到此节点之前正在运行。",
   "contact_list_contacts": "联系人",
-  "contact_list_wallets": "我的钱包"
+  "contact_list_wallets": "我的钱包",
+  "bitcoin_payments_require_1_confirmation": "比特币支付需要 1 次确认，这可能需要 20 分钟或更长时间。谢谢你的耐心！确认付款后，您将收到电子邮件。"
 }

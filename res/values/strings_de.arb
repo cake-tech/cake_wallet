@@ -680,5 +680,6 @@
   "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein",
   "orbot_running_alert": "Bitte stellen Sie sicher, dass Orbot läuft, bevor Sie sich mit diesem Knoten verbinden.",
   "contact_list_contacts": "Kontakte",
-  "contact_list_wallets": "Meine Geldbörsen"
+  "contact_list_wallets": "Meine Geldbörsen",
+  "bitcoin_payments_require_1_confirmation": "Bitcoin-Zahlungen erfordern 1 Bestätigung, was 20 Minuten oder länger dauern kann. Danke für Ihre Geduld! Sie erhalten eine E-Mail, wenn die Zahlung bestätigt ist."
 }
