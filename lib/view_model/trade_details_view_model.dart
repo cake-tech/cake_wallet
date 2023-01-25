@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/majesticbank/majesticbank_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
@@ -20,6 +21,7 @@ import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cw_core/format_amount.dart';
 part 'trade_details_view_model.g.dart';
 
 class TradeDetailsViewModel = TradeDetailsViewModelBase
@@ -47,6 +49,9 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case  ExchangeProviderDescription.simpleSwap:
         _provider = SimpleSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.majesticBank:
+        _provider = MajesticBankExchangeProvider();
         break;
     }
 
@@ -129,6 +134,48 @@ abstract class TradeDetailsViewModelBase with Store {
           onTap: () {
             launch(buildURL);
           }));
+    }
+
+    if (trade.provider == ExchangeProviderDescription.majesticBank) {
+      if (trade.amount != null) {
+        items.add(TrackTradeListItem(
+            title: 'Send amount',
+            value: '${formatAmount(trade.amount.toString())} '
+                   '${trade.from.toString()}',
+            onTap: () {
+              {};
+            }));
+      }
+
+      if (trade.receiveAmount != null) {
+        items.add(TrackTradeListItem(
+            title: 'Receive amount',
+            value: '${formatAmount(trade.receiveAmount.toString())} '
+                   '${trade.to.toString()}',
+            onTap: () {
+              {};
+            }));
+      }
+
+      if (trade.receiveAmount != null) {
+        items.add(TrackTradeListItem(
+            title: 'Received',
+            value: '${formatAmount(trade.received.toString())} '
+                   '${trade.from.toString()}',
+            onTap: () {
+              {};
+            }));
+      }
+
+      if (trade.confirmed != null) {
+        items.add(TrackTradeListItem(
+            title: 'Confirmed',
+            value: '${formatAmount(trade.confirmed.toString())} '
+                   '${trade.from.toString()}',
+            onTap: () {
+              {};
+            }));
+      }
     }
 
     if (trade.provider == ExchangeProviderDescription.sideShift) {

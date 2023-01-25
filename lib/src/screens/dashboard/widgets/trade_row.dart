@@ -93,6 +93,9 @@ class TradeRow extends StatelessWidget {
       case ExchangeProviderDescription.simpleSwap:
         image = Image.asset('assets/images/simpleSwap.png', width: 36, height: 36);
         break;
+      case ExchangeProviderDescription.majesticBank:
+        image = Image.asset('assets/images/majesticbank.png', height: 36, width: 36);
+        break;
       default:
         image = null;
     }

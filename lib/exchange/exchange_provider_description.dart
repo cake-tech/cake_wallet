@@ -27,6 +27,9 @@ class ExchangeProviderDescription extends EnumerableItem<int>
   static const all =
       ExchangeProviderDescription(title: 'All trades', raw: 5, image:'');
 
+  static const majesticBank =
+      ExchangeProviderDescription(title: 'MajesticBank', raw: 6, image: 'assets/images/majesticbank.png');
+
   static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
       case 0:
@@ -41,6 +44,8 @@ class ExchangeProviderDescription extends EnumerableItem<int>
         return simpleSwap;
       case 5:
         return all;
+      case 6:
+        return majesticBank;
       default:
         throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }
