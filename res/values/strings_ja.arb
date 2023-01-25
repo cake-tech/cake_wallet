@@ -680,5 +680,7 @@
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
   "orbot_running_alert": "このノードに接続する前に、Orbot が実行されていることを確認してください",
   "contact_list_contacts": "連絡先",
-  "contact_list_wallets": "マイウォレット"
+  "contact_list_wallets": "マイウォレット",
+  "do_not_send": "送信しない",
+  "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione."
 }

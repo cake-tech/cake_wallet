@@ -678,5 +678,7 @@
   "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配",
   "orbot_running_alert": "请确保 Orbot 在连接到此节点之前正在运行。",
   "contact_list_contacts": "联系人",
-  "contact_list_wallets": "我的钱包"
+  "contact_list_wallets": "我的钱包",
+  "do_not_send": "不要发送",
+  "error_dialog_content": "糟糕，我们遇到了一些错误。\n\n请将崩溃报告发送给我们的支持团队，以改进应用程序。"
 }
