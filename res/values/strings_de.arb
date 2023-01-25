@@ -681,5 +681,7 @@
   "orbot_running_alert": "Bitte stellen Sie sicher, dass Orbot läuft, bevor Sie sich mit diesem Knoten verbinden.",
   "contact_list_contacts": "Kontakte",
   "contact_list_wallets": "Meine Geldbörsen",
-  "bitcoin_payments_require_1_confirmation": "Bitcoin-Zahlungen erfordern 1 Bestätigung, was 20 Minuten oder länger dauern kann. Danke für Ihre Geduld! Sie erhalten eine E-Mail, wenn die Zahlung bestätigt ist."
+  "bitcoin_payments_require_1_confirmation": "Bitcoin-Zahlungen erfordern 1 Bestätigung, was 20 Minuten oder länger dauern kann. Danke für Ihre Geduld! Sie erhalten eine E-Mail, wenn die Zahlung bestätigt ist.",
+  "do_not_send": "Nicht senden",
+  "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern."
 }

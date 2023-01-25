@@ -679,5 +679,7 @@
   "orbot_running_alert": "请确保 Orbot 在连接到此节点之前正在运行。",
   "contact_list_contacts": "联系人",
   "contact_list_wallets": "我的钱包",
-  "bitcoin_payments_require_1_confirmation": "比特币支付需要 1 次确认，这可能需要 20 分钟或更长时间。谢谢你的耐心！确认付款后，您将收到电子邮件。"
+  "bitcoin_payments_require_1_confirmation": "比特币支付需要 1 次确认，这可能需要 20 分钟或更长时间。谢谢你的耐心！确认付款后，您将收到电子邮件。",
+  "do_not_send": "不要发送",
+  "error_dialog_content": "糟糕，我们遇到了一些错误。\n\n请将崩溃报告发送给我们的支持团队，以改进应用程序。"
 }

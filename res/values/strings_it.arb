@@ -681,5 +681,7 @@
   "orbot_running_alert": "Assicurati che Orbot sia in esecuzione prima di connetterti a questo nodo.",
   "contact_list_contacts": "Contatti",
   "contact_list_wallets": "I miei portafogli",
-  "bitcoin_payments_require_1_confirmation": "I pagamenti in bitcoin richiedono 1 conferma, che può richiedere 20 minuti o più. Grazie per la vostra pazienza! Riceverai un'e-mail quando il pagamento sarà confermato."
+  "bitcoin_payments_require_1_confirmation": "I pagamenti in bitcoin richiedono 1 conferma, che può richiedere 20 minuti o più. Grazie per la vostra pazienza! Riceverai un'e-mail quando il pagamento sarà confermato.",
+  "do_not_send": "Non inviare",
+  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju."
 }

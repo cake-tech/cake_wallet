@@ -681,5 +681,7 @@
   "unmatched_currencies": "Waluta Twojego obecnego portfela nie zgadza się z waluctą zeskanowanego kodu QR",
   "contact_list_contacts": "Łączność",
   "contact_list_wallets": "Moje portfele",
-  "bitcoin_payments_require_1_confirmation": "Płatności Bitcoin wymagają 1 potwierdzenia, co może zająć 20 minut lub dłużej. Dziękuję za cierpliwość! Otrzymasz wiadomość e-mail, gdy płatność zostanie potwierdzona."
+  "bitcoin_payments_require_1_confirmation": "Płatności Bitcoin wymagają 1 potwierdzenia, co może zająć 20 minut lub dłużej. Dziękuję za cierpliwość! Otrzymasz wiadomość e-mail, gdy płatność zostanie potwierdzona.",
+  "do_not_send": "Nie wysyłaj",
+  "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację."
 }
