@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_item.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -21,9 +24,127 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/router.dart' as Router;
 
-class DashboardPage extends BasePage {
+class DashboardPage extends StatefulWidget {
   DashboardPage({
+    required this.balancePage,
+    required this.walletViewModel,
+    required this.addressListViewModel,
+  });
+
+  final BalancePage balancePage;
+  final DashboardViewModel walletViewModel;
+  final WalletAddressListViewModel addressListViewModel;
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  PageController page = PageController();
+  SideMenuController sideMenu = SideMenuController();
+  @override
+  void initState() {
+    sideMenu.addListener((p0) {
+      page.jumpToPage(p0);
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth > 900) {
+          return Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: SideMenu(
+                    controller: sideMenu,
+                    topItems: [
+                      SideMenuItem(
+                        iconPath: 'assets/images/wallet_outline.png',
+                        priority: 0,
+                        onTap: (page, _) {
+                          sideMenu.changePage(page);
+                        },
+                      ),
+                    ],
+                    bottomItems: [
+                      SideMenuItem(
+                        iconPath: 'assets/images/support_icon.png',
+                        priority: 1,
+                        onTap: (page, _) {
+                          sideMenu.changePage(page);
+                        },
+                      ),
+                      SideMenuItem(
+                        iconPath: 'assets/images/settings_outline.png',
+                        priority: 2,
+                        onTap: (page, _) {
+                          sideMenu.changePage(page);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 9,
+                  child: PageView(
+                      controller: page,
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        _DashboardPage(
+                          balancePage: widget.balancePage,
+                          walletViewModel: widget.walletViewModel,
+                          addressListViewModel: widget.addressListViewModel,
+                        ),
+                        Container(
+                          child: Navigator(
+                            initialRoute: Routes.support,
+                            onGenerateRoute: (settings) => Router.createRoute(settings),
+                            onGenerateInitialRoutes:
+                                (NavigatorState navigator, String initialRouteName) {
+                              return [
+                                navigator
+                                    .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                              ];
+                            },
+                          ),
+                        ),
+                        Navigator(
+                          initialRoute: Routes.desktop_settings_page,
+                          onGenerateRoute: (settings) => Router.createRoute(settings),
+                          onGenerateInitialRoutes:
+                              (NavigatorState navigator, String initialRouteName) {
+                            return [
+                              navigator
+                                  .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                            ];
+                          },
+                        ),
+                        
+                      ]),
+                )
+              ],
+            ),
+          );
+        }
+        return _DashboardPage(
+            balancePage: widget.balancePage,
+            walletViewModel: widget.walletViewModel,
+            addressListViewModel: widget.addressListViewModel);
+      }),
+    );
+  }
+}
+
+class _DashboardPage extends BasePage {
+  _DashboardPage({
     required this.balancePage,
     required this.walletViewModel,
     required this.addressListViewModel,
@@ -37,6 +158,9 @@ class DashboardPage extends BasePage {
 
   @override
   Color get backgroundDarkColor => Colors.transparent;
+
+  @override
+  AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
@@ -101,26 +225,24 @@ class DashboardPage extends BasePage {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               Expanded(
-                child: PageView.builder(
-                    controller: controller,
-                    itemCount: pages.length,
-                    itemBuilder: (context, index) => pages[index])),
+                  child: PageView.builder(
+                      controller: controller,
+                      itemCount: pages.length,
+                      itemBuilder: (context, index) => pages[index])),
               Padding(
-                padding: EdgeInsets.only(bottom: 24, top: 10),
-                child: SmoothPageIndicator(
-                  controller: controller,
-                  count: pages.length,
-                  effect: ColorTransitionEffect(
-                      spacing: 6.0,
-                      radius: 6.0,
-                      dotWidth: 6.0,
-                      dotHeight: 6.0,
-                      dotColor: Theme.of(context).indicatorColor,
-                      activeDotColor: Theme.of(context)
-                          .accentTextTheme!
-                          .headline4!
-                          .backgroundColor!),
-                )),
+                  padding: EdgeInsets.only(bottom: 24, top: 10),
+                  child: SmoothPageIndicator(
+                    controller: controller,
+                    count: pages.length,
+                    effect: ColorTransitionEffect(
+                        spacing: 6.0,
+                        radius: 6.0,
+                        dotWidth: 6.0,
+                        dotHeight: 6.0,
+                        dotColor: Theme.of(context).indicatorColor,
+                        activeDotColor:
+                            Theme.of(context).accentTextTheme!.headline4!.backgroundColor!),
+                  )),
               Observer(builder: (_) {
                 return ClipRect(
                   child: Container(

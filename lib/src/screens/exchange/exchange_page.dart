@@ -168,17 +168,12 @@ class ExchangePage extends BasePage {
                                   bottomRight: Radius.circular(24)),
                               gradient: LinearGradient(
                                   colors: [
-                                    Theme.of(context)
-                                        .primaryTextTheme!
-                                        .subtitle2!
-                                        .color!,
-                                    Theme.of(context)
-                                        .primaryTextTheme!
-                                        .subtitle2!
-                                        .decorationColor!,
-                                  ],
+                                                Theme.of(context).scaffoldBackgroundColor,
+
+                                      Theme.of(context).accentColor,
+                                     ],
                                   begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight),
+                                  end: Alignment.topRight),
                             ),
                             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                             child: Observer(
