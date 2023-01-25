@@ -160,9 +160,6 @@ class _DashboardPage extends BasePage {
   Color get backgroundDarkColor => Colors.transparent;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.transparent;
-
-  @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
@@ -225,24 +222,26 @@ class _DashboardPage extends BasePage {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               Expanded(
-                  child: PageView.builder(
-                      controller: controller,
-                      itemCount: pages.length,
-                      itemBuilder: (context, index) => pages[index])),
+                child: PageView.builder(
+                    controller: controller,
+                    itemCount: pages.length,
+                    itemBuilder: (context, index) => pages[index])),
               Padding(
                   padding: EdgeInsets.only(bottom: 24, top: 10),
-                  child: SmoothPageIndicator(
-                    controller: controller,
-                    count: pages.length,
-                    effect: ColorTransitionEffect(
-                        spacing: 6.0,
-                        radius: 6.0,
-                        dotWidth: 6.0,
-                        dotHeight: 6.0,
-                        dotColor: Theme.of(context).indicatorColor,
-                        activeDotColor:
-                            Theme.of(context).accentTextTheme!.headline4!.backgroundColor!),
-                  )),
+                child: SmoothPageIndicator(
+                  controller: controller,
+                  count: pages.length,
+                  effect: ColorTransitionEffect(
+                      spacing: 6.0,
+                      radius: 6.0,
+                      dotWidth: 6.0,
+                      dotHeight: 6.0,
+                      dotColor: Theme.of(context).indicatorColor,
+                      activeDotColor: Theme.of(context)
+                          .accentTextTheme!
+                          .headline4!
+                          .backgroundColor!),
+                )),
               Observer(builder: (_) {
                 return ClipRect(
                   child: Container(
