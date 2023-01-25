@@ -1,9 +1,101 @@
 import Cocoa
 import FlutterMacOS
+import IOKit.pwr_mgt
 
 @NSApplicationMain
 class AppDelegate: FlutterAppDelegate {
-  override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-    return true
-  }
+    override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
+    }
+
+    var assertionID: IOPMAssertionID = 0
+
+    override func applicationDidFinishLaunching(_ notification: Notification) {
+        let controller : FlutterViewController = mainFlutterWindow?.contentViewController as! FlutterViewController
+        let legacyMigrationChannel = FlutterMethodChannel(
+            name: "com.cakewallet.cakewallet/legacy_wallet_migration",
+            binaryMessenger: controller.engine.binaryMessenger)
+        legacyMigrationChannel.setMethodCallHandler({
+            (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+
+            switch call.method {
+            case "decrypt":
+                guard let args = call.arguments as? Dictionary<String, Any>,
+                      let data = args["bytes"] as? FlutterStandardTypedData,
+                      let key = args["key"] as? String,
+                      let salt = args["salt"] as? String else {
+                    result(nil)
+                    return
+                }
+
+                let content = decrypt(data: data.data, key: key, salt: salt)
+                result(content)
+            case "read_user_defaults":
+                guard let args = call.arguments as? Dictionary<String, Any>,
+                      let key = args["key"] as? String,
+                      let type = args["type"] as? String else {
+                    result(nil)
+                    return
+                }
+
+                var value: Any?
+
+                switch (type) {
+                case "string":
+                    value = UserDefaults.standard.string(forKey: key)
+                case "int":
+                    value = UserDefaults.standard.integer(forKey: key)
+                case "bool":
+                    value = UserDefaults.standard.bool(forKey: key)
+                default:
+                    break
+                }
+
+                result(value)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        })
+
+        let utilsChannel = FlutterMethodChannel(
+            name: "com.cake_wallet/native_utils",
+            binaryMessenger: controller.engine.binaryMessenger)
+        utilsChannel.setMethodCallHandler({ [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+            switch call.method {
+            case "sec_random":
+                guard let args = call.arguments as? Dictionary<String, Any>,
+                      let count = args["count"] as? Int else {
+                    result(nil)
+                    return
+                }
+
+                result(secRandom(count: count))
+            case "getUnstoppableDomainAddress":
+                // Not supported on macos
+                result(nil)
+            case "enableWakeScreen":
+                result(self?.enableWakeScreen())
+
+            case "disableWakeScreen":
+                result(self?.disableWakeScreen())
+
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        })
+    }
+
+
+    func enableWakeScreen(reason: String = "Disabling display sleep") -> Bool{
+          return IOPMAssertionCreateWithName( kIOPMAssertionTypeNoDisplaySleep as CFString,
+                                IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                                reason as CFString,
+                                &assertionID) == kIOReturnSuccess
+    }
+
+    func disableWakeScreen() -> Bool{
+        IOPMAssertionRelease(assertionID)
+
+        return true
+    }
 }
