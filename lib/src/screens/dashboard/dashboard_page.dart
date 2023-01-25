@@ -227,7 +227,7 @@ class _DashboardPage extends BasePage {
                     itemCount: pages.length,
                     itemBuilder: (context, index) => pages[index])),
               Padding(
-                  padding: EdgeInsets.only(bottom: 24, top: 10),
+                padding: EdgeInsets.only(bottom: 24, top: 10),
                 child: SmoothPageIndicator(
                   controller: controller,
                   count: pages.length,
