@@ -157,7 +157,8 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
             Container(
               padding: EdgeInsets.only(left: 40, right: 40, bottom: 20),
               child: Text(
-                S.of(context).proceed_after_one_minute,
+                widget.viewModel.payingByBitcoin ? S.of(context).bitcoin_payments_require_1_confirmation
+                    : S.of(context).proceed_after_one_minute,
                 style: textMedium(
                   color: Theme.of(context).primaryTextTheme!.headline6!.color!,
                 ).copyWith(fontWeight: FontWeight.w500),
