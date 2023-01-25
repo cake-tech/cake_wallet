@@ -2,6 +2,7 @@ PODS:
   - connectivity_macos (0.0.1):
     - FlutterMacOS
     - Reachability
+  - CryptoSwift (1.3.1)
   - cw_monero (0.0.1):
     - cw_monero/Boost (= 0.0.1)
     - cw_monero/Monero (= 0.0.1)
@@ -43,6 +44,7 @@ PODS:
 
 DEPENDENCIES:
   - connectivity_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos`)
+  - CryptoSwift
   - cw_monero (from `Flutter/ephemeral/.symlinks/plugins/cw_monero/macos`)
   - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
   - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
@@ -57,6 +59,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - CryptoSwift
     - Reachability
 
 EXTERNAL SOURCES:
@@ -87,6 +90,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   connectivity_macos: 5dae6ee11d320fac7c05f0d08bd08fc32b5514d9
+  CryptoSwift: f12f037f6d0fcd6d48c96db0071b653de64e6c4d
   cw_monero: f8b7f104508efba2591548e76b5c058d05cba3f0
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
   flutter_secure_storage_macos: 6ceee8fbc7f484553ad17f79361b556259df89aa
@@ -100,6 +104,6 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 297b3ebca31b34ec92be11acd7fb0ba932c822ca
   url_launcher_macos: c04e4fa86382d4f94f6b38f14625708be3ae52e2
 
-PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+PODFILE CHECKSUM: 95c2abf1742d9564d190610743847d385992e6cc
 
 COCOAPODS: 1.11.3
