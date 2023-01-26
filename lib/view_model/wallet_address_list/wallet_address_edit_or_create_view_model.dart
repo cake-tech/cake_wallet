@@ -105,15 +105,13 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
         await monero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
             accountIndex: monero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
         await wallet.save();
-        return;
       }
       if (wallet.type == WalletType.haven) {
         await haven!.getSubaddressList(wallet).setLabelSubaddress(wallet,
             accountIndex: haven!.getCurrentAccount(wallet).id,
-            addressIndex: _item?.id as int,
+            addressIndex: index,
             label: label);
         await wallet.save();
-        return;
       }
     }
   }
