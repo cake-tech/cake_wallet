@@ -1,6 +1,5 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
@@ -703,8 +702,6 @@ Future setup(
         unspentCoinsDetailsViewModel: getIt.get<UnspentCoinsDetailsViewModel>(
             param1: item, param2: unspentCoinsListViewModel));
   });
-
-  getIt.registerFactory(() => WakeLock());
 
   getIt.registerFactory(() => YatService());
 
