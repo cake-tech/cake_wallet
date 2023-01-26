@@ -34,8 +34,6 @@ target 'Runner' do
 
   # Cake Wallet (Legacy)
   pod 'CryptoSwift'
-#   Not supported on macos
-#   pod 'UnstoppableDomainsResolution', '~> 5.0.0'
 end
 
 post_install do |installer|
