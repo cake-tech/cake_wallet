@@ -21,8 +21,9 @@ class LanguageService {
     'it': 'Italiano (Italian)',
     'th': 'ภาษาไทย (Thai)',
     'ar': 'العربية (Arabic)',
+    'tl': 'ᜆᜄᜎᜓᜄ᜔ (Tagalog)',
     'tr': 'Türkçe (Turkish)',
-    'my': 'မြန်မာ (Burmese)',
+    'my': 'မြန်မာ (Burmese)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -43,8 +44,9 @@ class LanguageService {
     'it': 'ita',
     'th': 'tha',
     'ar': 'sau',
+    'tl': 'phl',
     'tr': 'tur',
-    'my': 'mmr',
+    'my': 'mmr'
   };
 
   static final list = <String, String> {};
