@@ -12,7 +12,7 @@ class TwitterApi {
   static Future<TwitterUser> lookupUserByName({required String userName}) async {
     final queryParams = {'user.fields': 'description'};
 
-    final headers = {'authorization': 'Bearer ${secrets.twitterBearerToken}'};
+    final headers = {'authorization': 'Bearer $twitterBearerToken'};
 
     final uri = Uri(
       scheme: httpsScheme,

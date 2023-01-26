@@ -29,8 +29,6 @@ class SecretKey {
     SecretKey('anypayToken', () => ''),
     SecretKey('onramperApiKey', () => ''),
     SecretKey('ioniaClientId', () => ''),
-    SecretKey('twitterAPIKey', () => ''),
-    SecretKey('twitterAPIKeySecret', () => ''),
     SecretKey('twitterBearerToken', () => ''),
   ];
 
