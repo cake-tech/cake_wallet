@@ -679,6 +679,6 @@
    "tor_only":"Tor فقط",
    "unmatched_currencies": "عملة محفظتك الحالية لا تتطابق مع عملة QR الممسوحة ضوئيًا",
    "orbot_running_alert": "يرجى التأكد من تشغيل Orbot قبل الاتصال بهذه العقدة.",
-   "send_to_this_address" : "أرسل ${currency} إلى هذا العنوان",
-   "arrive_in_this_address" : "سيصل ${currency} إلى هذا العنوان"
+   "send_to_this_address" : "أرسل ${currency} ${tag}إلى هذا العنوان",
+   "arrive_in_this_address" : "سيصل ${currency} ${tag}إلى هذا العنوان"
 }

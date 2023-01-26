@@ -681,8 +681,8 @@
   "orbot_running_alert": "Перед подключением к этому узлу убедитесь, что Orbot запущен.",
   "contact_list_contacts": "Контакты",
   "contact_list_wallets": "Мои кошельки",
-  "send_to_this_address" : "Отправить ${currency} на этот адрес",
-  "arrive_in_this_address" : "${currency} придет на этот адрес",
+  "send_to_this_address" : "Отправить ${currency} ${tag}на этот адрес",
+  "arrive_in_this_address" : "${currency} ${tag}придет на этот адрес",
   "do_not_send": "Не отправлять",
   "error_dialog_content": "Ой, у нас какая-то ошибка.\n\nПожалуйста, отправьте отчет о сбое в нашу службу поддержки, чтобы сделать приложение лучше."
 }

@@ -119,6 +119,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
+    final tagFrom = trade.from.tag != null ? '${trade.from.tag}' + ' ' : '';
+    final tagTo = trade.to.tag != null ? '${trade.to.tag}' + ' ' : '';
     items.clear();
     items.add(ExchangeTradeItem(
         title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
@@ -135,13 +137,12 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     items.addAll([
       ExchangeTradeItem(title: S.current.amount, data: '${trade.amount}', isCopied: false),
-      ExchangeTradeItem(title: S.current.status, data: '${trade.state}', isCopied: false),
       ExchangeTradeItem(
-          title: S.current.send_to_this_address('${trade.from} ${trade.from.tag ?? ''}') + ':',
+          title: S.current.send_to_this_address('${trade.from}', tagFrom) + ':',
           data: trade.inputAddress ?? '',
           isCopied: true),
       ExchangeTradeItem(
-          title: S.current.arrive_in_this_address('${trade.to} ${trade.to.tag ?? ''}') + ':',
+          title: S.current.arrive_in_this_address('${trade.to}', tagTo) + ':',
           data: trade.payoutAddress ?? '',
           isCopied: true),
     ]);

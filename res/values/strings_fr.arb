@@ -679,8 +679,8 @@
   "orbot_running_alert": "Veuillez vous assurer qu'Orbot est en cours d'exécution avant de vous connecter à ce nœud.",
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "Mes portefeuilles (wallets)",
-  "send_to_this_address" : "Envoyez ${currency} à cette adresse",
-  "arrive_in_this_address" : "${currency} arrivera à cette adresse",
+  "send_to_this_address" : "Envoyez ${currency} ${tag}à cette adresse",
+  "arrive_in_this_address" : "${currency} ${tag}arrivera à cette adresse",
   "do_not_send": "N'envoyez pas",
   "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application."
 }

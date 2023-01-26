@@ -679,8 +679,8 @@
   "orbot_running_alert": "โปรดตรวจสอบว่า Orbot กำลังทำงานก่อนที่จะเชื่อมต่อกับโหนดนี้",
   "contact_list_contacts": "ติดต่อ",
   "contact_list_wallets": "กระเป๋าเงินของฉัน",
-  "send_to_this_address" : "ส่ง ${currency} ไปยังที่อยู่นี้",
-  "arrive_in_this_address" : "${currency} จะมาถึงที่อยู่นี้",
+  "send_to_this_address" : "ส่ง ${currency} ${tag}ไปยังที่อยู่นี้",
+  "arrive_in_this_address" : "${currency} ${tag}จะมาถึงที่อยู่นี้",
   "do_not_send": "อย่าส่ง",
   "error_dialog_content": "อ๊ะ เราพบข้อผิดพลาดบางอย่าง\n\nโปรดส่งรายงานข้อขัดข้องไปยังทีมสนับสนุนของเราเพื่อปรับปรุงแอปพลิเคชันให้ดียิ่งขึ้น"
 }

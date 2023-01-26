@@ -679,5 +679,7 @@
   "tor_only" : "Tor သာ",
   "unmatched_currencies" : "သင့်လက်ရှိပိုက်ဆံအိတ်၏ငွေကြေးသည် စကင်ဖတ်ထားသော QR နှင့် မကိုက်ညီပါ။",
   "contact_list_contacts" : "အဆက်အသွယ်များ",
-  "contact_list_wallets" : "ကျွန်ုပ်၏ ပိုက်ဆံအိတ်များ"
+  "contact_list_wallets" : "ကျွန်ုပ်၏ ပိုက်ဆံအိတ်များ",
+  "send_to_this_address" : "ဤလိပ်စာသို့ ${currency} ${tag}သို့ ပို့ပါ။",
+  "arrive_in_this_address" : "${currency} ${tag}ဤလိပ်စာသို့ ရောက်ရှိပါမည်။"
 }
