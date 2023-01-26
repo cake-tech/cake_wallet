@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".Application"
@@ -52,6 +53,15 @@
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />
+        <provider
+            android:name="com.pichillilorenzo.flutter_inappwebview.InAppWebViewFileProvider"
+            android:authorities="${applicationId}.flutter_inappwebview.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
     
     <queries>

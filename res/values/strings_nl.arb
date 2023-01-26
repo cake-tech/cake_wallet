@@ -682,5 +682,7 @@
   "contact_list_contacts": "Contacten",
   "contact_list_wallets": "Mijn portefeuilles",
   "send_to_this_address" : "Stuur ${currency} naar dit adres",
-  "arrive_in_this_address" : "${currency} komt aan op dit adres"
+  "arrive_in_this_address" : "${currency} komt aan op dit adres",
+  "do_not_send": "Niet sturen",
+  "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren."
 }

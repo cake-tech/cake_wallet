@@ -682,5 +682,7 @@
   "contact_list_contacts": "콘택트 렌즈",
   "contact_list_wallets": "내 지갑",
   "send_to_this_address" : "이 주소로 ${currency} 송금",
-  "arrive_in_this_address" : "${currency}이(가) 이 주소로 도착합니다"
+  "arrive_in_this_address" : "${currency}이(가) 이 주소로 도착합니다",
+  "do_not_send": "보내지 마세요",
+  "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오."
 }

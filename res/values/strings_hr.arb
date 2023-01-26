@@ -682,5 +682,7 @@
   "contact_list_contacts": "Kontakti",
   "contact_list_wallets": "Moji novčanici",
   "send_to_this_address" : "Pošaljite ${currency} na ovu adresu",
-  "arrive_in_this_address" : "${currency} će stići na ovu adresu"
+  "arrive_in_this_address" : "${currency} će stići na ovu adresu",
+  "do_not_send": "Ne šalji",
+  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju."
 }

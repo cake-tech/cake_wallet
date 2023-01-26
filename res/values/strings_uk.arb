@@ -681,5 +681,7 @@
   "contact_list_contacts": "Контакти",
   "contact_list_wallets": "Мої гаманці",
   "send_to_this_address" : "Надіслати ${currency} на цю адресу",
-  "arrive_in_this_address" : "${currency} надійде на цю адресу"
+  "arrive_in_this_address" : "${currency} надійде на цю адресу",
+  "do_not_send": "Не надсилайте",
+  "error_dialog_content": "На жаль, ми отримали помилку.\n\nБудь ласка, надішліть звіт про збій нашій команді підтримки, щоб покращити додаток."
 }

@@ -682,5 +682,7 @@
   "contact_list_contacts": "Łączność",
   "contact_list_wallets": "Moje portfele",
   "send_to_this_address" : "Wyślij ${currency} na ten adres",
-  "arrive_in_this_address" : "${currency} dotrze na ten adres"
+  "arrive_in_this_address" : "${currency} dotrze na ten adres",
+  "do_not_send": "Nie wysyłaj",
+  "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację."
 }
