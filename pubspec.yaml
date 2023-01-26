@@ -31,7 +31,7 @@ dependencies:
   stack_wallet_backup:
     git:
       url: https://github.com/cypherstack/stack_wallet_backup.git
-      ref: 6ada1204a4e0cf84d932b568e6150550478db69b
+      ref: 93e2687bcc10fc7258c7dab038c363fc9ff8ba5d
 
 dev_dependencies:
   flutter_test:
