@@ -36,7 +36,7 @@
 
 
   "wallet_menu" : "Menu",
-  "Blocks_remaining" : "${status} Mga blokeng natitira",
+  "Blocks_remaining" : "${status} mga blokeng natitira",
   "please_try_to_connect_to_another_node" : "Pakisubukang kumonekta sa iba pang node",
   "xmr_hidden" : "Nakatago",
   "xmr_available_balance" : "Magagamit na Balanse",
@@ -142,7 +142,7 @@
   "new_node_testing" : "Bagong node testing",
 
 
-  "use" : "Lumipat sa",
+  "use" : "Lumipat sa ",
   "digit_pin" : "-digit PIN",
 
 
@@ -164,7 +164,7 @@
   "restore_next" : "Susunod",
   "restore_title_from_backup" : "Ibalik mula sa backup",
   "restore_description_from_backup" : "Maari mong ibalik ang buong Cake Wallet up sa iyong back-up file",
-  "restore_seed_keys_restore" : "Ibalik ang Seed/Keys",
+  "restore_seed_keys_restore" : "Ibalik mula sa seed/keys",
   "restore_title_from_seed" : "Ibalik mula sa seed",
   "restore_description_from_seed" : "Ibalik ang iyong wallet mula sa alinman sa 25 na salita o 13 na seed",
   "restore_title_from_keys" : "Ibalik mula sa keys",
@@ -227,7 +227,7 @@
   "settings_title" : "Mga Setting",
   "settings_nodes" : "Mga Node",
   "settings_current_node" : "Kasalukuyang node",
-  "settings_wallets" : " Mga Wallet",
+  "settings_wallets" : "Mga Wallet",
   "settings_display_balance" : "Balanse ng display",
   "settings_currency" : "Pera",
   "settings_fee_priority" : "Priyoridad sa bayad",
@@ -236,7 +236,7 @@
   "settings_change_pin" : "Palitan ang PIN",
   "settings_change_language" : "Baguhin ang wika",
   "settings_allow_biometrical_authentication" : "Payagan ang biometrical authentication",
-  "settings_dark_mode" : "Madilim na mode
+  "settings_dark_mode" : "Madilim na mode",
   "settings_transactions" : "Mga transaksyon",
   "settings_trades" : "Mga kalakalan",
   "settings_display_on_dashboard_list" : "Ipakita sa listahan ng dashboard",
@@ -254,10 +254,10 @@
   "setup_successful" : "Matagumpay na na-set up ang iyong PIN!",
 
 
-  "wallet_keys" : "Wallet seed/susi",
+  "wallet_keys" : "Wallet seed/keys",
   "wallet_seed" : "Wallet seed",
-  "private_key" : "Pribadong susi",
-  "public_key" : "Pampublikong susi",
+  "private_key" : "Pribadong key",
+  "public_key" : "Pampublikong key",
   "view_key_private" : "View key (pribado)",
   "view_key_public" : "View key (pampubliko)",
   "spend_key_private" : "Spend key (pribado)",
@@ -293,7 +293,7 @@
   "transaction_details_height" : "Taas",
   "transaction_details_amount" : "Halaga",
   "transaction_details_fee" : "Bayad",
-  "transaction_details_copied" : "${title} copied to Clipboard",
+  "transaction_details_copied" : "${title} kinopya to Clipboard",
   "transaction_details_recipient_address" : "Mga address ng tatanggap",
 
 
@@ -314,14 +314,14 @@
   "widgets_seed" : "Seed",
 
 
-  "router_no_route" : "Walang tinukoy na ruta para sa${name}",
+  "router_no_route" : "Walang tinukoy na ruta para sa ${name}",
 
 
-  "error_text_account_name" : "Ang pangalan ng account ay naglalaman lamang ng mga titik, numero/at dapat nasa pagitan ng 1 at 15 character ang haba",
-  "error_text_contact_name" : "Ang pangalan ng contact ay hindi maaaring maglaman ng ` , ' \" mga symbolo/ at dapat nasa pagitan ng 1 at 32 character ang haba",
+  "error_text_account_name" : "Ang pangalan ng account ay naglalaman lamang ng mga titik, numero\nat dapat nasa pagitan ng 1 at 15 character ang haba",
+  "error_text_contact_name" : "Ang pangalan ng contact ay hindi maaaring maglaman ng ` , ' \" mga symbolo\nat dapat nasa pagitan ng 1 at 32 character ang haba",
   "error_text_address" : "Ang address ng wallet ay dapat tumutugma sa uri ng cryptocurrency",
   "error_text_node_address" : "Paki type ang iPv4 address",
-  "error_text_node_port" : "Ang Node port ay maaari lamang maglaman ng numero sa pagitan ng 0 at 65535 ",
+  "error_text_node_port" : "Ang Node port ay maaari lamang maglaman ng numero sa pagitan ng 0 at 65535",
   "error_text_payment_id" : "Ang Payment ID ay dapat maglaman ng 16 na char sa hex",
   "error_text_xmr" : "Ang halaga ng XMR ay hindi maaaring lumampas sa magagamit na balanse.\nAng bilang ng mga fraction digit ay dapat na mas mababa o katumbas ng 12",
   "error_text_fiat" : "Ang halaga ay hindi maaaring lumampas sa magagamit na balanse.\nang bilang ng mga fraction digit ay dapat na mas kaunti o katumbas ng 2",
@@ -329,7 +329,7 @@
   "error_text_amount" : "Ang halaga ay maaari lamang maglaman ng mga numero",
   "error_text_wallet_name" : "Ang pangalan ng Wallet ay maaari lamang maglaman ng mga titik, numero, _ - symbolo \nat dapat nasa pagitan ng 1 at 33 character ang haba",
   "error_text_keys" : "Ang mga Wallet key ay maaari lamang maglaman ng 64 chars sa hex",
-  "error_text_crypto_currency" : "Ang bilang ng mga fraction digit\ay dapat mas mababa o katumbas ng 12",
+  "error_text_crypto_currency" : "Ang bilang ng mga fraction digit\nay dapat mas mababa o katumbas ng 12",
   "error_text_minimal_limit" : "Ang kalakalan para sa ${provider} ay hindi nilikha. Ang halaga ay mas mababa sa minimum: ${min} ${currency}",
   "error_text_maximum_limit" : "Ang kalakalan para sa ${provider} ay hindi nilikha. Ang halaga ay higit sa maximum: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Ang kalakalan para sa ${provider} hindi nilikha . Nabigo ang pag-load ng mga limitasyon",
@@ -399,7 +399,7 @@
   "version" : "Bersyon ${currentVersion}",
 
   "openalias_alert_title" : "Nakita ang Address",
-  "openalias_alert_content" : "Magpapadala ka ng pondo sa \n${recipient_name}",
+  "openalias_alert_content" : "Magpapadala ka ng pondo sa\n${recipient_name}",
 
   "card_address" : "Address:",
   "buy" : "Bili",
@@ -428,7 +428,7 @@
   "exchange_sync_alert_content" : "Mangyaring maghintay hanggang ma-synchronize ang iyong wallet",
 
   "pre_seed_title" : "MAHALAGA",
-  "pre_seed_description" : "Sa susunod na pahina ay makikita mo ang isang serye ng ${words} na salita. Ito ang iyong natatangi at pribadong seed at ito ang tanging paraan upang mabawi ang iyong wallet kung sakaling mawala o hindi gumana. Responsibilidad mong isulat ito sa isang ligtas na lugar sa labas ng cake wallet app.",
+  "pre_seed_description" : "Sa susunod na pahina ay makikita mo ang isang serye ng ${words} na salita. Ito ang iyong natatangi at pribadong seed at ito ang tanging paraan upang mabawi ang iyong wallet kung sakaling mawala o hindi gumana. Responsibilidad mong isulat ito sa isang ligtas na lugar sa labas ng Cake Wallet app.",
   "pre_seed_button_text" : "Naiitindihan ko. Ipakita ang aking seed",
 
   "xmr_to_error" : "XMR.TO pagkakamali",
@@ -436,7 +436,7 @@
 
   "provider_error" : "${provider} pagkakamali",
 
-  "use_ssl" : "Gumamit ng  SSL",
+  "use_ssl" : "Gumamit ng SSL",
   "trusted" : "Pinagkakatiwalaan",
 
   "color_theme" : "Kulay ng tema",
@@ -448,7 +448,7 @@
   "note_tap_to_change" : "Tala (i-tap para baguhin)",
   "view_in_block_explorer" : "Tingnan sa block explorer",
   "view_transaction_on" : "Tingnan ang transaksyon sa",
-  "transaction_key" : "Transaksyon Key",
+  "transaction_key" : "Transaction Key",
   "confirmations" : "Mga kumpirmasyon",
   "recipient_address" : "Address ng tatanggap",
 
@@ -466,7 +466,7 @@
 
   "edit_backup_password" : "I-edit ang backup na password",
   "save_backup_password_alert" : "I-Save ang backup na password",
-  "change_backup_password_alert" : "Ang iyong mga nakaraang backup na file ay hindi magagamit upang i-import gamit ang bagong backup na password. Ang bagong backup na password ay gagamitin lamang para sa mga bagong backup na file. Sigurado ka bang gusto mong baguhin ang backup na password",
+  "change_backup_password_alert" : "Ang iyong mga nakaraang backup na file ay hindi magagamit upang i-import gamit ang bagong backup na password. Ang bagong backup na password ay gagamitin lamang para sa mga bagong backup na file. Sigurado ka bang gusto mong baguhin ang backup na password?",
 
   "enter_backup_password" : "Ilagay ang backup na password dito",
   "select_backup_file" : "Piliin ang backup na file",
@@ -476,7 +476,7 @@
   "fixed_rate" : "Fixed rate",
   "fixed_rate_alert" : "Makakapagpasok ka ng halaga ng pagtanggap kapag nasuri ang fixed rate mode. Gusto mo bang lumipat sa fixed rate mode?",
 
-  "xlm_extra_info" : "Mangyaring huwag kalimutang tukuyin ang memo ID habang ipinapadala ang transaksyon sa XML para sa palitan",
+  "xlm_extra_info" : "Mangyaring huwag kalimutang tukuyin ang memo ID habang ipinapadala ang transaksyon sa XLM para sa palitan",
   "xrp_extra_info" : "Mangyaring huwag kalimutang tukuyin ang patutunguhang tag habang ipinapadala ang XRP na transakyson para sa palitan",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Kung gusto mong palitan ang XMR mula sa iyong balanse ng Cake Wallet Monero, mangyaring lumipat muna sa iyong Monera wallet.",
@@ -508,13 +508,13 @@
   "coin_control" : "Kontrol ng barya (opsyonal)",
 
   "address_detected" : "Nakita ang address",
-  "address_from_domain" : "Ang address na ito ay mula sa ${domain} sa mga hindi mapigilang domain",
+  "address_from_domain" : "Ang address na ito ay mula sa ${domain} mga Unstoppabe Domains",
 
   "add_receiver" : "Magdagdag ng isa pang receiver (opsyonal)",
 
   "manage_yats" : "Pamahalaan ang Yats",
   "yat_alert_title" : "Magpadala at tumanggap ng crypto nang mas madali gamit ang Yat",
-  "yat_alert_content" : "Ang mga guamagamit ng Cake Wallet ay maaari na ngayong magpadala at tumanggap ng lahat ng kanilang mga paboritong pera gamit ang isa sa isang uri ng emoji based na username.",
+  "yat_alert_content" : "Ang mga gumagamit ng Cake Wallet ay maaari na ngayong magpadala at tumanggap ng lahat ng kanilang mga paboritong pera gamit ang isa sa isang uri ng emoji-based na username.",
   "get_your_yat" : "Kunin ang iyong Yat",
   "connect_an_existing_yat" : "Ikonekta ang isang umiiral na Yat",
   "connect_yats": "Ikonekta sa Yats",
@@ -523,15 +523,15 @@
   "address_from_yat" : "Ang address na ito ay mula sa ${emoji} sa Yat",
   "yat_error" : "Mali sa Yat",
   "yat_error_content" : "Walang mga address na naka-link saYat na ito. Subukan ang isa pang Yat",
-  "choose_address" : "\n\ Mangyaring piliin angaddress:",
+  "choose_address" : "\n\nMangyaring piliin angaddress:",
   "yat_popup_title" : "Ang iyong wallet address ay maaring ma-emojified.",
   "yat_popup_content" : "Maaari ka na ngayong magpadala at tumanggap ng crypto sa Cake Wallet gamit ang iyong Yat - isang maikling emoji-based na username. Pamahalaan ang Yats anumang oras sa screen ng mga setting",
   "second_intro_title" : "Isang emoji address para pamunuan silang lahat",
   "second_intro_content" : "Ang iyong Yat ay isang natatanging emoji address na pumapalit sa lahat ng iyong mahabang hexadecimal address para sa lahat ng iyong pera.",
   "third_intro_title" : "Magaling makipaglaro ang Yat sa iba",
   "third_intro_content" : "Nabubuhay rin ang Yats sa labas ng Cake Wallet. Anumang wallet address sa mundo ay maaaring palitan ng Yat!",
-  "learn_more" : "Matuto pa,
-  "search": "Maghanap  "'
+  "learn_more" : "Matuto pa",
+  "search": "Maghanap"'
   "search_language": "Paghahanap ng wika",
   "search_currency": "Paghahanap ng pera",
   "new_template" : "Bagong Template",
@@ -571,19 +571,19 @@
   "agree_and_continue": "Sumang-ayon & Magpatuloy",
   "email_address": "Email Address",
   "agree_to": "Sa pamamagitan ng paggawa ng account sumasang-ayon ka sa ",
-  "and": "at
+  "and": "at",
   "enter_code": "Ilagay ang code",
   "congratulations": "Congratulations!",
   "you_now_have_debit_card": "Meron ka na ngayong debit card",
   "min_amount" : "Min: ${value}",
   "max_amount" : "Max: ${value}",
   "enter_amount": "Ipasok ang halaga",
-  "billing_address_info": "Kung humihingi ng billing address, ibigay ang iyong shipping address
+  "billing_address_info": "Kung humihingi ng billing address, ibigay ang iyong shipping address",
   "order_physical_card": "Mag-order ng Pisical na Card",
   "add_value": "Magdagdag ng halaga",
   "activate": "Aktibahin",
-  "get_a": "Kumuha ng",
-  "digital_and_physical_card": "digital at pisikal na prepaid debit card",
+  "get_a": "Kumuha ng ",
+  "digital_and_physical_card": " digital at pisikal na prepaid debit card",
   "get_card_note": " na maaari mong i-load gamit ang mga digital na pera. Walang karagdagang impormasyon na kailangan!",
   "signup_for_card_accept_terms": "Mag-sign up para sa card at tanggapin ang mga tuntunin.",
   "add_fund_to_card": "Magdagdag ng mga prepaid na pondo sa card (hanggang sa ${value})",
@@ -606,9 +606,9 @@
   "online": "Online",
   "offline": "Offline",
   "gift_card_number": "Numero ng Gift card",
-  "pin_number": "Numero ngPIN",
+  "pin_number": "Numero ng PIN",
   "total_saving": "Kabuuang ipon",
-  "last_30_days": "Hulingt 30 na araw",
+  "last_30_days": "Huling 30 na araw",
   "avg_savings": "Average na pagtitipid",
   "view_all": "Tingnan lahat",
   "active_cards": "Mga aktibong card",
@@ -633,10 +633,10 @@
   "payment_was_received": "Natanggap ang iyong bayad.",
   "proceed_after_one_minute": "Kung ang screen ay hindi magpapatuloy pagkatapos ng 1 minuto, suriin ang iyong email.",
   "order_id": "Order ID",
-  "gift_card_is_generated": "Nabuo angGift Card",
+  "gift_card_is_generated": "Nabuo ang Gift Card",
   "open_gift_card": "Buksan ang Gift Card",
   "contact_support": "Makipag-ugnayan sa tagatustos",
-  "gift_cards_unavailable": "Ang mga gift card ay magagamit lamang para bilhin gamit ng Monero, Bitcoin, at Litecoin sa ngayon",
+  "gift_cards_unavailable": "Ang mga Gift Card ay magagamit lamang para bilhin gamit ng Monero, Bitcoin, at Litecoin sa ngayon",
   "introducing_cake_pay": "Pagpapakilala ng Cake Pay!",
   "cake_pay_learn_more": "Agan na bumili at mag-redeem ng mga gift card sa app!\nMag-swipe pakaliwa patungong kanan para matuto pa.",
   "automatic": "Awtomatiko",
@@ -654,7 +654,7 @@
   "low_fee_alert": "Kasalukuyan kang gumagamit ng mababang priyoridad ng bayad sa network. ito ay maaaring magdulot ng mahabang paghihintay, iba't ibang mga rate o nakanselang mga kalakalan. Inirerekomenda namin ang pagtatakda ng mas mataas na bayad para sa mas magandang karanasan.",
   "ignor": "Huwag pansinin",
   "use_suggested": "Iminumungkahing gamitin",
-  "do_not_share_warning_text" : "Huwag ibahagi ang mga ito sa sinuman kasama ang tagatustos.\n\Pwede o maaaring manakaw ang iyong pondo!",
+  "do_not_share_warning_text" : "Huwag ibahagi ang mga ito sa sinuman kasama ang tagatustos.\n\nPwede o maaaring manakaw ang iyong pondo!",
   "help": "tulong",
   "all_transactions": "Lahat ng mga transaksyon",
   "all_trades": "Lahat ng mga trade",
@@ -669,7 +669,7 @@
   "always": "Lagi",
   "minutes_to_pin_code": "${minute} minuto",
   "disable_exchange": "Huwag paganahin ang palitan",
-  "advanced_privacy_settings":  "Paunang Pribadong mga Setting",
+  "advanced_privacy_settings": "Paunang Pribadong mga Setting",
   "settings_can_be_changed_later": "Maaaring baguhin ang mga setting na ito sa ibang pagkakataon sa mga setting app",
   "add_custom_node": "Magdagdag ng bagong Custom Node",
   "disable_fiat": "Huwag paganahin ang fiat",
@@ -677,5 +677,10 @@
   "disabled": "Huwag paganahin",
   "enabled": "Paganahin",
   "tor_only": "Tor lamang",
-  "unmatched_currencies": "Hindi tumutugma ang pera ng iyong kasalukuyang wallet sa na-scan na QR"
-} 
+  "unmatched_currencies": "Hindi tumutugma ang pera ng iyong kasalukuyang wallet sa na-scan na QR",
+  "orbot_running_alert": "Pakitiyak na tumatakbo ang Orbot bago kumonekta sa node.",
+  "contact_list_contacts": "Mga Contact",
+  "contact_list_wallets": "Mga Wallet Ko",
+  "do_not_send": "Huwag ipadala",
+  "error_dialog_content": "May error, Mangyaring ipadala ang ulat ng pag-crash sa aming support team upang gawing mas mahusay ang aplikasyon."
+}
