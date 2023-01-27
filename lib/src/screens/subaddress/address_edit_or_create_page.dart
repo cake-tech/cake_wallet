@@ -17,8 +17,6 @@ class AddressEditOrCreatePage extends BasePage {
     _labelController.addListener(
         () => addressEditOrCreateViewModel.label = _labelController.text);
     _labelController.text = addressEditOrCreateViewModel.label;
-    print(_labelController.text);
-    print(addressEditOrCreateViewModel.label);
   }
 
   final WalletAddressEditOrCreateViewModel addressEditOrCreateViewModel;
