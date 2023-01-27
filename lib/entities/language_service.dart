@@ -21,7 +21,7 @@ class LanguageService {
     'it': 'Italiano (Italian)',
     'th': 'ภาษาไทย (Thai)',
     'ar': 'العربية (Arabic)',
-    'tl': 'ᜆᜄᜎᜓᜄ᜔ (Tagalog)',
+    'tl': 'Tagalog (Tagalog)',
     'tr': 'Türkçe (Turkish)',
     'my': 'မြန်မာ (Burmese)'
   };
