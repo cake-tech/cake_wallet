@@ -673,5 +673,6 @@
   "disabled": "無効",
   "enabled": "有効",
   "tor_only": "Torのみ",
-  "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません"
+  "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
+  "settings": "設定"
 }

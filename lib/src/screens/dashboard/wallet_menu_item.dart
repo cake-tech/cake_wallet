@@ -4,9 +4,10 @@ class WalletMenuItem {
   WalletMenuItem({
     required this.title,
     required this.image,
-    required this.handler});
+    required this.handler,
+  });
 
   final String title;
-  final Image image;
-  final void Function() handler;
+  final String image;
+  final void Function(BuildContext) handler;
 }

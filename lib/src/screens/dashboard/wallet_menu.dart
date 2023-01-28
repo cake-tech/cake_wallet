@@ -1,74 +1,57 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu_item.dart';
+import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 // FIXME: terrible design
 
 class WalletMenu {
-  WalletMenu(this.context, this.reconnect, this.hasRescan) : items = [] {
-    items.addAll([
-    WalletMenuItem(
-      title: S.current.connection_sync,
-      image: Image.asset('assets/images/nodes_menu.png',
-          height: 16, width: 16),
-      handler: () => Navigator.of(context).pushNamed(Routes.connectionSync),
-    ),
-    WalletMenuItem(
-      title: S.current.wallets,
-      image: Image.asset('assets/images/wallet_menu.png',
-          height: 16, width: 16),
-      handler: () => Navigator.of(context).pushNamed(Routes.walletList),
-    ),
-    WalletMenuItem(
-      title: S.current.address_book_menu,
-      image: Image.asset('assets/images/open_book_menu.png',
-      height: 16, width: 16),
-      handler: () => Navigator.of(context).pushNamed(Routes.addressBook),
-    ),
-    WalletMenuItem(
-      title: S.current.security_and_backup,
-      image:
-          Image.asset('assets/images/key_menu.png', height: 16, width: 16),
-      handler: () {
-      Navigator.of(context).pushNamed(Routes.securityBackupPage);
-	  }),
-    WalletMenuItem(
-      title: S.current.privacy_settings,
-      image:
-          Image.asset('assets/images/privacy_menu.png', height: 16, width: 16),
-      handler: () {
-      Navigator.of(context).pushNamed(Routes.privacyPage);
-	  }),
-    WalletMenuItem(
-      title: S.current.display_settings,
-      image: Image.asset('assets/images/eye_menu.png',
-      height: 16, width: 16),
-      handler: () => Navigator.of(context).pushNamed(Routes.displaySettingsPage),
-    ),
-    WalletMenuItem(
-      title: S.current.other_settings,
-      image: Image.asset('assets/images/settings_menu.png',
-      height: 16, width: 16),
-      handler: () => Navigator.of(context).pushNamed(Routes.otherSettingsPage),
-    ),
-    WalletMenuItem(
-      title: S.current.settings_support,
-      image: Image.asset('assets/images/question_mark.png',
-      height: 16, width: 16, color: Palette.darkBlue),
-      handler: () => Navigator.of(context).pushNamed(Routes.support),
-    ),
-    ]);
-  }
+  WalletMenu._();
 
-  final List<WalletMenuItem> items;
-  final BuildContext context;
-  final Future<void> Function() reconnect;
-  final bool hasRescan;
+  static List<WalletMenuItem> items = [
+    WalletMenuItem(
+      title: SettingActions.connectionSettingAction.name,
+      image: SettingActions.connectionSettingAction.image,
+      handler: (BuildContext context) => SettingActions.connectionSettingAction.onTap(context),
+    ),
+    WalletMenuItem(
+      title: SettingActions.walletSettingAction.name,
+      image: SettingActions.walletSettingAction.image,
+      handler: (BuildContext context) => SettingActions.walletSettingAction.onTap(context),
+    ),
+    WalletMenuItem(
+      title: SettingActions.addressBookSettingAction.name,
+      image: SettingActions.addressBookSettingAction.image,
+      handler: (BuildContext context) => SettingActions.addressBookSettingAction.onTap(context),
+    ),
+    WalletMenuItem(
+      title: SettingActions.securityBackupSettingAction.name,
+      image: SettingActions.securityBackupSettingAction.image,
+      handler: (BuildContext context) => SettingActions.securityBackupSettingAction.onTap(context),
+    ),
+    WalletMenuItem(
+      title: SettingActions.privacySettingAction.name,
+      image: SettingActions.privacySettingAction.image,
+      handler: (BuildContext context) => SettingActions.privacySettingAction.onTap(context),
+    ),
+    WalletMenuItem(
+      title: SettingActions.displaySettingAction.name,
+      image: SettingActions.displaySettingAction.image,
+      handler: (BuildContext context) => SettingActions.displaySettingAction.onTap(context),
+    ),
+    WalletMenuItem(
+      title: SettingActions.otherSettingAction.name,
+      image: SettingActions.otherSettingAction.image,
+      handler: (BuildContext context) => SettingActions.otherSettingAction.onTap(context),
+    ),
+    WalletMenuItem(
+      title: SettingActions.supportSettingAction.name,
+      image: SettingActions.supportSettingAction.image,
+      handler: (BuildContext context) => SettingActions.supportSettingAction.onTap(context),
+    ),
+  ];
 
-  void action(int index) {
+  static void action(int index, BuildContext context) {
     final item = items[index];
-    item.handler();
+    item.handler(context);
   }
 }

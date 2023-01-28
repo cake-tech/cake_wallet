@@ -673,5 +673,6 @@
   "disabled": "Wyłączone",
   "enabled": "Włączony",
   "tor_only": "Tylko Tor",
-  "unmatched_currencies": "Waluta Twojego obecnego portfela nie odpowiada walucie zeskanowanego kodu QR"
+  "unmatched_currencies": "Waluta Twojego obecnego portfela nie odpowiada walucie zeskanowanego kodu QR",
+  "settings": "Ustawienia"
 }

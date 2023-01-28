@@ -37,6 +37,7 @@ class Routes {
   static const restoreWalletFromSeedDetails = '/restore_from_seed_details';
   static const exchange = '/exchange';
   static const desktop_settings_page = '/desktop_settings_page';
+  static const empty_no_route = '/empty_no_route';
   static const unlock = '/auth_not_closable';
   static const rescan = '/rescan';
   static const faq = '/faq';
