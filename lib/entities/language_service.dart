@@ -46,7 +46,7 @@ class LanguageService {
     'ar': 'sau',
     'tr': 'tur',
     'my': 'mmr',
-    'id': 'ind',
+    'id': 'idn',
   };
 
   static final list = <String, String> {};
