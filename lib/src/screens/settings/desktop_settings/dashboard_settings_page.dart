@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
@@ -47,7 +48,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Settings',
+                      S.current.settings,
                       style: textXLarge(),
                     ),
                     SizedBox(height: 64),
