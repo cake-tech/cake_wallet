@@ -207,12 +207,12 @@ void _sendExceptionFile() async {
 }
 
 void _onError(FlutterErrorDetails errorDetails) {
+  _saveException(errorDetails.exception.toString(), errorDetails.stack);
+
   if (hasError) {
     return;
   }
-
   hasError = true;
-  _saveException(errorDetails.exception.toString(), errorDetails.stack);
 
   WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
