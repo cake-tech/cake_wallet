@@ -39,6 +39,9 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
+/// custom localizationsDelegate for unsupported Hausa locale
+import 'package:cake_wallet/utils/ha_intl.dart';
+
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -289,6 +292,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               GlobalCupertinoLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
+              HaMaterialLocalizations.delegate,
             ],
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
