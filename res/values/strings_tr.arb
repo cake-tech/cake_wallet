@@ -679,5 +679,7 @@
   "tor_only": "Yalnızca Tor",
   "unmatched_currencies": "Mevcut cüzdanınızın para birimi taranan QR ile eşleşmiyor",
   "contact_list_contacts": "Rehberim",
-  "contact_list_wallets": "Cüzdanlarım"
+  "contact_list_wallets": "Cüzdanlarım",
+  "send_to_this_address" : "Bu adrese ${currency} ${tag}gönder",
+  "arrive_in_this_address" : "${currency} ${tag}bu adrese ulaşacak"
 }

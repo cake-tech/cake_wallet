@@ -679,6 +679,8 @@
   "orbot_running_alert": "请确保 Orbot 在连接到此节点之前正在运行。",
   "contact_list_contacts": "联系人",
   "contact_list_wallets": "我的钱包",
+  "send_to_this_address" : "发送 ${currency} ${tag}到这个地址",
+  "arrive_in_this_address" : "${currency} ${tag}将到达此地址",
   "do_not_send": "不要发送",
   "error_dialog_content": "糟糕，我们遇到了一些错误。\n\n请将崩溃报告发送给我们的支持团队，以改进应用程序。"
 }

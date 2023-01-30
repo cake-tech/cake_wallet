@@ -681,6 +681,8 @@
   "orbot_running_alert": "Please make sure Orbot is running prior to connecting to this node.",
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "My Wallets",
+  "send_to_this_address" : "Send ${currency} ${tag}to this address",
+  "arrive_in_this_address" : "${currency} ${tag}will arrive in this address",
   "do_not_send": "Don't send",
   "error_dialog_content": "Oops, we got some error.\n\nPlease send the crash report to our support team to make the application better."
 }

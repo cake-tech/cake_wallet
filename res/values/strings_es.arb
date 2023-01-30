@@ -681,6 +681,8 @@
   "orbot_running_alert": "Asegúrese de que Orbot se esté ejecutando antes de conectarse a este nodo.",
   "contact_list_contacts": "Contactos",
   "contact_list_wallets": "Mis billeteras",
+  "send_to_this_address" : "Enviar ${currency} ${tag}a esta dirección",
+  "arrive_in_this_address" : "${currency} ${tag}llegará a esta dirección",
   "do_not_send": "no enviar",
   "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe el informe de bloqueo a nuestro equipo de soporte para mejorar la aplicación."
 }

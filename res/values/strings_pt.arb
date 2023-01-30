@@ -680,6 +680,8 @@
   "orbot_running_alert": "Certifique-se de que o Orbot esteja em execução antes de se conectar a este nó.",
   "contact_list_contacts": "Contatos",
   "contact_list_wallets": "minhas carteiras",
+  "send_to_this_address" : "Envie ${currency} ${tag}para este endereço",
+  "arrive_in_this_address" : "${currency} ${tag}chegará neste endereço",
   "do_not_send": "não envie",
   "error_dialog_content": "Ops, houve algum erro.\n\nPor favor, envie o relatório de falha para nossa equipe de suporte para melhorar o aplicativo."
 }

@@ -675,12 +675,14 @@
   "disable_fiat": "Wyłącz waluty FIAT",
   "fiat_api": "API Walut FIAT",
   "disabled": "Wyłączone",
-  "orbot_running_alert": "Upewnij się, że Orbot działa przed połączeniem z tym węzłem.",
   "enabled": "Włączone",
   "tor_only": "Tylko sieć Tor",
   "unmatched_currencies": "Waluta Twojego obecnego portfela nie zgadza się z waluctą zeskanowanego kodu QR",
+  "orbot_running_alert": "Upewnij się, że Orbot działa przed połączeniem z tym węzłem.",
   "contact_list_contacts": "Łączność",
   "contact_list_wallets": "Moje portfele",
+  "send_to_this_address" : "Wyślij ${currency} ${tag}na ten adres",
+  "arrive_in_this_address" : "${currency} ${tag}dotrze na ten adres",
   "do_not_send": "Nie wysyłaj",
   "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację."
 }

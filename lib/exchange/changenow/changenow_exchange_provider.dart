@@ -143,6 +143,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final inputAddress = responseJSON['payinAddress'] as String;
     final refundAddress = responseJSON['refundAddress'] as String;
     final extraId = responseJSON['payinExtraId'] as String?;
+    final payoutAddress = responseJSON['payoutAddress'] as String;
 
     return Trade(
         id: id,
@@ -154,7 +155,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         extraId: extraId,
         createdAt: DateTime.now(),
         amount: responseJSON['fromAmount']?.toString() ?? _request.fromAmount,
-        state: TradeState.created);
+        state: TradeState.created,
+        payoutAddress: payoutAddress);
   }
 
   @override
@@ -192,6 +194,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final extraId = responseJSON['payinExtraId'] as String;
     final outputTransaction = responseJSON['payoutHash'] as String;
     final expiredAtRaw = responseJSON['validUntil'] as String;
+    final payoutAddress = responseJSON['payoutAddress'] as String;
     final expiredAt = DateTime.tryParse(expiredAtRaw)?.toLocal();
 
     return Trade(
@@ -204,7 +207,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         state: state,
         extraId: extraId,
         expiredAt: expiredAt,
-        outputTransaction: outputTransaction);
+        outputTransaction: outputTransaction,
+        payoutAddress: payoutAddress);
   }
 
   @override
