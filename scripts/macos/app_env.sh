@@ -17,7 +17,7 @@ fi
 CAKEWALLET_NAME="Cake Wallet"
 CAKEWALLET_VERSION="1.0.0"
 CAKEWALLET_BUILD_NUMBER=1
-CAKEWALLET_BUNDLE_ID="com.cakewallet.macos"
+CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_MACOS_TYPE} " ]]; then
     echo "Wrong app type."
