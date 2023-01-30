@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . ./config.sh
-HAVEN_VERSION=tags/v3.0.3
+HAVEN_VERSION=tags/v3.0.7
 HAVEN_SRC_DIR=${WORKDIR}/haven
 
 git clone https://github.com/haven-protocol-org/haven-main.git ${HAVEN_SRC_DIR}

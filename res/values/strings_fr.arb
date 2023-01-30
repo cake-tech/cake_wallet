@@ -678,5 +678,7 @@
   "orbot_running_alert": "Veuillez vous assurer qu'Orbot est en cours d'exécution avant de vous connecter à ce nœud.",
   "unmatched_currencies": "La devise de votre portefeuille (wallet) actuel ne correspond pas à celle du QR code scanné",
   "contact_list_contacts": "Contacts",
-  "contact_list_wallets": "Mes portefeuilles (wallets)"
+  "contact_list_wallets": "Mes portefeuilles (wallets)",
+  "do_not_send": "N'envoyez pas",
+  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application."
 }
