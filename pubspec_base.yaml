@@ -61,6 +61,7 @@ dependencies:
   permission_handler: ^10.0.0
   device_display_brightness: ^0.0.6
   platform_device_id: ^1.0.1
+  flutter_mailer: ^2.0.2
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git

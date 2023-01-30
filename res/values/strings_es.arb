@@ -680,5 +680,7 @@
   "unmatched_currencies": "La moneda de su billetera actual no coincide con la del QR escaneado",
   "orbot_running_alert": "Asegúrese de que Orbot se esté ejecutando antes de conectarse a este nodo.",
   "contact_list_contacts": "Contactos",
-  "contact_list_wallets": "Mis billeteras"
+  "contact_list_wallets": "Mis billeteras",
+  "do_not_send": "no enviar",
+  "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe el informe de bloqueo a nuestro equipo de soporte para mejorar la aplicación."
 }
