@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
@@ -11,6 +13,7 @@ import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/constants.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -170,6 +173,15 @@ class _DashboardPage extends BasePage {
 
   @override
   Widget get endDrawer => MenuWidget(walletViewModel);
+
+  @override
+  Widget? leading(BuildContext context) {
+    if (MediaQuery.of(context).size.width > ConstValues.minimumDesktopWidth) {
+      return getIt<DesktopWalletSelectionDropDown>();
+    }
+
+    return null;
+  }
 
   @override
   Widget middle(BuildContext context) {
