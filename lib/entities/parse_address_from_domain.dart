@@ -45,14 +45,14 @@ class AddressResolver {
         final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
         final address = extractAddressByType(raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
         if (address != null) {
-          return ParsedAddress.fetchTwitterAddress(address: address, name: '$text on Twitter');
+          return ParsedAddress.fetchTwitterAddress(address: address, name: '$text (Twitter)');
         }
       }
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
         final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
         if (isFioRegistered) {
           final address = await FioAddressProvider.getPubAddress(text, ticker);
-          return ParsedAddress.fetchFioAddress(address: address, name: text);
+          return ParsedAddress.fetchFioAddress(address: address, name: '$text (FIO)');
       }
 
       }
@@ -77,7 +77,7 @@ class AddressResolver {
 
       final record = await OpenaliasRecord.fetchAddressAndName(
           formattedName: formattedName, ticker: ticker);
-      return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+      return ParsedAddress.fetchOpenAliasAddress(record: record, name: '$text (OpenAlias)');
 
     } catch (e) {
       print(e.toString());
