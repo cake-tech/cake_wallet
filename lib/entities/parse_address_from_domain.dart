@@ -45,7 +45,7 @@ class AddressResolver {
         final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
         final address = extractAddressByType(raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
         if (address != null) {
-          return ParsedAddress.fetchTwitterAddress(address: address, name: text);
+          return ParsedAddress.fetchTwitterAddress(address: address, name: '$text on Twitter');
         }
       }
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
