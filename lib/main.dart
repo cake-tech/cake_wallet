@@ -50,6 +50,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+bool hasError = false;
 
 Future<void> main() async {
 
@@ -208,9 +209,14 @@ void _sendExceptionFile() async {
 void _onError(FlutterErrorDetails errorDetails) {
   _saveException(errorDetails.exception.toString(), errorDetails.stack);
 
+  if (hasError) {
+    return;
+  }
+  hasError = true;
+
   WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        showPopUp<void>(
+      (timeStamp) async {
+        await showPopUp<void>(
           context: navigatorKey.currentContext!,
           builder: (context) {
             return AlertWithTwoActions(
@@ -229,6 +235,8 @@ void _onError(FlutterErrorDetails errorDetails) {
             );
           },
         );
+
+        hasError = false;
     },
   );
 }
