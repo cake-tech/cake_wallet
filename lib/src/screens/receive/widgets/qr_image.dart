@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:qr/qr.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_painter.dart';
+import 'package:qr_flutter/qr_flutter.dart' as qr;
 
 class QrImage extends StatelessWidget {
   QrImage({
-    required String data,
+    required this.data,
     this.size = 100.0,
     this.backgroundColor,
-    Color foregroundColor = Colors.black,
-    int version = 13, // Previous value: 9 BTC & LTC wallets addresses are longer than ver. 9
-    int errorCorrectionLevel = QrErrorCorrectLevel.L,
-  }) : _painter = QrPainter(data, foregroundColor, version, errorCorrectionLevel);
+    this.foregroundColor = Colors.black,
+    this.version = 9, // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
+    this.errorCorrectionLevel = qr.QrErrorCorrectLevel.L,
+  });
 
-  final QrPainter _painter;
   final Color? backgroundColor;
   final double size;
+  final String data;
+  final int version;
+  final int errorCorrectionLevel;
+  final Color foregroundColor;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      color: backgroundColor,
-      child: CustomPaint(
-        painter: _painter,
-      ),
+    return qr.QrImage(
+      data: data,
+      errorCorrectionLevel: errorCorrectionLevel,
+      version: version,
+      size: size,
+      foregroundColor: foregroundColor,
+      padding: EdgeInsets.zero,
     );
   }
 }
