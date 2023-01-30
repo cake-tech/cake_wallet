@@ -10,6 +10,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -42,8 +43,8 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  PageController page = PageController();
-  SideMenuController sideMenu = SideMenuController();
+  final page = PageController();
+  final sideMenu = SideMenuController();
   @override
   void initState() {
     sideMenu.addListener((p0) {
@@ -54,91 +55,85 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (ResponsiveLayoutUtil.instance.isMobile(context)) {
+      return Scaffold(
+        body: _DashboardPage(
+          balancePage: widget.balancePage,
+          walletViewModel: widget.walletViewModel,
+          addressListViewModel: widget.addressListViewModel,
+        ),
+      );
+    }
+
     return Scaffold(
-      body: LayoutBuilder(builder: (context, constraints) {
-        if (constraints.maxWidth > 900) {
-          return Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: SideMenu(
-                    controller: sideMenu,
-                    topItems: [
-                      SideMenuItem(
-                        iconPath: 'assets/images/wallet_outline.png',
-                        priority: 0,
-                        onTap: (page, _) {
-                          sideMenu.changePage(page);
-                        },
-                      ),
-                    ],
-                    bottomItems: [
-                      SideMenuItem(
-                        iconPath: 'assets/images/support_icon.png',
-                        priority: 1,
-                        onTap: (page, _) {
-                          sideMenu.changePage(page);
-                        },
-                      ),
-                      SideMenuItem(
-                        iconPath: 'assets/images/settings_outline.png',
-                        priority: 2,
-                        onTap: (page, _) {
-                          sideMenu.changePage(page);
-                        },
-                      ),
-                    ],
-                  ),
+      body: Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SideMenu(
+              controller: sideMenu,
+              topItems: [
+                SideMenuItem(
+                  iconPath: 'assets/images/wallet_outline.png',
+                  priority: 0,
+                  onTap: (page, _) {
+                    sideMenu.changePage(page);
+                  },
                 ),
-                Expanded(
-                  flex: 9,
-                  child: PageView(
-                      controller: page,
-                      physics: NeverScrollableScrollPhysics(),
-                      children: [
-                        _DashboardPage(
-                          balancePage: widget.balancePage,
-                          walletViewModel: widget.walletViewModel,
-                          addressListViewModel: widget.addressListViewModel,
-                        ),
-                        Container(
-                          child: Navigator(
-                            initialRoute: Routes.support,
-                            onGenerateRoute: (settings) => Router.createRoute(settings),
-                            onGenerateInitialRoutes:
-                                (NavigatorState navigator, String initialRouteName) {
-                              return [
-                                navigator
-                                    .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
-                              ];
-                            },
-                          ),
-                        ),
-                        Navigator(
-                          initialRoute: Routes.desktop_settings_page,
-                          onGenerateRoute: (settings) => Router.createRoute(settings),
-                          onGenerateInitialRoutes:
-                              (NavigatorState navigator, String initialRouteName) {
-                            return [
-                              navigator
-                                  .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
-                            ];
-                          },
-                        ),
-                        
-                      ]),
-                )
+              ],
+              bottomItems: [
+                SideMenuItem(
+                  iconPath: 'assets/images/support_icon.png',
+                  priority: 1,
+                  onTap: (page, _) {
+                    sideMenu.changePage(page);
+                  },
+                ),
+                SideMenuItem(
+                  iconPath: 'assets/images/settings_outline.png',
+                  priority: 2,
+                  onTap: (page, _) {
+                    sideMenu.changePage(page);
+                  },
+                ),
               ],
             ),
-          );
-        }
-        return _DashboardPage(
-            balancePage: widget.balancePage,
-            walletViewModel: widget.walletViewModel,
-            addressListViewModel: widget.addressListViewModel);
-      }),
+            Expanded(
+              child: PageView(
+                controller: page,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  _DashboardPage(
+                    balancePage: widget.balancePage,
+                    walletViewModel: widget.walletViewModel,
+                    addressListViewModel: widget.addressListViewModel,
+                  ),
+                  Container(
+                    child: Navigator(
+                      initialRoute: Routes.support,
+                      onGenerateRoute: (settings) => Router.createRoute(settings),
+                      onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
+                        return [
+                          navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                        ];
+                      },
+                    ),
+                  ),
+                  Navigator(
+                    initialRoute: Routes.desktop_settings_page,
+                    onGenerateRoute: (settings) => Router.createRoute(settings),
+                    onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
+                      return [
+                        navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                      ];
+                    },
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
@@ -211,22 +206,21 @@ class _DashboardPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     _setEffects(context);
+    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
+      return DesktopDashboardView(balancePage);
+    }
 
     return SafeArea(
         minimum: EdgeInsets.only(bottom: 24),
-        child: LayoutBuilder(builder: (context, constraints) {
-          if (constraints.maxWidth > 900) {
-            return DesktopDashboardView(balancePage);
-          }
-          return Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Expanded(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Expanded(
                 child: PageView.builder(
                     controller: controller,
                     itemCount: pages.length,
                     itemBuilder: (context, index) => pages[index])),
-              Padding(
+            Padding(
                 padding: EdgeInsets.only(bottom: 24, top: 10),
                 child: SmoothPageIndicator(
                   controller: controller,
@@ -237,65 +231,61 @@ class _DashboardPage extends BasePage {
                       dotWidth: 6.0,
                       dotHeight: 6.0,
                       dotColor: Theme.of(context).indicatorColor,
-                      activeDotColor: Theme.of(context)
-                          .accentTextTheme!
-                          .headline4!
-                          .backgroundColor!),
+                      activeDotColor:
+                          Theme.of(context).accentTextTheme!.headline4!.backgroundColor!),
                 )),
-              Observer(builder: (_) {
-                return ClipRect(
+            Observer(builder: (_) {
+              return ClipRect(
+                child: Container(
+                  margin: const EdgeInsets.only(left: 16, right: 16),
                   child: Container(
-                    margin: const EdgeInsets.only(left: 16, right: 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50.0),
-                        border: Border.all(
-                          color: currentTheme.type == ThemeType.bright
-                              ? Color.fromRGBO(255, 255, 255, 0.2)
-                              : Colors.transparent,
-                          width: 1,
-                        ),
-                        color: Theme.of(context).textTheme.headline6!.backgroundColor!,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50.0),
+                      border: Border.all(
+                        color: currentTheme.type == ThemeType.bright
+                            ? Color.fromRGBO(255, 255, 255, 0.2)
+                            : Colors.transparent,
+                        width: 1,
                       ),
-                      child: Container(
-                        padding: EdgeInsets.only(left: 32, right: 32),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: MainActions.all
-                              .where((element) => element.canShow?.call(walletViewModel) ?? true)
-                              .map((action) => ActionButton(
-                                    image: Image.asset(action.image,
-                                        height: 24,
-                                        width: 24,
-                                        color: action.isEnabled?.call(walletViewModel) ?? true
-                                            ? Theme.of(context)
-                                                .accentTextTheme
-                                                .headline2!
-                                                .backgroundColor!
-                                            : Theme.of(context)
-                                                .accentTextTheme
-                                                .headline3!
-                                                .backgroundColor!),
-                                    title: action.name(context),
-                                    onClick: () async =>
-                                        await action.onTap(context, walletViewModel),
-                                    textColor: action.isEnabled?.call(walletViewModel) ?? true
-                                        ? null
-                                        : Theme.of(context)
-                                            .accentTextTheme
-                                            .headline3!
-                                            .backgroundColor!,
-                                  ))
-                              .toList(),
-                        ),
+                      color: Theme.of(context).textTheme.headline6!.backgroundColor!,
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.only(left: 32, right: 32),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: MainActions.all
+                            .where((element) => element.canShow?.call(walletViewModel) ?? true)
+                            .map((action) => ActionButton(
+                                  image: Image.asset(action.image,
+                                      height: 24,
+                                      width: 24,
+                                      color: action.isEnabled?.call(walletViewModel) ?? true
+                                          ? Theme.of(context)
+                                              .accentTextTheme
+                                              .headline2!
+                                              .backgroundColor!
+                                          : Theme.of(context)
+                                              .accentTextTheme
+                                              .headline3!
+                                              .backgroundColor!),
+                                  title: action.name(context),
+                                  onClick: () async => await action.onTap(context, walletViewModel),
+                                  textColor: action.isEnabled?.call(walletViewModel) ?? true
+                                      ? null
+                                      : Theme.of(context)
+                                          .accentTextTheme
+                                          .headline3!
+                                          .backgroundColor!,
+                                ))
+                            .toList(),
                       ),
                     ),
                   ),
-                );
-              }),
-            ],
-          );
-        }));
+                ),
+              );
+            }),
+          ],
+        ));
   }
 
   void _setEffects(BuildContext context) async {

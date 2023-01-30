@@ -19,7 +19,7 @@ class SideMenu extends StatelessWidget {
     SideMenuGlobal.controller = controller;
     return Container(
       color: Colors.black.withOpacity(0.1),
-      width: double.infinity,
+      width: 76,
       height: MediaQuery.of(context).size.height,
       child: Column(
         children: [

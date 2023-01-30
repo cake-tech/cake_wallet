@@ -19,7 +19,7 @@ class DesktopSettingsPage extends StatefulWidget {
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   int itemCount = 0;
   SideMenuController sideMenu = SideMenuController();
-  int currentPage = 0;
+  int? currentPage;
   bool isTapped = false;
 
   initState() {
@@ -66,10 +66,12 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                             isSelected: currentPage == index,
                             isArrowVisible: true,
                             onTap: () {
-                              final settingContext =
-                                  _settingsNavigatorKey.currentState?.context ?? context;
-                              sideMenu.changePage(index);
-                              WalletMenu.action(index, settingContext);
+                              if (currentPage != index) {
+                                final settingContext =
+                                    _settingsNavigatorKey.currentState?.context ?? context;
+                                sideMenu.changePage(index);
+                                WalletMenu.action(index, settingContext);
+                              }
                             },
                             image: image,
                             title: title,

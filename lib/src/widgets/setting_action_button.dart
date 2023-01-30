@@ -35,8 +35,9 @@ class SettingActionButton extends StatelessWidget {
         : selectionActive
             ? Palette.darkBlue
             : Theme.of(context).textTheme.headline3!.color;
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      hoverColor: Colors.transparent,
       child: Container(
         height: isLastTile ? headerHeight : tileHeight,
         padding: isLastTile
