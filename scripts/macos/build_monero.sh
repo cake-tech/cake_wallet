@@ -32,6 +32,10 @@ export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 rm -r monero/build > /dev/null
 
+if [ "${ARCH}" == "x86_64" ]; then
+	ARCH="x86-64"
+fi
+
 mkdir -p monero/build/${BUILD_TYPE}
 pushd monero/build/${BUILD_TYPE}
 cmake -DARCH=${ARCH} \

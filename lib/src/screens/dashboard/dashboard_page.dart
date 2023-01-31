@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
@@ -170,6 +172,15 @@ class _DashboardPage extends BasePage {
 
   @override
   Widget get endDrawer => MenuWidget(walletViewModel);
+
+  @override
+  Widget? leading(BuildContext context) {
+    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
+      return getIt<DesktopWalletSelectionDropDown>();
+    }
+
+    return null;
+  }
 
   @override
   Widget middle(BuildContext context) {

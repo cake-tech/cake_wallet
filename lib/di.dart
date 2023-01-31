@@ -1,10 +1,10 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -704,8 +704,6 @@ Future setup(
             param1: item, param2: unspentCoinsListViewModel));
   });
 
-  getIt.registerFactory(() => WakeLock());
-
   getIt.registerFactory(() => YatService());
 
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
@@ -818,6 +816,8 @@ Future setup(
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
+
+  getIt.registerFactory(() => DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>()));
 
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)

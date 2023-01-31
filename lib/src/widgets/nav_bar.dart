@@ -1,5 +1,5 @@
+import 'package:cake_wallet/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   factory NavBar(
@@ -63,10 +63,24 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
 
+    if (MediaQuery.of(context).size.width > ConstValues.minimumDesktopWidth) {
+      return PreferredSize(
+        preferredSize: Size.fromHeight(height),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (leading != null) Flexible(child: leading!),
+            if (middle != null) middle!,
+            if (trailing != null) trailing!,
+          ],
+        ),
+      );
+    }
+
     return Container(
       decoration: decoration ?? BoxDecoration(color: backgroundColor),
-      padding:
-          EdgeInsetsDirectional.only(bottom: _paddingBottom, top: paddingTop),
+      padding: EdgeInsetsDirectional.only(bottom: _paddingBottom, top: paddingTop),
       child: CupertinoNavigationBar(
         leading: leading,
         automaticallyImplyLeading: false,
