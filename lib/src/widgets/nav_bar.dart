@@ -1,4 +1,4 @@
-import 'package:cake_wallet/utils/constants.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/cupertino.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
@@ -63,7 +63,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
 
-    if (MediaQuery.of(context).size.width > ConstValues.minimumDesktopWidth) {
+    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
       return PreferredSize(
         preferredSize: Size.fromHeight(height),
         child: Row(
