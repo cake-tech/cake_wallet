@@ -176,7 +176,7 @@ class _DashboardPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    if (MediaQuery.of(context).size.width > ConstValues.minimumDesktopWidth) {
+    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
       return getIt<DesktopWalletSelectionDropDown>();
     }
 
