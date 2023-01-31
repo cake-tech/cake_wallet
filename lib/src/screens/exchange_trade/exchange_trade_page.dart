@@ -165,14 +165,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                               .color!
                                       )
                                   ),
-                                  child: QrImage(
-                                    data: trade.inputAddress ?? fetchingLabel,
-                                    backgroundColor: Colors.transparent,
-                                    foregroundColor: Theme.of(context)
-                                        .accentTextTheme!
-                                        .subtitle2!
-                                        .color!,
-                                  ),
+                                  child: QrImage(data: trade.inputAddress ?? fetchingLabel),
                                 )))),
                     Spacer(flex: 3)
                   ]),
