@@ -40,11 +40,7 @@ class ParsedAddress {
       );
   }
 
-  factory ParsedAddress.fetchOpenAliasAddress({OpenaliasRecord? record, required String name}){
-    final formattedName = OpenaliasRecord.formatDomainName(name);
-    if (record == null || record.address.contains(formattedName)) {
-        return ParsedAddress(addresses: [name]);
-      }
+  factory ParsedAddress.fetchOpenAliasAddress({required OpenaliasRecord record, required String name}){
       return ParsedAddress(
         addresses: [record.address],
         name: record.name,

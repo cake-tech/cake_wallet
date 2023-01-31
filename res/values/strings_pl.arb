@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "Zeskanuj swój odcisk palca, aby uwierzytelnić",
   "version" : "Wersja ${currentVersion}",
 
-  "openalias_alert_title" : "Wykryto Adres",
   "openalias_alert_content" : "Wysyłasz środki na\n${recipient_name}",
 
   "card_address" : "Adres:",

@@ -396,7 +396,6 @@
   "biometric_auth_reason" : "Scannez votre empreinte digitale pour vous authentifier",
   "version" : "Version ${currentVersion}",
 
-  "openalias_alert_title" : "Adresse Détectée",
   "openalias_alert_content" : "Vous allez envoyer des fonds à\n${recipient_name}",
 
   "card_address" : "Adresse :",

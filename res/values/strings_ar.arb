@@ -398,7 +398,6 @@
    "biometric_auth_reason":"امسح بصمة إصبعك للمصادقة",
    "version":"الإصدار ${currentVersion}",
 
-   "openalias_alert_title":"تم ايجاد العنوان",
    "openalias_alert_content":"سوف ترسل الأموال إلى\n${recipient_name}",
 
    "card_address":"العنوان:",

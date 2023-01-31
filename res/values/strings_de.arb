@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "Scannen Sie Ihren Fingerabdruck zur Authentifizierung",
   "version" : "Version ${currentVersion}",
 
-  "openalias_alert_title" : "Adresse Erkannt",
   "openalias_alert_content" : "Sie senden Geld an\n${recipient_name}",
 
   "card_address" : "Adresse:",

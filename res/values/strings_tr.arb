@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "Kimlik doğrulaması için parmak izini okutun",
   "version" : "Sürüm ${currentVersion}",
 
-  "openalias_alert_title" : "Adres tespit edildi",
   "openalias_alert_content" : "Parayı buraya gönderceksin:\n${recipient_name}",
 
   "card_address" : "Adres:",

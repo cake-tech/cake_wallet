@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "Scansiona la tua impronta per autenticarti",
   "version" : "Versione ${currentVersion}",
 
-  "openalias_alert_title" : "Indirizzo Rilevato",
   "openalias_alert_content" : "Invierai i tuoi fondi a\n${recipient_name}",
 
   "card_address" : "Indirizzo:",

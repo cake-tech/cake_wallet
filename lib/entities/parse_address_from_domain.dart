@@ -11,21 +11,22 @@ import 'package:cake_wallet/entities/fio_address_provider.dart';
 
 class AddressResolver {
   AddressResolver({required this.yatService, required this.walletType});
+
   final YatService yatService;
   final WalletType walletType;
 
   static const unstoppableDomains = [
-  'crypto',
-  'zil',
-  'x',
-  'coin',
-  'wallet',
-  'bitcoin',
-  '888',
-  'nft',
-  'dao',
-  'blockchain'
-];
+    'crypto',
+    'zil',
+    'x',
+    'coin',
+    'wallet',
+    'bitcoin',
+    '888',
+    'nft',
+    'dao',
+    'blockchain'
+  ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
     final addressPattern = AddressValidator.getAddressFromStringPattern(type);
@@ -43,18 +44,18 @@ class AddressResolver {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         final formattedName = text.substring(1);
         final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
-        final address = extractAddressByType(raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
+        final address = extractAddressByType(
+            raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
         if (address != null) {
-          return ParsedAddress.fetchTwitterAddress(address: address, name: '$text (Twitter)');
+          return ParsedAddress.fetchTwitterAddress(address: address, name: text);
         }
       }
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
         final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
         if (isFioRegistered) {
           final address = await FioAddressProvider.getPubAddress(text, ticker);
-          return ParsedAddress.fetchFioAddress(address: address, name: '$text (FIO)');
-      }
-
+          return ParsedAddress.fetchFioAddress(address: address, name: text);
+        }
       }
       if (text.hasOnlyEmojis) {
         if (walletType != WalletType.haven) {
@@ -75,10 +76,14 @@ class AddressResolver {
         return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
       }
 
-      final record = await OpenaliasRecord.fetchAddressAndName(
-          formattedName: formattedName, ticker: ticker);
-      return ParsedAddress.fetchOpenAliasAddress(record: record, name: '$text (OpenAlias)');
-
+      if (formattedName.contains(".")) {
+        final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
+        if (txtRecord != null) {
+          final record = await OpenaliasRecord.fetchAddressAndName(
+              formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
+          return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+        }
+      }
     } catch (e) {
       print(e.toString());
     }

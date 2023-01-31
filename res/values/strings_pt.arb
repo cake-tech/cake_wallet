@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "Digitalize sua impressão digital para autenticar",
   "version" : "Versão ${currentVersion}",
 
-  "openalias_alert_title" : "Endereço Detectado",
   "openalias_alert_content" : "Você enviará fundos para\n${recipient_name}",
 
   "card_address" : "Endereço:",

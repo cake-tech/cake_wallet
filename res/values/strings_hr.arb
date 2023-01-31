@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "Skenirajte svoj otisak prsta za autentifikaciju",
   "version" : "Verzija ${currentVersion}",
 
-  "openalias_alert_title" : "Otkrivena je adresa",
   "openalias_alert_content" : "Poslat ćete sredstva primatelju\n${recipient_name}",
 
   "card_address" : "Adresa:",

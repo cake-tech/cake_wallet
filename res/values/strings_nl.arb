@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "Scan uw vingerafdruk om te verifiëren",
   "version" : "Versie ${currentVersion}",
 
-  "openalias_alert_title" : "Adres Gedetecteerd",
   "openalias_alert_content" : "U stuurt geld naar\n${recipient_name}",
 
   "card_address" : "Adres:",
