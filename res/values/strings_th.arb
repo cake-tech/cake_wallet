@@ -396,7 +396,6 @@
   "biometric_auth_reason" : "สแกนลายนิ้วมือของคุณเพื่อยืนยันตัวตน",
   "version" : "เวอร์ชัน ${currentVersion}",
 
-  "openalias_alert_title" : "พบที่อยู่",
   "openalias_alert_content" : "คุณกำลังจะส่งเงินไปยัง\n${recipient_name}",
 
   "card_address" : "ที่อยู่:",

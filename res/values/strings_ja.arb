@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "प指紋をスキャンして認証する",
   "version" : "バージョン ${currentVersion}",
 
-  "openalias_alert_title" : "アドレスが検出されました",
   "openalias_alert_content" : "に送金します\n${recipient_name}",
 
   "card_address" : "住所:",
