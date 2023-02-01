@@ -398,7 +398,6 @@
   "biometric_auth_reason" : "စစ်မှန်ကြောင်းအထောက်အထားပြရန် သင့်လက်ဗွေကို စကန်ဖတ်ပါ။",
   "version" : "ဗားရှင်း ${currentVersion}",
 
-  "openalias_alert_title" : "လိပ်စာကို ရှာတွေ့သည်။",
   "openalias_alert_content" : "သင်သည် \n${recipient_name} သို့ ရန်ပုံငွေများ ပေးပို့ပါမည်",
 
   "card_address" : "လိပ်စာ-",
