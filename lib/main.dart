@@ -207,6 +207,11 @@ void _sendExceptionFile() async {
 }
 
 void _onError(FlutterErrorDetails errorDetails) {
+  // Add Exception for user's network connection issues to not be reported
+  if (errorDetails.exception.toString().contains("Software caused connection abort")) {
+    return;
+  }
+
   _saveException(errorDetails.exception.toString(), errorDetails.stack);
 
   if (hasError) {
