@@ -119,7 +119,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const ape = CryptoCurrency(title: 'APE', tag: 'ETH', fullName: 'ApeCoin', raw: 30, name: 'ape', iconPath: 'assets/images/ape_icon.png');
   static const avaxc = CryptoCurrency(title: 'AVAX', tag: 'C-CHAIN', raw: 31, name: 'avaxc', iconPath: 'assets/images/avaxc_icon.png');
   static const btt = CryptoCurrency(title: 'BTT', tag: 'ETH', fullName: 'BitTorrent', raw: 32, name: 'btt', iconPath: 'assets/images/btt_icon.png');
-  static const bttc = CryptoCurrency(title: 'BTTC', tag: 'BSC', fullName: 'BitTorrent-NEW', raw: 33, name: 'bttc', iconPath: 'assets/images/bttbsc_icon.png');
+  static const bttc = CryptoCurrency(title: 'BTTC', tag: 'TRX', fullName: 'BitTorrent-NEW', raw: 33, name: 'bttc', iconPath: 'assets/images/bttbsc_icon.png');
   static const doge = CryptoCurrency(title: 'DOGE', fullName: 'Dogecoin', raw: 34, name: 'doge', iconPath: 'assets/images/doge_icon.png');
   static const firo = CryptoCurrency(title: 'FIRO', raw: 35, name: 'firo', iconPath: 'assets/images/firo_icon.png');
   static const usdttrc20 = CryptoCurrency(title: 'USDT', tag: 'TRX', fullName: 'USDT Tether', raw: 36, name: 'usdttrc20', iconPath: 'assets/images/usdttrc20_icon.png');
