@@ -212,6 +212,10 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)3[0-9a-zA-Z]{33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{39}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{59}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.ltc:
+        return '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)';
       default:
         return null;
     }

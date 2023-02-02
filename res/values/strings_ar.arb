@@ -398,7 +398,7 @@
    "biometric_auth_reason":"امسح بصمة إصبعك للمصادقة",
    "version":"الإصدار ${currentVersion}",
 
-   "openalias_alert_content":"سوف ترسل الأموال إلى\n${recipient_name}",
+   "extracted_address_content":"سوف ترسل الأموال إلى\n${recipient_name}",
 
    "card_address":"العنوان:",
    "buy":"اشتري",
@@ -678,6 +678,9 @@
    "tor_only":"Tor فقط",
    "unmatched_currencies": "عملة محفظتك الحالية لا تتطابق مع عملة QR الممسوحة ضوئيًا",
    "orbot_running_alert": "يرجى التأكد من تشغيل Orbot قبل الاتصال بهذه العقدة.",
+   "bitcoin_payments_require_1_confirmation": "تتطلب مدفوعات Bitcoin تأكيدًا واحدًا ، والذي قد يستغرق 20 دقيقة أو أكثر. شكرا لصبرك! سيتم إرسال بريد إلكتروني إليك عند تأكيد الدفع.",
    "send_to_this_address" : "أرسل ${currency} ${tag}إلى هذا العنوان",
-   "arrive_in_this_address" : "سيصل ${currency} ${tag}إلى هذا العنوان"
+   "arrive_in_this_address" : "سيصل ${currency} ${tag}إلى هذا العنوان",
+   "do_not_send": "لا ترسل",
+   "error_dialog_content": "عفوًا ، لقد حصلنا على بعض الخطأ.\n\nيرجى إرسال تقرير التعطل إلى فريق الدعم لدينا لتحسين التطبيق."
 }
