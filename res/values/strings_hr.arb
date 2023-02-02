@@ -398,8 +398,7 @@
   "biometric_auth_reason" : "Skenirajte svoj otisak prsta za autentifikaciju",
   "version" : "Verzija ${currentVersion}",
 
-  "openalias_alert_title" : "Otkrivena je adresa",
-  "openalias_alert_content" : "Poslat ćete sredstva primatelju\n${recipient_name}",
+  "extracted_address_content" : "Poslat ćete sredstva primatelju\n${recipient_name}",
 
   "card_address" : "Adresa:",
   "buy" : "Kupi",
@@ -682,6 +681,8 @@
   "contact_list_contacts": "Kontakti",
   "contact_list_wallets": "Moji novčanici",
   "bitcoin_payments_require_1_confirmation": "Bitcoin plaćanja zahtijevaju 1 potvrdu, što može potrajati 20 minuta ili dulje. Hvala na Vašem strpljenju! Dobit ćete e-poruku kada plaćanje bude potvrđeno.",
+  "send_to_this_address" : "Pošaljite ${currency} ${tag}na ovu adresu",
+  "arrive_in_this_address" : "${currency} ${tag}će stići na ovu adresu",
   "do_not_send": "Ne šalji",
   "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju."
 }

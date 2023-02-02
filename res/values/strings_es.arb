@@ -398,8 +398,7 @@
   "biometric_auth_reason" : "Escanee su huella digital para autenticar",
   "version" : "Versión ${currentVersion}",
 
-  "openalias_alert_title" : "Destinatario detectado",
-  "openalias_alert_content" : "Enviará fondos a\n${recipient_name}",
+  "extracted_address_content" : "Enviará fondos a\n${recipient_name}",
 
   "card_address" : "Dirección:",
   "buy" : "Comprar",
@@ -682,6 +681,8 @@
   "contact_list_contacts": "Contactos",
   "contact_list_wallets": "Mis billeteras",
   "bitcoin_payments_require_1_confirmation": "Los pagos de Bitcoin requieren 1 confirmación, que puede demorar 20 minutos o más. ¡Gracias por su paciencia! Se le enviará un correo electrónico cuando se confirme el pago.",
+  "send_to_this_address" : "Enviar ${currency} ${tag}a esta dirección",
+  "arrive_in_this_address" : "${currency} ${tag}llegará a esta dirección",
   "do_not_send": "no enviar",
   "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe el informe de bloqueo a nuestro equipo de soporte para mejorar la aplicación."
 }

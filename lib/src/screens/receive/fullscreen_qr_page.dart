@@ -1,7 +1,6 @@
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FullscreenQRPage extends BasePage {
@@ -69,14 +68,10 @@ class FullscreenQRPage extends BasePage {
           child: AspectRatio(
             aspectRatio: 1.0,
             child: Container(
-              padding: EdgeInsets.all(5),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                   border: Border.all(width: 3, color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
-              child: QrImage(
-                data: qrData,
-                backgroundColor: isLight ? Colors.transparent : Colors.black,
-                foregroundColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-              ),
+              child: QrImage(data: qrData),
             ),
           ),
         ),

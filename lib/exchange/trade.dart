@@ -21,7 +21,8 @@ class Trade extends HiveObject {
       this.extraId,
       this.outputTransaction,
       this.refundAddress,
-      this.walletId}) {
+      this.walletId,
+      this.payoutAddress}) {
     if (provider != null) {
       providerRaw = provider.raw;
     }
@@ -87,6 +88,9 @@ class Trade extends HiveObject {
 
   @HiveField(12)
   String? walletId;
+
+  @HiveField(13)
+  String? payoutAddress;
 
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(

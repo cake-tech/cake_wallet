@@ -37,6 +37,7 @@ import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -365,8 +366,8 @@ Future setup(
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       walletViewModel: getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, dynamic, void>(
-      (dynamic item, _) => WalletAddressEditOrCreateViewModel(
+  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
+      (WalletAddressListItem? item, _) => WalletAddressEditOrCreateViewModel(
           wallet: getIt.get<AppStore>().wallet!, item: item));
 
   getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>(

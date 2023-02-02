@@ -398,8 +398,7 @@
   "biometric_auth_reason" : "प指紋をスキャンして認証する",
   "version" : "バージョン ${currentVersion}",
 
-  "openalias_alert_title" : "アドレスが検出されました",
-  "openalias_alert_content" : "に送金します\n${recipient_name}",
+  "extracted_address_content" : "に送金します\n${recipient_name}",
 
   "card_address" : "住所:",
   "buy" : "購入",
@@ -682,6 +681,8 @@
   "contact_list_contacts": "連絡先",
   "contact_list_wallets": "マイウォレット",
   "bitcoin_payments_require_1_confirmation": "ビットコインの支払いには 1 回の確認が必要で、これには 20 分以上かかる場合があります。お待ち頂きまして、ありがとうございます！支払いが確認されると、メールが送信されます。",
+  "send_to_this_address" : "${currency} ${tag}をこのアドレスに送金",
+  "arrive_in_this_address" : "${currency} ${tag}はこの住所に到着します",
   "do_not_send": "送信しない",
   "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione."
 }

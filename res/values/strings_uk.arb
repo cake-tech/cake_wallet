@@ -397,8 +397,7 @@
   "biometric_auth_reason" : "Відскануйте свій відбиток пальця для аутентифікації",
   "version" : "Версія ${currentVersion}",
 
-  "openalias_alert_title" : "Виявлено адресу",
-  "openalias_alert_content" : "Ви будете відправляти кошти\n${recipient_name}",
+  "extracted_address_content" : "Ви будете відправляти кошти\n${recipient_name}",
 
   "card_address" : "Адреса:",
   "buy" : "Купити",
@@ -681,6 +680,8 @@
   "contact_list_contacts": "Контакти",
   "contact_list_wallets": "Мої гаманці",
   "bitcoin_payments_require_1_confirmation": "Платежі Bitcoin потребують 1 підтвердження, яке може зайняти 20 хвилин або більше. Дякую за Ваше терпіння! Ви отримаєте електронний лист, коли платіж буде підтверджено.",
+  "send_to_this_address" : "Надіслати ${currency} ${tag}на цю адресу",
+  "arrive_in_this_address" : "${currency} ${tag}надійде на цю адресу",
   "do_not_send": "Не надсилайте",
   "error_dialog_content": "На жаль, ми отримали помилку.\n\nБудь ласка, надішліть звіт про збій нашій команді підтримки, щоб покращити додаток."
 }
