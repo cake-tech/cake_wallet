@@ -398,7 +398,7 @@
   "biometric_auth_reason" : "Scan uw vingerafdruk om te verifiëren",
   "version" : "Versie ${currentVersion}",
 
-  "openalias_alert_content" : "U stuurt geld naar\n${recipient_name}",
+  "extracted_address_content" : "U stuurt geld naar\n${recipient_name}",
 
   "card_address" : "Adres:",
   "buy" : "Kopen",
@@ -680,6 +680,7 @@
   "orbot_running_alert": "Zorg ervoor dat Orbot actief is voordat u verbinding maakt met dit knooppunt.",
   "contact_list_contacts": "Contacten",
   "contact_list_wallets": "Mijn portefeuilles",
+  "bitcoin_payments_require_1_confirmation": "Bitcoin-betalingen vereisen 1 bevestiging, wat 20 minuten of langer kan duren. Dank voor uw geduld! U ontvangt een e-mail wanneer de betaling is bevestigd.",
   "send_to_this_address" : "Stuur ${currency} ${tag}naar dit adres",
   "arrive_in_this_address" : "${currency} ${tag}komt aan op dit adres",
   "do_not_send": "Niet sturen",

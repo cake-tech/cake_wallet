@@ -396,7 +396,7 @@
   "biometric_auth_reason" : "Scannez votre empreinte digitale pour vous authentifier",
   "version" : "Version ${currentVersion}",
 
-  "openalias_alert_content" : "Vous allez envoyer des fonds à\n${recipient_name}",
+  "extracted_address_content" : "Vous allez envoyer des fonds à\n${recipient_name}",
 
   "card_address" : "Adresse :",
   "buy" : "Acheter",
@@ -678,6 +678,7 @@
   "orbot_running_alert": "Veuillez vous assurer qu'Orbot est en cours d'exécution avant de vous connecter à ce nœud.",
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "Mes portefeuilles (wallets)",
+  "bitcoin_payments_require_1_confirmation": "Les paiements Bitcoin nécessitent 1 confirmation, ce qui peut prendre 20 minutes ou plus. Merci pour votre patience! Vous serez averti par e-mail lorsque le paiement sera confirmé.",
   "send_to_this_address" : "Envoyez ${currency} ${tag}à cette adresse",
   "arrive_in_this_address" : "${currency} ${tag}arrivera à cette adresse",
   "do_not_send": "N'envoyez pas",

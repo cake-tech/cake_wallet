@@ -398,7 +398,7 @@
   "biometric_auth_reason" : "प्रमाणित करने के लिए अपने फ़िंगरप्रिंट को स्कैन करें",
   "version" : "संस्करण ${currentVersion}",
 
-  "openalias_alert_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}",
+  "extracted_address_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}",
 
   "card_address" : "पता:",
   "buy" : "खरीदें",
@@ -680,6 +680,7 @@
   "orbot_running_alert": "कृपया सुनिश्चित करें कि इस नोड से कनेक्ट करने से पहले Orbot चल रहा है।",
   "contact_list_contacts": "संपर्क",
   "contact_list_wallets": "मेरा बटुआ",
+  "bitcoin_payments_require_1_confirmation": "बिटकॉइन भुगतान के लिए 1 पुष्टिकरण की आवश्यकता होती है, जिसमें 20 मिनट या अधिक समय लग सकता है। आपके धैर्य के लिए धन्यवाद! भुगतान की पुष्टि होने पर आपको ईमेल किया जाएगा।",
   "send_to_this_address" : "इस पते पर ${currency} ${tag}भेजें",
   "arrive_in_this_address" : "${currency} ${tag}इस पते पर पहुंचेंगे",
   "do_not_send": "मत भेजो",
