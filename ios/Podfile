@@ -37,6 +37,10 @@ target 'Runner' do
   # Cake Wallet (Legacy)
   pod 'CryptoSwift'
   pod 'UnstoppableDomainsResolution', '~> 4.0.0'
+
+  # Temporary fix for the new X code version, until applied to the original repo
+  pod 'DKImagePickerController/PhotoGallery', :git => 'https://github.com/zhangao0086/DKImagePickerController.git'
+
 end
 
 post_install do |installer|
