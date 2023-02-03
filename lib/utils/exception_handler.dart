@@ -59,7 +59,7 @@ class ExceptionHandler {
   }
 
   static void onError(FlutterErrorDetails errorDetails) {
-    if (_isErrorFromUser(errorDetails.exception.toString())) {
+    if (_ignoreError(errorDetails.exception.toString())) {
       return;
     }
 
@@ -97,8 +97,9 @@ class ExceptionHandler {
     );
   }
 
-  /// User related errors to be added as exceptions here to not report
-  static bool _isErrorFromUser(String error) {
-    return error.contains("Software caused connection abort"); // User connection issue
+  /// Ignore User related errors or system errors
+  static bool _ignoreError(String error) {
+    return error.contains("errno = 103") || // SocketException: Software caused connection abort
+        error.contains("errno = 9"); // SocketException: Bad file descriptor (iOS socket exception)
   }
 }
