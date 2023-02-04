@@ -380,6 +380,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               HaMaterialLocalizations.delegate,
+              HaCupertinoLocalizations.delegate,
             ],
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
