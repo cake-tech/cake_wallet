@@ -25,6 +25,7 @@ class SecretKey {
     SecretKey('onramperApiKey', () => ''),
     SecretKey('ioniaClientId', () => ''),
     SecretKey('trocadorApiKey', () => ''),
+    SecretKey('trocadorExchangeMarkup', () => '3'),
     SecretKey('twitterBearerToken', () => ''),
   ];
 

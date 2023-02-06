@@ -43,6 +43,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
   static const clearNetAuthority = 'trocador.app';
   static const apiKey = secrets.trocadorApiKey;
+  static const markup = secrets.trocadorExchangeMarkup;
   static const newRatePath = '/api/new_rate';
   static const createTradePath = 'api/new_trade';
   static const tradePath = 'api/trade';
@@ -69,7 +70,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'network_to': _networkFor(request.to),
       'payment': isFixedRateMode ? 'True' : 'False',
       'min_kycrating': 'C',
-      'markup': '3',
+      'markup': markup,
       'best_only': 'True',
       if (!isFixedRateMode) 'amount_from': request.fromAmount,
       if (isFixedRateMode) 'amount_to': request.toAmount,
@@ -164,7 +165,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         if (isFixedRateMode) 'amount_to': amount.toString(),
         'payment': isFixedRateMode ? 'True' : 'False',
         'min_kycrating': 'C',
-        'markup': '3',
+        'markup': markup,
         'best_only': 'True',
       };
 
