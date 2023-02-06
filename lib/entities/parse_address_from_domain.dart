@@ -1,40 +1,61 @@
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/twitter/twitter_api.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 
 class AddressResolver {
-  
   AddressResolver({required this.yatService, required this.walletType});
-  
+
   final YatService yatService;
   final WalletType walletType;
-  
+
   static const unstoppableDomains = [
-  'crypto',
-  'zil',
-  'x',
-  'coin',
-  'wallet',
-  'bitcoin',
-  '888',
-  'nft',
-  'dao',
-  'blockchain'
-];
+    'crypto',
+    'zil',
+    'x',
+    'coin',
+    'wallet',
+    'bitcoin',
+    '888',
+    'nft',
+    'dao',
+    'blockchain'
+  ];
+
+  static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
+    final addressPattern = AddressValidator.getAddressFromStringPattern(type);
+
+    if (addressPattern == null) {
+      throw 'Unexpected token: $type for getAddressFromStringPattern';
+    }
+
+    final match = RegExp(addressPattern).firstMatch(raw);
+    return match?.group(0)?.replaceAll(RegExp('[^0-9a-zA-Z]'), '');
+  }
 
   Future<ParsedAddress> resolve(String text, String ticker) async {
     try {
-      if (text.contains('@') && !text.contains('.')) {
+      if (text.startsWith('@') && !text.substring(1).contains('@')) {
+        final formattedName = text.substring(1);
+        final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
+        final address = extractAddressByType(
+            raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
+        if (address != null) {
+          return ParsedAddress.fetchTwitterAddress(address: address, name: text);
+        }
+      }
+      if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
         final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
         if (isFioRegistered) {
           final address = await FioAddressProvider.getPubAddress(text, ticker);
           return ParsedAddress.fetchFioAddress(address: address, name: text);
-      }
-
+        }
       }
       if (text.hasOnlyEmojis) {
         if (walletType != WalletType.haven) {
@@ -55,10 +76,14 @@ class AddressResolver {
         return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
       }
 
-      final record = await OpenaliasRecord.fetchAddressAndName(
-          formattedName: formattedName, ticker: ticker);
-      return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
-      
+      if (formattedName.contains(".")) {
+        final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
+        if (txtRecord != null) {
+          final record = await OpenaliasRecord.fetchAddressAndName(
+              formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
+          return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+        }
+      }
     } catch (e) {
       print(e.toString());
     }

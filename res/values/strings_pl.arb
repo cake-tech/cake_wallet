@@ -398,8 +398,7 @@
   "biometric_auth_reason" : "Zeskanuj swój odcisk palca, aby uwierzytelnić",
   "version" : "Wersja ${currentVersion}",
 
-  "openalias_alert_title" : "Wykryto Adres",
-  "openalias_alert_content" : "Wysyłasz środki na\n${recipient_name}",
+  "extracted_address_content" : "Wysyłasz środki na\n${recipient_name}",
 
   "card_address" : "Adres:",
   "buy" : "Kup",
@@ -681,6 +680,7 @@
   "orbot_running_alert": "Upewnij się, że Orbot działa przed połączeniem z tym węzłem.",
   "contact_list_contacts": "Łączność",
   "contact_list_wallets": "Moje portfele",
+  "bitcoin_payments_require_1_confirmation": "Płatności Bitcoin wymagają 1 potwierdzenia, co może zająć 20 minut lub dłużej. Dziękuję za cierpliwość! Otrzymasz wiadomość e-mail, gdy płatność zostanie potwierdzona.",
   "send_to_this_address" : "Wyślij ${currency} ${tag}na ten adres",
   "arrive_in_this_address" : "${currency} ${tag}dotrze na ten adres",
   "do_not_send": "Nie wysyłaj",

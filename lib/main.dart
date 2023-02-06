@@ -1,22 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:isolate';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:path_provider/path_provider.dart';
@@ -50,21 +40,18 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
-bool hasError = false;
 
 Future<void> main() async {
 
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    FlutterError.onError = (errorDetails) {
-      _onError(errorDetails);
-    };
+    FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
     /// isolate.
     PlatformDispatcher.instance.onError = (error, stack) {
-      _onError(FlutterErrorDetails(exception: error, stack: stack));
+      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
       return true;
     };
@@ -155,90 +142,8 @@ Future<void> main() async {
         initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
-    _onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
-}
-
-void _saveException(String? error, StackTrace? stackTrace) async {
-  final appDocDir = await getApplicationDocumentsDirectory();
-
-  final file = File('${appDocDir.path}/error.txt');
-  final exception = {
-    "${DateTime.now()}": {
-      "Error": error,
-      "StackTrace": stackTrace.toString(),
-    }
-  };
-
-  const String separator =
-      '''\n\n==========================================================
-      ==========================================================\n\n''';
-
-  await file.writeAsString(
-    jsonEncode(exception) + separator,
-    mode: FileMode.append,
-  );
-}
-
-void _sendExceptionFile() async {
-  try {
-    final appDocDir = await getApplicationDocumentsDirectory();
-
-    final file = File('${appDocDir.path}/error.txt');
-
-    final MailOptions mailOptions = MailOptions(
-      subject: 'Mobile App Issue',
-      recipients: ['support@cakewallet.com'],
-      attachments: [file.path],
-    );
-
-    final result = await FlutterMailer.send(mailOptions);
-
-    // Clear file content if the error was sent or saved.
-    // On android we can't know if it was sent or saved
-    if (result.name == MailerResponse.sent.name ||
-        result.name == MailerResponse.saved.name ||
-        result.name == MailerResponse.android.name) {
-      file.writeAsString("", mode: FileMode.write);
-    }
-  } catch (e, s) {
-    _saveException(e.toString(), s);
-  }
-}
-
-void _onError(FlutterErrorDetails errorDetails) {
-  _saveException(errorDetails.exception.toString(), errorDetails.stack);
-
-  if (hasError) {
-    return;
-  }
-  hasError = true;
-
-  WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) async {
-        await showPopUp<void>(
-          context: navigatorKey.currentContext!,
-          builder: (context) {
-            return AlertWithTwoActions(
-              isDividerExist: true,
-              alertTitle: S.of(context).error,
-              alertContent: S.of(context).error_dialog_content,
-              rightButtonText: S.of(context).send,
-              leftButtonText: S.of(context).do_not_send,
-              actionRightButton: () {
-                Navigator.of(context).pop();
-                _sendExceptionFile();
-              },
-              actionLeftButton: () {
-                Navigator.of(context).pop();
-              },
-            );
-          },
-        );
-
-        hasError = false;
-    },
-  );
 }
 
 Future<void> initialSetup(

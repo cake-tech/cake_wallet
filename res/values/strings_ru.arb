@@ -398,8 +398,7 @@
   "biometric_auth_reason" : "Отсканируйте свой отпечаток пальца для аутентификации",
   "version" : "Версия ${currentVersion}",
 
-  "openalias_alert_title" : "Адрес Обнаружен",
-  "openalias_alert_content" : "Вы будете отправлять средства\n${recipient_name}",
+  "extracted_address_content" : "Вы будете отправлять средства\n${recipient_name}",
 
   "card_address" : "Адрес:",
   "buy" : "Купить",
@@ -681,6 +680,7 @@
   "orbot_running_alert": "Перед подключением к этому узлу убедитесь, что Orbot запущен.",
   "contact_list_contacts": "Контакты",
   "contact_list_wallets": "Мои кошельки",
+  "bitcoin_payments_require_1_confirmation": "Биткойн-платежи требуют 1 подтверждения, что может занять 20 минут или дольше. Спасибо тебе за твое терпение! Вы получите электронное письмо, когда платеж будет подтвержден.",
   "send_to_this_address" : "Отправить ${currency} ${tag}на этот адрес",
   "arrive_in_this_address" : "${currency} ${tag}придет на этот адрес",
   "do_not_send": "Не отправлять",

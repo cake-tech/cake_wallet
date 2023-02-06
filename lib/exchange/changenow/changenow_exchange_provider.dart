@@ -276,6 +276,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
    switch(currency) {
       case CryptoCurrency.zec:
         return 'zec';
+      case CryptoCurrency.usdcpoly:
+        return 'usdcmatic';
+      case CryptoCurrency.maticpoly:
+        return 'maticmainnet';
       default:
         return currency.title.toLowerCase();
     }

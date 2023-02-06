@@ -398,8 +398,7 @@
   "biometric_auth_reason" : "지문을 스캔하여 인증",
   "version" : "버전 ${currentVersion}",
 
-  "openalias_alert_title" : "주소 감지됨",
-  "openalias_alert_content" : "당신은에 자금을 보낼 것입니다\n${recipient_name}",
+  "extracted_address_content" : "당신은에 자금을 보낼 것입니다\n${recipient_name}",
 
   "card_address" : "주소:",
   "buy" : "구입",
@@ -681,6 +680,7 @@
   "orbot_running_alert": "이 노드에 연결하기 전에 Orbot이 실행 중인지 확인하십시오.",
   "contact_list_contacts": "콘택트 렌즈",
   "contact_list_wallets": "내 지갑",
+  "bitcoin_payments_require_1_confirmation": "비트코인 결제는 1번의 확인이 필요하며 20분 이상이 소요될 수 있습니다. 기다려 주셔서 감사합니다! 결제가 확인되면 이메일이 전송됩니다.",
   "send_to_this_address" : "이 주소로 ${currency} ${tag}송금",
   "arrive_in_this_address" : "${currency} ${tag}이(가) 이 주소로 도착합니다",
   "do_not_send": "보내지 마세요",
