@@ -106,6 +106,7 @@ class ExceptionHandler {
   /// Ignore User related errors or system errors
   static bool _ignoreError(String error) {
     return error.contains("errno = 103") || // SocketException: Software caused connection abort
-        error.contains("errno = 9"); // SocketException: Bad file descriptor (iOS socket exception)
+        error.contains("errno = 9") || // SocketException: Bad file descriptor
+        error.contains("errno = 54"); // SocketException: Connection reset by peer
   }
 }
