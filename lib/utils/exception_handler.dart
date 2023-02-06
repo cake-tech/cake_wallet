@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:path_provider/path_provider.dart';
@@ -59,6 +60,11 @@ class ExceptionHandler {
   }
 
   static void onError(FlutterErrorDetails errorDetails) {
+    if (kDebugMode) {
+      FlutterError.presentError(errorDetails);
+      return;
+    }
+
     if (_ignoreError(errorDetails.exception.toString())) {
       return;
     }
