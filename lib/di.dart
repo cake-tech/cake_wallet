@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
@@ -13,6 +16,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
@@ -206,7 +210,11 @@ Future setup(
       (secrets.wyreAccountId?.isNotEmpty ?? false);
 
   final settingsStore = await SettingsStoreBase.load(
-      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
+    nodeSource: _nodeSource,
+    isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+    // Enforce darkTheme on other platforms till the design for other themes is completed
+    initialTheme: Platform.isIOS || Platform.isAndroid ? null : ThemeList.darkTheme,
+  );
 
   if (_isSetupFinished) {
     return;
@@ -519,9 +527,12 @@ Future setup(
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 
-  getIt.registerFactory(() => OnRamperPage(
+  getIt.registerLazySingleton<OnRamperBuyProvider>(() => OnRamperBuyProvider(
     settingsStore: getIt.get<AppStore>().settingsStore,
-    wallet: getIt.get<AppStore>().wallet!));
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
+
+  getIt.registerFactory(() => OnRamperPage(getIt.get<OnRamperBuyProvider>()));
 
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>().wallet!,
@@ -793,7 +804,7 @@ Future setup(
     return IoniaMoreOptionsPage(giftCard);
   });
 
-  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) 
+  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _)
     => IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _){
