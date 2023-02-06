@@ -66,4 +66,7 @@ class HavenTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() =>
       '${formatAmount(moneroAmountToString(amount: fee))} $assetType';
+
+  @override
+  String? unlockTimeFormatted() => null;
 }

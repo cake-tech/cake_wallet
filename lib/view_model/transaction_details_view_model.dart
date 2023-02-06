@@ -37,8 +37,12 @@ abstract class TransactionDetailsViewModelBase with Store {
       final key = tx.additionalInfo['key'] as String?;
       final accountIndex = tx.additionalInfo['accountIndex'] as int;
       final addressIndex = tx.additionalInfo['addressIndex'] as int;
+      final unlockTimeFormatted = tx.unlockTimeFormatted();
       final feeFormatted = tx.feeFormatted();
       final _items = [
+        if (unlockTimeFormatted != null)
+        StandartListItem(
+            title: 'Unlock time', value: unlockTimeFormatted),
         StandartListItem(
             title: S.current.transaction_details_transaction_id, value: tx.id),
         StandartListItem(

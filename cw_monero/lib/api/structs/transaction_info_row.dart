@@ -14,6 +14,9 @@ class TransactionInfoRow extends Struct {
   @Uint64()
   external int confirmations;
 
+  @Uint64()
+  external int unlockTime;
+
   @Uint32()
   external int subaddrAccount;
 

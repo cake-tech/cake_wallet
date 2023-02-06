@@ -235,4 +235,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['fee'] = fee;
     return m;
   }
+  @override
+  String? unlockTimeFormatted() => null;
 }

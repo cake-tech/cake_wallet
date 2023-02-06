@@ -8,7 +8,7 @@ import 'package:cw_monero/api/transaction_history.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
+      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee, this.unlockTime);
 
   MoneroTransactionInfo.fromMap(Map<String, Object?> map)
       : id = (map['hash'] ?? '') as String,
@@ -22,6 +22,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
+        unlockTime = map['unlockTime'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int ?? 0 {
           additionalInfo = <String, dynamic>{
@@ -41,6 +42,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
+        unlockTime = row.unlockTime,
         key = getTxKey(row.getHash()),
         fee = row.fee {
           additionalInfo = <String, dynamic>{
@@ -59,6 +61,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   final int amount;
   final int fee;
   final int addressIndex;
+  final int unlockTime;
   String? recipientAddress;
   String? key;
   String? _fiatAmount;
@@ -76,4 +79,17 @@ class MoneroTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() =>
       '${formatAmount(moneroAmountToString(amount: fee))} XMR';
+
+  @override
+  String? unlockTimeFormatted() {
+    final formattedTime = unlockTime * 2;
+    if (direction == TransactionDirection.outgoing || unlockTime == 0) {
+      return null;
+    }
+
+    if (formattedTime > 500000) {
+      return '>1 year';
+    }
+    return '~ $formattedTime minutes';
+  }
 }
