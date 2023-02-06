@@ -1,5 +1,7 @@
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -14,18 +16,19 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   AdvancedPrivacySettingsViewModelBase(this.type, this._settingsStore)
       : _addCustomNode = false {
     settings = [
-      SwitcherListItem(
-        title: S.current.disable_fiat,
-        value: () => _settingsStore.fiatApiMode == FiatApiMode.disabled,
-        onValueChange: (_, bool value) => setFiatMode(value),
-      ),
-      SwitcherListItem(
-        title: S.current.disable_exchange,
-        value: () => _settingsStore.disableExchange,
-        onValueChange: (_, bool value) {
-          _settingsStore.disableExchange = value;
-        },
-      ),
+                ChoicesListItem<FiatApiMode>(
+                  title: S.current.fiat_api,
+                  items: FiatApiMode.all,
+                  selectedItem: _settingsStore.fiatApiMode,
+                  onItemSelected: (FiatApiMode mode) => setFiatMode(mode),
+                ),
+              
+                ChoicesListItem<FiatApiMode>(
+                  title: S.current.exchange,
+                  items: FiatApiMode.all,
+                  selectedItem: _settingsStore.exchangeStatus,
+                  onItemSelected: (FiatApiMode mode) => _settingsStore.exchangeStatus = mode,
+              ),
       SwitcherListItem(
         title: S.current.add_custom_node,
         value: () => _addCustomNode,
@@ -34,7 +37,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     ];
   }
 
-  late List<SwitcherListItem> settings;
+  late List<SettingsListItem> settings;
 
   @observable
   bool _addCustomNode = false;
@@ -46,11 +49,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get addCustomNode => _addCustomNode;
 
   @action
-  void setFiatMode(bool value) {
-    if (value) {
-      _settingsStore.fiatApiMode = FiatApiMode.disabled;
-      return;
-    }
-    _settingsStore.fiatApiMode = FiatApiMode.enabled;
+  void setFiatMode(FiatApiMode value) {
+      _settingsStore.fiatApiMode = value;
   }
 }

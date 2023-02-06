@@ -1,7 +1,11 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -48,9 +52,14 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ...widget.privacySettingsViewModel.settings.map(
+            ...widget.privacySettingsViewModel.settings.whereType<ChoicesListItem<FiatApiMode>>().map(
               (item) => Observer(
-                builder: (_) => SettingsSwitcherCell(
+                builder: (_) =>  SettingsChoicesCell(item)
+              ),
+            ),
+            ...widget.privacySettingsViewModel.settings.whereType<SwitcherListItem>().map(
+              (item) => Observer(
+                builder: (_) =>  SettingsSwitcherCell(
                   title: item.title,
                   value: item.value(),
                   onValueChange: item.onValueChange,

@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dar
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
@@ -47,6 +48,9 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case  ExchangeProviderDescription.simpleSwap:
         _provider = SimpleSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.trocador:
+        _provider = TrocadorExchangeProvider();
         break;
     }
 

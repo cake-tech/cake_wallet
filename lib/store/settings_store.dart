@@ -31,7 +31,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialSaveRecipientAddress,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
-      required bool initialExchangeEnabled,
+      required FiatApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
@@ -53,7 +53,7 @@ abstract class SettingsStoreBase with Store {
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
     fiatApiMode = initialFiatMode,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
-    disableExchange = initialExchangeEnabled,
+    exchangeStatus = initialExchangeStatus,
     currentTheme = initialTheme,
     pinCodeLength = initialPinLength,
     languageCode = initialLanguageCode,
@@ -153,9 +153,9 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
     reaction(
-            (_) => disableExchange,
-            (bool disableExchange) => sharedPreferences.setBool(
-            PreferencesKey.disableExchangeKey, disableExchange));
+            (_) => exchangeStatus,
+            (FiatApiMode mode) => sharedPreferences.setInt(
+            PreferencesKey.exchangeStatusKey, mode.serialize()));
 
     this
         .nodes
@@ -192,7 +192,7 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
-  bool disableExchange;
+  FiatApiMode exchangeStatus;
 
   @observable
   ThemeBase currentTheme;
@@ -284,8 +284,9 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
-    final disableExchange = sharedPreferences
-            .getBool(PreferencesKey.disableExchangeKey) ?? false;
+    final exchangeStatus = FiatApiMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.exchangeStatusKey) ?? FiatApiMode.enabled.raw);
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
@@ -354,7 +355,7 @@ abstract class SettingsStoreBase with Store {
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-        initialExchangeEnabled: disableExchange,
+        initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
@@ -400,7 +401,9 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
-    disableExchange = sharedPreferences.getBool(PreferencesKey.disableExchangeKey) ?? disableExchange;
+    exchangeStatus = FiatApiMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.exchangeStatusKey) ?? FiatApiMode.enabled.raw);
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index

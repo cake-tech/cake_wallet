@@ -7,6 +7,8 @@ import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart'
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
+import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/trocador/trocador_request.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -60,7 +62,7 @@ abstract class ExchangeViewModelBase with Store {
       limitsState = LimitsInitialState(),
       receiveCurrency = wallet.currency,
       depositCurrency = wallet.currency,
-      providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()],
+      providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider(), TrocadorExchangeProvider()],
       selectedProviders = ObservableList<ExchangeProvider>() {
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
@@ -446,6 +448,18 @@ abstract class ExchangeViewModelBase with Store {
               amount: depositAmount.replaceAll(',', '.'),
               refundAddress: depositAddress,
               address: receiveAddress);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
+
+        if (provider is TrocadorExchangeProvider) {
+          request = TrocadorRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              fromAmount: depositAmount.replaceAll(',', '.'),
+              toAmount: receiveAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress,
+              isReverse: isFixedRateMode);
           amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
