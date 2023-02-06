@@ -37,9 +37,7 @@ class TransactionRow extends StatelessWidget {
                     color: Theme.of(context).textTheme!.overline!.decorationColor!
                 ),
                 child: Image.asset(
-                    direction == TransactionDirection.incoming
-                        ? 'assets/images/down_arrow.png'
-                        : 'assets/images/up_arrow.png'),
+                    direction.iconPath ?? ''),
               ),
               SizedBox(width: 12),
               Expanded(

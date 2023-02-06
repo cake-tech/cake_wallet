@@ -10,33 +10,10 @@ class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
       this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee, this.unlockTime);
 
-  MoneroTransactionInfo.fromMap(Map<String, Object?> map)
-      : id = (map['hash'] ?? '') as String,
-        height = (map['height'] ?? 0) as int,
-        direction =
-            parseTransactionDirectionFromNumber(map['direction'] as String) ??
-                TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
-        isPending = parseBoolFromString(map['isPending'] as String),
-        amount = map['amount'] as int,
-        accountIndex = int.parse(map['accountIndex'] as String),
-        addressIndex = map['addressIndex'] as int,
-        unlockTime = map['unlockTime'] as int,
-        key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int ?? 0 {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
-
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
         height = row.blockHeight,
-        direction = parseTransactionDirectionFromInt(row.direction) ??
-            TransactionDirection.incoming,
+        direction = TransactionDirection.parseFromInt(row.direction),
         date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
         isPending = row.isPending != 0,
         amount = row.getAmount(),
