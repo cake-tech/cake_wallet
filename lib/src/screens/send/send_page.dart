@@ -365,17 +365,15 @@ class SendPage extends BasePage {
     reaction((_) => sendViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            showPopUp<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertWithOneAction(
-                      alertTitle: S.of(context).error,
-                      alertContent: state.error,
-                      buttonText: S.of(context).ok,
-                      buttonAction: () => Navigator.of(context).pop());
-                });
-          }
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
         });
       }
 

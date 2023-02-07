@@ -120,6 +120,7 @@ class ExceptionHandler {
   static bool _ignoreError(String error) {
     return error.contains("errno = 103") || // SocketException: Software caused connection abort
         error.contains("errno = 9") || // SocketException: Bad file descriptor
+        error.contains("errno = 32") || // SocketException: Write failed (OS Error: Broken pipe)
         error.contains("errno = 54"); // SocketException: Connection reset by peer
   }
 }
