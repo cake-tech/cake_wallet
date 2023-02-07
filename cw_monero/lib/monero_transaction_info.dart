@@ -19,7 +19,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
-        unlockTime = row.unlockTime,
+        unlockTime = row.getUnlockTime(),
         key = getTxKey(row.getHash()),
         fee = row.fee {
           additionalInfo = <String, dynamic>{
@@ -59,14 +59,13 @@ class MoneroTransactionInfo extends TransactionInfo {
 
   @override
   String? unlockTimeFormatted() {
-    final formattedTime = unlockTime * 2;
     if (direction == TransactionDirection.outgoing || unlockTime == 0) {
       return null;
     }
 
-    if (formattedTime > 500000) {
+    if (unlockTime > 500000) {
       return '>1 year';
     }
-    return '~ $formattedTime minutes';
+    return '~ $unlockTime minutes';
   }
 }
