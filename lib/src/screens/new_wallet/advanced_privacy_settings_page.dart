@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
-import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -49,38 +48,43 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(bottom: 24),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ...widget.privacySettingsViewModel.settings.whereType<ChoicesListItem<FiatApiMode>>().map(
-              (item) => Observer(
-                builder: (_) =>  SettingsChoicesCell(item)
-              ),
-            ),
-            ...widget.privacySettingsViewModel.settings.whereType<SwitcherListItem>().map(
-              (item) => Observer(
-                builder: (_) =>  SettingsSwitcherCell(
-                  title: item.title,
-                  value: item.value(),
-                  onValueChange: item.onValueChange,
+        content: Observer(
+          builder: (_) => Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SettingsChoicesCell(
+                ChoicesListItem<FiatApiMode>(
+                  title: S.current.fiat_api,
+                  items: FiatApiMode.all,
+                  selectedItem: widget.privacySettingsViewModel.fiatApi,
+                  onItemSelected: (FiatApiMode mode) =>
+                      widget.privacySettingsViewModel.setFiatMode(mode),
                 ),
               ),
-            ),
-            Observer(
-              builder: (_) {
-                if (widget.privacySettingsViewModel.addCustomNode) {
-                  return Padding(
-                    padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                    child: NodeForm(
-                      formKey: _formKey,
-                      nodeViewModel: widget.nodeViewModel,
-                    ),
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
-          ],
+              SettingsChoicesCell(
+                ChoicesListItem<FiatApiMode>(
+                  title: S.current.exchange,
+                  items: FiatApiMode.all,
+                  selectedItem: widget.privacySettingsViewModel.exchangeStatus,
+                  onItemSelected: (FiatApiMode mode) =>
+                      widget.privacySettingsViewModel.setEnableExchange(mode),
+                ),
+              ),
+              SettingsSwitcherCell(
+                title: S.current.add_custom_node,
+                value: widget.privacySettingsViewModel.addCustomNode,
+                onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
+              ),
+              if (widget.privacySettingsViewModel.addCustomNode)
+                Padding(
+                  padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                  child: NodeForm(
+                    formKey: _formKey,
+                    nodeViewModel: widget.nodeViewModel,
+                  ),
+                )
+            ],
+          ),
         ),
         bottomSectionPadding: EdgeInsets.all(24),
         bottomSection: Column(
