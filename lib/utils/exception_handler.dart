@@ -121,6 +121,10 @@ class ExceptionHandler {
     return error.contains("errno = 103") || // SocketException: Software caused connection abort
         error.contains("errno = 9") || // SocketException: Bad file descriptor
         error.contains("errno = 32") || // SocketException: Write failed (OS Error: Broken pipe)
-        error.contains("errno = 54"); // SocketException: Connection reset by peer
+        error.contains("errno = 60") || // SocketException: Operation timed out
+        error.contains("errno = 54") || // SocketException: Connection reset by peer
+        error.contains("errno = 49") || // SocketException: Can't assign requested address
+        error.contains("PERMISSION_NOT_GRANTED") ||
+        error.contains("errno = 28"); // OS Error: No space left on device
   }
 }
