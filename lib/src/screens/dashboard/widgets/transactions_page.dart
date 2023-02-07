@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -50,17 +51,23 @@ class TransactionsPage extends StatelessWidget {
 
                           return Observer(
                               builder: (_) => TransactionRow(
-                              onTap: () => Navigator.of(context).pushNamed(
-                                  Routes.transactionDetails,
-                                  arguments: transaction),
-                              direction: transaction.direction,
-                              formattedDate: DateFormat('HH:mm')
-                                  .format(transaction.date),
-                              formattedAmount: item.formattedCryptoAmount,
-                              formattedFiatAmount:
-                              dashboardViewModel.balanceViewModel.isFiatDisabled
-                                  ? '' : item.formattedFiatAmount,
-                              isPending: transaction.isPending));
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                  icon: transaction.direction.iconPath ?? '',
+                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
+                                  formattedAmount: item.formattedCryptoAmount,
+                                  formattedFiatAmount:
+                                  dashboardViewModel.balanceViewModel.isFiatDisabled
+                                      ? ''
+                                      : item.formattedFiatAmount,
+                                  title: (transaction.direction == TransactionDirection.incoming
+                                      ? S.of(context).received
+                                      : S.of(context).sent) +
+                                      (transaction.isLocked
+                                          ? ' ' + S.of(context).locked
+                                          : (transaction.isPending
+                                          ? S.of(context).pending
+                                          : ''))));
                         }
 
                         if (item is TradeListItem) {

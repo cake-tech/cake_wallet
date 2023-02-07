@@ -684,5 +684,7 @@
   "send_to_this_address" : "Invia ${currency} ${tag}a questo indirizzo",
   "arrive_in_this_address" : "${currency} ${tag}arriverà a questo indirizzo",
   "do_not_send": "Non inviare",
-  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju."
+  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju.",
+  "unlock_time": "Tempo di sblocco",
+  "locked": "(bloccato)"
 }

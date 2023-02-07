@@ -22,12 +22,12 @@ class MoneroTransactionInfo extends TransactionInfo {
         unlockTime = row.getUnlockTime(),
         key = getTxKey(row.getHash()),
         fee = row.fee {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+    additionalInfo = <String, dynamic>{
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   final String id;
   final int height;
@@ -68,4 +68,7 @@ class MoneroTransactionInfo extends TransactionInfo {
     }
     return '~ $unlockTime minutes';
   }
+
+  @override
+  bool get isLocked => direction == TransactionDirection.incoming && unlockTime > 0;
 }

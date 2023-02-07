@@ -237,4 +237,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
   @override
   String? unlockTimeFormatted() => null;
+
+  @override
+  bool get isLocked => false;
 }

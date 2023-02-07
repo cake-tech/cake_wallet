@@ -8,7 +8,7 @@ import 'package:cw_haven/api/transaction_history.dart';
 
 class HavenTransactionInfo extends TransactionInfo {
   HavenTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
+      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee, this.unlockTime);
 
     HavenTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
@@ -19,6 +19,7 @@ class HavenTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
+        unlockTime = row.getUnlockTime(),
         key = null, //getTxKey(row.getHash()),
         fee = row.fee,
         assetType = row.getAssetType();
@@ -34,6 +35,7 @@ class HavenTransactionInfo extends TransactionInfo {
   final int addressIndex;
   late String recipientAddress;
   late String assetType;
+  final int unlockTime;
   String? _fiatAmount;
   String? key;
 
@@ -52,5 +54,17 @@ class HavenTransactionInfo extends TransactionInfo {
       '${formatAmount(moneroAmountToString(amount: fee))} $assetType';
 
   @override
-  String? unlockTimeFormatted() => null;
+  String? unlockTimeFormatted() {
+    if (direction == TransactionDirection.outgoing || unlockTime == 0) {
+      return null;
+    }
+
+    if (unlockTime > 500000) {
+      return '>1 year';
+    }
+    return '~ $unlockTime minutes';
+  }
+
+  @override
+  bool get isLocked => direction == TransactionDirection.incoming && unlockTime > 0;
 }
