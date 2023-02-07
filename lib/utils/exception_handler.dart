@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
@@ -59,7 +61,7 @@ class ExceptionHandler {
     }
   }
 
-  static void onError(FlutterErrorDetails errorDetails) {
+  static void onError(FlutterErrorDetails errorDetails) async {
     if (kDebugMode) {
       FlutterError.presentError(errorDetails);
       return;
@@ -71,10 +73,21 @@ class ExceptionHandler {
 
     _saveException(errorDetails.exception.toString(), errorDetails.stack);
 
-    if (_hasError) {
+    final sharedPrefs = await SharedPreferences.getInstance();
+
+    final lastPopupDate =
+        DateTime.tryParse(sharedPrefs.getString(PreferencesKey.lastPopupDate) ?? '') ??
+            DateTime.parse("2001-01-01");
+
+    final durationSinceLastReport = DateTime.now().difference(lastPopupDate).inDays;
+
+    // cool-down duration to be 7 days between reports
+    if (_hasError || durationSinceLastReport < 7) {
       return;
     }
     _hasError = true;
+
+    sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
