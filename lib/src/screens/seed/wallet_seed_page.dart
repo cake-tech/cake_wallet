@@ -159,8 +159,14 @@ class WalletSeedPage extends BasePage {
                                 child: Container(
                               padding: EdgeInsets.only(right: 8.0),
                               child: PrimaryButton(
-                                  onPressed: () =>
-                                    Share.share(walletSeedViewModel.seed),
+                                  onPressed: () {
+                                    final box = context.findRenderObject() as RenderBox?;
+
+                                    Share.share(
+                                      walletSeedViewModel.seed,
+                                      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+                                    );
+                                  },
                                   text: S.of(context).save,
                                   color: Colors.green,
                                   textColor: Colors.white),

@@ -100,7 +100,14 @@ class AddressPage extends BasePage {
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         iconSize: 25,
-        onPressed: () => Share.share(addressListViewModel.address.address),
+        onPressed: () {
+          final box = context.findRenderObject() as RenderBox?;
+
+          Share.share(
+            addressListViewModel.address.address,
+            sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+          );
+        },
         icon: shareImage,
       ),
     ) : null;
