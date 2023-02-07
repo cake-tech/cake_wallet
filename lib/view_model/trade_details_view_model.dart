@@ -23,16 +23,15 @@ import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.
 import 'package:url_launcher/url_launcher.dart';
 part 'trade_details_view_model.g.dart';
 
-class TradeDetailsViewModel = TradeDetailsViewModelBase
-    with _$TradeDetailsViewModel;
+class TradeDetailsViewModel = TradeDetailsViewModelBase with _$TradeDetailsViewModel;
 
 abstract class TradeDetailsViewModelBase with Store {
   TradeDetailsViewModelBase({
     required Trade tradeForDetails,
     required this.trades,
-    required this.settingsStore})
-  : items = ObservableList<StandartListItem>(),
-    trade = tradeForDetails {
+    required this.settingsStore,
+  })  : items = ObservableList<StandartListItem>(),
+        trade = tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider();
@@ -46,7 +45,7 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();
         break;
-      case  ExchangeProviderDescription.simpleSwap:
+      case ExchangeProviderDescription.simpleSwap:
         _provider = SimpleSwapExchangeProvider();
         break;
       case ExchangeProviderDescription.trocador:
@@ -100,12 +99,7 @@ abstract class TradeDetailsViewModelBase with Store {
     items.clear();
 
     items.add(
-        DetailsListStatusItem(
-          title: S.current.trade_details_state,
-          value: trade.state != null
-              ? trade.state.toString()
-              : S.current.trade_details_fetching)
-    );
+        DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
     items.add(TradeDetailsListCardItem.tradeDetails(
       id: trade.id,
@@ -118,15 +112,11 @@ abstract class TradeDetailsViewModelBase with Store {
       },
     ));
 
-    if (trade.provider != null) {
-      items.add(StandartListItem(
-          title: S.current.trade_details_provider,
-          value: trade.provider.toString()));
-    }
+    items.add(StandartListItem(
+        title: S.current.trade_details_provider, value: trade.provider.toString()));
 
     if (trade.provider == ExchangeProviderDescription.changeNow) {
-      final buildURL =
-          'https://changenow.io/exchange/txs/${trade.id.toString()}';
+      final buildURL = 'https://changenow.io/exchange/txs/${trade.id.toString()}';
       items.add(TrackTradeListItem(
           title: 'Track',
           value: buildURL,
@@ -137,14 +127,25 @@ abstract class TradeDetailsViewModelBase with Store {
 
     if (trade.provider == ExchangeProviderDescription.sideShift) {
       final buildURL = 'https://sideshift.ai/orders/${trade.id.toString()}';
-      items.add(TrackTradeListItem(
-          title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
     }
 
     if (trade.provider == ExchangeProviderDescription.simpleSwap) {
       final buildURL = 'https://simpleswap.io/exchange?id=${trade.id.toString()}';
-      items.add(TrackTradeListItem(
-          title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+    }
+
+    if (trade.provider == ExchangeProviderDescription.trocador) {
+      final buildURL = 'https://trocador.app/en/checkout/${trade.id.toString()}';
+      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+
+      items.add(StandartListItem(
+          title: '${trade.providerName} ${S.current.id.toUpperCase()}',
+          value: trade.providerId ?? ''));
+
+      if (trade.password != null && trade.password!.isNotEmpty)
+        items.add(StandartListItem(
+            title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
     }
   }
 }

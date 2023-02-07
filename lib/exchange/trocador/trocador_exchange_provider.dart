@@ -113,6 +113,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final state = TradeState.deserialize(raw: status);
     final payoutAddress = responseJSON['address_user'] as String;
     final date = responseJSON['date'] as String;
+    final password = responseJSON['password'] as String;
+    final providerId = responseJSON['id_provider'] as String;
+    final providerName = responseJSON['provider'] as String;
 
     return Trade(
         id: id,
@@ -122,6 +125,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         inputAddress: inputAddress,
         refundAddress: refundAddress,
         state: state,
+        password: password,
+        providerId: providerId,
+        providerName: providerName,
         createdAt: DateTime.tryParse(date)?.toLocal(),
         amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
         payoutAddress: payoutAddress);
@@ -208,6 +214,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final to = CryptoCurrency.fromString(responseJSON['ticker_to'] as String);
       final state = TradeState.deserialize(raw: responseJSON['status'] as String);
       final date = DateTime.parse(responseJSON['date'] as String);
+      final password = responseJSON['password'] as String;
+      final providerId = responseJSON['id_provider'] as String;
+      final providerName = responseJSON['provider'] as String;
 
       return Trade(
         id: id,
@@ -220,6 +229,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         amount: fromAmount,
         state: state,
         payoutAddress: payoutAddress,
+        password: password,
+        providerId: providerId,
+        providerName: providerName,
       );
     });
   }
