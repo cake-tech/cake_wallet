@@ -133,6 +133,5 @@ assets/images/app_logo.png
 
 /pubspec.yaml
 /pubspec.lock
-/ios/podfile.lock
 /android/app.properties
 /android/app/src/main/AndroidManifest.xml
