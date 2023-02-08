@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
-  static const coolDownDurationInDays = 7;
+  static const _coolDownDurationInDays = 7;
 
   static void _saveException(String? error, StackTrace? stackTrace) async {
     final appDocDir = await getApplicationDocumentsDirectory();
@@ -78,11 +78,11 @@ class ExceptionHandler {
 
     final lastPopupDate =
         DateTime.tryParse(sharedPrefs.getString(PreferencesKey.lastPopupDate) ?? '') ??
-            DateTime.now().subtract(Duration(days: coolDownDurationInDays + 1));
+            DateTime.now().subtract(Duration(days: _coolDownDurationInDays + 1));
 
     final durationSinceLastReport = DateTime.now().difference(lastPopupDate).inDays;
 
-    if (_hasError || durationSinceLastReport < coolDownDurationInDays) {
+    if (_hasError || durationSinceLastReport < _coolDownDurationInDays) {
       return;
     }
     _hasError = true;
