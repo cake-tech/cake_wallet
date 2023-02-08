@@ -305,7 +305,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     _effectsInstalled = true;
   }
 
-  transactionStatePopup() {
+  void transactionStatePopup() {
     showPopUp<void>(
         context: context,
         builder: (BuildContext popupContext) {

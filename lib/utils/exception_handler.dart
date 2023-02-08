@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
+  static const coolDownDurationInDays = 7;
 
   static void _saveException(String? error, StackTrace? stackTrace) async {
     final appDocDir = await getApplicationDocumentsDirectory();
@@ -77,12 +78,11 @@ class ExceptionHandler {
 
     final lastPopupDate =
         DateTime.tryParse(sharedPrefs.getString(PreferencesKey.lastPopupDate) ?? '') ??
-            DateTime.parse("2001-01-01");
+            DateTime.now().subtract(Duration(days: coolDownDurationInDays + 1));
 
     final durationSinceLastReport = DateTime.now().difference(lastPopupDate).inDays;
 
-    // cool-down duration to be 7 days between reports
-    if (_hasError || durationSinceLastReport < 7) {
+    if (_hasError || durationSinceLastReport < coolDownDurationInDays) {
       return;
     }
     _hasError = true;
@@ -117,14 +117,17 @@ class ExceptionHandler {
   }
 
   /// Ignore User related errors or system errors
-  static bool _ignoreError(String error) {
-    return error.contains("errno = 103") || // SocketException: Software caused connection abort
-        error.contains("errno = 9") || // SocketException: Bad file descriptor
-        error.contains("errno = 32") || // SocketException: Write failed (OS Error: Broken pipe)
-        error.contains("errno = 60") || // SocketException: Operation timed out
-        error.contains("errno = 54") || // SocketException: Connection reset by peer
-        error.contains("errno = 49") || // SocketException: Can't assign requested address
-        error.contains("PERMISSION_NOT_GRANTED") ||
-        error.contains("errno = 28"); // OS Error: No space left on device
-  }
+  static bool _ignoreError(String error) =>
+      _ignoredErrors.any((element) => error.contains(element));
+
+  static const List<String> _ignoredErrors = const [
+    "errno = 103", // SocketException: Software caused connection abort
+    "errno = 9", // SocketException: Bad file descriptor
+    "errno = 32", // SocketException: Write failed (OS Error: Broken pipe)
+    "errno = 60", // SocketException: Operation timed out
+    "errno = 54", // SocketException: Connection reset by peer
+    "errno = 49", // SocketException: Can't assign requested address
+    "errno = 28", // OS Error: No space left on device
+    "PERMISSION_NOT_GRANTED",
+  ];
 }

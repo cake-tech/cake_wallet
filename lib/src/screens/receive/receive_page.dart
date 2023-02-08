@@ -1,13 +1,11 @@
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/di.dart';
@@ -102,11 +100,9 @@ class ReceivePage extends BasePage {
             splashColor: Colors.transparent,
             iconSize: 25,
             onPressed: () {
-              final box = context.findRenderObject() as RenderBox?;
-
-              Share.share(
-                addressListViewModel.address.address,
-                sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+              ShareUtil.share(
+                text: addressListViewModel.address.address,
+                context: context,
               );
             },
             icon: shareImage
