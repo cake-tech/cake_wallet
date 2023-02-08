@@ -6,7 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import cw_monero
-import path_provider_macos
+import path_provider_foundation
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   CwMoneroPlugin.register(with: registry.registrar(forPlugin: "CwMoneroPlugin"))

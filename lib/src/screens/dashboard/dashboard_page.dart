@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
@@ -25,8 +26,33 @@ import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 
-class DashboardPage extends BasePage {
+class DashboardPage extends StatelessWidget {
   DashboardPage({
+    required this.balancePage,
+    required this.walletViewModel,
+    required this.addressListViewModel,
+  });
+
+  final BalancePage balancePage;
+  final DashboardViewModel walletViewModel;
+  final WalletAddressListViewModel addressListViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: DesktopSidebarWrapper(
+        child: _DashboardPageView(
+          balancePage: balancePage,
+          walletViewModel: walletViewModel,
+          addressListViewModel: addressListViewModel,
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardPageView extends BasePage {
+  _DashboardPageView({
     required this.balancePage,
     required this.walletViewModel,
     required this.addressListViewModel,
@@ -128,7 +154,7 @@ class DashboardPage extends BasePage {
                       dotHeight: 6.0,
                       dotColor: Theme.of(context).indicatorColor,
                       activeDotColor:
-                          Theme.of(context).accentTextTheme.headline4!.backgroundColor!),
+                          Theme.of(context).accentTextTheme!.headline4!.backgroundColor!),
                 )),
             Observer(builder: (_) {
               return ClipRect(
