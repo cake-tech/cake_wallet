@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -42,10 +46,15 @@ class MainActions {
 
       switch (walletType) {
         case WalletType.bitcoin:
-          Navigator.of(context).pushNamed(Routes.onramperPage);
-          break;
         case WalletType.litecoin:
-          Navigator.of(context).pushNamed(Routes.onramperPage);
+          if (Platform.isIOS || Platform.isAndroid) {
+            Navigator.of(context).pushNamed(Routes.onramperPage);
+          } else {
+            final uri = getIt
+                .get<OnRamperBuyProvider>()
+                .requestUrl(Theme.of(context).brightness == Brightness.dark);
+            await launchUrl(uri);
+          }
           break;
         default:
           await showPopUp<void>(
@@ -104,7 +113,7 @@ class MainActions {
             currency: viewModel.wallet.currency,
             refundWalletAddress: viewModel.wallet.walletAddresses.address,
           );
-          await launch(uri);
+          await launchUrl(uri);
           break;
         default:
           await showPopUp<void>(
