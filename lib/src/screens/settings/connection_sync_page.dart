@@ -36,8 +36,7 @@ class ConnectionSyncPage extends BasePage {
             handler: (context) => _presentReconnectAlert(context),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          if (dashboardViewModel.type != WalletType.bitcoin &&
-              dashboardViewModel.type != WalletType.litecoin)
+          if (dashboardViewModel.hasRescan)
             SettingsCellWithArrow(
               title: S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
