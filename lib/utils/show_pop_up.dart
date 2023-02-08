@@ -8,7 +8,7 @@ Future<T?> showPopUp<T>({
   bool useSafeArea = false,
   bool useRootNavigator = true,
   RouteSettings? routeSettings
-}) async {
+}) {
   return showDialog<T>(
       context: context,
       builder: builder,
