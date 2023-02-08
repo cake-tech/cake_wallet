@@ -5,6 +5,7 @@ import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/receive/anon_invoice_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -14,6 +15,8 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/address_page_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
@@ -360,11 +363,20 @@ Future setup(
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  
+  getIt.registerFactory<AddressPageViewModel>(() => AddressPageViewModel());
+
+  getIt.registerFactory<AnonInvoicePageViewModel>(() => AnonInvoicePageViewModel());
+
+  getIt.registerFactory<AnonPayInvoicePage>(() => AnonPayInvoicePage(
+       getIt.get<AnonInvoicePageViewModel>(), getIt.get<AddressPageViewModel>()));  
+  
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<AddressPage>(() => AddressPage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-      walletViewModel: getIt.get<DashboardViewModel>()));
+      walletViewModel: getIt.get<DashboardViewModel>(),
+      addressPageViewModel: getIt.get<AddressPageViewModel>()));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) => WalletAddressEditOrCreateViewModel(
