@@ -9,15 +9,12 @@ Future<T?> showPopUp<T>({
   bool useRootNavigator = true,
   RouteSettings? routeSettings
 }) async {
-  if (context.mounted) {
-    return showDialog<T>(
-        context: context,
-        builder: builder,
-        barrierDismissible: barrierDismissible,
-        barrierColor: barrierColor,
-        useSafeArea: useSafeArea,
-        useRootNavigator: useRootNavigator,
-        routeSettings: routeSettings);
-  }
-  return null;
+  return showDialog<T>(
+      context: context,
+      builder: builder,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      useSafeArea: useSafeArea,
+      useRootNavigator: useRootNavigator,
+      routeSettings: routeSettings);
 }
