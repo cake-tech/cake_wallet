@@ -49,6 +49,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final sideMenu = SideMenuController();
   @override
   void initState() {
+    SideMenuGlobal.controller = sideMenu;
     sideMenu.addListener((p0) {
       page.jumpToPage(p0);
     });
@@ -73,7 +74,6 @@ class _DashboardPageState extends State<DashboardPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SideMenu(
-              controller: sideMenu,
               topItems: [
                 SideMenuItem(
                   iconPath: 'assets/images/wallet_outline.png',
@@ -243,7 +243,7 @@ class _DashboardPage extends BasePage {
                       dotHeight: 6.0,
                       dotColor: Theme.of(context).indicatorColor,
                       activeDotColor:
-                          Theme.of(context).accentTextTheme!.headline4!.backgroundColor!),
+                          Theme.of(context).accentTextTheme.headline4!.backgroundColor!),
                 )),
             Observer(builder: (_) {
               return ClipRect(
