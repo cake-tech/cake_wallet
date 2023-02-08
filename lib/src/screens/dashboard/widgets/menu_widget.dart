@@ -1,9 +1,9 @@
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
+import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 // FIXME: terrible design.
@@ -22,7 +22,7 @@ class MenuWidgetState extends State<MenuWidget> {
       : this.menuWidth = 0,
         this.screenWidth = 0,
         this.screenHeight = 0,
-        this.headerHeight = 10,
+        this.headerHeight = 120,
         this.tileHeight = 60,
         this.fromTopEdge = 50,
         this.fromBottomEdge = 25,
@@ -81,7 +81,7 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = WalletMenu.items.length;
+    final itemCount = SettingActions.all.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
         color: Theme.of(context).accentTextTheme.overline!.decorationColor!);
@@ -165,21 +165,19 @@ class MenuWidgetState extends State<MenuWidget> {
 
                         index--;
 
-                        final item = WalletMenu.items[index];
-                        final title = item.title;
-                        final image = item.image;
+                        final item = SettingActions.all[index];
+                       
                         final isLastTile = index == itemCount - 1;
 
                         return SettingActionButton(
                           isLastTile: isLastTile,
-                          headerHeight: headerHeight,
                           tileHeight: tileHeight,
                           selectionActive: false,
                           fromBottomEdge: fromBottomEdge,
                           fromTopEdge: fromTopEdge,
-                          onTap: () => WalletMenu.action(index, context),
-                          image: image,
-                          title: title,
+                          onTap: () => item.onTap.call(context),
+                          image: item.image,
+                          title: item.name,
                         );
                       },
                       separatorBuilder: (_, index) => Container(

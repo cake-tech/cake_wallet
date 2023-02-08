@@ -11,7 +11,6 @@ class SettingActionButton extends StatelessWidget {
   final String title;
   final double fromBottomEdge;
   final double fromTopEdge;
-  final double headerHeight;
   final double tileHeight;
   const SettingActionButton({
     super.key,
@@ -22,7 +21,6 @@ class SettingActionButton extends StatelessWidget {
     required this.onTap,
     required this.image,
     required this.title,
-    this.headerHeight = 120,
     this.tileHeight = 60,
     this.fromTopEdge = 50,
     this.fromBottomEdge = 25,
@@ -39,13 +37,12 @@ class SettingActionButton extends StatelessWidget {
       onTap: onTap,
       hoverColor: Colors.transparent,
       child: Container(
-        height: isLastTile ? headerHeight : tileHeight,
+        height:  tileHeight,
         padding: isLastTile
             ? EdgeInsets.only(
                 left: 24,
                 right: 24,
                 top: fromBottomEdge,
-                //bottom: fromTopEdge
               )
             : EdgeInsets.only(left: 24, right: 24),
         alignment: isLastTile ? Alignment.topLeft : null,

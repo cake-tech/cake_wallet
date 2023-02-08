@@ -1,8 +1,8 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
-import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
+import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
@@ -24,7 +24,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
 
   initState() {
     super.initState();
-    itemCount = WalletMenu.items.length;
+    itemCount = SettingActions.all.length;
     sideMenu.addListener((index) {
       setState(() {
         isTapped = true;
@@ -56,9 +56,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                       child: ListView.separated(
                         padding: EdgeInsets.only(top: 0),
                         itemBuilder: (_, index) {
-                          final item = WalletMenu.items[index];
-                          final title = item.title;
-                          final image = item.image;
+                          final item = SettingActions.all[index];
                           final isLastTile = index == itemCount;
                           return SettingActionButton(
                             isLastTile: isLastTile,
@@ -70,11 +68,11 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                                 final settingContext =
                                     _settingsNavigatorKey.currentState?.context ?? context;
                                 sideMenu.changePage(index);
-                                WalletMenu.action(index, settingContext);
+                                item.onTap.call(settingContext);
                               }
                             },
-                            image: image,
-                            title: title,
+                            image: item.image,
+                            title: item.name,
                           );
                         },
                         separatorBuilder: (_, index) => Container(
