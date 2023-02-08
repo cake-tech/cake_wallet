@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
@@ -10,6 +11,8 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
+
+import '../../generated/i18n.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
@@ -35,6 +38,34 @@ class TransactionListItem extends ActionListItem with Keyable {
         ? '---'
         : transaction.amountFormatted();
   }
+  String get formattedTitle {
+    if (transaction.direction == TransactionDirection.incoming) {
+      return S.current.received;
+    }
+
+    return S.current.sent;
+  }
+
+  String get formattedPendingStatus {
+    if (transaction.confirmations == 0) {
+      return S.current.pending;
+    }
+    if (transaction.confirmations > 0 && transaction.height < 10) {
+      return ' (${transaction.confirmations}/10)';
+    }
+    return '';
+  }
+
+  String get formattedStatus {
+    if (transaction.direction == TransactionDirection.incoming) {
+      if (balanceViewModel.wallet.type == WalletType.monero ||
+          balanceViewModel.wallet.type == WalletType.haven) {
+          return transaction.isPending ? formattedPendingStatus : '';
+        }
+        return transaction.isPending ? S.current.pending : '';
+      }
+    return transaction.isPending ? S.current.pending : '';
+    }
 
   String get formattedFiatAmount {
     var amount = '';
