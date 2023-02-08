@@ -42,7 +42,7 @@ abstract class SupportViewModelBase with Store {
           title: 'Telegram',
           icon: 'assets/images/Telegram.png',
           linkTitle: '@cakewallet_bot',
-          link: 'https:t.me/cakewallet_bot'),
+          link: 'https://t.me/cakewallet_bot'),
       LinkListItem(
           title: 'Twitter',
           icon: 'assets/images/Twitter.png',
@@ -84,7 +84,7 @@ abstract class SupportViewModelBase with Store {
       //    link: 'mailto:support@y.at')
   ];
 
-  static const url = 'https://cakewallet.com/guide/';
+  static const url = 'https://guides.cakewallet.com';
 
   List<SettingsListItem> items;
 }
