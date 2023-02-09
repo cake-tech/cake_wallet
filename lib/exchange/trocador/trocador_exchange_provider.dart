@@ -252,12 +252,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   String get title => 'Trocador';
 
   String _networkFor(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.usdt:
-        return CryptoCurrency.btc.title.toLowerCase();
-      default:
-        return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
-    }
+    return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
   }
 
   String _normalizeTag(String tag) {
