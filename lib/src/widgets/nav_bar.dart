@@ -66,14 +66,17 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
       return PreferredSize(
         preferredSize: Size.fromHeight(height),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            if (leading != null) Flexible(child: leading!),
-            if (middle != null) middle!,
-            if (trailing != null) trailing!,
-          ],
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(end: 24),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (leading != null) Flexible(child: leading!),
+              if (middle != null) middle!,
+              if (trailing != null) trailing!,
+            ],
+          ),
         ),
       );
     }
