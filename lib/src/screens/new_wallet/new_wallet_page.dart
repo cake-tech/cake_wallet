@@ -24,18 +24,14 @@ class NewWalletPage extends BasePage {
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
-  final walletNameLightImage =
-      Image.asset('assets/images/wallet_name_light.png');
+  final walletNameLightImage = Image.asset('assets/images/wallet_name_light.png');
 
   @override
   String get title => S.current.new_wallet;
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM,
-      currentTheme.type == ThemeType.dark
-          ? walletNameImage
-          : walletNameLightImage);
+      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage);
 }
 
 class WalletNameForm extends StatefulWidget {
@@ -50,11 +46,11 @@ class WalletNameForm extends StatefulWidget {
 
 class _WalletNameFormState extends State<WalletNameForm> {
   _WalletNameFormState(this._walletNewVM)
-    : _formKey = GlobalKey<FormState>(),
-      _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
-      _controller = TextEditingController();
+      : _formKey = GlobalKey<FormState>(),
+        _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
+        _controller = TextEditingController();
 
-  static const aspectRatioImage = 1.22;
+  // static const aspectRatioImage = 1.22;
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
@@ -64,11 +60,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   @override
   void initState() {
-    _stateReaction ??=
-        reaction((_) => _walletNewVM.state, (ExecutionState state) {
+    _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(context)
-            .pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
+        Navigator.of(context).pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
       }
 
       if (state is FailureState) {
@@ -94,14 +88,12 @@ class _WalletNameFormState extends State<WalletNameForm> {
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          content:
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          content: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             Padding(
               padding: EdgeInsets.only(left: 12, right: 12),
-              child: AspectRatio(
-                  aspectRatio: aspectRatioImage,
-                  child:
-                      FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+              child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 24),
@@ -117,30 +109,21 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w600,
-                          color:
-                              Theme.of(context).primaryTextTheme!.headline6!.color!),
+                          color: Theme.of(context).primaryTextTheme!.headline6!.color!),
                       decoration: InputDecoration(
                         hintStyle: TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .headline2!
-                                .color!),
+                            color: Theme.of(context).accentTextTheme!.headline2!.color!),
                         hintText: S.of(context).wallet_name,
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .headline2!
-                                    .decorationColor!,
+                                color:
+                                    Theme.of(context).accentTextTheme!.headline2!.decorationColor!,
                                 width: 1.0)),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
-                              color: Theme.of(context)
-                                  .accentTextTheme!
-                                  .headline2!
-                                  .decorationColor!,
+                              color: Theme.of(context).accentTextTheme!.headline2!.decorationColor!,
                               width: 1.0),
                         ),
                         suffixIcon: IconButton(
@@ -165,10 +148,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             height: 34,
                             child: Image.asset(
                               'assets/images/refresh_icon.png',
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headline4!
-                                  .decorationColor!,
+                              color:
+                                  Theme.of(context).primaryTextTheme!.headline4!.decorationColor!,
                             ),
                           ),
                         ),
@@ -194,13 +175,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: SeedLanguageSelector(
-                    key: _languageSelectorKey,
-                    initialSelected: defaultSeedLanguage),
+                    key: _languageSelectorKey, initialSelected: defaultSeedLanguage),
               )
             ]
           ]),
-          bottomSectionPadding:
-              EdgeInsets.all(24),
+          bottomSectionPadding: EdgeInsets.all(24),
           bottomSection: Column(
             children: [
               Observer(

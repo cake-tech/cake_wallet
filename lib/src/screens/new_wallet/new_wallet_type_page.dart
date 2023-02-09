@@ -13,23 +13,19 @@ class NewWalletTypePage extends BasePage {
 
   final void Function(BuildContext, WalletType) onTypeSelected;
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
-  final walletTypeLightImage =
-      Image.asset('assets/images/wallet_type_light.png');
+  final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
 
   @override
   String get title => S.current.wallet_list_restore_wallet;
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-    onTypeSelected: onTypeSelected,
-    walletImage: currentTheme.type == ThemeType.dark
-      ? walletTypeImage
-      : walletTypeLightImage);
+      onTypeSelected: onTypeSelected,
+      walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage);
 }
 
 class WalletTypeForm extends StatefulWidget {
-  WalletTypeForm({required this.onTypeSelected,
-       required this.walletImage});
+  WalletTypeForm({required this.onTypeSelected, required this.walletImage});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
   final Image walletImage;
@@ -39,22 +35,16 @@ class WalletTypeForm extends StatefulWidget {
 }
 
 class WalletTypeFormState extends State<WalletTypeForm> {
-  WalletTypeFormState()
-    : types = availableWalletTypes; 
+  WalletTypeFormState() : types = availableWalletTypes;
 
   static const aspectRatioImage = 1.22;
 
-  final moneroIcon =
-      Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
-  final bitcoinIcon =
-      Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
-  final litecoinIcon =
-      Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
+  final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
+  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
-  final walletTypeLightImage =
-      Image.asset('assets/images/wallet_type_light.png');
-  final havenIcon =
-      Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
+  final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
+  final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
 
   WalletType? selected;
   List<WalletType> types;
@@ -74,9 +64,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(left: 12, right: 12),
-            child: AspectRatio(
-                aspectRatio: aspectRatioImage,
-                child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: FittedBox(child: widget.walletImage, fit: BoxFit.fitWidth),
+            ),
           ),
           Padding(
             padding: EdgeInsets.only(top: 48),
@@ -121,7 +112,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       case WalletType.haven:
         return havenIcon;
       default:
-        throw Exception('_iconFor: Incorrect Wallet Type. Cannot find icon for Wallet Type: ${type.toString()}');
+        throw Exception(
+            '_iconFor: Incorrect Wallet Type. Cannot find icon for Wallet Type: ${type.toString()}');
     }
   }
 
