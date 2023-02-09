@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -12,7 +13,6 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
 
-import '../../generated/i18n.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
@@ -47,10 +47,10 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedPendingStatus {
-    if (transaction.confirmations == 0) {
+    if (transaction.confirmations == 0 || transaction.isPending) {
       return S.current.pending;
     }
-    if (transaction.confirmations > 0 && transaction.height < 10) {
+    if (transaction.confirmations > 0 && transaction.confirmations < 10) {
       return ' (${transaction.confirmations}/10)';
     }
     return '';
@@ -60,9 +60,8 @@ class TransactionListItem extends ActionListItem with Keyable {
     if (transaction.direction == TransactionDirection.incoming) {
       if (balanceViewModel.wallet.type == WalletType.monero ||
           balanceViewModel.wallet.type == WalletType.haven) {
-          return transaction.isPending ? formattedPendingStatus : '';
+          return formattedPendingStatus;
         }
-        return transaction.isPending ? S.current.pending : '';
       }
     return transaction.isPending ? S.current.pending : '';
     }
