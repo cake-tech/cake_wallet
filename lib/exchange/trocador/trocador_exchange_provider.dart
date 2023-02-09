@@ -26,8 +26,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     CryptoCurrency.stx,
     CryptoCurrency.bttc,
     CryptoCurrency.zaddr,
-    CryptoCurrency.usdcpoly,
-    CryptoCurrency.maticpoly,
   ];
 
   static List<ExchangePair> _supportedPairs() {
@@ -252,7 +250,18 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   String get title => 'Trocador';
 
   String _networkFor(CryptoCurrency currency) {
-    return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
+    switch (currency) {
+      case CryptoCurrency.eth:
+        return 'ERC20';
+      case CryptoCurrency.maticpoly:
+        return 'Mainnet';
+      case CryptoCurrency.usdcpoly:
+        return 'MATIC';
+      case CryptoCurrency.zec:
+        return 'Mainnet';
+      default:
+        return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
+    }
   }
 
   String _normalizeTag(String tag) {
