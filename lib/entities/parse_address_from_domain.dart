@@ -44,10 +44,15 @@ class AddressResolver {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         final formattedName = text.substring(1);
         final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
-        final address = extractAddressByType(
+        final addressFromBio = extractAddressByType(
             raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
-        if (address != null) {
-          return ParsedAddress.fetchTwitterAddress(address: address, name: text);
+        final addressFromPinnedTweet = extractAddressByType(
+            raw: twitterUser.pinnedTweet ?? '', type: CryptoCurrency.fromString(ticker));
+        if (addressFromBio != null) {
+          return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
+        }
+        if (addressFromPinnedTweet != null) {
+          return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
         }
       }
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
