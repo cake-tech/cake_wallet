@@ -1,16 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
+  static const _coolDownDurationInDays = 7;
 
   static void _saveException(String? error, StackTrace? stackTrace) async {
     final appDocDir = await getApplicationDocumentsDirectory();
@@ -58,17 +62,32 @@ class ExceptionHandler {
     }
   }
 
-  static void onError(FlutterErrorDetails errorDetails) {
+  static void onError(FlutterErrorDetails errorDetails) async {
+    if (kDebugMode) {
+      FlutterError.presentError(errorDetails);
+      return;
+    }
+
     if (_ignoreError(errorDetails.exception.toString())) {
       return;
     }
 
     _saveException(errorDetails.exception.toString(), errorDetails.stack);
 
-    if (_hasError) {
+    final sharedPrefs = await SharedPreferences.getInstance();
+
+    final lastPopupDate =
+        DateTime.tryParse(sharedPrefs.getString(PreferencesKey.lastPopupDate) ?? '') ??
+            DateTime.now().subtract(Duration(days: _coolDownDurationInDays + 1));
+
+    final durationSinceLastReport = DateTime.now().difference(lastPopupDate).inDays;
+
+    if (_hasError || durationSinceLastReport < _coolDownDurationInDays) {
       return;
     }
     _hasError = true;
+
+    sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
@@ -98,8 +117,17 @@ class ExceptionHandler {
   }
 
   /// Ignore User related errors or system errors
-  static bool _ignoreError(String error) {
-    return error.contains("errno = 103") || // SocketException: Software caused connection abort
-        error.contains("errno = 9"); // SocketException: Bad file descriptor (iOS socket exception)
-  }
+  static bool _ignoreError(String error) =>
+      _ignoredErrors.any((element) => error.contains(element));
+
+  static const List<String> _ignoredErrors = const [
+    "errno = 103", // SocketException: Software caused connection abort
+    "errno = 9", // SocketException: Bad file descriptor
+    "errno = 32", // SocketException: Write failed (OS Error: Broken pipe)
+    "errno = 60", // SocketException: Operation timed out
+    "errno = 54", // SocketException: Connection reset by peer
+    "errno = 49", // SocketException: Can't assign requested address
+    "errno = 28", // OS Error: No space left on device
+    "PERMISSION_NOT_GRANTED",
+  ];
 }
