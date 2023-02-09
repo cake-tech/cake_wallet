@@ -57,8 +57,7 @@ class DesktopDashboardPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    return Image.asset('assets/images/menu.png',
-        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
+    return Image.asset('assets/images/desktop_menu.png', color: Theme.of(context).highlightColor);
   }
 
   final BalancePage balancePage;
