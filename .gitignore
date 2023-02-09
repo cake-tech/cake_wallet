@@ -133,7 +133,6 @@ assets/images/app_logo.png
 
 /pubspec.yaml
 /pubspec.lock
-/ios/podfile.lock
 /android/app.properties
 /android/app/src/main/AndroidManifest.xml
 
@@ -141,4 +140,3 @@ assets/images/app_logo.png
 macos/Runner/Info.plist
 macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
-/macos/podfile.lock
