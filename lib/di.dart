@@ -169,7 +169,6 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 
-
 final getIt = GetIt.instance;
 
 var _isSetupFinished = false;
