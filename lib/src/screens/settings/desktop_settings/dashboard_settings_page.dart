@@ -1,6 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/typography.dart';
@@ -17,19 +16,14 @@ class DesktopSettingsPage extends StatefulWidget {
 }
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
-  int itemCount = 0;
-  SideMenuController sideMenu = SideMenuController();
+  int itemCount = SettingActions.all.length;
   int? currentPage;
   bool isTapped = false;
 
-  initState() {
-    super.initState();
-    itemCount = SettingActions.all.length;
-    sideMenu.addListener((index) {
-      setState(() {
-        isTapped = true;
-        currentPage = index;
-      });
+  void _onItemChange(int index) {
+    setState(() {
+      currentPage = index;
+      isTapped = true;
     });
   }
 
@@ -67,8 +61,8 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                               if (currentPage != index) {
                                 final settingContext =
                                     _settingsNavigatorKey.currentState?.context ?? context;
-                                sideMenu.changePage(index);
                                 item.onTap.call(settingContext);
+                                _onItemChange(index);
                               }
                             },
                             image: item.image,

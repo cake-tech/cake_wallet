@@ -4,17 +4,18 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/main.dart';
 
@@ -23,6 +24,7 @@ class DesktopDashboardPage extends BasePage {
     required this.balancePage,
     required this.walletViewModel,
     required this.addressListViewModel,
+    required this.desktopSidebarViewModel,
   });
 
   @override
@@ -58,8 +60,9 @@ class DesktopDashboardPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final iconPath = Image.asset('assets/images/solid_desktop_menu.png',
-        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
+    final selectedIconPath = 'assets/images/desktop_transactions_solid_icon.png';
+    final unselectedIconPath = 'assets/images/desktop_transactions_outline_icon.png';
+
     return InkWell(
       onTap: () {
         String? currentPath;
@@ -70,18 +73,30 @@ class DesktopDashboardPage extends BasePage {
         });
 
         if (currentPath == Routes.transactionsPage) {
-          return Navigator.pop(desktopKey.currentContext!);
-        }
+           desktopSidebarViewModel.resetSidebar();
+           return;   
+       }
+        desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
 
         desktopKey.currentState!.pushNamed(Routes.transactionsPage);
+      
       },
-      child: iconPath,
+      child: Observer(
+        builder: (_) {
+          return Image.asset(
+            desktopSidebarViewModel.currentPage == SidebarItem.transactions
+                ? selectedIconPath
+                : unselectedIconPath,
+          );
+        },
+      ),
     );
   }
 
   final BalancePage balancePage;
   final DashboardViewModel walletViewModel;
   final WalletAddressListViewModel addressListViewModel;
+  final DesktopSidebarViewModel desktopSidebarViewModel;
 
   bool _isEffectsInstalled = false;
   StreamSubscription<bool>? _onInactiveSub;

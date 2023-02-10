@@ -1,64 +1,76 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_item.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
-class DesktopSidebarWrapper extends StatefulWidget {
+class DesktopSidebarWrapper extends StatelessWidget {
   final Widget child;
+  final DesktopSidebarViewModel desktopSidebarViewModel;
 
-  const DesktopSidebarWrapper({required this.child});
-
-  @override
-  State<DesktopSidebarWrapper> createState() => _DesktopSidebarWrapperState();
-}
-
-class _DesktopSidebarWrapperState extends State<DesktopSidebarWrapper> {
-  final page = PageController();
-  final sideMenu = SideMenuController();
-
-  @override
-  void initState() {
-    SideMenuGlobal.controller = sideMenu;
-    sideMenu.addListener((p0) {
-      page.jumpToPage(p0);
-    });
-    super.initState();
-  }
+  const DesktopSidebarWrapper({required this.child, required this.desktopSidebarViewModel});
 
   @override
   Widget build(BuildContext context) {
+    final pageController = PageController();
+
+    reaction<SidebarItem>((_) => desktopSidebarViewModel.currentPage, (page) {
+      String? currentPath;
+
+      desktopKey.currentState?.popUntil((route) {
+        currentPath = route.settings.name;
+        return true;
+      });
+      if (page == SidebarItem.transactions) {
+        return;
+      }
+
+      if (currentPath == Routes.transactionsPage) {
+        Navigator.of(desktopKey.currentContext!).pop();
+      }
+
+      pageController.animateToPage(
+        page.index,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SideMenu(
-          topItems: [
-            SideMenuItem(
-              iconPath: 'assets/images/wallet_outline.png',
-              priority: 0,
-              onTap: (page, _) => sideMenu.changePage(page),
-            ),
-          ],
-          bottomItems: [
-            SideMenuItem(
-              iconPath: 'assets/images/support_icon.png',
-              priority: 1,
-              onTap: (page, _) => sideMenu.changePage(page),
-            ),
-            SideMenuItem(
-              iconPath: 'assets/images/settings_outline.png',
-              priority: 2,
-              onTap: (page, _) => sideMenu.changePage(page),
-            ),
-          ],
-        ),
+        Observer(builder: (_) {
+          return SideMenu(
+            topItems: [
+              SideMenuItem(
+                iconPath: 'assets/images/wallet_outline.png',
+                isSelected: desktopSidebarViewModel.currentPage == SidebarItem.dashboard,
+                onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.dashboard),
+              ),
+            ],
+            bottomItems: [
+              SideMenuItem(
+                  iconPath: 'assets/images/support_icon.png',
+                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.support,
+                  onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.support)),
+              SideMenuItem(
+                iconPath: 'assets/images/settings_outline.png',
+                isSelected: desktopSidebarViewModel.currentPage == SidebarItem.settings,
+                onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.settings),
+              ),
+            ],
+          );
+        }),
         Expanded(
           child: PageView(
-            controller: page,
+            controller: pageController,
             physics: NeverScrollableScrollPhysics(),
             children: [
-              widget.child,
+              child,
               Container(
                 child: Navigator(
                   initialRoute: Routes.support,
