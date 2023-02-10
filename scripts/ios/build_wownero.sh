@@ -67,5 +67,5 @@ popd
 done
 
 #only for arm64
-cp ${WOWNERO_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
-cp ${WOWNERO_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR
+cp ${WOWNERO_SRC_DIR}/lib-armv8-a/* $DEST_LIB_DIR
+cp ${WOWNERO_SRC_DIR}/include/wallet/api/* $DEST_INCLUDE_DIR
