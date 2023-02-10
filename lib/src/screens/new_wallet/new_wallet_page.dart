@@ -50,7 +50,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
         _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
         _controller = TextEditingController();
 
-  // static const aspectRatioImage = 1.22;
+  static const aspectRatioImage = 1.22;
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
@@ -84,126 +84,138 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: EdgeInsets.only(top: 24),
-      child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          content: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Padding(
-              padding: EdgeInsets.only(left: 12, right: 12),
-              child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.4,
-                  child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 24),
-              child: Form(
-                key: _formKey,
-                child: Stack(
-                  alignment: Alignment.centerRight,
-                  children: [
-                    TextFormField(
-                      onChanged: (value) => _walletNewVM.name = value,
-                      controller: _controller,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).primaryTextTheme!.headline6!.color!),
-                      decoration: InputDecoration(
-                        hintStyle: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme!.headline2!.color!),
-                        hintText: S.of(context).wallet_name,
-                        focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color:
-                                    Theme.of(context).accentTextTheme!.headline2!.decorationColor!,
-                                width: 1.0)),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Theme.of(context).accentTextTheme!.headline2!.decorationColor!,
-                              width: 1.0),
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: () async {
-                            final rName = await generateName();
-                            FocusManager.instance.primaryFocus?.unfocus();
-
-                            setState(() {
-                              _controller.text = rName;
-                              _walletNewVM.name = rName;
-                              _controller.selection = TextSelection.fromPosition(
-                                  TextPosition(offset: _controller.text.length));
-                            });
-                          },
-                          icon: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6.0),
-                              color: Theme.of(context).hintColor,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 600),
+          child: ScrollableWithBottomSection(
+              contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+              content: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 12, right: 12),
+                  child: AspectRatio(
+                      aspectRatio: aspectRatioImage,
+                      child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: Form(
+                    key: _formKey,
+                    child: Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        TextFormField(
+                          onChanged: (value) => _walletNewVM.name = value,
+                          controller: _controller,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                          decoration: InputDecoration(
+                            hintStyle: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                            hintText: S.of(context).wallet_name,
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .accentTextTheme!
+                                        .headline2!
+                                        .decorationColor!,
+                                    width: 1.0)),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context)
+                                      .accentTextTheme!
+                                      .headline2!
+                                      .decorationColor!,
+                                  width: 1.0),
                             ),
-                            width: 34,
-                            height: 34,
-                            child: Image.asset(
-                              'assets/images/refresh_icon.png',
-                              color:
-                                  Theme.of(context).primaryTextTheme!.headline4!.decorationColor!,
+                            suffixIcon: IconButton(
+                              onPressed: () async {
+                                final rName = await generateName();
+                                FocusManager.instance.primaryFocus?.unfocus();
+
+                                setState(() {
+                                  _controller.text = rName;
+                                  _walletNewVM.name = rName;
+                                  _controller.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: _controller.text.length));
+                                });
+                              },
+                              icon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  color: Theme.of(context).hintColor,
+                                ),
+                                width: 34,
+                                height: 34,
+                                child: Image.asset(
+                                  'assets/images/refresh_icon.png',
+                                  color: Theme.of(context)
+                                      .primaryTextTheme!
+                                      .headline4!
+                                      .decorationColor!,
+                                ),
+                              ),
                             ),
                           ),
+                          validator: WalletNameValidator(),
                         ),
-                      ),
-                      validator: WalletNameValidator(),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            if (_walletNewVM.hasLanguageSelector) ...[
-              Padding(
-                padding: EdgeInsets.only(top: 40),
-                child: Text(
-                  S.of(context).seed_language_choose,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme!.headline6!.color!),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: SeedLanguageSelector(
-                    key: _languageSelectorKey, initialSelected: defaultSeedLanguage),
-              )
-            ]
-          ]),
-          bottomSectionPadding: EdgeInsets.all(24),
-          bottomSection: Column(
-            children: [
-              Observer(
-                builder: (context) {
-                  return LoadingPrimaryButton(
-                    onPressed: _confirmForm,
-                    text: S.of(context).seed_language_next,
-                    color: Colors.green,
-                    textColor: Colors.white,
-                    isLoading: _walletNewVM.state is IsExecutingState,
-                    isDisabled: _walletNewVM.name.isEmpty,
-                  );
-                },
-              ),
-              const SizedBox(height: 25),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context)
-                      .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
-                },
-                child: Text(S.of(context).advanced_privacy_settings),
-              ),
-            ],
-          )),
+                if (_walletNewVM.hasLanguageSelector) ...[
+                  Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: Text(
+                      S.of(context).seed_language_choose,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: SeedLanguageSelector(
+                        key: _languageSelectorKey, initialSelected: defaultSeedLanguage),
+                  )
+                ]
+              ]),
+              bottomSectionPadding: EdgeInsets.all(24),
+              bottomSection: Column(
+                children: [
+                  Observer(
+                    builder: (context) {
+                      return LoadingPrimaryButton(
+                        onPressed: _confirmForm,
+                        text: S.of(context).seed_language_next,
+                        color: Colors.green,
+                        textColor: Colors.white,
+                        isLoading: _walletNewVM.state is IsExecutingState,
+                        isDisabled: _walletNewVM.name.isEmpty,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 25),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context)
+                          .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
+                    },
+                    child: Text(S.of(context).advanced_privacy_settings),
+                  ),
+                ],
+              )),
+        ),
+      ),
     );
   }
 
