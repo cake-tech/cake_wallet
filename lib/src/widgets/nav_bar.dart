@@ -74,7 +74,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
             children: [
               if (leading != null) Flexible(child: leading!),
               if (middle != null) middle!,
-              if (trailing != null) trailing!,
+              trailing ?? const SizedBox(),
             ],
           ),
         ),
