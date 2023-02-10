@@ -444,7 +444,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ));
 
     case Routes.ioniaWelcomePage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaWelcomePage>());  
+      return CupertinoPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<IoniaWelcomePage>(),
+      );
     
     case Routes.ioniaLoginPage:
       return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaLoginPage>());
