@@ -30,6 +30,9 @@ class NewWalletPage extends BasePage {
   String get title => S.current.new_wallet;
 
   @override
+  Widget trailing(BuildContext context) => SizedBox.shrink();
+
+  @override
   Widget body(BuildContext context) => WalletNameForm(
       _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage);
 }

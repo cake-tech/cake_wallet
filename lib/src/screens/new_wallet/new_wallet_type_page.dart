@@ -19,6 +19,9 @@ class NewWalletTypePage extends BasePage {
   String get title => S.current.wallet_list_restore_wallet;
 
   @override
+  Widget trailing(BuildContext context) => SizedBox.shrink();
+
+  @override
   Widget body(BuildContext context) => WalletTypeForm(
       onTypeSelected: onTypeSelected,
       walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage);
