@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +18,6 @@ class NewWalletTypePage extends BasePage {
 
   @override
   String get title => S.current.wallet_list_restore_wallet;
-
-  @override
-  Widget trailing(BuildContext context) => SizedBox.shrink();
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
@@ -60,12 +58,12 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 600),
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          content: Column(
+    return ScrollableWithBottomSection(
+      contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+      content: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Padding(
@@ -95,14 +93,17 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   ))
             ],
           ),
-          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          bottomSection: PrimaryButton(
-            onPressed: () => onTypeSelected(),
-            text: S.of(context).seed_language_next,
-            color: Theme.of(context).accentTextTheme.bodyText1!.color!,
-            textColor: Colors.white,
-            isDisabled: selected == null,
-          ),
+        ),
+      ),
+      bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+      bottomSection: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+        child: PrimaryButton(
+          onPressed: () => onTypeSelected(),
+          text: S.of(context).seed_language_next,
+          color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+          textColor: Colors.white,
+          isDisabled: selected == null,
         ),
       ),
     );

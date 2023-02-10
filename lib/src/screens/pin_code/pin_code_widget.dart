@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -134,154 +135,165 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       child: Container(
         color: Theme.of(context).backgroundColor,
         padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
-        child: Column(children: <Widget>[
-          Spacer(flex: 2),
-          Text(title,
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!)),
-          Spacer(flex: 3),
-          Container(
-            width: 180,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(pinLength, (index) {
-                const size = 10.0;
-                final isFilled = pin.length > index ? pin[index] != null : false;
-
-                return Container(
-                    width: size,
-                    height: size,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isFilled
-                          ? Theme.of(context).primaryTextTheme!.headline6!.color!
-                          : Theme.of(context).accentTextTheme!.bodyText2!.color!.withOpacity(0.25),
-                    ));
-              }),
-            ),
-          ),
-          Spacer(flex: 2),
-          if (widget.hasLengthSwitcher) ...[
-            TextButton(
-              onPressed: () {
-                changePinLength(pinLength == PinCodeState.fourPinLength
-                    ? PinCodeState.sixPinLength
-                    : PinCodeState.fourPinLength);
-              },
-              child: Text(
-                _changePinLengthText(),
+        child: Column(
+          children: <Widget>[
+            Spacer(flex: 2),
+            Text(title,
                 style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).accentTextTheme!.bodyText2!.decorationColor!),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).primaryTextTheme!.headline6!.color!)),
+            Spacer(flex: 3),
+            Container(
+              width: 180,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(pinLength, (index) {
+                  const size = 10.0;
+                  final isFilled = pin.length > index ? pin[index] != null : false;
+
+                  return Container(
+                      width: size,
+                      height: size,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isFilled
+                            ? Theme.of(context).primaryTextTheme!.headline6!.color!
+                            : Theme.of(context)
+                                .accentTextTheme!
+                                .bodyText2!
+                                .color!
+                                .withOpacity(0.25),
+                      ));
+                }),
+              ),
+            ),
+            Spacer(flex: 2),
+            if (widget.hasLengthSwitcher) ...[
+              TextButton(
+                onPressed: () {
+                  changePinLength(pinLength == PinCodeState.fourPinLength
+                      ? PinCodeState.sixPinLength
+                      : PinCodeState.fourPinLength);
+                },
+                child: Text(
+                  _changePinLengthText(),
+                  style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).accentTextTheme!.bodyText2!.decorationColor!),
+                ),
+              )
+            ],
+            Spacer(flex: 1),
+            Flexible(
+              flex: 24,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint,
+                  ),
+                  child: Container(
+                    key: _gridViewKey,
+                    child: _aspectRatio > 0
+                        ? ScrollConfiguration(
+                            behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                            child: GridView.count(
+                              shrinkWrap: true,
+                              crossAxisCount: 3,
+                              childAspectRatio: _aspectRatio,
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: List.generate(12, (index) {
+                                const double marginRight = 15;
+                                const double marginLeft = 15;
+
+                                if (index == 9) {
+                                  return Container(
+                                    margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                    child: TextButton(
+                                        onPressed: () => null,
+                                        // (widget.hasLengthSwitcher ||
+                                        //         !settingsStore
+                                        //             .allowBiometricalAuthentication)
+                                        //     ? null
+                                        //     : () {
+                                        // FIXME
+                                        //                                        if (authStore != null) {
+                                        //                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        //                                            final biometricAuth = BiometricAuth();
+                                        //                                            biometricAuth.isAuthenticated().then(
+                                        //                                                    (isAuth) {
+                                        //                                                  if (isAuth) {
+                                        //                                                    authStore.biometricAuth();
+                                        //                                                    _key.currentState.showSnackBar(
+                                        //                                                      SnackBar(
+                                        //                                                        content: Text(S.of(context).authenticated),
+                                        //                                                        backgroundColor: Colors.green,
+                                        //                                                      ),
+                                        //                                                    );
+                                        //                                                  }
+                                        //                                                }
+                                        //                                            );
+                                        //                                          });
+                                        //                                        }
+                                        //                                       },
+                                        // FIX-ME: Style
+                                        //color: Theme.of(context).backgroundColor,
+                                        //shape: CircleBorder(),
+                                        child: Container()
+                                        // (widget.hasLengthSwitcher ||
+                                        //         !settingsStore
+                                        //             .allowBiometricalAuthentication)
+                                        //     ? Offstage()
+                                        //     : faceImage,
+                                        ),
+                                  );
+                                } else if (index == 10) {
+                                  index = 0;
+                                } else if (index == 11) {
+                                  return Container(
+                                    margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                    child: TextButton(
+                                      onPressed: () => _pop(),
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Theme.of(context).backgroundColor,
+                                        shape: CircleBorder(),
+                                      ),
+                                      child: deleteIconImage,
+                                    ),
+                                  );
+                                } else {
+                                  index++;
+                                }
+
+                                return Container(
+                                  margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                  child: TextButton(
+                                    onPressed: () => _push(index),
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Theme.of(context).backgroundColor,
+                                      shape: CircleBorder(),
+                                    ),
+                                    child: Text('$index',
+                                        style: TextStyle(
+                                            fontSize: 30.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .primaryTextTheme!
+                                                .headline6!
+                                                .color!)),
+                                  ),
+                                );
+                              }),
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
               ),
             )
           ],
-          Spacer(flex: 1),
-          Flexible(
-            flex: 24,
-            child: Center(
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.6,
-                width: MediaQuery.of(context).size.height * 0.6,
-                key: _gridViewKey,
-                child: _aspectRatio > 0
-                    ? ScrollConfiguration(
-                        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                        child: GridView.count(
-                          shrinkWrap: true,
-                          crossAxisCount: 3,
-                          childAspectRatio: _aspectRatio,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: List.generate(12, (index) {
-                            const double marginRight = 15;
-                            const double marginLeft = 15;
-
-                            if (index == 9) {
-                              return Container(
-                                margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                child: TextButton(
-                                    onPressed: () => null,
-                                    // (widget.hasLengthSwitcher ||
-                                    //         !settingsStore
-                                    //             .allowBiometricalAuthentication)
-                                    //     ? null
-                                    //     : () {
-                                    // FIXME
-                                    //                                        if (authStore != null) {
-                                    //                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    //                                            final biometricAuth = BiometricAuth();
-                                    //                                            biometricAuth.isAuthenticated().then(
-                                    //                                                    (isAuth) {
-                                    //                                                  if (isAuth) {
-                                    //                                                    authStore.biometricAuth();
-                                    //                                                    _key.currentState.showSnackBar(
-                                    //                                                      SnackBar(
-                                    //                                                        content: Text(S.of(context).authenticated),
-                                    //                                                        backgroundColor: Colors.green,
-                                    //                                                      ),
-                                    //                                                    );
-                                    //                                                  }
-                                    //                                                }
-                                    //                                            );
-                                    //                                          });
-                                    //                                        }
-                                    //                                       },
-                                    // FIX-ME: Style
-                                    //color: Theme.of(context).backgroundColor,
-                                    //shape: CircleBorder(),
-                                    child: Container()
-                                    // (widget.hasLengthSwitcher ||
-                                    //         !settingsStore
-                                    //             .allowBiometricalAuthentication)
-                                    //     ? Offstage()
-                                    //     : faceImage,
-                                    ),
-                              );
-                            } else if (index == 10) {
-                              index = 0;
-                            } else if (index == 11) {
-                              return Container(
-                                margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                child: TextButton(
-                                  onPressed: () => _pop(),
-    style: TextButton.styleFrom(
-    backgroundColor: Theme.of(context).backgroundColor,
-    shape: CircleBorder(),
-    ),
-                                  child: deleteIconImage,
-                                ),
-                              );
-                            } else {
-                              index++;
-                            }
-
-                            return Container(
-                              margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                              child: TextButton(
-                                onPressed: () => _push(index),
-    style: TextButton.styleFrom(
-    backgroundColor: Theme.of(context).backgroundColor,
-    shape: CircleBorder(),
-    ),
-                                child: Text('$index',
-                                    style: TextStyle(
-                                        fontSize: 30.0,
-                                        fontWeight: FontWeight.w600,
-                                        color:
-                                            Theme.of(context).primaryTextTheme!.headline6!.color!)),
-                              ),
-                            );
-                          }),
-                        ),
-                      )
-                    : null,
-              ),
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
