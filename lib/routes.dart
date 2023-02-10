@@ -84,4 +84,5 @@ class Routes {
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const desktop_actions = '/desktop_actions';
+  static const transactionsPage = '/transactions_page';
 }

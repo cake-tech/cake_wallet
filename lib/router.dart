@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/dashboard_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
@@ -526,6 +527,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(
           builder: (_) => SizedBox.shrink());
+    
+    case Routes.transactionsPage:
+      return CupertinoPageRoute<void>(
+          settings: settings,
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<TransactionsPage>());
           
     default:
       return MaterialPageRoute<void>(

@@ -2,6 +2,8 @@ import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
 
+GlobalKey<NavigatorState> desktopKey = GlobalKey<NavigatorState>();
+
 class DesktopDashboardView extends StatelessWidget {
   final Widget balancePage;
 
@@ -19,6 +21,7 @@ class DesktopDashboardView extends StatelessWidget {
         Expanded(
           flex: 5,
           child: Navigator(
+            key: desktopKey,
             initialRoute: Routes.desktop_actions,
             onGenerateRoute: (settings) => Router.createRoute(settings),
             onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {

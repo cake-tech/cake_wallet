@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -57,7 +58,25 @@ class DesktopDashboardPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    return Image.asset('assets/images/desktop_menu.png', color: Theme.of(context).highlightColor);
+    final iconPath = Image.asset('assets/images/solid_desktop_menu.png',
+        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
+    return InkWell(
+      onTap: () {
+        String? currentPath;
+
+        desktopKey.currentState?.popUntil((route) {
+          currentPath = route.settings.name;
+          return true;
+        });
+
+        if (currentPath == Routes.transactionsPage) {
+          return Navigator.pop(desktopKey.currentContext!);
+        }
+
+        desktopKey.currentState!.pushNamed(Routes.transactionsPage);
+      },
+      child: iconPath,
+    );
   }
 
   final BalancePage balancePage;
