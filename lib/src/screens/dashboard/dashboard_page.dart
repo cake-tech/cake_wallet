@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -40,13 +38,19 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: DesktopSidebarWrapper(
-        child: _DashboardPageView(
-          balancePage: balancePage,
-          walletViewModel: walletViewModel,
-          addressListViewModel: addressListViewModel,
-        ),
-      ),
+      body: ResponsiveLayoutUtil.instance.isMobile(context)
+          ? _DashboardPageView(
+              balancePage: balancePage,
+              walletViewModel: walletViewModel,
+              addressListViewModel: addressListViewModel,
+            )
+          : DesktopSidebarWrapper(
+              child: DesktopDashboardPage(
+                balancePage: balancePage,
+                walletViewModel: walletViewModel,
+                addressListViewModel: addressListViewModel,
+              ),
+            ),
     );
   }
 }
@@ -85,15 +89,6 @@ class _DashboardPageView extends BasePage {
   Widget get endDrawer => MenuWidget(walletViewModel);
 
   @override
-  Widget? leading(BuildContext context) {
-    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
-      return getIt<DesktopWalletSelectionDropDown>();
-    }
-
-    return null;
-  }
-
-  @override
   Widget middle(BuildContext context) {
     return SyncIndicator(
         dashboardViewModel: walletViewModel,
@@ -128,9 +123,6 @@ class _DashboardPageView extends BasePage {
   @override
   Widget body(BuildContext context) {
     _setEffects(context);
-    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
-      return DesktopDashboardView(balancePage);
-    }
 
     return SafeArea(
         minimum: EdgeInsets.only(bottom: 24),

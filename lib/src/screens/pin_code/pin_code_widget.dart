@@ -2,6 +2,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter/services.dart';
 
 class PinCodeWidget extends StatefulWidget {
   PinCodeWidget({
@@ -115,11 +116,25 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       color: Theme.of(context).primaryTextTheme!.headline6!.color!,
     );
 
-    return Container(
-      color: Theme.of(context).backgroundColor,
-      padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
-      child: Column(
-        children: <Widget>[
+    return RawKeyboardListener(
+      focusNode: FocusNode(),
+      autofocus: true,
+      onKey: (keyEvent) {
+        if (keyEvent is RawKeyDownEvent) {
+          if (keyEvent.logicalKey.keyLabel == "Backspace") {
+            _pop();
+            return;
+          }
+          int? number = int.tryParse(keyEvent.character ?? '');
+          if (number != null) {
+            _push(number);
+          }
+        }
+      },
+      child: Container(
+        color: Theme.of(context).backgroundColor,
+        padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
+        child: Column(children: <Widget>[
           Spacer(flex: 2),
           Text(title,
               style: TextStyle(
@@ -232,9 +247,10 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 margin: EdgeInsets.only(left: marginLeft, right: marginRight),
                                 child: TextButton(
                                   onPressed: () => _pop(),
-                                  // FIX-ME: Style
-                                  //color: Theme.of(context).backgroundColor,
-                                  //shape: CircleBorder(),
+    style: TextButton.styleFrom(
+    backgroundColor: Theme.of(context).backgroundColor,
+    shape: CircleBorder(),
+    ),
                                   child: deleteIconImage,
                                 ),
                               );
@@ -246,9 +262,10 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                               margin: EdgeInsets.only(left: marginLeft, right: marginRight),
                               child: TextButton(
                                 onPressed: () => _push(index),
-                                // FIX-ME: Style
-                                //color: Theme.of(context).backgroundColor,
-                                //shape: CircleBorder(),
+    style: TextButton.styleFrom(
+    backgroundColor: Theme.of(context).backgroundColor,
+    shape: CircleBorder(),
+    ),
                                 child: Text('$index',
                                     style: TextStyle(
                                         fontSize: 30.0,

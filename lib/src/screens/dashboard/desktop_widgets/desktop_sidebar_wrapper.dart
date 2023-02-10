@@ -2,7 +2,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_controller.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_item.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
 
@@ -18,6 +17,7 @@ class DesktopSidebarWrapper extends StatefulWidget {
 class _DesktopSidebarWrapperState extends State<DesktopSidebarWrapper> {
   final page = PageController();
   final sideMenu = SideMenuController();
+
   @override
   void initState() {
     SideMenuGlobal.controller = sideMenu;
@@ -29,10 +29,6 @@ class _DesktopSidebarWrapperState extends State<DesktopSidebarWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    if (ResponsiveLayoutUtil.instance.isMobile(context)) {
-      return widget.child;
-    }
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
