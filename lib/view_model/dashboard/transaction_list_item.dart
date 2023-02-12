@@ -48,7 +48,7 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   String get formattedPendingStatus {
     if (transaction.confirmations == 0 || transaction.isPending) {
-      return S.current.pending;
+      return S.current.pending + ' (${transaction.confirmations}/10)';
     }
     if (transaction.confirmations > 0 && transaction.confirmations < 10) {
       return ' (${transaction.confirmations}/10)';
