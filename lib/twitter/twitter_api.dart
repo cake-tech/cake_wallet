@@ -32,16 +32,6 @@ class TwitterApi {
       throw Exception(responseJSON['errors'][0]['detail']);
     }
 
-    final user = responseJSON['data'] as Map<String, dynamic>;
-
-    try {
-      if (responseJSON['includes'] != null) {
-        user['pinnedTweet'] = responseJSON['includes']['tweets'][0]['text'];
-      }
-    } catch (e) {
-      print('responseJSON[includes][tweets][0][text] $e');
-    }
-
-    return TwitterUser.fromJson(user);
+    return TwitterUser.fromJson(responseJSON);
   }
 }

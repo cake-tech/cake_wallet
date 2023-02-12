@@ -45,14 +45,23 @@ class AddressResolver {
         final formattedName = text.substring(1);
         final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
         final addressFromBio = extractAddressByType(
-            raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
-        final addressFromPinnedTweet = extractAddressByType(
-            raw: twitterUser.pinnedTweet ?? '', type: CryptoCurrency.fromString(ticker));
+            raw: twitterUser.data.description, type: CryptoCurrency.fromString(ticker));
         if (addressFromBio != null) {
           return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
         }
-        if (addressFromPinnedTweet != null) {
-          return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
+        final tweets = twitterUser.includes?.tweets;
+        if (tweets != null) {
+          var subString = StringBuffer();
+          tweets.forEach((item) {
+            subString.writeln(item.text);
+          });
+          final userTweetsText = subString.toString();
+          final addressFromPinnedTweet =
+          extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
+
+          if (addressFromPinnedTweet != null) {
+            return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
+          }
         }
       }
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
