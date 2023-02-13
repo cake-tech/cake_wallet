@@ -45,11 +45,11 @@ class AddressResolver {
         final formattedName = text.substring(1);
         final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
         final addressFromBio = extractAddressByType(
-            raw: twitterUser.data.description, type: CryptoCurrency.fromString(ticker));
+            raw: twitterUser.description, type: CryptoCurrency.fromString(ticker));
         if (addressFromBio != null) {
           return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
         }
-        final tweets = twitterUser.includes?.tweets;
+        final tweets = twitterUser.tweets;
         if (tweets != null) {
           var subString = StringBuffer();
           tweets.forEach((item) {
