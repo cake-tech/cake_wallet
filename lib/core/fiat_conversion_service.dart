@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
-const fiatApiAuthority = 'fiat-api.cakewallet.com';
+const fiatApiAuthority = 'fiat-staging.cakewallet.com';
 const fiatApiPath = '/v1/rates';
 
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
