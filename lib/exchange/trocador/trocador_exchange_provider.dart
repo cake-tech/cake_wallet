@@ -18,13 +18,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         super(pairList: _supportedPairs());
 
   static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.xhv,
-    CryptoCurrency.dcr,
-    CryptoCurrency.oxt,
-    CryptoCurrency.pivx,
     CryptoCurrency.scrt,
     CryptoCurrency.stx,
-    CryptoCurrency.bttc,
     CryptoCurrency.zaddr,
   ];
 
@@ -268,6 +263,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     switch (tag) {
       case 'ETH':
         return 'ERC20';
+      case 'TRX':
+        return 'TRC20';
       default:
         return tag.toLowerCase();
     }
