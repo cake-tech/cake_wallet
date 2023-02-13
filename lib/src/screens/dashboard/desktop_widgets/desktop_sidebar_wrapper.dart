@@ -33,11 +33,7 @@ class DesktopSidebarWrapper extends StatelessWidget {
         Navigator.of(desktopKey.currentContext!).pop();
       }
 
-      pageController.animateToPage(
-        page.index,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      pageController.jumpToPage(page.index);
     });
 
     return Row(
