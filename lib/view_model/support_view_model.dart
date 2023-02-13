@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'support_view_model.g.dart';
 
@@ -19,7 +18,7 @@ abstract class SupportViewModelBase with Store {
       RegularListItem(
         title: S.current.faq,
         handler: (BuildContext context) async {
-          if (await canLaunch(url)) await launch(url);
+          await launch(url);
         },
       ),
       LinkListItem(
