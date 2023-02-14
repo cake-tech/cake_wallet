@@ -163,66 +163,63 @@ class ExchangePage extends BasePage {
                 ),
                 bottomSectionPadding:
                     EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                bottomSection: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-                  child: Column(children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 15),
-                      child: Observer(builder: (_) {
-                        final description = exchangeViewModel.isFixedRateMode
-                            ? exchangeViewModel.isAvailableInSelected
-                                ? S.of(context).amount_is_guaranteed
-                                : S.of(context).fixed_pair_not_supported
-                            : exchangeViewModel.isAvailableInSelected
-                                ? S.of(context).amount_is_estimate
-                                : S.of(context).variable_pair_not_supported;
-                        return Center(
-                          child: Text(
-                            description,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headline1!
-                                    .decorationColor!,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12),
-                          ),
-                        );
-                      }),
-                    ),
-                    Observer(
-                        builder: (_) => LoadingPrimaryButton(
-                            text: S.of(context).exchange,
-                            onPressed: () {
-                              if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-                                if ((exchangeViewModel.depositCurrency ==
-                                        CryptoCurrency.xmr) &&
-                                    (!(exchangeViewModel.status
-                                        is SyncedSyncStatus))) {
-                                  showPopUp<void>(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertWithOneAction(
-                                            alertTitle: S.of(context).exchange,
-                                            alertContent: S
-                                                .of(context)
-                                                .exchange_sync_alert_content,
-                                            buttonText: S.of(context).ok,
-                                            buttonAction: () =>
-                                                Navigator.of(context).pop());
-                                      });
-                                } else {
-                                  exchangeViewModel.createTrade();
-                                }
+                bottomSection: Column(children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 15),
+                    child: Observer(builder: (_) {
+                      final description = exchangeViewModel.isFixedRateMode
+                          ? exchangeViewModel.isAvailableInSelected
+                              ? S.of(context).amount_is_guaranteed
+                              : S.of(context).fixed_pair_not_supported
+                          : exchangeViewModel.isAvailableInSelected
+                              ? S.of(context).amount_is_estimate
+                              : S.of(context).variable_pair_not_supported;
+                      return Center(
+                        child: Text(
+                          description,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .primaryTextTheme!
+                                  .headline1!
+                                  .decorationColor!,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12),
+                        ),
+                      );
+                    }),
+                  ),
+                  Observer(
+                      builder: (_) => LoadingPrimaryButton(
+                          text: S.of(context).exchange,
+                          onPressed: () {
+                            if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+                              if ((exchangeViewModel.depositCurrency ==
+                                      CryptoCurrency.xmr) &&
+                                  (!(exchangeViewModel.status
+                                      is SyncedSyncStatus))) {
+                                showPopUp<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertWithOneAction(
+                                          alertTitle: S.of(context).exchange,
+                                          alertContent: S
+                                              .of(context)
+                                              .exchange_sync_alert_content,
+                                          buttonText: S.of(context).ok,
+                                          buttonAction: () =>
+                                              Navigator.of(context).pop());
+                                    });
+                              } else {
+                                exchangeViewModel.createTrade();
                               }
-                            },
-                            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
-                            textColor: Colors.white,
-                            isDisabled: exchangeViewModel.selectedProviders.isEmpty,
-                            isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
-                  ]),
-                ),
+                            }
+                          },
+                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                          textColor: Colors.white,
+                          isDisabled: exchangeViewModel.selectedProviders.isEmpty,
+                          isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
+                ]),
               )),
         ));
   }

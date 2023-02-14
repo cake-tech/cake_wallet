@@ -247,83 +247,80 @@ class SendPage extends BasePage {
           ),
           bottomSectionPadding:
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          bottomSection: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-            child: Column(
-              children: [
-                if (sendViewModel.hasCurrecyChanger)
-                  Observer(builder: (_) =>
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 12),
-                      child: PrimaryButton(
-                        onPressed: () => presentCurrencyPicker(context),
-                        text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
-                        color: Colors.transparent,
-                        textColor: Theme.of(context)
-                            .accentTextTheme!
-                            .headline3!
-                            .decorationColor!,
-                      )
-                    )
-                  ),
-                if (sendViewModel.hasMultiRecipient)
+          bottomSection: Column(
+            children: [
+              if (sendViewModel.hasCurrecyChanger)
+                Observer(builder: (_) =>
                   Padding(
-                      padding: EdgeInsets.only(bottom: 12),
-                      child: PrimaryButton(
-                        onPressed: () {
-                          sendViewModel.addOutput();
-                          Future.delayed(const Duration(milliseconds: 250), () {
-                            controller.jumpToPage(sendViewModel.outputs.length - 1);
-                          });
-                        },
-                        text: S.of(context).add_receiver,
-                        color: Colors.transparent,
-                        textColor: Theme.of(context)
-                            .accentTextTheme!
-                            .headline3!
-                            .decorationColor!,
-                        isDottedBorder: true,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme!
-                            .headline3!
-                            .decorationColor!,
-                      )),
-                Observer(
-                  builder: (_) {
-                    return LoadingPrimaryButton(
-                      onPressed: () async {
-                        if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                          if (sendViewModel.outputs.length > 1) {
-                            showErrorValidationAlert(context);
-                          }
-
-                          return;
-                        }
-
-                        final notValidItems = sendViewModel.outputs
-                            .where((item) =>
-                                item.address.isEmpty || item.cryptoAmount.isEmpty)
-                            .toList();
-
-                        if (notValidItems?.isNotEmpty ?? false) {
-                          showErrorValidationAlert(context);
-                          return;
-                        }
-
-                        await sendViewModel.createTransaction();
-
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                      onPressed: () => presentCurrencyPicker(context),
+                      text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
+                      color: Colors.transparent,
+                      textColor: Theme.of(context)
+                          .accentTextTheme!
+                          .headline3!
+                          .decorationColor!,
+                    )
+                  )
+                ),
+              if (sendViewModel.hasMultiRecipient)
+                Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                      onPressed: () {
+                        sendViewModel.addOutput();
+                        Future.delayed(const Duration(milliseconds: 250), () {
+                          controller.jumpToPage(sendViewModel.outputs.length - 1);
+                        });
                       },
-                      text: S.of(context).send,
-                      color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
-                      textColor: Colors.white,
-                      isLoading: sendViewModel.state is IsExecutingState ||
-                          sendViewModel.state is TransactionCommitting,
-                      isDisabled: !sendViewModel.isReadyForSend,
-                    );
-                  },
-                )
-              ],
-            ),
+                      text: S.of(context).add_receiver,
+                      color: Colors.transparent,
+                      textColor: Theme.of(context)
+                          .accentTextTheme!
+                          .headline3!
+                          .decorationColor!,
+                      isDottedBorder: true,
+                      borderColor: Theme.of(context)
+                          .primaryTextTheme!
+                          .headline3!
+                          .decorationColor!,
+                    )),
+              Observer(
+                builder: (_) {
+                  return LoadingPrimaryButton(
+                    onPressed: () async {
+                      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+                        if (sendViewModel.outputs.length > 1) {
+                          showErrorValidationAlert(context);
+                        }
+
+                        return;
+                      }
+
+                      final notValidItems = sendViewModel.outputs
+                          .where((item) =>
+                              item.address.isEmpty || item.cryptoAmount.isEmpty)
+                          .toList();
+
+                      if (notValidItems?.isNotEmpty ?? false) {
+                        showErrorValidationAlert(context);
+                        return;
+                      }
+
+                      await sendViewModel.createTransaction();
+
+                    },
+                    text: S.of(context).send,
+                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                    textColor: Colors.white,
+                    isLoading: sendViewModel.state is IsExecutingState ||
+                        sendViewModel.state is TransactionCommitting,
+                    isDisabled: !sendViewModel.isReadyForSend,
+                  );
+                },
+              )
+            ],
           )),
     );
   }
