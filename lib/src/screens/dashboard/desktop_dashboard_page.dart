@@ -109,19 +109,24 @@ class DesktopDashboardPage extends BasePage {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          flex: 3,
+        Container(
+          width: 400,
           child: balancePage,
         ),
         Expanded(
-          flex: 5,
-          child: Navigator(
-            key: desktopKey,
-            initialRoute: Routes.desktop_actions,
-            onGenerateRoute: (settings) => Router.createRoute(settings),
-            onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
-              return [navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!];
-            },
+          flex: 4,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 500),
+              child: Navigator(
+                key: desktopKey,
+                initialRoute: Routes.desktop_actions,
+                onGenerateRoute: (settings) => Router.createRoute(settings),
+                onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
+                  return [navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!];
+                },
+              ),
+            ),
           ),
         ),
       ],
