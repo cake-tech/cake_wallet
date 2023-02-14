@@ -1,5 +1,5 @@
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_item.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
@@ -21,7 +21,7 @@ class DesktopSidebarWrapper extends StatelessWidget {
     reaction<SidebarItem>((_) => desktopSidebarViewModel.currentPage, (page) {
       String? currentPath;
 
-      desktopKey.currentState?.popUntil((route) {
+      DesktopDashboardPage.desktopKey.currentState?.popUntil((route) {
         currentPath = route.settings.name;
         return true;
       });
@@ -30,7 +30,7 @@ class DesktopSidebarWrapper extends StatelessWidget {
       }
 
       if (currentPath == Routes.transactionsPage) {
-        Navigator.of(desktopKey.currentContext!).pop();
+        Navigator.of(DesktopDashboardPage.desktopKey.currentContext!).pop();
       }
 
       pageController.jumpToPage(page.index);

@@ -520,8 +520,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           ));
 
     case Routes.desktop_actions:
-      return CupertinoPageRoute<void>(
-          builder: (_) => DesktopDashboardActions(getIt<DashboardViewModel>()));
+      return PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, __, ___) => DesktopDashboardActions(getIt<DashboardViewModel>()),
+      );
     
     case Routes.desktop_settings_page:
       return CupertinoPageRoute<void>(

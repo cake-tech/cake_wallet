@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -18,6 +17,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/router.dart' as Router;
 
 class DesktopDashboardPage extends BasePage {
   DesktopDashboardPage({
@@ -26,6 +26,8 @@ class DesktopDashboardPage extends BasePage {
     required this.addressListViewModel,
     required this.desktopSidebarViewModel,
   });
+
+  static final GlobalKey<NavigatorState> desktopKey = GlobalKey<NavigatorState>();
 
   @override
   Color get backgroundLightColor =>
@@ -73,13 +75,12 @@ class DesktopDashboardPage extends BasePage {
         });
 
         if (currentPath == Routes.transactionsPage) {
-           desktopSidebarViewModel.resetSidebar();
-           return;   
-       }
+          desktopSidebarViewModel.resetSidebar();
+          return;
+        }
         desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
 
         desktopKey.currentState!.pushNamed(Routes.transactionsPage);
-      
       },
       child: Observer(
         builder: (_) {
@@ -105,7 +106,26 @@ class DesktopDashboardPage extends BasePage {
   Widget body(BuildContext context) {
     _setEffects(context);
 
-    return DesktopDashboardView(balancePage);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 3,
+          child: balancePage,
+        ),
+        Expanded(
+          flex: 5,
+          child: Navigator(
+            key: desktopKey,
+            initialRoute: Routes.desktop_actions,
+            onGenerateRoute: (settings) => Router.createRoute(settings),
+            onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
+              return [navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!];
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   void _setEffects(BuildContext context) async {
