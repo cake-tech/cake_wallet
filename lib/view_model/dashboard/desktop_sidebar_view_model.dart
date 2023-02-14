@@ -3,13 +3,10 @@ import 'package:mobx/mobx.dart';
 part 'desktop_sidebar_view_model.g.dart';
 
 enum SidebarItem {
-  dashboard(0),
-  support(1),
-  settings(2),
-  transactions(3);
-
-  final int value;
-  const SidebarItem(this.value);
+  dashboard,
+  support,
+  settings,
+  transactions;
 }
 
 class DesktopSidebarViewModel = DesktopSidebarViewModelBase with _$DesktopSidebarViewModel;
@@ -23,6 +20,12 @@ abstract class DesktopSidebarViewModelBase with Store {
 
   @action
   void onPageChange(SidebarItem item) {
+    
+    if(currentPage == item){
+      resetSidebar();
+      
+      return;
+    }
     currentPage = item;
   }
 
