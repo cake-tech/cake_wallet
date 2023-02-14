@@ -156,6 +156,7 @@ class DesktopSidebarWrapper extends BasePage {
             children: [
               child,
               Container(
+                padding: EdgeInsets.all(20),
                 child: Navigator(
                   initialRoute: Routes.support,
                   onGenerateRoute: (settings) => Router.createRoute(settings),
