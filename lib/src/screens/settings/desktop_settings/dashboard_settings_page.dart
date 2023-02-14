@@ -16,14 +16,12 @@ class DesktopSettingsPage extends StatefulWidget {
 }
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
-  int itemCount = SettingActions.all.length;
+  final int itemCount = SettingActions.all.length;
   int? currentPage;
-  bool isTapped = false;
 
   void _onItemChange(int index) {
     setState(() {
       currentPage = index;
-      isTapped = true;
     });
   }
 
@@ -54,7 +52,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                           final isLastTile = index == itemCount;
                           return SettingActionButton(
                             isLastTile: isLastTile,
-                            selectionActive: isTapped,
+                            selectionActive: currentPage != null,
                             isSelected: currentPage == index,
                             isArrowVisible: true,
                             onTap: () {

@@ -25,21 +25,23 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/router.dart' as Router;
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
     required this.balancePage,
     required this.walletViewModel,
     required this.addressListViewModel,
+    required this.desktopSidebarViewModel,
   });
 
   final BalancePage balancePage;
   final DashboardViewModel walletViewModel;
   final WalletAddressListViewModel addressListViewModel;
+  final DesktopSidebarViewModel desktopSidebarViewModel;
 
   @override
   Widget build(BuildContext context) {
-    final desktopSidebarViewModel = getIt<DesktopSidebarViewModel>();
     return Scaffold(
       body: ResponsiveLayoutUtil.instance.isMobile(context)
           ? _DashboardPageView(
@@ -49,6 +51,7 @@ class DashboardPage extends StatelessWidget {
             )
           : DesktopSidebarWrapper(
               desktopSidebarViewModel: desktopSidebarViewModel,
+              dashboardViewModel: walletViewModel,
               child: DesktopDashboardPage(
                 desktopSidebarViewModel: desktopSidebarViewModel,
                 balancePage: balancePage,
