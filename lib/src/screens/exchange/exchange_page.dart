@@ -1,6 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
+import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
@@ -8,7 +9,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -164,8 +164,7 @@ class ExchangePage extends BasePage {
                 bottomSectionPadding:
                     EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: ConstrainedBox(
-                  constraints:
-                  BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+                  constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
                   child: Column(children: <Widget>[
                     Padding(
                       padding: EdgeInsets.only(bottom: 15),
@@ -241,51 +240,9 @@ class ExchangePage extends BasePage {
       
             return Row(
               children: <Widget>[
-                GestureDetector(
-                  onTap: () =>
-                      Navigator.of(context).pushNamed(Routes.exchangeTemplate),
-                  child: Container(
-                    padding: EdgeInsets.only(left: 1, right: 10),
-                    child: DottedBorder(
-                      borderType: BorderType.RRect,
-                      dashPattern: [6, 4],
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .headline3!
-                          .decorationColor!,
-                      strokeWidth: 2,
-                      radius: Radius.circular(20),
-                      child: Container(
-                        height: 34,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveLayoutUtil.instance.isMobile(context) ? 10 : 30),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                          color: Colors.transparent,
-                        ),
-                        child: templates.length >= 1
-                            ? Icon(
-                                Icons.add,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headline2!
-                                    .color!,
-                              )
-                            : Text(
-                                S.of(context).new_template,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .headline2!
-                                      .color!,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
+                AddTemplateButton(
+                  onTap: () => Navigator.of(context).pushNamed(Routes.exchangeTemplate),
+                  currentTemplatesLength: templates.length,
                 ),
                 ListView.builder(
                   scrollDirection: Axis.horizontal,

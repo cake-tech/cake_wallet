@@ -1,10 +1,12 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
+import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,7 +21,6 @@ import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -52,6 +53,15 @@ class SendPage extends BasePage {
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  double _sendCardHeight(BuildContext context) {
+    final double initialHeight = sendViewModel.isElectrumWallet ? 490 : 465;
+
+    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
+      return initialHeight - 77;
+    }
+    return initialHeight;
+  }
 
   @override
   void onClose(BuildContext context) {
@@ -107,7 +117,7 @@ class SendPage extends BasePage {
           content: Column(
             children: <Widget>[
               Container(
-                  height: sendViewModel.isElectrumWallet ? 490 : 465,
+                  height: _sendCardHeight(context),
                   child: Observer(
                     builder: (_) {
                       return PageView.builder(
@@ -172,51 +182,9 @@ class SendPage extends BasePage {
 
                       return Row(
                         children: <Widget>[
-                          GestureDetector(
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(Routes.sendTemplate),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 1, right: 10),
-                              child: DottedBorder(
-                                borderType: BorderType.RRect,
-                                dashPattern: [6, 4],
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headline2!
-                                    .decorationColor!,
-                                strokeWidth: 2,
-                                radius: Radius.circular(20),
-                                child: Container(
-                                  height: 34,
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                    color: Colors.transparent,
-                                  ),
-                                  child: templates.length >= 1
-                                      ? Icon(
-                                          Icons.add,
-                                          color: Theme.of(context)
-                                              .primaryTextTheme!
-                                              .headline2!
-                                              .color!,
-                                        )
-                                      : Text(
-                                          S.of(context).new_template,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme!
-                                                .headline2!
-                                                .color!,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ),
+                          AddTemplateButton(
+                            onTap: () => Navigator.of(context).pushNamed(Routes.sendTemplate),
+                            currentTemplatesLength: templates.length,
                           ),
                           ListView.builder(
                             scrollDirection: Axis.horizontal,
@@ -279,80 +247,83 @@ class SendPage extends BasePage {
           ),
           bottomSectionPadding:
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          bottomSection: Column(
-            children: [
-              if (sendViewModel.hasCurrecyChanger)
-                Observer(builder: (_) =>
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: PrimaryButton(
-                      onPressed: () => presentCurrencyPicker(context),
-                      text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
-                      color: Colors.transparent,
-                      textColor: Theme.of(context)
-                          .accentTextTheme!
-                          .headline3!
-                          .decorationColor!,
+          bottomSection: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            child: Column(
+              children: [
+                if (sendViewModel.hasCurrecyChanger)
+                  Observer(builder: (_) =>
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: PrimaryButton(
+                        onPressed: () => presentCurrencyPicker(context),
+                        text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
+                        color: Colors.transparent,
+                        textColor: Theme.of(context)
+                            .accentTextTheme!
+                            .headline3!
+                            .decorationColor!,
+                      )
                     )
-                  )
-                ),
-              if (sendViewModel.hasMultiRecipient)
-                Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: PrimaryButton(
-                      onPressed: () {
-                        sendViewModel.addOutput();
-                        Future.delayed(const Duration(milliseconds: 250), () {
-                          controller.jumpToPage(sendViewModel.outputs.length - 1);
-                        });
-                      },
-                      text: S.of(context).add_receiver,
-                      color: Colors.transparent,
-                      textColor: Theme.of(context)
-                          .accentTextTheme!
-                          .headline3!
-                          .decorationColor!,
-                      isDottedBorder: true,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme!
-                          .headline3!
-                          .decorationColor!,
-                    )),
-              Observer(
-                builder: (_) {
-                  return LoadingPrimaryButton(
-                    onPressed: () async {
-                      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                        if (sendViewModel.outputs.length > 1) {
-                          showErrorValidationAlert(context);
+                  ),
+                if (sendViewModel.hasMultiRecipient)
+                  Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: PrimaryButton(
+                        onPressed: () {
+                          sendViewModel.addOutput();
+                          Future.delayed(const Duration(milliseconds: 250), () {
+                            controller.jumpToPage(sendViewModel.outputs.length - 1);
+                          });
+                        },
+                        text: S.of(context).add_receiver,
+                        color: Colors.transparent,
+                        textColor: Theme.of(context)
+                            .accentTextTheme!
+                            .headline3!
+                            .decorationColor!,
+                        isDottedBorder: true,
+                        borderColor: Theme.of(context)
+                            .primaryTextTheme!
+                            .headline3!
+                            .decorationColor!,
+                      )),
+                Observer(
+                  builder: (_) {
+                    return LoadingPrimaryButton(
+                      onPressed: () async {
+                        if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+                          if (sendViewModel.outputs.length > 1) {
+                            showErrorValidationAlert(context);
+                          }
+
+                          return;
                         }
 
-                        return;
-                      }
+                        final notValidItems = sendViewModel.outputs
+                            .where((item) =>
+                                item.address.isEmpty || item.cryptoAmount.isEmpty)
+                            .toList();
 
-                      final notValidItems = sendViewModel.outputs
-                          .where((item) =>
-                              item.address.isEmpty || item.cryptoAmount.isEmpty)
-                          .toList();
+                        if (notValidItems?.isNotEmpty ?? false) {
+                          showErrorValidationAlert(context);
+                          return;
+                        }
 
-                      if (notValidItems?.isNotEmpty ?? false) {
-                        showErrorValidationAlert(context);
-                        return;
-                      }
-                      
-                      await sendViewModel.createTransaction();
+                        await sendViewModel.createTransaction();
 
-                    },
-                    text: S.of(context).send,
-                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
-                    textColor: Colors.white,
-                    isLoading: sendViewModel.state is IsExecutingState ||
-                        sendViewModel.state is TransactionCommitting,
-                    isDisabled: !sendViewModel.isReadyForSend,
-                  );
-                },
-              )
-            ],
+                      },
+                      text: S.of(context).send,
+                      color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                      textColor: Colors.white,
+                      isLoading: sendViewModel.state is IsExecutingState ||
+                          sendViewModel.state is TransactionCommitting,
+                      isDisabled: !sendViewModel.isReadyForSend,
+                    );
+                  },
+                )
+              ],
+            ),
           )),
     );
   }
