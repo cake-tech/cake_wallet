@@ -17,7 +17,7 @@ class TwitterUser {
       id: json['data']['id'] as String,
       username: json['data']['username'] as String,
       name: json['data']['name'] as String,
-      description: json['data']['description'] as String,
+      description: json['data']['description'] as String? ?? '',
       tweets: json['includes'] != null
           ? List.from(json['includes']['tweets'] as List)
               .map((e) => Tweet.fromJson(e as Map<String, dynamic>))
