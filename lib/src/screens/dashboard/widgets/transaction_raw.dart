@@ -7,6 +7,7 @@ class TransactionRow extends StatelessWidget {
       required this.formattedDate,
       required this.formattedAmount,
       required this.formattedFiatAmount,
+      required this.isPending,
       required this.title,
       required this.onTap});
 
@@ -15,6 +16,7 @@ class TransactionRow extends StatelessWidget {
   final String formattedDate;
   final String formattedAmount;
   final String formattedFiatAmount;
+  final bool isPending;
   final String title;
 
   @override

@@ -339,7 +339,7 @@ class SendPage extends BasePage {
                         showErrorValidationAlert(context);
                         return;
                       }
-                      
+
                       await sendViewModel.createTransaction();
 
                     },

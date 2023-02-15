@@ -51,23 +51,18 @@ class TransactionsPage extends StatelessWidget {
 
                           return Observer(
                               builder: (_) => TransactionRow(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                  icon: transaction.direction.iconPath ?? '',
-                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
-                                  formattedAmount: item.formattedCryptoAmount,
-                                  formattedFiatAmount:
-                                  dashboardViewModel.balanceViewModel.isFiatDisabled
-                                      ? ''
-                                      : item.formattedFiatAmount,
-                                  title: (transaction.direction == TransactionDirection.incoming
-                                      ? S.of(context).received
-                                      : S.of(context).sent) +
-                                      (transaction.isLocked
-                                          ? ' ' + S.of(context).locked
-                                          : (transaction.isPending
-                                          ? S.of(context).pending
-                                          : ''))));
+                              onTap: () => Navigator.of(context).pushNamed(
+                                  Routes.transactionDetails,
+                                  arguments: transaction),
+                              icon: transaction.direction.iconPath ?? '',
+                              formattedDate: DateFormat('HH:mm')
+                                  .format(transaction.date),
+                              formattedAmount: item.formattedCryptoAmount,
+                              formattedFiatAmount:
+                              dashboardViewModel.balanceViewModel.isFiatDisabled
+                                  ? '' : item.formattedFiatAmount,
+                              isPending: transaction.isPending,
+                              title: item.formattedTitle + item.formattedStatus));
                         }
 
                         if (item is TradeListItem) {
