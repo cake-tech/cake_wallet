@@ -6,19 +6,21 @@ class SideMenu extends StatelessWidget {
     super.key,
     required this.topItems,
     required this.bottomItems,
+    required this.width,
   });
+  
   final List<SideMenuItem> topItems;
   final List<SideMenuItem> bottomItems;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black.withOpacity(0.1),
-      width: 76,
+      width: width,
       height: MediaQuery.of(context).size.height,
       child: Column(
         children: [
-          SizedBox(height: 20),
           ...topItems,
           Spacer(),
           ...bottomItems,

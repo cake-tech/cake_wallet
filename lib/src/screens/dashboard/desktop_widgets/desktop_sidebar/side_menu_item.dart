@@ -12,9 +12,7 @@ class SideMenuItem extends StatelessWidget {
   final String iconPath;
   final bool isSelected;
 
-  @override
-  Widget build(BuildContext context) {
-    Color _setColor() {
+   Color _setColor(BuildContext context) {
       if (isSelected) {
         return Theme.of(context).primaryTextTheme.headline6!.color!;
       } else {
@@ -22,6 +20,8 @@ class SideMenuItem extends StatelessWidget {
       }
     }
 
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       child: Padding(
         padding: EdgeInsets.all(20),
@@ -30,7 +30,7 @@ class SideMenuItem extends StatelessWidget {
           fit: BoxFit.cover,
           height: 30,
           width: 30,
-          color: _setColor(),
+          color: _setColor(context),
         ),
       ),
       onTap: () => onTap.call(),
