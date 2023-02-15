@@ -25,7 +25,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/router.dart' as Router;
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
@@ -23,8 +24,11 @@ void startAuthenticationStateChange(AuthenticationStore authenticationStore,
     }
 
     if (state == AuthenticationState.allowed) {
-      await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-      return;
+      // Temporary workaround for the issue with desktopKey dispose
+      Future.delayed(Duration(milliseconds: 2), () async {
+        await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        return;
+      });
     }
   });
 }

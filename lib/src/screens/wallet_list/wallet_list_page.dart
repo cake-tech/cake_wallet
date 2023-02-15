@@ -1,3 +1,4 @@
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -100,9 +101,9 @@ class WalletListBodyState extends State<WalletListBody> {
                                         leftButtonText: S.of(context).cancel,
                                         rightButtonText: S.of(context).change,
                                         actionLeftButton: () =>
-                                            Navigator.of(context).pop(false),
+                                            Navigator.of(dialogContext).pop(false),
                                         actionRightButton: () =>
-                                            Navigator.of(context).pop(true));
+                                            Navigator.of(dialogContext).pop(true));
                                   }) ??
                               false;
 
@@ -233,7 +234,7 @@ class WalletListBodyState extends State<WalletListBody> {
           auth.hideProgressText();
           auth.close();
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pop();
+          navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
           });
         } catch (e) {
           auth.changeProcessText(
@@ -245,7 +246,7 @@ class WalletListBodyState extends State<WalletListBody> {
         changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
         hideProgressText();
-        Navigator.of(context).pop();
+        navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }

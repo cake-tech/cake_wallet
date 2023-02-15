@@ -6,7 +6,6 @@ import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
 
-final _settingsNavigatorKey = GlobalKey<NavigatorState>();
 
 class DesktopSettingsPage extends StatefulWidget {
   const DesktopSettingsPage({super.key});
@@ -16,6 +15,8 @@ class DesktopSettingsPage extends StatefulWidget {
 }
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
+  GlobalKey<NavigatorState> _settingsNavigatorKey = GlobalKey<NavigatorState>();
+
   final int itemCount = SettingActions.all.length;
   int? currentPage;
 
@@ -58,7 +59,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                             onTap: () {
                               if (currentPage != index) {
                                 final settingContext =
-                                    _settingsNavigatorKey.currentState?.context ?? context;
+                                    _settingsNavigatorKey.currentState!.context;
                                 item.onTap.call(settingContext);
                                 _onItemChange(index);
                               }
