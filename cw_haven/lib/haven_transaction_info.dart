@@ -5,6 +5,7 @@ import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_haven/api/transaction_history.dart';
+import 'package:intl/intl.dart';
 
 class HavenTransactionInfo extends TransactionInfo {
   HavenTransactionInfo(this.id, this.height, this.direction, this.date,
@@ -20,7 +21,7 @@ class HavenTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
-        unlockTime = row.getUnlockTime(),
+        unlockTime = row.unlockTime,
         confirmations = row.confirmations,
         key = null, //getTxKey(row.getHash()),
         fee = row.fee,
@@ -58,16 +59,21 @@ class HavenTransactionInfo extends TransactionInfo {
 
   @override
   String? unlockTimeFormatted() {
-    if (direction == TransactionDirection.outgoing || unlockTime == 0) {
+    if (direction == TransactionDirection.outgoing || unlockTime < (height + 10)) {
       return null;
     }
 
-    if (unlockTime > 500000) {
-      return '>1 year';
+    if (unlockTime < 500000000) {
+      return (unlockTime - height) * 2 > 500000
+          ? '>1 year'
+          : '~${(unlockTime - height) * 2} minutes';
     }
-    return '~ $unlockTime minutes';
-  }
 
-  @override
-  bool get isLocked => direction == TransactionDirection.incoming && unlockTime > 0;
+    var locked = DateTime.fromMillisecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final String formattedUnlockTime =
+    formatter.format(DateTime.fromMillisecondsSinceEpoch(unlockTime));
+
+    return locked >= 0 ? '$formattedUnlockTime' : null;
+  }
 }

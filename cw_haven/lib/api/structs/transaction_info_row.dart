@@ -44,5 +44,4 @@ class TransactionInfoRow extends Struct {
   String getHash() => hash.toDartString();
   String getPaymentId() => paymentId.toDartString();
   String getAssetType() => assetType.toDartString();
-  int getUnlockTime() => unlockTime * 2;
 }
