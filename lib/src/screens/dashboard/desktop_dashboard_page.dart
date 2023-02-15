@@ -33,18 +33,6 @@ class DesktopDashboardPage extends BasePage {
   @override
   bool get resizeToAvoidBottomInset => false;
 
-    @override
-  Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).primaryColor,
-          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
-          child: scaffold);
-  
-
   final BalancePage balancePage;
   final DashboardViewModel walletViewModel;
   final WalletAddressListViewModel addressListViewModel;
