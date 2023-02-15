@@ -16,13 +16,13 @@ import 'package:cake_wallet/router.dart' as Router;
 class DesktopDashboardPage extends StatelessWidget {
   DesktopDashboardPage({
     required this.balancePage,
-    required this.walletViewModel,
+    required this.dashboardViewModel,
     required this.addressListViewModel,
     required this.desktopSidebarViewModel,
   });
 
   final BalancePage balancePage;
-  final DashboardViewModel walletViewModel;
+  final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
   final DesktopSidebarViewModel desktopSidebarViewModel;
 
@@ -68,7 +68,7 @@ class DesktopDashboardPage extends StatelessWidget {
     _isEffectsInstalled = true;
 
     autorun((_) async {
-      if (!walletViewModel.isOutdatedElectrumWallet) {
+      if (!dashboardViewModel.isOutdatedElectrumWallet) {
         return;
       }
 
@@ -94,13 +94,13 @@ class DesktopDashboardPage extends StatelessWidget {
         Future<void>.delayed(Duration(milliseconds: 500)).then((_) {
           showPopUp<void>(
               context: navigatorKey.currentContext!,
-              builder: (_) => YatEmojiId(walletViewModel.yatStore.emoji));
+              builder: (_) => YatEmojiId(dashboardViewModel.yatStore.emoji));
           needToPresentYat = false;
         });
       }
     });
 
-    walletViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
+    dashboardViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
       if (!_isEffectsInstalled || emoji.isEmpty) {
         return;
       }

@@ -371,7 +371,7 @@ Future setup(
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
       balancePage: getIt.get<BalancePage>(), 
-      walletViewModel: getIt.get<DashboardViewModel>(), 
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
     ));
