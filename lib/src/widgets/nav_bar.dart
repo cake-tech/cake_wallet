@@ -52,21 +52,28 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (leading == null && middle == null && trailing == null) {
+      return const SizedBox();
+    }
+
     final pad = height - _originalHeight;
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
 
     if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
-      return Padding(
-        padding: const EdgeInsetsDirectional.only(end: 24, top: 8, bottom: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            if (leading != null) Flexible(child: leading!) else const SizedBox(),
-            if (middle != null) middle!,
-            trailing ?? const SizedBox(),
-          ],
+      return Container(
+        padding: const EdgeInsetsDirectional.only(end: 24),
+        color: backgroundColor,
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (leading != null) Flexible(child: leading!) else const SizedBox(),
+              if (middle != null) middle!,
+              trailing ?? const SizedBox(),
+            ],
+          ),
         ),
       );
     }
