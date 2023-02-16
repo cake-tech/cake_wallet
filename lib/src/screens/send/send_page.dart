@@ -52,13 +52,16 @@ class SendPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
+  bool get canUseCloseIcon => true;
+
+  @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
     final double initialHeight = sendViewModel.isElectrumWallet ? 490 : 465;
 
     if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
-      return initialHeight - 77;
+      return initialHeight - 66;
     }
     return initialHeight;
   }

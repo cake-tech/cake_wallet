@@ -109,6 +109,9 @@ class ExchangePage extends BasePage {
       });
 
   @override
+  bool get canUseCloseIcon => true;
+
+  @override
   Widget body(BuildContext context) {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
