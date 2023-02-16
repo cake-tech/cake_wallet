@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:mobx/mobx.dart';
-
 class DesktopSidebarWrapper extends BasePage {
   final Widget child;
   final DesktopSidebarViewModel desktopSidebarViewModel;
@@ -24,6 +23,8 @@ class DesktopSidebarWrapper extends BasePage {
     required this.desktopSidebarViewModel,
     required this.dashboardViewModel,
   });
+
+  static  Key _pageViewKey = GlobalKey();
 
   @override
   Color get backgroundLightColor =>
@@ -37,23 +38,6 @@ class DesktopSidebarWrapper extends BasePage {
   final selectedIconPath = 'assets/images/desktop_transactions_solid_icon.png';
   final unselectedIconPath = 'assets/images/desktop_transactions_outline_icon.png';
   double get sideMenuWidth => 76.0;
-
-  @override
-  Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).accentColor,
-                  Theme.of(context).scaffoldBackgroundColor,
-                  Theme.of(context).primaryColor,
-                ],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-              ),
-            ),
-            child: scaffold,
-          );
 
   @override
   Widget? leading(BuildContext context) => Padding(
@@ -105,24 +89,8 @@ class DesktopSidebarWrapper extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction<SidebarItem>((_) => desktopSidebarViewModel.currentPage, (page) {
-      String? currentPath;
-
-      desktopKey.currentState?.popUntil((route) {
-        currentPath = route.settings.name;
-        return true;
-      });
-      if (page == SidebarItem.transactions) {
-        return;
-      }
-
-      if (currentPath == Routes.transactionsPage) {
-        Navigator.of(desktopKey.currentContext!).pop();
-      }
-
-      pageController.jumpToPage(page.index);
-    });
-
+    _setEffects();
+    
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,6 +119,7 @@ class DesktopSidebarWrapper extends BasePage {
         }),
         Expanded(
           child: PageView(
+            key: _pageViewKey,
             controller: pageController,
             physics: NeverScrollableScrollPhysics(),
             children: [
@@ -181,5 +150,26 @@ class DesktopSidebarWrapper extends BasePage {
         ),
       ],
     );
+  }
+
+void _setEffects() async {
+
+   reaction<SidebarItem>((_) => desktopSidebarViewModel.currentPage, (page) {
+
+      String? currentPath;
+
+      desktopKey.currentState?.popUntil((route) {
+        currentPath = route.settings.name;
+        return true;
+      });
+      if (page == SidebarItem.transactions) {
+        return;
+      }
+
+      if (currentPath == Routes.transactionsPage) {
+        Navigator.of(desktopKey.currentContext!).pop();
+      }
+      pageController.jumpToPage(page.index);
+    });
   }
 }
