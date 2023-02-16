@@ -1,7 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_item.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
@@ -31,12 +31,16 @@ class DesktopSidebarWrapper extends BasePage {
       currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
 
   @override
-  Color get backgroundDarkColor => Colors.transparent;
+  Color get backgroundDarkColor => Colors.black.withOpacity(0.1);
+
+  @override
+  bool get resizeToAvoidBottomInset => false;
 
   final pageController = PageController();
 
   final selectedIconPath = 'assets/images/desktop_transactions_solid_icon.png';
   final unselectedIconPath = 'assets/images/desktop_transactions_outline_icon.png';
+
   double get sideMenuWidth => 76.0;
 
   @override
@@ -58,7 +62,7 @@ class DesktopSidebarWrapper extends BasePage {
       onTap: () {
         String? currentPath;
 
-        desktopKey.currentState?.popUntil((route) {
+        DesktopDashboardPage.desktopKey.currentState?.popUntil((route) {
           currentPath = route.settings.name;
           return true;
         });
@@ -71,7 +75,7 @@ class DesktopSidebarWrapper extends BasePage {
             desktopSidebarViewModel.resetSidebar();
             Future.delayed(Duration(milliseconds: 10), () {
               desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
-              desktopKey.currentState?.pushNamed(Routes.transactionsPage);
+              DesktopDashboardPage.desktopKey.currentState?.pushNamed(Routes.transactionsPage);
             });
         }
       },
@@ -151,6 +155,8 @@ class DesktopSidebarWrapper extends BasePage {
       ],
     );
   }
+
+final desktopKey = DesktopDashboardPage.desktopKey;
 
 void _setEffects() async {
 

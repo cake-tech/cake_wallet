@@ -445,7 +445,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ));
 
     case Routes.ioniaWelcomePage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaWelcomePage>());  
+      return CupertinoPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<IoniaWelcomePage>(),
+      );
     
     case Routes.ioniaLoginPage:
       return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaLoginPage>());
@@ -517,8 +520,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           ));
 
     case Routes.desktop_actions:
-      return CupertinoPageRoute<void>(
-          builder: (_) => DesktopDashboardActions(getIt<DashboardViewModel>()));
+      return PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, __, ___) => DesktopDashboardActions(getIt<DashboardViewModel>()),
+      );
     
     case Routes.desktop_settings_page:
       return CupertinoPageRoute<void>(

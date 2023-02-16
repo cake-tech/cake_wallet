@@ -42,26 +42,10 @@ class AddressPage extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget leading(BuildContext context) {
-    final _backButton = Icon(Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-      size: 16,);
+  Color get titleColor => Colors.white;
 
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
-            onPressed: () => onClose(context),
-            child: _backButton),
-      ),
-    );
-  }
+  @override
+  bool get canUseCloseIcon => true;
 
   @override
   Widget middle(BuildContext context) {
