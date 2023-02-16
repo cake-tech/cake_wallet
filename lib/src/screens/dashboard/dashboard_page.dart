@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
@@ -25,18 +24,17 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/router.dart' as Router;
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
     required this.balancePage,
-    required this.walletViewModel,
+    required this.dashboardViewModel,
     required this.addressListViewModel,
     required this.desktopSidebarViewModel,
   });
 
   final BalancePage balancePage;
-  final DashboardViewModel walletViewModel;
+  final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
   final DesktopSidebarViewModel desktopSidebarViewModel;
 
@@ -46,16 +44,15 @@ class DashboardPage extends StatelessWidget {
       body: ResponsiveLayoutUtil.instance.isMobile(context)
           ? _DashboardPageView(
               balancePage: balancePage,
-              walletViewModel: walletViewModel,
+              walletViewModel: dashboardViewModel,
               addressListViewModel: addressListViewModel,
             )
           : DesktopSidebarWrapper(
               desktopSidebarViewModel: desktopSidebarViewModel,
-              dashboardViewModel: walletViewModel,
+              dashboardViewModel: dashboardViewModel,
               child: DesktopDashboardPage(
-                desktopSidebarViewModel: desktopSidebarViewModel,
                 balancePage: balancePage,
-                walletViewModel: walletViewModel,
+                dashboardViewModel: dashboardViewModel,
                 addressListViewModel: addressListViewModel,
               ),
             ),
