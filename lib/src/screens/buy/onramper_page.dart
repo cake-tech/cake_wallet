@@ -1,19 +1,14 @@
 import 'dart:io';
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class OnRamperPage extends BasePage {
-  OnRamperPage({
-      required this.settingsStore,
-      required this.wallet});
+  OnRamperPage(this._onRamperBuyProvider);
 
-  final SettingsStore settingsStore;
-  final WalletBase wallet;
+  final OnRamperBuyProvider _onRamperBuyProvider;
 
   @override
   String get title => S.current.buy;
@@ -22,46 +17,25 @@ class OnRamperPage extends BasePage {
   Widget body(BuildContext context) {
     final darkMode = Theme.of(context).brightness == Brightness.dark;
     return OnRamperPageBody(
-        settingsStore: settingsStore,
-        wallet: wallet,
-        darkMode: darkMode,
-        backgroundColor: darkMode
-          ? backgroundDarkColor
-          : backgroundLightColor,
-        supportSell: false,
-        supportSwap: false);
+      onRamperBuyProvider: _onRamperBuyProvider,
+      darkMode: darkMode,
+      backgroundColor: darkMode ? backgroundDarkColor : backgroundLightColor,
+    );
   }
 }
 
 class OnRamperPageBody extends StatefulWidget {
   OnRamperPageBody({
-    required this.settingsStore,
-    required this.wallet,
+    required this.onRamperBuyProvider,
     required this.darkMode,
-    required this.supportSell,
-    required this.supportSwap,
-    required this.backgroundColor});
+    required this.backgroundColor,
+  });
 
-  static const baseUrl = 'widget.onramper.com';
-  final SettingsStore settingsStore;
-  final WalletBase wallet;
+  final OnRamperBuyProvider onRamperBuyProvider;
   final Color backgroundColor;
   final bool darkMode;
-  final bool supportSell;
-  final bool supportSwap;
 
-  Uri get uri
-    => Uri.https(
-      baseUrl,
-      '',
-      <String, dynamic>{
-        'apiKey': secrets.onramperApiKey,
-        'defaultCrypto': wallet.currency.title,
-        'defaultFiat': settingsStore.fiatCurrency.title,
-        'wallets': '${wallet.currency.title}:${wallet.walletAddresses.address}',
-        'darkMode': darkMode.toString(),
-        'supportSell': supportSell.toString(),
-        'supportSwap': supportSwap.toString()});
+  Uri get uri => onRamperBuyProvider.requestUrl(darkMode);
 
   @override
   OnRamperPageBodyState createState() => OnRamperPageBodyState();

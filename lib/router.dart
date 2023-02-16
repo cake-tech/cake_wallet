@@ -6,6 +6,8 @@ import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
+import 'package:cake_wallet/src/screens/settings/desktop_settings/dashboard_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -386,6 +388,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.exchange:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<ExchangePage>());
 
     case Routes.exchangeTemplate:
@@ -442,7 +445,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ));
 
     case Routes.ioniaWelcomePage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaWelcomePage>());  
+      return CupertinoPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<IoniaWelcomePage>(),
+      );
     
     case Routes.ioniaLoginPage:
       return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaLoginPage>());
@@ -514,9 +520,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
           ));
 
     case Routes.desktop_actions:
+      return PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, __, ___) => DesktopDashboardActions(getIt<DashboardViewModel>()),
+      );
+    
+    case Routes.desktop_settings_page:
       return CupertinoPageRoute<void>(
-          builder: (_) => DesktopDashboardActions(getIt<DashboardViewModel>()));
+          builder: (_) => DesktopSettingsPage());
 
+    case Routes.empty_no_route:
+      return MaterialPageRoute<void>(
+          builder: (_) => SizedBox.shrink());
+    
+    case Routes.transactionsPage:
+      return CupertinoPageRoute<void>(
+          settings: settings,
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<TransactionsPage>());
+          
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

@@ -36,7 +36,8 @@ class Routes {
   static const exchangeTrade = '/exchange_trade';
   static const restoreWalletFromSeedDetails = '/restore_from_seed_details';
   static const exchange = '/exchange';
-  static const settings = '/settings';
+  static const desktop_settings_page = '/desktop_settings_page';
+  static const empty_no_route = '/empty_no_route';
   static const unlock = '/auth_not_closable';
   static const rescan = '/rescan';
   static const faq = '/faq';
@@ -83,4 +84,5 @@ class Routes {
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const desktop_actions = '/desktop_actions';
+  static const transactionsPage = '/transactions_page';
 }

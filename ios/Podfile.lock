@@ -8,25 +8,6 @@ PODS:
     - Flutter
     - Reachability
   - CryptoSwift (1.3.2)
-  - cw_haven (0.0.1):
-    - cw_haven/Boost (= 0.0.1)
-    - cw_haven/Haven (= 0.0.1)
-    - cw_haven/OpenSSL (= 0.0.1)
-    - cw_haven/Sodium (= 0.0.1)
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Boost (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Haven (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/OpenSSL (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Sodium (0.0.1):
-    - cw_shared_external
-    - Flutter
   - cw_monero (0.0.2):
     - cw_monero/Boost (= 0.0.2)
     - cw_monero/Monero (= 0.0.2)
@@ -109,8 +90,9 @@ PODS:
   - MTBBarcodeScanner (5.0.11)
   - package_info (0.0.1):
     - Flutter
-  - path_provider_ios (0.0.1):
+  - path_provider_foundation (0.0.1):
     - Flutter
+    - FlutterMacOS
   - permission_handler_apple (9.0.4):
     - Flutter
   - platform_device_id (0.0.1):
@@ -121,8 +103,9 @@ PODS:
   - SDWebImage/Core (5.9.1)
   - share_plus (0.0.1):
     - Flutter
-  - shared_preferences_ios (0.0.1):
+  - shared_preferences_foundation (0.0.1):
     - Flutter
+    - FlutterMacOS
   - SwiftProtobuf (1.18.0)
   - SwiftyGif (5.3.0)
   - uni_links (0.0.1):
@@ -132,6 +115,8 @@ PODS:
     - CryptoSwift
   - url_launcher_ios (0.0.1):
     - Flutter
+  - wakelock (0.0.1):
+    - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
 
@@ -139,7 +124,6 @@ DEPENDENCIES:
   - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
   - CryptoSwift
-  - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
@@ -150,14 +134,15 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - local_auth_ios (from `.symlinks/plugins/local_auth_ios/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
-  - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - platform_device_id (from `.symlinks/plugins/platform_device_id/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
-  - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - UnstoppableDomainsResolution (~> 4.0.0)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - wakelock (from `.symlinks/plugins/wakelock/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
@@ -178,8 +163,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/barcode_scan2/ios"
   connectivity:
     :path: ".symlinks/plugins/connectivity/ios"
-  cw_haven:
-    :path: ".symlinks/plugins/cw_haven/ios"
   cw_monero:
     :path: ".symlinks/plugins/cw_monero/ios"
   cw_shared_external:
@@ -200,20 +183,22 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/local_auth_ios/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
-  path_provider_ios:
-    :path: ".symlinks/plugins/path_provider_ios/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   platform_device_id:
     :path: ".symlinks/plugins/platform_device_id/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
-  shared_preferences_ios:
-    :path: ".symlinks/plugins/shared_preferences_ios/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/ios"
   uni_links:
     :path: ".symlinks/plugins/uni_links/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
+  wakelock:
+    :path: ".symlinks/plugins/wakelock/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
@@ -222,7 +207,6 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
-  cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
@@ -236,18 +220,19 @@ SPEC CHECKSUMS:
   local_auth_ios: 0d333dde7780f669e66f19d2ff6005f3ea84008d
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
-  path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
+  path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SDWebImage: a990c053fff71e388a10f3357edb0be17929c9c5
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
-  shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
+  shared_preferences_foundation: 297b3ebca31b34ec92be11acd7fb0ba932c822ca
   SwiftProtobuf: c3c12645230d9b09c72267e0de89468c5543bd86
   SwiftyGif: e466e86c660d343357ab944a819a101c4127cb40
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
-  url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
+  url_launcher_ios: ae1517e5e344f5544fb090b079e11f399dfbe4d2
+  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
   webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
 
 PODFILE CHECKSUM: ae71bdf0eb731a1ffc399c122f6aa4dea0cb5f6f

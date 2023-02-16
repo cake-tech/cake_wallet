@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
@@ -5,6 +8,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -13,7 +17,9 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
@@ -206,7 +212,11 @@ Future setup(
       (secrets.wyreAccountId?.isNotEmpty ?? false);
 
   final settingsStore = await SettingsStoreBase.load(
-      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
+    nodeSource: _nodeSource,
+    isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+    // Enforce darkTheme on other platforms till the design for other themes is completed
+    initialTheme: Platform.isIOS || Platform.isAndroid ? null : ThemeList.darkTheme,
+  );
 
   if (_isSetupFinished) {
     return;
@@ -358,7 +368,13 @@ Future setup(
   getIt.registerFactory(() =>
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory<DashboardPage>(() => DashboardPage(
+      balancePage: getIt.get<BalancePage>(), 
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
+    ));
+  getIt.registerFactory<TransactionsPage>(() => TransactionsPage(dashboardViewModel: getIt.get<DashboardViewModel>()));
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<AddressPage>(() => AddressPage(
@@ -519,9 +535,12 @@ Future setup(
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 
-  getIt.registerFactory(() => OnRamperPage(
+  getIt.registerLazySingleton<OnRamperBuyProvider>(() => OnRamperBuyProvider(
     settingsStore: getIt.get<AppStore>().settingsStore,
-    wallet: getIt.get<AppStore>().wallet!));
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
+
+  getIt.registerFactory(() => OnRamperPage(getIt.get<OnRamperBuyProvider>()));
 
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>().wallet!,
@@ -793,7 +812,7 @@ Future setup(
     return IoniaMoreOptionsPage(giftCard);
   });
 
-  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) 
+  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _)
     => IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _){
@@ -818,6 +837,8 @@ Future setup(
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>()));
+
+  getIt.registerFactory(() => DesktopSidebarViewModel());
 
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)

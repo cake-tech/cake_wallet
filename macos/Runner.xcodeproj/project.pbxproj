@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -24,11 +24,11 @@
 		328F945957E1041662291EC5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C84AA35EA80D710889C68D81 /* Pods_Runner.framework */; };
 		335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */; };
 		33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC10F02044A3C60003C045 /* AppDelegate.swift */; };
+		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
-		9F31AE4A2988022C00765327 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
-		9F3F7550298098120030A1D7 /* secRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3F754D298098120030A1D7 /* secRandom.swift */; };
-		9F3F7551298098120030A1D7 /* decrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3F754E298098120030A1D7 /* decrypt.swift */; };
+		9F565D5929954F53009A75FB /* secRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5729954F53009A75FB /* secRandom.swift */; };
+		9F565D5A29954F53009A75FB /* decrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5829954F53009A75FB /* decrypt.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,8 +74,8 @@
 		359F2F22842E234537DED5E3 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
-		9F3F754D298098120030A1D7 /* secRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = secRandom.swift; path = CakeWallet/secRandom.swift; sourceTree = "<group>"; };
-		9F3F754E298098120030A1D7 /* decrypt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = decrypt.swift; path = CakeWallet/decrypt.swift; sourceTree = "<group>"; };
+		9F565D5729954F53009A75FB /* secRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = secRandom.swift; path = CakeWallet/secRandom.swift; sourceTree = "<group>"; };
+		9F565D5829954F53009A75FB /* decrypt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = decrypt.swift; path = CakeWallet/decrypt.swift; sourceTree = "<group>"; };
 		C84AA35EA80D710889C68D81 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF499CFF131B036E3C5638D0 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -106,8 +106,8 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
-				9F3F754E298098120030A1D7 /* decrypt.swift */,
-				9F3F754D298098120030A1D7 /* secRandom.swift */,
+				9F565D5829954F53009A75FB /* decrypt.swift */,
+				9F565D5729954F53009A75FB /* secRandom.swift */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
 				33CC10EE2044A3C60003C045 /* Products */,
@@ -253,7 +253,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F31AE4A2988022C00765327 /* Assets.xcassets in Resources */,
+				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
 				33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,6 +263,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		3399D490228B24CF009A79C7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -344,8 +345,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F3F7550298098120030A1D7 /* secRandom.swift in Sources */,
-				9F3F7551298098120030A1D7 /* decrypt.swift in Sources */,
+				9F565D5929954F53009A75FB /* secRandom.swift in Sources */,
+				9F565D5A29954F53009A75FB /* decrypt.swift in Sources */,
 				33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
@@ -413,7 +414,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -429,17 +430,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 32J6BB6VUS;
-				ENABLE_ON_DEMAND_RESOURCES = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cake Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 12;
+				MARKETING_VERSION = 1.0.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
@@ -497,7 +501,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -544,7 +548,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -560,17 +564,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 32J6BB6VUS;
-				ENABLE_ON_DEMAND_RESOURCES = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cake Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 12;
+				MARKETING_VERSION = 1.0.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -585,17 +592,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Release.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 32J6BB6VUS;
-				ENABLE_ON_DEMAND_RESOURCES = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cake Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 12;
+				MARKETING_VERSION = 1.0.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};

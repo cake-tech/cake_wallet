@@ -23,7 +23,7 @@ class MoonPaySellProvider {
   final bool isTest;
   final String baseUrl;
 
-  Future<String> requestUrl({required CryptoCurrency currency, required String refundWalletAddress}) async {
+  Future<Uri> requestUrl({required CryptoCurrency currency, required String refundWalletAddress}) async {
     final originalUri = Uri.https(
       baseUrl, '', <String, dynamic>{
         'apiKey': _apiKey,
@@ -37,13 +37,13 @@ class MoonPaySellProvider {
     final signature = base64.encode(digest.bytes);
 
     if (isTest) {
-      return originalUri.toString();
+      return originalUri;
     }
 
     final query = Map<String, dynamic>.from(originalUri.queryParameters);
     query['signature'] = signature;
     final signedUri = originalUri.replace(queryParameters: query);
-    return signedUri.toString();
+    return signedUri;
   }
 }
 

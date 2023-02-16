@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -119,7 +120,7 @@ class SendCardState extends State<SendCard>
               color: Colors.transparent,
             )),
         Container(
-          decoration: BoxDecoration(
+          decoration: ResponsiveLayoutUtil.instance.isMobile(context) ? BoxDecoration(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24)),
@@ -130,9 +131,14 @@ class SendCardState extends State<SendCard>
                   .subtitle1!
                   .decorationColor!,
             ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          ),
+          ) : null,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
+            padding: EdgeInsets.fromLTRB(
+              24,
+              ResponsiveLayoutUtil.instance.isMobile(context) ? 100 : 55,
+              24,
+              ResponsiveLayoutUtil.instance.isMobile(context) ? 32 : 0,
+            ),
             child: SingleChildScrollView(
                 child: Observer(builder: (_) => Column(
                   mainAxisSize: MainAxisSize.min,

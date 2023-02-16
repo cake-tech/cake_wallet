@@ -1,16 +1,16 @@
 import 'dart:async';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/constants.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -25,8 +25,43 @@ import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 
-class DashboardPage extends BasePage {
+class DashboardPage extends StatelessWidget {
   DashboardPage({
+    required this.balancePage,
+    required this.dashboardViewModel,
+    required this.addressListViewModel,
+    required this.desktopSidebarViewModel,
+  });
+
+  final BalancePage balancePage;
+  final DashboardViewModel dashboardViewModel;
+  final WalletAddressListViewModel addressListViewModel;
+  final DesktopSidebarViewModel desktopSidebarViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ResponsiveLayoutUtil.instance.isMobile(context)
+          ? _DashboardPageView(
+              balancePage: balancePage,
+              walletViewModel: dashboardViewModel,
+              addressListViewModel: addressListViewModel,
+            )
+          : DesktopSidebarWrapper(
+              desktopSidebarViewModel: desktopSidebarViewModel,
+              dashboardViewModel: dashboardViewModel,
+              child: DesktopDashboardPage(
+                balancePage: balancePage,
+                dashboardViewModel: dashboardViewModel,
+                addressListViewModel: addressListViewModel,
+              ),
+            ),
+    );
+  }
+}
+
+class _DashboardPageView extends BasePage {
+  _DashboardPageView({
     required this.balancePage,
     required this.walletViewModel,
     required this.addressListViewModel,
@@ -57,15 +92,6 @@ class DashboardPage extends BasePage {
 
   @override
   Widget get endDrawer => MenuWidget(walletViewModel);
-
-  @override
-  Widget? leading(BuildContext context) {
-    if (MediaQuery.of(context).size.width > ConstValues.minimumDesktopWidth) {
-      return getIt<DesktopWalletSelectionDropDown>();
-    }
-
-    return null;
-  }
 
   @override
   Widget middle(BuildContext context) {
@@ -105,19 +131,15 @@ class DashboardPage extends BasePage {
 
     return SafeArea(
         minimum: EdgeInsets.only(bottom: 24),
-        child: LayoutBuilder(builder: (context, constraints) {
-          if (constraints.maxWidth > ConstValues.minimumDesktopWidth) {
-            return DesktopDashboardView(balancePage);
-          }
-          return Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Expanded(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Expanded(
                 child: PageView.builder(
                     controller: controller,
                     itemCount: pages.length,
                     itemBuilder: (context, index) => pages[index])),
-              Padding(
+            Padding(
                 padding: EdgeInsets.only(bottom: 24, top: 10),
                 child: SmoothPageIndicator(
                   controller: controller,
@@ -128,65 +150,61 @@ class DashboardPage extends BasePage {
                       dotWidth: 6.0,
                       dotHeight: 6.0,
                       dotColor: Theme.of(context).indicatorColor,
-                      activeDotColor: Theme.of(context)
-                          .accentTextTheme!
-                          .headline4!
-                          .backgroundColor!),
+                      activeDotColor:
+                          Theme.of(context).accentTextTheme!.headline4!.backgroundColor!),
                 )),
-              Observer(builder: (_) {
-                return ClipRect(
+            Observer(builder: (_) {
+              return ClipRect(
+                child: Container(
+                  margin: const EdgeInsets.only(left: 16, right: 16),
                   child: Container(
-                    margin: const EdgeInsets.only(left: 16, right: 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50.0),
-                        border: Border.all(
-                          color: currentTheme.type == ThemeType.bright
-                              ? Color.fromRGBO(255, 255, 255, 0.2)
-                              : Colors.transparent,
-                          width: 1,
-                        ),
-                        color: Theme.of(context).textTheme.headline6!.backgroundColor!,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50.0),
+                      border: Border.all(
+                        color: currentTheme.type == ThemeType.bright
+                            ? Color.fromRGBO(255, 255, 255, 0.2)
+                            : Colors.transparent,
+                        width: 1,
                       ),
-                      child: Container(
-                        padding: EdgeInsets.only(left: 32, right: 32),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: MainActions.all
-                              .where((element) => element.canShow?.call(walletViewModel) ?? true)
-                              .map((action) => ActionButton(
-                                    image: Image.asset(action.image,
-                                        height: 24,
-                                        width: 24,
-                                        color: action.isEnabled?.call(walletViewModel) ?? true
-                                            ? Theme.of(context)
-                                                .accentTextTheme
-                                                .headline2!
-                                                .backgroundColor!
-                                            : Theme.of(context)
-                                                .accentTextTheme
-                                                .headline3!
-                                                .backgroundColor!),
-                                    title: action.name(context),
-                                    onClick: () async =>
-                                        await action.onTap(context, walletViewModel),
-                                    textColor: action.isEnabled?.call(walletViewModel) ?? true
-                                        ? null
-                                        : Theme.of(context)
-                                            .accentTextTheme
-                                            .headline3!
-                                            .backgroundColor!,
-                                  ))
-                              .toList(),
-                        ),
+                      color: Theme.of(context).textTheme.headline6!.backgroundColor!,
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.only(left: 32, right: 32),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: MainActions.all
+                            .where((element) => element.canShow?.call(walletViewModel) ?? true)
+                            .map((action) => ActionButton(
+                                  image: Image.asset(action.image,
+                                      height: 24,
+                                      width: 24,
+                                      color: action.isEnabled?.call(walletViewModel) ?? true
+                                          ? Theme.of(context)
+                                              .accentTextTheme
+                                              .headline2!
+                                              .backgroundColor!
+                                          : Theme.of(context)
+                                              .accentTextTheme
+                                              .headline3!
+                                              .backgroundColor!),
+                                  title: action.name(context),
+                                  onClick: () async => await action.onTap(context, walletViewModel),
+                                  textColor: action.isEnabled?.call(walletViewModel) ?? true
+                                      ? null
+                                      : Theme.of(context)
+                                          .accentTextTheme
+                                          .headline3!
+                                          .backgroundColor!,
+                                ))
+                            .toList(),
                       ),
                     ),
                   ),
-                );
-              }),
-            ],
-          );
-        }));
+                ),
+              );
+            }),
+          ],
+        ));
   }
 
   void _setEffects(BuildContext context) async {
