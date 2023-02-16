@@ -2,12 +2,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/cupertino.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
-  factory NavBar(
-      {Widget? leading,
-      Widget? middle,
-      Widget? trailing,
-      Color? backgroundColor}) {
-
+  factory NavBar({Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
     return NavBar._internal(
         leading: leading,
         middle: middle,
@@ -17,11 +12,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   }
 
   factory NavBar.withShadow(
-      {Widget? leading,
-      Widget? middle,
-      Widget? trailing,
-      Color? backgroundColor}) {
-
+      {Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
     return NavBar._internal(
       leading: leading,
       middle: middle,
@@ -29,13 +20,15 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       height: 80,
       backgroundColor: backgroundColor,
       decoration: BoxDecoration(
-          color: backgroundColor,
-          boxShadow: [
-            BoxShadow(
-                color: Color.fromRGBO(132, 141, 198, 0.11),
-                blurRadius: 8,
-                offset: Offset(0, 2))
-          ]),
+        color: backgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(132, 141, 198, 0.11),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
     );
   }
 
@@ -59,20 +52,24 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (leading == null && middle == null && trailing == null) {
+      return const SizedBox();
+    }
+
     final pad = height - _originalHeight;
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
 
     if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
-      return PreferredSize(
-        preferredSize: Size.fromHeight(height),
-        child: Padding(
-          padding: const EdgeInsetsDirectional.only(end: 24),
+      return Container(
+        padding: const EdgeInsetsDirectional.only(end: 24),
+        color: backgroundColor,
+        child: Center(
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (leading != null) Flexible(child: leading!),
+              if (leading != null) Flexible(child: leading!) else const SizedBox(),
               if (middle != null) middle!,
               trailing ?? const SizedBox(),
             ],

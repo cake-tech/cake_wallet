@@ -96,15 +96,12 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         ),
       ),
       bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-      bottomSection: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-        child: PrimaryButton(
-          onPressed: () => onTypeSelected(),
-          text: S.of(context).seed_language_next,
-          color: Theme.of(context).accentTextTheme.bodyText1!.color!,
-          textColor: Colors.white,
-          isDisabled: selected == null,
-        ),
+      bottomSection: PrimaryButton(
+        onPressed: () => onTypeSelected(),
+        text: S.of(context).seed_language_next,
+        color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+        textColor: Colors.white,
+        isDisabled: selected == null,
       ),
     );
   }

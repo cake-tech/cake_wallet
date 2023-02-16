@@ -8,6 +8,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -18,6 +19,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
@@ -366,7 +368,13 @@ Future setup(
   getIt.registerFactory(() =>
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory<DashboardPage>(() => DashboardPage(
+      balancePage: getIt.get<BalancePage>(), 
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
+    ));
+  getIt.registerFactory<TransactionsPage>(() => TransactionsPage(dashboardViewModel: getIt.get<DashboardViewModel>()));
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<AddressPage>(() => AddressPage(
@@ -829,6 +837,8 @@ Future setup(
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>()));
+
+  getIt.registerFactory(() => DesktopSidebarViewModel());
 
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)

@@ -1,10 +1,12 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
+import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,7 +21,6 @@ import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -51,7 +52,19 @@ class SendPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
+  bool get canUseCloseIcon => true;
+
+  @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  double _sendCardHeight(BuildContext context) {
+    final double initialHeight = sendViewModel.isElectrumWallet ? 490 : 465;
+
+    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
+      return initialHeight - 66;
+    }
+    return initialHeight;
+  }
 
   @override
   void onClose(BuildContext context) {
@@ -107,7 +120,7 @@ class SendPage extends BasePage {
           content: Column(
             children: <Widget>[
               Container(
-                  height: sendViewModel.isElectrumWallet ? 490 : 465,
+                  height: _sendCardHeight(context),
                   child: Observer(
                     builder: (_) {
                       return PageView.builder(
@@ -172,51 +185,9 @@ class SendPage extends BasePage {
 
                       return Row(
                         children: <Widget>[
-                          GestureDetector(
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(Routes.sendTemplate),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 1, right: 10),
-                              child: DottedBorder(
-                                borderType: BorderType.RRect,
-                                dashPattern: [6, 4],
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headline2!
-                                    .decorationColor!,
-                                strokeWidth: 2,
-                                radius: Radius.circular(20),
-                                child: Container(
-                                  height: 34,
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                    color: Colors.transparent,
-                                  ),
-                                  child: templates.length >= 1
-                                      ? Icon(
-                                          Icons.add,
-                                          color: Theme.of(context)
-                                              .primaryTextTheme!
-                                              .headline2!
-                                              .color!,
-                                        )
-                                      : Text(
-                                          S.of(context).new_template,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme!
-                                                .headline2!
-                                                .color!,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ),
+                          AddTemplateButton(
+                            onTap: () => Navigator.of(context).pushNamed(Routes.sendTemplate),
+                            currentTemplatesLength: templates.length,
                           ),
                           ListView.builder(
                             scrollDirection: Axis.horizontal,
@@ -339,7 +310,7 @@ class SendPage extends BasePage {
                         showErrorValidationAlert(context);
                         return;
                       }
-                      
+
                       await sendViewModel.createTransaction();
 
                     },

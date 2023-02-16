@@ -91,8 +91,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
           content: Center(
             child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+              constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -197,32 +196,29 @@ class _WalletNameFormState extends State<WalletNameForm> {
             ),
           ),
           bottomSectionPadding: EdgeInsets.all(24),
-          bottomSection: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-            child: Column(
-              children: [
-                Observer(
-                  builder: (context) {
-                    return LoadingPrimaryButton(
-                      onPressed: _confirmForm,
-                      text: S.of(context).seed_language_next,
-                      color: Colors.green,
-                      textColor: Colors.white,
-                      isLoading: _walletNewVM.state is IsExecutingState,
-                      isDisabled: _walletNewVM.name.isEmpty,
-                    );
-                  },
-                ),
-                const SizedBox(height: 25),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context)
-                        .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
-                  },
-                  child: Text(S.of(context).advanced_privacy_settings),
-                ),
-              ],
-            ),
+          bottomSection: Column(
+            children: [
+              Observer(
+                builder: (context) {
+                  return LoadingPrimaryButton(
+                    onPressed: _confirmForm,
+                    text: S.of(context).seed_language_next,
+                    color: Colors.green,
+                    textColor: Colors.white,
+                    isLoading: _walletNewVM.state is IsExecutingState,
+                    isDisabled: _walletNewVM.name.isEmpty,
+                  );
+                },
+              ),
+              const SizedBox(height: 25),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
+                },
+                child: Text(S.of(context).advanced_privacy_settings),
+              ),
+            ],
           )),
     );
   }
