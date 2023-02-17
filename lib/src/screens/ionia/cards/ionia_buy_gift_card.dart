@@ -44,7 +44,6 @@ class IoniaBuyGiftCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
     final merchant = ioniaBuyCardViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
@@ -101,7 +100,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                       prefixIcon: Padding(
                         padding: EdgeInsets.only(
                           top: 5.0,
-                          left: _width / 4,
+                          left: 150,
                         ),
                         child: Text(
                           'USD: ',
