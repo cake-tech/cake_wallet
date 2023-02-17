@@ -160,6 +160,7 @@ class DesktopSidebarWrapper extends BasePage {
             children: [
               child,
               Container(
+                color: Theme.of(context).backgroundColor,
                 padding: EdgeInsets.all(20),
                 child: Navigator(
                   initialRoute: Routes.support,

@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -209,8 +211,10 @@ class AddressTextField extends StatelessWidget {
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
-    final contact = await Navigator.of(context, rootNavigator: true)
-        .pushNamed(Routes.pickerAddressBook,arguments: selectedCurrency);
+    final navigatorState =  ResponsiveLayoutUtil.instance.isMobile(context) ?  Navigator.of(context, rootNavigator: true)
+        :  DesktopDashboardPage.desktopKey.currentState!;
+    final contact = await navigatorState.pushNamed(Routes.pickerAddressBook,arguments: selectedCurrency);
+    
 
     if (contact is ContactBase && contact.address != null) {
       controller?.text = contact.address;
