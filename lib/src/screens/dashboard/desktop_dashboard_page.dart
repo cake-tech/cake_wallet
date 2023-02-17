@@ -24,6 +24,7 @@ class DesktopDashboardPage extends StatelessWidget {
   final WalletAddressListViewModel addressListViewModel;
 
   static final GlobalKey<NavigatorState> desktopKey = GlobalKey<NavigatorState>();
+  static final GlobalKey kex = GlobalKey();
 
   bool _isEffectsInstalled = false;
   StreamSubscription<bool>? _onInactiveSub;

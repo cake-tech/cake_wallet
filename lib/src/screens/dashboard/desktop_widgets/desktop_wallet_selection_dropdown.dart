@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -7,6 +8,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -33,8 +35,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    return DropdownButton<WalletListItem>(
-      items: widget.walletListViewModel.wallets
+    return DropdownButton<DesktopDropdownItem>(
+      items: widget.walletListViewModel.dropdownItems
           .map((wallet) => DropdownMenuItem(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: 500),
@@ -47,7 +49,12 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         if (selectedWallet!.isCurrent || !selectedWallet.isEnabled) {
           return;
         }
-
+        
+        if(selectedWallet is DropdownOption){
+          _handleCreateOption(selectedWallet);
+        
+          return;
+        }
         final confirmed = await showPopUp<bool>(
                 context: context,
                 builder: (dialogContext) {
@@ -61,25 +68,25 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                 }) ??
             false;
 
-        if (confirmed) {
+        if (confirmed && selectedWallet is WalletListItem) {
           await _loadWallet(selectedWallet);
         }
       },
       dropdownColor: themeData.textTheme.bodyText1?.decorationColor,
       style: TextStyle(color: themeData.primaryTextTheme.headline6?.color),
-      selectedItemBuilder: (context) => widget.walletListViewModel.wallets
+      selectedItemBuilder: (context) => widget.walletListViewModel.dropdownItems
           .map((wallet) => ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: 500),
                 child: walletListItemTile(wallet),
               ))
           .toList(),
-      value: widget.walletListViewModel.wallets.firstWhere((element) => element.isCurrent),
+      value: widget.walletListViewModel.dropdownItems.firstWhere((element) => element.isCurrent),
       underline: const SizedBox(),
       focusColor: Colors.transparent,
     );
   }
 
-  Widget walletListItemTile(WalletListItem wallet) {
+  Widget walletListItemTile(DesktopDropdownItem wallet) {
     return Container(
       height: tileHeight,
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -151,6 +158,32 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       }
     }
   }
+
+  void _handleCreateOption(DropdownOption option) {
+    if (option.optionName == 'create_wallet') {
+      _navigateToCreateWallet();
+    } else {
+      _navigateToRestoreWallet();
+    }
+  }
+
+  void _navigateToCreateWallet(){
+   
+    	      	  if (isSingleCoin) {
+          		    Navigator.of(context).pushNamed(Routes.newWallet, arguments: widget.walletListViewModel.currentWalletType);
+          		  } else {
+          		    Navigator.of(context).pushNamed(Routes.newWalletType);
+          		  }
+	            }
+
+  void _navigateToRestoreWallet(){
+    
+    	      	  if (isSingleCoin) {
+          		    Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: widget.walletListViewModel.currentWalletType);
+          		  } else {
+          		    Navigator.of(context).pushNamed(Routes.restoreWalletType);
+          		  }
+              }
 
   void changeProcessText(String text) {
     _progressBar = createBar<void>(text, duration: null)..show(context);

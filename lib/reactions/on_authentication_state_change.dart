@@ -1,5 +1,4 @@
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_view.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
