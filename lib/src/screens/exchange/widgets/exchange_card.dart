@@ -1,8 +1,6 @@
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -432,11 +430,9 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             padding: EdgeInsets.only(top: 0),
                                             child: InkWell(
                                               onTap: () async {
-                                                final navigatorState = ResponsiveLayoutUtil.instance.isMobile(context) 
-                                                    ? Navigator.of(context, rootNavigator: true)
-                                                    : DesktopDashboardPage.desktopKey.currentState!;
-                                                final contact = await navigatorState.pushNamed(Routes
-                                                            .pickerAddressBook);
+                                                final contact =
+                                                    await Navigator.of(context)
+                                                        .pushNamed(Routes.pickerAddressBook);
 
                                                 if (contact is ContactBase &&
                                                     contact.address != null) {

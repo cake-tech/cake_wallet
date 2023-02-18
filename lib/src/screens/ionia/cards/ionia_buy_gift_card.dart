@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,6 +45,7 @@ class IoniaBuyGiftCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final _width = MediaQuery.of(context).size.width;
     final merchant = ioniaBuyCardViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
@@ -100,9 +102,8 @@ class IoniaBuyGiftCardPage extends BasePage {
                       prefixIcon: Padding(
                         padding: EdgeInsets.only(
                           top: 5.0,
-                          left: 150,
-                        ),
-                        child: Text(
+                          left: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint) / 3,
+                       child: Text(
                           'USD: ',
                           style: TextStyle(
                             color: Colors.white,
