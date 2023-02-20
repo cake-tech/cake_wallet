@@ -27,6 +27,7 @@ class BaseTextFormField extends StatelessWidget {
       this.maxLength,
       this.focusNode,
       this.initialValue,
+      this.onSubmit,
       this.borderWidth = 1.0});
 
   final TextEditingController? controller;
@@ -54,6 +55,7 @@ class BaseTextFormField extends StatelessWidget {
   final bool? enableInteractiveSelection;
   final String? initialValue;
   final double borderWidth;
+  final void Function(String)? onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,7 @@ class BaseTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       enabled: enabled,
       maxLength: maxLength,
+      onFieldSubmitted: onSubmit,
       style: textStyle ??
           TextStyle(
               fontSize: 16.0,

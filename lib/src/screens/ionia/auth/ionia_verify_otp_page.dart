@@ -82,6 +82,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
                 keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                 focusNode: _codeFocus,
                 controller: _codeController,
+                onSubmit: (_) => _verify(),
               ),
               SizedBox(height: 14),
               Text(
@@ -116,7 +117,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
                   Observer(
                     builder: (_) => LoadingPrimaryButton(
                       text: S.of(context).continue_text,
-                      onPressed: () async => await _authViewModel.verifyEmail(_codeController.text),
+                      onPressed: _verify,
                       isDisabled: _authViewModel.otpState is IoniaOtpSendDisabled,
                       isLoading: _authViewModel.otpState is IoniaOtpValidating,
                       color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
@@ -148,4 +149,6 @@ class IoniaVerifyIoniaOtp extends BasePage {
   void _onOtpSuccessful(BuildContext context) =>
       Navigator.of(context)
         .pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
+
+  void _verify() async => await _authViewModel.verifyEmail(_codeController.text);
 }
