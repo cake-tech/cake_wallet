@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -6,9 +5,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
+import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,7 +32,7 @@ class ExceptionHandler {
       ==========================================================\n\n''';
 
     await file.writeAsString(
-      jsonEncode(exception) + separator,
+      "$exception $separator",
       mode: FileMode.append,
     );
   }
@@ -41,6 +42,8 @@ class ExceptionHandler {
       final appDocDir = await getApplicationDocumentsDirectory();
 
       final file = File('${appDocDir.path}/error.txt');
+
+      await _addDeviceInfo(file);
 
       final MailOptions mailOptions = MailOptions(
         subject: 'Mobile App Issue',
@@ -130,4 +133,85 @@ class ExceptionHandler {
     "errno = 28", // OS Error: No space left on device
     "PERMISSION_NOT_GRANTED",
   ];
+
+  static Future<void> _addDeviceInfo(File file) async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    Map<String, dynamic> deviceInfo = {};
+
+    if (Platform.isAndroid) {
+      deviceInfo = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+      deviceInfo["Platform"] = "Android";
+    } else if (Platform.isIOS) {
+      deviceInfo = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+      deviceInfo["Platform"] = "iOS";
+    } else if (Platform.isLinux) {
+      deviceInfo = _readLinuxDeviceInfo(await deviceInfoPlugin.linuxInfo);
+      deviceInfo["Platform"] = "Linux";
+    } else if (Platform.isMacOS) {
+      deviceInfo = _readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo);
+      deviceInfo["Platform"] = "MacOS";
+    } else if (Platform.isWindows) {
+      deviceInfo = _readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo);
+      deviceInfo["Platform"] = "Windows";
+    }
+
+    await file.writeAsString(
+      "App Version: $currentVersion\n\nDevice Info $deviceInfo",
+      mode: FileMode.append,
+    );
+  }
+
+  static Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+    return <String, dynamic>{
+      'brand': build.brand,
+      'device': build.device,
+      'manufacturer': build.manufacturer,
+      'model': build.model,
+      'product': build.product,
+    };
+  }
+
+  static Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+    return <String, dynamic>{
+      'systemName': data.systemName,
+      'systemVersion': data.systemVersion,
+      'model': data.model,
+      'localizedModel': data.localizedModel,
+    };
+  }
+
+  static Map<String, dynamic> _readLinuxDeviceInfo(LinuxDeviceInfo data) {
+    return <String, dynamic>{
+      'name': data.name,
+      'version': data.version,
+      'versionCodename': data.versionCodename,
+      'versionId': data.versionId,
+      'prettyName': data.prettyName,
+      'buildId': data.buildId,
+      'variant': data.variant,
+      'variantId': data.variantId,
+    };
+  }
+
+  static Map<String, dynamic> _readMacOsDeviceInfo(MacOsDeviceInfo data) {
+    return <String, dynamic>{
+      'arch': data.arch,
+      'model': data.model,
+      'kernelVersion': data.kernelVersion,
+      'osRelease': data.osRelease,
+    };
+  }
+
+  static Map<String, dynamic> _readWindowsDeviceInfo(WindowsDeviceInfo data) {
+    return <String, dynamic>{
+      'majorVersion': data.majorVersion,
+      'minorVersion': data.minorVersion,
+      'buildNumber': data.buildNumber,
+      'productType': data.productType,
+      'productName': data.productName,
+    };
+  }
 }
