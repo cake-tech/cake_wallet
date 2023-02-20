@@ -55,7 +55,7 @@ dependencies:
   another_flushbar: ^1.12.29
   archive: ^3.3.0
   cryptography: ^2.0.5
-  file_picker: ^4.6.1
+  file_picker: ^5.2.5
   unorm_dart: ^0.2.0
   # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
