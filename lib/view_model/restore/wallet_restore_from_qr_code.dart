@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,6 +25,7 @@ class WalletRestoreFromQRCode {
       uri.queryParameters.forEach((k, v) {
         credentials[k] = v;
       });
+      credentials['mode'] = getWalletRestoreMode(credentials);
     } catch (e) {
       print(e);
 
@@ -53,5 +55,27 @@ class WalletRestoreFromQRCode {
         ? address
         : throw Exception('Unexpected wallet address: address is invalid'
             'or does not match the type ${type.toString()}');
+  }
+
+  static WalletRestoreMode getWalletRestoreMode(Map<String, dynamic> credentials) {
+    if (credentials.containsKey('mnemonic_seed')) {
+      //TODO implement seed validation
+      final seedValue = credentials['mnemonic_seed'];
+      if (seedValue is String) {
+        return seedValue.isNotEmpty
+            ? WalletRestoreMode.seed
+            : throw Exception('Unexpected restore mode: mnemonic_seed is invalid');
+      }
+    }
+    if (credentials.containsKey('spend_key') && credentials.containsKey('view_key')) {
+      final spendKey = credentials['spend_key'];
+      final viewKey = credentials['view_key'];
+      if (spendKey is String && viewKey is String) {
+        return spendKey.isNotEmpty && viewKey.isNotEmpty
+            ? WalletRestoreMode.keys
+            : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
+      }
+    }
+    throw Exception('Unexpected restore mode: restore params are invalid');
   }
 }
