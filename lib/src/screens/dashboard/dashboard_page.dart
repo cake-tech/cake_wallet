@@ -44,7 +44,7 @@ class DashboardPage extends StatelessWidget {
       body: ResponsiveLayoutUtil.instance.isMobile(context)
           ? _DashboardPageView(
               balancePage: balancePage,
-              walletViewModel: dashboardViewModel,
+              dashboardViewModel: dashboardViewModel,
               addressListViewModel: addressListViewModel,
             )
           : DesktopSidebarWrapper(
@@ -63,7 +63,7 @@ class DashboardPage extends StatelessWidget {
 class _DashboardPageView extends BasePage {
   _DashboardPageView({
     required this.balancePage,
-    required this.walletViewModel,
+    required this.dashboardViewModel,
     required this.addressListViewModel,
   });
 
@@ -91,12 +91,12 @@ class _DashboardPageView extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget get endDrawer => MenuWidget(walletViewModel);
+  Widget get endDrawer => MenuWidget(dashboardViewModel);
 
   @override
   Widget middle(BuildContext context) {
     return SyncIndicator(
-        dashboardViewModel: walletViewModel,
+        dashboardViewModel: dashboardViewModel,
         onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync));
   }
 
@@ -117,7 +117,7 @@ class _DashboardPageView extends BasePage {
             child: menuButton));
   }
 
-  final DashboardViewModel walletViewModel;
+  final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
   final controller = PageController(initialPage: 1);
 
@@ -173,12 +173,12 @@ class _DashboardPageView extends BasePage {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: MainActions.all
-                            .where((element) => element.canShow?.call(walletViewModel) ?? true)
+                            .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
                             .map((action) => ActionButton(
                                   image: Image.asset(action.image,
                                       height: 24,
                                       width: 24,
-                                      color: action.isEnabled?.call(walletViewModel) ?? true
+                                      color: action.isEnabled?.call(dashboardViewModel) ?? true
                                           ? Theme.of(context)
                                               .accentTextTheme
                                               .headline2!
@@ -188,8 +188,8 @@ class _DashboardPageView extends BasePage {
                                               .headline3!
                                               .backgroundColor!),
                                   title: action.name(context),
-                                  onClick: () async => await action.onTap(context, walletViewModel),
-                                  textColor: action.isEnabled?.call(walletViewModel) ?? true
+                                  onClick: () async => await action.onTap(context, dashboardViewModel),
+                                  textColor: action.isEnabled?.call(dashboardViewModel) ?? true
                                       ? null
                                       : Theme.of(context)
                                           .accentTextTheme
@@ -211,13 +211,13 @@ class _DashboardPageView extends BasePage {
     if (_isEffectsInstalled) {
       return;
     }
-    pages.add(MarketPlacePage(dashboardViewModel: walletViewModel));
+    pages.add(MarketPlacePage(dashboardViewModel: dashboardViewModel));
     pages.add(balancePage);
-    pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
+    pages.add(TransactionsPage(dashboardViewModel: dashboardViewModel));
     _isEffectsInstalled = true;
 
     autorun((_) async {
-      if (!walletViewModel.isOutdatedElectrumWallet) {
+      if (!dashboardViewModel.isOutdatedElectrumWallet) {
         return;
       }
 
@@ -243,13 +243,13 @@ class _DashboardPageView extends BasePage {
         Future<void>.delayed(Duration(milliseconds: 500)).then((_) {
           showPopUp<void>(
               context: navigatorKey.currentContext!,
-              builder: (_) => YatEmojiId(walletViewModel.yatStore.emoji));
+              builder: (_) => YatEmojiId(dashboardViewModel.yatStore.emoji));
           needToPresentYat = false;
         });
       }
     });
 
-    walletViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
+    dashboardViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
       if (!_isEffectsInstalled || emoji.isEmpty) {
         return;
       }
