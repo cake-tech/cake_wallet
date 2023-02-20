@@ -1,3 +1,5 @@
+import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +17,7 @@ class RestoreOptionsPage extends BasePage {
 
   final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png');
   final imageBackup = Image.asset('assets/images/backup.png');
+  final qrCode = Image.asset('assets/images/qr_code_icon.png');
 
   @override
   Widget body(BuildContext context) {
@@ -40,6 +43,20 @@ class RestoreOptionsPage extends BasePage {
                     image: imageBackup,
                     title: S.of(context).restore_title_from_backup,
                     description: S.of(context).restore_description_from_backup),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: RestoreButton(
+                    onPressed: () async {
+                      final restoreWallet =
+                      await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+                      if (restoreWallet != null) {
+                        Navigator.pushNamed(context, Routes.restoreWalletQRFromWelcome,arguments: [restoreWallet]);
+                      }
+                    },
+                    image: qrCode,
+                    title: S.of(context).scan_qr_code,
+                    description: S.of(context).cold_or_recover_wallet),
               )
             ],
           ),

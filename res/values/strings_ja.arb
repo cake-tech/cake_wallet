@@ -150,7 +150,7 @@
   "receive_amount" : "量",
   "subaddresses" : "サブアドレス",
   "addresses" : "住所",
-  "scan_qr_code" : "QRコードをスキャンして住所を取得します",
+  "scan_qr_code_to_get_address" : "QRコードをスキャンして住所を取得します",
   "qr_fullscreen" : "タップして全画面QRコードを開く",
   "rename" : "リネーム",
   "choose_account" : "アカウントを選択",
@@ -684,5 +684,10 @@
   "send_to_this_address" : "${currency} ${tag}をこのアドレスに送金",
   "arrive_in_this_address" : "${currency} ${tag}はこの住所に到着します",
   "do_not_send": "送信しない",
-  "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione."
+  "error_dialog_content": "エラーが発生しました。\n\nアプリケーションを改善するために、クラッシュ レポートをサポート チームに送信してください。",
+  "scan_qr_code": "QRコードをスキャン",
+  "cold_or_recover_wallet": "コールド ウォレットを追加するか、ペーパー ウォレットを復元する",
+  "please_wait": "お待ちください",
+  "sweeping_wallet": "スイープウォレット",
+  "sweeping_wallet_alert": "これには時間がかかりません。この画面から離れないでください。そうしないと、スイープ ファンドが失われる可能性があります"
 }

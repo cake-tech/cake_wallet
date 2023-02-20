@@ -11,6 +11,7 @@ class Routes {
   static const restoreWalletOptionsFromWelcome = '/restore_wallet_options_from_welcome';
   static const restoreWalletFromSeed = '/restore_wallet_from_seed';
   static const restoreWalletFromKeys = '/restore_wallet_from_keys';
+  static const restoreWalletQRFromWelcome = '/restore_wallet_qr_from_welcome';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
@@ -82,4 +83,5 @@ class Routes {
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
+  static const sweepingWalletPage = '/sweeping_wallet_page';
 }

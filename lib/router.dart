@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -29,6 +30,8 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -184,6 +187,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
                       context.context, Routes.restoreWalletType)),
           fullscreenDialog: true);
 
+    case Routes.restoreWalletQRFromWelcome:
+      final args = settings.arguments as List<dynamic>;
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SetupPinCodePage>(
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
+              Navigator.pushNamed(context.context, Routes.sweepingWalletPage,arguments: args)),
+          fullscreenDialog: true);
+
     case Routes.seed:
       return MaterialPageRoute<void>(
           builder: (_) =>
@@ -211,6 +222,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => RestoreWalletFromKeysPage(
               walletRestorationFromKeysVM: walletRestorationFromKeysVM));
+
+    case Routes.sweepingWalletPage:
+      final args = settings.arguments as List<dynamic>;
+      final wallet = args.first as RestoredWallet;
+      final language =
+      wallet.type == WalletType.monero ? wallet.type.toString() : LanguageList.english;
+
+      final walletRestorationFromQRVM =
+      getIt.get<WalletRestorationFromQRVM>(param1: [wallet, language]);
+
+      return CupertinoPageRoute<void>(
+          builder: (_) => SweepingWalletPage(
+              restoreVMfromQR: walletRestorationFromQRVM));
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(

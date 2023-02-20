@@ -5,6 +5,7 @@ import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -32,6 +33,8 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
@@ -288,6 +291,18 @@ Future setup(
         getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
         type: type, language: language);
   });
+
+  getIt
+      .registerFactoryParam<WalletRestorationFromQRVM, List, void>((args, _) {
+    final wallet = args.first as RestoredWallet;
+    final language = args[1] as String;
+
+    return WalletRestorationFromQRVM(getIt.get<AppStore>(),
+        getIt.get<WalletCreationService>(param1: WalletType.monero), _walletInfoSource,
+        wallet: wallet, language: language);
+  });
+
+    getIt.registerFactory(() => SweepingWalletPage(restoreVMfromQR: getIt.get<WalletRestorationFromQRVM>()));
 
   getIt.registerFactory<WalletAddressListViewModel>(() =>
       WalletAddressListViewModel(
@@ -796,7 +811,7 @@ Future setup(
     return IoniaMoreOptionsPage(giftCard);
   });
 
-  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) 
+  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _)
     => IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _){

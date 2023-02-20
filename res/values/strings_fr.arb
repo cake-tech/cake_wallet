@@ -148,7 +148,7 @@
   "receive_amount" : "Montant",
   "subaddresses" : "Sous-adresses",
   "addresses" : "Adresses",
-  "scan_qr_code" : "Scannez le QR code pour obtenir l'adresse",
+  "scan_qr_code_to_get_address" : "Scannez le QR code pour obtenir l'adresse",
   "qr_fullscreen" : "Appuyez pour ouvrir le QR code en mode plein écran",
   "rename" : "Renommer",
   "choose_account" : "Choisir le compte",
@@ -682,5 +682,10 @@
   "send_to_this_address" : "Envoyez ${currency} ${tag}à cette adresse",
   "arrive_in_this_address" : "${currency} ${tag}arrivera à cette adresse",
   "do_not_send": "N'envoyez pas",
-  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application."
+  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application.",
+  "scan_qr_code": "Scannez le code QR",
+  "cold_or_recover_wallet": "Ajoutez un cold wallet ou récupérez un paper wallet",
+  "please_wait": "S'il vous plaît, attendez",
+  "sweeping_wallet": "Portefeuille de balayage",
+  "sweeping_wallet_alert": "Cela ne devrait pas prendre longtemps. NE QUITTEZ PAS CET ÉCRAN OU LES FONDS BALAYÉS POURRAIENT ÊTRE PERDUS"
 }

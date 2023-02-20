@@ -150,7 +150,7 @@
   "receive_amount" : "Ammontare",
   "subaddresses" : "Sottoindirizzi",
   "addresses" : "Indirizzi",
-  "scan_qr_code" : "Scansiona il codice QR per ottenere l'indirizzo",
+  "scan_qr_code_to_get_address" : "Scansiona il codice QR per ottenere l'indirizzo",
   "qr_fullscreen" : "Tocca per aprire il codice QR a schermo intero",
   "rename" : "Rinomina",
   "choose_account" : "Scegli account",
@@ -684,5 +684,10 @@
   "send_to_this_address" : "Invia ${currency} ${tag}a questo indirizzo",
   "arrive_in_this_address" : "${currency} ${tag}arriverà a questo indirizzo",
   "do_not_send": "Non inviare",
-  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju."
+  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju.",
+  "scan_qr_code": "Scansiona il codice QR",
+  "cold_or_recover_wallet": "Aggiungi un cold wallet o recupera un paper wallet",
+  "please_wait": "Attendere prego",
+  "sweeping_wallet": "Portafoglio ampio",
+  "sweeping_wallet_alert": "Questo non dovrebbe richiedere molto tempo. NON LASCIARE QUESTA SCHERMATA O I FONDI SPAZZATI POTREBBERO ANDARE PERSI"
 }
