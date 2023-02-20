@@ -12,17 +12,20 @@ class DesktopExchangeCardsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 55, left: 24, right: 24),
-          child: firstExchangeCard,
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 29, left: 24, right: 24),
-          child: secondExchangeCard,
-        ),
-      ],
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 55, left: 24, right: 24),
+            child: firstExchangeCard,
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 29, left: 24, right: 24),
+            child: secondExchangeCard,
+          ),
+        ],
+      ),
     );
   }
 }
