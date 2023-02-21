@@ -24,6 +24,16 @@ class SettingActions {
     supportSettingAction,
   ];
 
+  static List<SettingActions> desktopSettings = [
+    connectionSettingAction,
+    addressBookSettingAction,
+    securityBackupSettingAction,
+    privacySettingAction,
+    displaySettingAction,
+    otherSettingAction,
+    supportSettingAction,
+  ];
+
   static SettingActions connectionSettingAction = SettingActions._(
     name: S.current.connection_sync,
     image: 'assets/images/nodes_menu.png',

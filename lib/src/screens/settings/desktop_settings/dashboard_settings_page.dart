@@ -16,7 +16,7 @@ class DesktopSettingsPage extends StatefulWidget {
 }
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
- final List<SettingActions> _allItems = []; 
+  final int itemCount = SettingActions.desktopSettings.length;
      
   int? currentPage;
 
@@ -24,13 +24,6 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
     setState(() {
       currentPage = index;
     });
-  }
-
-  @override
-  void initState() {
-    final allActions = List<SettingActions>.from(SettingActions.all);
-    allActions.remove(SettingActions.walletSettingAction);
-    _allItems.addAll(allActions);    super.initState();
   }
 
   @override
@@ -56,8 +49,8 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                       child: ListView.separated(
                         padding: EdgeInsets.only(top: 0),
                         itemBuilder: (_, index) {
-                          final item = _allItems[index];
-                          final isLastTile = index == _allItems.length - 1;
+                          final item = SettingActions.desktopSettings[index];
+                          final isLastTile = index == itemCount - 1;
                           return SettingActionButton(
                             isLastTile: isLastTile,
                             selectionActive: currentPage != null,
@@ -79,7 +72,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                           height: 1,
                           color: Theme.of(context).primaryTextTheme.caption!.decorationColor!,
                         ),
-                        itemCount: _allItems.length,
+                        itemCount: itemCount,
                       ),
                     ),
                   ],
