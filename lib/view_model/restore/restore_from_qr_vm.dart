@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -14,20 +15,19 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 
 part 'restore_from_qr_vm.g.dart';
 
-class WalletRestorationFromQRVM = WalletRestorationFromQRVMBase
-    with _$WalletRestorationFromQRVM;
+class WalletRestorationFromQRVM = WalletRestorationFromQRVMBase with _$WalletRestorationFromQRVM;
 
-abstract class WalletRestorationFromQRVMBase extends WalletCreationVM
-    with Store {
-  WalletRestorationFromQRVMBase(AppStore appStore,
-      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
-      {required this.wallet,required this.language})
+abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store {
+  WalletRestorationFromQRVMBase(AppStore appStore, WalletCreationService walletCreationService,
+      Box<WalletInfo> walletInfoSource,
+      {required this.wallet, required this.language})
       : height = 0,
         viewKey = '',
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService, type: wallet.type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService,
+            type: wallet.type, isRecovery: true);
 
   @observable
   int height;
@@ -54,8 +54,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
 
-    switch (type) {
-      case WalletType.monero:
+    switch (wallet.restoreMode) {
+      case WalletRestoreMode.keys:
         return monero!.createMoneroRestoreWalletFromKeysCredentials(
             name: name,
             password: password,
@@ -64,9 +64,12 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM
             viewKey: wallet.viewKey ?? '',
             spendKey: wallet.spendKey ?? '',
             height: wallet.height ?? 0);
-      case WalletType.bitcoin:
-        return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
-            name: name, password: password, wif: wif);
+      case WalletRestoreMode.seed:
+        return monero!.createMoneroRestoreWalletFromSeedCredentials(
+            name: name,
+            height: wallet.height ?? 0,
+            mnemonic: wallet.mnemonicSeed ?? '',
+            password: password);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -74,5 +77,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM
 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async =>
-      walletCreationService.restoreFromKeys(credentials);
+      wallet.restoreMode == WalletRestoreMode.keys
+          ? walletCreationService.restoreFromKeys(credentials)
+          : walletCreationService.restoreFromSeed(credentials);
 }

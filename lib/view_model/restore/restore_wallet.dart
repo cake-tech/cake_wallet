@@ -20,6 +20,7 @@ class RestoredWallet {
   final int? height;
 
   factory RestoredWallet.fromJson(Map<String, dynamic> json) {
+    final height = json['height'] as String?;
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
@@ -27,7 +28,7 @@ class RestoredWallet {
       spendKey: json['spend_key'] as String?,
       viewKey: json['view_key'] as String?,
       mnemonicSeed: json['mnemonic_seed'] as String?,
-      height: json['height'] as int?,
+      height: height != null ? int.parse(height) : 0,
     );
   }
 }
