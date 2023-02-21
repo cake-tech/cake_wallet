@@ -1,20 +1,9 @@
-import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 
-abstract class DesktopDropdownItem {
-  
-  final String name;
-  final WalletType type;
-  final bool isCurrent;
-  final dynamic key;
-  final bool isEnabled;
-  final String? optionName;
+class DesktopDropdownItem {
+  final Function() onSelected;
+  final Widget child;
+  final bool isSelected;
 
-  DesktopDropdownItem({this.name = '', this.type = WalletType.none, this.isCurrent = false, this.key, this.isEnabled = true, this.optionName});
-}
-
-class DropdownOption extends DesktopDropdownItem {
-  DropdownOption({required this.name, required this.optionName});
-
-  final String name;
-  final String optionName;
+  DesktopDropdownItem({required this.onSelected, required this.child, this.isSelected = false});
 }

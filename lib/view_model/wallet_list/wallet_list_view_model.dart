@@ -1,7 +1,5 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
@@ -29,20 +27,6 @@ abstract class WalletListViewModelBase with Store {
   @observable
   ObservableList<WalletListItem> wallets;
 
-  @computed
-  ObservableList<DesktopDropdownItem> get dropdownItems {
-    final items = <DesktopDropdownItem>[];
-
-    for (final wallet in wallets) {
-      items.add(wallet);
-    }
-    items.addAll([
-      DropdownOption(name: S.current.create_new, optionName: "create_wallet"),
-      DropdownOption(name: S.current.restore_wallet, optionName: "restore_wallet"),
-    ]);
-
-    return ObservableList<DesktopDropdownItem>.of(items);
-  }
 
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
