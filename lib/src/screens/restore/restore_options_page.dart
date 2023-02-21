@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -48,10 +50,13 @@ class RestoreOptionsPage extends BasePage {
                 padding: EdgeInsets.only(top: 24),
                 child: RestoreButton(
                     onPressed: () async {
-                      final restoreWallet =
-                      await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
-                      if (restoreWallet != null) {
-                        Navigator.pushNamed(context, Routes.restoreWalletQRFromWelcome,arguments: [restoreWallet]);
+                      try {
+                        final restoreWallet =
+                        await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+                        Navigator.pushNamed(context, Routes.restoreWalletQRFromWelcome,
+                            arguments: [restoreWallet]);
+                      } catch (e) {
+                        _onScanQRFailure(context, e.toString());
                       }
                     },
                     image: qrCode,
@@ -61,5 +66,17 @@ class RestoreOptionsPage extends BasePage {
             ],
           ),
         ));
+  }
+
+  void _onScanQRFailure(BuildContext context,String error) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.current.error,
+              alertContent: error,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
   }
 }

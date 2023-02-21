@@ -8,29 +8,24 @@ import 'package:flutter/cupertino.dart';
 class WalletRestoreFromQRCode {
   WalletRestoreFromQRCode();
 
-  static Future<RestoredWallet?> scanQRCodeForRestoring(BuildContext context) async {
+  static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
     final code = await presentQRScanner();
     Map<String, dynamic> credentials = {};
-    if (code.isEmpty) {
-      return null;
-    }
-    try {
-      final formattedUrl = code.replaceFirst('_', '');
-      final uri = Uri.parse(formattedUrl);
-      credentials['type'] = getWalletTypeFromUrl(uri.scheme);
-      credentials['address'] = getAddressFromUrl(
-        type: credentials['type'] as WalletType,
-        address: uri.path,
-      );
-      uri.queryParameters.forEach((k, v) {
-        credentials[k] = v;
-      });
-      credentials['mode'] = getWalletRestoreMode(credentials);
-    } catch (e) {
-      print(e);
 
-      return null;
+    if (code.isEmpty) {
+      throw Exception('Unexpected scan QR code value: value is empty');
     }
+    final formattedUrl = code.replaceFirst('_', '');
+    final uri = Uri.parse(formattedUrl);
+    credentials['type'] = getWalletTypeFromUrl(uri.scheme);
+    credentials['address'] = getAddressFromUrl(
+      type: credentials['type'] as WalletType,
+      address: uri.path,
+    );
+    uri.queryParameters.forEach((k, v) {
+      credentials[k] = v;
+    });
+    credentials['mode'] = getWalletRestoreMode(credentials);
 
     return RestoredWallet.fromJson(credentials);
   }
