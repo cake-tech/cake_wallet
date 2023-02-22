@@ -234,7 +234,7 @@ class WalletListBodyState extends State<WalletListBody> {
           auth.hideProgressText();
           auth.close();
           WidgetsBinding.instance.addPostFrameCallback((_) {
-          navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+            Navigator.of(context).pop();
           });
         } catch (e) {
           auth.changeProcessText(
@@ -246,7 +246,7 @@ class WalletListBodyState extends State<WalletListBody> {
         changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
         hideProgressText();
-        navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        Navigator.of(context).pop();
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }

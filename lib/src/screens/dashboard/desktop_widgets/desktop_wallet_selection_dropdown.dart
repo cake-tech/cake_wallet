@@ -1,14 +1,18 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
@@ -25,85 +29,96 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
-
-  final double tileHeight = 60;
+  Image _getNewWalletImage(BuildContext context) => Image.asset(
+        'assets/images/new_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme.headline6!.color!,
+      );
+  Image _getRestoreWalletImage(BuildContext context) => Image.asset(
+        'assets/images/restore_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme.headline6!.color!,
+      );
 
   Flushbar<void>? _progressBar;
 
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    return DropdownButton<WalletListItem>(
-      items: widget.walletListViewModel.wallets
-          .map((wallet) => DropdownMenuItem(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 500),
-                  child: walletListItemTile(wallet),
-                ),
+    return Observer(builder: (context) {
+      final dropDownItems = [
+        ...widget.walletListViewModel.wallets
+            .map((wallet) => DesktopDropdownItem(
+                  isSelected: wallet.isCurrent,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 500),
+                    child: DropDownItemWidget(
+                        title: wallet.name,
+                        image: wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon),
+                  ),
+                  onSelected: () => _onSelectedWallet(wallet),
+                ))
+            .toList(),
+        DesktopDropdownItem(
+          onSelected: () => _navigateToCreateWallet(),
+          child: DropDownItemWidget(
+            title: S.of(context).create_new,
+            image: _getNewWalletImage(context),
+          ),
+        ),
+        DesktopDropdownItem(
+          onSelected: () => _navigateToRestoreWallet(),
+          child: DropDownItemWidget(
+            title: S.of(context).restore_wallet,
+            image: _getRestoreWalletImage(context),
+          ),
+        ),
+      ];
+
+      return DropdownButton<DesktopDropdownItem>(
+        items: dropDownItems
+            .map(
+              (wallet) => DropdownMenuItem<DesktopDropdownItem>(
+                child: wallet.child,
                 value: wallet,
-              ))
-          .toList(),
-      onChanged: (selectedWallet) async {
-        if (selectedWallet!.isCurrent || !selectedWallet.isEnabled) {
-          return;
-        }
-
-        final confirmed = await showPopUp<bool>(
-                context: context,
-                builder: (dialogContext) {
-                  return AlertWithTwoActions(
-                      alertTitle: S.of(context).change_wallet_alert_title,
-                      alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
-                      leftButtonText: S.of(context).cancel,
-                      rightButtonText: S.of(context).change,
-                      actionLeftButton: () => Navigator.of(context).pop(false),
-                      actionRightButton: () => Navigator.of(context).pop(true));
-                }) ??
-            false;
-
-        if (confirmed) {
-          await _loadWallet(selectedWallet);
-        }
-      },
-      dropdownColor: themeData.textTheme.bodyText1?.decorationColor,
-      style: TextStyle(color: themeData.primaryTextTheme.headline6?.color),
-      selectedItemBuilder: (context) => widget.walletListViewModel.wallets
-          .map((wallet) => ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 500),
-                child: walletListItemTile(wallet),
-              ))
-          .toList(),
-      value: widget.walletListViewModel.wallets.firstWhere((element) => element.isCurrent),
-      underline: const SizedBox(),
-      focusColor: Colors.transparent,
-    );
+              ),
+            )
+            .toList(),
+        onChanged: (item) {
+          item?.onSelected();
+        },
+        dropdownColor: themeData.textTheme.bodyText1?.decorationColor,
+        style: TextStyle(color: themeData.primaryTextTheme.headline6?.color),
+        selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
+        value: dropDownItems.firstWhere((element) => element.isSelected),
+        underline: const SizedBox(),
+        focusColor: Colors.transparent,
+      );
+    });
   }
 
-  Widget walletListItemTile(WalletListItem wallet) {
-    return Container(
-      height: tileHeight,
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon,
-          SizedBox(width: 10),
-          Flexible(
-            child: Text(
-              wallet.name,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).primaryTextTheme.headline6!.color!,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          )
-        ],
-      ),
-    );
+  void _onSelectedWallet(WalletListItem selectedWallet) async {
+    if (selectedWallet.isCurrent || !selectedWallet.isEnabled) {
+      return;
+    }
+    final confirmed = await showPopUp<bool>(
+            context: context,
+            builder: (dialogContext) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).change_wallet_alert_title,
+                  alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
+                  leftButtonText: S.of(context).cancel,
+                  rightButtonText: S.of(context).change,
+                  actionLeftButton: () => Navigator.of(context).pop(false),
+                  actionRightButton: () => Navigator.of(context).pop(true));
+            }) ??
+        false;
+
+    if (confirmed) {
+      await _loadWallet(selectedWallet);
+    }
   }
 
   Image _imageFor({required WalletType type}) {
@@ -149,6 +164,24 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
+    }
+  }
+
+  void _navigateToCreateWallet() {
+    if (isSingleCoin) {
+      Navigator.of(context)
+          .pushNamed(Routes.newWallet, arguments: widget.walletListViewModel.currentWalletType);
+    } else {
+      Navigator.of(context).pushNamed(Routes.newWalletType);
+    }
+  }
+
+  void _navigateToRestoreWallet() {
+    if (isSingleCoin) {
+      Navigator.of(context)
+          .pushNamed(Routes.restoreWallet, arguments: widget.walletListViewModel.currentWalletType);
+    } else {
+      Navigator.of(context).pushNamed(Routes.restoreWalletType);
     }
   }
 
