@@ -12,6 +12,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
@@ -28,54 +29,74 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
+  Image _getNewWalletImage(BuildContext context) => Image.asset(
+        'assets/images/new_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme.headline6!.color!,
+      );
+  Image _getRestoreWalletImage(BuildContext context) => Image.asset(
+        'assets/images/restore_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme.headline6!.color!,
+      );
 
   Flushbar<void>? _progressBar;
 
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    final dropDownItems = [
-      ...widget.walletListViewModel.wallets
-          .map((wallet) => DesktopDropdownItem(
-                isSelected: wallet.isCurrent,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 500),
-                  child: DropDownItemWidget(
-                      title: wallet.name,
-                      image: wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon),
-                ),
-                onSelected: () => _onSelectedWallet(wallet),
-              ))
-          .toList(),
-      DesktopDropdownItem(
-        onSelected: () => _navigateToCreateWallet(),
-        child: DropDownItemWidget(title: S.of(context).create_new, image: nonWalletTypeIcon),
-      ),
-      DesktopDropdownItem(
-        onSelected: () => _navigateToRestoreWallet(),
-        child: DropDownItemWidget(title: S.of(context).restore_wallet, image: nonWalletTypeIcon),
-      ),
-    ];
+    return Observer(builder: (context) {
+      final dropDownItems = [
+        ...widget.walletListViewModel.wallets
+            .map((wallet) => DesktopDropdownItem(
+                  isSelected: wallet.isCurrent,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 500),
+                    child: DropDownItemWidget(
+                        title: wallet.name,
+                        image: wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon),
+                  ),
+                  onSelected: () => _onSelectedWallet(wallet),
+                ))
+            .toList(),
+        DesktopDropdownItem(
+          onSelected: () => _navigateToCreateWallet(),
+          child: DropDownItemWidget(
+            title: S.of(context).create_new,
+            image: _getNewWalletImage(context),
+          ),
+        ),
+        DesktopDropdownItem(
+          onSelected: () => _navigateToRestoreWallet(),
+          child: DropDownItemWidget(
+            title: S.of(context).restore_wallet,
+            image: _getRestoreWalletImage(context),
+          ),
+        ),
+      ];
 
-    return DropdownButton<DesktopDropdownItem>(
-      items: dropDownItems
-          .map(
-            (wallet) => DropdownMenuItem<DesktopDropdownItem>(
-              child: wallet.child,
-              value: wallet,
-            ),
-          )
-          .toList(),
-      onChanged: (item) {
-        item?.onSelected();
-      },
-      dropdownColor: themeData.textTheme.bodyText1?.decorationColor,
-      style: TextStyle(color: themeData.primaryTextTheme.headline6?.color),
-      selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
-      value: dropDownItems.firstWhere((element) => element.isSelected),
-      underline: const SizedBox(),
-      focusColor: Colors.transparent,
-    );
+      return DropdownButton<DesktopDropdownItem>(
+        items: dropDownItems
+            .map(
+              (wallet) => DropdownMenuItem<DesktopDropdownItem>(
+                child: wallet.child,
+                value: wallet,
+              ),
+            )
+            .toList(),
+        onChanged: (item) {
+          item?.onSelected();
+        },
+        dropdownColor: themeData.textTheme.bodyText1?.decorationColor,
+        style: TextStyle(color: themeData.primaryTextTheme.headline6?.color),
+        selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
+        value: dropDownItems.firstWhere((element) => element.isSelected),
+        underline: const SizedBox(),
+        focusColor: Colors.transparent,
+      );
+    });
   }
 
   void _onSelectedWallet(WalletListItem selectedWallet) async {
