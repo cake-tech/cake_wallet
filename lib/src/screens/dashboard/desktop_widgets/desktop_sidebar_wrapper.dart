@@ -26,6 +26,9 @@ class DesktopSidebarWrapper extends BasePage {
   });
 
   @override
+  bool get canUseDesktopAppBar => true;
+
+  @override
   Color get backgroundLightColor =>
       currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
 

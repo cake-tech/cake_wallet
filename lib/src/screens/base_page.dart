@@ -35,6 +35,8 @@ abstract class BasePage extends StatelessWidget {
 
   Widget? get endDrawer => null;
 
+  bool get canUseDesktopAppBar => false;
+
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
   Widget Function(BuildContext, Widget)? get rootWrapper => null;
@@ -97,7 +99,8 @@ abstract class BasePage extends StatelessWidget {
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final appBarColor = currentTheme.type == ThemeType.dark
         ? backgroundDarkColor : backgroundLightColor;
-
+    final useDesktopAppbar = !ResponsiveLayoutUtil.instance.isMobile(context) && canUseDesktopAppBar;
+    
     switch (appBarStyle) {
       case AppBarStyle.regular:
         // FIX-ME: NavBar no context
@@ -106,6 +109,7 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
+            useDesktopAppbar: useDesktopAppbar,
             backgroundColor: appBarColor);
 
       case AppBarStyle.withShadow:
@@ -115,6 +119,7 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
+            useDesktopAppbar: useDesktopAppbar,
             backgroundColor: appBarColor);
 
       case AppBarStyle.transparent:
@@ -132,6 +137,7 @@ abstract class BasePage extends StatelessWidget {
             // context: context,
             leading: leading(context),
             middle: middle(context),
+            useDesktopAppbar: useDesktopAppbar,
             trailing: trailing(context),
             backgroundColor: appBarColor);
     }

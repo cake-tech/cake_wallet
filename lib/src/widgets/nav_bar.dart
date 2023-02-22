@@ -1,23 +1,24 @@
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/cupertino.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
-  factory NavBar({Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
+  factory NavBar({Widget? leading, Widget? middle, Widget? trailing, bool useDesktopAppbar = false, Color? backgroundColor,}) {
     return NavBar._internal(
         leading: leading,
         middle: middle,
         trailing: trailing,
         height: _height,
+        useDesktopAppbar: useDesktopAppbar,
         backgroundColor: backgroundColor);
   }
 
   factory NavBar.withShadow(
-      {Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
+      {Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor, bool useDesktopAppbar = false,}) {
     return NavBar._internal(
       leading: leading,
       middle: middle,
       trailing: trailing,
       height: 80,
+      useDesktopAppbar: useDesktopAppbar,
       backgroundColor: backgroundColor,
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -38,6 +39,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       this.trailing,
       this.backgroundColor,
       this.decoration,
+      this.useDesktopAppbar = false,
       this.height = _height});
 
   static const _originalHeight = 44.0; // iOS nav bar height
@@ -49,6 +51,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   final Color? backgroundColor;
   final BoxDecoration? decoration;
   final double height;
+  final bool useDesktopAppbar;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +63,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
 
-    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
+    if (useDesktopAppbar) {
       return Container(
         padding: const EdgeInsetsDirectional.only(end: 24),
         color: backgroundColor,
