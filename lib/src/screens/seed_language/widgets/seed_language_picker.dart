@@ -30,6 +30,7 @@ const List<String> languageCodes = [
   'Esp',
   'Fre',
   'Ita',
+  'Epo',
 ];
 
 const defaultSeedLanguage = 'English';
@@ -45,6 +46,7 @@ const List<String> seedLanguages = [
   'Spanish',
   'French',
   'Italian',
+  'Esperanto',
 ];
 
 enum Places { topLeft, topRight, bottomLeft, bottomRight, inside }
