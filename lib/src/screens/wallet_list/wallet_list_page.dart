@@ -1,3 +1,4 @@
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -100,9 +101,9 @@ class WalletListBodyState extends State<WalletListBody> {
                                         leftButtonText: S.of(context).cancel,
                                         rightButtonText: S.of(context).change,
                                         actionLeftButton: () =>
-                                            Navigator.of(context).pop(false),
+                                            Navigator.of(dialogContext).pop(false),
                                         actionRightButton: () =>
-                                            Navigator.of(context).pop(true));
+                                            Navigator.of(dialogContext).pop(true));
                                   }) ??
                               false;
 

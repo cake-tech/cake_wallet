@@ -16,7 +16,8 @@ class DesktopSettingsPage extends StatefulWidget {
 }
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
-  final int itemCount = SettingActions.all.length;
+  final int itemCount = SettingActions.desktopSettings.length;
+     
   int? currentPage;
 
   void _onItemChange(int index) {
@@ -48,8 +49,8 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                       child: ListView.separated(
                         padding: EdgeInsets.only(top: 0),
                         itemBuilder: (_, index) {
-                          final item = SettingActions.all[index];
-                          final isLastTile = index == itemCount;
+                          final item = SettingActions.desktopSettings[index];
+                          final isLastTile = index == itemCount - 1;
                           return SettingActionButton(
                             isLastTile: isLastTile,
                             selectionActive: currentPage != null,
