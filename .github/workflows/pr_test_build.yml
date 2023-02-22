@@ -140,33 +140,38 @@ jobs:
           cp app-release.apk test-apk/$GITHUB_HEAD_REF.apk
 
       - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v3
         with:
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
 
       - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v3
         with:
+          name: cw_haven_android_cxx
           path: /opt/android/cake_wallet/cw_haven/android/.cxx
 
       - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v3
         with:
+          name: cw_haven_ios_external
           path: /opt/android/cake_wallet/cw_haven/ios/External
 
       - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v3
         with:
+          name: cw_monero_android_cxx
           path: /opt/android/cake_wallet/cw_monero/android/.cxx
 
       - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v3
         with:
+          name: cw_monero_ios_external
           path: /opt/android/cake_wallet/cw_monero/ios/External
 
       - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v3
         with:
+          name: cw_shared_external_ios_external
           path: /opt/android/cake_wallet/cw_shared_external/ios/External
 
 #      - name: Send Test APK
