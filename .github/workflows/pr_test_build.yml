@@ -144,9 +144,34 @@ jobs:
         with:
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
 
-      - name: Send Test APK
-        continue-on-error: true
-        run: |
-          cd /opt/android/cake_wallet
-          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")
-          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: /opt/android/cake_wallet/cw_haven/android/.cxx
+
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: /opt/android/cake_wallet/cw_haven/ios/External
+
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: /opt/android/cake_wallet/cw_monero/android/.cxx
+
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: /opt/android/cake_wallet/cw_monero/ios/External
+
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: /opt/android/cake_wallet/cw_shared_external/ios/External
+
+#      - name: Send Test APK
+#        continue-on-error: true
+#        run: |
+#          cd /opt/android/cake_wallet
+#          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")
+#          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
