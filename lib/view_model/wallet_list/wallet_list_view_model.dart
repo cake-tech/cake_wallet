@@ -32,7 +32,6 @@ abstract class WalletListViewModelBase with Store {
   @observable
   ObservableList<WalletListItem> wallets;
 
-
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final WalletLoadingService _walletLoadingService;
