@@ -17,6 +17,7 @@ List<Image> flagImages = [
   Image.asset('assets/images/spain.png'),
   Image.asset('assets/images/france.png'),
   Image.asset('assets/images/italy.png'),
+  Image.asset('assets/images/esperanto.png'),
 ];
 
 const List<String> languageCodes = [
