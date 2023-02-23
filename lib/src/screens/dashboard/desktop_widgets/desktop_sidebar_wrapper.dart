@@ -25,6 +25,8 @@ class DesktopSidebarWrapper extends BasePage {
     required this.dashboardViewModel,
   });
 
+  static Key _pageViewKey = GlobalKey();
+
   @override
   PreferredSizeWidget desktopAppBar(BuildContext context) => DesktopNavbar(
         leading: Padding(
@@ -97,23 +99,7 @@ class DesktopSidebarWrapper extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction<SidebarItem>((_) => desktopSidebarViewModel.currentPage, (page) {
-      String? currentPath;
-
-      DesktopDashboardPage.desktopKey.currentState?.popUntil((route) {
-        currentPath = route.settings.name;
-        return true;
-      });
-      if (page == SidebarItem.transactions) {
-        return;
-      }
-
-      if (currentPath == Routes.transactionsPage) {
-        Navigator.of(DesktopDashboardPage.desktopKey.currentContext!).pop();
-      }
-
-      pageController.jumpToPage(page.index);
-    });
+    _setEffects();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,6 +129,7 @@ class DesktopSidebarWrapper extends BasePage {
         }),
         Expanded(
           child: PageView(
+            key: _pageViewKey,
             controller: pageController,
             physics: NeverScrollableScrollPhysics(),
             children: [
@@ -173,5 +160,26 @@ class DesktopSidebarWrapper extends BasePage {
         ),
       ],
     );
+  }
+
+  final desktopKey = DesktopDashboardPage.desktopKey;
+
+  void _setEffects() async {
+    reaction<SidebarItem>((_) => desktopSidebarViewModel.currentPage, (page) {
+      String? currentPath;
+
+      desktopKey.currentState?.popUntil((route) {
+        currentPath = route.settings.name;
+        return true;
+      });
+      if (page == SidebarItem.transactions) {
+        return;
+      }
+
+      if (currentPath == Routes.transactionsPage) {
+        Navigator.of(desktopKey.currentContext!).pop();
+      }
+      pageController.jumpToPage(page.index);
+    });
   }
 }

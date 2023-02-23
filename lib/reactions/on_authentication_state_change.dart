@@ -23,8 +23,11 @@ void startAuthenticationStateChange(AuthenticationStore authenticationStore,
     }
 
     if (state == AuthenticationState.allowed) {
-      await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-      return;
+      // Temporary workaround for the issue with desktopKey dispose
+      Future.delayed(Duration(milliseconds: 2), () async {
+        await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        return;
+      });
     }
   });
 }

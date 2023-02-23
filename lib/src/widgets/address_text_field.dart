@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -100,7 +103,8 @@ class AddressTextField extends StatelessWidget {
               width: prefixIconWidth * options.length +
                   (spaceBetweenPrefixIcons * options.length),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: DeviceInfo.instance.isMobile 
+                  ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
                 children: [
                   SizedBox(width: 5),
                   if (this.options.contains(AddressTextFieldOption.paste)) ...[
@@ -130,7 +134,8 @@ class AddressTextField extends StatelessWidget {
                               )),
                         )),
                   ],
-                  if (this.options.contains(AddressTextFieldOption.qrCode)) ...[
+                  if (this.options.contains(AddressTextFieldOption.qrCode) && DeviceInfo.instance.isMobile) 
+                  ...[
                     Container(
                         width: prefixIconWidth,
                         height: prefixIconHeight,
@@ -156,7 +161,7 @@ class AddressTextField extends StatelessWidget {
                                         .decorationColor!,
                               )),
                         ))
-                  ],
+                  ] else SizedBox(width: 5),
                   if (this
                       .options
                       .contains(AddressTextFieldOption.addressBook)) ...[
