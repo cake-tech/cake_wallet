@@ -1,4 +1,3 @@
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/cupertino.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
@@ -59,24 +58,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     final pad = height - _originalHeight;
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
-
-    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
-      return Container(
-        padding: const EdgeInsetsDirectional.only(end: 24),
-        color: backgroundColor,
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (leading != null) Flexible(child: leading!) else const SizedBox(),
-              if (middle != null) middle!,
-              trailing ?? const SizedBox(),
-            ],
-          ),
-        ),
-      );
-    }
 
     return Container(
       decoration: decoration ?? BoxDecoration(color: backgroundColor),

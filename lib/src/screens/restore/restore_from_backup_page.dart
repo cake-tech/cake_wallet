@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -39,43 +40,48 @@ class RestoreFromBackupPage extends BasePage {
       }
     });
 
-    return Container(
-        padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
-        child: Column(children: [
-          Expanded(
-            child: Container(
-              child: Center(
-                  child: TextFormField(
-                      obscureText: true,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      decoration: InputDecoration(
-                          hintText: S.of(context).enter_backup_password),
-                      keyboardType: TextInputType.visiblePassword,
-                      controller: textEditingController,
-                      style: TextStyle(fontSize: 26, color: Colors.black))),
-            ),
-          ),
-          Container(
-              child: Row(children: [
-            Expanded(
-                child: PrimaryButton(
-                    onPressed: () => presentFilePicker(),
-                    text: S.of(context).select_backup_file,
-                    color: Colors.grey,
-                    textColor: Colors.white)),
-            SizedBox(width: 20),
-            Expanded(child: Observer(builder: (_) {
-              return LoadingPrimaryButton(
-                  isLoading:
-                      restoreFromBackupViewModel.state is IsExecutingState,
-                  onPressed: () => onImportHandler(context),
-                  text: S.of(context).import,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
-                  textColor: Colors.white);
-            }))
-          ])),
-        ]));
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+        child: Padding(
+            padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
+            child: Column(children: [
+              Expanded(
+                child: Container(
+                  child: Center(
+                      child: TextFormField(
+                          obscureText: true,
+                          enableSuggestions: false,
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                              hintText: S.of(context).enter_backup_password),
+                          keyboardType: TextInputType.visiblePassword,
+                          controller: textEditingController,
+                          style: TextStyle(fontSize: 26, color: Colors.black))),
+                ),
+              ),
+              Container(
+                  child: Row(children: [
+                Expanded(
+                    child: PrimaryButton(
+                        onPressed: () => presentFilePicker(),
+                        text: S.of(context).select_backup_file,
+                        color: Colors.grey,
+                        textColor: Colors.white)),
+                SizedBox(width: 20),
+                Expanded(child: Observer(builder: (_) {
+                  return LoadingPrimaryButton(
+                      isLoading:
+                          restoreFromBackupViewModel.state is IsExecutingState,
+                      onPressed: () => onImportHandler(context),
+                      text: S.of(context).import,
+                      color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                      textColor: Colors.white);
+                }))
+              ])),
+            ])),
+      ),
+    );
   }
 
   Future<void> presentFilePicker() async {

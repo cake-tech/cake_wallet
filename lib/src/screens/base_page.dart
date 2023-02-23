@@ -97,7 +97,7 @@ abstract class BasePage extends StatelessWidget {
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final appBarColor = currentTheme.type == ThemeType.dark
         ? backgroundDarkColor : backgroundLightColor;
-
+  
     switch (appBarStyle) {
       case AppBarStyle.regular:
         // FIX-ME: NavBar no context
