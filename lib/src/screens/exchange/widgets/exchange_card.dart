@@ -431,10 +431,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             child: InkWell(
                                               onTap: () async {
                                                 final contact =
-                                                    await Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pushNamed(Routes
-                                                            .pickerAddressBook);
+                                                    await Navigator.of(context)
+                                                        .pushNamed(Routes.pickerAddressBook);
 
                                                 if (contact is ContactBase &&
                                                     contact.address != null) {
