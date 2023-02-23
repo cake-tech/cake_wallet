@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
-  factory NavBar({Widget? leading, Widget? middle, Widget? trailing, bool useDesktopAppbar = false, Color? backgroundColor,}) {
+  factory NavBar({Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
     return NavBar._internal(
         leading: leading,
         middle: middle,
@@ -11,7 +11,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   }
 
   factory NavBar.withShadow(
-      {Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor, bool useDesktopAppbar = false,}) {
+      {Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
     return NavBar._internal(
       leading: leading,
       middle: middle,

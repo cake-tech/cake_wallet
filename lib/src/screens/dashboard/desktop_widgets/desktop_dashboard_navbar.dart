@@ -1,14 +1,15 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class DesktopNavbar extends StatelessWidget implements PreferredSizeWidget {
+class DesktopDashboardNavbar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   final Widget leading;
   final Widget middle;
   final Widget trailing;
 
-  DesktopNavbar({
+  DesktopDashboardNavbar({
     super.key,
     required this.leading,
     required this.middle,
@@ -41,4 +42,7 @@ class DesktopNavbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => Size.fromHeight(60);
+  
+  @override
+  bool shouldFullyObstruct(BuildContext context) => false;
 }

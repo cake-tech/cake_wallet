@@ -35,8 +35,6 @@ abstract class BasePage extends StatelessWidget {
 
   Widget? get endDrawer => null;
 
-  PreferredSizeWidget? desktopAppBar(BuildContext context) => null; 
-
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
   Widget Function(BuildContext, Widget)? get rootWrapper => null;
@@ -152,7 +150,7 @@ abstract class BasePage extends StatelessWidget {
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         extendBodyBehindAppBar: extendBodyBehindAppBar,
         endDrawer: endDrawer,
-        appBar: desktopAppBar(context) ?? appBar(context),
+        appBar: appBar(context),
         body: body(context),
         floatingActionButton: floatingActionButton(context));
 
