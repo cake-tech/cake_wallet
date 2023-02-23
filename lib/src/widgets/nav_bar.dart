@@ -7,7 +7,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
         middle: middle,
         trailing: trailing,
         height: _height,
-        useDesktopAppbar: useDesktopAppbar,
         backgroundColor: backgroundColor);
   }
 
@@ -18,7 +17,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       middle: middle,
       trailing: trailing,
       height: 80,
-      useDesktopAppbar: useDesktopAppbar,
       backgroundColor: backgroundColor,
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -39,7 +37,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       this.trailing,
       this.backgroundColor,
       this.decoration,
-      this.useDesktopAppbar = false,
       this.height = _height});
 
   static const _originalHeight = 44.0; // iOS nav bar height
@@ -51,7 +48,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   final Color? backgroundColor;
   final BoxDecoration? decoration;
   final double height;
-  final bool useDesktopAppbar;
 
   @override
   Widget build(BuildContext context) {
@@ -62,24 +58,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     final pad = height - _originalHeight;
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
-
-    if (useDesktopAppbar) {
-      return Container(
-        padding: const EdgeInsetsDirectional.only(end: 24),
-        color: backgroundColor,
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (leading != null) Flexible(child: leading!) else const SizedBox(),
-              if (middle != null) middle!,
-              trailing ?? const SizedBox(),
-            ],
-          ),
-        ),
-      );
-    }
 
     return Container(
       decoration: decoration ?? BoxDecoration(color: backgroundColor),

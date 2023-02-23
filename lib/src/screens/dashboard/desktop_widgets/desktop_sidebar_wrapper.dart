@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_item.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/src/widgets/desktop_nav_bar.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:flutter/material.dart';
@@ -26,14 +26,47 @@ class DesktopSidebarWrapper extends BasePage {
   });
 
   @override
-  bool get canUseDesktopAppBar => true;
+  PreferredSizeWidget desktopAppBar(BuildContext context) => DesktopNavbar(
+        leading: Padding(
+          padding: EdgeInsets.only(left: sideMenuWidth),
+          child: getIt<DesktopWalletSelectionDropDown>(),
+        ),
+        middle: SyncIndicator(
+          dashboardViewModel: dashboardViewModel,
+          onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync),
+        ),
+        trailing: InkWell(
+          onTap: () {
+            String? currentPath;
 
-  @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
+            DesktopDashboardPage.desktopKey.currentState?.popUntil((route) {
+              currentPath = route.settings.name;
+              return true;
+            });
 
-  @override
-  Color get backgroundDarkColor => Colors.black.withOpacity(0.1);
+            switch (currentPath) {
+              case Routes.transactionsPage:
+                desktopSidebarViewModel.resetSidebar();
+                break;
+              default:
+                desktopSidebarViewModel.resetSidebar();
+                Future.delayed(Duration(milliseconds: 10), () {
+                  desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
+                  DesktopDashboardPage.desktopKey.currentState?.pushNamed(Routes.transactionsPage);
+                });
+            }
+          },
+          child: Observer(
+            builder: (_) {
+              return Image.asset(
+                desktopSidebarViewModel.currentPage == SidebarItem.transactions
+                    ? selectedIconPath
+                    : unselectedIconPath,
+              );
+            },
+          ),
+        ),
+      );
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -61,54 +94,6 @@ class DesktopSidebarWrapper extends BasePage {
             ),
             child: scaffold,
           );
-
-  @override
-  Widget? leading(BuildContext context) => Padding(
-        padding: EdgeInsets.only(left: sideMenuWidth),
-        child: getIt<DesktopWalletSelectionDropDown>(),
-      );
-
-  @override
-  Widget middle(BuildContext context) {
-    return SyncIndicator(
-        dashboardViewModel: dashboardViewModel,
-        onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync));
-  }
-
-  @override
-  Widget trailing(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        String? currentPath;
-
-        DesktopDashboardPage.desktopKey.currentState?.popUntil((route) {
-          currentPath = route.settings.name;
-          return true;
-        });
-
-        switch (currentPath) {
-          case Routes.transactionsPage:
-            desktopSidebarViewModel.resetSidebar();
-            break;
-          default:
-            desktopSidebarViewModel.resetSidebar();
-            Future.delayed(Duration(milliseconds: 10), () {
-              desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
-              DesktopDashboardPage.desktopKey.currentState?.pushNamed(Routes.transactionsPage);
-            });
-        }
-      },
-      child: Observer(
-        builder: (_) {
-          return Image.asset(
-            desktopSidebarViewModel.currentPage == SidebarItem.transactions
-                ? selectedIconPath
-                : unselectedIconPath,
-          );
-        },
-      ),
-    );
-  }
 
   @override
   Widget body(BuildContext context) {
