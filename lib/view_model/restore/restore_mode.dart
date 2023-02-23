@@ -1,1 +1,1 @@
-enum WalletRestoreMode { seed, keys }
+enum WalletRestoreMode { seed, keys, txids }

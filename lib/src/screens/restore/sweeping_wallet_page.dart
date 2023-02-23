@@ -1,12 +1,14 @@
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:flutter/scheduler.dart';
 
 class SweepingWalletPage extends BasePage {
-
   SweepingWalletPage({required this.restoreVMfromQR});
 
   static const aspectRatioImage = 1.25;
@@ -17,7 +19,13 @@ class SweepingWalletPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    restoreVMfromQR.create();
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await restoreVMfromQR.create();
+      if (restoreVMfromQR.state is FailureState) {
+        _onWalletCreateFailure(
+            context, 'Create wallet state: ${restoreVMfromQR.state.runtimeType.toString()}');
+      }
+    });
 
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
@@ -28,13 +36,6 @@ class SweepingWalletPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
-
-    final newWalletImage = Image.asset('assets/images/new_wallet.png',
-        height: 12,
-        width: 12,
-        color: Theme.of(context).accentTextTheme!.headline5!.decorationColor!);
-    final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).primaryTextTheme!.headline6!.color!);
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -70,7 +71,7 @@ class SweepingWalletPage extends BasePage {
                             Padding(
                               padding: EdgeInsets.only(top: 5),
                               child: Text(
-                                  S.of(context).sweeping_wallet,
+                                S.of(context).sweeping_wallet,
                                 style: TextStyle(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
@@ -82,7 +83,7 @@ class SweepingWalletPage extends BasePage {
                             Padding(
                               padding: EdgeInsets.only(top: 5),
                               child: Text(
-                                  S.of(context).sweeping_wallet_alert,
+                                S.of(context).sweeping_wallet_alert,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -98,4 +99,17 @@ class SweepingWalletPage extends BasePage {
               ],
             )));
   }
+}
+
+void _onWalletCreateFailure(BuildContext context, String error) {
+  var count = 0;
+  showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+            alertTitle: S.current.error,
+            alertContent: error,
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.popUntil(context, (route) => count++ == 3));
+      });
 }

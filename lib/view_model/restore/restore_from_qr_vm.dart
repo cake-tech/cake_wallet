@@ -11,7 +11,6 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 
 part 'restore_from_qr_vm.g.dart';
 
@@ -76,8 +75,21 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials) async =>
-      wallet.restoreMode == WalletRestoreMode.keys
-          ? walletCreationService.restoreFromKeys(credentials)
-          : walletCreationService.restoreFromSeed(credentials);
-}
+  Future<WalletBase> process(WalletCredentials credentials) async {
+
+    try{
+      switch (wallet.restoreMode) {
+        case WalletRestoreMode.keys:
+          return walletCreationService.restoreFromKeys(credentials);
+        case WalletRestoreMode.seed:
+          return walletCreationService.restoreFromSeed(credentials);
+        default:
+          throw Exception('Unexpected restore mode: ${wallet.restoreMode.toString()}');
+      }
+    } catch (e){
+      throw Exception('Unexpected restore mode: ${e.toString()}');
+    }
+  }
+
+  }
+
