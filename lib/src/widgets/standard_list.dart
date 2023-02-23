@@ -1,6 +1,6 @@
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/widgets/standart_list_card.dart';
-import 'package:cake_wallet/src/widgets/standart_list_status_row.dart';
+import 'package:cake_wallet/src/widgets/standard_list_card.dart';
+import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
@@ -217,7 +217,7 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          if (row is StandartListStatusRow || row is TradeDatailsStandartListCard) {
+          if (row is StandardListStatusRow || row is TradeDetailsStandardListCard) {
             return Container();
           }
 

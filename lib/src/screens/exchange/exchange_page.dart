@@ -48,7 +48,6 @@ class ExchangePage extends BasePage {
   final ExchangeViewModel exchangeViewModel;
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
-  final checkBoxKey = GlobalKey<StandardCheckboxState>();
   final _formKey = GlobalKey<FormState>();
   final _depositAmountFocus = FocusNode();
   final _depositAddressFocus = FocusNode();
@@ -150,7 +149,6 @@ class ExchangePage extends BasePage {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           StandardCheckbox(
-                            key: checkBoxKey,
                             value: exchangeViewModel.isFixedRateMode,
                             caption: S.of(context).fixed_rate,
                             onChanged: (value) =>
@@ -449,12 +447,6 @@ class ExchangePage extends BasePage {
       } else {
         depositKey.currentState!.changeLimits(min: min, max: max);
         receiveKey.currentState!.changeLimits(min: null, max: null);
-      }
-    });
-
-    reaction((_) => exchangeViewModel.isFixedRateMode, (bool value) {
-      if (checkBoxKey.currentState!.value != exchangeViewModel.isFixedRateMode) {
-        checkBoxKey.currentState!.value = exchangeViewModel.isFixedRateMode;
       }
     });
 

@@ -1,12 +1,12 @@
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -21,9 +21,6 @@ class WalletSeedPage extends BasePage {
 
   @override
   String get title => S.current.seed_title;
-
-  @override
-  bool get canUseDesktopAppBar => false;  
 
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;
@@ -166,8 +163,12 @@ class WalletSeedPage extends BasePage {
                                   child: Container(
                                 padding: EdgeInsets.only(right: 8.0),
                                 child: PrimaryButton(
-                                    onPressed: () =>
-                                      Share.share(walletSeedViewModel.seed),
+                                    onPressed: () {
+                                      ShareUtil.share(
+                                        text: walletSeedViewModel.seed,
+                                        context: context,
+                                      );
+                                    },
                                     text: S.of(context).save,
                                     color: Colors.green,
                                     textColor: Colors.white),

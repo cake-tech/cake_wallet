@@ -6,7 +6,7 @@ import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -42,7 +42,7 @@ class TransactionDetailsPage extends BasePage {
                     S.of(context).transaction_details_copied(item.title));
               },
               child:
-                  StandartListRow(title: '${item.title}:', value: item.value),
+                  ListRow(title: '${item.title}:', value: item.value),
             );
           }
 
@@ -50,7 +50,7 @@ class TransactionDetailsPage extends BasePage {
             return GestureDetector(
               onTap: item.onTap,
               child:
-                  StandartListRow(title: '${item.title}:', value: item.value),
+                  ListRow(title: '${item.title}:', value: item.value),
             );
           }
 
