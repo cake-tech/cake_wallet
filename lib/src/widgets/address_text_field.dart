@@ -66,7 +66,7 @@ class AddressTextField extends StatelessWidget {
           style: textStyle ??
               TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                  color: Theme.of(context).primaryTextTheme.headline6!.color!),
           decoration: InputDecoration(
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length +
@@ -119,8 +119,7 @@ class AddressTextField extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: buttonColor ??
                                       Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline6!
+                                          .accentTextTheme.headline6!
                                           .color!,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
@@ -128,8 +127,7 @@ class AddressTextField extends StatelessWidget {
                                 'assets/images/paste_ios.png',
                                 color: iconColor ??
                                     Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headline4!
+                                        .primaryTextTheme.headline4!
                                         .decorationColor!,
                               )),
                         )),
@@ -147,8 +145,7 @@ class AddressTextField extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: buttonColor ??
                                       Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline6!
+                                          .accentTextTheme.headline6!
                                           .color!,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
@@ -156,8 +153,7 @@ class AddressTextField extends StatelessWidget {
                                 'assets/images/qr_code_icon.png',
                                 color: iconColor ??
                                     Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headline4!
+                                        .primaryTextTheme.headline4!
                                         .decorationColor!,
                               )),
                         ))
@@ -176,8 +172,7 @@ class AddressTextField extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: buttonColor ??
                                       Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline6!
+                                          .accentTextTheme.headline6!
                                           .color!,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
@@ -185,8 +180,7 @@ class AddressTextField extends StatelessWidget {
                                 'assets/images/open_book.png',
                                 color: iconColor ??
                                     Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headline4!
+                                        .primaryTextTheme.headline4!
                                         .decorationColor!,
                               )),
                         ))
