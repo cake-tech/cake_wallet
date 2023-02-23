@@ -67,7 +67,10 @@ class IoniaBuyGiftCardPage extends BasePage {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 25),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
                   gradient: LinearGradient(colors: [
                     Theme.of(context).primaryTextTheme!.subtitle1!.color!,
                     Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
@@ -78,31 +81,37 @@ class IoniaBuyGiftCardPage extends BasePage {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 150),
-                      SizedBox(
+                    SizedBox(
                       width: 200,
                       child: BaseTextFormField(
-                        controller: TextEditingController(),
+                        controller: _amountController,
+                        focusNode: _amountFieldFocus,
                         keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+(\.|\,)?\d{0,2}'),
+                          ),
+                        ],
                         hintText: '1000',
                         placeholderTextStyle: TextStyle(
                           color: Theme.of(context).primaryTextTheme.headline5!.color!,
                           fontWeight: FontWeight.w600,
                           fontSize: 36,
                         ),
-                         prefixIcon: Text(
-                            'USD: ',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 36,
-                            ),
+                        prefixIcon: Text(
+                          'USD: ',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 36,
                           ),
+                        ),
                         textColor: Colors.white,
                         textStyle: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
                         ),
-                       
                       ),
                     ),
                     Divider(
@@ -136,7 +145,11 @@ class IoniaBuyGiftCardPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
+                  backgroundColor: Theme.of(context)
+                      .accentTextTheme!
+                      .headline1!
+                      .backgroundColor!
+                      .withOpacity(0.1),
                   discount: merchant.discount,
                   titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
