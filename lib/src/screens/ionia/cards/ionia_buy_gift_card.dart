@@ -45,7 +45,6 @@ class IoniaBuyGiftCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
     final merchant = ioniaBuyCardViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
@@ -76,42 +75,39 @@ class IoniaBuyGiftCardPage extends BasePage {
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 150),
-                    BaseTextFormField(
-                      controller: _amountController,
-                      focusNode: _amountFieldFocus,
-                      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,2}'))],
-                      hintText: '1000',
-                      placeholderTextStyle: TextStyle(
-                        color: Theme.of(context).primaryTextTheme!.headline5!.color!,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 36,
-                      ),
-                      borderColor: Theme.of(context).primaryTextTheme!.headline5!.color!,
-                      textColor: Colors.white,
-                      textStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: 36,
-                      ),
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.only(
-                          top: 5.0,
-                          left: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint) / 3,
-                       child: Text(
-                          'USD: ',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 36,
-                          ),
+                      SizedBox(
+                      width: 200,
+                      child: BaseTextFormField(
+                        controller: TextEditingController(),
+                        keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                        hintText: '1000',
+                        placeholderTextStyle: TextStyle(
+                          color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 36,
                         ),
+                         prefixIcon: Text(
+                            'USD: ',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 36,
+                            ),
+                          ),
+                        textColor: Colors.white,
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                        ),
+                       
                       ),
+                    ),
+                    Divider(
+                      color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                      height: 1,
                     ),
                     SizedBox(height: 8),
                     Row(
