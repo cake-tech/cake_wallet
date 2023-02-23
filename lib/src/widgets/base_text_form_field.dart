@@ -64,7 +64,6 @@ class BaseTextFormField extends StatelessWidget {
       readOnly: readOnly,
       initialValue: initialValue,
       focusNode: focusNode,
-      autofocus: true,
       controller: controller,
       keyboardType: keyboardType,
       textInputAction: textInputAction,

@@ -58,7 +58,6 @@ class AddressTextField extends StatelessWidget {
         TextFormField(
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
           enabled: isActive,
-          autofocus: true,
           controller: controller,
           focusNode: focusNode,
           style: textStyle ??
