@@ -21,7 +21,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '3.3.x'
+          flutter-version: '3.7.x'
           channel: stable
 
       - name: Install package dependencies
@@ -110,6 +110,7 @@ jobs:
           echo "const onramperApiKey = '${{ secrets.ONRAMPER_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
+          echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
         run: sed -i -e "s/\${APP_NAME}/$GITHUB_HEAD_REF/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml

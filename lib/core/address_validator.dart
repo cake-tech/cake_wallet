@@ -198,4 +198,26 @@ class AddressValidator extends TextValidator {
         return [];
     }
   }
+
+  static String? getAddressFromStringPattern(CryptoCurrency type) {
+    switch (type) {
+      case CryptoCurrency.xmr:
+        return '([^0-9a-zA-Z]|^)4[0-9a-zA-Z]{94}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)8[0-9a-zA-Z]{94}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)[0-9a-zA-Z]{106}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.btc:
+        return '([^0-9a-zA-Z]|^)1[0-9a-zA-Z]{32}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)1[0-9a-zA-Z]{33}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)3[0-9a-zA-Z]{32}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)3[0-9a-zA-Z]{33}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{39}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{59}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.ltc:
+        return '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)';
+      default:
+        return null;
+    }
+  }
 }

@@ -192,7 +192,7 @@ abstract class ExchangeViewModelBase with Store {
   ObservableList<ExchangeTemplate> get templates =>
       _exchangeTemplateStore.templates;
 
-  
+
   @computed
   TransactionPriority get transactionPriority {
     final priority = _settingsStore.priority[wallet.type];
@@ -308,10 +308,11 @@ abstract class ExchangeViewModelBase with Store {
   Future<void> _calculateBestRate() async {
     final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
 
+    final _providers = _tradeAvailableProviders
+        .where((element) => !isFixedRateMode || element.supportsFixedRate).toList();
+
     final result = await Future.wait<double>(
-        _tradeAvailableProviders
-            .where((element) => !isFixedRateMode || element.supportsFixedRate)
-            .map((element) => element.fetchRate(
+        _providers.map((element) => element.fetchRate(
                 from: depositCurrency,
                 to: receiveCurrency,
                 amount: amount,
@@ -324,7 +325,12 @@ abstract class ExchangeViewModelBase with Store {
     for (int i=0;i<result.length;i++) {
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
-        _sortedAvailableProviders[result[i]] = _tradeAvailableProviders[i];
+        try {
+          _sortedAvailableProviders[result[i]] = _providers[i];
+        } catch (e) {
+          // will throw "Concurrent modification during iteration" error if modified at the same
+          // time [createTrade] is called, as this is not a normal map, but a sorted map
+        }
       }
     }
     if (_sortedAvailableProviders.isNotEmpty) {

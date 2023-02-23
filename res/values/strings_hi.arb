@@ -398,8 +398,7 @@
   "biometric_auth_reason" : "प्रमाणित करने के लिए अपने फ़िंगरप्रिंट को स्कैन करें",
   "version" : "संस्करण ${currentVersion}",
 
-  "openalias_alert_title" : "पता मिला",
-  "openalias_alert_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}",
+  "extracted_address_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}",
 
   "card_address" : "पता:",
   "buy" : "खरीदें",
@@ -677,10 +676,13 @@
   "disabled": "अक्षम",
   "enabled": "सक्रिय",
   "tor_only": "Tor केवल",
-  "orbot_running_alert": "कृपया सुनिश्चित करें कि इस नोड से कनेक्ट करने से पहले Orbot चल रहा है।",
   "unmatched_currencies": "आपके वर्तमान वॉलेट की मुद्रा स्कैन किए गए क्यूआर से मेल नहीं खाती" ,
+  "orbot_running_alert": "कृपया सुनिश्चित करें कि इस नोड से कनेक्ट करने से पहले Orbot चल रहा है।",
   "contact_list_contacts": "संपर्क",
   "contact_list_wallets": "मेरा बटुआ",
+  "bitcoin_payments_require_1_confirmation": "बिटकॉइन भुगतान के लिए 1 पुष्टिकरण की आवश्यकता होती है, जिसमें 20 मिनट या अधिक समय लग सकता है। आपके धैर्य के लिए धन्यवाद! भुगतान की पुष्टि होने पर आपको ईमेल किया जाएगा।",
+  "send_to_this_address" : "इस पते पर ${currency} ${tag}भेजें",
+  "arrive_in_this_address" : "${currency} ${tag}इस पते पर पहुंचेंगे",
   "do_not_send": "मत भेजो",
   "error_dialog_content": "ओह, हमसे कुछ गड़बड़ी हुई है.\n\nएप्लिकेशन को बेहतर बनाने के लिए कृपया क्रैश रिपोर्ट हमारी सहायता टीम को भेजें।"
 }
