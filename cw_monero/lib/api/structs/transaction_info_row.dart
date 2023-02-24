@@ -41,4 +41,5 @@ class TransactionInfoRow extends Struct {
   bool getIsPending() => isPending != 0;
   String getHash() => hash.toDartString();
   String getPaymentId() => paymentId.toDartString();
+  int getUnlockTime() => unlockTime >> 32;
 }

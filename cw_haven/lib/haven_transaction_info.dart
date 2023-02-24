@@ -8,11 +8,10 @@ import 'package:cw_haven/api/transaction_history.dart';
 import 'package:intl/intl.dart';
 
 class HavenTransactionInfo extends TransactionInfo {
-  HavenTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee, this.unlockTime,
-      this.confirmations);
+  HavenTransactionInfo(this.id, this.height, this.direction, this.date, this.isPending, this.amount,
+      this.accountIndex, this.addressIndex, this.fee, this.unlockTime, this.confirmations);
 
-    HavenTransactionInfo.fromRow(TransactionInfoRow row)
+  HavenTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
         height = row.blockHeight,
         direction = TransactionDirection.parseFromInt(row.direction),
@@ -21,9 +20,10 @@ class HavenTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
-        unlockTime = row.unlockTime,
+        unlockTime = row.getUnlockTime(),
         confirmations = row.confirmations,
-        key = null, //getTxKey(row.getHash()),
+        key = null,
+        //getTxKey(row.getHash()),
         fee = row.fee,
         assetType = row.getAssetType();
 
@@ -44,8 +44,7 @@ class HavenTransactionInfo extends TransactionInfo {
   String? key;
 
   @override
-  String amountFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: amount))} $assetType';
+  String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} $assetType';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -54,8 +53,7 @@ class HavenTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: fee))} $assetType';
+  String feeFormatted() => '${formatAmount(moneroAmountToString(amount: fee))} $assetType';
 
   @override
   String? unlockTimeFormatted() {
@@ -68,12 +66,15 @@ class HavenTransactionInfo extends TransactionInfo {
           ? '>1 year'
           : '~${(unlockTime - height) * 2} minutes';
     }
-
-    var locked = DateTime.fromMicrosecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
-    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
-    final String formattedUnlockTime =
-    formatter.format(DateTime.fromMicrosecondsSinceEpoch(unlockTime));
-
-    return locked >= 0 ? '$formattedUnlockTime' : null;
+    try {
+      var locked = DateTime.fromMicrosecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
+      final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      final String formattedUnlockTime =
+          formatter.format(DateTime.fromMicrosecondsSinceEpoch(unlockTime));
+      return locked >= 0 ? '$formattedUnlockTime' : null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 }
