@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_navbar.dart';
@@ -93,18 +94,31 @@ class DesktopSidebarWrapper extends BasePage {
             width: sideMenuWidth,
             topItems: [
               SideMenuItem(
-                iconPath: 'assets/images/wallet_outline.png',
+                imagePath: 'assets/images/wallet_outline.png',
                 isSelected: desktopSidebarViewModel.currentPage == SidebarItem.dashboard,
                 onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.dashboard),
               ),
+              SideMenuItem(
+                icon: Icons.lock_outline,
+                onTap: () {
+                  Navigator.of(context).pushNamed(
+                    Routes.unlock,
+                    arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                      auth.close(
+                        route: isAuthenticatedSuccessfully ? Routes.dashboard : null,
+                      );
+                    },
+                  );
+                },
+              )
             ],
             bottomItems: [
               SideMenuItem(
-                  iconPath: 'assets/images/support_icon.png',
+                  imagePath: 'assets/images/support_icon.png',
                   isSelected: desktopSidebarViewModel.currentPage == SidebarItem.support,
                   onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.support)),
               SideMenuItem(
-                iconPath: 'assets/images/settings_outline.png',
+                imagePath: 'assets/images/settings_outline.png',
                 isSelected: desktopSidebarViewModel.currentPage == SidebarItem.settings,
                 onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.settings),
               ),
