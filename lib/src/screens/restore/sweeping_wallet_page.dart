@@ -19,14 +19,6 @@ class SweepingWalletPage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await restoreVMfromQR.create();
-      if (restoreVMfromQR.state is FailureState) {
-        _onWalletCreateFailure(
-            context, 'Create wallet state: ${restoreVMfromQR.state.runtimeType.toString()}');
-      }
-    });
-
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         resizeToAvoidBottomInset: false,
@@ -37,6 +29,44 @@ class SweepingWalletPage extends BasePage {
   Widget body(BuildContext context) {
     final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
 
+    return SweepingWalletWidget(
+      aspectRatioImage: aspectRatioImage,
+      welcomeImage: welcomeImage,
+      restoreVMfromQR: restoreVMfromQR,
+    );
+  }
+}
+
+class SweepingWalletWidget extends StatefulWidget {
+  const SweepingWalletWidget({
+    required this.aspectRatioImage,
+    required this.welcomeImage,
+    required this.restoreVMfromQR,
+  });
+
+  final double aspectRatioImage;
+  final Image welcomeImage;
+  final WalletRestorationFromQRVM restoreVMfromQR;
+
+  @override
+  State<SweepingWalletWidget> createState() => _SweepingWalletWidgetState();
+}
+
+class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
+  @override
+  void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await widget.restoreVMfromQR.create();
+      if (widget.restoreVMfromQR.state is FailureState) {
+        _onWalletCreateFailure(
+            context, 'Create wallet state: ${widget.restoreVMfromQR.state.runtimeType.toString()}');
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () async => false,
         child: Container(
@@ -47,8 +77,8 @@ class SweepingWalletPage extends BasePage {
                 Flexible(
                     flex: 2,
                     child: AspectRatio(
-                        aspectRatio: aspectRatioImage,
-                        child: FittedBox(child: welcomeImage, fit: BoxFit.fill))),
+                        aspectRatio: widget.aspectRatioImage,
+                        child: FittedBox(child: widget.welcomeImage, fit: BoxFit.fill))),
                 Flexible(
                     flex: 3,
                     child: Column(
