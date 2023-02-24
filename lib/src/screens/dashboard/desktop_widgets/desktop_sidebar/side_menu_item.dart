@@ -7,7 +7,7 @@ class SideMenuItem extends StatelessWidget {
     this.imagePath,
     this.icon,
     this.isSelected = false,
-  }) : super(key: key);
+  }) : assert((icon != null && imagePath == null) || (icon == null && imagePath != null));
 
   final void Function() onTap;
   final String? imagePath;
