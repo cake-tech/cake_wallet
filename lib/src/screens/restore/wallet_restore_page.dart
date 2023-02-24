@@ -111,6 +111,12 @@ class WalletRestorePage extends BasePage {
   @override
   Widget body(BuildContext context) {
     reaction((_) => walletRestoreViewModel.state, (ExecutionState state) {
+      if (state is ExecutedSuccessfullyState) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+    
+      return;
+      }
+   
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(

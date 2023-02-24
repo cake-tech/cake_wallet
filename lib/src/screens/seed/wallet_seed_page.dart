@@ -20,10 +20,7 @@ class WalletSeedPage extends BasePage {
   final imageDark = Image.asset('assets/images/crypto_lock.png');
 
   @override
-  String get title => S.current.seed_title;
-
-  @override
-  bool get canUseDesktopAppBar => false;  
+  String get title => S.current.seed_title;  
 
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;
