@@ -292,22 +292,27 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<ConnectionSyncPage>());
 
     case Routes.securityBackupPage:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<SecurityBackupPage>());
     
      case Routes.privacyPage:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<PrivacyPage>());
 
      case Routes.displaySettingsPage:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<DisplaySettingsPage>());
 
     case Routes.otherSettingsPage:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<OtherSettingsPage>());
     
     case Routes.newNode:
@@ -330,8 +335,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<ContactListPage>());
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<ContactListPage>());
 
     case Routes.pickerAddressBook:
       final selectedCurrency = settings.arguments as CryptoCurrency?;
@@ -420,6 +425,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.support:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<SupportPage>());
 
     case Routes.unspentCoinsList:
