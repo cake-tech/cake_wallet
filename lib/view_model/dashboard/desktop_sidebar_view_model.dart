@@ -17,13 +17,11 @@ abstract class DesktopSidebarViewModelBase with Store {
   @observable
   SidebarItem currentPage = SidebarItem.dashboard;
 
-
   @action
   void onPageChange(SidebarItem item) {
-    
-    if(currentPage == item){
+    if (currentPage == item) {
       resetSidebar();
-      
+
       return;
     }
     currentPage = item;

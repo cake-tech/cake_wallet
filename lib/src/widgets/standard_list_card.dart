@@ -2,8 +2,8 @@ import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 
-class TradeDatailsStandartListCard extends StatelessWidget {
-  TradeDatailsStandartListCard(
+class TradeDetailsStandardListCard extends StatelessWidget {
+  TradeDetailsStandardListCard(
       {required this.id,
       required this.create,
       required this.pair,

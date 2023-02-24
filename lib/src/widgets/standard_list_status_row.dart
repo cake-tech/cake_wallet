@@ -3,8 +3,8 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class StandartListStatusRow extends StatelessWidget {
-  StandartListStatusRow({required this.title, required this.value});
+class StandardListStatusRow extends StatelessWidget {
+  StandardListStatusRow({required this.title, required this.value});
 
   final String title;
   final String value;
