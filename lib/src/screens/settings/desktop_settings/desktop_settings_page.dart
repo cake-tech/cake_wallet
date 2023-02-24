@@ -17,7 +17,7 @@ class DesktopSettingsPage extends StatefulWidget {
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   final int itemCount = SettingActions.desktopSettings.length;
-     
+
   int? currentPage;
 
   void _onItemChange(int index) {
@@ -79,25 +79,30 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                 ),
               ),
             ),
-            Expanded(
+            Flexible(
               flex: 2,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: 100),
-                  Flexible(
-                    child: Navigator(
-                      key: _settingsNavigatorKey,
-                      initialRoute: Routes.empty_no_route,
-                      onGenerateRoute: (settings) => Router.createRoute(settings),
-                      onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
-                        return [
-                          navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
-                        ];
-                      },
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 500),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 100),
+                    Flexible(
+                      child: Navigator(
+                        key: _settingsNavigatorKey,
+                        initialRoute: Routes.empty_no_route,
+                        onGenerateRoute: (settings) => Router.createRoute(settings),
+                        onGenerateInitialRoutes:
+                            (NavigatorState navigator, String initialRouteName) {
+                          return [
+                            navigator
+                                .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                          ];
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             )
           ],

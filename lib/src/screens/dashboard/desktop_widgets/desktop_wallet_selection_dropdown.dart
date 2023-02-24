@@ -29,13 +29,13 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
-  Image _getNewWalletImage(BuildContext context) => Image.asset(
+  Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
         color: Theme.of(context).primaryTextTheme.headline6!.color!,
       );
-  Image _getRestoreWalletImage(BuildContext context) => Image.asset(
+  Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
         width: 12,
@@ -65,14 +65,14 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
           onSelected: () => _navigateToCreateWallet(),
           child: DropDownItemWidget(
             title: S.of(context).create_new,
-            image: _getNewWalletImage(context),
+            image: _newWalletImage(context),
           ),
         ),
         DesktopDropdownItem(
           onSelected: () => _navigateToRestoreWallet(),
           child: DropDownItemWidget(
             title: S.of(context).restore_wallet,
-            image: _getRestoreWalletImage(context),
+            image: _restoreWalletImage(context),
           ),
         ),
       ];
@@ -95,6 +95,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         value: dropDownItems.firstWhere((element) => element.isSelected),
         underline: const SizedBox(),
         focusColor: Colors.transparent,
+        borderRadius: BorderRadius.circular(15.0),
       );
     });
   }
