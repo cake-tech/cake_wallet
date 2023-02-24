@@ -18,19 +18,18 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 part 'exchange_trade_view_model.g.dart';
 
-class ExchangeTradeViewModel = ExchangeTradeViewModelBase
-    with _$ExchangeTradeViewModel;
+class ExchangeTradeViewModel = ExchangeTradeViewModelBase with _$ExchangeTradeViewModel;
 
 abstract class ExchangeTradeViewModelBase with Store {
   ExchangeTradeViewModelBase(
       {required this.wallet,
-        required this.trades,
-        required this.tradesStore,
-        required this.sendViewModel})
-  : trade = tradesStore.trade!,
-    isSendable = tradesStore.trade!.from == wallet.currency ||
-        tradesStore.trade!.provider == ExchangeProviderDescription.xmrto,
-    items = ObservableList<ExchangeTradeItem>() {
+      required this.trades,
+      required this.tradesStore,
+      required this.sendViewModel})
+      : trade = tradesStore.trade!,
+        isSendable = tradesStore.trade!.from == wallet.currency ||
+            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto,
+        items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider();
@@ -67,22 +66,20 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @computed
   String get extraInfo => trade.from == CryptoCurrency.xlm
-  ? '\n\n' + S.current.xlm_extra_info
-  : trade.from == CryptoCurrency.xrp
-    ? '\n\n' + S.current.xrp_extra_info
-    : '';
+      ? '\n\n' + S.current.xlm_extra_info
+      : trade.from == CryptoCurrency.xrp
+          ? '\n\n' + S.current.xrp_extra_info
+          : '';
 
   @computed
-  String get pendingTransactionFiatAmountValueFormatted =>
-      sendViewModel.isFiatDisabled
-          ? '' : sendViewModel.pendingTransactionFiatAmount
-          + ' ' + sendViewModel.fiat.title;
+  String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
+      ? ''
+      : sendViewModel.pendingTransactionFiatAmount + ' ' + sendViewModel.fiat.title;
 
   @computed
-  String get pendingTransactionFeeFiatAmountFormatted =>
-      sendViewModel.isFiatDisabled
-          ? '' : sendViewModel.pendingTransactionFeeFiatAmount
-          +  ' ' + sendViewModel.fiat.title;
+  String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
+      ? ''
+      : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
 
   @observable
   ObservableList<ExchangeTradeItem> items;
@@ -122,6 +119,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
+    final tagFrom = trade.from.tag != null ? '${trade.from.tag}' + ' ' : '';
+    final tagTo = trade.to.tag != null ? '${trade.to.tag}' + ' ' : '';
     items.clear();
     items.add(ExchangeTradeItem(
         title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
@@ -130,21 +129,21 @@ abstract class ExchangeTradeViewModelBase with Store {
       final title = trade.from == CryptoCurrency.xrp
           ? S.current.destination_tag
           : trade.from == CryptoCurrency.xlm
-                ? S.current.memo
-                : S.current.extra_id;
+              ? S.current.memo
+              : S.current.extra_id;
 
-      items.add(ExchangeTradeItem(
-          title: title, data: '${trade.extraId}', isCopied: false));
+      items.add(ExchangeTradeItem(title: title, data: '${trade.extraId}', isCopied: false));
     }
 
     items.addAll([
+      ExchangeTradeItem(title: S.current.amount, data: '${trade.amount}', isCopied: false),
       ExchangeTradeItem(
-          title: S.current.amount, data: '${trade.amount}', isCopied: false),
-      ExchangeTradeItem(
-          title: S.current.status, data: '${trade.state}', isCopied: false),
-      ExchangeTradeItem(
-          title: S.current.widgets_address + ':',
+          title: S.current.send_to_this_address('${trade.from}', tagFrom) + ':',
           data: trade.inputAddress ?? '',
+          isCopied: true),
+      ExchangeTradeItem(
+          title: S.current.arrive_in_this_address('${trade.to}', tagTo) + ':',
+          data: trade.payoutAddress ?? '',
           isCopied: true),
     ]);
   }

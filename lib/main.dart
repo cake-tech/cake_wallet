@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,10 +39,22 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 Future<void> main() async {
-  try {
+
+  await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    FlutterError.onError = ExceptionHandler.onError;
+
+    /// A callback that is invoked when an unhandled error occurs in the root
+    /// isolate.
+    PlatformDispatcher.instance.onError = (error, stack) {
+      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+
+      return true;
+    };
 
     final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
@@ -131,18 +141,9 @@ Future<void> main() async {
         secureStorage: secureStorage,
         initialMigrationVersion: 19);
     runApp(App());
-  } catch (e, stacktrace) {
-    runApp(MaterialApp(
-        debugShowCheckedModeBanner: true,
-        home: Scaffold(
-            body: Container(
-                margin:
-                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Text(
-                  'Error:\n${e.toString()}\nStacktrace: $stacktrace',
-                  style: TextStyle(fontSize: 22),
-                )))));
-  }
+  }, (error, stackTrace) async {
+    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+  });
 }
 
 Future<void> initialSetup(
@@ -279,6 +280,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           navigatorKey: navigatorKey,
           authService: authService,
           child: MaterialApp(
+            navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: settingsStore.theme,

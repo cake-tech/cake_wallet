@@ -80,7 +80,7 @@ class AnyPayApi {
 		final response = await post(Uri.parse(uri), headers: headers, body: utf8.encode(json.encode(body)));
 		if (response.statusCode == 400) {
 			final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-			throw Exception(decodedBody['message'] as String);
+			throw Exception(decodedBody['message'] as String? ?? 'Unexpected response\nError code: 400');
 		}
 
 		if (response.statusCode != 200) {

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 
-class SettingsPickerCell<ItemType extends Object> extends StandardListRow {
+class SettingsPickerCell<ItemType> extends StandardListRow {
   SettingsPickerCell(
       {required String title,
       required this.selectedItem,

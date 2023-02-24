@@ -191,8 +191,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       throw BitcoinTransactionNoInputsException();
     }
 
-    final allAmountFee = feeAmountForPriority(
-        transactionCredentials.priority!, inputs.length, outputs.length);
+    final allAmountFee = transactionCredentials.feeRate != null
+        ? feeAmountWithFeeRate(transactionCredentials.feeRate!, inputs.length, outputs.length)
+        : feeAmountForPriority(transactionCredentials.priority!, inputs.length, outputs.length);
+
     final allAmount = allInputsAmount - allAmountFee;
 
     var credentialsAmount = 0;

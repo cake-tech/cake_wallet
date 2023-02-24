@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
-class Picker<Item extends Object> extends StatefulWidget {
+class Picker<Item> extends StatefulWidget {
   Picker({
     required this.selectedAtIndex,
     required this.items,
@@ -40,7 +40,7 @@ class Picker<Item extends Object> extends StatefulWidget {
   _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
 }
 
-class _PickerState<Item> extends State<Picker> {
+class _PickerState<Item> extends State<Picker<Item>> {
   _PickerState(this.items, this.images, this.onItemSelected);
 
   final Function(Item) onItemSelected;
@@ -60,7 +60,7 @@ class _PickerState<Item> extends State<Picker> {
       images = [];
       for (int i=0;i<widget.items.length;i++) {
         if (widget.matchingCriteria?.call(widget.items[i], searchController.text) ?? true) {
-          items.add(widget.items[i] as Item);
+          items.add(widget.items[i]);
           images.add(widget.images[i]);
         }
       }
@@ -237,8 +237,7 @@ class _PickerState<Item> extends State<Picker> {
               child: Padding(
                 padding: EdgeInsets.only(left: image != null ? 12 : 0),
                 child: Text(
-                  // What a hack (item as) ?
-                  widget.displayItem?.call(item as Object) ?? item.toString(),
+                  widget.displayItem?.call(item) ?? item.toString(),
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Lato',

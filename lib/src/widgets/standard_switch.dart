@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class StandartSwitch extends StatefulWidget {
-  const StandartSwitch({required this.value, required this.onTaped});
+class StandardSwitch extends StatefulWidget {
+  const StandardSwitch({required this.value, required this.onTaped});
 
   final bool value;
   final VoidCallback onTaped;
 
   @override
-  StandartSwitchState createState() => StandartSwitchState();
+  StandardSwitchState createState() => StandardSwitchState();
 }
 
-class StandartSwitchState extends State<StandartSwitch> {
+class StandardSwitchState extends State<StandardSwitch> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
