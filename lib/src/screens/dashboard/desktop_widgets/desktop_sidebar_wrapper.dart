@@ -104,9 +104,9 @@ class DesktopSidebarWrapper extends BasePage {
                   Navigator.of(context).pushNamed(
                     Routes.unlock,
                     arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                      auth.close(
-                        route: isAuthenticatedSuccessfully ? Routes.dashboard : null,
-                      );
+                      if (isAuthenticatedSuccessfully) {
+                        auth.close();
+                      }
                     },
                   );
                 },
