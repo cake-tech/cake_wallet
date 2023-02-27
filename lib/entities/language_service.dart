@@ -23,6 +23,7 @@ class LanguageService {
     'ar': 'العربية (Arabic)',
     'tr': 'Türkçe (Turkish)',
     'my': 'မြန်မာ (Burmese)',
+    'ur': 'اردو (Urdu)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -45,6 +46,7 @@ class LanguageService {
     'ar': 'sau',
     'tr': 'tur',
     'my': 'mmr',
+    'ur': 'pak'
   };
 
   static final list = <String, String> {};
