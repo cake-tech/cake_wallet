@@ -71,6 +71,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
     FiatCurrency.brl.raw: FiatCurrency.brl,
     FiatCurrency.cad.raw: FiatCurrency.cad,
     FiatCurrency.chf.raw: FiatCurrency.chf,
+    FiatCurrency.clp.raw: FiatCurrency.clp,
     FiatCurrency.cny.raw: FiatCurrency.cny,
     FiatCurrency.cop.raw: FiatCurrency.cop,
     FiatCurrency.czk.raw: FiatCurrency.czk,
