@@ -9,7 +9,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static List<FiatCurrency> get all => _all.values.toList();
 
   static List<FiatCurrency> get currenciesAvailableToBuyWith =>
-      [aed, aud, bgn, brl, cad, chf, clp, cop, czk, dkk, egp, eur, gbp, gtq, hkd, hrk, huf, idr, ils, inr, isk, jpy, krw, mad, mxn, myr, ngn, nok, nzd, php, pkr, pln, ron, sek, sgd, thb, try, twd, usd, vnd, zar];
+      [aed, aud, bgn, brl, cad, chf, clp, cop, czk, dkk, egp, eur, gbp, gtq, hkd, hrk, huf, idr, ils, inr, isk, jpy, krw, mad, mxn, myr, ngn, nok, nzd, php, pkr, pln, ron, sek, sgd, thb, turtry, twd, usd, vnd, zar];
 
   static const aed = FiatCurrency(symbol: 'AED', countryCode: "are", fullName: "United Arab Emirates Dirham");
   static const ars = FiatCurrency(symbol: 'ARS', countryCode: "arg", fullName: "Argentine Peso");
@@ -54,7 +54,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static const sek = FiatCurrency(symbol: 'SEK', countryCode: "swe", fullName: "Swedish Krona");
   static const sgd = FiatCurrency(symbol: 'SGD', countryCode: "sgp", fullName: "Singapore Dollar");
   static const thb = FiatCurrency(symbol: 'THB', countryCode: "tha", fullName: "New Thaiwan Dollar");
-  static const try = FiatCurrency(symbol: 'TRY', countryCode: "tur", fullName: "Turkish Lira");
+  static const turtry = FiatCurrency(symbol: 'TRY', countryCode: "tur", fullName: "Turkish Lira");
   static const twd = FiatCurrency(symbol: 'TWD', countryCode: "twn", fullName: "Thai Baht");
   static const uah = FiatCurrency(symbol: 'UAH', countryCode: "ukr", fullName: "Ukrainian Hryvnia");
   static const usd = FiatCurrency(symbol: 'USD', countryCode: "usa", fullName: "United States Dollar");
@@ -105,7 +105,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
     FiatCurrency.sek.raw: FiatCurrency.sek,
     FiatCurrency.sgd.raw: FiatCurrency.sgd,
     FiatCurrency.thb.raw: FiatCurrency.thb,
-    FiatCurrency.try.raw: FiatCurrency.try,
+    FiatCurrency.turtry.raw: FiatCurrency.turtry,
     FiatCurrency.twd.raw: FiatCurrency.twd,
     FiatCurrency.uah.raw: FiatCurrency.uah,
     FiatCurrency.usd.raw: FiatCurrency.usd,
