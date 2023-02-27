@@ -117,7 +117,8 @@ class AddressPage extends BasePage {
       }
 
       await Future<void>.delayed(Duration(seconds: 1));
-      await showPopUp<void>(
+      if (context.mounted) {
+        await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithTwoActions(
@@ -131,6 +132,7 @@ class AddressPage extends BasePage {
                   Navigator.of(context).pop();
                 });
           });
+      }
     });
 
     return KeyboardActions(
