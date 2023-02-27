@@ -30,6 +30,8 @@ class SettingsLinkProviderCell extends StandardListRow {
           color: Palette.blueCraiola));
 
   static void _launchUrl(String url) async {
-    await launch(url, forceSafariVC: false);
+    try {
+      await launch(url, forceSafariVC: false);
+    } catch (e) {}
   }
 }

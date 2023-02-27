@@ -18,7 +18,9 @@ abstract class SupportViewModelBase with Store {
       RegularListItem(
         title: S.current.faq,
         handler: (BuildContext context) async {
-          await launch(url);
+          try {
+            await launch(url);
+          } catch (e) {}
         },
       ),
       LinkListItem(
