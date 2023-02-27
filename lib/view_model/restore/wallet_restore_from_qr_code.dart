@@ -27,7 +27,7 @@ class WalletRestoreFromQRCode {
     credentials['mode'] = getWalletRestoreMode(parameters);
     credentials.addAll(parameters);
 
-     switch (credentials['mode']) {
+    switch (credentials['mode']) {
       case WalletRestoreMode.txids:
         return RestoredWallet.fromTxIds(credentials);
       case WalletRestoreMode.seed:
@@ -62,10 +62,11 @@ class WalletRestoreFromQRCode {
   }
 
   static String getAddressFromUrl({required WalletType type, required String address}) {
+    final formattedAddress = address.replaceAll('address=', '').toString();
     final addressPattern = AddressValidator.getPattern(walletTypeToCryptoCurrency(type));
-    final match = RegExp(addressPattern).hasMatch(address);
+    final match = RegExp(addressPattern).hasMatch(formattedAddress);
     return match
-        ? address
+        ? formattedAddress
         : throw Exception('Unexpected wallet address: address is invalid'
             'or does not match the type ${type.toString()}');
   }
@@ -77,6 +78,7 @@ class WalletRestoreFromQRCode {
           ? WalletRestoreMode.txids
           : throw Exception('Unexpected restore mode: tx_payment_id is invalid');
     }
+
     if (parameters.containsKey('mnemonic_seed')) {
       //TODO implement seed validation
       final seedValue = parameters['mnemonic_seed'] ?? '';
@@ -84,6 +86,14 @@ class WalletRestoreFromQRCode {
           ? WalletRestoreMode.seed
           : throw Exception('Unexpected restore mode: mnemonic_seed is invalid');
     }
+
+    if (parameters.containsKey('seed')) {
+      final seedValue = parameters['seed'] ?? '';
+      return seedValue.isNotEmpty
+          ? WalletRestoreMode.seed
+          : throw Exception('Unexpected restore mode: seed is invalid');
+    }
+
     if (parameters.containsKey('spend_key') && parameters.containsKey('view_key')) {
       final spendKeyValue = parameters['spend_key'] ?? '';
       final viewKeyValue = parameters['view_key'] ?? '';
