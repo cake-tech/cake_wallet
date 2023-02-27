@@ -512,8 +512,7 @@ Future setup(
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(
-        _nodeSource, appStore.wallet!, appStore.settingsStore);
+    return NodeListViewModel(_nodeSource, appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));

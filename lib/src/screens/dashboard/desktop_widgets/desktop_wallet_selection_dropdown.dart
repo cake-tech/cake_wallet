@@ -191,7 +191,9 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void hideProgressText() {
-    _progressBar?.dismiss();
-    _progressBar = null;
+    Future.delayed(Duration.zero, (){ 
+      _progressBar?.dismiss();
+      _progressBar = null;
+    });
   }
 }
