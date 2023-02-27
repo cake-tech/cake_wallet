@@ -24,10 +24,6 @@ class ContactListPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    if (!contactListViewModel.isEditable) {
-      return null;
-    }
-
     return Container(
         width: 32.0,
         height: 32.0,

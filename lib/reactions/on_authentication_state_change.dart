@@ -8,8 +8,8 @@ ReactionDisposer? _onAuthenticationStateChange;
 
 dynamic loginError;
 
-void startAuthenticationStateChange(AuthenticationStore authenticationStore,
-    GlobalKey<NavigatorState> navigatorKey) {
+void startAuthenticationStateChange(
+    AuthenticationStore authenticationStore, GlobalKey<NavigatorState> navigatorKey) {
   _onAuthenticationStateChange ??= autorun((_) async {
     final state = authenticationStore.state;
 
@@ -24,7 +24,8 @@ void startAuthenticationStateChange(AuthenticationStore authenticationStore,
 
     if (state == AuthenticationState.allowed) {
       // Temporary workaround for the issue with desktopKey dispose
-      Future.delayed(Duration(milliseconds: 2), () async {
+      // TODO: Remove this workaround and fix global key issue
+      Future.delayed(Duration(milliseconds: 500), () async {
         await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
         return;
       });

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_link_provider_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
@@ -18,32 +19,34 @@ class SupportPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final iconColor =
-        Theme.of(context).accentTextTheme!.headline1!.backgroundColor!;
+    final iconColor = Theme.of(context).accentTextTheme!.headline1!.backgroundColor!;
     // FIX-ME: Added `context` it was not used here before, maby bug ?
-    return SectionStandardList(
-        context: context,
-        sectionCount: 1,
-        itemCounter: (int _) => supportViewModel.items.length,
-        itemBuilder: (_, __, index) {
-          final item = supportViewModel.items[index];
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 500),
+        child: SectionStandardList(
+            context: context,
+            sectionCount: 1,
+            itemCounter: (int _) => supportViewModel.items.length,
+            itemBuilder: (_, __, index) {
+              final item = supportViewModel.items[index];
 
-          if (item is RegularListItem) {
-            return SettingsCellWithArrow(
-                title: item.title, handler: item.handler);
-          }
+              if (item is RegularListItem) {
+                return SettingsCellWithArrow(title: item.title, handler: item.handler);
+              }
 
-          if (item is LinkListItem) {
-            return SettingsLinkProviderCell(
-                title: item.title,
-                icon: item.icon,
-                iconColor: item.hasIconColor ? iconColor : null,
-                link: item.link,
-                linkTitle: item.linkTitle);
-          }
+              if (item is LinkListItem) {
+                return SettingsLinkProviderCell(
+                    title: item.title,
+                    icon: item.icon,
+                    iconColor: item.hasIconColor ? iconColor : null,
+                    link: item.link,
+                    linkTitle: item.linkTitle);
+              }
 
-          return Container();
-        });
+              return Container();
+            }),
+      ),
+    );
   }
-
 }
