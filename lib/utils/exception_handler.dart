@@ -131,6 +131,7 @@ class ExceptionHandler {
     "errno = 110", // SocketException: Connection timed out
     "errno = 54", // SocketException: Connection reset by peer
     "errno = 49", // SocketException: Can't assign requested address
+    "errno = 57", // SocketException: Read failed (OS Error: Socket is not connected)
     "errno = 28", // OS Error: No space left on device
     "PERMISSION_NOT_GRANTED",
   ];
