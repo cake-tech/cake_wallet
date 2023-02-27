@@ -77,7 +77,7 @@ class MoneroTransactionInfo extends TransactionInfo {
       final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
       final String formattedUnlockTime =
       formatter.format(DateTime.fromMillisecondsSinceEpoch(unlockTime));
-      return locked >= 0 ? '$formattedUnlockTime' : null;
+      return locked > 0 ? '$formattedUnlockTime' : null;
     } catch (e) {
       print(e);
       return null;

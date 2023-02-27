@@ -67,11 +67,11 @@ class HavenTransactionInfo extends TransactionInfo {
           : '~${(unlockTime - height) * 2} minutes';
     }
     try {
-      var locked = DateTime.fromMicrosecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
+      var locked = DateTime.fromMillisecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
       final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
       final String formattedUnlockTime =
-          formatter.format(DateTime.fromMicrosecondsSinceEpoch(unlockTime));
-      return locked >= 0 ? '$formattedUnlockTime' : null;
+      formatter.format(DateTime.fromMillisecondsSinceEpoch(unlockTime));
+      return locked > 0 ? '$formattedUnlockTime' : null;
     } catch (e) {
       print(e);
       return null;
