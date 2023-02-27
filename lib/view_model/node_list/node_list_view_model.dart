@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -27,6 +28,7 @@ abstract class NodeListViewModelBase with Store {
               TransactionInfo>?
           _wallet) { 
             wallet = _wallet!;
+            nodes.clear();
             _bindNodes();
         });
   }
@@ -88,9 +90,6 @@ abstract class NodeListViewModelBase with Store {
   
   @action
   void _bindNodes() {
-    nodes = _nodeSource.values
-        .where((Node val) => val.type == wallet.type)
-        .toList()
-        .asObservable();
+    _nodeSource.bindToList(nodes, filter:  (val) => val.type == wallet.type, initialFire: true);
   }
 }
