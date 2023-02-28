@@ -78,10 +78,6 @@ jobs:
           cd /opt/android/cake_wallet
           flutter packages pub run tool/generate_localization.dart
       
-      - name: Upgrade flutter packages
-        run: |
-          cd /opt/android/cake_wallet
-          flutter pub upgrade
 
       - name: Build generated code
         run: |
