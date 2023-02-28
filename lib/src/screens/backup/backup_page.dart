@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/utils/share_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -110,7 +109,7 @@ class BackupPage extends BasePage {
                 if (Platform.isAndroid) {
                   onExportAndroid(context, backup);
                 } else {
-                  await share(backup);
+                  await share(backup, context);
                 }
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
@@ -140,18 +139,14 @@ class BackupPage extends BasePage {
               },
               actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();
-                await share(backup);
+                await share(backup, context);
               });
         });
   }
 
-  Future<void> share(BackupExportFile backup) async {
-    const mimeType = 'application/*';
+  Future<void> share(BackupExportFile backup, BuildContext context) async {
     final path = await backupViewModelBase.saveBackupFileLocally(backup);
-    await Share.shareXFiles(<XFile>[XFile(
-        path,
-        name: backup.name,
-        mimeType: mimeType)]);
+    await ShareUtil.shareFile(filePath: path, fileName: backup.name, context: context);
     await backupViewModelBase.removeBackupFileLocally(backup);
   }
 }

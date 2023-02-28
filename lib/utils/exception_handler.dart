@@ -125,6 +125,7 @@ class ExceptionHandler {
     "errno = 9", // SocketException: Bad file descriptor
     "errno = 32", // SocketException: Write failed (OS Error: Broken pipe)
     "errno = 60", // SocketException: Operation timed out
+    "errno = 110", // SocketException: Connection timed out
     "errno = 54", // SocketException: Connection reset by peer
     "errno = 49", // SocketException: Can't assign requested address
     "errno = 28", // OS Error: No space left on device
