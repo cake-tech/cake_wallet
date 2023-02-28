@@ -81,7 +81,10 @@ jobs:
       - name: Upgrade flutter packages
         run: |
           cd /opt/android/cake_wallet
-          flutter pub upgrade
+          cd cw_core && flutter pub upgrade && cd ..
+          cd cw_monero && flutter pub upgrade && cd ..
+          cd cw_bitcoin && flutter pub upgrade && cd ..
+          cd cw_haven && flutter pub upgrade && cd ..
 
       - name: Build generated code
         run: |
