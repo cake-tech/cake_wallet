@@ -6,6 +6,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_haven/api/transaction_history.dart';
 import 'package:intl/intl.dart';
+import 'package:cw_haven/api/wallet.dart' as haven_wallet;
 
 class HavenTransactionInfo extends TransactionInfo {
   HavenTransactionInfo(this.id, this.height, this.direction, this.date, this.isPending, this.amount,
@@ -57,14 +58,15 @@ class HavenTransactionInfo extends TransactionInfo {
 
   @override
   String? unlockTimeFormatted() {
-    if (direction == TransactionDirection.outgoing || unlockTime < (height + 10)) {
+    final currentHeight = haven_wallet.getCurrentHeight();
+    if (direction == TransactionDirection.outgoing || unlockTime < (currentHeight + 10)) {
       return null;
     }
 
     if (unlockTime < 500000000) {
-      return (unlockTime - height) * 2 > 500000
+      return (unlockTime - currentHeight) * 2 > 500000
           ? '>1 year'
-          : '~${(unlockTime - height) * 2} minutes';
+          : '~${(unlockTime - currentHeight) * 2} minutes';
     }
     try {
       var locked = DateTime.fromMillisecondsSinceEpoch(unlockTime).compareTo(DateTime.now());

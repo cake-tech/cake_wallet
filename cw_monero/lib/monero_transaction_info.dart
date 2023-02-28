@@ -6,6 +6,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:intl/intl.dart';
+import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 
 class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
@@ -63,14 +64,15 @@ class MoneroTransactionInfo extends TransactionInfo {
 
   @override
   String? unlockTimeFormatted() {
-    if (direction == TransactionDirection.outgoing || unlockTime < (height + 10)) {
+    final currentHeight = monero_wallet.getCurrentHeight();
+    if (direction == TransactionDirection.outgoing || unlockTime < (currentHeight + 10)) {
       return null;
     }
 
     if (unlockTime < 500000000) {
-      return (unlockTime - height) * 2 > 500000
+      return (unlockTime - currentHeight) * 2 > 500000
           ? '>1 year'
-          : '~${(unlockTime - height) * 2} minutes';
+          : '~${(unlockTime - currentHeight) * 2} minutes';
     }
     try {
       var locked = DateTime.fromMillisecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
