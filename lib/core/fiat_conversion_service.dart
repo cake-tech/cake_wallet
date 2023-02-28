@@ -13,10 +13,6 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final fiat = args['fiat'] as FiatCurrency;
   final torOnly = args['torOnly'] as bool;
   double price = 0.0;
-  print("@@@@@@@@@@@@@@");
-  print(crypto);
-  print(fiat);
-  print(torOnly);
 
   try {
     final uri = Uri.https(
@@ -40,7 +36,6 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     if (results.isNotEmpty) {
       price = results.values.first as double;
     }
-    print(price);
 
     return price;
   } catch (e) {
