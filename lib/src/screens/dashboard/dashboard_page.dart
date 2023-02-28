@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
@@ -229,7 +228,8 @@ class DashboardPage extends BasePage {
       }
 
       await Future<void>.delayed(Duration(seconds: 1));
-      await showPopUp<void>(
+      if (context.mounted) {
+        await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
@@ -239,6 +239,7 @@ class DashboardPage extends BasePage {
                 buttonText: S.of(context).understand,
                 buttonAction: () => Navigator.of(context).pop());
           });
+      }
     });
 
     var needToPresentYat = false;

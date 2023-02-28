@@ -90,12 +90,12 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - French
 - German
 - Italian
-- Portugese
+- Portuguese
 - Dutch
 - Polish
 - Croatian
 - Russian
-- Ukranian
+- Ukrainian
 - Hindi
 - Japanese
 - Chinese
@@ -104,6 +104,8 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - Arabic
 - Turkish
 - Burmese
+- Urdu
+- Bulgarian
 
 ## Add a new language
 
