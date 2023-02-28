@@ -330,7 +330,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               getIt.get<ContactListPage>());
 
     case Routes.pickerAddressBook:
-      final selectedCurrency = settings.arguments as CryptoCurrency;
+      final selectedCurrency = settings.arguments as CryptoCurrency?;
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
 
