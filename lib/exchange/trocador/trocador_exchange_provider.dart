@@ -40,6 +40,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   static const newRatePath = '/api/new_rate';
   static const createTradePath = 'api/new_trade';
   static const tradePath = 'api/trade';
+  static const coinPath = 'api/coin';
   String _lastUsedRateId;
 
   @override
@@ -134,9 +135,34 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-    //TODO: implement limits from trocador api
+      
+      final params = <String, String> {
+        'api_key': apiKey,
+        'ticker': from.title.toLowerCase(),
+        'name': from.name,
+      };
+      
+      final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
+            final uri = Uri.https(apiAuthority, coinPath, params);
+      
+      final response = await get(uri);
+
+      if (response.statusCode != 200) {
+        throw Exception('Unexpected http status: ${response.statusCode}');
+      }
+
+      final responseJSON = json.decode(response.body) as List<dynamic>;
+      
+      if (responseJSON.isEmpty) {
+        throw Exception('No data');
+      }
+      
+      final coinJson = responseJSON.first as Map<String, dynamic>;
+     
+      
     return Limits(
-      min: 0.0,
+      min: coinJson['minimum'] as double,
+      max: coinJson['maximum'] as double,
     );
   }
 
