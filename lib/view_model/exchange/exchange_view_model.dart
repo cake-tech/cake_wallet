@@ -56,6 +56,7 @@ abstract class ExchangeViewModelBase with Store {
       isDepositAddressEnabled = false,
       isReceiveAddressEnabled = false,
       isReceiveAmountEditable = false,
+      _providerUseTorOnly = false,
       receiveCurrencies = <CryptoCurrency>[],
       depositCurrencies = <CryptoCurrency>[],
       limits = Limits(min: 0, max: 0),
@@ -65,6 +66,7 @@ abstract class ExchangeViewModelBase with Store {
       depositCurrency = wallet.currency,
       providerList = [],
       selectedProviders = ObservableList<ExchangeProvider>() {
+    _providerUseTorOnly = _settingsStore.exchangeStatus == FiatApiMode.torOnly;
     _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
@@ -121,18 +123,18 @@ abstract class ExchangeViewModelBase with Store {
         _calculateBestRate();
       });
   }
-
+  bool _providerUseTorOnly;
   final WalletBase wallet;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
 
-  final _allProviders = [
+  List<ExchangeProvider> get _allProviders => [
         ChangeNowExchangeProvider(),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(),
+        TrocadorExchangeProvider(useTorOnly: _providerUseTorOnly),
       ];
 
   @observable
@@ -695,7 +697,7 @@ abstract class ExchangeViewModelBase with Store {
 
   void _setProviders(){
     if (_settingsStore.exchangeStatus == FiatApiMode.torOnly) {
-      providerList = _allProviders.where((provider) => provider.shouldUseOnionAddress).toList();
+      providerList = _allProviders.where((provider) => provider.supportsOnionAddress).toList();
     } else {
       providerList = _allProviders;
     }

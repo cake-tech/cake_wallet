@@ -13,9 +13,11 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
-  TrocadorExchangeProvider()
+  TrocadorExchangeProvider({this.useTorOnly = false})
       : _lastUsedRateId = '',
         super(pairList: _supportedPairs());
+  
+  bool useTorOnly;
 
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.scrt,
@@ -83,7 +85,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-    final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
+    final String apiAuthority = await _getAuthority();
 
     final uri = Uri.https(apiAuthority, createTradePath, params);
     final response = await get(uri);
@@ -142,7 +144,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         'name': from.name,
       };
       
-      final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
+      final String apiAuthority = await _getAuthority();
             final uri = Uri.https(apiAuthority, coinPath, params);
       
       final response = await get(uri);
@@ -178,7 +180,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 0.0;
       }
 
-      final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
+      final String apiAuthority =  await _getAuthority();
 
       final params = <String, String>{
         'api_key': apiKey,
@@ -214,7 +216,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
+    final String apiAuthority = await _getAuthority();
     final uri = Uri.https(apiAuthority, tradePath, {'api_key': apiKey, 'id': id});
     return get(uri).then((response) {
       if (response.statusCode != 200) {
@@ -265,7 +267,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => true;
 
   @override
-  bool get shouldUseOnionAddress => true;
+  bool get supportsOnionAddress => true;
 
   @override
   String get title => 'Trocador';
@@ -297,11 +299,21 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   Future<String> _getAuthority() async {
+   if(!supportsOnionAddress){
+      return clearNetAuthority;
+   }
+
     try {
+      if (useTorOnly) {
+        return onionApiAuthority;
+      }
+      
       final uri = Uri.https(onionApiAuthority, '/api/trade');
       await get(uri);
+
       return onionApiAuthority;
     } catch (e) {
+      
       return clearNetAuthority;
     }
   }

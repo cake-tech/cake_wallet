@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
@@ -48,43 +49,55 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(bottom: 24),
-        content: Observer(
-          builder: (_) => Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SettingsChoicesCell(
-                ChoicesListItem<FiatApiMode>(
-                  title: S.current.fiat_api,
-                  items: FiatApiMode.all,
-                  selectedItem: widget.privacySettingsViewModel.fiatApi,
-                  onItemSelected: (FiatApiMode mode) =>
-                      widget.privacySettingsViewModel.setFiatMode(mode),
-                ),
-              ),
-              SettingsChoicesCell(
-                ChoicesListItem<FiatApiMode>(
-                  title: S.current.exchange,
-                  items: FiatApiMode.all,
-                  selectedItem: widget.privacySettingsViewModel.exchangeStatus,
-                  onItemSelected: (FiatApiMode mode) =>
-                      widget.privacySettingsViewModel.setEnableExchange(mode),
-                ),
-              ),
-              SettingsSwitcherCell(
-                title: S.current.add_custom_node,
-                value: widget.privacySettingsViewModel.addCustomNode,
-                onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
-              ),
-              if (widget.privacySettingsViewModel.addCustomNode)
-                Padding(
-                  padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                  child: NodeForm(
-                    formKey: _formKey,
-                    nodeViewModel: widget.nodeViewModel,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Observer(
+              builder: (_) {
+                return SettingsSwitcherCell(
+                  title: S.current.disable_fiat,
+                  value: widget.privacySettingsViewModel.fiatApi == FiatApiMode.disabled,
+                  onValueChange: (BuildContext context, bool value) {
+                    widget.privacySettingsViewModel.setFiatMode(value);
+                  });
+              }
+            ),
+            Observer(
+              builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<ExchangeApiMode>(
+                    title: S.current.exchange,
+                    items: ExchangeApiMode.all,
+                    selectedItem: widget.privacySettingsViewModel.exchangeStatus,
+                    onItemSelected: (ExchangeApiMode mode) =>
+                        widget.privacySettingsViewModel.setEnableExchange(mode),
                   ),
-                )
-            ],
-          ),
+                );
+              }
+            ),
+            Observer(
+              builder: (_) {
+                return Column(
+                  children: [
+                    SettingsSwitcherCell(
+                      title: S.current.add_custom_node,
+                      value: widget.privacySettingsViewModel.addCustomNode,
+                      onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
+                    ),
+                    if (widget.privacySettingsViewModel.addCustomNode)
+                    Padding(
+                      padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                      child: NodeForm(
+                        formKey: _formKey,
+                        nodeViewModel: widget.nodeViewModel,
+                      ),
+                    )
+                  ],
+                );
+              }
+            ),
+            
+          ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),
         bottomSection: Column(

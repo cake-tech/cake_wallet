@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -31,7 +32,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialSaveRecipientAddress,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
-      required FiatApiMode initialExchangeStatus,
+      required ExchangeApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
@@ -154,7 +155,7 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
             (_) => exchangeStatus,
-            (FiatApiMode mode) => sharedPreferences.setInt(
+            (ExchangeApiMode mode) => sharedPreferences.setInt(
             PreferencesKey.exchangeStatusKey, mode.serialize()));
 
     this
@@ -192,7 +193,7 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
-  FiatApiMode exchangeStatus;
+  ExchangeApiMode exchangeStatus;
 
   @observable
   ThemeBase currentTheme;
@@ -284,9 +285,9 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
-    final exchangeStatus = FiatApiMode.deserialize(
+    final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences
-            .getInt(PreferencesKey.exchangeStatusKey) ?? FiatApiMode.enabled.raw);
+            .getInt(PreferencesKey.exchangeStatusKey) ?? ExchangeApiMode.enabled.raw);
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
@@ -401,9 +402,9 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
-    exchangeStatus = FiatApiMode.deserialize(
+    exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences
-            .getInt(PreferencesKey.exchangeStatusKey) ?? FiatApiMode.enabled.raw);
+            .getInt(PreferencesKey.exchangeStatusKey) ?? ExchangeApiMode.enabled.raw);
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
