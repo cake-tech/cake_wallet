@@ -117,7 +117,9 @@ jobs:
           echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
-        run: sed -i -e "s/\${APP_NAME}/$GITHUB_HEAD_REF/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
+        run: |
+          sed -i -e "s/\${APP_NAME}/$GITHUB_HEAD_REF/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
+          sed -i -e "s/\com.cakewallet.cake_wallet/com.cakewallet.cake_wallet.test/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
 
       - name: Build
         run: |
