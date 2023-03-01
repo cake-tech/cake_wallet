@@ -24,6 +24,7 @@ class LanguageService {
     'tr': 'Türkçe (Turkish)',
     'my': 'မြန်မာ (Burmese)',
     'bg': 'Български (Bulgarian)',
+    'cs': 'čeština (Czech)',
     'ur': 'اردو (Urdu)'
   };
 
@@ -48,6 +49,7 @@ class LanguageService {
     'tr': 'tur',
     'my': 'mmr',
     'bg': 'bgr',
+    'cs': 'czk',
     'ur': 'pak'
   };
 
