@@ -12,18 +12,23 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as CryptoCurrency;
   final fiat = args['fiat'] as FiatCurrency;
   final torOnly = args['torOnly'] as bool;
+
+  final Map<String, String> queryParams = {
+    'interval_count': '1',
+    'base': crypto.toString(),
+    'quote': fiat.toString(),
+  };
+
   double price = 0.0;
 
   try {
-    final uri = Uri.https(
-      torOnly ? _fiatApiOnionAuthority : _fiatApiClearNetAuthority,
-      _fiatApiPath,
-      <String, String>{
-        'interval_count': '1',
-        'base': crypto.toString(),
-        'quote': fiat.toString(),
-      },
-    );
+    late final Uri uri;
+    if (torOnly) {
+      uri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
+    } else {
+      uri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
+    }
+
     final response = await get(uri);
 
     if (response.statusCode != 200) {
