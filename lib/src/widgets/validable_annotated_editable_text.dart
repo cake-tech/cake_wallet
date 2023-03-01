@@ -131,7 +131,9 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
     return result;
   }
 
-  bool validate(String source) => widget.words.indexOf(source) >= 0;
+  bool validate(String source) => source.length < 3
+      ? false
+      : widget.words.any((String e) => e.startsWith(source));
 
   List<TextRange> range(String pattern, String source) {
     final result = <TextRange>[];
