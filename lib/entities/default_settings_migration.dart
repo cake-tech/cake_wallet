@@ -514,4 +514,6 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
 
   await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled 
       ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
+      
+  await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
 }
