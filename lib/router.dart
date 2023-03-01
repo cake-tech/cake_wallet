@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/receive/anon_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/anon_pay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -514,7 +515,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     
     case Routes.anonPayInvoicePage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>());
-
+    
+    case Routes.anonPayReceivePage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayReceivePage>());
+      
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

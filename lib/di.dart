@@ -6,6 +6,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/receive/anon_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/anon_pay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -831,6 +832,8 @@ Future setup(
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
+
+  getIt.registerFactory(() => AnonPayReceivePage());
 
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)
