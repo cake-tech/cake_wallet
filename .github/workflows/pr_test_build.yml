@@ -32,121 +32,55 @@ jobs:
           sudo mkdir -p /opt/android
           sudo chown $USER /opt/android
           cd /opt/android
-          git clone https://github.com/cake-tech/cake_wallet.git --branch $GITHUB_HEAD_REF
+          git clone https://github.com/Justxd22/cake_wallet.git --branch main
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
           ./app_config.sh
-
-      - name: Cache Externals
-        id: cache-externals
-        uses: actions/cache@v3
-        with:
-          path: |
-            /opt/android/cake_wallet/cw_haven/android/.cxx
-            /opt/android/cake_wallet/cw_haven/ios/External
-            /opt/android/cake_wallet/cw_monero/android/.cxx
-            /opt/android/cake_wallet/cw_monero/ios/External
-            /opt/android/cake_wallet/cw_shared_external/ios/External
-          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh') }}
-
-      - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
-        name: Generate Externals
-        run: |
-          cd /opt/android/cake_wallet/scripts/android/
-          source ./app_env.sh cakewallet
-          ./build_all.sh
-          ./copy_monero_deps.sh
-
-      - name: Install Flutter dependencies
-        run: |
           cd /opt/android/cake_wallet
           flutter pub get
-
-      - name: Generate KeyStore
-        run: |
           cd /opt/android/cake_wallet/android/app
-          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
-
-      - name: Generate key properties
-        run: |
+          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass qqq123 -keypass qqq123
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
-
-      - name: Generate localization
-        run: |
+          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=qqq123 keyPassword=qqq123
           cd /opt/android/cake_wallet
           flutter packages pub run tool/generate_localization.dart
-
-      - name: Build generated code
-        run: |
           cd /opt/android/cake_wallet
           cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_haven && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           flutter packages pub run build_runner build --delete-conflicting-outputs
-
-      - name: Add secrets
-        run: |
           cd /opt/android/cake_wallet
           touch lib/.secrets.g.dart
-          echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
-          echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
-          echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
-          echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
-          echo "const shortKey = '${{ secrets.SHORT_KEY }}';" >> lib/.secrets.g.dart
-          echo "const backupSalt = '${{ secrets.BACKUP_SALT }}';" >> lib/.secrets.g.dart
-          echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
-          echo "const changeNowApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const wyreSecretKey = '${{ secrets.WYRE_SECRET_KEY }}';" >> lib/.secrets.g.dart
-          echo "const wyreApiKey = '${{ secrets.WYRE_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const wyreAccountId = '${{ secrets.WYRE_ACCOUNT_ID }}';" >> lib/.secrets.g.dart
-          echo "const moonPayApiKey = '${{ secrets.MOON_PAY_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const moonPaySecretKey = '${{ secrets.MOON_PAY_SECRET_KEY }}';" >> lib/.secrets.g.dart
-          echo "const sideShiftAffiliateId = '${{ secrets.SIDE_SHIFT_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
-          echo "const sideShiftApiKey = '${{ secrets.SIDE_SHIFT_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const simpleSwapApiKey = '${{ secrets.SIMPLE_SWAP_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const onramperApiKey = '${{ secrets.ONRAMPER_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
-          echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
-          echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
-
-      - name: Rename app
-        run: sed -i -e "s/\${APP_NAME}/$GITHUB_HEAD_REF/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
-
-      - name: Build
-        run: |
+          echo "const salt = '0000000000000000000000000000';" > lib/.secrets.g.dart
+          echo "const keychainSalt = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const key = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const walletSalt = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const shortKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const backupSalt = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const backupKeychainSalt = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const changeNowApiKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const wyreSecretKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const wyreApiKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const wyreAccountId = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const moonPayApiKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const moonPaySecretKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const sideShiftAffiliateId = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const sideShiftApiKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const simpleSwapApiKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const onramperApiKey = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const anypayToken = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const ioniaClientId = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          echo "const twitterBearerToken = '0000000000000000000000000000';" >> lib/.secrets.g.dart
+          sed -i -e "s/\${APP_NAME}/$GITHUB_HEAD_REF/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
           cd /opt/android/cake_wallet
           flutter build apk --release
-
-#      - name: Push to App Center
-#        run: |
-#          echo 'Installing App Center CLI tools'
-#          npm install -g appcenter-cli
-#          echo "Publishing test to App Center"
-#          appcenter distribute release \
-#              --group "Testers" \
-#              --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
-#              --release-notes ${GITHUB_HEAD_REF} \
-#              --app Cake-Labs/Cake-Wallet \
-#              --token ${{ secrets.APP_CENTER_TOKEN }} \
-#              --quiet
-
-      - name: Rename apk file
-        run: |
           cd /opt/android/cake_wallet/build/app/outputs/apk/release
           mkdir test-apk
-          cp app-release.apk test-apk/$GITHUB_HEAD_REF.apk
+          cp app-release.apk test-apk/test0000.apk
 
       - name: Upload Artifact
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
-
-      - name: Send Test APK
-        continue-on-error: true
-        run: |
-          cd /opt/android/cake_wallet
-          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")
-          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
