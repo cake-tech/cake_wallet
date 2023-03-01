@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
@@ -62,8 +63,9 @@ abstract class ExchangeViewModelBase with Store {
       limitsState = LimitsInitialState(),
       receiveCurrency = wallet.currency,
       depositCurrency = wallet.currency,
-      providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider(), TrocadorExchangeProvider()],
+      providerList = [],
       selectedProviders = ObservableList<ExchangeProvider>() {
+    _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
       CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
@@ -125,6 +127,13 @@ abstract class ExchangeViewModelBase with Store {
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
+
+  final _allProviders = [
+        ChangeNowExchangeProvider(),
+        SideShiftExchangeProvider(),
+        SimpleSwapExchangeProvider(),
+        TrocadorExchangeProvider(),
+      ];
 
   @observable
   ExchangeProvider? provider;
@@ -681,6 +690,14 @@ abstract class ExchangeViewModelBase with Store {
         break;
       default:
         break;
+    }
+  }
+
+  void _setProviders(){
+    if (_settingsStore.exchangeStatus == FiatApiMode.torOnly) {
+      providerList = _allProviders.where((provider) => provider.shouldUseOnionAddress).toList();
+    } else {
+      providerList = _allProviders;
     }
   }
 }
