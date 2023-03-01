@@ -1,15 +1,8 @@
-import 'package:cake_wallet/generated/i18n.dart';
 
 enum ReceivePageOption {
-  mainnet(1),
-  anonPayInvoice(2),
-  anonPayDonationLink(3);
-
-  const ReceivePageOption(this.raw);
-  final int raw;
-
-  static ReceivePageOption deserialize({required int raw}) =>
-      ReceivePageOption.values.firstWhere((e) => e.raw == raw);
+  mainnet,
+  anonPayInvoice,
+  anonPayDonationLink;
 
   @override
   String toString() {

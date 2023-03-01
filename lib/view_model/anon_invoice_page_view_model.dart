@@ -13,6 +13,9 @@ abstract class AnonInvoicePageViewModelBase with Store {
   @observable
   CryptoCurrency selectedCurrency;
 
+  @computed
+  int get selectedCurrencyIndex => currencies.indexOf(selectedCurrency);
+
   @action
   void selectCurrency(CryptoCurrency currency) {
     selectedCurrency = currency;

@@ -217,7 +217,7 @@ class AddressPage extends BasePage {
           Navigator.pop(context);
           break;
         case ReceivePageOption.anonPayInvoice:
-                  Navigator.pop(context);
+          Navigator.pop(context);
 
           Navigator.pushReplacementNamed(context, Routes.anonPayInvoicePage);
           break;
