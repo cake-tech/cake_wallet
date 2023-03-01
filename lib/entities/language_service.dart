@@ -23,7 +23,10 @@ class LanguageService {
     'ar': 'العربية (Arabic)',
     'tr': 'Türkçe (Turkish)',
     'my': 'မြန်မာ (Burmese)',
-    'id': 'Bahasa Indonesia (Indonesian)',
+    'bg': 'Български (Bulgarian)',
+    'cs': 'čeština (Czech)',
+    'ur': 'اردو (Urdu)',
+    'id': 'Bahasa Indonesia (Indonesian)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -46,7 +49,10 @@ class LanguageService {
     'ar': 'sau',
     'tr': 'tur',
     'my': 'mmr',
-    'id': 'idn',
+    'bg': 'bgr',
+    'cs': 'czk',
+    'ur': 'pak',
+    'id': 'idn'
   };
 
   static final list = <String, String> {};

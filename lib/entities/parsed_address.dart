@@ -1,8 +1,7 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
-import 'package:flutter/material.dart';
 
-enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed }
+enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed, twitter }
 
 class ParsedAddress {
   ParsedAddress({
@@ -41,11 +40,7 @@ class ParsedAddress {
       );
   }
 
-  factory ParsedAddress.fetchOpenAliasAddress({OpenaliasRecord? record, required String name}){
-    final formattedName = OpenaliasRecord.formatDomainName(name);
-    if (record == null || record.address.contains(formattedName)) {
-        return ParsedAddress(addresses: [name]);
-      }
+  factory ParsedAddress.fetchOpenAliasAddress({required OpenaliasRecord record, required String name}){
       return ParsedAddress(
         addresses: [record.address],
         name: record.name,
@@ -59,6 +54,14 @@ class ParsedAddress {
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.fio,
+    );
+  }
+
+  factory ParsedAddress.fetchTwitterAddress({required String address, required String name}){
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.twitter,
     );
   }
 

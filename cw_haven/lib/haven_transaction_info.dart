@@ -8,7 +8,8 @@ import 'package:cw_haven/api/transaction_history.dart';
 
 class HavenTransactionInfo extends TransactionInfo {
   HavenTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
+      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
+      this.confirmations);
 
   HavenTransactionInfo.fromMap(Map<String, Object> map)
       : id = (map['hash'] ?? '') as String,
@@ -22,6 +23,7 @@ class HavenTransactionInfo extends TransactionInfo {
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
+        confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int? ?? 0;
 
@@ -35,6 +37,7 @@ class HavenTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
+        confirmations = row.confirmations,
         key = null, //getTxKey(row.getHash()),
         fee = row.fee,
         assetType = row.getAssetType();
@@ -48,6 +51,7 @@ class HavenTransactionInfo extends TransactionInfo {
   final int amount;
   final int fee;
   final int addressIndex;
+  final int confirmations;
   late String recipientAddress;
   late String assetType;
   String? _fiatAmount;

@@ -60,7 +60,8 @@ class TransactionsPage extends StatelessWidget {
                               formattedFiatAmount:
                               dashboardViewModel.balanceViewModel.isFiatDisabled
                                   ? '' : item.formattedFiatAmount,
-                              isPending: transaction.isPending));
+                              isPending: transaction.isPending,
+                              title: item.formattedTitle + item.formattedStatus));
                         }
 
                         if (item is TradeListItem) {
