@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  PR_test_build:
 
     runs-on: ubuntu-20.04
     env:
@@ -36,6 +36,7 @@ jobs:
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
+          export APP_ANDROID_PACKAGE="com.cakewallet.cake_wallet.test"
           ./app_config.sh
 
       - name: Cache Externals
