@@ -32,7 +32,7 @@ HAVEN_BUILD_NUMBER=1
 HAVEN_BUNDLE_ID="com.cakewallet.haven"
 HAVEN_PACKAGE="com.cakewallet.haven"
 
-CAKEWALLET_TEST_PACKAGE="com.cakewallet.cake_wallet.test"
+CAKEWALLET_TEST_PACKAGE="com.cakewallet.test"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_ANDROID_TYPE} " ]]; then
     echo "Wrong app type."
