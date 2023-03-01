@@ -35,8 +35,7 @@ jobs:
           git clone https://github.com/cake-tech/cake_wallet.git --branch $GITHUB_HEAD_REF
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
-          source ./app_env.sh cakewallet
-          export APP_ANDROID_PACKAGE="com.cakewallet.cake_wallet.test"
+          source ./app_env.sh cakewallet.test
           ./app_config.sh
 
       - name: Cache Externals
