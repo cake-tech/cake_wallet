@@ -36,10 +36,6 @@ jobs:
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
-          APP_ANDROID_PACKAGE="com.cakewallet.test"
-          export APP_ANDROID_PACKAGE="com.cakewallet.test"
-          set APP_ANDROID_PACKAGE="com.cakewallet.test"
-          env APP_ANDROID_PACKAGE="com.cakewallet.test"
           ./app_config.sh
 
       - name: Cache Externals
@@ -117,9 +113,7 @@ jobs:
           echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
-        run: |
-          sed -i -e "s/\${APP_NAME}/$GITHUB_HEAD_REF/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
-          sed -i -e "s/com.cakewallet.cake_wallet/com.cakewallet.test/g" /opt/android/cake_wallet/android/app/src/main/AndroidManifest.xml
+        run: echo -e "id=com.cakewallet.test\nname=$GITHUB_HEAD_REF" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
