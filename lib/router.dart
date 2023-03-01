@@ -149,8 +149,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param2: false));
 
     case Routes.restoreOptions:
+      final isNewInstall = settings.arguments as bool;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<RestoreOptionsPage>());
+          builder: (_) => getIt.get<RestoreOptionsPage>(param1: isNewInstall));
 
     case Routes.restoreWalletOptions:
       final type = WalletType.monero; //settings.arguments as WalletType;
@@ -180,20 +181,28 @@ Route<dynamic> createRoute(RouteSettings settings) {
               }));
 
     case Routes.restoreWalletOptionsFromWelcome:
-      return CupertinoPageRoute<void>(
+      final isNewInstall = settings.arguments as bool;
+      return isNewInstall ? CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
                   Navigator.pushNamed(
                       context.context, Routes.restoreWalletType)),
-          fullscreenDialog: true);
+          fullscreenDialog: true) : CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<NewWalletTypePage>(
+              param1: (BuildContext context, WalletType type) =>
+                  Navigator.of(context)
+                      .pushNamed(Routes.restoreWallet, arguments: type),
+              param2: false));
 
     case Routes.restoreWalletQRFromWelcome:
       final args = settings.arguments as List<dynamic>;
-      return CupertinoPageRoute<void>(
+      final isNewInstall = args[2] as bool;
+      return isNewInstall ? CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
               Navigator.pushNamed(context.context, Routes.sweepingWalletPage,arguments: args)),
-          fullscreenDialog: true);
+          fullscreenDialog: true) : CupertinoPageRoute<void>(
+          builder: (_) => SweepingWalletPage(restoreVMfromQR: getIt.get<WalletRestorationFromQRVM>(param1: args)));
 
     case Routes.seed:
       return MaterialPageRoute<void>(

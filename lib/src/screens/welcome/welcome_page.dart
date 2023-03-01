@@ -175,7 +175,7 @@ class WelcomePage extends BasePage {
                           padding: EdgeInsets.only(top: 10),
                           child: PrimaryImageButton(
                               onPressed: () {
-                                Navigator.pushNamed(context, Routes.restoreOptions);
+                                Navigator.pushNamed(context, Routes.restoreOptions,arguments: true);
                               },
                               image: restoreWalletImage,
                               text: S

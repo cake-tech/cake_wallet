@@ -193,7 +193,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   				Routes.restoreWallet,
                   				arguments: widget.walletListViewModel.currentWalletType);
           		    } else {
-          		      Navigator.of(context).pushNamed(Routes.restoreWalletType); 
+          		      Navigator.of(context).pushNamed(Routes.restoreOptions,arguments: false);
           		    }
 		            },
                 image: restoreWalletImage,

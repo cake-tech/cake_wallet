@@ -297,12 +297,11 @@ Future setup(
     final wallet = args.first as RestoredWallet;
     final language = args[1] as String;
 
+
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
         getIt.get<WalletCreationService>(param1: WalletType.monero), _walletInfoSource,
         wallet: wallet, language: language);
   });
-
-    getIt.registerFactory(() => SweepingWalletPage(restoreVMfromQR: getIt.get<WalletRestorationFromQRVM>()));
 
   getIt.registerFactory<WalletAddressListViewModel>(() =>
       WalletAddressListViewModel(
@@ -650,7 +649,9 @@ Future setup(
   getIt.registerFactory(
       () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
-  getIt.registerFactory(() => RestoreOptionsPage());
+  getIt.registerFactoryParam<RestoreOptionsPage, bool, void>(
+          (bool isNewInstall, _) => RestoreOptionsPage(isNewInstall));
+
 
   getIt.registerFactory(
       () => RestoreFromBackupViewModel(getIt.get<BackupService>()));
