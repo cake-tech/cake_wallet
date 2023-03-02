@@ -217,7 +217,7 @@ class BackupService {
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
-    final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as bool?;
+    final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
     final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
@@ -281,7 +281,7 @@ class BackupService {
         PreferencesKey.currentTheme, currentTheme);
 
     if (exchangeStatus != null)
-      await _sharedPreferences.setBool(
+      await _sharedPreferences.setInt(
         PreferencesKey.exchangeStatusKey, exchangeStatus);
 
     if (currentDefaultSettingsMigrationVersion != null)
@@ -432,7 +432,7 @@ class BackupService {
       PreferencesKey.currentTheme:
           _sharedPreferences.getInt(PreferencesKey.currentTheme),
       PreferencesKey.exchangeStatusKey:
-          _sharedPreferences.getBool(PreferencesKey.exchangeStatusKey),
+          _sharedPreferences.getInt(PreferencesKey.exchangeStatusKey),
       PreferencesKey.currentDefaultSettingsMigrationVersion: _sharedPreferences
           .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
       PreferencesKey.bitcoinTransactionPriority:
