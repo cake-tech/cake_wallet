@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ffi: ^1.1.2
+  ffi: ^2.0.1
   http: ^0.13.4
   path_provider: ^2.0.11
   mobx: ^2.0.7+4
