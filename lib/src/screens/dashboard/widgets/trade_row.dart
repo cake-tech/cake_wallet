@@ -9,7 +9,8 @@ class TradeRow extends StatelessWidget {
     required this.to,
     required this.createdAtFormattedDate,
     this.onTap,
-    this.formattedAmount,});
+    this.formattedAmount,
+  });
 
   final VoidCallback? onTap;
   final ExchangeProviderDescription provider;
@@ -35,47 +36,40 @@ class TradeRow extends StatelessWidget {
               SizedBox(width: 12),
               Expanded(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text('${from.toString()} → ${to.toString()}',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
-                                )),
-                            formattedAmount != null
-                                ? Text(formattedAmount! + ' ' + amountCrypto,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
-                                ))
-                                : Container()
-                          ]),
-                      SizedBox(height: 5),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            if (createdAtFormattedDate != null)
-                              Text(createdAtFormattedDate!,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).textTheme!
-                                          .overline!.backgroundColor!))
-                          ])
-                    ],
-                  )
-              )
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text('${from.toString()} → ${to.toString()}',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
+                    formattedAmount != null
+                        ? Text(formattedAmount! + ' ' + amountCrypto,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color:
+                                    Theme.of(context).accentTextTheme!.headline2!.backgroundColor!))
+                        : Container()
+                  ]),
+                  SizedBox(height: 5),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    if (createdAtFormattedDate != null)
+                      Text(createdAtFormattedDate!,
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).textTheme!.overline!.backgroundColor!))
+                  ])
+                ],
+              ))
             ],
           ),
         ));
   }
 
-  Image? _getPoweredImage(ExchangeProviderDescription provider) {
-    Image? image;
+  Widget? _getPoweredImage(ExchangeProviderDescription provider) {
+    Widget? image;
 
     switch (provider) {
       case ExchangeProviderDescription.xmrto:
@@ -92,6 +86,11 @@ class TradeRow extends StatelessWidget {
         break;
       case ExchangeProviderDescription.simpleSwap:
         image = Image.asset('assets/images/simpleSwap.png', width: 36, height: 36);
+        break;
+      case ExchangeProviderDescription.trocador:
+        image = ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: Image.asset('assets/images/trocador.png', width: 36, height: 36));
         break;
       default:
         image = null;

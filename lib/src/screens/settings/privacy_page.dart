@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -33,12 +34,14 @@ class PrivacyPage extends BasePage {
                     _privacySettingsViewModel.setFiatMode(fiatApiMode),
               ),
             ),
-            SettingsSwitcherCell(
-                title: S.current.disable_exchange,
-                value: _privacySettingsViewModel.disableExchange,
-                onValueChange: (BuildContext context, bool value) {
-                  _privacySettingsViewModel.setEnableExchange(value);
-                }),
+            SettingsChoicesCell(
+              ChoicesListItem<ExchangeApiMode>(
+                title: S.current.exchange,
+                items: ExchangeApiMode.all,
+                selectedItem: _privacySettingsViewModel.exchangeStatus,
+                onItemSelected: (ExchangeApiMode mode) => _privacySettingsViewModel.setExchangeApiMode(mode),
+              ),
+            ),
             SettingsSwitcherCell(
                 title: S.current.settings_save_recipient_address,
                 value: _privacySettingsViewModel.shouldSaveRecipientAddress,
