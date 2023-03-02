@@ -22,7 +22,7 @@ dependencies:
   barcode_scan2: ^4.2.1
   http: ^0.13.4
   path_provider: ^2.0.11
-  mobx: ^2.0.7+4
+  mobx: 2.0.7+4
   flutter_mobx: ^2.0.6+1
   flutter_slidable: ^2.0.0
   share_plus: ^4.0.10
@@ -55,13 +55,14 @@ dependencies:
   another_flushbar: ^1.12.29
   archive: ^3.3.0
   cryptography: ^2.0.5
-  file_picker: ^4.6.1
+  file_picker: ^5.2.5
   unorm_dart: ^0.2.0
   # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
   device_display_brightness: ^0.0.6
   platform_device_id: ^1.0.1
   flutter_mailer: ^2.0.2
+  device_info_plus: ^8.1.0
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git

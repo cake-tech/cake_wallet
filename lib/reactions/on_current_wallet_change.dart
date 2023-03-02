@@ -69,8 +69,8 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       if (wallet.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
       }
-      
-      if (wallet.walletInfo.address?.isEmpty ?? true) {
+
+      if (wallet.walletInfo.address.isEmpty) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
 
         if (wallet.walletInfo.isInBox) {
@@ -94,7 +94,9 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] =
           await FiatConversionService.fetchPrice(
-              wallet.currency, settingsStore.fiatCurrency);
+              crypto: wallet.currency,
+              fiat: settingsStore.fiatCurrency,
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
     } catch (e) {
       print(e.toString());
     }
