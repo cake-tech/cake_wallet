@@ -290,22 +290,23 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<Uri> _getUri(String createTradePath, Map<String, String> queryParams) async {
+  Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
     if (!supportsOnionAddress) {
-      return Uri.https(clearNetAuthority, tradePath, queryParams);
+      return Uri.https(clearNetAuthority, path, queryParams);
     }
 
+    final uri = Uri.http(onionApiAuthority, path, queryParams);
+
     if (useTorOnly) {
-      return Uri.http(onionApiAuthority, tradePath, queryParams);
+      return uri;
     }
 
     try {
-      final uri = Uri.http(onionApiAuthority, tradePath);
       await get(uri);
 
-      return Uri.http(onionApiAuthority, tradePath, queryParams);
+      return uri;
     } catch (e) {
-      return Uri.https(clearNetAuthority, tradePath, queryParams);
+      return Uri.https(clearNetAuthority, path, queryParams);
     }
   }
 }
