@@ -67,7 +67,6 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await wallet.connectToNode(node: node);
 
       if (wallet.type == WalletType.haven) {
-        settingsStore.fiatCurrency = FiatCurrency.usd;
         await updateHavenRate(fiatConversionStore);
       }
 
