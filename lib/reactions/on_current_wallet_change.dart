@@ -66,6 +66,10 @@ void startCurrentWalletChangeReaction(AppStore appStore,
           PreferencesKey.currentWalletType, serializeToInt(wallet.type));
       await wallet.connectToNode(node: node);
 
+      if (wallet.type == WalletType.haven) {
+        await updateHavenRate(fiatConversionStore);
+      }
+      
       if (wallet.walletInfo.address?.isEmpty ?? true) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
 
