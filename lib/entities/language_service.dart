@@ -25,7 +25,8 @@ class LanguageService {
     'my': 'မြန်မာ (Burmese)',
     'bg': 'Български (Bulgarian)',
     'cs': 'čeština (Czech)',
-    'ur': 'اردو (Urdu)'
+    'ur': 'اردو (Urdu)',
+    'id': 'Bahasa Indonesia (Indonesian)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -50,7 +51,8 @@ class LanguageService {
     'my': 'mmr',
     'bg': 'bgr',
     'cs': 'czk',
-    'ur': 'pak'
+    'ur': 'pak',
+    'id': 'idn'
   };
 
   static final list = <String, String> {};

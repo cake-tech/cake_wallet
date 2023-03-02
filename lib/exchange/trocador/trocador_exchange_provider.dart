@@ -16,7 +16,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false})
       : _lastUsedRateId = '',
         super(pairList: _supportedPairs());
-  
+
   bool useTorOnly;
 
   static const List<CryptoCurrency> _notSupported = [
@@ -85,9 +85,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-    final String apiAuthority = await _getAuthority();
-
-    final uri = Uri.https(apiAuthority, createTradePath, params);
+    final uri = await _getUri(createTradePath, params);
     final response = await get(uri);
 
     if (response.statusCode == 400) {
@@ -137,31 +135,28 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-      
-      final params = <String, String> {
-        'api_key': apiKey,
-        'ticker': from.title.toLowerCase(),
-        'name': from.name,
-      };
-      
-      final String apiAuthority = await _getAuthority();
-            final uri = Uri.https(apiAuthority, coinPath, params);
-      
-      final response = await get(uri);
+    final params = <String, String>{
+      'api_key': apiKey,
+      'ticker': from.title.toLowerCase(),
+      'name': from.name,
+    };
 
-      if (response.statusCode != 200) {
-        throw Exception('Unexpected http status: ${response.statusCode}');
-      }
+    final uri = await _getUri(coinPath, params);
 
-      final responseJSON = json.decode(response.body) as List<dynamic>;
-      
-      if (responseJSON.isEmpty) {
-        throw Exception('No data');
-      }
-      
-      final coinJson = responseJSON.first as Map<String, dynamic>;
-     
-      
+    final response = await get(uri);
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    }
+
+    final responseJSON = json.decode(response.body) as List<dynamic>;
+
+    if (responseJSON.isEmpty) {
+      throw Exception('No data');
+    }
+
+    final coinJson = responseJSON.first as Map<String, dynamic>;
+
     return Limits(
       min: coinJson['minimum'] as double,
       max: coinJson['maximum'] as double,
@@ -180,8 +175,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 0.0;
       }
 
-      final String apiAuthority =  await _getAuthority();
-
       final params = <String, String>{
         'api_key': apiKey,
         'ticker_from': from.title.toLowerCase(),
@@ -196,7 +189,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         'best_only': 'True',
       };
 
-      final uri = Uri.https(apiAuthority, newRatePath, params);
+      final uri = await _getUri(newRatePath, params);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
@@ -216,8 +209,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final String apiAuthority = await _getAuthority();
-    final uri = Uri.https(apiAuthority, tradePath, {'api_key': apiKey, 'id': id});
+    final uri = await _getUri(tradePath, {'api_key': apiKey, 'id': id});
     return get(uri).then((response) {
       if (response.statusCode != 200) {
         throw Exception('Unexpected http status: ${response.statusCode}');
@@ -298,23 +290,23 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<String> _getAuthority() async {
-   if(!supportsOnionAddress){
-      return clearNetAuthority;
-   }
+  Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
+    if (!supportsOnionAddress) {
+      return Uri.https(clearNetAuthority, path, queryParams);
+    }
+
+    final uri = Uri.http(onionApiAuthority, path, queryParams);
+
+    if (useTorOnly) {
+      return uri;
+    }
 
     try {
-      if (useTorOnly) {
-        return onionApiAuthority;
-      }
-      
-      final uri = Uri.https(onionApiAuthority, tradePath);
       await get(uri);
 
-      return onionApiAuthority;
+      return uri;
     } catch (e) {
-      
-      return clearNetAuthority;
+      return Uri.https(clearNetAuthority, path, queryParams);
     }
   }
 }
