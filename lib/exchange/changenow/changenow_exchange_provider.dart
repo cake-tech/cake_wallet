@@ -269,6 +269,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
             : currency.title.toLowerCase();
       }
     }
+
   }
 
    String normalizeCryptoCurrency(CryptoCurrency currency) {
