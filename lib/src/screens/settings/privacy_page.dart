@@ -22,31 +22,34 @@ class PrivacyPage extends BasePage {
     return Container(
       padding: EdgeInsets.only(top: 10),
       child: Observer(builder: (_) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SettingsSwitcherCell(
-                title: S.current.disable_fiat,
-                value: _privacySettingsViewModel.isFiatDisabled,
-                onValueChange: (BuildContext context, bool value) {
-                  _privacySettingsViewModel.setFiatMode(value);
-                }),
-              SettingsChoicesCell(
-                ChoicesListItem<ExchangeApiMode>(
-                  title: S.current.exchange,
-                  items: ExchangeApiMode.all,
-                  selectedItem: _privacySettingsViewModel.exchangeStatus,
-                  onItemSelected: (ExchangeApiMode mode) => _privacySettingsViewModel.setExchangeApiMode(mode),
-                ),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SettingsChoicesCell(
+              ChoicesListItem<FiatApiMode>(
+                title: S.current.fiat_api,
+                items: FiatApiMode.all,
+                selectedItem: _privacySettingsViewModel.fiatApiMode,
+                onItemSelected: (FiatApiMode fiatApiMode) =>
+                    _privacySettingsViewModel.setFiatMode(fiatApiMode),
               ),
-              SettingsSwitcherCell(
-                  title: S.current.settings_save_recipient_address,
-                  value: _privacySettingsViewModel.shouldSaveRecipientAddress,
-                  onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
-                  })
-            ],
-          );
+            ),
+            SettingsChoicesCell(
+              ChoicesListItem<ExchangeApiMode>(
+                title: S.current.exchange,
+                items: ExchangeApiMode.all,
+                selectedItem: _privacySettingsViewModel.exchangeStatus,
+                onItemSelected: (ExchangeApiMode mode) => _privacySettingsViewModel.setExchangeApiMode(mode),
+              ),
+            ),
+            SettingsSwitcherCell(
+                title: S.current.settings_save_recipient_address,
+                value: _privacySettingsViewModel.shouldSaveRecipientAddress,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
+                }),
+          ],
+        );
       }),
     );
   }
