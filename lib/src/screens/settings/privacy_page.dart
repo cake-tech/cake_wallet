@@ -36,7 +36,7 @@ class PrivacyPage extends BasePage {
                   title: S.current.exchange,
                   items: ExchangeApiMode.all,
                   selectedItem: _privacySettingsViewModel.exchangeStatus,
-                  onItemSelected: (ExchangeApiMode mode) => _privacySettingsViewModel.setEnableExchange(mode),
+                  onItemSelected: (ExchangeApiMode mode) => _privacySettingsViewModel.setExchangeApiMode(mode),
                 ),
               ),
               SettingsSwitcherCell(

@@ -308,7 +308,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return onionApiAuthority;
       }
       
-      final uri = Uri.https(onionApiAuthority, '/api/trade');
+      final uri = Uri.https(onionApiAuthority, tradePath);
       await get(uri);
 
       return onionApiAuthority;

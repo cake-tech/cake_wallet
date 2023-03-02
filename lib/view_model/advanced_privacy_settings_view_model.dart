@@ -38,7 +38,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   }
 
   @action
-  void setEnableExchange(ExchangeApiMode value) {
+  void setExchangeApiMode(ExchangeApiMode value) {
     _settingsStore.exchangeStatus = value;
   }
 

@@ -25,7 +25,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setShouldSaveRecipientAddress(bool value) => _settingsStore.shouldSaveRecipientAddress = value;
 
   @action
-  void setEnableExchange(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
+  void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
 
   @action
   void setFiatMode(bool value) {

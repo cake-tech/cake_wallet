@@ -70,7 +70,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                     items: ExchangeApiMode.all,
                     selectedItem: widget.privacySettingsViewModel.exchangeStatus,
                     onItemSelected: (ExchangeApiMode mode) =>
-                        widget.privacySettingsViewModel.setEnableExchange(mode),
+                        widget.privacySettingsViewModel.setExchangeApiMode(mode),
                   ),
                 );
               }

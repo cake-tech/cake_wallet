@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -274,7 +275,7 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != FiatApiMode.disabled;
+  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
   bool hasExchangeAction;

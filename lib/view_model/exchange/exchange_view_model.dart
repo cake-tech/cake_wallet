@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
@@ -56,7 +57,7 @@ abstract class ExchangeViewModelBase with Store {
       isDepositAddressEnabled = false,
       isReceiveAddressEnabled = false,
       isReceiveAmountEditable = false,
-      _providerUseTorOnly = false,
+      _useTorOnly = false,
       receiveCurrencies = <CryptoCurrency>[],
       depositCurrencies = <CryptoCurrency>[],
       limits = Limits(min: 0, max: 0),
@@ -66,7 +67,7 @@ abstract class ExchangeViewModelBase with Store {
       depositCurrency = wallet.currency,
       providerList = [],
       selectedProviders = ObservableList<ExchangeProvider>() {
-    _providerUseTorOnly = _settingsStore.exchangeStatus == FiatApiMode.torOnly;
+    _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
@@ -123,7 +124,7 @@ abstract class ExchangeViewModelBase with Store {
         _calculateBestRate();
       });
   }
-  bool _providerUseTorOnly;
+  bool _useTorOnly;
   final WalletBase wallet;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
@@ -134,7 +135,7 @@ abstract class ExchangeViewModelBase with Store {
         ChangeNowExchangeProvider(),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(useTorOnly: _providerUseTorOnly),
+        TrocadorExchangeProvider(useTorOnly: _useTorOnly),
       ];
 
   @observable
@@ -696,7 +697,7 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   void _setProviders(){
-    if (_settingsStore.exchangeStatus == FiatApiMode.torOnly) {
+    if (_settingsStore.exchangeStatus == ExchangeApiMode.torOnly) {
       providerList = _allProviders.where((provider) => provider.supportsOnionAddress).toList();
     } else {
       providerList = _allProviders;
