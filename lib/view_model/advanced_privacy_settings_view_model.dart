@@ -16,7 +16,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
-  FiatApiMode get fiatApi => _settingsStore.fiatApiMode;
+  FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
 
   @observable
   bool _addCustomNode = false;
@@ -29,21 +29,11 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get addCustomNode => _addCustomNode;
 
   @action
-  void setFiatMode(bool value) {
-    if (value) {
-      _settingsStore.fiatApiMode = FiatApiMode.disabled;
-      return;
-    }
-    _settingsStore.fiatApiMode = FiatApiMode.enabled;
-  }
+  void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
 
   @action
-  void setExchangeApiMode(ExchangeApiMode value) {
-    _settingsStore.exchangeStatus = value;
-  }
+  void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
 
   @action
-  void toggleAddCustomNode() {
-    _addCustomNode = !_addCustomNode;
-  }
+  void toggleAddCustomNode() => _addCustomNode = !_addCustomNode;
 }
