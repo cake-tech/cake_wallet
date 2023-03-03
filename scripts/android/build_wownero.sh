@@ -7,7 +7,7 @@ WOWNERO_VERSION=v0.11.0.0
 WOWNERO_SHA_HEAD="6b28de1cdc020493dee2bf20b62c6d9227140ef2"
 WOWNERO_SRC_DIR=${WORKDIR}/wownero
 
-echo "Cloning wownero from - $WOWNERO_URL to - $WOWNERO_DIR_PATH"		
+echo "Cloning wownero from - $WOWNERO_URL to - $WOWNERO_SRC_DIR"		
 git clone ${WOWNERO_URL} ${WOWNERO_SRC_DIR} --branch ${WOWNERO_VERSION}
 cd $WOWNERO_SRC_DIR
 git reset --hard $WOWNERO_SHA_HEAD
