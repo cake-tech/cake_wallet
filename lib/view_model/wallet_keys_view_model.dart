@@ -15,6 +15,7 @@ abstract class WalletKeysViewModelBase with Store {
       : title = wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin
             ? S.current.wallet_seed
             : S.current.wallet_keys,
+        _wallet = wallet,
         items = ObservableList<StandartListItem>() {
     if (wallet.type == WalletType.monero) {
       final keys = monero!.getKeys(wallet);
@@ -58,4 +59,31 @@ abstract class WalletKeysViewModelBase with Store {
   final ObservableList<StandartListItem> items;
 
   final String title;
+
+  final WalletBase _wallet;
+
+  String get _path {
+    switch (_wallet.type) {
+      case WalletType.monero:
+        return 'monero_wallet:';
+      case WalletType.bitcoin:
+        return 'bitcoin_wallet:';
+      case WalletType.litecoin:
+        return 'litecoin_wallet:';
+      case WalletType.haven:
+        return 'haven_wallet:';
+      default:
+        throw Exception('Unexpected wallet type: ${_wallet.toString()}');
+    }
+  }
+
+  Map<String, String> get _queryParams =>
+      {'seed': _wallet.seed, 'height': _wallet.walletInfo.restoreHeight.toString()};
+
+  Uri get url {
+    return Uri(
+      path: _path,
+      queryParameters: _queryParams,
+    );
+  }
 }
