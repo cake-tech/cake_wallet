@@ -1,3 +1,5 @@
+import 'package:cake_wallet/anonpay/anonpay_api.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_view_data.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
@@ -367,10 +369,10 @@ Future setup(
   
   getIt.registerFactory<AddressPageViewModel>(() => AddressPageViewModel());
 
-  getIt.registerFactory<AnonInvoicePageViewModel>(() => AnonInvoicePageViewModel());
+  getIt.registerFactoryParam<AnonInvoicePageViewModel, String, void>((address, _) => AnonInvoicePageViewModel(getIt.get<AnonPayApi>(), address, getIt.get<SettingsStore>(),  getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<AnonPayInvoicePage>(() => AnonPayInvoicePage(
-       getIt.get<AnonInvoicePageViewModel>(), getIt.get<AddressPageViewModel>()));  
+  getIt.registerFactoryParam<AnonPayInvoicePage, String, void>((address, _) => AnonPayInvoicePage(
+       getIt.get<AnonInvoicePageViewModel>(param1: address), getIt.get<AddressPageViewModel>()));  
   
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
@@ -832,8 +834,11 @@ Future setup(
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
+  
+  getIt.registerFactory(() => AnonPayApi());
 
-  getIt.registerFactory(() => AnonPayReceivePage());
+  getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInvoiceViewData, void>(
+    (AnonpayInvoiceViewData viewData, _) => AnonPayReceivePage(invoiceViewData: viewData));
 
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)

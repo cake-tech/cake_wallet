@@ -219,10 +219,11 @@ class AddressPage extends BasePage {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pop(context);
 
-          Navigator.pushReplacementNamed(context, Routes.anonPayInvoicePage);
-          break;
-        case ReceivePageOption.anonPayDonationLink:
-          Navigator.pop(context);
+          Navigator.pushReplacementNamed(
+            context,
+            Routes.anonPayInvoicePage,
+            arguments: addressListViewModel.address.address,
+          );
           break;
         default:
       }

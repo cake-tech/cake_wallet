@@ -1,3 +1,4 @@
+import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'picker_item.dart';
@@ -14,7 +15,7 @@ class CurrencyPickerWidget extends StatelessWidget {
   final int crossAxisCount;
   final int selectedAtIndex;
   final Function pickListItem;
-  final List<CryptoCurrency> pickerItemsList;
+  final List<Currency> pickerItemsList;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -39,8 +40,8 @@ class CurrencyPickerWidget extends StatelessWidget {
                 onTap: () {
                   pickListItem(index);
                 },
-                title: pickerItemsList[index].title,
-                iconPath: pickerItemsList[index].iconPath,
+                title: pickerItemsList[index].name,
+                iconPath: pickerItemsList[index].icon,
                 tag: pickerItemsList[index].tag,
               );
             }),

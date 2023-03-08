@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/email_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_view_data.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -21,7 +21,9 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:mobx/mobx.dart';
 
 class AnonPayInvoicePage extends BasePage {
-  AnonPayInvoicePage(this.anonInvoicePageViewModel, this.addressPageViewModel);
+  AnonPayInvoicePage(this.anonInvoicePageViewModel, this.addressPageViewModel) {
+    addressPageViewModel.selectReceiveOption(ReceivePageOption.anonPayInvoice);
+  }
 
   final AnonInvoicePageViewModel anonInvoicePageViewModel;
   final AddressPageViewModel addressPageViewModel;
@@ -108,11 +110,12 @@ class AnonPayInvoicePage extends BasePage {
                 builder: (_) => LoadingPrimaryButton(
                   text: 'Create invoice',
                   onPressed: () {
-                    if (anonInvoicePageViewModel.receipientEmail.isNotEmpty && _formKey.currentState != null && !_formKey.currentState!.validate()) {
-                      
+                    if (anonInvoicePageViewModel.receipientEmail.isNotEmpty &&
+                        _formKey.currentState != null &&
+                        !_formKey.currentState!.validate()) {
                       return;
                     }
-                     anonInvoicePageViewModel.createInvoice();
+                    anonInvoicePageViewModel.createInvoice();
                   },
                   color: Theme.of(context).accentTextTheme.bodyText1!.color!,
                   textColor: Colors.white,
@@ -146,10 +149,11 @@ class AnonPayInvoicePage extends BasePage {
     });
 
     reaction((_) => anonInvoicePageViewModel.state, (ExecutionState state) {
-       if(state is ExecutedSuccessfullyState){
-        Navigator.pushNamed(context, Routes.anonPayReceivePage);
-       } 
-     });
+      if (state is ExecutedSuccessfullyState) {
+        Navigator.pushNamed(context, Routes.anonPayReceivePage,
+            arguments: state.payload as AnonpayInvoiceViewData);
+      }
+    });
 
     effectsInstalled = true;
   }
@@ -207,7 +211,6 @@ class AnonInvoiceForm extends StatelessWidget {
                 ),
                 child: Observer(builder: (_) {
                   final selectedCurrency = anonInvoicePageViewModel.selectedCurrency;
-
                   return Padding(
                     padding: EdgeInsets.only(top: 20),
                     child: Row(
@@ -306,6 +309,37 @@ class AnonInvoiceForm extends StatelessWidget {
                     ),
                   );
                 })),
+            Observer(builder: (context) {
+              final min = anonInvoicePageViewModel.minimum;
+              final max = anonInvoicePageViewModel.maximum;
+              final selectedCurrency = anonInvoicePageViewModel.selectedCurrency;
+              if (min == null && max == null) {
+                return SizedBox();
+              }
+              return Container(
+                  height: 15,
+                  child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                    min != null
+                        ? Text(
+                            S.of(context).min_value(min.toString(), selectedCurrency.toString()),
+                            style: TextStyle(
+                                fontSize: 10,
+                                height: 1.2,
+                                color:
+                                    Theme.of(context).accentTextTheme!.headline1!.decorationColor!),
+                          )
+                        : Offstage(),
+                    min != null ? SizedBox(width: 10) : Offstage(),
+                    max != null
+                        ? Text(S.of(context).max_value(max.toString(), selectedCurrency.toString()),
+                            style: TextStyle(
+                                fontSize: 10,
+                                height: 1.2,
+                                color:
+                                    Theme.of(context).accentTextTheme!.headline1!.decorationColor!))
+                        : Offstage(),
+                  ]));
+            }),
             SizedBox(
               height: 24,
             ),

@@ -1,6 +1,7 @@
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 
-class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
+class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
     String title = '',
     int raw = -1,
@@ -14,6 +15,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   final String? tag;
   final String? fullName;
   final String? iconPath;
+
+  @override
+  String get icon => iconPath ?? '';
 
   static const all = [
     CryptoCurrency.xmr,

@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cw_core/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -501,9 +502,9 @@ class ExchangeCardState extends State<ExchangeCard> {
             hintText: S.of(context).search_currency,
             isMoneroWallet: _isMoneroWallet,
             isConvertFrom: widget.hasRefundAddress,
-            onItemSelected: (CryptoCurrency item) =>
+            onItemSelected: (Currency item) =>
                 widget.onCurrencySelected != null
-                    ? widget.onCurrencySelected(item)
+                    ? widget.onCurrencySelected(item as CryptoCurrency)
                     : null),
         context: context);
   }

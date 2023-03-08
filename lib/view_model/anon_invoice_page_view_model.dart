@@ -1,5 +1,12 @@
+import 'package:cake_wallet/anonpay/anonpay_api.dart';
+import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'anon_invoice_page_view_model.g.dart';
@@ -7,18 +14,27 @@ part 'anon_invoice_page_view_model.g.dart';
 class AnonInvoicePageViewModel = AnonInvoicePageViewModelBase with _$AnonInvoicePageViewModel;
 
 abstract class AnonInvoicePageViewModelBase with Store {
-  AnonInvoicePageViewModelBase()
+  AnonInvoicePageViewModelBase(this.anonPayApi, this.address, this.settingsStore, this._wallet)
       : receipientEmail = '',
         receipientName = '',
         description = '',
         amount = '',
         state = InitialExecutionState(),
-        selectedCurrency = CryptoCurrency.xmr;
+        selectedCurrency = walletTypeToCryptoCurrency(_wallet.type),
+        cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type) {
+    _fetchLimits();
+  }
 
-  List<CryptoCurrency> get currencies => CryptoCurrency.all;
+  List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
+  final AnonPayApi anonPayApi;
+  final String address;
+  final SettingsStore settingsStore;
+  final WalletBase _wallet;
 
   @observable
-  CryptoCurrency selectedCurrency;
+  Currency selectedCurrency;
+
+  CryptoCurrency cryptoCurrency;
 
   @observable
   String receipientEmail;
@@ -38,19 +54,51 @@ abstract class AnonInvoicePageViewModelBase with Store {
   @computed
   int get selectedCurrencyIndex => currencies.indexOf(selectedCurrency);
 
+  @observable
+  double? minimum;
+
+  @observable
+  double? maximum;
+
   @action
-  void selectCurrency(CryptoCurrency currency) {
+  void selectCurrency(Currency currency) {
     selectedCurrency = currency;
+    if (currency is CryptoCurrency) {
+      cryptoCurrency = currency;
+      _fetchLimits();
+    }
   }
 
   @action
-  void createInvoice() {
-    // TODO: implement createInvoice
-    state = ExecutedSuccessfullyState();
+  Future<void> createInvoice() async {
+    state = IsExecutingState();
+    final result = await anonPayApi.createInvoice(AnonPayRequest(
+      cryptoCurrency: cryptoCurrency,
+      address: address,
+      amount: amount,
+      description: description,
+      email: receipientEmail,
+      name: receipientName,
+      fiatEquivalent: selectedCurrency is FiatCurrency
+          ? (selectedCurrency as FiatCurrency).raw
+          : settingsStore.fiatCurrency.raw,
+    ));
+    state = ExecutedSuccessfullyState(payload: result);
+  }
+
+  Future<void> _fetchLimits() async {
+    final limit = await anonPayApi.fetchLimits(currency: cryptoCurrency);
+    minimum = limit.min;
+    maximum = limit.max != null ? limit.max! / 4 : null;
   }
 
   @action
   void reset() {
-    //
+    selectedCurrency = walletTypeToCryptoCurrency(_wallet.type);
+    receipientEmail = '';
+    receipientName = '';
+    description = '';
+    amount = '';
+    _fetchLimits();
   }
 }
