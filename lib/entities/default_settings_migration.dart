@@ -1,10 +1,12 @@
 import 'dart:io' show File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -143,8 +145,10 @@ Future defaultSettingsMigration(
         case 19:
           await validateBitcoinSavedTransactionPriority(sharedPreferences);
           break;
-
         case 20:
+          await migrateExchangeStatus(sharedPreferences);
+          break;
+        case 21:
           await addEthereumNodeList(nodes: nodes);
           await changeEthereumCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
@@ -524,6 +528,18 @@ Future<void> changeDefaultHavenNode(
     node.uriRaw = havenDefaultNodeUri;
     await node.save();
   });
+}
+
+Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
+  final isExchangeDisabled = sharedPreferences.getBool(PreferencesKey.disableExchangeKey);
+  if (isExchangeDisabled == null) {
+    return;
+  }
+
+  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled
+      ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
+
+  await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
 }
 
 Future<void> addEthereumNodeList({required Box<Node> nodes}) async {

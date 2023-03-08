@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -29,6 +30,10 @@ abstract class NodeListViewModelBase with Store {
 
     return node;
   }
+
+  String getAlertContent(String uri) =>
+      S.current.change_current_node(uri) +
+          '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;

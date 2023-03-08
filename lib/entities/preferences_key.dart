@@ -14,6 +14,7 @@ class PreferencesKey {
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
   static const disableExchangeKey = 'disable_exchange';
+  static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
   static const isDarkThemeLegacy = 'dark_theme';
   static const displayActionListModeKey = 'display_list_mode';
@@ -31,6 +32,7 @@ class PreferencesKey {
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
+  static const lastPopupDate = 'last_popup_date';
 
 
   static String moneroWalletUpdateV1Key(String name)

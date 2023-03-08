@@ -149,7 +149,7 @@
   "subaddresses" : "Sous-adresses",
   "addresses" : "Adresses",
   "scan_qr_code" : "Scannez le QR code pour obtenir l'adresse",
-  "qr_fullscreen" : "Appuyez pour ouvrir le QR code en plein écran",
+  "qr_fullscreen" : "Appuyez pour ouvrir le QR code en mode plein écran",
   "rename" : "Renommer",
   "choose_account" : "Choisir le compte",
   "create_new_account" : "Créer un nouveau compte",
@@ -267,7 +267,7 @@
   "new_subaddress_label_name" : "Nom",
   "new_subaddress_create" : "Créer",
 
-  "address_label" : "Étiquette de l'adresse",
+  "address_label" : "Nom de l'adresse",
 
   "subaddress_title" : "Liste des sous-adresses",
 
@@ -396,8 +396,7 @@
   "biometric_auth_reason" : "Scannez votre empreinte digitale pour vous authentifier",
   "version" : "Version ${currentVersion}",
 
-  "openalias_alert_title" : "Adresse Détectée",
-  "openalias_alert_content" : "Vous allez envoyer des fonds à\n${recipient_name}",
+  "extracted_address_content" : "Vous allez envoyer des fonds à\n${recipient_name}",
 
   "card_address" : "Adresse :",
   "buy" : "Acheter",
@@ -676,6 +675,12 @@
   "enabled": "Activé",
   "tor_only": "Tor uniquement",
   "unmatched_currencies": "La devise de votre portefeuille (wallet) actuel ne correspond pas à celle du QR code scanné",
+  "orbot_running_alert": "Veuillez vous assurer qu'Orbot est en cours d'exécution avant de vous connecter à ce nœud.",
   "contact_list_contacts": "Contacts",
-  "contact_list_wallets": "Mes portefeuilles (wallets)"
+  "contact_list_wallets": "Mes portefeuilles (wallets)",
+  "bitcoin_payments_require_1_confirmation": "Les paiements Bitcoin nécessitent 1 confirmation, ce qui peut prendre 20 minutes ou plus. Merci pour votre patience! Vous serez averti par e-mail lorsque le paiement sera confirmé.",
+  "send_to_this_address" : "Envoyez ${currency} ${tag}à cette adresse",
+  "arrive_in_this_address" : "${currency} ${tag}arrivera à cette adresse",
+  "do_not_send": "N'envoyez pas",
+  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application."
 }

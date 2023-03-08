@@ -9,11 +9,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class BuyWebViewPage extends BasePage {
-  BuyWebViewPage({required this.buyViewModel,
-      required this.ordersStore, required this.url});
+  BuyWebViewPage({required this.buyViewModel, required this.ordersStore, required this.url});
 
   final OrdersStore ordersStore;
   final String url;
@@ -46,12 +45,12 @@ class BuyWebViewPageBody extends StatefulWidget {
 
 class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
   BuyWebViewPageBodyState()
-    : _webViewkey = GlobalKey(),
-      _isSaving = false,
-      orderId = '';
+      : _webViewkey = GlobalKey(),
+        _isSaving = false,
+        orderId = '';
 
   String orderId;
-  WebViewController? _webViewController;
+  InAppWebViewController? _webViewController;
   GlobalKey _webViewkey;
   Timer? _timer;
   bool _isSaving;
@@ -62,8 +61,6 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
     _webViewkey = GlobalKey();
     _isSaving = false;
     widget.ordersStore.orderId = '';
-
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
 
     if (widget.buyViewModel.selectedProvider is WyreBuyProvider) {
       _saveOrder(keyword: 'completed', splitSymbol: '/');
@@ -76,31 +73,31 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return WebView(
+    return InAppWebView(
         key: _webViewkey,
-        initialUrl: widget.url,
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (WebViewController controller) =>
+        initialOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(transparentBackground: true),
+        ),
+        initialUrlRequest: URLRequest(url: Uri.tryParse(widget.url ?? '')),
+        onWebViewCreated: (InAppWebViewController controller) =>
             setState(() => _webViewController = controller));
   }
 
   void _saveOrder({required String keyword, required String splitSymbol}) {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-
       try {
         if (_webViewController == null || _isSaving) {
           return;
         }
 
-        final url = await _webViewController!.currentUrl();
-
+        final url = (await _webViewController!.getUrl())?.toString();
         if (url == null) {
           throw Exception('_saveOrder: Url is null');
         }
 
-        if (url!.contains(keyword)) {
-          final urlParts = url!.split(splitSymbol);
+        if (url.contains(keyword)) {
+          final urlParts = url.split(splitSymbol);
           orderId = urlParts.last;
           widget.ordersStore.orderId = orderId;
 

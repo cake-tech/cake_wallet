@@ -108,6 +108,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['address_from'] as String;
+    final payoutAddress = responseJSON['address_to'] as String;
     final settleAddress = responseJSON['user_refund_address'] as String;
     final extraId = responseJSON['extra_id_from'] as String?;
     return Trade(
@@ -120,6 +121,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       extraId: extraId,
       state: TradeState.created,
       amount: _request.amount,
+      payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
     );
   }
@@ -189,6 +191,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final expectedSendAmount = responseJSON['expected_amount'].toString();
     final extraId = responseJSON['extra_id_from'] as String?;
     final status = responseJSON['status'] as String;
+    final payoutAddress = responseJSON['address_to'] as String;
     final state = TradeState.deserialize(raw: status);
 
     return Trade(
@@ -200,6 +203,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       inputAddress: inputAddress,
       amount: expectedSendAmount,
       state: state,
+      payoutAddress: payoutAddress,
     );
   }
 
@@ -231,6 +235,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         return 'usdcpoly';
       case CryptoCurrency.usdcsol:
         return 'usdcspl';
+      case CryptoCurrency.matic:
+        return 'maticerc20';
+      case CryptoCurrency.maticpoly:
+        return 'matic';
       default:
         return currency.title.toLowerCase();
     }

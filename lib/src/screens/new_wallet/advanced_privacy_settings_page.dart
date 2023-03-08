@@ -1,7 +1,11 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -48,29 +52,47 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ...widget.privacySettingsViewModel.settings.map(
-              (item) => Observer(
-                builder: (_) => SettingsSwitcherCell(
-                  title: item.title,
-                  value: item.value(),
-                  onValueChange: item.onValueChange,
+            Observer(builder: (_) {
+              return SettingsChoicesCell(
+                ChoicesListItem<FiatApiMode>(
+                  title: S.current.disable_fiat,
+                  items: FiatApiMode.all,
+                  selectedItem: widget.privacySettingsViewModel.fiatApiMode,
+                  onItemSelected: (FiatApiMode mode) =>
+                      widget.privacySettingsViewModel.setFiatApiMode(mode),
                 ),
-              ),
-            ),
-            Observer(
-              builder: (_) {
-                if (widget.privacySettingsViewModel.addCustomNode) {
-                  return Padding(
-                    padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                    child: NodeForm(
-                      formKey: _formKey,
-                      nodeViewModel: widget.nodeViewModel,
-                    ),
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
+              );
+            }),
+            Observer(builder: (_) {
+              return SettingsChoicesCell(
+                ChoicesListItem<ExchangeApiMode>(
+                  title: S.current.exchange,
+                  items: ExchangeApiMode.all,
+                  selectedItem: widget.privacySettingsViewModel.exchangeStatus,
+                  onItemSelected: (ExchangeApiMode mode) =>
+                      widget.privacySettingsViewModel.setExchangeApiMode(mode),
+                ),
+              );
+            }),
+            Observer(builder: (_) {
+              return Column(
+                children: [
+                  SettingsSwitcherCell(
+                    title: S.current.add_custom_node,
+                    value: widget.privacySettingsViewModel.addCustomNode,
+                    onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
+                  ),
+                  if (widget.privacySettingsViewModel.addCustomNode)
+                    Padding(
+                      padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                      child: NodeForm(
+                        formKey: _formKey,
+                        nodeViewModel: widget.nodeViewModel,
+                      ),
+                    )
+                ],
+              );
+            }),
           ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),

@@ -20,7 +20,13 @@ class LanguageService {
     'hr': 'Hrvatski (Croatian)',
     'it': 'Italiano (Italian)',
     'th': 'ภาษาไทย (Thai)',
-    'ar': 'العربية (Arabic)'
+    'ar': 'العربية (Arabic)',
+    'tr': 'Türkçe (Turkish)',
+    'my': 'မြန်မာ (Burmese)',
+    'bg': 'Български (Bulgarian)',
+    'cs': 'čeština (Czech)',
+    'ur': 'اردو (Urdu)',
+    'id': 'Bahasa Indonesia (Indonesian)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -40,7 +46,13 @@ class LanguageService {
     'hr': 'hrv',
     'it': 'ita',
     'th': 'tha',
-    'ar': 'sau'
+    'ar': 'sau',
+    'tr': 'tur',
+    'my': 'mmr',
+    'bg': 'bgr',
+    'cs': 'czk',
+    'ur': 'pak',
+    'id': 'idn'
   };
 
   static final list = <String, String> {};

@@ -150,6 +150,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       refundAddress: settleAddress,
       state: TradeState.created,
       amount: _request.depositAmount,
+      payoutAddress: settleAddress,
       createdAt: DateTime.now(),
     );
   }
@@ -244,6 +245,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final inputAddress = responseJSON['depositAddress']['address'] as String;
     final expectedSendAmount = responseJSON['depositAmount'].toString();
     final deposits = responseJSON['deposits'] as List?;
+    final settleAddress = responseJSON['settleAddress']['address'] as String;
     TradeState? state;
     String? status;
 
@@ -264,6 +266,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       amount: expectedSendAmount,
       state: state,
       expiredAt: expiredAt,
+      payoutAddress: settleAddress
     );
   }
 
