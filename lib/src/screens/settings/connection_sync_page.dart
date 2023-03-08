@@ -2,6 +2,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -35,10 +36,11 @@ class ConnectionSyncPage extends BasePage {
             handler: (context) => _presentReconnectAlert(context),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsCellWithArrow(
-            title: S.current.rescan,
-            handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
-          ),
+          if (dashboardViewModel.hasRescan)
+            SettingsCellWithArrow(
+              title: S.current.rescan,
+              handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
+            ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           NodeHeaderListRow(
             title: S.of(context).add_new_node,

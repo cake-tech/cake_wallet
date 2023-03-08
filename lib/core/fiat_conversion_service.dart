@@ -4,18 +4,31 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
-const fiatApiAuthority = 'fiat-api.cakewallet.com';
-const fiatApiPath = '/v1/rates';
+const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
+const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion';
+const _fiatApiPath = '/v2/rates';
 
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as CryptoCurrency;
   final fiat = args['fiat'] as FiatCurrency;
+  final torOnly = args['torOnly'] as bool;
+
+  final Map<String, String> queryParams = {
+    'interval_count': '1',
+    'base': crypto.toString(),
+    'quote': fiat.toString(),
+  };
+
   double price = 0.0;
 
   try {
-    final fiatStringified = fiat.toString();
-    final uri = Uri.https(fiatApiAuthority, fiatApiPath,
-        <String, String>{'convert': fiatStringified});
+    late final Uri uri;
+    if (torOnly) {
+      uri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
+    } else {
+      uri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
+    }
+
     final response = await get(uri);
 
     if (response.statusCode != 200) {
@@ -23,13 +36,10 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final data = responseJSON['data'] as List<dynamic>;
+    final results = responseJSON['results'] as Map<String, dynamic>;
 
-    for (final item in data) {
-      if (item['symbol'] == crypto.title) {
-        price = item['quote'][fiatStringified]['price'] as double;
-        break;
-      }
+    if (results.isNotEmpty) {
+      price = results.values.first as double;
     }
 
     return price;
@@ -38,12 +48,14 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double> _fetchPriceAsync(
-        CryptoCurrency crypto, FiatCurrency fiat) async =>
-    compute(_fetchPrice, {'fiat': fiat, 'crypto': crypto});
+Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
+    compute(_fetchPrice, {'fiat': fiat, 'crypto': crypto, 'torOnly': torOnly});
 
 class FiatConversionService {
-  static Future<double> fetchPrice(
-          CryptoCurrency crypto, FiatCurrency fiat) async =>
-      await _fetchPriceAsync(crypto, fiat);
+  static Future<double> fetchPrice({
+    required CryptoCurrency crypto,
+    required FiatCurrency fiat,
+    required bool torOnly,
+  }) async =>
+      await _fetchPriceAsync(crypto, fiat, torOnly);
 }

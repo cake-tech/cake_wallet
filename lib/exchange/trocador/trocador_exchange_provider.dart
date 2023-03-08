@@ -13,21 +13,16 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
-  TrocadorExchangeProvider()
+  TrocadorExchangeProvider({this.useTorOnly = false})
       : _lastUsedRateId = '',
         super(pairList: _supportedPairs());
 
+  bool useTorOnly;
+
   static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.xhv,
-    CryptoCurrency.dcr,
-    CryptoCurrency.oxt,
-    CryptoCurrency.pivx,
     CryptoCurrency.scrt,
     CryptoCurrency.stx,
-    CryptoCurrency.bttc,
     CryptoCurrency.zaddr,
-    CryptoCurrency.usdcpoly,
-    CryptoCurrency.maticpoly,
   ];
 
   static List<ExchangePair> _supportedPairs() {
@@ -47,6 +42,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   static const newRatePath = '/api/new_rate';
   static const createTradePath = 'api/new_trade';
   static const tradePath = 'api/trade';
+  static const coinPath = 'api/coin';
   String _lastUsedRateId;
 
   @override
@@ -89,9 +85,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-    final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
-
-    final uri = Uri.https(apiAuthority, createTradePath, params);
+    final uri = await _getUri(createTradePath, params);
     final response = await get(uri);
 
     if (response.statusCode == 400) {
@@ -113,6 +107,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final state = TradeState.deserialize(raw: status);
     final payoutAddress = responseJSON['address_user'] as String;
     final date = responseJSON['date'] as String;
+    final password = responseJSON['password'] as String;
+    final providerId = responseJSON['id_provider'] as String;
+    final providerName = responseJSON['provider'] as String;
 
     return Trade(
         id: id,
@@ -122,6 +119,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         inputAddress: inputAddress,
         refundAddress: refundAddress,
         state: state,
+        password: password,
+        providerId: providerId,
+        providerName: providerName,
         createdAt: DateTime.tryParse(date)?.toLocal(),
         amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
         payoutAddress: payoutAddress);
@@ -135,9 +135,31 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-    //TODO: implement limits from trocador api
+    final params = <String, String>{
+      'api_key': apiKey,
+      'ticker': from.title.toLowerCase(),
+      'name': from.name,
+    };
+
+    final uri = await _getUri(coinPath, params);
+
+    final response = await get(uri);
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    }
+
+    final responseJSON = json.decode(response.body) as List<dynamic>;
+
+    if (responseJSON.isEmpty) {
+      throw Exception('No data');
+    }
+
+    final coinJson = responseJSON.first as Map<String, dynamic>;
+
     return Limits(
-      min: 0.0,
+      min: coinJson['minimum'] as double,
+      max: coinJson['maximum'] as double,
     );
   }
 
@@ -153,8 +175,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 0.0;
       }
 
-      final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
-
       final params = <String, String>{
         'api_key': apiKey,
         'ticker_from': from.title.toLowerCase(),
@@ -169,7 +189,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         'best_only': 'True',
       };
 
-      final uri = Uri.https(apiAuthority, newRatePath, params);
+      final uri = await _getUri(newRatePath, params);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
@@ -189,8 +209,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final String apiAuthority = shouldUseOnionAddress ? await _getAuthority() : clearNetAuthority;
-    final uri = Uri.https(apiAuthority, tradePath, {'api_key': apiKey, 'id': id});
+    final uri = await _getUri(tradePath, {'api_key': apiKey, 'id': id});
     return get(uri).then((response) {
       if (response.statusCode != 200) {
         throw Exception('Unexpected http status: ${response.statusCode}');
@@ -208,6 +227,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final to = CryptoCurrency.fromString(responseJSON['ticker_to'] as String);
       final state = TradeState.deserialize(raw: responseJSON['status'] as String);
       final date = DateTime.parse(responseJSON['date'] as String);
+      final password = responseJSON['password'] as String;
+      final providerId = responseJSON['id_provider'] as String;
+      final providerName = responseJSON['provider'] as String;
 
       return Trade(
         id: id,
@@ -220,6 +242,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         amount: fromAmount,
         state: state,
         payoutAddress: payoutAddress,
+        password: password,
+        providerId: providerId,
+        providerName: providerName,
       );
     });
   }
@@ -234,15 +259,21 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => true;
 
   @override
-  bool get shouldUseOnionAddress => true;
+  bool get supportsOnionAddress => true;
 
   @override
   String get title => 'Trocador';
 
   String _networkFor(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.usdt:
-        return CryptoCurrency.btc.title.toLowerCase();
+      case CryptoCurrency.eth:
+        return 'ERC20';
+      case CryptoCurrency.maticpoly:
+        return 'Mainnet';
+      case CryptoCurrency.usdcpoly:
+        return 'MATIC';
+      case CryptoCurrency.zec:
+        return 'Mainnet';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -252,18 +283,30 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     switch (tag) {
       case 'ETH':
         return 'ERC20';
+      case 'TRX':
+        return 'TRC20';
       default:
         return tag.toLowerCase();
     }
   }
 
-  Future<String> _getAuthority() async {
+  Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
+    if (!supportsOnionAddress) {
+      return Uri.https(clearNetAuthority, path, queryParams);
+    }
+
+    final uri = Uri.http(onionApiAuthority, path, queryParams);
+
+    if (useTorOnly) {
+      return uri;
+    }
+
     try {
-      final uri = Uri.https(onionApiAuthority, '/api/trade');
       await get(uri);
-      return onionApiAuthority;
+
+      return uri;
     } catch (e) {
-      return clearNetAuthority;
+      return Uri.https(clearNetAuthority, path, queryParams);
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -12,23 +13,21 @@ abstract class PrivacySettingsViewModelBase with Store {
   final SettingsStore _settingsStore;
 
   @computed
-  FiatApiMode get exchangeStatus => _settingsStore.exchangeStatus;
+  ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
   @computed
-  FiatApiMode get fiatApi => _settingsStore.fiatApiMode;
+  FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
 
   @action
   void setShouldSaveRecipientAddress(bool value) => _settingsStore.shouldSaveRecipientAddress = value;
 
   @action
-  void setEnableExchange(FiatApiMode value) => _settingsStore.exchangeStatus = value;
+  void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
 
   @action
-  void setFiatMode(FiatApiMode value) {
-      _settingsStore.fiatApiMode = value;
-  }
+  void setFiatMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
 
 }

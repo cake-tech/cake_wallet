@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dar
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/address_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -15,7 +16,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
-import 'package:share_plus/share_plus.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -83,23 +83,27 @@ class AddressPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    final shareImage = Image.asset('assets/images/share.png',
-        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
+    final shareImage =
+    Image.asset('assets/images/share.png',
+        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
 
-    return !addressListViewModel.hasAddressList
-        ? Material(
-            color: Colors.transparent,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              iconSize: 25,
-              onPressed: () => Share.share(addressListViewModel.address.address),
-              icon: shareImage,
-            ),
-          )
-        : null;
+    return !addressListViewModel.hasAddressList ? Material(
+      color: Colors.transparent,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints(),
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        iconSize: 25,
+        onPressed: () {
+          ShareUtil.share(
+            text: addressListViewModel.address.address,
+            context: context,
+          );
+        },
+        icon: shareImage,
+      ),
+    ) : null;
   }
 
   @override
@@ -113,7 +117,8 @@ class AddressPage extends BasePage {
       }
 
       await Future<void>.delayed(Duration(seconds: 1));
-      await showPopUp<void>(
+      if (context.mounted) {
+        await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithTwoActions(
@@ -127,6 +132,7 @@ class AddressPage extends BasePage {
                   Navigator.of(context).pop();
                 });
           });
+      }
     });
 
     return KeyboardActions(

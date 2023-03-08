@@ -17,7 +17,7 @@ int stringDoubleToBitcoinAmount(String amount) {
   int result = 0;
 
   try {
-    result = (double.parse(amount) * bitcoinAmountDivider).toInt();
+    result = (double.parse(amount) * bitcoinAmountDivider).round();
   } catch (e) {
     result = 0;
   }

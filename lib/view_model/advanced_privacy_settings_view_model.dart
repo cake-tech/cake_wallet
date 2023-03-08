@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -12,10 +13,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   AdvancedPrivacySettingsViewModelBase(this.type, this._settingsStore) : _addCustomNode = false;
 
   @computed
-  FiatApiMode get exchangeStatus => _settingsStore.exchangeStatus;
+  ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
-  FiatApiMode get fiatApi => _settingsStore.fiatApiMode;
+  FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
 
   @observable
   bool _addCustomNode = false;
@@ -28,17 +29,11 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get addCustomNode => _addCustomNode;
 
   @action
-  void setFiatMode(FiatApiMode value) {
-    _settingsStore.fiatApiMode = value;
-  }
+  void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
 
   @action
-  void setEnableExchange(FiatApiMode value) {
-    _settingsStore.exchangeStatus = value;
-  }
+  void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
 
   @action
-  void toggleAddCustomNode() {
-    _addCustomNode = !_addCustomNode;
-  }
+  void toggleAddCustomNode() => _addCustomNode = !_addCustomNode;
 }
