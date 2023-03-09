@@ -1,12 +1,21 @@
 import 'dart:convert';
-import 'package:cake_wallet/anonpay/anonpay_invoice_view_data.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
+import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class AnonPayApi {
+  const AnonPayApi({
+    this.useTorOnly = false,
+    required this.wallet,
+  });
+  final bool useTorOnly;
+  final WalletBase wallet;
+
   static const anonpayRef = secrets.anonPayReferralCode;
   static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
   static const clearNetAuthority = 'trocador.app';
@@ -16,11 +25,10 @@ class AnonPayApi {
   static const coinPath = 'api/coin';
   static const apiKey = secrets.trocadorApiKey;
 
-  Future<AnonpayStatusData> paymentStatus(String id) async {
+  Future<AnonpayStatusResponse> paymentStatus(String id) async {
     final authority = await _getAuthority();
     final response = await get(Uri.https(authority, "$anonPayStatus/$id"));
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final transactionId = responseJSON['ID'] as String;
     final status = responseJSON['Status'] as String;
     final fiatAmount = responseJSON['Fiat_Amount'] as String;
     final fiatEquiv = responseJSON['Fiat_Equiv'] as String;
@@ -28,8 +36,7 @@ class AnonPayApi {
     final coinTo = responseJSON['CoinTo'] as String;
     final address = responseJSON['Address'] as String;
 
-    return AnonpayStatusData(
-      transactionId: transactionId,
+    return AnonpayStatusResponse(
       status: status,
       fiatAmount: fiatAmount,
       amountTo: amountTo,
@@ -39,7 +46,7 @@ class AnonPayApi {
     );
   }
 
-  Future<AnonpayInvoiceViewData> createInvoice(AnonPayRequest request) async {
+  Future<AnonpayInvoiceInfo> createInvoice(AnonPayRequest request) async {
     final description = Uri.encodeComponent(request.description);
     final body = <String, dynamic>{
       'ticker_to': request.cryptoCurrency.title.toLowerCase(),
@@ -66,15 +73,22 @@ class AnonPayApi {
     final statusUrl = responseJSON['status_url'] as String;
     final statusUrlOnion = responseJSON['status_url_onion'] as String;
 
-    final status = await paymentStatus(id);
+    final statusInfo = await paymentStatus(id);
 
-    return AnonpayInvoiceViewData(
+    return AnonpayInvoiceInfo(
       invoiceId: id,
       clearnetUrl: url,
       onionUrl: urlOnion,
-      statusData: status,
+      status: statusInfo.status,
+      fiatAmount: statusInfo.fiatAmount,
+      fiatEquiv: statusInfo.fiatEquiv,
+      amountTo: statusInfo.amountTo,
+      coinTo: statusInfo.coinTo,
+      address: statusInfo.address,
       clearnetStatusUrl: statusUrl,
       onionStatusUrl: statusUrlOnion,
+      walletId: wallet.id,
+      createdAt: DateTime.now(),
     );
   }
 
@@ -141,6 +155,9 @@ class AnonPayApi {
 
   Future<String> _getAuthority() async {
     try {
+      if (useTorOnly) {
+        return onionApiAuthority;
+      }
       final uri = Uri.https(onionApiAuthority, '/anonpay');
       await get(uri);
       return onionApiAuthority;

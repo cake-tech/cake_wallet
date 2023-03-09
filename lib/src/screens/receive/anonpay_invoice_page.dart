@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/email_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/anonpay/anonpay_invoice_view_data.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dart';
@@ -151,7 +151,7 @@ class AnonPayInvoicePage extends BasePage {
     reaction((_) => anonInvoicePageViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
         Navigator.pushNamed(context, Routes.anonPayReceivePage,
-            arguments: state.payload as AnonpayInvoiceViewData);
+            arguments: state.payload as AnonpayInvoiceInfo);
       }
     });
 

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -7,6 +8,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'anon_invoice_page_view_model.g.dart';
@@ -14,7 +16,8 @@ part 'anon_invoice_page_view_model.g.dart';
 class AnonInvoicePageViewModel = AnonInvoicePageViewModelBase with _$AnonInvoicePageViewModel;
 
 abstract class AnonInvoicePageViewModelBase with Store {
-  AnonInvoicePageViewModelBase(this.anonPayApi, this.address, this.settingsStore, this._wallet)
+  AnonInvoicePageViewModelBase(this.anonPayApi, this.address, this.settingsStore, this._wallet,
+      this._anonpayInvoiceInfoSource)
       : receipientEmail = '',
         receipientName = '',
         description = '',
@@ -30,6 +33,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
   final String address;
   final SettingsStore settingsStore;
   final WalletBase _wallet;
+  final Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
   @observable
   Currency selectedCurrency;
@@ -83,6 +87,9 @@ abstract class AnonInvoicePageViewModelBase with Store {
           ? (selectedCurrency as FiatCurrency).raw
           : settingsStore.fiatCurrency.raw,
     ));
+
+    _anonpayInvoiceInfoSource.add(result);
+
     state = ExecutedSuccessfullyState(payload: result);
   }
 

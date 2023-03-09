@@ -1,13 +1,14 @@
-import 'package:cake_wallet/anonpay/anonpay_invoice_view_data.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
-import 'package:cake_wallet/src/screens/receive/anon_invoice_page.dart';
-import 'package:cake_wallet/src/screens/receive/anon_pay_receive_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -519,9 +520,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: address));
     
     case Routes.anonPayReceivePage:
-        final anonInvoiceViewData = settings.arguments as AnonpayInvoiceViewData;
-
+        final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonInvoiceViewData));
+    
+    case Routes.anonPayDetailsPage:
+      final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonpayDetailsPage>(param1: anonInvoiceViewData));
       
     default:
       return MaterialPageRoute<void>(

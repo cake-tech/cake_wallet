@@ -1,4 +1,6 @@
+import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -62,6 +64,20 @@ class TransactionsPage extends StatelessWidget {
                                   ? '' : item.formattedFiatAmount,
                               isPending: transaction.isPending,
                               title: item.formattedTitle + item.formattedStatus));
+                        }
+
+                        if (item is AnonpayTransactionListItem) {
+                          final transactionInfo = item.transaction;
+
+                          return AnonpayTransactionRow(
+                              onTap: () => Navigator.of(context).pushNamed(
+                                  Routes.anonPayDetailsPage,
+                                  arguments: transactionInfo),
+                              coinTo: transactionInfo.coinTo,
+                              provider: transactionInfo.provider,
+                              amount: transactionInfo.amountTo.toString(),
+                              createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                          );
                         }
 
                         if (item is TradeListItem) {

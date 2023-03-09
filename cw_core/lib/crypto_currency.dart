@@ -166,6 +166,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       return acc;
     });
 
+  static final Map<String, CryptoCurrency> _fullNameCurrencyMap =
+    [...all, ...havenCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
+      if(item.fullName != null){
+        acc.addAll({item.fullName!: item});
+      }
+      return acc;
+    });
+
   static CryptoCurrency deserialize({required int raw}) {
 
     if (CryptoCurrency._rawCurrencyMap[raw] == null) {
@@ -183,6 +191,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     }
     return CryptoCurrency._nameCurrencyMap[name.toLowerCase()]!;
   }
+
+  static CryptoCurrency fromFullName(String name) {
+
+    if (CryptoCurrency._fullNameCurrencyMap[name] == null) {
+      final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
+      throw  ArgumentError.value(name, 'Fullname', s);
+    }
+    return CryptoCurrency._fullNameCurrencyMap[name]!;
+  }
+  
 
   @override
   String toString() => title;

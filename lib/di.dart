@@ -1,14 +1,16 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
-import 'package:cake_wallet/anonpay/anonpay_invoice_view_data.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
+import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
-import 'package:cake_wallet/src/screens/receive/anon_invoice_page.dart';
-import 'package:cake_wallet/src/screens/receive/anon_pay_receive_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -17,8 +19,10 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
+import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/address_page_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
@@ -182,6 +186,7 @@ late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo>? _unspentCoinsInfoSource;
+late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
 Future setup(
     {required Box<WalletInfo> walletInfoSource,
@@ -192,7 +197,9 @@ Future setup(
     required Box<ExchangeTemplate> exchangeTemplates,
     required Box<TransactionDescription> transactionDescriptionBox,
     required Box<Order> ordersSource,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource}) async {
+    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource
+    }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _contactSource = contactSource;
@@ -202,6 +209,7 @@ Future setup(
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
+  _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
@@ -246,6 +254,8 @@ Future setup(
       appStore: getIt.get<AppStore>(),
       secureStorage: getIt.get<FlutterSecureStorage>())
     ..init());
+  getIt.registerSingleton<AnonpayTransactionsStore>(AnonpayTransactionsStore(
+      anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
 
   final secretStore =
       await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
@@ -312,7 +322,9 @@ Future setup(
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
       settingsStore: settingsStore,
       yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>()));
+      ordersStore: getIt.get<OrdersStore>(),
+      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>())
+    );
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -369,7 +381,8 @@ Future setup(
   
   getIt.registerFactory<AddressPageViewModel>(() => AddressPageViewModel());
 
-  getIt.registerFactoryParam<AnonInvoicePageViewModel, String, void>((address, _) => AnonInvoicePageViewModel(getIt.get<AnonPayApi>(), address, getIt.get<SettingsStore>(),  getIt.get<AppStore>().wallet!));
+  getIt.registerFactoryParam<AnonInvoicePageViewModel, String, void>((address, _) => AnonInvoicePageViewModel(
+      getIt.get<AnonPayApi>(), address, getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, _anonpayInvoiceInfoSource));
 
   getIt.registerFactoryParam<AnonPayInvoicePage, String, void>((address, _) => AnonPayInvoicePage(
        getIt.get<AnonInvoicePageViewModel>(param1: address), getIt.get<AddressPageViewModel>()));  
@@ -835,10 +848,24 @@ Future setup(
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
   
-  getIt.registerFactory(() => AnonPayApi());
+  getIt.registerFactory(() => AnonPayApi(useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
+    wallet: getIt.get<AppStore>().wallet!) 
+  );
 
-  getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInvoiceViewData, void>(
-    (AnonpayInvoiceViewData viewData, _) => AnonPayReceivePage(invoiceViewData: viewData));
+  getIt.registerFactoryParam<AnonpayDetailsViewModel, AnonpayInvoiceInfo, void>(
+  (AnonpayInvoiceInfo anonpayInvoiceInfo, _)
+    => AnonpayDetailsViewModel(
+      anonPayApi: getIt.get<AnonPayApi>(),
+      anonpayInvoiceInfo: anonpayInvoiceInfo,
+      settingsStore: getIt.get<SettingsStore>(),
+     ));
+
+  getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInvoiceInfo, void>(
+    (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonPayReceivePage(invoiceInfo: anonpayInvoiceInfo));
+
+  getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
+    (AnonpayInvoiceInfo anonpayInvoiceInfo, _) 
+    => AnonpayDetailsPage(anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
 
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)

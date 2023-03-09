@@ -1,4 +1,4 @@
-import 'package:cake_wallet/anonpay/anonpay_invoice_view_data.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -14,9 +14,9 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 class AnonPayReceivePage extends BasePage {
-  final AnonpayInvoiceViewData invoiceViewData;
+  final AnonpayInvoiceInfo invoiceInfo;
 
-  AnonPayReceivePage({required this.invoiceViewData});
+  AnonPayReceivePage({required this.invoiceInfo});
 
   @override
   String get title => S.current.receive;
@@ -120,12 +120,12 @@ class AnonPayReceivePage extends BasePage {
                         children: [
                           SyncIndicatorIcon(
                             boolMode: false,
-                            value: invoiceViewData.statusData.status,
+                            value: invoiceInfo.status,
                             size: 6,
                           ),
                           SizedBox(width: 5),
                           Text(
-                            invoiceViewData.statusData.status,
+                            invoiceInfo.status,
                             style: textSmallSemiBold(
                               color: Theme.of(context).primaryTextTheme.headline6!.color,
                             ),
@@ -148,7 +148,7 @@ class AnonPayReceivePage extends BasePage {
                       ),
                     ),
                     Text(
-                      invoiceViewData.invoiceId,
+                      invoiceInfo.invoiceId,
                       style: textSmallSemiBold(
                         color: Theme.of(context).primaryTextTheme.headline6!.color,
                       ),
@@ -161,14 +161,14 @@ class AnonPayReceivePage extends BasePage {
           Padding(
             padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
             child: AnonQrWidget(
-                isLight: currentTheme.type == ThemeType.light, invoiceViewData: invoiceViewData),
+                isLight: currentTheme.type == ThemeType.light, anonpayInvoiceInfo: invoiceInfo),
           ),
           SizedBox(height: 24),
           Column(
             children: [
-              ShareLinkItem(url: invoiceViewData.clearnetUrl, title: 'Clearnet link'),
+              ShareLinkItem(url: invoiceInfo.clearnetUrl, title: 'Clearnet link'),
               SizedBox(height: 16),
-              ShareLinkItem(url: invoiceViewData.onionUrl, title: 'Onion link')
+              ShareLinkItem(url: invoiceInfo.onionUrl, title: 'Onion link')
             ],
           ),
           SizedBox(height: 100),
@@ -179,10 +179,10 @@ class AnonPayReceivePage extends BasePage {
 }
 
 class AnonQrWidget extends StatelessWidget {
-  const AnonQrWidget({super.key, required this.isLight, required this.invoiceViewData});
+  const AnonQrWidget({super.key, required this.isLight, required this.anonpayInvoiceInfo});
 
   final bool isLight;
-  final AnonpayInvoiceViewData invoiceViewData;
+  final AnonpayInvoiceInfo anonpayInvoiceInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +217,7 @@ class AnonQrWidget extends StatelessWidget {
                     context,
                     Routes.fullscreenQR,
                     arguments: {
-                      'qrData': invoiceViewData.clearnetUrl,
+                      'qrData': anonpayInvoiceInfo.clearnetUrl,
                       'isLight': isLight,
                     },
                   );
@@ -225,7 +225,7 @@ class AnonQrWidget extends StatelessWidget {
                   DeviceDisplayBrightness.setBrightness(brightness);
                 },
                 child: Hero(
-                  tag: Key(invoiceViewData.clearnetUrl),
+                  tag: Key(anonpayInvoiceInfo.clearnetUrl),
                   child: Center(
                     child: AspectRatio(
                       aspectRatio: 1.0,
@@ -237,7 +237,7 @@ class AnonQrWidget extends StatelessWidget {
                             color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                           ),
                         ),
-                        child: QrImage(data: invoiceViewData.clearnetUrl),
+                        child: QrImage(data: anonpayInvoiceInfo.clearnetUrl),
                       ),
                     ),
                   ),
