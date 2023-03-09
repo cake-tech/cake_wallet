@@ -615,6 +615,10 @@ abstract class ExchangeViewModelBase with Store {
         depositCurrency = CryptoCurrency.xhv;
         receiveCurrency = CryptoCurrency.btc;
         break;
+      case WalletType.ethereum:
+        depositCurrency = CryptoCurrency.eth;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       default:
         break;
     }

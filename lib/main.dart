@@ -139,7 +139,7 @@ Future<void> main() async {
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 19);
+        initialMigrationVersion: 21);
     runApp(App());
   }, (error, stackTrace) async {
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
