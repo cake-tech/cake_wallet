@@ -25,7 +25,7 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
       .get<SharedPreferences>()
       .getString(PreferencesKey.currentWalletName);
   if (currentWalletName != null) {
-    authenticationStore.state = AuthenticationState.installed;
+    authenticationStore.installed();
   }
 
   startAuthenticationStateChange(authenticationStore, navigatorKey);
