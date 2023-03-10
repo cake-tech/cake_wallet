@@ -515,10 +515,15 @@ Future setup(
         _nodeSource,
         type ?? getIt.get<AppStore>().wallet!.type,
         getIt.get<SettingsStore>(),
+        getIt.get<NodeListViewModel>()
     ));
 
-  getIt.registerFactory(
-      () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
+  getIt.registerFactoryParam<NodeCreateOrEditPage, List<dynamic>?, void>((List<dynamic>? args, _) {
+    final node = args?.first as Node?;
+    final isSelected = args?[1] as bool?;
+    return NodeCreateOrEditPage(nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(),
+        editingNode: node, isSelected: isSelected);
+  });
 
   getIt.registerFactory(() => OnRamperPage(
     settingsStore: getIt.get<AppStore>().settingsStore,
@@ -796,7 +801,7 @@ Future setup(
     return IoniaMoreOptionsPage(giftCard);
   });
 
-  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) 
+  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _)
     => IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _){

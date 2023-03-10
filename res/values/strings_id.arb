@@ -666,5 +666,6 @@
   "unmatched_currencies": "Mata uang dompet Anda saat ini tidak cocok dengan yang ditandai QR",
   "orbot_running_alert": "Pastikan Orbot sedang berjalan sebelum menghubungkan ke node ini.",
   "contact_list_contacts": "Kontak",
-  "contact_list_wallets": "Dompet Saya"
+  "contact_list_wallets": "Dompet Saya",
+  "edit_node": "Sunting Node"
 }

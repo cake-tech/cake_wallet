@@ -90,12 +90,12 @@ class ConnectionSyncPage extends BasePage {
 
                     final dismissibleRow = Slidable(
                       key: Key('${node.keyIndex}'),
-                      startActionPane: _actionPane(context, node),
-                      endActionPane: _actionPane(context, node),
+                      startActionPane: _actionPane(context, node, isSelected),
+                      endActionPane: _actionPane(context, node, isSelected),
                       child: nodeListRow,
                     );
 
-                    return isSelected ? nodeListRow : dismissibleRow;
+                    return dismissibleRow;
                   },
                 ),
               );
@@ -124,10 +124,11 @@ class ConnectionSyncPage extends BasePage {
     );
   }
 
-  ActionPane _actionPane(BuildContext context, Node node) => ActionPane(
+  ActionPane _actionPane(BuildContext context, Node node, bool isSelected) => ActionPane(
         motion: const ScrollMotion(),
         extentRatio: 0.3,
         children: [
+          if (!isSelected)
           SlidableAction(
             onPressed: (context) async {
               final confirmed = await showPopUp<bool>(
@@ -151,6 +152,15 @@ class ConnectionSyncPage extends BasePage {
             foregroundColor: Colors.white,
             icon: CupertinoIcons.delete,
             label: S.of(context).delete,
+          ),
+          SlidableAction(
+            onPressed: (_) => Navigator.of(context).pushNamed(
+                Routes.newNode,
+                arguments: [node, isSelected]),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            icon: Icons.edit,
+            label: S.of(context).edit,
           ),
         ],
       );

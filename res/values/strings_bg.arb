@@ -684,5 +684,6 @@
   "send_to_this_address" : "Send ${currency} ${tag}to this address",
   "arrive_in_this_address" : "${currency} ${tag}ще отидат на този адрес",
   "do_not_send": "Не изпращай",
-  "error_dialog_content": "Получихме грешка.\n\nМоля, изпратете доклада до нашия отдел поддръжка, за да подобрим приложението."
+  "error_dialog_content": "Получихме грешка.\n\nМоля, изпратете доклада до нашия отдел поддръжка, за да подобрим приложението.",
+  "edit_node": "Редактиране на възел"
 }

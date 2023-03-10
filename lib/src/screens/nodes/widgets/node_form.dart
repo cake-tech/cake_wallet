@@ -3,6 +3,8 @@ import 'package:cake_wallet/core/node_port_validator.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_haven/api/signatures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -12,21 +14,40 @@ class NodeForm extends StatelessWidget {
   NodeForm({
     required this.nodeViewModel,
     required this.formKey,
-  })  : _addressController = TextEditingController(),
-        _portController = TextEditingController(),
-        _loginController = TextEditingController(),
-        _passwordController = TextEditingController() {
-    reaction((_) => nodeViewModel.address, (String address) {
-      if (address != _addressController.text) {
-        _addressController.text = address;
-      }
-    });
+    this.editingNode,
+  })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
+        _portController = TextEditingController(text: editingNode?.uri.port.toString()),
+        _loginController = TextEditingController(text: editingNode?.login),
+        _passwordController = TextEditingController(text: editingNode?.password) {
+    final address = editingNode?.uri.host;
+    if (address != null) {
+      nodeViewModel.setAddress(address.toString());
 
-    reaction((_) => nodeViewModel.port, (String port) {
-      if (port != _portController.text) {
-        _portController.text = port;
+      final port = editingNode?.uri.port;
+      if (port != null) {
+        nodeViewModel.setPort(port.toString());
       }
-    });
+    }
+
+    final password = editingNode?.password;
+    if (password != null) {
+      nodeViewModel.setPassword(password.toString());
+
+      final login = editingNode?.login;
+      if (login != null) {
+        nodeViewModel.setLogin(login.toString());
+      }
+    }
+
+    final isSSl = editingNode?.isSSL;
+    if (isSSl != null) {
+      nodeViewModel.setSSL(isSSl);
+    }
+
+    final isTrusted = editingNode?.trusted;
+    if (isTrusted != null) {
+      nodeViewModel.setTrusted(isTrusted);
+    }
 
     if (nodeViewModel.hasAuthCredentials) {
       reaction((_) => nodeViewModel.login, (String login) {
@@ -51,9 +72,9 @@ class NodeForm extends StatelessWidget {
     _passwordController
         .addListener(() => nodeViewModel.password = _passwordController.text);
   }
-
   final NodeCreateOrEditViewModel nodeViewModel;
   final GlobalKey<FormState> formKey;
+  final Node? editingNode;
 
   final TextEditingController _addressController;
   final TextEditingController _portController;
