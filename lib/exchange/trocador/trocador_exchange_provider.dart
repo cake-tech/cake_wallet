@@ -219,9 +219,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       final responseJSON = responseListJson.first;
       final id = responseJSON['trade_id'] as String;
-      final inputAddress = responseJSON['address_user'] as String;
+      final payoutAddress = responseJSON['address_user'] as String;
       final refundAddress = responseJSON['refund_address'] as String;
-      final payoutAddress = responseJSON['address_provider'] as String;
+      final inputAddress = responseJSON['address_provider'] as String;
       final fromAmount = responseJSON['amount_from']?.toString() ?? '0';
       final from = CryptoCurrency.fromString(responseJSON['ticker_from'] as String);
       final to = CryptoCurrency.fromString(responseJSON['ticker_to'] as String);
