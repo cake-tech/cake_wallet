@@ -85,9 +85,9 @@ abstract class WalletKeysViewModelBase with Store {
     }
   }
 
-  String get restoreHeight {
+  String? get restoreHeight {
     if (_currentHeight == null) {
-      return '';
+      return null;
     }
     if (_restoreHeight != 0) {
       return _restoreHeight.toString();
@@ -95,7 +95,10 @@ abstract class WalletKeysViewModelBase with Store {
     return ((_currentHeight! / 1000).floor() * 1000).toString();
   }
 
-  Map<String, String> get _queryParams => {'seed': _wallet.seed, 'height': restoreHeight};
+  Map<String, String> get _queryParams => {
+        'seed': _wallet.seed,
+        if (restoreHeight != null) ...{'height': restoreHeight!}
+      };
 
   Uri get url {
     return Uri(
