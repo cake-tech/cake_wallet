@@ -516,8 +516,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           ));
     
     case Routes.anonPayInvoicePage:
-      final address = settings.arguments as String;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: address));
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
     
     case Routes.anonPayReceivePage:
         final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;

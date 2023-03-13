@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/address_page_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -21,12 +21,12 @@ class AddressPage extends BasePage {
   AddressPage({
     required this.addressListViewModel,
     required this.walletViewModel,
-    required this.addressPageViewModel,
+    required this.receiveOptionViewModel,
   }) : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
   final DashboardViewModel walletViewModel;
-  final AddressPageViewModel addressPageViewModel;
+  final ReceiveOptionViewModel receiveOptionViewModel;
 
   final FocusNode _cryptoAmountFocus;
 
@@ -68,7 +68,7 @@ class AddressPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) =>
-      PresentFeePicker(addressPageViewModel: addressPageViewModel);
+      PresentFeePicker(receiveOptionViewModel: receiveOptionViewModel);
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
@@ -83,27 +83,28 @@ class AddressPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    final shareImage =
-    Image.asset('assets/images/share.png',
+    final shareImage = Image.asset('assets/images/share.png',
         color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
 
-    return !addressListViewModel.hasAddressList ? Material(
-      color: Colors.transparent,
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        constraints: BoxConstraints(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        iconSize: 25,
-        onPressed: () {
-          ShareUtil.share(
-            text: addressListViewModel.address.address,
-            context: context,
-          );
-        },
-        icon: shareImage,
-      ),
-    ) : null;
+    return !addressListViewModel.hasAddressList
+        ? Material(
+            color: Colors.transparent,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              iconSize: 25,
+              onPressed: () {
+                ShareUtil.share(
+                  text: addressListViewModel.address.address,
+                  context: context,
+                );
+              },
+              icon: shareImage,
+            ),
+          )
+        : null;
   }
 
   @override
@@ -119,19 +120,19 @@ class AddressPage extends BasePage {
       await Future<void>.delayed(Duration(seconds: 1));
       if (context.mounted) {
         await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithTwoActions(
-                alertTitle: S.of(context).pre_seed_title,
-                alertContent: S.of(context).outdated_electrum_wallet_receive_warning,
-                leftButtonText: S.of(context).understand,
-                actionLeftButton: () => Navigator.of(context).pop(),
-                rightButtonText: S.of(context).do_not_show_me,
-                actionRightButton: () {
-                  walletViewModel.settingsStore.setShouldShowReceiveWarning(false);
-                  Navigator.of(context).pop();
-                });
-          });
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).pre_seed_title,
+                  alertContent: S.of(context).outdated_electrum_wallet_receive_warning,
+                  leftButtonText: S.of(context).understand,
+                  actionLeftButton: () => Navigator.of(context).pop(),
+                  rightButtonText: S.of(context).do_not_show_me,
+                  actionRightButton: () {
+                    walletViewModel.settingsStore.setShouldShowReceiveWarning(false);
+                    Navigator.of(context).pop();
+                  });
+            });
       }
     });
 
@@ -159,6 +160,7 @@ class AddressPage extends BasePage {
                           addressListViewModel: addressListViewModel,
                           amountTextFieldFocusNode: _cryptoAmountFocus,
                           isAmountFieldShow: !addressListViewModel.hasAccounts,
+                          urlString: addressListViewModel.uri.toString(),
                           isLight:
                               walletViewModel.settingsStore.currentTheme.type == ThemeType.light))),
               Observer(builder: (_) {
@@ -217,18 +219,18 @@ class AddressPage extends BasePage {
       return;
     }
 
-    reaction((_) => addressPageViewModel.selectedReceiveOption, (ReceivePageOption option) {
+    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
       switch (option) {
         case ReceivePageOption.mainnet:
           Navigator.pop(context);
           break;
         case ReceivePageOption.anonPayInvoice:
+        case ReceivePageOption.anonPayDonationLink:
           Navigator.pop(context);
-
           Navigator.pushReplacementNamed(
             context,
             Routes.anonPayInvoicePage,
-            arguments: addressListViewModel.address.address,
+            arguments: [addressListViewModel.address.address, option],
           );
           break;
         default:

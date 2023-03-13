@@ -73,10 +73,10 @@ class TransactionsPage extends StatelessWidget {
                               onTap: () => Navigator.of(context).pushNamed(
                                   Routes.anonPayDetailsPage,
                                   arguments: transactionInfo),
-                              coinTo: transactionInfo.coinTo,
+                              coinTo: transactionInfo.coinTo ?? '',
                               provider: transactionInfo.provider,
                               amount: transactionInfo.amountTo.toString(),
-                              createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                              createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt ?? DateTime.now()),
                           );
                         }
 

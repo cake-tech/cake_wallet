@@ -7,5 +7,5 @@ class AnonpayTransactionListItem extends ActionListItem {
   final AnonpayInvoiceInfo transaction;
 
   @override
-  DateTime get date => transaction.createdAt;
+  DateTime get date => transaction.createdAt ?? DateTime.now();
 }

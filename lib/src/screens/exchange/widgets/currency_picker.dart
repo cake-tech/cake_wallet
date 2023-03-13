@@ -53,9 +53,9 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   void currencySearchBySubstring(String subString) {
     setState(() {
       if (subString.isNotEmpty) {
-        subPickerItemsList = items.whereType<CryptoCurrency>()
+        subPickerItemsList = items
             .where((element) =>
-        (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
+        element.name.toLowerCase().contains(subString.toLowerCase()) ||
             (element.tag != null ? element.tag!.toLowerCase().contains(subString.toLowerCase()) : false) ||
             (element.fullName != null ? element.fullName!.toLowerCase().contains(subString.toLowerCase()) : false))
             .toList();
@@ -141,7 +141,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                               aspectRatio: 6,
                               child: PickerItemWidget(
                                 title: items[widget.selectedAtIndex].name,
-                                iconPath: items[widget.selectedAtIndex].icon,
+                                iconImage:Image.asset(
+                                  items[widget.selectedAtIndex].icon,
+                                  width: 20,
+                                  height: 20,
+                                ),
                                 isSelected: true,
                                 tag: items[widget.selectedAtIndex].tag,
                               ),

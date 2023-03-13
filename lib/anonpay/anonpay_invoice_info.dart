@@ -7,31 +7,31 @@ part 'anonpay_invoice_info.g.dart';
 @HiveType(typeId: AnonpayInvoiceInfo.typeId)
 class AnonpayInvoiceInfo extends HiveObject with Keyable {
   @HiveField(0)
-  String invoiceId;
+  String? invoiceId;
   @HiveField(1)
-  String status;
+  String? status;
   @HiveField(2)
-  String fiatAmount;
+  String? fiatAmount;
   @HiveField(3)
   String? fiatEquiv;
   @HiveField(4)
-  double amountTo;
+  double? amountTo;
   @HiveField(5)
-  String coinTo;
+  String? coinTo;
   @HiveField(6)
-  String address;
+  String? address;
   @HiveField(7)
   String clearnetUrl;
   @HiveField(8)
   String onionUrl;
   @HiveField(9)
-  String clearnetStatusUrl;
+  String? clearnetStatusUrl;
   @HiveField(10)
-  String onionStatusUrl;
+  String? onionStatusUrl;
   @HiveField(11)
-  DateTime createdAt;
+  DateTime? createdAt;
   @HiveField(12)
-  String walletId;
+  String? walletId;
   @HiveField(13, defaultValue: 0)
   late int providerRaw;
 
@@ -42,19 +42,19 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable {
   static const boxName = 'AnonpayInvoiceInfo';
 
   AnonpayInvoiceInfo({
-    required this.invoiceId,
+    this.invoiceId,
     required this.clearnetUrl,
     required this.onionUrl,
-    required this.clearnetStatusUrl,
-    required this.onionStatusUrl,
-    required this.status,
-    required this.fiatAmount,
+    this.clearnetStatusUrl,
+    this.onionStatusUrl,
+    this.status,
+    this.fiatAmount,
     this.fiatEquiv,
-    required this.amountTo,
-    required this.coinTo,
-    required this.address,
-    required this.createdAt,
-    required this.walletId,
+    this.amountTo,
+    this.coinTo,
+    this.address,
+    this.createdAt,
+    this.walletId,
     AnonpayProviderDescription? provider,
   }) {
     if (provider != null) {

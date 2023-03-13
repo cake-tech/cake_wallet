@@ -3,6 +3,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
@@ -23,7 +24,7 @@ import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/address_page_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
@@ -379,20 +380,26 @@ Future setup(
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   
-  getIt.registerFactory<AddressPageViewModel>(() => AddressPageViewModel());
+  getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption, void>((pageOption, _) => ReceiveOptionViewModel(
+      getIt.get<AppStore>().wallet!, pageOption));
 
   getIt.registerFactoryParam<AnonInvoicePageViewModel, String, void>((address, _) => AnonInvoicePageViewModel(
-      getIt.get<AnonPayApi>(), address, getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, _anonpayInvoiceInfoSource));
+      getIt.get<AnonPayApi>(), address, getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, _anonpayInvoiceInfoSource, getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactoryParam<AnonPayInvoicePage, String, void>((address, _) => AnonPayInvoicePage(
-       getIt.get<AnonInvoicePageViewModel>(param1: address), getIt.get<AddressPageViewModel>()));  
+  getIt.registerFactoryParam<AnonPayInvoicePage, List<dynamic>, void>((List<dynamic> args, _) { 
+    final address = args.first as String;
+    final pageOption = args.last as ReceivePageOption;
+    return AnonPayInvoicePage(
+       getIt.get<AnonInvoicePageViewModel>(param1: address), 
+       getIt.get<ReceiveOptionViewModel>(param1: pageOption));
+    });  
   
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<AddressPage>(() => AddressPage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       walletViewModel: getIt.get<DashboardViewModel>(),
-      addressPageViewModel: getIt.get<AddressPageViewModel>()));
+      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: ReceivePageOption.mainnet)));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) => WalletAddressEditOrCreateViewModel(

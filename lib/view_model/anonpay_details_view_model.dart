@@ -46,7 +46,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
   @action
   Future<void> _updateInvoiceDetail() async {
     try {
-      final data = await anonPayApi.paymentStatus(invoiceDetail.invoiceId);
+      final data = await anonPayApi.paymentStatus(invoiceDetail.invoiceId ?? '');
       invoiceDetail.status = data.status;
       _updateItems();
     } catch (e) {
@@ -58,12 +58,12 @@ abstract class AnonpayDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal();
     items.clear();
     items.addAll([
-      DetailsListStatusItem(title: 'Status', value: invoiceDetail.status),
+      DetailsListStatusItem(title: 'Status', value: invoiceDetail.status ?? ''),
       TradeDetailsListCardItem(
-        id: invoiceDetail.invoiceId,
-        createdAt: dateFormat.format(invoiceDetail.createdAt).toString(),
+        id: invoiceDetail.invoiceId ?? '',
+        createdAt: dateFormat.format(invoiceDetail.createdAt ?? DateTime.now()).toString(),
         pair:
-            '→ ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo).name}',
+            '→ ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo ?? '').name}',
         onTap: (BuildContext context) {
           Clipboard.setData(ClipboardData(text: '${invoiceDetail.invoiceId}'));
           showBar<void>(context, S.of(context).copied_to_clipboard);
@@ -74,7 +74,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
 
     items.add(TrackTradeListItem(
         title: 'Track',
-        value: invoiceDetail.clearnetStatusUrl,
-        onTap: () => launchUrlString(invoiceDetail.clearnetStatusUrl)));
+        value: invoiceDetail.clearnetStatusUrl ?? '',
+        onTap: () => launchUrlString(invoiceDetail.clearnetStatusUrl ?? '')));
   }
 }

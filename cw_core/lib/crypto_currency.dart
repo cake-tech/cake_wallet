@@ -18,7 +18,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   String get icon => iconPath ?? '';
-
+  
   static const all = [
     CryptoCurrency.xmr,
     CryptoCurrency.ada,

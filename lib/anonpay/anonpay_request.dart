@@ -4,18 +4,18 @@ class AnonPayRequest {
   CryptoCurrency cryptoCurrency;
   String address;
   String name;
-  String amount;
+  String? amount;
   String email;
   String description;
-  String fiatEquivalent;
+  String? fiatEquivalent;
 
   AnonPayRequest({
     required this.cryptoCurrency,
     required this.address,
     required this.name,
     required this.email,
-    required this.amount,
+    this.amount,
     required this.description,
-    required this.fiatEquivalent,
+    this.fiatEquivalent,
   });
 }

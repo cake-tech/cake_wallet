@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/anonpay/anonpay_provider_description.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -30,8 +31,8 @@ class AnonPayApi {
     final response = await get(Uri.https(authority, "$anonPayStatus/$id"));
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final status = responseJSON['Status'] as String;
-    final fiatAmount = responseJSON['Fiat_Amount'] as String;
-    final fiatEquiv = responseJSON['Fiat_Equiv'] as String;
+    final fiatAmount = responseJSON['Fiat_Amount'] as String?;
+    final fiatEquiv = responseJSON['Fiat_Equiv'] as String?;
     final amountTo = responseJSON['AmountTo'] as double;
     final coinTo = responseJSON['CoinTo'] as String;
     final address = responseJSON['Address'] as String;
@@ -52,16 +53,20 @@ class AnonPayApi {
       'ticker_to': request.cryptoCurrency.title.toLowerCase(),
       'network_to': _networkFor(request.cryptoCurrency),
       'address': request.address,
-      'amount': request.amount,
       'name': request.name,
       'description': description,
       'email': request.email,
       'ref': anonpayRef,
-      'fiat_equiv': request.fiatEquivalent,
       'markup': markup,
       'direct': 'False',
     };
 
+    if (request.amount != null) {
+      body['amount'] = request.amount;
+    }
+    if (request.fiatEquivalent != null) {
+      body['fiat_equiv'] = request.fiatEquivalent;
+    }
     final authority = await _getAuthority();
 
     final response = await get(Uri.https(authority, anonPayPath, body));
@@ -89,7 +94,29 @@ class AnonPayApi {
       onionStatusUrl: statusUrlOnion,
       walletId: wallet.id,
       createdAt: DateTime.now(),
+      provider: AnonpayProviderDescription.anonpayInvoice,
     );
+  }
+
+  Future<AnonpayInvoiceInfo> generateDonationLink(AnonPayRequest request) async {
+    final description = Uri.encodeComponent(request.description);
+    final body = <String, dynamic>{
+      'ticker_to': request.cryptoCurrency.title.toLowerCase(),
+      'network_to': _networkFor(request.cryptoCurrency),
+      'address': request.address,
+      'name': request.name,
+      'description': description,
+      'email': request.email,
+      'ref': anonpayRef,
+      'direct': 'True',
+    };
+
+    final clearnetUrl = Uri.https(clearNetAuthority, anonPayPath, body);
+    final onionUrl = Uri.https(onionApiAuthority, anonPayPath, body);
+    return AnonpayInvoiceInfo(
+        clearnetUrl: clearnetUrl.toString(),
+        onionUrl: onionUrl.toString(),
+        provider: AnonpayProviderDescription.anonpayDonationLink);
   }
 
   Future<Limits> fetchLimits({

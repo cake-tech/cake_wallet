@@ -2,7 +2,9 @@ import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
@@ -16,9 +18,14 @@ part 'anon_invoice_page_view_model.g.dart';
 class AnonInvoicePageViewModel = AnonInvoicePageViewModelBase with _$AnonInvoicePageViewModel;
 
 abstract class AnonInvoicePageViewModelBase with Store {
-  AnonInvoicePageViewModelBase(this.anonPayApi, this.address, this.settingsStore, this._wallet,
-      this._anonpayInvoiceInfoSource)
-      : receipientEmail = '',
+  AnonInvoicePageViewModelBase(
+    this.anonPayApi,
+    this.address,
+    this.settingsStore,
+    this._wallet,
+    this._anonpayInvoiceInfoSource,
+    this._fiatConversationStore,
+  )   : receipientEmail = '',
         receipientName = '',
         description = '',
         amount = '',
@@ -34,6 +41,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
   final SettingsStore settingsStore;
   final WalletBase _wallet;
   final Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
+  final FiatConversionStore _fiatConversationStore;
 
   @observable
   Currency selectedCurrency;
@@ -67,28 +75,54 @@ abstract class AnonInvoicePageViewModelBase with Store {
   @action
   void selectCurrency(Currency currency) {
     selectedCurrency = currency;
+    maximum = minimum = null;
     if (currency is CryptoCurrency) {
       cryptoCurrency = currency;
-      _fetchLimits();
     }
+    _fetchLimits();
   }
 
   @action
   Future<void> createInvoice() async {
     state = IsExecutingState();
+    if (amount.isNotEmpty) {
+      final amountInCrypto = double.parse(amount);
+      if (minimum != null && amountInCrypto < minimum!) {
+        state = FailureState('Amount is too small');
+        return;
+      }
+      if (maximum != null && amountInCrypto > maximum!) {
+        state = FailureState('Amount is too big');
+        return;
+      }
+    }
     final result = await anonPayApi.createInvoice(AnonPayRequest(
       cryptoCurrency: cryptoCurrency,
       address: address,
-      amount: amount,
+      amount: amount.isEmpty ? null : amount,
       description: description,
       email: receipientEmail,
       name: receipientName,
-      fiatEquivalent: selectedCurrency is FiatCurrency
-          ? (selectedCurrency as FiatCurrency).raw
-          : settingsStore.fiatCurrency.raw,
+      fiatEquivalent:
+          selectedCurrency is FiatCurrency ? (selectedCurrency as FiatCurrency).raw : null,
     ));
 
     _anonpayInvoiceInfoSource.add(result);
+
+    state = ExecutedSuccessfullyState(payload: result);
+  }
+
+  @action
+  Future<void> generateDonationLink() async {
+    state = IsExecutingState();
+
+    final result = await anonPayApi.generateDonationLink(AnonPayRequest(
+      cryptoCurrency: cryptoCurrency,
+      address: address,
+      description: description,
+      email: receipientEmail,
+      name: receipientName,
+    ));
 
     state = ExecutedSuccessfullyState(payload: result);
   }
@@ -97,6 +131,15 @@ abstract class AnonInvoicePageViewModelBase with Store {
     final limit = await anonPayApi.fetchLimits(currency: cryptoCurrency);
     minimum = limit.min;
     maximum = limit.max != null ? limit.max! / 4 : null;
+    if (selectedCurrency is FiatCurrency) {
+      final fiatPrice = _fiatConversationStore.prices[cryptoCurrency];
+      maximum = maximum != null
+          ? double.tryParse(calculateFiatAmount(price: fiatPrice, cryptoAmount: maximum.toString()))
+          : null;
+      minimum = minimum != null
+          ? double.tryParse(calculateFiatAmount(price: fiatPrice, cryptoAmount: minimum.toString()))
+          : null;
+    }
   }
 
   @action

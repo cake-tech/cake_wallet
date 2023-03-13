@@ -1,7 +1,5 @@
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'picker_item.dart';
 import 'currency_picker_item_widget.dart';
 
 class CurrencyPickerWidget extends StatelessWidget {
@@ -41,7 +39,9 @@ class CurrencyPickerWidget extends StatelessWidget {
                   pickListItem(index);
                 },
                 title: pickerItemsList[index].name,
-                iconPath: pickerItemsList[index].icon,
+                iconImage: Image.asset(pickerItemsList[index].icon,
+                  width: 20, height: 20
+                ),
                 tag: pickerItemsList[index].tag,
               );
             }),

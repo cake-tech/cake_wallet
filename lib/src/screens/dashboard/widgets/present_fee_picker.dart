@@ -3,15 +3,15 @@ import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/address_page_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class PresentFeePicker extends StatelessWidget {
-  PresentFeePicker({required this.addressPageViewModel});
+  PresentFeePicker({required this.receiveOptionViewModel});
 
-  final AddressPageViewModel addressPageViewModel;
+  final ReceiveOptionViewModel receiveOptionViewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class PresentFeePicker extends StatelessWidget {
                       color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
                 ),
                 Observer(
-                    builder: (_) => Text(addressPageViewModel.selectedReceiveOption.toString(),
+                    builder: (_) => Text(receiveOptionViewModel.selectedReceiveOption.toString(),
                         style: TextStyle(
                             fontSize: 10.0,
                             fontWeight: FontWeight.w500,
@@ -82,15 +82,15 @@ class PresentFeePicker extends StatelessWidget {
                           child: (ListView.separated(
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
-                            itemCount: addressPageViewModel.options.length,
+                            itemCount: receiveOptionViewModel.options.length,
                             itemBuilder: (_, index) {
-                              final option = addressPageViewModel.options[index];
+                              final option = receiveOptionViewModel.options[index];
                               return InkWell(
-                                onTap: () => addressPageViewModel.selectReceiveOption(option),
+                                onTap: () => receiveOptionViewModel.selectReceiveOption(option),
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 24, right: 24),
                                   child: Observer(builder: (_) {
-                                    final value = addressPageViewModel.selectedReceiveOption;
+                                    final value = receiveOptionViewModel.selectedReceiveOption;
 
                                     return Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

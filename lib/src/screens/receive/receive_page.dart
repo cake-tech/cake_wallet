@@ -133,6 +133,7 @@ class ReceivePage extends BasePage {
                 child: QRWidget(
                     addressListViewModel: addressListViewModel,
                     isAmountFieldShow: true,
+                    urlString: addressListViewModel.uri.toString(),
                     amountTextFieldFocusNode: _cryptoAmountFocus,
                     isLight: currentTheme.type == ThemeType.light),
               ),
@@ -223,6 +224,7 @@ class ReceivePage extends BasePage {
             child: QRWidget(
                 addressListViewModel: addressListViewModel,
                 isAmountFieldShow: true,
+                urlString: addressListViewModel.uri.toString(),
                 amountTextFieldFocusNode: _cryptoAmountFocus,
                 isLight: currentTheme.type == ThemeType.light),
           ),
