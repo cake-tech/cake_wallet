@@ -518,12 +518,11 @@ Future setup(
         getIt.get<NodeListViewModel>()
     ));
 
-  getIt.registerFactoryParam<NodeCreateOrEditPage, List<dynamic>?, void>((List<dynamic>? args, _) {
-    final node = args?.first as Node?;
-    final isSelected = args?[1] as bool?;
-    return NodeCreateOrEditPage(nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(),
-        editingNode: node, isSelected: isSelected);
-  });
+  getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
+          (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
+          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(),
+          editingNode: editingNode,
+          isSelected: isSelected));
 
   getIt.registerFactory(() => OnRamperPage(
     settingsStore: getIt.get<AppStore>().settingsStore,

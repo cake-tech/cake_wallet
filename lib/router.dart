@@ -308,9 +308,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<OtherSettingsPage>());
     
     case Routes.newNode:
-      final args = settings.arguments as List<dynamic>?;
+      final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeCreateOrEditPage>(param1: args));
+          builder: (_) => getIt.get<NodeCreateOrEditPage>(
+            param1: args?['editingNode'] as Node?,
+            param2: args?['isSelected'] as bool?));
 
     case Routes.login:
       return CupertinoPageRoute<void>(

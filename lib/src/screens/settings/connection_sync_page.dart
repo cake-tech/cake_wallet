@@ -128,34 +128,33 @@ class ConnectionSyncPage extends BasePage {
         extentRatio: isSelected ? 0.3 : 0.6,
         children: [
           if (!isSelected)
-          SlidableAction(
-            onPressed: (context) async {
-              final confirmed = await showPopUp<bool>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertWithTwoActions(
-                            alertTitle: S.of(context).remove_node,
-                            alertContent: S.of(context).remove_node_message,
-                            rightButtonText: S.of(context).remove,
-                            leftButtonText: S.of(context).cancel,
-                            actionRightButton: () => Navigator.pop(context, true),
-                            actionLeftButton: () => Navigator.pop(context, false));
-                      }) ??
-                  false;
+            SlidableAction(
+              onPressed: (context) async {
+                final confirmed = await showPopUp<bool>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertWithTwoActions(
+                              alertTitle: S.of(context).remove_node,
+                              alertContent: S.of(context).remove_node_message,
+                              rightButtonText: S.of(context).remove,
+                              leftButtonText: S.of(context).cancel,
+                              actionRightButton: () => Navigator.pop(context, true),
+                              actionLeftButton: () => Navigator.pop(context, false));
+                        }) ??
+                    false;
 
-              if (confirmed) {
-                await nodeListViewModel.delete(node);
-              }
-            },
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
-          ),
+                if (confirmed) {
+                  await nodeListViewModel.delete(node);
+                }
+              },
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: CupertinoIcons.delete,
+              label: S.of(context).delete,
+            ),
           SlidableAction(
-            onPressed: (_) => Navigator.of(context).pushNamed(
-                Routes.newNode,
-                arguments: [node, isSelected]),
+            onPressed: (_) => Navigator.of(context).pushNamed(Routes.newNode,
+                arguments: {'editingNode': node, 'isSelected': isSelected}),
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
             icon: Icons.edit,

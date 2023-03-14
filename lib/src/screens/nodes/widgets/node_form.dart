@@ -19,36 +19,15 @@ class NodeForm extends StatelessWidget {
         _portController = TextEditingController(text: editingNode?.uri.port.toString()),
         _loginController = TextEditingController(text: editingNode?.login),
         _passwordController = TextEditingController(text: editingNode?.password) {
-    final address = editingNode?.uri.host;
-    if (address != null) {
-      nodeViewModel.setAddress(address.toString());
-
-      final port = editingNode?.uri.port;
-      if (port != null) {
-        nodeViewModel.setPort(port.toString());
-      }
+    if (editingNode != null) {
+      nodeViewModel
+        ..setAddress((editingNode!.uri.host.toString()))
+        ..setPort((editingNode!.uri.port.toString()))
+        ..setPassword((editingNode!.password.toString()))
+        ..setLogin((editingNode!.login.toString()))
+        ..setSSL((editingNode!.isSSL))
+        ..setTrusted((editingNode!.trusted));
     }
-
-    final password = editingNode?.password;
-    if (password != null) {
-      nodeViewModel.setPassword(password.toString());
-
-      final login = editingNode?.login;
-      if (login != null) {
-        nodeViewModel.setLogin(login.toString());
-      }
-    }
-
-    final isSSl = editingNode?.isSSL;
-    if (isSSl != null) {
-      nodeViewModel.setSSL(isSSl);
-    }
-
-    final isTrusted = editingNode?.trusted;
-    if (isTrusted != null) {
-      nodeViewModel.setTrusted(isTrusted);
-    }
-
     if (nodeViewModel.hasAuthCredentials) {
       reaction((_) => nodeViewModel.login, (String login) {
         if (login != _loginController.text) {
@@ -63,15 +42,12 @@ class NodeForm extends StatelessWidget {
       });
     }
 
-    _addressController
-        .addListener(() => nodeViewModel.address = _addressController.text);
-    _portController
-        .addListener(() => nodeViewModel.port = _portController.text);
-    _loginController
-        .addListener(() => nodeViewModel.login = _loginController.text);
-    _passwordController
-        .addListener(() => nodeViewModel.password = _passwordController.text);
+    _addressController.addListener(() => nodeViewModel.address = _addressController.text);
+    _portController.addListener(() => nodeViewModel.port = _portController.text);
+    _loginController.addListener(() => nodeViewModel.login = _loginController.text);
+    _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
   }
+
   final NodeCreateOrEditViewModel nodeViewModel;
   final GlobalKey<FormState> formKey;
   final Node? editingNode;
@@ -105,8 +81,7 @@ class NodeForm extends StatelessWidget {
                   child: BaseTextFormField(
                 controller: _portController,
                 hintText: S.of(context).node_port,
-                keyboardType: TextInputType.numberWithOptions(
-                    signed: false, decimal: false),
+                keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
                 validator: NodePortValidator(),
               ))
             ],
