@@ -21,8 +21,6 @@ abstract class WalletKeysViewModelBase with Store {
         items = ObservableList<StandartListItem>() {
     if (wallet.type == WalletType.monero) {
       final keys = monero!.getKeys(wallet);
-      _currentHeight = monero!.getHeigthByDate(date: DateTime.now());
-
       items.addAll([
         if (keys['publicSpendKey'] != null)
           StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
@@ -38,8 +36,6 @@ abstract class WalletKeysViewModelBase with Store {
 
     if (wallet.type == WalletType.haven) {
       final keys = haven!.getKeys(wallet);
-      _currentHeight = haven!.getHeigthByDate(date: DateTime.now());
-
       items.addAll([
         if (keys['publicSpendKey'] != null)
           StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
@@ -68,7 +64,15 @@ abstract class WalletKeysViewModelBase with Store {
 
   final int? _restoreHeight;
 
-  int? _currentHeight;
+   Future<int?> currentHeight () async {
+     if (_wallet.type == WalletType.haven) {
+       return await haven!.getCurrentHeight();
+     }
+     if (_wallet.type == WalletType.monero) {
+       return monero_wallet.getCurrentHeight();
+     }
+     return null;
+  }
 
   String get _path {
     switch (_wallet.type) {
@@ -85,25 +89,30 @@ abstract class WalletKeysViewModelBase with Store {
     }
   }
 
-  String? get restoreHeight {
+  Future<String?> get restoreHeight async{
+     final _currentHeight = await currentHeight();
     if (_currentHeight == null) {
       return null;
     }
     if (_restoreHeight != 0) {
       return _restoreHeight.toString();
     }
-    return ((_currentHeight! / 1000).floor() * 1000).toString();
+    return ((_currentHeight / 1000).floor() * 1000).toString();
   }
 
-  Map<String, String> get _queryParams => {
-        'seed': _wallet.seed,
-        if (restoreHeight != null) ...{'height': restoreHeight!}
-      };
 
-  Uri get url {
+  Future<Map<String, String>> get _queryParams async{
+     final restoreHeightResult = await restoreHeight;
+     return {
+       'seed': _wallet.seed,
+       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
+     };
+  }
+
+  Future<Uri> get url async{
     return Uri(
       path: _path,
-      queryParameters: _queryParams,
+      queryParameters: await _queryParams,
     );
   }
 }

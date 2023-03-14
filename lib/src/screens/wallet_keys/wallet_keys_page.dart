@@ -32,7 +32,7 @@ class WalletKeysPage extends BasePage {
           context,
           Routes.fullscreenQR,
           arguments: {
-            'qrData': walletKeysViewModel.url.toString(),
+            'qrData': (await walletKeysViewModel.url).toString(),
             'isLight': true,
           },
         );

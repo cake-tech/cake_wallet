@@ -160,8 +160,13 @@ class CWHaven extends Haven {
 	}
 
   @override
-	int getHeigthByDate({required DateTime date}) {
-		return getMoneroHeigthByDate(date: date);
+	int getHeightByDate({required DateTime date}) {
+		return getHavenHeightByDate(date: date);
+	}
+
+	@override
+	Future<int> getCurrentHeight() {
+		return getHavenCurrentHeight();
 	}
 	
   @override
