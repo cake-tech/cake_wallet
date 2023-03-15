@@ -28,7 +28,6 @@ class SymbolsAmountValidator extends TextValidator {
   static String _pattern(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.xmr:
-        return '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
       case CryptoCurrency.btc:
         return '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
       default:
@@ -49,9 +48,11 @@ class DecimalAmountValidator extends TextValidator {
   static String _pattern(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.xmr:
-        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]+)\$';
+        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
       case CryptoCurrency.btc:
-        return '^([0-9]+([.\,][0-9]{1,8})?|[.\,][0-9]+)\$';
+      case CryptoCurrency.ltc:
+      case CryptoCurrency.xhv:
+        return '^([0-9]+([.\,][0-9]{1,8})?|[.\,][0-9]{1,8})\$';
       default:
         return '';
     }
