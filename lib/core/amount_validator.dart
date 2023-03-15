@@ -5,7 +5,7 @@ import 'package:cw_core/crypto_currency.dart';
 class AmountValidator extends TextValidator {
   AmountValidator({required CryptoCurrency currency, bool isAutovalidate = false}) {
     symbolsAmountValidator =
-        SymbolsAmountValidator(currency: currency, isAutovalidate: isAutovalidate);
+        SymbolsAmountValidator(isAutovalidate: isAutovalidate);
     decimalAmountValidator = DecimalAmountValidator(currency: currency);
   }
 
@@ -17,23 +17,15 @@ class AmountValidator extends TextValidator {
 }
 
 class SymbolsAmountValidator extends TextValidator {
-  SymbolsAmountValidator({required CryptoCurrency currency, required bool isAutovalidate})
+  SymbolsAmountValidator({required bool isAutovalidate})
       : super(
-            errorMessage: S.current.error_text_amount,
-            pattern: _pattern(currency),
-            isAutovalidate: isAutovalidate,
-            minLength: 0,
-            maxLength: 0);
+      errorMessage: S.current.error_text_amount,
+      pattern: _pattern(),
+      isAutovalidate: isAutovalidate,
+      minLength: 0,
+      maxLength: 0);
 
-  static String _pattern(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.xmr:
-      case CryptoCurrency.btc:
-        return '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
-      default:
-        return '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
-    }
-  }
+  static String _pattern() => '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
 }
 
 class DecimalAmountValidator extends TextValidator {
@@ -50,11 +42,9 @@ class DecimalAmountValidator extends TextValidator {
       case CryptoCurrency.xmr:
         return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
       case CryptoCurrency.btc:
-      case CryptoCurrency.ltc:
-      case CryptoCurrency.xhv:
         return '^([0-9]+([.\,][0-9]{1,8})?|[.\,][0-9]{1,8})\$';
       default:
-        return '';
+        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
     }
   }
 }
