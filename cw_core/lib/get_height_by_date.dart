@@ -95,7 +95,7 @@ int getMoneroHeigthByDate({required DateTime date}) {
   int height = 0;
 
   try {
-    if ((dates[raw] == null)||(dates[raw] == lastHeight)) {
+    if ((dates[raw] == null) || (dates[raw] == lastHeight)) {
       startHeight = dates.values.toList()[dates.length - 2];
       endHeight = dates.values.toList()[dates.length - 1];
       final heightPerDay = (endHeight - startHeight) / 31;
@@ -188,16 +188,7 @@ DateTime formatMapKey(String key) => dateFormat.parse(key);
 
 int getHavenHeightByDate({required DateTime date}) {
   String closestKey =
-  havenDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () {
-    String smallestKey = '';
-    for (String key in havenDates.keys) {
-      if (smallestKey.isEmpty || formatMapKey(key).compareTo(formatMapKey(smallestKey)) < 0) {
-        smallestKey = key;
-      }
-    }
-    return smallestKey;
-  });
-
+      havenDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
 
   return havenDates[closestKey] ?? 0;
 }

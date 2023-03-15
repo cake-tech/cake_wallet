@@ -5,7 +5,7 @@ class QrImage extends StatelessWidget {
   QrImage({
     required this.data,
     this.size = 100.0,
-    this.version = qr.QrVersions.auto, // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
+    this.version = 9, // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
     this.errorCorrectionLevel = qr.QrErrorCorrectLevel.L,
   });
 

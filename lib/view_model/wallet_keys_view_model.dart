@@ -62,7 +62,7 @@ abstract class WalletKeysViewModelBase with Store {
 
   final WalletBase _wallet;
 
-  final int? _restoreHeight;
+  final int _restoreHeight;
 
    Future<int?> currentHeight () async {
      if (_wallet.type == WalletType.haven) {
