@@ -684,5 +684,6 @@
   "send_to_this_address" : "Bu adrese ${currency} ${tag}gönder",
   "arrive_in_this_address" : "${currency} ${tag}bu adrese ulaşacak",
   "do_not_send": "Gönderme",
-  "error_dialog_content": "Hay aksi, bir hatamız var.\n\nUygulamayı daha iyi hale getirmek için lütfen kilitlenme raporunu destek ekibimize gönderin."
+  "error_dialog_content": "Hay aksi, bir hatamız var.\n\nUygulamayı daha iyi hale getirmek için lütfen kilitlenme raporunu destek ekibimize gönderin.",
+  "edit_node": "Düğümü Düzenle"
 }

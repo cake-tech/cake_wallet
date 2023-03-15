@@ -682,5 +682,6 @@
   "send_to_this_address" : "Envoyez ${currency} ${tag}à cette adresse",
   "arrive_in_this_address" : "${currency} ${tag}arrivera à cette adresse",
   "do_not_send": "N'envoyez pas",
-  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application."
+  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application.",
+  "edit_node": "Modifier le nœud"
 }

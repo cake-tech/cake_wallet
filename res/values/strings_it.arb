@@ -684,5 +684,6 @@
   "send_to_this_address" : "Invia ${currency} ${tag}a questo indirizzo",
   "arrive_in_this_address" : "${currency} ${tag}arriverà a questo indirizzo",
   "do_not_send": "Non inviare",
-  "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju."
+  "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione.",
+  "edit_node": "Modifica nodo"
 }

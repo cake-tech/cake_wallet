@@ -684,5 +684,6 @@
   "send_to_this_address" : "Poslat ${currency} ${tag}na tuto adresu",
   "arrive_in_this_address" : "${currency} ${tag}přijde na tuto adresu",
   "do_not_send": "Neodesílat",
-  "error_dialog_content": "Nastala chyba.\n\nProsím odešlete zprávu o chybě naší podpoře, aby mohli zajistit opravu."
+  "error_dialog_content": "Nastala chyba.\n\nProsím odešlete zprávu o chybě naší podpoře, aby mohli zajistit opravu.",
+  "edit_node": "Upravit uzel"
 }

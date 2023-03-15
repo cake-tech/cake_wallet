@@ -684,5 +684,6 @@
   "send_to_this_address" : "Stuur ${currency} ${tag}naar dit adres",
   "arrive_in_this_address" : "${currency} ${tag}komt aan op dit adres",
   "do_not_send": "Niet sturen",
-  "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren."
+  "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren.",
+  "edit_node": "Knooppunt bewerken"
 }

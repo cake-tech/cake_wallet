@@ -684,5 +684,6 @@
   "send_to_this_address" : "Wyślij ${currency} ${tag}na ten adres",
   "arrive_in_this_address" : "${currency} ${tag}dotrze na ten adres",
   "do_not_send": "Nie wysyłaj",
-  "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację."
+  "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
+  "edit_node": "Edytuj węzeł"
 }

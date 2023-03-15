@@ -82,6 +82,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.da
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/node.dart';
 
 late RouteSettings currentRouteSettings;
 
@@ -307,8 +308,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<OtherSettingsPage>());
     
     case Routes.newNode:
+      final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeCreateOrEditPage>());
+          builder: (_) => getIt.get<NodeCreateOrEditPage>(
+            param1: args?['editingNode'] as Node?,
+            param2: args?['isSelected'] as bool?));
 
     case Routes.login:
       return CupertinoPageRoute<void>(
