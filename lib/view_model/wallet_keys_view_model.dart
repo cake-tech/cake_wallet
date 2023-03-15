@@ -64,14 +64,14 @@ abstract class WalletKeysViewModelBase with Store {
 
   final int _restoreHeight;
 
-   Future<int?> currentHeight () async {
-     if (_wallet.type == WalletType.haven) {
-       return await haven!.getCurrentHeight();
-     }
-     if (_wallet.type == WalletType.monero) {
-       return monero_wallet.getCurrentHeight();
-     }
-     return null;
+  Future<int?> currentHeight() async {
+    if (_wallet.type == WalletType.haven) {
+      return await haven!.getCurrentHeight();
+    }
+    if (_wallet.type == WalletType.monero) {
+      return monero_wallet.getCurrentHeight();
+    }
+    return null;
   }
 
   String get _path {
@@ -89,27 +89,26 @@ abstract class WalletKeysViewModelBase with Store {
     }
   }
 
-  Future<String?> get restoreHeight async{
-     final _currentHeight = await currentHeight();
-    if (_currentHeight == null) {
-      return null;
-    }
+  Future<String?> get restoreHeight async {
     if (_restoreHeight != 0) {
       return _restoreHeight.toString();
+    }
+    final _currentHeight = await currentHeight();
+    if (_currentHeight == null) {
+      return null;
     }
     return ((_currentHeight / 1000).floor() * 1000).toString();
   }
 
-
-  Future<Map<String, String>> get _queryParams async{
-     final restoreHeightResult = await restoreHeight;
-     return {
-       'seed': _wallet.seed,
-       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
-     };
+  Future<Map<String, String>> get _queryParams async {
+    final restoreHeightResult = await restoreHeight;
+    return {
+      'seed': _wallet.seed,
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult}
+    };
   }
 
-  Future<Uri> get url async{
+  Future<Uri> get url async {
     return Uri(
       path: _path,
       queryParameters: await _queryParams,
