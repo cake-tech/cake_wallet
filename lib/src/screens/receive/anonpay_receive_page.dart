@@ -4,18 +4,11 @@ import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_status_section.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/share_link_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 
 class AnonPayReceivePage extends BasePage {
   final AnonpayInvoiceInfo invoiceInfo;

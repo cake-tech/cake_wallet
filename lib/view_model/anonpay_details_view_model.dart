@@ -61,9 +61,9 @@ abstract class AnonpayDetailsViewModelBase with Store {
       DetailsListStatusItem(title: 'Status', value: invoiceDetail.status ?? ''),
       TradeDetailsListCardItem(
         id: invoiceDetail.invoiceId ?? '',
-        createdAt: dateFormat.format(invoiceDetail.createdAt ?? DateTime.now()).toString(),
+        createdAt: dateFormat.format(invoiceDetail.createdAt).toString(),
         pair:
-            '→ ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo ?? '').name}',
+            '${invoiceDetail.fiatEquiv ?? ''} → ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo ?? '').name.toUpperCase()}',
         onTap: (BuildContext context) {
           Clipboard.setData(ClipboardData(text: '${invoiceDetail.invoiceId}'));
           showBar<void>(context, S.of(context).copied_to_clipboard);

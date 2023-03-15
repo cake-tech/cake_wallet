@@ -36,7 +36,7 @@ class TransactionsPage extends StatelessWidget {
                 builder: (_) {
                   final items = dashboardViewModel.items;
 
-                  return items?.isNotEmpty ?? false
+                  return items.isNotEmpty
                     ? ListView.builder(
                       itemCount: items.length,
                       itemBuilder: (context, index) {
@@ -76,7 +76,7 @@ class TransactionsPage extends StatelessWidget {
                               coinTo: transactionInfo.coinTo ?? '',
                               provider: transactionInfo.provider,
                               amount: transactionInfo.amountTo.toString(),
-                              createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt ?? DateTime.now()),
+                              createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
                           );
                         }
 
@@ -124,8 +124,7 @@ class TransactionsPage extends StatelessWidget {
                       S.of(context).placeholder_transactions,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).primaryTextTheme!
-                            .overline!.decorationColor!
+                        color: Theme.of(context).primaryTextTheme.overline!.decorationColor!
                       ),
                     ),
                   );

@@ -29,7 +29,7 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable {
   @HiveField(10)
   String? onionStatusUrl;
   @HiveField(11)
-  DateTime? createdAt;
+  DateTime createdAt;
   @HiveField(12)
   String? walletId;
   @HiveField(13, defaultValue: 0)
@@ -53,7 +53,7 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable {
     this.amountTo,
     this.coinTo,
     this.address,
-    this.createdAt,
+    required this.createdAt,
     this.walletId,
     AnonpayProviderDescription? provider,
   }) {

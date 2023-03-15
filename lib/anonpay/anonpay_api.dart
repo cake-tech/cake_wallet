@@ -116,7 +116,9 @@ class AnonPayApi {
     return AnonpayInvoiceInfo(
         clearnetUrl: clearnetUrl.toString(),
         onionUrl: onionUrl.toString(),
-        provider: AnonpayProviderDescription.anonpayDonationLink);
+        provider: AnonpayProviderDescription.anonpayDonationLink,
+        createdAt: DateTime.now(),
+        );
   }
 
   Future<Limits> fetchLimits({

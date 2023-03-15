@@ -244,8 +244,7 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(transactionFilterStore.filtered(transactions: transactions));
-    _items.addAll(anonpayTransactons);
+    _items.addAll(transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
 
