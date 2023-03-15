@@ -685,5 +685,6 @@
   "arrive_in_this_address" : "${currency} ${tag}arriverà a questo indirizzo",
   "do_not_send": "Non inviare",
   "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione.",
+  "decimal_places_error": "Troppe cifre decimali",
   "edit_node": "Modifica nodo"
 }

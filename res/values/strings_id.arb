@@ -667,5 +667,6 @@
   "orbot_running_alert": "Pastikan Orbot sedang berjalan sebelum menghubungkan ke node ini.",
   "contact_list_contacts": "Kontak",
   "contact_list_wallets": "Dompet Saya",
+  "decimal_places_error": "Terlalu banyak tempat desimal",
   "edit_node": "Sunting Node"
 }

@@ -685,5 +685,6 @@
   "arrive_in_this_address" : "${currency} ${tag}komt aan op dit adres",
   "do_not_send": "Niet sturen",
   "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren.",
+  "decimal_places_error": "Te veel decimalen",
   "edit_node": "Knooppunt bewerken"
 }

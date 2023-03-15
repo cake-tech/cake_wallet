@@ -685,5 +685,6 @@
   "arrive_in_this_address" : "${currency} ${tag}će stići na ovu adresu",
   "do_not_send": "Ne šalji",
   "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju.",
+  "decimal_places_error": "Previše decimalnih mjesta",
   "edit_node": "Uredi čvor"
 }

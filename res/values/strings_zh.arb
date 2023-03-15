@@ -683,5 +683,6 @@
   "arrive_in_this_address" : "${currency} ${tag}将到达此地址",
   "do_not_send": "不要发送",
   "error_dialog_content": "糟糕，我们遇到了一些错误。\n\n请将崩溃报告发送给我们的支持团队，以改进应用程序。",
+  "decimal_places_error": "小数位太多",
   "edit_node": "编辑节点"
 }
