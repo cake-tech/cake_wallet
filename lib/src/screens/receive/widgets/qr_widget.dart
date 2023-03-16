@@ -121,7 +121,7 @@ class QRWidget extends StatelessWidget {
                       textColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                       borderColor: Theme.of(context).textTheme!.headline5!.decorationColor!,
                       validator: AmountValidator(
-                          currency: walletTypeToCryptoCurrency(addressListViewModel.type),
+                          currency: walletTypeToCryptoCurrency(addressListViewModel!.type),
                           isAutovalidate: true),
                       // FIX-ME: Check does it equal to autovalidate: true,
                       autovalidateMode: AutovalidateMode.always,
