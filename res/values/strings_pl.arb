@@ -689,5 +689,7 @@
   "cold_or_recover_wallet": "Dodaj zimny portfel lub odzyskaj portfel papierowy",
   "please_wait": "Proszę czekać",
   "sweeping_wallet": "Zamiatanie portfela",
-  "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI"
+  "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI",
+  "decimal_places_error": "Za dużo miejsc dziesiętnych",
+  "edit_node": "Edytuj węzeł"
 }

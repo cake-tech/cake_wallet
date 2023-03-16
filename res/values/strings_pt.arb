@@ -688,5 +688,7 @@
   "cold_or_recover_wallet": "Adicione uma cold wallet ou recupere uma paper wallet",
   "please_wait": "Por favor, aguarde",
   "sweeping_wallet": "Carteira varrendo",
-  "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI"
+  "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI",
+  "decimal_places_error": "Muitas casas decimais",
+  "edit_node": "Editar nó"
 }

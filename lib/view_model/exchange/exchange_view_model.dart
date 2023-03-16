@@ -2,11 +2,15 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
+import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/trocador/trocador_request.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -53,6 +57,7 @@ abstract class ExchangeViewModelBase with Store {
       isDepositAddressEnabled = false,
       isReceiveAddressEnabled = false,
       isReceiveAmountEditable = false,
+      _useTorOnly = false,
       receiveCurrencies = <CryptoCurrency>[],
       depositCurrencies = <CryptoCurrency>[],
       limits = Limits(min: 0, max: 0),
@@ -60,8 +65,10 @@ abstract class ExchangeViewModelBase with Store {
       limitsState = LimitsInitialState(),
       receiveCurrency = wallet.currency,
       depositCurrency = wallet.currency,
-      providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider(), SimpleSwapExchangeProvider()],
+      providerList = [],
       selectedProviders = ObservableList<ExchangeProvider>() {
+    _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
+    _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp,
       CryptoCurrency.bnb, CryptoCurrency.btt, CryptoCurrency.nano];
@@ -117,12 +124,19 @@ abstract class ExchangeViewModelBase with Store {
         _calculateBestRate();
       });
   }
-
+  bool _useTorOnly;
   final WalletBase wallet;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
+
+  List<ExchangeProvider> get _allProviders => [
+        ChangeNowExchangeProvider(),
+        SideShiftExchangeProvider(),
+        SimpleSwapExchangeProvider(),
+        TrocadorExchangeProvider(useTorOnly: _useTorOnly),
+      ];
 
   @observable
   ExchangeProvider? provider;
@@ -455,6 +469,18 @@ abstract class ExchangeViewModelBase with Store {
           amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
+        if (provider is TrocadorExchangeProvider) {
+          request = TrocadorRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              fromAmount: depositAmount.replaceAll(',', '.'),
+              toAmount: receiveAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress,
+              isReverse: isFixedRateMode);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
+
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
@@ -673,6 +699,14 @@ abstract class ExchangeViewModelBase with Store {
         break;
       default:
         break;
+    }
+  }
+
+  void _setProviders(){
+    if (_settingsStore.exchangeStatus == ExchangeApiMode.torOnly) {
+      providerList = _allProviders.where((provider) => provider.supportsOnionAddress).toList();
+    } else {
+      providerList = _allProviders;
     }
   }
 }

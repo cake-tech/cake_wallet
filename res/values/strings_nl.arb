@@ -689,5 +689,7 @@
   "cold_or_recover_wallet": "Voeg een cold wallet toe of herstel een paper wallet",
   "please_wait": "Even geduld aub",
   "sweeping_wallet": "Vegende portemonnee",
-  "sweeping_wallet_alert": "Dit duurt niet lang. VERLAAT DIT SCHERM NIET, ANDERS KAN HET SWEPT-GELD VERLOREN WORDEN"
+  "sweeping_wallet_alert": "Dit duurt niet lang. VERLAAT DIT SCHERM NIET, ANDERS KAN HET SWEPT-GELD VERLOREN WORDEN",
+  "decimal_places_error": "Te veel decimalen",
+  "edit_node": "Knooppunt bewerken"
 }

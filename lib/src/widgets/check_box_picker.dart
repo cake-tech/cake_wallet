@@ -38,7 +38,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              if (widget.title?.isNotEmpty ?? false)
+              if (widget.title.isNotEmpty)
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
@@ -58,7 +58,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
-                    color: Theme.of(context).accentTextTheme!.headline6!.color!,
+                    color: Theme.of(context).accentTextTheme.headline6!.color!,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height * 0.65,
@@ -70,7 +70,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                             child: Stack(
                               alignment: Alignment.center,
                               children: <Widget>[
-                                (items?.length ?? 0) > 3
+                                (items.length) > 3
                                     ? Scrollbar(
                                         controller: controller,
                                         child: itemsList(),
@@ -95,14 +95,14 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
+      color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
       child: ListView.separated(
         padding: EdgeInsets.zero,
         controller: controller,
         shrinkWrap: true,
         separatorBuilder: (context, index) => widget.isSeparated
             ? Divider(
-                color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
+                color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
                 height: 1,
               )
             : const SizedBox(),
@@ -121,13 +121,13 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).accentTextTheme!.headline6!.color!,
+        color: Theme.of(context).accentTextTheme.headline6!.color!,
         padding: EdgeInsets.only(left: 24, right: 24),
         child: CheckboxListTile(
           value: item.value,
           activeColor: item.value
               ? Palette.blueCraiola
-              : Theme.of(context).accentTextTheme!.subtitle1!.decorationColor!,
+              : Theme.of(context).accentTextTheme.subtitle1!.decorationColor!,
           checkColor: Colors.white,
           title: widget.displayItem?.call(item) ??
               Text(
@@ -138,7 +138,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                   fontWeight: FontWeight.w600,
                   color: item.isDisabled
                       ? Colors.grey.withOpacity(0.5)
-                      : Theme.of(context).primaryTextTheme!.headline6!.color!,
+                      : Theme.of(context).primaryTextTheme.headline6!.color!,
                   decoration: TextDecoration.none,
                 ),
               ),

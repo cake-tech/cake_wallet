@@ -18,7 +18,10 @@ void startCurrentFiatChangeReaction(AppStore appStore,
     }
 
     final cryptoCurrency = appStore.wallet!.currency;
-    fiatConversionStore.prices[appStore.wallet!.currency] =
-        await FiatConversionService.fetchPrice(cryptoCurrency, fiatCurrency);
+    fiatConversionStore.prices[cryptoCurrency] =
+        await FiatConversionService.fetchPrice(
+            crypto: cryptoCurrency,
+            fiat: fiatCurrency,
+            torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
   });
 }

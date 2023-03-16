@@ -689,5 +689,7 @@
   "cold_or_recover_wallet": "Agregue una billetera fría o recupere una billetera de papel",
   "please_wait": "Espere por favor",
   "sweeping_wallet": "Billetera de barrido",
-  "sweeping_wallet_alert": "Esto no debería llevar mucho tiempo. NO DEJES ESTA PANTALLA O SE PUEDEN PERDER LOS FONDOS BARRIDOS"
+  "sweeping_wallet_alert": "Esto no debería llevar mucho tiempo. NO DEJES ESTA PANTALLA O SE PUEDEN PERDER LOS FONDOS BARRIDOS",
+  "decimal_places_error": "Demasiados lugares decimales",
+  "edit_node": "Edit Node"
 }

@@ -689,5 +689,7 @@
   "cold_or_recover_wallet": "Dodajte hladni novčanik ili povratite papirnati novčanik",
   "please_wait": "Molimo pričekajte",
   "sweeping_wallet": "Čisti novčanik",
-  "sweeping_wallet_alert": "Ovo ne bi trebalo dugo trajati. NE NAPUŠTAJTE OVAJ ZASLON INAČE SE POBREŠENA SREDSTVA MOGU IZGUBITI"
+  "sweeping_wallet_alert": "Ovo ne bi trebalo dugo trajati. NE NAPUŠTAJTE OVAJ ZASLON INAČE SE POBREŠENA SREDSTVA MOGU IZGUBITI",
+  "decimal_places_error": "Previše decimalnih mjesta",
+  "edit_node": "Uredi čvor"
 }

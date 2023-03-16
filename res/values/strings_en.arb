@@ -689,6 +689,7 @@
   "cold_or_recover_wallet": "Add a cold wallet or recover a paper wallet",
   "please_wait": "Please wait",
   "sweeping_wallet": "Sweeping wallet",
-  "sweeping_wallet_alert": "This shouldn’t take long. DO NOT LEAVE THIS SCREEN OR THE SWEPT FUNDS MAY BE LOST."
-
+  "sweeping_wallet_alert": "This shouldn’t take long. DO NOT LEAVE THIS SCREEN OR THE SWEPT FUNDS MAY BE LOST.",
+  "decimal_places_error": "Too many decimal places",
+  "edit_node": "Edit Node"
 }

@@ -689,5 +689,7 @@
   "cold_or_recover_wallet": "Fügen Sie eine Cold Wallet hinzu oder stellen Sie eine Paper Wallet wieder her",
   "please_wait": "Warten Sie mal",
   "sweeping_wallet": "Kehre Geldbörse",
-  "sweeping_wallet_alert": "Das sollte nicht lange dauern. VERLASSEN SIE DIESEN BILDSCHIRM NICHT, ANDERNFALLS KÖNNEN DIE SWEPT-GELDER VERLOREN GEHEN"
+  "sweeping_wallet_alert": "Das sollte nicht lange dauern. VERLASSEN SIE DIESEN BILDSCHIRM NICHT, ANDERNFALLS KÖNNEN DIE SWEPT-GELDER VERLOREN GEHEN",
+  "decimal_places_error": "Zu viele Nachkommastellen",
+  "edit_node": "Knoten bearbeiten"
 }

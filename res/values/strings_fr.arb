@@ -687,5 +687,7 @@
   "cold_or_recover_wallet": "Ajoutez un cold wallet ou récupérez un paper wallet",
   "please_wait": "S'il vous plaît, attendez",
   "sweeping_wallet": "Portefeuille de balayage",
-  "sweeping_wallet_alert": "Cela ne devrait pas prendre longtemps. NE QUITTEZ PAS CET ÉCRAN OU LES FONDS BALAYÉS POURRAIENT ÊTRE PERDUS"
+  "sweeping_wallet_alert": "Cela ne devrait pas prendre longtemps. NE QUITTEZ PAS CET ÉCRAN OU LES FONDS BALAYÉS POURRAIENT ÊTRE PERDUS",
+  "decimal_places_error": "Trop de décimales",
+  "edit_node": "Modifier le nœud"
 }

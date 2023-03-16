@@ -689,5 +689,7 @@
   "cold_or_recover_wallet": "Soğuk bir cüzdan ekleyin veya bir kağıt cüzdanı kurtarın",
   "please_wait": "Lütfen bekleyin",
   "sweeping_wallet": "Süpürme cüzdanı",
-  "sweeping_wallet_alert": "Bu uzun sürmemeli. BU EKRANDAN BIRAKMAYIN YOKSA SÜPÜRÜLEN FONLAR KAYBOLABİLİR"
+  "sweeping_wallet_alert": "Bu uzun sürmemeli. BU EKRANDAN BIRAKMAYIN YOKSA SÜPÜRÜLEN FONLAR KAYBOLABİLİR",
+  "decimal_places_error": "Çok fazla ondalık basamak",
+  "edit_node": "Düğümü Düzenle"
 }
