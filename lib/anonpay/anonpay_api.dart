@@ -3,7 +3,10 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anonpay/anonpay_provider_description.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -122,12 +125,22 @@ class AnonPayApi {
   }
 
   Future<Limits> fetchLimits({
-    required CryptoCurrency currency,
+    FiatCurrency? fiatCurrency,
+    required CryptoCurrency cryptoCurrency,
   }) async {
+    double fiatRate = 0.0;
+    if (fiatCurrency != null) {
+      fiatRate = await FiatConversionService.fetchPrice(
+        crypto: cryptoCurrency,
+        fiat: fiatCurrency,
+        torOnly: useTorOnly,
+      );
+    }
+
     final params = <String, String>{
       'api_key': apiKey,
-      'ticker': currency.title.toLowerCase(),
-      'name': currency.name,
+      'ticker': cryptoCurrency.title.toLowerCase(),
+      'name': cryptoCurrency.name,
     };
 
     final String apiAuthority = await _getAuthority();
@@ -146,22 +159,20 @@ class AnonPayApi {
     }
 
     final coinJson = responseJSON.first as Map<String, dynamic>;
+    final minimum = coinJson['minimum'] as double;
+    final maximum = coinJson['maximum'] as double;
+
+    if (fiatCurrency != null) {
+      return Limits(
+        min: double.tryParse((minimum * fiatRate).toStringAsFixed(2)),
+        max: double.tryParse((maximum * fiatRate).toStringAsFixed(2)),
+      );
+    }
 
     return Limits(
-      min: coinJson['minimum'] as double,
-      max: coinJson['maximum'] as double,
+      min: minimum,
+      max: maximum,
     );
-  }
-
-  Future<Limits> getLimits(CryptoCurrency currency) async {
-    final authority = await _getAuthority();
-    final response = await get(Uri.https(authority, '/anonpay/limits'));
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final limits = responseJSON['limits'] as Map<String, dynamic>;
-    final currencyLimits = limits[currency.title.toLowerCase()] as Map<String, dynamic>;
-    final min = currencyLimits['min'] as double;
-    final max = currencyLimits['max'] as double;
-    return Limits(min: min, max: max);
   }
 
   String _networkFor(CryptoCurrency currency) {

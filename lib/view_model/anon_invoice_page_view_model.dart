@@ -151,18 +151,12 @@ abstract class AnonInvoicePageViewModelBase with Store {
   }
 
   Future<void> _fetchLimits() async {
-    final limit = await anonPayApi.fetchLimits(currency: cryptoCurrency);
+    final limit = await anonPayApi.fetchLimits(
+      cryptoCurrency: cryptoCurrency,
+      fiatCurrency: selectedCurrency is FiatCurrency ? selectedCurrency as FiatCurrency : null,
+    );
     minimum = limit.min;
     maximum = limit.max != null ? limit.max! / 4 : null;
-    if (selectedCurrency is FiatCurrency) {
-      final fiatPrice = _fiatConversationStore.prices[cryptoCurrency];
-      maximum = maximum != null
-          ? double.tryParse(calculateFiatAmount(price: fiatPrice, cryptoAmount: maximum.toString()))
-          : null;
-      minimum = minimum != null
-          ? double.tryParse(calculateFiatAmount(price: fiatPrice, cryptoAmount: minimum.toString()))
-          : null;
-    }
   }
 
   @action
