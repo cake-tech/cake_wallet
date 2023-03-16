@@ -383,14 +383,25 @@ Future setup(
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption, void>((pageOption, _) => ReceiveOptionViewModel(
       getIt.get<AppStore>().wallet!, pageOption));
 
-  getIt.registerFactoryParam<AnonInvoicePageViewModel, String, void>((address, _) => AnonInvoicePageViewModel(
-      getIt.get<AnonPayApi>(), address, getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, _anonpayInvoiceInfoSource, getIt.get<FiatConversionStore>()));
-
-  getIt.registerFactoryParam<AnonPayInvoicePage, List<dynamic>, void>((List<dynamic> args, _) { 
+  getIt.registerFactoryParam<AnonInvoicePageViewModel, List<dynamic>, void>((args, _) { 
     final address = args.first as String;
     final pageOption = args.last as ReceivePageOption;
+    return AnonInvoicePageViewModel(
+      getIt.get<AnonPayApi>(), 
+      address, 
+      getIt.get<SettingsStore>(), 
+      getIt.get<AppStore>().wallet!, 
+      _anonpayInvoiceInfoSource, 
+      getIt.get<FiatConversionStore>(),
+      getIt.get<SharedPreferences>(),
+      pageOption,
+    ); 
+    });
+
+  getIt.registerFactoryParam<AnonPayInvoicePage, List<dynamic>, void>((List<dynamic> args, _) { 
+    final pageOption = args.last as ReceivePageOption;
     return AnonPayInvoicePage(
-       getIt.get<AnonInvoicePageViewModel>(param1: address), 
+       getIt.get<AnonInvoicePageViewModel>(param1: args), 
        getIt.get<ReceiveOptionViewModel>(param1: pageOption));
     });  
   

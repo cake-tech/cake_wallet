@@ -689,5 +689,10 @@
   "donation_link_details": "Donation link details",
   "anonpay_description": "Generate ${type}. The recipient can ${method} with any supported cryptocurrency, and you will receive funds in this wallet.",
   "create_invoice": "Create invoice",
-  "create_donation_link": "Create donation link"
+  "create_donation_link": "Create donation link",
+  "optional_email_hint": "Optional payee notification email",
+  "optional_description": "Optional description",
+  "optional_name": "Optional recipient name",
+  "clearnet_link": "Clearnet link",
+  "onion_link": "Onion link"
 }

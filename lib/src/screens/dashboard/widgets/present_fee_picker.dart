@@ -61,82 +61,80 @@ class PresentFeePicker extends StatelessWidget {
 
   void _showPickers(BuildContext context) async {
     await showPopUp<void>(
-        builder: (BuildContext popUpContext) => Observer(builder: (_) {
-              return Scaffold(
-                  resizeToAvoidBottomInset: false,
-                  backgroundColor: Colors.transparent,
-                  body: AlertBackground(
-                      child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Spacer(),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 24),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: Theme.of(context).backgroundColor,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 24, bottom: 24),
-                          child: (ListView.separated(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemCount: receiveOptionViewModel.options.length,
-                            itemBuilder: (_, index) {
-                              final option = receiveOptionViewModel.options[index];
-                              return InkWell(
-                                onTap: () => receiveOptionViewModel.selectReceiveOption(option),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 24, right: 24),
-                                  child: Observer(builder: (_) {
-                                    final value = receiveOptionViewModel.selectedReceiveOption;
+        builder: (BuildContext popUpContext) => Scaffold(
+            resizeToAvoidBottomInset: false,
+            backgroundColor: Colors.transparent,
+            body: AlertBackground(
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Spacer(),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Theme.of(context).backgroundColor,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24, bottom: 24),
+                    child: (ListView.separated(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      itemCount: receiveOptionViewModel.options.length,
+                      itemBuilder: (_, index) {
+                        final option = receiveOptionViewModel.options[index];
+                        return InkWell(
+                          onTap: () => receiveOptionViewModel.selectReceiveOption(option),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 24, right: 24),
+                            child: Observer(builder: (_) {
+                              final value = receiveOptionViewModel.selectedReceiveOption;
 
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(option.toString(),
-                                            textAlign: TextAlign.left,
-                                            style: textSmall(
-                                              color: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .headline6!
-                                                  .color!,
-                                            ).copyWith(
-                                              fontWeight: value == option
-                                                  ? FontWeight.w800
-                                                  : FontWeight.w500,
-                                            )),
-                                        RoundedCheckbox(
-                                          value: value == option,
-                                        )
-                                      ],
-                                    );
-                                  }),
-                                ),
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(option.toString(),
+                                      textAlign: TextAlign.left,
+                                      style: textSmall(
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .headline6!
+                                            .color!,
+                                      ).copyWith(
+                                        fontWeight: value == option
+                                            ? FontWeight.w800
+                                            : FontWeight.w500,
+                                      )),
+                                  RoundedCheckbox(
+                                    value: value == option,
+                                  )
+                                ],
                               );
-                            },
-                            separatorBuilder: (_, index) => SizedBox(height: 30),
-                          )),
-                        ),
-                      ),
-                      Spacer(),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 40),
-                        child: InkWell(
-                          onTap: () => Navigator.pop(context),
-                          child: CircleAvatar(
-                            child: Icon(
-                              Icons.close,
-                              color: Palette.darkBlueCraiola,
-                            ),
-                            backgroundColor: Colors.white,
+                            }),
                           ),
-                        ),
-                      )
-                    ],
-                  )));
-            }),
+                        );
+                      },
+                      separatorBuilder: (_, index) => SizedBox(height: 30),
+                    )),
+                  ),
+                ),
+                Spacer(),
+                Container(
+                  margin: EdgeInsets.only(bottom: 40),
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context),
+                    child: CircleAvatar(
+                      child: Icon(
+                        Icons.close,
+                        color: Palette.darkBlueCraiola,
+                      ),
+                      backgroundColor: Colors.white,
+                    ),
+                  ),
+                )
+              ],
+            ))),
         context: context);
 
   }

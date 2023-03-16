@@ -19,6 +19,9 @@ class AnonInvoiceForm extends StatelessWidget {
         _amountController = TextEditingController(),
         _emailController = TextEditingController(),
         _descriptionController = TextEditingController() {
+    _nameController.text = anonInvoicePageViewModel.receipientName;
+    _descriptionController.text = anonInvoicePageViewModel.description;
+    _emailController.text = anonInvoicePageViewModel.receipientEmail;  
     _nameController.addListener(() {
       anonInvoicePageViewModel.receipientName = _nameController.text;
     });
@@ -71,7 +74,7 @@ class AnonInvoiceForm extends StatelessWidget {
               controller: _nameController,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
-              hintText: 'Optional recipient name',
+              hintText: S.of(context).optional_name,
               placeholderTextStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -87,7 +90,7 @@ class AnonInvoiceForm extends StatelessWidget {
               controller: _descriptionController,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
-              hintText: 'Optional description',
+              hintText: S.of(context).optional_description,
               placeholderTextStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -102,7 +105,7 @@ class AnonInvoiceForm extends StatelessWidget {
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               keyboardType: TextInputType.emailAddress,
-              hintText: 'Optional payee notification email',
+              hintText: S.of(context).optional_email_hint,
               placeholderTextStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
