@@ -695,4 +695,6 @@
   "optional_name": "Optional recipient name",
   "clearnet_link": "Clearnet link",
   "onion_link": "Onion link"
+  "decimal_places_error": "Too many decimal places",
+  "edit_node": "Edit Node"
 }

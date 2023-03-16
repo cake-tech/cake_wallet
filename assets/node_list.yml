@@ -14,9 +14,6 @@
   uri: node.c3pool.com:18081
   is_default: false
 -
-  uri: node.supportxmr.com:18081
-  is_default: false
--
   uri: node.community.rino.io:18081
   is_default: false
 -

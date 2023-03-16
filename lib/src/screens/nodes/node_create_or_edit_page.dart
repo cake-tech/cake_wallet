@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -13,7 +14,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 
 class NodeCreateOrEditPage extends BasePage {
-  NodeCreateOrEditPage(this.nodeCreateOrEditViewModel)
+  NodeCreateOrEditPage({required this.nodeCreateOrEditViewModel,this.editingNode, this.isSelected})
       : _formKey = GlobalKey<FormState>(),
         _addressController = TextEditingController(),
         _portController = TextEditingController(),
@@ -62,9 +63,11 @@ class NodeCreateOrEditPage extends BasePage {
   final TextEditingController _passwordController;
 
   @override
-  String get title => S.current.node_new;
+  String get title => editingNode != null ? S.current.edit_node : S.current.node_new;
 
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
+  final Node? editingNode;
+  final bool? isSelected;
 
   @override
   Widget body(BuildContext context) {
@@ -108,6 +111,7 @@ class NodeCreateOrEditPage extends BasePage {
           content: NodeForm(
             formKey: _formKey,
             nodeViewModel: nodeCreateOrEditViewModel,
+            editingNode: editingNode,
           ),
           bottomSectionPadding: EdgeInsets.only(bottom: 24),
           bottomSection: Observer(
@@ -140,7 +144,8 @@ class NodeCreateOrEditPage extends BasePage {
                               return;
                             }
 
-                            await nodeCreateOrEditViewModel.save();
+                            await nodeCreateOrEditViewModel.save(
+                                editingNode: editingNode, saveAsCurrent: isSelected ?? false);
                             Navigator.of(context).pop();
                           },
                           text: S.of(context).save,
