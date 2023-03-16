@@ -2,6 +2,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -70,7 +71,7 @@ abstract class OutputBase with Store {
     int amount = 0;
 
     try {
-      if (cryptoAmount?.isNotEmpty ?? false) {
+      if (cryptoAmount.isNotEmpty) {
         final _cryptoAmount = cryptoAmount.replaceAll(',', '.');
         int _amount = 0;
         switch (walletType) {
@@ -87,6 +88,9 @@ abstract class OutputBase with Store {
             break;
           case WalletType.haven:
             _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
+            break;
+          case WalletType.ethereum:
+            _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
             break;
           default:
             break;

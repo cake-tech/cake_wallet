@@ -12,11 +12,14 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_ethereum/ethereum_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
+import 'package:cw_ethereum/ethereum_exceptions.dart';
+import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
 import 'package:cw_ethereum/ethereum_transaction_info.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
+import 'package:cw_ethereum/pending_ethereum_transaction.dart';
 import 'package:mobx/mobx.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:ed25519_hd_key/ed25519_hd_key.dart';
@@ -50,7 +53,7 @@ abstract class EthereumWalletBase
   final String _mnemonic;
   final String _password;
 
-  late final String privateKey;
+  late final String _privateKey;
 
   late EthereumClient _client;
 
@@ -69,9 +72,9 @@ abstract class EthereumWalletBase
   late ObservableMap<CryptoCurrency, EthereumBalance> balance;
 
   Future<void> init() async {
-    privateKey = await getPrivateKey(_mnemonic, _password);
+    _privateKey = await getPrivateKey(_mnemonic, _password);
     transactionHistory = EthereumTransactionHistory();
-    walletAddresses.address = EthPrivateKey.fromHex(privateKey).address.toString();
+    walletAddresses.address = EthPrivateKey.fromHex(_privateKey).address.toString();
   }
 
   @override
@@ -116,8 +119,78 @@ abstract class EthereumWalletBase
   }
 
   @override
-  Future<PendingTransaction> createTransaction(Object credentials) {
-    throw UnimplementedError("createTransaction");
+  Future<PendingTransaction> createTransaction(Object credentials) async {
+    final _credentials = credentials as EthereumTransactionCredentials;
+    final outputs = _credentials.outputs;
+    final hasMultiDestination = outputs.length > 1;
+    final balance = await _client.getBalance(_privateKey);
+
+    if (hasMultiDestination) {
+      outputs.any((element) => element.sendAll);
+    }
+
+
+    // if (hasMultiDestination) {
+    //   if (outputs.any((item) => item.sendAll
+    //       || (item.formattedCryptoAmount ?? 0) <= 0)) {
+    //     throw EthereumTransactionCreationException();
+    //   }
+    //
+    //   final BigInt totalAmount = outputs.fold(0, (acc, value) =>
+    //   acc + (value.formattedCryptoAmount ?? 0));
+    //
+    //   if (balance.getInWei < EtherAmount.inWei(totalAmount)) {
+    //     throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+    //   }
+    //
+    //   final moneroOutputs = outputs.map((output) {
+    //     final outputAddress = output.isParsedAddress
+    //         ? output.extractedAddress
+    //         : output.address;
+    //
+    //     return MoneroOutput(
+    //         address: outputAddress!,
+    //         amount: output.cryptoAmount!.replaceAll(',', '.'));
+    //   }).toList();
+    //
+    //   pendingTransactionDescription =
+    //   await transaction_history.createTransactionMultDest(
+    //       outputs: moneroOutputs,
+    //       priorityRaw: _credentials.priority.serialize(),
+    //       accountIndex: walletAddresses.account!.id);
+    // } else {
+    //   final output = outputs.first;
+    //   final address = output.isParsedAddress
+    //       ? output.extractedAddress
+    //       : output.address;
+    //   final amount = output.sendAll
+    //       ? null
+    //       : output.cryptoAmount!.replaceAll(',', '.');
+    //   final formattedAmount = output.sendAll
+    //       ? null
+    //       : output.formattedCryptoAmount;
+    //
+    //   if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
+    //       (formattedAmount == null && unlockedBalance <= 0)) {
+    //     final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+    //
+    //     throw MoneroTransactionCreationException(
+    //         'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+    //   }
+    //
+    //   pendingTransactionDescription =
+    //   await transaction_history.createTransaction(
+    //       address: address!,
+    //       amount: amount,
+    //       priorityRaw: _credentials.priority.serialize(),
+    //       accountIndex: walletAddresses.account!.id);
+    // }
+
+    return PendingEthereumTransaction(
+      client: _client,
+      credentials: _credentials,
+      privateKey: _privateKey,
+    );
   }
 
   @override
@@ -211,7 +284,7 @@ abstract class EthereumWalletBase
   }
 
   Future<EthereumBalance> _fetchBalances() async {
-    final balance = await _client.getBalance(privateKey);
+    final balance = await _client.getBalance(_privateKey);
 
     return EthereumBalance(
       available: balance.getInEther.toInt(),

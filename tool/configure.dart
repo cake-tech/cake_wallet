@@ -477,6 +477,8 @@ Future<void> generateEthereum(bool hasImplementation) async {
   const ethereumCommonHeaders = """
 """;
   const ethereumCWHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -501,6 +503,9 @@ abstract class Ethereum {
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
   int getEstimatedFee(Object wallet, TransactionPriority priority);
+
+  Object createEthereumTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
+  Object createEthereumTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 }
   """;
 

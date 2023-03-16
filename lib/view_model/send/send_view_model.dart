@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -286,6 +287,14 @@ abstract class SendViewModelBase with Store {
         
         return haven!.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
+      case WalletType.ethereum:
+        final priority = _settingsStore.priority[_wallet.type];
+
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+        }
+
+        return ethereum!.createEthereumTransactionCredentials(outputs, priority: priority);
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type}');
     }

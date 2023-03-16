@@ -40,4 +40,33 @@ class CWEthereum extends Ethereum {
     final ethereumWallet = wallet as EthereumWallet;
     return ethereumWallet.feeRate(priority);
   }
+
+  Object createEthereumTransactionCredentials(List<Output> outputs,
+          {required TransactionPriority priority, int? feeRate}) =>
+      EthereumTransactionCredentials(
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount))
+            .toList(),
+        priority: priority as EthereumTransactionPriority,
+        feeRate: feeRate,
+      );
+
+  Object createEthereumTransactionCredentialsRaw(List<OutputInfo> outputs,
+          {TransactionPriority? priority, required int feeRate}) =>
+      EthereumTransactionCredentials(
+        outputs,
+        priority: priority as EthereumTransactionPriority,
+        feeRate: feeRate,
+      );
+
+  @override
+  int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
 }
