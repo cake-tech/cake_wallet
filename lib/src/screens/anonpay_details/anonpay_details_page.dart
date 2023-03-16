@@ -1,9 +1,7 @@
-import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
@@ -44,7 +42,6 @@ class AnonpayDetailsPage extends BasePage {
             );
           }
 
-          if (item is StandartListItem) {
             return GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: item.value));
@@ -52,9 +49,8 @@ class AnonpayDetailsPage extends BasePage {
               },
               child: ListRow(title: '${item.title}:', value: item.value),
             );
-          }
+          
 
-          return Container();
         });
   }
 }

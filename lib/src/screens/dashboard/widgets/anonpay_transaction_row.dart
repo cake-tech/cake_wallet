@@ -6,7 +6,7 @@ class AnonpayTransactionRow extends StatelessWidget {
   AnonpayTransactionRow({
     required this.provider,
     required this.createdAt,
-    required this.coinTo,
+    required this.currency,
     required this.onTap,
     required this.amount,
   });
@@ -15,7 +15,7 @@ class AnonpayTransactionRow extends StatelessWidget {
   final AnonpayProviderDescription provider;
   final String createdAt;
   final String amount;
-  final String coinTo;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class AnonpayTransactionRow extends StatelessWidget {
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!)),
-                    Text(amount + ' ' + CryptoCurrency.fromFullName(coinTo).name,
+                    Text(amount + ' ' + currency,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,

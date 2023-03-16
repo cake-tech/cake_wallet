@@ -58,18 +58,18 @@ abstract class AnonpayDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal();
     items.clear();
     items.addAll([
-      DetailsListStatusItem(title: 'Status', value: invoiceDetail.status ?? ''),
+      DetailsListStatusItem(title: S.current.status, value: invoiceDetail.status ?? ''),
       TradeDetailsListCardItem(
         id: invoiceDetail.invoiceId ?? '',
         createdAt: dateFormat.format(invoiceDetail.createdAt).toString(),
-        pair:
-            '${invoiceDetail.fiatEquiv ?? ''} → ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo ?? '').name.toUpperCase()}',
+        pair: (invoiceDetail.fiatEquiv?.isNotEmpty ?? false) ? "→ ${invoiceDetail.amountTo} ${invoiceDetail.fiatEquiv ?? ''}" :
+            '→ ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo ?? '').name.toUpperCase()}',
         onTap: (BuildContext context) {
           Clipboard.setData(ClipboardData(text: '${invoiceDetail.invoiceId}'));
           showBar<void>(context, S.of(context).copied_to_clipboard);
         },
       ),
-      StandartListItem(title: 'Provider', value: invoiceDetail.provider.title)
+      StandartListItem(title: S.current.trade_details_provider, value: invoiceDetail.provider.title)
     ]);
 
     items.add(TrackTradeListItem(

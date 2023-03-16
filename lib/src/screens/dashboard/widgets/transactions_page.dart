@@ -2,6 +2,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_ro
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -73,7 +74,7 @@ class TransactionsPage extends StatelessWidget {
                               onTap: () => Navigator.of(context).pushNamed(
                                   Routes.anonPayDetailsPage,
                                   arguments: transactionInfo),
-                              coinTo: transactionInfo.coinTo ?? '',
+                              currency: transactionInfo.fiatEquiv?.isNotEmpty ?? false ? transactionInfo.fiatEquiv ?? '' : CryptoCurrency.fromFullName(transactionInfo.coinTo ?? '').name.toUpperCase(),
                               provider: transactionInfo.provider,
                               amount: transactionInfo.amountTo.toString(),
                               createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),

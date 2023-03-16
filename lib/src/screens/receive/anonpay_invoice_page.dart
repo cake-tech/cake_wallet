@@ -19,7 +19,17 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:mobx/mobx.dart';
 
 class AnonPayInvoicePage extends BasePage {
-  AnonPayInvoicePage(this.anonInvoicePageViewModel, this.receiveOptionViewModel);
+  AnonPayInvoicePage(this.anonInvoicePageViewModel, this.receiveOptionViewModel){
+    _nameController.text = anonInvoicePageViewModel.receipientName;
+    _descriptionController.text = anonInvoicePageViewModel.description;
+    _emailController.text = anonInvoicePageViewModel.receipientEmail;  
+
+  }
+
+    final _nameController = TextEditingController();
+    final _emailController = TextEditingController();
+    final _descriptionController = TextEditingController();
+    final _amountController = TextEditingController();
 
   final AnonInvoicePageViewModel anonInvoicePageViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
@@ -82,6 +92,10 @@ class AnonPayInvoicePage extends BasePage {
               return Padding(
                 padding: EdgeInsets.fromLTRB(24, 100, 24, 0),
                 child: AnonInvoiceForm(
+                  nameController: _nameController,
+                  descriptionController: _descriptionController,
+                  amountController: _amountController,
+                  emailController: _emailController,
                   formKey: _formKey,
                   isInvoice: receiveOptionViewModel.selectedReceiveOption ==
                       ReceivePageOption.anonPayInvoice,
@@ -115,6 +129,12 @@ class AnonPayInvoicePage extends BasePage {
                   text:
                       isInvoice ? S.of(context).create_invoice : S.of(context).create_donation_link,
                   onPressed: () {
+                    anonInvoicePageViewModel.setRequestParams(
+                      inputAmount: _amountController.text, 
+                      inputName: _nameController.text, 
+                      inputEmail: _emailController.text, 
+                      inputDescription: _descriptionController.text,
+                    );
                     if (anonInvoicePageViewModel.receipientEmail.isNotEmpty &&
                         _formKey.currentState != null &&
                         !_formKey.currentState!.validate()) {

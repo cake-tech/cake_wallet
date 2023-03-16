@@ -15,31 +15,16 @@ class AnonInvoiceForm extends StatelessWidget {
     required this.formKey,
     required this.anonInvoicePageViewModel,
     required this.isInvoice,
-  })  : _nameController = TextEditingController(),
-        _amountController = TextEditingController(),
-        _emailController = TextEditingController(),
-        _descriptionController = TextEditingController() {
-    _nameController.text = anonInvoicePageViewModel.receipientName;
-    _descriptionController.text = anonInvoicePageViewModel.description;
-    _emailController.text = anonInvoicePageViewModel.receipientEmail;  
-    _nameController.addListener(() {
-      anonInvoicePageViewModel.receipientName = _nameController.text;
-    });
-    _amountController.addListener(() {
-      anonInvoicePageViewModel.amount = _amountController.text;
-    });
-    _emailController.addListener(() {
-      anonInvoicePageViewModel.receipientEmail = _emailController.text;
-    });
-    _descriptionController.addListener(() {
-      anonInvoicePageViewModel.description = _descriptionController.text;
-    });
-  }
+    required this.amountController,
+    required this.nameController,
+    required this.emailController,
+    required this.descriptionController,
+  });
 
-  final TextEditingController _amountController;
-  final TextEditingController _nameController;
-  final TextEditingController _emailController;
-  final TextEditingController _descriptionController;
+  final TextEditingController amountController;
+  final TextEditingController nameController;
+  final TextEditingController emailController;
+  final TextEditingController descriptionController;
   final AnonInvoicePageViewModel anonInvoicePageViewModel;
   final _depositAmountFocus = FocusNode();
   final GlobalKey<FormState> formKey;
@@ -60,7 +45,7 @@ class AnonInvoiceForm extends StatelessWidget {
               Observer(builder: (_) {
                 return AnonpayCurrencyInputField(
                   onTapPicker: () => _presentPicker(context),
-                  controller: _amountController,
+                  controller: amountController,
                   focusNode: _depositAmountFocus,
                   maxAmount: anonInvoicePageViewModel.maximum?.toString() ?? '...',
                   minAmount: anonInvoicePageViewModel.minimum?.toString() ?? '...',
@@ -71,7 +56,7 @@ class AnonInvoiceForm extends StatelessWidget {
               height: 24,
             ),
             BaseTextFormField(
-              controller: _nameController,
+              controller: nameController,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_name,
@@ -87,7 +72,7 @@ class AnonInvoiceForm extends StatelessWidget {
               height: 24,
             ),
             BaseTextFormField(
-              controller: _descriptionController,
+              controller: descriptionController,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_description,
@@ -101,7 +86,7 @@ class AnonInvoiceForm extends StatelessWidget {
             ),
             SizedBox(height: 24),
             BaseTextFormField(
-              controller: _emailController,
+              controller: emailController,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               keyboardType: TextInputType.emailAddress,

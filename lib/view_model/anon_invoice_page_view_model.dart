@@ -121,6 +121,19 @@ abstract class AnonInvoicePageViewModelBase with Store {
   }
 
   @action
+  void setRequestParams({
+    required  String inputAmount, 
+    required String inputName, 
+    required String inputEmail, 
+    required String inputDescription,
+  }) {
+    receipientName = inputName;
+    receipientEmail = inputEmail;
+    description = inputDescription;
+    amount = inputAmount;
+  }
+
+  @action
   Future<void> generateDonationLink() async {
     state = IsExecutingState();
 
