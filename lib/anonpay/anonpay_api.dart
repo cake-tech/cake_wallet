@@ -31,9 +31,9 @@ class AnonPayApi {
     final response = await get(Uri.https(authority, "$anonPayStatus/$id"));
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final status = responseJSON['Status'] as String;
-    final fiatAmount = responseJSON['Fiat_Amount'] as String?;
+    final fiatAmount = responseJSON['Fiat_Amount'] as double?;
     final fiatEquiv = responseJSON['Fiat_Equiv'] as String?;
-    final amountTo = responseJSON['AmountTo'] as double;
+    final amountTo = responseJSON['AmountTo'] as double?;
     final coinTo = responseJSON['CoinTo'] as String;
     final address = responseJSON['Address'] as String;
 
@@ -114,11 +114,11 @@ class AnonPayApi {
     final clearnetUrl = Uri.https(clearNetAuthority, anonPayPath, body);
     final onionUrl = Uri.https(onionApiAuthority, anonPayPath, body);
     return AnonpayInvoiceInfo(
-        clearnetUrl: clearnetUrl.toString(),
-        onionUrl: onionUrl.toString(),
-        provider: AnonpayProviderDescription.anonpayDonationLink,
-        createdAt: DateTime.now(),
-        );
+      clearnetUrl: clearnetUrl.toString(),
+      onionUrl: onionUrl.toString(),
+      provider: AnonpayProviderDescription.anonpayDonationLink,
+      createdAt: DateTime.now(),
+    );
   }
 
   Future<Limits> fetchLimits({

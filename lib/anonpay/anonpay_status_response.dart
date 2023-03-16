@@ -1,8 +1,8 @@
 class AnonpayStatusResponse {
   final String status;
-  final String? fiatAmount;
+  final double? fiatAmount;
   final String? fiatEquiv;
-  final double amountTo;
+  final double? amountTo;
   final String coinTo;
   final String address;
 

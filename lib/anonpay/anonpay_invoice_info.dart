@@ -11,7 +11,7 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable {
   @HiveField(1)
   String? status;
   @HiveField(2)
-  String? fiatAmount;
+  double? fiatAmount;
   @HiveField(3)
   String? fiatEquiv;
   @HiveField(4)
