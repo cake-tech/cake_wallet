@@ -37,7 +37,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
         state = InitialExecutionState(),
         selectedCurrency = walletTypeToCryptoCurrency(_wallet.type),
         cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type) {
-    _getPreviousDonationLink();      
+    _getPreviousDonationLink();
     _fetchLimits();
   }
 
@@ -122,9 +122,9 @@ abstract class AnonInvoicePageViewModelBase with Store {
 
   @action
   void setRequestParams({
-    required  String inputAmount, 
-    required String inputName, 
-    required String inputEmail, 
+    required String inputAmount,
+    required String inputName,
+    required String inputEmail,
     required String inputDescription,
   }) {
     receipientName = inputName;
@@ -176,14 +176,14 @@ abstract class AnonInvoicePageViewModelBase with Store {
   }
 
   Future<void> _getPreviousDonationLink() async {
-    if(pageOption == ReceivePageOption.anonPayDonationLink) {
-    final donationLink = sharedPreferences.getString(PreferencesKey.trocadorDonationLink);
-      if(donationLink != null){
-       final url = Uri.parse(donationLink);
+    if (pageOption == ReceivePageOption.anonPayDonationLink) {
+      final donationLink = sharedPreferences.getString(PreferencesKey.trocadorDonationLink);
+      if (donationLink != null) {
+        final url = Uri.parse(donationLink);
         url.queryParameters.forEach((key, value) {
-          if(key == 'name') receipientName = value;
-          if(key == 'email') receipientEmail = value;
-          if(key == 'description') description = Uri.decodeComponent(value);
+          if (key == 'name') receipientName = value;
+          if (key == 'email') receipientEmail = value;
+          if (key == 'description') description = Uri.decodeComponent(value);
         });
         generateDonationLink();
       }
