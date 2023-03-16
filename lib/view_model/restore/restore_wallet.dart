@@ -33,8 +33,8 @@ class RestoredWallet {
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
       address: json['address'] as String,
-      spendKey: json['spend_key'] as String,
-      viewKey: json['view_key'] as String,
+      spendKey: json['spend_key'] as String?,
+      viewKey: json['view_key'] as String?,
       height: height != null ? int.parse(height) : 0,
     );
   }

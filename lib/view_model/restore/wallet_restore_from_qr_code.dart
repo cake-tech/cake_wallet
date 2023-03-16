@@ -10,6 +10,7 @@ class WalletRestoreFromQRCode {
 
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
     final code = await presentQRScanner();
+    print(code);
     Map<String, dynamic> credentials = {};
     Map<String, String> parameters = {};
 
@@ -94,10 +95,11 @@ class WalletRestoreFromQRCode {
           : throw Exception('Unexpected restore mode: seed is invalid');
     }
 
-    if (parameters.containsKey('spend_key') && parameters.containsKey('view_key')) {
+    if (parameters.containsKey('spend_key') || parameters.containsKey('view_key')) {
       final spendKeyValue = parameters['spend_key'] ?? '';
       final viewKeyValue = parameters['view_key'] ?? '';
-      return spendKeyValue.isNotEmpty && viewKeyValue.isNotEmpty
+
+      return spendKeyValue.isNotEmpty || viewKeyValue.isNotEmpty
           ? WalletRestoreMode.keys
           : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
     }
