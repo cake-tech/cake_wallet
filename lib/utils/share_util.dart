@@ -3,8 +3,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:cross_file/cross_file.dart';
 
 class ShareUtil {
-  static const _mimeType = 'application/*';
-
   static void share({required String text, required BuildContext context}) {
     Share.share(
       text,
@@ -17,7 +15,8 @@ class ShareUtil {
     required String fileName,
     required BuildContext context,
   }) async {
-    Share.shareXFiles(
+    const _mimeType = 'application/*';
+    await Share.shareXFiles(
       <XFile>[
         XFile(
           filePath,
