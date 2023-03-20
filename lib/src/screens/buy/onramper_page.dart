@@ -38,7 +38,7 @@ class OnRamperPageBody extends StatefulWidget {
       required this.supportSwap,
       required this.backgroundColor});
 
-  static const baseUrl = 'widget.onramper.com';
+  static const baseUrl = 'exchange.payfura.com';
   final SettingsStore settingsStore;
   final WalletBase wallet;
   final Color backgroundColor;
@@ -47,13 +47,11 @@ class OnRamperPageBody extends StatefulWidget {
   final bool supportSwap;
 
   Uri get uri => Uri.https(baseUrl, '', <String, dynamic>{
-        'apiKey': secrets.onramperApiKey,
-        'defaultCrypto': wallet.currency.title,
-        'defaultFiat': settingsStore.fiatCurrency.title,
-        'wallets': '${wallet.currency.title}:${wallet.walletAddresses.address}',
-        'darkMode': darkMode.toString(),
-        'supportSell': supportSell.toString(),
-        'supportSwap': supportSwap.toString()
+        'apiKey': secrets.payfuraApiKey,
+        'to': wallet.currency.title,
+        'from': settingsStore.fiatCurrency.title,
+        'walletAddress': '${wallet.currency.title}:${wallet.walletAddresses.address}',
+        'mode': 'buy'
       });
 
   @override
