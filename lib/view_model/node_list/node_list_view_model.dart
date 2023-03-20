@@ -1,9 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -19,18 +16,15 @@ class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 
 abstract class NodeListViewModelBase with Store {
   NodeListViewModelBase(this._nodeSource, this._appStore)
-      : nodes = ObservableList<Node>(), 
-        wallet = _appStore.wallet!, 
-        settingsStore = _appStore.settingsStore {   
-        _bindNodes();
+      : nodes = ObservableList<Node>(),
+        wallet = _appStore.wallet!,
+        settingsStore = _appStore.settingsStore {
+    _bindNodes();
 
-        reaction((_) => _appStore.wallet, (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>?
-          _wallet) { 
-            wallet = _wallet!;
-            nodes.clear();
-            _bindNodes();
-        });
+    reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
+      wallet = _wallet!;
+      _bindNodes();
+    });
   }
 
   @computed
@@ -49,10 +43,9 @@ abstract class NodeListViewModelBase with Store {
 
   String getAlertContent(String uri) =>
       S.current.change_current_node(uri) +
-          '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
+      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
 
-  
-  ObservableList<Node> nodes;
+  final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
   final Box<Node> _nodeSource;
   final AppStore _appStore;
@@ -85,11 +78,11 @@ abstract class NodeListViewModelBase with Store {
   @action
   Future<void> delete(Node node) async => node.delete();
 
-  Future<void> setAsCurrent(Node node) async =>
-      settingsStore.nodes[wallet.type] = node;
-  
+  Future<void> setAsCurrent(Node node) async => settingsStore.nodes[wallet.type] = node;
+
   @action
   void _bindNodes() {
-    _nodeSource.bindToList(nodes, filter:  (val) => val.type == wallet.type, initialFire: true);
+    nodes.clear();
+    _nodeSource.bindToList(nodes, filter: (val) => val.type == wallet.type, initialFire: true);
   }
 }
