@@ -21,7 +21,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   }
 
   WalletBase wallet;
-  Box<UnspentCoinsInfo> _unspentCoinsInfo;
+  final Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
   @computed
   ObservableList<UnspentCoinsItem> get items => ObservableList.of(bitcoin!.getUnspents(wallet).map((elem) {

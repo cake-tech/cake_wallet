@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -43,30 +44,8 @@ class UnspentCoinsListItem extends StatelessWidget {
           children: [
             Padding(
                 padding: EdgeInsets.only(right: 12),
-                child: GestureDetector(
-                  onTap: () => onCheckBoxTap?.call(),
-                  child: Container(
-                    height: 24.0,
-                    width: 24.0,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .caption!
-                                .color!,
-                            width: 1.0),
-                        borderRadius: BorderRadius.all(
-                            Radius.circular(8.0)),
-                        color: itemColor),
-                    child: isSending
-                      ? Icon(
-                        Icons.check,
-                        color: Colors.blue,
-                        size: 20.0,
-                      )
-                      : Offstage(),
-                  )
-                )
+                child: StandardCheckbox(
+                    value: isSending, onChanged: (value) => onCheckBoxTap?.call())
             ),
             Expanded(
                 child: Column(
