@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -47,15 +47,7 @@ class DashboardPage extends StatelessWidget {
               dashboardViewModel: dashboardViewModel,
               addressListViewModel: addressListViewModel,
             )
-          : DesktopSidebarWrapper(
-              desktopSidebarViewModel: desktopSidebarViewModel,
-              dashboardViewModel: dashboardViewModel,
-              child: DesktopDashboardPage(
-                balancePage: balancePage,
-                dashboardViewModel: dashboardViewModel,
-                addressListViewModel: addressListViewModel,
-              ),
-            ),
+          : getIt.get<DesktopSidebarWrapper>(),
     );
   }
 }

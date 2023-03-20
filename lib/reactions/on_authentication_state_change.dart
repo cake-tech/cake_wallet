@@ -23,12 +23,8 @@ void startAuthenticationStateChange(
     }
 
     if (state == AuthenticationState.allowed) {
-      // Temporary workaround for the issue with desktopKey dispose
-      // TODO: Remove this workaround and fix global key issue
-      Future.delayed(Duration(milliseconds: 500), () async {
-        await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-        return;
-      });
+      await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+      return;
     }
   });
 }
