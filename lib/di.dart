@@ -138,7 +138,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -210,9 +209,9 @@ Future setup(
         () => SharedPreferences.getInstance());
   }
 
-  final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
-      (secrets.wyreApiKey?.isNotEmpty ?? false) &&
-      (secrets.wyreAccountId?.isNotEmpty ?? false);
+  final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty ?? false) &&
+      (secrets.wyreApiKey.isNotEmpty ?? false) &&
+      (secrets.wyreAccountId.isNotEmpty ?? false);
 
   final settingsStore = await SettingsStoreBase.load(
     nodeSource: _nodeSource,
@@ -366,7 +365,7 @@ Future setup(
       .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
           (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
               onAuthenticationFinished: onAuthFinished,
-              closable: closable ?? false));
+              closable: closable));
 
   getIt.registerFactory(() =>
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
@@ -511,7 +510,7 @@ Future setup(
           isNewWalletCreated: isWalletCreated));
 
   getIt
-      .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>().wallet!));
+      .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
 
@@ -531,8 +530,7 @@ Future setup(
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(
-        _nodeSource, appStore.wallet!, appStore.settingsStore);
+    return NodeListViewModel(_nodeSource, appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
