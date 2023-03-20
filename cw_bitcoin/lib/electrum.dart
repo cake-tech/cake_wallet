@@ -358,7 +358,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method,
       List<Object> params = const [],
-      int timeout = 2000}) async {
+      int timeout = 3000}) async {
     try {
       final completer = Completer<dynamic>();
       _id += 1;
