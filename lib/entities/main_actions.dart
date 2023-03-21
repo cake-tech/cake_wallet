@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -47,7 +46,7 @@ class MainActions {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
-          if (Platform.isIOS || Platform.isAndroid) {
+          if (DeviceInfo.instance.isMobile) {
             Navigator.of(context).pushNamed(Routes.onramperPage);
           } else {
             final uri = getIt

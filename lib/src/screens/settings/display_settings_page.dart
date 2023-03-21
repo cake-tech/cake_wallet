@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -9,6 +7,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.da
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +65,7 @@ class DisplaySettingsPage extends BasePage {
                 return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
               },
             ),
-            if (Platform.isIOS || Platform.isAndroid)
+            if (DeviceInfo.instance.isMobile)
               SettingsChoicesCell(
                 ChoicesListItem<ThemeBase>(
                   title: S.current.color_theme,

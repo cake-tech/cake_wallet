@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
@@ -20,6 +18,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
@@ -216,8 +215,8 @@ Future setup(
   final settingsStore = await SettingsStoreBase.load(
     nodeSource: _nodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-    // Enforce darkTheme on other platforms till the design for other themes is completed
-    initialTheme: Platform.isIOS || Platform.isAndroid ? null : ThemeList.darkTheme,
+    // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
+    initialTheme: DeviceInfo.instance.isMobile ? null : ThemeList.darkTheme,
   );
 
   if (_isSetupFinished) {
@@ -374,7 +373,6 @@ Future setup(
       balancePage: getIt.get<BalancePage>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-      desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
     ));
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -432,13 +430,25 @@ Future setup(
   getIt.registerFactory(() => SendTemplatePage(
       sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
-  getIt.registerFactory(() => WalletListViewModel(
-      _walletInfoSource,
-      getIt.get<AppStore>(),
-      getIt.get<WalletLoadingService>(),
-      getIt.get<AuthService>(),
-    ),
-  );
+  if (DeviceInfo.instance.isMobile) {
+    getIt.registerFactory(() => WalletListViewModel(
+        _walletInfoSource,
+        getIt.get<AppStore>(),
+        getIt.get<WalletLoadingService>(),
+        getIt.get<AuthService>(),
+      ),
+    );
+  } else {
+    // register wallet list view model as singleton on desktop since it can be accessed
+    // from multiple places at the same time (Wallets DropDown, Wallets List in settings)
+    getIt.registerLazySingleton(() => WalletListViewModel(
+        _walletInfoSource,
+        getIt.get<AppStore>(),
+        getIt.get<WalletLoadingService>(),
+        getIt.get<AuthService>(),
+      ),
+    );
+  }
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
