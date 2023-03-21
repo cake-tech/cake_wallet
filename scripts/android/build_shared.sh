@@ -5,4 +5,3 @@
 ./build_sodium.sh &
 ./build_zmq.sh &
 wait
-./build_monero.sh
