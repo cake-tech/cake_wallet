@@ -2,7 +2,7 @@
 
 WORKDIR="$(pwd)/"build
 CW_DIR="$(pwd)"/../../../flutter_libmonero
-CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
+CW_EXTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
 CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
 if [ -z ${TYPES_OF_BUILD+x} ]; then TYPES_OF_BUILD=x86_64; fi
 
@@ -23,8 +23,8 @@ case $arch in
 		ABI="x86_64";;
 esac
 
-LIB_DIR=${CW_EXRTERNAL_DIR}/${ABI}/lib
-INCLUDE_DIR=${CW_EXRTERNAL_DIR}/${ABI}/include
+LIB_DIR=${CW_EXTERNAL_DIR}/${ABI}/lib
+INCLUDE_DIR=${CW_EXTERNAL_DIR}/${ABI}/include
 
 mkdir -p $LIB_DIR
 mkdir -p $INCLUDE_DIR
