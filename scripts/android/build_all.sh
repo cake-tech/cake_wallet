@@ -5,7 +5,7 @@
 ./build_monero.sh
 ./build_wownero.sh
 ./build_wownero_seed.sh
-./git_versions.sh
+./create_git_versions_file.sh
 ./copy_monero_deps.sh
 ./copy_wownero_deps.sh
 
