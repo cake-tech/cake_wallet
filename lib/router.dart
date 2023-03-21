@@ -1,3 +1,4 @@
+import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -524,7 +525,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
     
     case Routes.anonPayReceivePage:
-        final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
+        final anonInvoiceViewData = settings.arguments as AnonpayInfoBase;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonInvoiceViewData));
     
     case Routes.anonPayDetailsPage:

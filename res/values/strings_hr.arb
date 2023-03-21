@@ -686,5 +686,15 @@
   "do_not_send": "Ne šalji",
   "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju.",
   "decimal_places_error": "Previše decimalnih mjesta",
-  "edit_node": "Uredi čvor"
+  "edit_node": "Uredi čvor",
+  "invoice_details": "Podaci o fakturi",
+  "donation_link_details": "Detalji veza za donacije",
+  "anonpay_description": "Generiraj ${type}. Primatelj može ${method} s bilo kojom podržanom kriptovalutom, a vi ćete primiti sredstva u ovaj novčanik.",
+  "create_invoice": "Izradite fakturu",
+  "create_donation_link": "Izradi poveznicu za donaciju",
+  "optional_email_hint": "Neobavezna e-pošta za obavijest primatelja",
+  "optional_description": "Opcijski opis",
+  "optional_name": "Izborno ime primatelja",
+  "clearnet_link": "Clearnet veza",
+  "onion_link": "Poveznica luka"
 }

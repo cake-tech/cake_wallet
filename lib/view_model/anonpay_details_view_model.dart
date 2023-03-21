@@ -34,9 +34,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
 
   final AnonPayApi anonPayApi;
   final SettingsStore settingsStore;
-
-  @observable
-  AnonpayInvoiceInfo invoiceDetail;
+  final AnonpayInvoiceInfo invoiceDetail;
 
   @observable
   ObservableList<StandartListItem> items;
@@ -46,7 +44,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
   @action
   Future<void> _updateInvoiceDetail() async {
     try {
-      final data = await anonPayApi.paymentStatus(invoiceDetail.invoiceId ?? '');
+      final data = await anonPayApi.paymentStatus(invoiceDetail.invoiceId);
       invoiceDetail.status = data.status;
       _updateItems();
     } catch (e) {
@@ -58,24 +56,24 @@ abstract class AnonpayDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal();
     items.clear();
     items.addAll([
-      DetailsListStatusItem(title: S.current.status, value: invoiceDetail.status ?? ''),
+      DetailsListStatusItem(title: S.current.status, value: invoiceDetail.status),
       TradeDetailsListCardItem(
-        id: invoiceDetail.invoiceId ?? '',
+        id: invoiceDetail.invoiceId,
         createdAt: dateFormat.format(invoiceDetail.createdAt).toString(),
         pair: (invoiceDetail.fiatAmount != null)
             ? "→ ${invoiceDetail.fiatAmount} ${invoiceDetail.fiatEquiv ?? ''}"
-            : '→ ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo ?? '').name.toUpperCase()}',
+            : '→ ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo).name.toUpperCase()}',
         onTap: (BuildContext context) {
           Clipboard.setData(ClipboardData(text: '${invoiceDetail.invoiceId}'));
           showBar<void>(context, S.of(context).copied_to_clipboard);
         },
       ),
-      StandartListItem(title: S.current.trade_details_provider, value: invoiceDetail.provider.title)
+      StandartListItem(title: S.current.trade_details_provider, value: invoiceDetail.provider)
     ]);
 
     items.add(TrackTradeListItem(
         title: 'Track',
-        value: invoiceDetail.clearnetStatusUrl ?? '',
-        onTap: () => launchUrlString(invoiceDetail.clearnetStatusUrl ?? '')));
+        value: invoiceDetail.clearnetStatusUrl,
+        onTap: () => launchUrlString(invoiceDetail.clearnetStatusUrl)));
   }
 }

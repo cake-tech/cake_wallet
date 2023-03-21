@@ -1,5 +1,7 @@
+import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dart';
@@ -17,6 +19,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AnonPayInvoicePage extends BasePage {
   AnonPayInvoicePage(this.anonInvoicePageViewModel, this.receiveOptionViewModel) {
@@ -163,10 +166,28 @@ class AnonPayInvoicePage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+      
       Navigator.pop(context);
       switch (option) {
         case ReceivePageOption.mainnet:
           Navigator.popAndPushNamed(context, Routes.addressPage);
+          break;
+        case ReceivePageOption.anonPayDonationLink:
+          final sharedPreferences =  getIt.get<SharedPreferences>(); 
+          final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
+          final onionUrl =    sharedPreferences.getString(PreferencesKey.onionDonationLink);
+
+          if (clearnetUrl != null && onionUrl != null){
+            Navigator.pushReplacementNamed(
+              context,
+              Routes.anonPayReceivePage,
+              arguments: AnonpayDonationLinkInfo(
+                clearnetUrl: clearnetUrl, 
+                onionUrl: onionUrl, 
+                address: anonInvoicePageViewModel.address,
+              )
+            );
+          } 
           break;
         default:
       }
@@ -175,7 +196,7 @@ class AnonPayInvoicePage extends BasePage {
     reaction((_) => anonInvoicePageViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
         Navigator.pushNamed(context, Routes.anonPayReceivePage,
-            arguments: state.payload as AnonpayInvoiceInfo);
+            arguments: state.payload);
       }
       if (state is FailureState) {
         showPopUp<void>(

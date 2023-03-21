@@ -2,11 +2,9 @@ import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
@@ -27,7 +25,6 @@ abstract class AnonInvoicePageViewModelBase with Store {
     this.settingsStore,
     this._wallet,
     this._anonpayInvoiceInfoSource,
-    this._fiatConversationStore,
     this.sharedPreferences,
     this.pageOption,
   )   : receipientEmail = '',
@@ -47,7 +44,6 @@ abstract class AnonInvoicePageViewModelBase with Store {
   final SettingsStore settingsStore;
   final WalletBase _wallet;
   final Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
-  final FiatConversionStore _fiatConversationStore;
   final SharedPreferences sharedPreferences;
   final ReceivePageOption pageOption;
 
@@ -86,7 +82,10 @@ abstract class AnonInvoicePageViewModelBase with Store {
     maximum = minimum = null;
     if (currency is CryptoCurrency) {
       cryptoCurrency = currency;
+    } else {
+      cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     }
+
     _fetchLimits();
   }
 
@@ -145,7 +144,8 @@ abstract class AnonInvoicePageViewModelBase with Store {
       name: receipientName,
     ));
 
-    await sharedPreferences.setString(PreferencesKey.trocadorDonationLink, result.clearnetUrl);
+    await sharedPreferences.setString(PreferencesKey.clearnetDonationLink, result.clearnetUrl);
+    await sharedPreferences.setString(PreferencesKey.onionDonationLink, result.onionUrl);
 
     state = ExecutedSuccessfullyState(payload: result);
   }
@@ -162,6 +162,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
   @action
   void reset() {
     selectedCurrency = walletTypeToCryptoCurrency(_wallet.type);
+    cryptoCurrency =  walletTypeToCryptoCurrency(_wallet.type);
     receipientEmail = '';
     receipientName = '';
     description = '';
@@ -171,7 +172,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
 
   Future<void> _getPreviousDonationLink() async {
     if (pageOption == ReceivePageOption.anonPayDonationLink) {
-      final donationLink = sharedPreferences.getString(PreferencesKey.trocadorDonationLink);
+      final donationLink = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
       if (donationLink != null) {
         final url = Uri.parse(donationLink);
         url.queryParameters.forEach((key, value) {
@@ -179,7 +180,6 @@ abstract class AnonInvoicePageViewModelBase with Store {
           if (key == 'email') receipientEmail = value;
           if (key == 'description') description = Uri.decodeComponent(value);
         });
-        generateDonationLink();
       }
     }
   }

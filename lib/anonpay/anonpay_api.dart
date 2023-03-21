@@ -1,12 +1,11 @@
 import 'dart:convert';
+import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/anonpay/anonpay_provider_description.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -36,7 +35,7 @@ class AnonPayApi {
     final status = responseJSON['Status'] as String;
     final fiatAmount = responseJSON['Fiat_Amount'] as double?;
     final fiatEquiv = responseJSON['Fiat_Equiv'] as String?;
-    final amountTo = responseJSON['AmountTo'] as double?;
+    final amountTo = responseJSON['AmountTo'] as double;
     final coinTo = responseJSON['CoinTo'] as String;
     final address = responseJSON['Address'] as String;
 
@@ -97,11 +96,11 @@ class AnonPayApi {
       onionStatusUrl: statusUrlOnion,
       walletId: wallet.id,
       createdAt: DateTime.now(),
-      provider: AnonpayProviderDescription.anonpayInvoice,
+      provider: 'Trocador AnonPay invoice',
     );
   }
 
-  Future<AnonpayInvoiceInfo> generateDonationLink(AnonPayRequest request) async {
+  Future<AnonpayDonationLinkInfo> generateDonationLink(AnonPayRequest request) async {
     final description = Uri.encodeComponent(request.description);
     final body = <String, dynamic>{
       'ticker_to': request.cryptoCurrency.title.toLowerCase(),
@@ -116,11 +115,10 @@ class AnonPayApi {
 
     final clearnetUrl = Uri.https(clearNetAuthority, anonPayPath, body);
     final onionUrl = Uri.https(onionApiAuthority, anonPayPath, body);
-    return AnonpayInvoiceInfo(
+    return AnonpayDonationLinkInfo(
       clearnetUrl: clearnetUrl.toString(),
       onionUrl: onionUrl.toString(),
-      provider: AnonpayProviderDescription.anonpayDonationLink,
-      createdAt: DateTime.now(),
+      address: request.address,
     );
   }
 

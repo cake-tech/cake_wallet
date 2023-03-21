@@ -686,5 +686,15 @@
   "do_not_send": "no enviar",
   "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe el informe de bloqueo a nuestro equipo de soporte para mejorar la aplicación.",
   "decimal_places_error": "Demasiados lugares decimales",
-  "edit_node": "Edit Node"
+  "edit_node": "Edit Node",
+  "invoice_details": "Detalles de la factura",
+  "donation_link_details": "Detalles del enlace de donación",
+  "anonpay_description": "Genera ${type}. El destinatario puede ${method} con cualquier criptomoneda admitida, y recibirá fondos en esta billetera.",
+  "create_invoice": "Crear factura",
+  "create_donation_link": "Crear enlace de donación",
+  "optional_email_hint": "Correo electrónico de notificación del beneficiario opcional",
+  "optional_description": "Descripción opcional",
+  "optional_name": "Nombre del destinatario opcional",
+  "clearnet_link": "enlace Clearnet",
+  "onion_link": "Enlace de cebolla"
 }

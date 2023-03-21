@@ -1,3 +1,5 @@
+import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dart';
@@ -16,6 +18,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/di.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -220,18 +224,37 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+      Navigator.pop(context);  
       switch (option) {
-        case ReceivePageOption.mainnet:
-          Navigator.pop(context);
-          break;
         case ReceivePageOption.anonPayInvoice:
-        case ReceivePageOption.anonPayDonationLink:
-          Navigator.pop(context);
           Navigator.pushReplacementNamed(
             context,
             Routes.anonPayInvoicePage,
             arguments: [addressListViewModel.address.address, option],
           );
+          break;
+        case ReceivePageOption.anonPayDonationLink:
+          final sharedPreferences =  getIt.get<SharedPreferences>(); 
+          final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
+          final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
+
+          if (clearnetUrl != null && onionUrl != null){
+            Navigator.pushReplacementNamed(
+              context,
+              Routes.anonPayReceivePage,
+              arguments: AnonpayDonationLinkInfo(
+                clearnetUrl: clearnetUrl, 
+                onionUrl: onionUrl, 
+                address: addressListViewModel.address.address,
+              ),
+            );
+          } else {
+              Navigator.pushReplacementNamed(
+                context,
+                Routes.anonPayInvoicePage,
+                arguments: [addressListViewModel.address.address, option],
+              );
+          }
           break;
         default:
       }

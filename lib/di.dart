@@ -1,4 +1,5 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
+import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -380,7 +381,7 @@ Future setup(
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   
-  getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption, void>((pageOption, _) => ReceiveOptionViewModel(
+  getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>((pageOption, _) => ReceiveOptionViewModel(
       getIt.get<AppStore>().wallet!, pageOption));
 
   getIt.registerFactoryParam<AnonInvoicePageViewModel, List<dynamic>, void>((args, _) { 
@@ -392,7 +393,6 @@ Future setup(
       getIt.get<SettingsStore>(), 
       getIt.get<AppStore>().wallet!, 
       _anonpayInvoiceInfoSource, 
-      getIt.get<FiatConversionStore>(),
       getIt.get<SharedPreferences>(),
       pageOption,
     ); 
@@ -410,7 +410,7 @@ Future setup(
   getIt.registerFactory<AddressPage>(() => AddressPage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       walletViewModel: getIt.get<DashboardViewModel>(),
-      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: ReceivePageOption.mainnet)));
+      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>()));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) => WalletAddressEditOrCreateViewModel(
@@ -882,8 +882,8 @@ Future setup(
       settingsStore: getIt.get<SettingsStore>(),
      ));
 
-  getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInvoiceInfo, void>(
-    (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonPayReceivePage(invoiceInfo: anonpayInvoiceInfo));
+  getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInfoBase, void>(
+    (AnonpayInfoBase anonpayInvoiceInfo, _) => AnonPayReceivePage(invoiceInfo: anonpayInvoiceInfo));
 
   getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
     (AnonpayInvoiceInfo anonpayInvoiceInfo, _) 

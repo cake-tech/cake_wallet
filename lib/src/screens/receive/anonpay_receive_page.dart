@@ -1,5 +1,5 @@
+import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/anonpay/anonpay_provider_description.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -11,7 +11,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 
 class AnonPayReceivePage extends BasePage {
-  final AnonpayInvoiceInfo invoiceInfo;
+  final AnonpayInfoBase invoiceInfo;
 
   AnonPayReceivePage({required this.invoiceInfo});
 
@@ -62,7 +62,7 @@ class AnonPayReceivePage extends BasePage {
               color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
         ),
         Text(
-          ReceivePageOption.anonPayInvoice.toString(),
+          invoiceInfo is AnonpayInvoiceInfo ? ReceivePageOption.anonPayInvoice.toString() : ReceivePageOption.anonPayDonationLink.toString(),
           style: TextStyle(
               fontSize: 10.0,
               fontWeight: FontWeight.w500,
@@ -74,16 +74,23 @@ class AnonPayReceivePage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    if (invoiceInfo.provider == AnonpayProviderDescription.anonpayInvoice) {
+    if (invoiceInfo is AnonpayInvoiceInfo) {
       return null;
     }
 
     return Material(
       color: Colors.transparent,
       child: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.edit,
-              color: Theme.of(context).accentTextTheme.caption!.color!, size: 22.0)),
+        onPressed: () => Navigator.popAndPushNamed(
+          context,
+          Routes.anonPayInvoicePage,
+          arguments: [invoiceInfo.address, ReceivePageOption.anonPayDonationLink],
+        ),
+        icon: Icon(Icons.edit,
+          color: Theme.of(context).accentTextTheme.caption!.color!, 
+          size: 22.0,
+        ),
+      ),
     );
   }
 
@@ -104,8 +111,8 @@ class AnonPayReceivePage extends BasePage {
       child: Column(
         children: <Widget>[
           SizedBox(height: 24),
-          if (invoiceInfo.provider == AnonpayProviderDescription.anonpayInvoice)
-            AnonInvoiceStatusSection(invoiceInfo: invoiceInfo),
+          if (invoiceInfo is AnonpayInvoiceInfo)
+            AnonInvoiceStatusSection(invoiceInfo: invoiceInfo as AnonpayInvoiceInfo),
           Padding(
             padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
             child: QRWidget(isLight: currentTheme.type == ThemeType.light, 

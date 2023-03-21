@@ -68,7 +68,7 @@ class TransactionsPage extends StatelessWidget {
                               .pushNamed(Routes.anonPayDetailsPage, arguments: transactionInfo),
                           currency: transactionInfo.fiatAmount != null
                               ? transactionInfo.fiatEquiv ?? ''
-                              : CryptoCurrency.fromFullName(transactionInfo.coinTo ?? '')
+                              : CryptoCurrency.fromFullName(transactionInfo.coinTo)
                                   .name
                                   .toUpperCase(),
                           provider: transactionInfo.provider,

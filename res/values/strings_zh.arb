@@ -684,5 +684,15 @@
   "do_not_send": "不要发送",
   "error_dialog_content": "糟糕，我们遇到了一些错误。\n\n请将崩溃报告发送给我们的支持团队，以改进应用程序。",
   "decimal_places_error": "小数位太多",
-  "edit_node": "编辑节点"
+  "edit_node": "编辑节点",
+  "invoice_details": "发票明细",
+  "donation_link_details": "捐赠链接详情",
+  "anonpay_description": "生成 ${type}。收款人可以使用任何受支持的加密货币 ${method}，您将在此钱包中收到资金。",
+  "create_invoice": "创建发票",
+  "create_donation_link": "创建捐赠链接",
+  "optional_email_hint": "可选的收款人通知电子邮件",
+  "optional_description": "可选说明",
+  "optional_name": "可选收件人姓名",
+  "clearnet_link": "明网链接",
+  "onion_link": "洋葱链接"
 }

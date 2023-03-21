@@ -686,5 +686,15 @@
   "do_not_send": "मत भेजो",
   "error_dialog_content": "ओह, हमसे कुछ गड़बड़ी हुई है.\n\nएप्लिकेशन को बेहतर बनाने के लिए कृपया क्रैश रिपोर्ट हमारी सहायता टीम को भेजें।",
   "decimal_places_error": "बहुत अधिक दशमलव स्थान",
-  "edit_node": "नोड संपादित करें"
+  "edit_node": "नोड संपादित करें",
+  "invoice_details": "चालान विवरण",
+  "donation_link_details": "दान लिंक विवरण",
+  "anonpay_description": "${type} उत्पन्न करें। प्राप्तकर्ता किसी भी समर्थित क्रिप्टोकरेंसी के साथ ${method} कर सकता है, और आपको इस वॉलेट में धन प्राप्त होगा।",
+  "create_invoice": "इनवॉयस बनाएँ",
+  "create_donation_link": "दान लिंक बनाएं",
+  "optional_email_hint": "वैकल्पिक प्राप्तकर्ता सूचना ईमेल",
+  "optional_description": "वैकल्पिक विवरण",
+  "optional_name": "वैकल्पिक प्राप्तकर्ता नाम",
+  "clearnet_link": "क्लियरनेट लिंक",
+  "onion_link": "प्याज का लिंक"
 }

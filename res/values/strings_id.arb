@@ -668,5 +668,15 @@
   "contact_list_contacts": "Kontak",
   "contact_list_wallets": "Dompet Saya",
   "decimal_places_error": "Terlalu banyak tempat desimal",
-  "edit_node": "Sunting Node"
+  "edit_node": "Sunting Node",
+  "invoice_details": "Detail faktur",
+  "donation_link_details": "Detail tautan donasi",
+  "anonpay_description": "Hasilkan ${type}. Penerima dapat ${method} dengan cryptocurrency apa pun yang didukung, dan Anda akan menerima dana di dompet ini.",
+  "create_invoice": "Buat faktur",
+  "create_donation_link": "Buat tautan donasi",
+  "optional_email_hint": "Email pemberitahuan penerima pembayaran opsional",
+  "optional_description": "Deskripsi opsional",
+  "optional_name": "Nama penerima opsional",
+  "clearnet_link": "Tautan clearnet",
+  "onion_link": "Tautan bawang"
 }

@@ -1,5 +1,3 @@
-import 'package:cake_wallet/anonpay/anonpay_provider_description.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
 class AnonpayTransactionRow extends StatelessWidget {
@@ -12,7 +10,7 @@ class AnonpayTransactionRow extends StatelessWidget {
   });
 
   final VoidCallback? onTap;
-  final AnonpayProviderDescription provider;
+  final String provider;
   final String createdAt;
   final String amount;
   final String currency;
@@ -35,7 +33,7 @@ class AnonpayTransactionRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text(provider.title,
+                    Text(provider,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,

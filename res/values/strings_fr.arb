@@ -684,5 +684,15 @@
   "do_not_send": "N'envoyez pas",
   "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application.",
   "decimal_places_error": "Trop de décimales",
-  "edit_node": "Modifier le nœud"
+  "edit_node": "Modifier le nœud",
+  "invoice_details": "Détails de la facture",
+  "donation_link_details": "Détails du lien de don",
+  "anonpay_description": "Générez ${type}. Le destinataire peut ${method} avec n'importe quelle crypto-monnaie prise en charge, et vous recevrez des fonds dans ce portefeuille.",
+  "create_invoice": "Créer une facture",
+  "create_donation_link": "Créer un lien de don",
+  "optional_email_hint": "E-mail de notification du bénéficiaire facultatif",
+  "optional_description": "Descriptif facultatif",
+  "optional_name": "Nom du destinataire facultatif",
+  "clearnet_link": "Lien Clearnet",
+  "onion_link": "Lien d'oignon"
 }
