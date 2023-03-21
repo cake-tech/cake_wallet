@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir build
+mkdir -p build
 ./build_iconv.sh
 ./build_boost.sh
 ./build_openssl.sh
@@ -8,7 +8,4 @@ mkdir build
 ./build_unbound.sh
 ./build_zmq.sh
 ./build_monero.sh
-./build_wownero.sh
-./build_wownero_seed.sh
 ./copy_monero_deps.sh
-./build_sharedfile.sh
