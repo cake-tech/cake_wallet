@@ -1,6 +1,7 @@
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -194,7 +195,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   				Routes.restoreWallet,
                   				arguments: widget.walletListViewModel.currentWalletType);
           		    } else {
-          		      Navigator.of(context).pushNamed(Routes.restoreWalletType); 
+          		      Navigator.of(context).pushNamed(Routes.restoreWalletType);
           		    }
 		            },
                 image: restoreWalletImage,
@@ -233,9 +234,13 @@ class WalletListBodyState extends State<WalletListBody> {
           await widget.walletListViewModel.loadWallet(wallet);
           auth.hideProgressText();
           auth.close();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pop();
-          });
+          // only pop the wallets route in mobile as it will go back to dashboard page
+          // in desktop platforms the navigation tree is different
+          if (DeviceInfo.instance.isMobile) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pop();
+            });
+          }
         } catch (e) {
           auth.changeProcessText(
               S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
@@ -246,7 +251,11 @@ class WalletListBodyState extends State<WalletListBody> {
         changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
         hideProgressText();
-        Navigator.of(context).pop();
+        // only pop the wallets route in mobile as it will go back to dashboard page
+        // in desktop platforms the navigation tree is different
+        if (DeviceInfo.instance.isMobile) {
+          Navigator.of(context).pop();
+        }
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
@@ -291,6 +300,7 @@ class WalletListBodyState extends State<WalletListBody> {
             ? auth.changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name))
             : changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
         await widget.walletListViewModel.remove(wallet);
+        hideProgressText();
       } catch (e) {
         auth != null
             ? auth.changeProcessText(
@@ -310,8 +320,10 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   void hideProgressText() {
-    _progressBar?.dismiss();
-    _progressBar = null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _progressBar?.dismiss();
+      _progressBar = null;
+    });
   }
 
   ActionPane _actionPane(WalletListItem wallet) => ActionPane(
