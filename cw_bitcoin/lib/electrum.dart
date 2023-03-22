@@ -124,7 +124,6 @@ class ElectrumClient {
       await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
-      print('RequestFailedTimeoutException');
       _setIsConnected(false);
     }
   }
@@ -357,27 +356,23 @@ class ElectrumClient {
   }
 
   Future<dynamic> callWithTimeout(
-      {required String method, List<Object> params = const [], int timeout = 1000}) async {
+      {required String method,
+      List<Object> params = const [],
+      int timeout = 3000}) async {
     try {
       final completer = Completer<dynamic>();
       _id += 1;
       final id = _id;
       _registryTask(id, completer);
       socket!.write(jsonrpc(method: method, id: id, params: params));
-      var counter = 0;
-      Timer.periodic(Duration(milliseconds: timeout), (timer) {
-        if (!completer.isCompleted && counter > 5) {
-          timer.cancel();
+      Timer(Duration(milliseconds: timeout), () {
+        if (!completer.isCompleted) {
           completer.completeError(RequestFailedTimeoutException(method, id));
-        } else if (completer.isCompleted) {
-          timer.cancel();
         }
-
-        counter++;
       });
 
       return completer.future;
-    } catch (e) {
+    } catch(e) {
       print(e.toString());
     }
   }
