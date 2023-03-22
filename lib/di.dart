@@ -7,6 +7,8 @@ import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -369,11 +371,28 @@ Future setup(
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
-      balancePage: getIt.get<BalancePage>(), 
+      balancePage: getIt.get<BalancePage>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
     ));
+  getIt.registerFactory<DesktopSidebarWrapper>(() {
+    final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+    return DesktopSidebarWrapper(
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
+      child: getIt.get<DesktopDashboardPage>(param1: _navigatorKey),
+      desktopNavigatorKey: _navigatorKey,
+    );
+  });
+  getIt.registerFactoryParam<DesktopDashboardPage, GlobalKey<NavigatorState>, void>(
+      (desktopKey, _) => DesktopDashboardPage(
+        balancePage: getIt.get<BalancePage>(),
+        dashboardViewModel: getIt.get<DashboardViewModel>(),
+        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+        desktopKey: desktopKey,
+      ));
+
   getIt.registerFactory<TransactionsPage>(() => TransactionsPage(dashboardViewModel: getIt.get<DashboardViewModel>()));
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
