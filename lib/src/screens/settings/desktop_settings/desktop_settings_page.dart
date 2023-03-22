@@ -30,64 +30,56 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        child: Row(
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.current.settings,
-                      style: textXLarge(),
-                    ),
-                    SizedBox(height: 64),
-                    Flexible(
-                      child: ListView.separated(
-                        padding: EdgeInsets.only(top: 0),
-                        itemBuilder: (_, index) {
-                          final item = SettingActions.desktopSettings[index];
-                          final isLastTile = index == itemCount - 1;
-                          return SettingActionButton(
-                            isLastTile: isLastTile,
-                            selectionActive: currentPage != null,
-                            isSelected: currentPage == index,
-                            isArrowVisible: true,
-                            onTap: () {
-                              if (currentPage != index) {
-                                final settingContext =
-                                    _settingsNavigatorKey.currentState?.context ?? context;
-                                item.onTap.call(settingContext);
-                                _onItemChange(index);
-                              }
-                            },
-                            image: item.image,
-                            title: item.name,
-                          );
-                        },
-                        separatorBuilder: (_, index) => Container(
-                          height: 1,
-                          color: Theme.of(context).primaryTextTheme.caption!.decorationColor!,
-                        ),
-                        itemCount: itemCount,
-                      ),
-                    ),
-                  ],
-                ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                S.current.settings,
+                style: textXLarge(),
               ),
             ),
-            Flexible(
-              flex: 2,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 500),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: 100),
-                    Flexible(
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: ListView.separated(
+                      padding: EdgeInsets.only(top: 0),
+                      itemBuilder: (_, index) {
+                        final item = SettingActions.desktopSettings[index];
+                        final isLastTile = index == itemCount - 1;
+                        return SettingActionButton(
+                          isLastTile: isLastTile,
+                          selectionActive: currentPage != null,
+                          isSelected: currentPage == index,
+                          isArrowVisible: true,
+                          onTap: () {
+                            if (currentPage != index) {
+                              final settingContext =
+                                  _settingsNavigatorKey.currentState?.context ?? context;
+                              item.onTap.call(settingContext);
+                              _onItemChange(index);
+                            }
+                          },
+                          image: item.image,
+                          title: item.name,
+                        );
+                      },
+                      separatorBuilder: (_, index) => Container(
+                        height: 1,
+                        color: Theme.of(context).primaryTextTheme.caption!.decorationColor!,
+                      ),
+                      itemCount: itemCount,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 500),
                       child: Navigator(
                         key: _settingsNavigatorKey,
                         initialRoute: Routes.empty_no_route,
@@ -101,10 +93,10 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                         },
                       ),
                     ),
-                  ],
-                ),
+                  )
+                ],
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -6,7 +7,6 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
@@ -61,9 +61,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   @override
   void initState() {
-    _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) {
+    _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) async {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(context).pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
+        Navigator.of(navigatorKey.currentContext!)
+            .pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
       }
 
       if (state is FailureState) {
@@ -91,7 +92,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
           content: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+              constraints:
+                  BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

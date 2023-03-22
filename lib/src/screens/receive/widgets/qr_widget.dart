@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +33,7 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).textTheme!.subtitle1!.decorationColor!);
+        color: Theme.of(context).textTheme.subtitle1!.decorationColor!);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -50,7 +49,7 @@ class QRWidget extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
+                    color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
               ),
             ),
             Row(
@@ -82,7 +81,7 @@ class QRWidget extends StatelessWidget {
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 3,
-                                  color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                                 ),
                               ),
                               child: QrImage(data: addressListViewModel.uri.toString()),
@@ -113,8 +112,8 @@ class QRWidget extends StatelessWidget {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))],
                       textAlign: TextAlign.center,
                       hintText: S.of(context).receive_amount,
-                      textColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-                      borderColor: Theme.of(context).textTheme!.headline5!.decorationColor!,
+                      textColor: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                      borderColor: Theme.of(context).textTheme.headline5!.decorationColor!,
                       validator: AmountValidator(type: addressListViewModel.type, isAutovalidate: true),
                       // FIX-ME: Check does it equal to autovalidate: true,
                       autovalidateMode: AutovalidateMode.always,
@@ -149,7 +148,7 @@ class QRWidget extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
+                            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
                       ),
                     ),
                     Padding(
@@ -167,10 +166,8 @@ class QRWidget extends StatelessWidget {
   }
 
   Future<void> changeBrightnessForRoute(Future<void> Function() navigation) async {
-    final isMobile = Platform.isIOS || Platform.isAndroid;
-
     // if not mobile, just navigate
-    if (!isMobile) {
+    if (!DeviceInfo.instance.isMobile) {
       navigation();
       return;
     }

@@ -17,29 +17,24 @@ class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 abstract class NodeListViewModelBase with Store {
   NodeListViewModelBase(this._nodeSource, this._appStore)
       : nodes = ObservableList<Node>(),
-        wallet = _appStore.wallet!,
         settingsStore = _appStore.settingsStore {
     _bindNodes();
 
     reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
-      wallet = _wallet!;
       _bindNodes();
     });
   }
 
   @computed
   Node get currentNode {
-    final node = settingsStore.nodes[wallet.type];
+    final node = settingsStore.nodes[_appStore.wallet!.type];
 
     if (node == null) {
-      throw Exception('No node for wallet type: ${wallet.type}');
+      throw Exception('No node for wallet type: ${_appStore.wallet!.type}');
     }
 
     return node;
   }
-
-  @observable
-  WalletBase wallet;
 
   String getAlertContent(String uri) =>
       S.current.change_current_node(uri) +
@@ -55,7 +50,7 @@ abstract class NodeListViewModelBase with Store {
 
     Node node;
 
-    switch (wallet.type) {
+    switch (_appStore.wallet!.type) {
       case WalletType.bitcoin:
         node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
         break;
@@ -69,7 +64,7 @@ abstract class NodeListViewModelBase with Store {
         node = getHavenDefaultNode(nodes: _nodeSource)!;
         break;
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type}');
+        throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
     }
 
     await setAsCurrent(node);
@@ -78,11 +73,15 @@ abstract class NodeListViewModelBase with Store {
   @action
   Future<void> delete(Node node) async => node.delete();
 
-  Future<void> setAsCurrent(Node node) async => settingsStore.nodes[wallet.type] = node;
+  Future<void> setAsCurrent(Node node) async => settingsStore.nodes[_appStore.wallet!.type] = node;
 
   @action
   void _bindNodes() {
     nodes.clear();
-    _nodeSource.bindToList(nodes, filter: (val) => val.type == wallet.type, initialFire: true);
+    _nodeSource.bindToList(
+      nodes,
+      filter: (val) => val.type == _appStore.wallet!.type,
+      initialFire: true,
+    );
   }
 }

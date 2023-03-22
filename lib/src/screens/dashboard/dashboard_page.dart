@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -30,13 +29,11 @@ class DashboardPage extends StatelessWidget {
     required this.balancePage,
     required this.dashboardViewModel,
     required this.addressListViewModel,
-    required this.desktopSidebarViewModel,
   });
 
   final BalancePage balancePage;
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
-  final DesktopSidebarViewModel desktopSidebarViewModel;
 
   @override
   Widget build(BuildContext context) {
