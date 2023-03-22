@@ -9,9 +9,12 @@ part 'anonpay_transactions_store.g.dart';
 class AnonpayTransactionsStore = AnonpayTransactionsStoreBase with _$AnonpayTransactionsStore;
 
 abstract class AnonpayTransactionsStoreBase with Store {
-  AnonpayTransactionsStoreBase({required this.anonpayInvoiceInfoSource})
-      : transactions = <AnonpayTransactionListItem>[] {
-    anonpayInvoiceInfoSource.watch().listen((_) async => await updateTransactionList());
+  AnonpayTransactionsStoreBase({
+    required this.anonpayInvoiceInfoSource,
+  }) : transactions = <AnonpayTransactionListItem>[] {
+    anonpayInvoiceInfoSource.watch().listen(
+          (_) async => await updateTransactionList(),
+        );
     updateTransactionList();
   }
 
@@ -21,7 +24,11 @@ abstract class AnonpayTransactionsStoreBase with Store {
   List<AnonpayTransactionListItem> transactions;
 
   @action
-  Future<void> updateTransactionList() async => transactions = anonpayInvoiceInfoSource.values
-      .map((transaction) => AnonpayTransactionListItem(transaction: transaction))
-      .toList();
+  Future<void> updateTransactionList() async {
+    transactions = anonpayInvoiceInfoSource.values
+        .map(
+          (transaction) => AnonpayTransactionListItem(transaction: transaction),
+        )
+        .toList();
+  }
 }

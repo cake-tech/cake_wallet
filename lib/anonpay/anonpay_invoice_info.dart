@@ -7,33 +7,33 @@ part 'anonpay_invoice_info.g.dart';
 @HiveType(typeId: AnonpayInvoiceInfo.typeId)
 class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoBase {
   @HiveField(0)
-  String invoiceId;
+  final String invoiceId;
   @HiveField(1)
   String status;
   @HiveField(2)
-  double? fiatAmount;
+  final double? fiatAmount;
   @HiveField(3)
-  String? fiatEquiv;
+  final String? fiatEquiv;
   @HiveField(4)
-  double amountTo;
+  final double amountTo;
   @HiveField(5)
-  String coinTo;
+  final String coinTo;
   @HiveField(6)
-  String address;
+  final String address;
   @HiveField(7)
-  String clearnetUrl;
+  final String clearnetUrl;
   @HiveField(8)
-  String onionUrl;
+  final String onionUrl;
   @HiveField(9)
-  String clearnetStatusUrl;
+  final String clearnetStatusUrl;
   @HiveField(10)
-  String onionStatusUrl;
+  final String onionStatusUrl;
   @HiveField(11)
-  DateTime createdAt;
+  final DateTime createdAt;
   @HiveField(12)
-  String walletId;
+  final String walletId;
   @HiveField(13)
-  String provider;
+  final String provider;
 
   static const typeId = 10;
   static const boxName = 'AnonpayInvoiceInfo';

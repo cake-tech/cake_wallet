@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
-class ShareLinkItem extends StatelessWidget {
-  const ShareLinkItem({super.key, required this.url, required this.title});
+class CopyLinkItem extends StatelessWidget {
+  const CopyLinkItem({super.key, required this.url, required this.title});
   final String url;
   final String title;
 

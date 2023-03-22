@@ -221,12 +221,16 @@ class ReceivePage extends BasePage {
         children: [
           Expanded(
             flex: 7,
-            child: QRWidget(
-                addressListViewModel: addressListViewModel,
-                isAmountFieldShow: true,
-                urlString: addressListViewModel.uri.toString(),
-                amountTextFieldFocusNode: _cryptoAmountFocus,
-                isLight: currentTheme.type == ThemeType.light),
+            child: Observer(
+              builder: (context) {
+                return QRWidget(
+                    addressListViewModel: addressListViewModel,
+                    isAmountFieldShow: true,
+                    urlString: addressListViewModel.uri.toString(),
+                    amountTextFieldFocusNode: _cryptoAmountFocus,
+                    isLight: currentTheme.type == ThemeType.light);
+              }
+            ),
           ),
           Expanded(
             flex: 2,

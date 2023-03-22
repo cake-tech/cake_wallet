@@ -72,7 +72,7 @@ class AddressPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) =>
-      PresentFeePicker(receiveOptionViewModel: receiveOptionViewModel);
+      PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>

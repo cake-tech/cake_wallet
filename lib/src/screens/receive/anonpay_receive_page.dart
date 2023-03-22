@@ -122,9 +122,9 @@ class AnonPayReceivePage extends BasePage {
           SizedBox(height: 24),
           Column(
             children: [
-              ShareLinkItem(url: invoiceInfo.clearnetUrl, title: S.of(context).clearnet_link),
+              CopyLinkItem(url: invoiceInfo.clearnetUrl, title: S.of(context).clearnet_link),
               SizedBox(height: 16),
-              ShareLinkItem(url: invoiceInfo.onionUrl, title: S.of(context).onion_link),
+              CopyLinkItem(url: invoiceInfo.onionUrl, title: S.of(context).onion_link),
             ],
           ),
           SizedBox(height: 100),

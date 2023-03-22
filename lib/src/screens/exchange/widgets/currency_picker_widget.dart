@@ -39,7 +39,7 @@ class CurrencyPickerWidget extends StatelessWidget {
                   pickListItem(index);
                 },
                 title: pickerItemsList[index].name,
-                iconImage: Image.asset(pickerItemsList[index].icon,
+                iconImage: Image.asset(pickerItemsList[index].iconPath ?? '',
                   width: 20, height: 20
                 ),
                 tag: pickerItemsList[index].tag,

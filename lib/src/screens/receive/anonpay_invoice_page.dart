@@ -7,6 +7,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,13 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AnonPayInvoicePage extends BasePage {
-  AnonPayInvoicePage(this.anonInvoicePageViewModel, this.receiveOptionViewModel) {
+  AnonPayInvoicePage(
+    this.anonInvoicePageViewModel,
+    this.receiveOptionViewModel,
+  )   : _nameFocusNode = FocusNode(),
+        _emailFocusNode = FocusNode(),
+        _descriptionFocusNode = FocusNode(),
+        _amountFocusNode = FocusNode() {
     _nameController.text = anonInvoicePageViewModel.receipientName;
     _descriptionController.text = anonInvoicePageViewModel.description;
     _emailController.text = anonInvoicePageViewModel.receipientEmail;
@@ -32,6 +39,10 @@ class AnonPayInvoicePage extends BasePage {
   final _emailController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
+  FocusNode _nameFocusNode;
+  FocusNode _emailFocusNode;
+  FocusNode _descriptionFocusNode;
+  FocusNode _amountFocusNode;
 
   final AnonInvoicePageViewModel anonInvoicePageViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
@@ -52,7 +63,7 @@ class AnonPayInvoicePage extends BasePage {
 
   @override
   Widget middle(BuildContext context) =>
-      PresentFeePicker(receiveOptionViewModel: receiveOptionViewModel);
+      PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
@@ -72,7 +83,12 @@ class AnonPayInvoicePage extends BasePage {
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
           keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
           nextFocus: false,
-          actions: []),
+          actions: [
+            KeyboardActionsItem(
+              focusNode: _amountFocusNode,
+              toolbarButtons: [(_) => KeyboardDoneButton()],
+            ),
+          ]),
       child: Container(
         color: Theme.of(context).backgroundColor,
         child: ScrollableWithBottomSection(
@@ -98,6 +114,10 @@ class AnonPayInvoicePage extends BasePage {
                   descriptionController: _descriptionController,
                   amountController: _amountController,
                   emailController: _emailController,
+                  nameFocus: _nameFocusNode,
+                  emailFocus: _emailFocusNode,
+                  descriptionFocus: _descriptionFocusNode,
+                  depositAmountFocus: _amountFocusNode,
                   formKey: _formKey,
                   isInvoice: receiveOptionViewModel.selectedReceiveOption ==
                       ReceivePageOption.anonPayInvoice,
@@ -166,28 +186,24 @@ class AnonPayInvoicePage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      
       Navigator.pop(context);
       switch (option) {
         case ReceivePageOption.mainnet:
           Navigator.popAndPushNamed(context, Routes.addressPage);
           break;
         case ReceivePageOption.anonPayDonationLink:
-          final sharedPreferences =  getIt.get<SharedPreferences>(); 
+          final sharedPreferences = getIt.get<SharedPreferences>();
           final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
-          final onionUrl =    sharedPreferences.getString(PreferencesKey.onionDonationLink);
+          final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
 
-          if (clearnetUrl != null && onionUrl != null){
-            Navigator.pushReplacementNamed(
-              context,
-              Routes.anonPayReceivePage,
-              arguments: AnonpayDonationLinkInfo(
-                clearnetUrl: clearnetUrl, 
-                onionUrl: onionUrl, 
-                address: anonInvoicePageViewModel.address,
-              )
-            );
-          } 
+          if (clearnetUrl != null && onionUrl != null) {
+            Navigator.pushReplacementNamed(context, Routes.anonPayReceivePage,
+                arguments: AnonpayDonationLinkInfo(
+                  clearnetUrl: clearnetUrl,
+                  onionUrl: onionUrl,
+                  address: anonInvoicePageViewModel.address,
+                ));
+          }
           break;
         default:
       }
@@ -195,8 +211,7 @@ class AnonPayInvoicePage extends BasePage {
 
     reaction((_) => anonInvoicePageViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.pushNamed(context, Routes.anonPayReceivePage,
-            arguments: state.payload);
+        Navigator.pushNamed(context, Routes.anonPayReceivePage, arguments: state.payload);
       }
       if (state is FailureState) {
         showPopUp<void>(

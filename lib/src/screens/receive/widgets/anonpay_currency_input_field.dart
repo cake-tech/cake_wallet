@@ -99,6 +99,7 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                           child: BaseTextFormField(
                             focusNode: focusNode,
                             controller: controller,
+                            textInputAction: TextInputAction.next,
                             enabled: true,
                             textAlign: TextAlign.left,
                             keyboardType:

@@ -142,7 +142,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                               child: PickerItemWidget(
                                 title: items[widget.selectedAtIndex].name,
                                 iconImage:Image.asset(
-                                  items[widget.selectedAtIndex].icon,
+                                  items[widget.selectedAtIndex].iconPath ?? '',
                                   width: 20,
                                   height: 20,
                                 ),

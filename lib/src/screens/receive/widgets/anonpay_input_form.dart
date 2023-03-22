@@ -19,6 +19,10 @@ class AnonInvoiceForm extends StatelessWidget {
     required this.nameController,
     required this.emailController,
     required this.descriptionController,
+    required this.depositAmountFocus,
+    required this.nameFocus,
+    required this.emailFocus,
+    required this.descriptionFocus,
   });
 
   final TextEditingController amountController;
@@ -26,7 +30,10 @@ class AnonInvoiceForm extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController descriptionController;
   final AnonInvoicePageViewModel anonInvoicePageViewModel;
-  final _depositAmountFocus = FocusNode();
+  final FocusNode depositAmountFocus;
+  final FocusNode nameFocus;
+  final FocusNode emailFocus;
+  final FocusNode descriptionFocus;
   final GlobalKey<FormState> formKey;
   final bool isInvoice;
 
@@ -46,7 +53,7 @@ class AnonInvoiceForm extends StatelessWidget {
                 return AnonpayCurrencyInputField(
                   onTapPicker: () => _presentPicker(context),
                   controller: amountController,
-                  focusNode: _depositAmountFocus,
+                  focusNode: depositAmountFocus,
                   maxAmount: anonInvoicePageViewModel.maximum?.toString() ?? '...',
                   minAmount: anonInvoicePageViewModel.minimum?.toString() ?? '...',
                   selectedCurrency: anonInvoicePageViewModel.selectedCurrency,
@@ -57,9 +64,11 @@ class AnonInvoiceForm extends StatelessWidget {
             ),
             BaseTextFormField(
               controller: nameController,
+              focusNode: nameFocus,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_name,
+              textInputAction: TextInputAction.next,
               placeholderTextStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -73,6 +82,8 @@ class AnonInvoiceForm extends StatelessWidget {
             ),
             BaseTextFormField(
               controller: descriptionController,
+              focusNode: descriptionFocus,
+              textInputAction: TextInputAction.next,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_description,
@@ -87,6 +98,8 @@ class AnonInvoiceForm extends StatelessWidget {
             SizedBox(height: 24),
             BaseTextFormField(
               controller: emailController,
+              textInputAction: TextInputAction.next,
+              focusNode: emailFocus,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               keyboardType: TextInputType.emailAddress,
@@ -112,8 +125,6 @@ class AnonInvoiceForm extends StatelessWidget {
         selectedAtIndex: anonInvoicePageViewModel.selectedCurrencyIndex,
         items: anonInvoicePageViewModel.currencies,
         hintText: S.of(context).search_currency,
-        isMoneroWallet: false,
-        isConvertFrom: false,
         onItemSelected: anonInvoicePageViewModel.selectCurrency,
       ),
       context: context,

@@ -36,8 +36,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
   final SettingsStore settingsStore;
   final AnonpayInvoiceInfo invoiceDetail;
 
-  @observable
-  ObservableList<StandartListItem> items;
+  final ObservableList<StandartListItem> items;
 
   Timer? timer;
 

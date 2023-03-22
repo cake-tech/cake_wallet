@@ -687,7 +687,7 @@
    "edit_node": "تحرير العقدة",
    "invoice_details": "تفاصيل الفاتورة",
    "donation_link_details": "تفاصيل رابط التبرع",
-   "anonpay_description": "توليد $ {type}. يمكن للمستلم $ {method} بأي عملة مشفرة مدعومة ، وستتلقى أموالاً في هذه",
+   "anonpay_description": "توليد ${type}. يمكن للمستلم ${method} بأي عملة مشفرة مدعومة ، وستتلقى أموالاً في هذه",
    "create_invoice": "إنشاء فاتورة",
    "create_donation_link": "إنشاء رابط التبرع",
    "optional_email_hint": "البريد الإلكتروني إخطار المدفوع لأمره الاختياري",
