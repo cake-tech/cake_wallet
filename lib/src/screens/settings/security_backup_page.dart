@@ -28,21 +28,21 @@ class SecurityBackupPage extends BasePage {
         SettingsCellWithArrow(
           title: S.current.show_keys,
           handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                  if (isAuthenticatedSuccessfully) {
-                    auth.close(route: Routes.showKeys);
-                  }
-                }),
+              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            if (isAuthenticatedSuccessfully) {
+              auth.close(route: Routes.showKeys);
+            }
+          }),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
           handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                  if (isAuthenticatedSuccessfully) {
-                    auth.close(route: Routes.backup);
-                  }
-                }),
+              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            if (isAuthenticatedSuccessfully) {
+              auth.close(route: Routes.backup);
+            }
+          }),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
