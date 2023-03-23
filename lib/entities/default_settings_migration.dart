@@ -39,6 +39,9 @@ Future defaultSettingsMigration(
     await ios_migrate_v1(walletInfoSource, tradeSource, contactSource);
   }
 
+  // check current nodes for nullability regardless of the version
+  await checkCurrentNodes(nodes, sharedPreferences);
+
   final currentVersion = sharedPreferences
           .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ??
       0;

@@ -6,7 +6,7 @@ class AmountValidator extends TextValidator {
   AmountValidator({required CryptoCurrency currency, bool isAutovalidate = false}) {
     symbolsAmountValidator =
         SymbolsAmountValidator(isAutovalidate: isAutovalidate);
-    decimalAmountValidator = DecimalAmountValidator(currency: currency);
+    decimalAmountValidator = DecimalAmountValidator(currency: currency,isAutovalidate: isAutovalidate);
   }
 
   late final SymbolsAmountValidator symbolsAmountValidator;
@@ -29,7 +29,7 @@ class SymbolsAmountValidator extends TextValidator {
 }
 
 class DecimalAmountValidator extends TextValidator {
-  DecimalAmountValidator({required CryptoCurrency currency, bool isAutovalidate = false})
+  DecimalAmountValidator({required CryptoCurrency currency, required bool isAutovalidate })
       : super(
             errorMessage: S.current.decimal_places_error,
             pattern: _pattern(currency),
