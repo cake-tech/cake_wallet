@@ -40,34 +40,16 @@ class DesktopSidebarWrapper extends BasePage {
         ),
         trailing: InkWell(
           onTap: () {
-            String? currentPath;
-
-            desktopNavigatorKey.currentState?.popUntil((route) {
-              currentPath = route.settings.name;
-              return true;
-            });
-
-            switch (currentPath) {
-              case Routes.transactionsPage:
-                desktopSidebarViewModel.resetSidebar();
-                break;
-              default:
-                desktopSidebarViewModel.resetSidebar();
-                Future.delayed(Duration(milliseconds: 10), () {
-                  desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
-                  desktopNavigatorKey.currentState?.pushNamed(Routes.transactionsPage);
-                });
-            }
+            Navigator.of(context).pushNamed(
+              Routes.unlock,
+              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                if (isAuthenticatedSuccessfully) {
+                  auth.close();
+                }
+              },
+            );
           },
-          child: Observer(
-            builder: (_) {
-              return Image.asset(
-                desktopSidebarViewModel.currentPage == SidebarItem.transactions
-                    ? selectedIconPath
-                    : unselectedIconPath,
-              );
-            },
-          ),
+          child: Icon(Icons.lock_outline),
         ),
       );
 
@@ -98,18 +80,31 @@ class DesktopSidebarWrapper extends BasePage {
                 onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.dashboard),
               ),
               SideMenuItem(
-                icon: Icons.lock_outline,
                 onTap: () {
-                  Navigator.of(context).pushNamed(
-                    Routes.unlock,
-                    arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                      if (isAuthenticatedSuccessfully) {
-                        auth.close();
-                      }
-                    },
-                  );
+                  String? currentPath;
+
+                  desktopNavigatorKey.currentState?.popUntil((route) {
+                    currentPath = route.settings.name;
+                    return true;
+                  });
+
+                  switch (currentPath) {
+                    case Routes.transactionsPage:
+                      desktopSidebarViewModel.resetSidebar();
+                      break;
+                    default:
+                      desktopSidebarViewModel.resetSidebar();
+                      Future.delayed(Duration(milliseconds: 10), () {
+                        desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
+                        desktopNavigatorKey.currentState?.pushNamed(Routes.transactionsPage);
+                      });
+                  }
                 },
-              )
+                isSelected: desktopSidebarViewModel.currentPage == SidebarItem.transactions,
+                imagePath: desktopSidebarViewModel.currentPage == SidebarItem.transactions
+                    ? selectedIconPath
+                    : unselectedIconPath,
+              ),
             ],
             bottomItems: [
               SideMenuItem(
