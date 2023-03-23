@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/share_link_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class AnonPayReceivePage extends BasePage {
   final AnonpayInfoBase invoiceInfo;
@@ -121,6 +122,7 @@ class AnonPayReceivePage extends BasePage {
             child: QRWidget(
               isLight: currentTheme.type == ThemeType.light,
               urlString: invoiceInfo.clearnetUrl,
+              qrVersion: QrVersions.auto,
             ),
           ),
           SizedBox(height: 24),

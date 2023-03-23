@@ -16,6 +16,7 @@ class QRWidget extends StatelessWidget {
       {this.addressListViewModel,
       required this.isLight,
       required this.urlString,
+      this.qrVersion,
       this.isAmountFieldShow = false,
       this.amountTextFieldFocusNode})
       : amountController = TextEditingController(),
@@ -31,6 +32,7 @@ class QRWidget extends StatelessWidget {
   final GlobalKey<FormState> _formKey;
   final bool isLight;
   final String urlString;
+  final int? qrVersion;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +93,7 @@ class QRWidget extends StatelessWidget {
                                     Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                               ),
                             ),
-                            child: QrImage(data: urlString),
+                            child: QrImage(data: urlString, version: qrVersion),
                           ),
                         ),
                       ),
