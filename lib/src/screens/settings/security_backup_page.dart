@@ -27,26 +27,22 @@ class SecurityBackupPage extends BasePage {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SettingsCellWithArrow(
           title: S.current.show_keys,
-          handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
-              ? Navigator.of(context).pushNamed(Routes.auth,
-                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                  if (isAuthenticatedSuccessfully) {
-                    auth.close(route: Routes.showKeys);
-                  }
-                })
-              : Navigator.of(context).pushNamed(Routes.showKeys),
+          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
+              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            if (isAuthenticatedSuccessfully) {
+              auth.close(route: Routes.showKeys);
+            }
+          }),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
-          handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
-              ? Navigator.of(context).pushNamed(Routes.auth,
-                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                  if (isAuthenticatedSuccessfully) {
-                    auth.close(route: Routes.backup);
-                  }
-                })
-              : Navigator.of(context).pushNamed(Routes.backup),
+          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
+              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            if (isAuthenticatedSuccessfully) {
+              auth.close(route: Routes.backup);
+            }
+          }),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
