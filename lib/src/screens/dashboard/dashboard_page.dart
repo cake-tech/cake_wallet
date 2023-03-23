@@ -211,7 +211,8 @@ class _DashboardPageView extends BasePage {
       }
 
       await Future<void>.delayed(Duration(seconds: 1));
-      await showPopUp<void>(
+      if (context.mounted) {
+        await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
@@ -220,6 +221,7 @@ class _DashboardPageView extends BasePage {
                 buttonText: S.of(context).understand,
                 buttonAction: () => Navigator.of(context).pop());
           });
+      }
     });
 
     var needToPresentYat = false;

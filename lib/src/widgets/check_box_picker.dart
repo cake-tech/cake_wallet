@@ -70,7 +70,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: <Widget>[
-                                  (items.length) > 3
+                                  items.length > 3
                                       ? Scrollbar(
                                           controller: controller,
                                           child: itemsList(),

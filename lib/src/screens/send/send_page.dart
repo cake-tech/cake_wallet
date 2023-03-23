@@ -348,7 +348,8 @@ class SendPage extends BasePage {
 
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
+          if (context.mounted) {
+            showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return ConfirmSendingAlert(
@@ -392,6 +393,7 @@ class SendPage extends BasePage {
                     },
                     actionLeftButton: () => Navigator.of(context).pop());
               });
+          }
         });
       }
 

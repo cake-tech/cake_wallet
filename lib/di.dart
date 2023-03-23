@@ -558,10 +558,14 @@ Future setup(
         _nodeSource,
         type ?? getIt.get<AppStore>().wallet!.type,
         getIt.get<SettingsStore>(),
+        getIt.get<NodeListViewModel>()
     ));
 
-  getIt.registerFactory(
-      () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
+  getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
+          (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
+          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(),
+          editingNode: editingNode,
+          isSelected: isSelected));
 
   getIt.registerLazySingleton<OnRamperBuyProvider>(() => OnRamperBuyProvider(
     settingsStore: getIt.get<AppStore>().settingsStore,

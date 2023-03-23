@@ -160,7 +160,7 @@ class ExchangeTemplatePage extends BasePage {
                                 .primaryTextTheme.bodyText1!
                                 .color!,
                             currencyValueValidator: AmountValidator(
-                                type: exchangeViewModel.wallet.type),
+                                currency: exchangeViewModel.depositCurrency),
                             //addressTextFieldValidator: AddressValidator(
                             //    type: exchangeViewModel.depositCurrency),
                           ),
@@ -200,7 +200,7 @@ class ExchangeTemplatePage extends BasePage {
                                   .primaryTextTheme.bodyText1!
                                   .decorationColor!,
                               currencyValueValidator: AmountValidator(
-                                  type: exchangeViewModel.wallet.type),
+                                  currency: exchangeViewModel.receiveCurrency),
                               //addressTextFieldValidator: AddressValidator(
                               //    type: exchangeViewModel.receiveCurrency),
                             )),

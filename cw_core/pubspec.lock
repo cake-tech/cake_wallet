@@ -202,7 +202,7 @@ packages:
     source: hosted
     version: "2.0.1"
   file:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: file
       sha256: "1b92bec4fc2a72f59a8e15af5f52cd441e4a7860b49499d69dfa817af20e925d"

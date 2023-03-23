@@ -1,6 +1,7 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -112,10 +113,10 @@ class QRWidget extends StatelessWidget {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))],
                       textAlign: TextAlign.center,
                       hintText: S.of(context).receive_amount,
-                      textColor: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
-                      borderColor: Theme.of(context).textTheme.headline5!.decorationColor!,
-                      validator: AmountValidator(type: addressListViewModel.type, isAutovalidate: true),
-                      // FIX-ME: Check does it equal to autovalidate: true,
+                      textColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                      borderColor: Theme.of(context).textTheme!.headline5!.decorationColor!,
+                      validator: AmountValidator(currency:
+                        walletTypeToCryptoCurrency(addressListViewModel.type), isAutovalidate: true),
                       autovalidateMode: AutovalidateMode.always,
                       placeholderTextStyle: TextStyle(
                         color: Theme.of(context).hoverColor,

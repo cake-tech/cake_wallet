@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/reactions/fiat_rate_update.dart';
+import 'package:cake_wallet/reactions/on_current_fiat_api_mode_change.dart';
 import 'package:cake_wallet/reactions/on_current_node_change.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
@@ -24,13 +25,14 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
       .get<SharedPreferences>()
       .getString(PreferencesKey.currentWalletName);
   if (currentWalletName != null) {
-    authenticationStore.state = AuthenticationState.installed;
+    authenticationStore.installed();
   }
 
   startAuthenticationStateChange(authenticationStore, navigatorKey);
   startCurrentWalletChangeReaction(
       appStore, settingsStore, fiatConversionStore);
   startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore);
+  startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore);
   startOnCurrentNodeChangeReaction(appStore);
   startFiatRateUpdate(appStore, settingsStore, fiatConversionStore);
 }
