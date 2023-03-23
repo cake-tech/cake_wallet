@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
@@ -24,7 +25,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
                 .expand((i) => i)
                 .toList());
 
-  static const apiKey = secrets.changeNowApiKey;
+  static final apiKey = DeviceInfo.instance.isMobile ? secrets.changeNowApiKey : secrets.changeNowApiKeyDesktop;
   static const apiAuthority = 'api.changenow.io';
   static const createTradePath = '/v2/exchange';
   static const findTradeByIdPath = '/v2/exchange/by-id';
