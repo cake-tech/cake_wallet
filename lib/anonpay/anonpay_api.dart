@@ -105,12 +105,18 @@ class AnonPayApi {
       'ticker_to': request.cryptoCurrency.title.toLowerCase(),
       'network_to': _networkFor(request.cryptoCurrency),
       'address': request.address,
-      'name': request.name,
-      'description': request.description,
-      'email': request.email,
       'ref': anonpayRef,
       'direct': 'True',
     };
+    if (request.name.isNotEmpty) {
+      body['name'] = request.name;
+    }
+    if (request.description.isNotEmpty) {
+      body['description'] = request.description;
+    }
+    if (request.email.isNotEmpty) {
+      body['email'] = request.email;
+    }
 
     final clearnetUrl = Uri.https(clearNetAuthority, anonPayPath, body);
     final onionUrl = Uri.https(onionApiAuthority, anonPayPath, body);
