@@ -18,8 +18,7 @@ abstract class WalletKeysViewModelBase with Store {
                 _appStore.wallet!.type == WalletType.litecoin
             ? S.current.wallet_seed
             : S.current.wallet_keys,
-        _wallet = wallet,
-        _restoreHeight = wallet.walletInfo.restoreHeight,
+        _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
         items = ObservableList<StandartListItem>() {
     _populateItems();
 
@@ -80,17 +79,17 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   Future<int?> currentHeight() async {
-    if (_wallet.type == WalletType.haven) {
+    if (_appStore.wallet!.type == WalletType.haven) {
       return await haven!.getCurrentHeight();
     }
-    if (_wallet.type == WalletType.monero) {
+    if (_appStore.wallet!.type == WalletType.monero) {
       return monero_wallet.getCurrentHeight();
     }
     return null;
   }
 
   String get _path {
-    switch (_wallet.type) {
+    switch (_appStore.wallet!.type) {
       case WalletType.monero:
         return 'monero_wallet:';
       case WalletType.bitcoin:
@@ -100,7 +99,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.haven:
         return 'haven_wallet:';
       default:
-        throw Exception('Unexpected wallet type: ${_wallet.toString()}');
+        throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }
   }
 
@@ -118,7 +117,7 @@ abstract class WalletKeysViewModelBase with Store {
   Future<Map<String, String>> get _queryParams async {
     final restoreHeightResult = await restoreHeight;
     return {
-      'seed': _wallet.seed,
+      'seed': _appStore.wallet!.seed,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
     };
   }
