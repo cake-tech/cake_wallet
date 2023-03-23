@@ -15,7 +15,7 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoB
   @HiveField(3)
   final String? fiatEquiv;
   @HiveField(4)
-  final double amountTo;
+  final double? amountTo;
   @HiveField(5)
   final String coinTo;
   @HiveField(6)
@@ -47,7 +47,7 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoB
     required this.status,
     this.fiatAmount,
     this.fiatEquiv,
-    required this.amountTo,
+    this.amountTo,
     required this.coinTo,
     required this.address,
     required this.createdAt,

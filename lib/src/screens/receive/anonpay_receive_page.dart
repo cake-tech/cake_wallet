@@ -62,7 +62,9 @@ class AnonPayReceivePage extends BasePage {
               color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
         ),
         Text(
-          invoiceInfo is AnonpayInvoiceInfo ? ReceivePageOption.anonPayInvoice.toString() : ReceivePageOption.anonPayDonationLink.toString(),
+          invoiceInfo is AnonpayInvoiceInfo
+              ? ReceivePageOption.anonPayInvoice.toString()
+              : ReceivePageOption.anonPayDonationLink.toString(),
           style: TextStyle(
               fontSize: 10.0,
               fontWeight: FontWeight.w500,
@@ -86,8 +88,9 @@ class AnonPayReceivePage extends BasePage {
           Routes.anonPayInvoicePage,
           arguments: [invoiceInfo.address, ReceivePageOption.anonPayDonationLink],
         ),
-        icon: Icon(Icons.edit,
-          color: Theme.of(context).accentTextTheme.caption!.color!, 
+        icon: Icon(
+          Icons.edit,
+          color: Theme.of(context).accentTextTheme.caption!.color!,
           size: 22.0,
         ),
       ),
@@ -115,8 +118,9 @@ class AnonPayReceivePage extends BasePage {
             AnonInvoiceStatusSection(invoiceInfo: invoiceInfo as AnonpayInvoiceInfo),
           Padding(
             padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
-            child: QRWidget(isLight: currentTheme.type == ThemeType.light, 
-            urlString: invoiceInfo.clearnetUrl,
+            child: QRWidget(
+              isLight: currentTheme.type == ThemeType.light,
+              urlString: invoiceInfo.clearnetUrl,
             ),
           ),
           SizedBox(height: 24),
@@ -133,5 +137,3 @@ class AnonPayReceivePage extends BasePage {
     );
   }
 }
-
-

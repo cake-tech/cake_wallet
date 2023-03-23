@@ -35,7 +35,7 @@ class AnonPayApi {
     final status = responseJSON['Status'] as String;
     final fiatAmount = responseJSON['Fiat_Amount'] as double?;
     final fiatEquiv = responseJSON['Fiat_Equiv'] as String?;
-    final amountTo = responseJSON['AmountTo'] as double;
+    final amountTo = responseJSON['AmountTo'] as double?;
     final coinTo = responseJSON['CoinTo'] as String;
     final address = responseJSON['Address'] as String;
 

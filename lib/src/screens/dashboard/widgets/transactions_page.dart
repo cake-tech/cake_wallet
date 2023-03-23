@@ -73,7 +73,7 @@ class TransactionsPage extends StatelessWidget {
                                   .toUpperCase(),
                           provider: transactionInfo.provider,
                           amount: transactionInfo.fiatAmount?.toString() ??
-                              transactionInfo.amountTo.toString(),
+                              (transactionInfo.amountTo?.toString() ?? ''),
                           createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
                         );
                       }

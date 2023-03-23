@@ -61,7 +61,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
         createdAt: dateFormat.format(invoiceDetail.createdAt).toString(),
         pair: (invoiceDetail.fiatAmount != null)
             ? "→ ${invoiceDetail.fiatAmount} ${invoiceDetail.fiatEquiv ?? ''}"
-            : '→ ${invoiceDetail.amountTo} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo).name.toUpperCase()}',
+            : '→ ${invoiceDetail.amountTo ?? ''} ${CryptoCurrency.fromFullName(invoiceDetail.coinTo).name.toUpperCase()}',
         onTap: (BuildContext context) {
           Clipboard.setData(ClipboardData(text: '${invoiceDetail.invoiceId}'));
           showBar<void>(context, S.of(context).copied_to_clipboard);
