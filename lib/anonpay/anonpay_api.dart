@@ -101,13 +101,12 @@ class AnonPayApi {
   }
 
   Future<AnonpayDonationLinkInfo> generateDonationLink(AnonPayRequest request) async {
-    final description = Uri.encodeComponent(request.description);
     final body = <String, dynamic>{
       'ticker_to': request.cryptoCurrency.title.toLowerCase(),
       'network_to': _networkFor(request.cryptoCurrency),
       'address': request.address,
       'name': request.name,
-      'description': description,
+      'description': request.description,
       'email': request.email,
       'ref': anonpayRef,
       'direct': 'True',
