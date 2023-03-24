@@ -204,7 +204,6 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      Navigator.pop(context);
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pushReplacementNamed(

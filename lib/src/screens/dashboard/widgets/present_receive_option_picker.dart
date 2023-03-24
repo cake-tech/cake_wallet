@@ -86,7 +86,11 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                     itemBuilder: (_, index) {
                       final option = receiveOptionViewModel.options[index];
                       return InkWell(
-                        onTap: () => receiveOptionViewModel.selectReceiveOption(option),
+                        onTap: () {
+                          Navigator.pop(popUpContext);
+
+                          receiveOptionViewModel.selectReceiveOption(option);
+                        },
                         child: Padding(
                           padding: const EdgeInsets.only(left: 24, right: 24),
                           child: Observer(builder: (_) {
