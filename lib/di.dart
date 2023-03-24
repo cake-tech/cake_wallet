@@ -6,7 +6,6 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
-import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';

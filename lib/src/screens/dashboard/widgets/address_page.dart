@@ -24,12 +24,12 @@ import 'package:cake_wallet/di.dart';
 class AddressPage extends BasePage {
   AddressPage({
     required this.addressListViewModel,
-    required this.walletViewModel,
+    required this.dashboardViewModel,
     required this.receiveOptionViewModel,
   }) : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
-  final DashboardViewModel walletViewModel;
+  final DashboardViewModel dashboardViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
 
   final FocusNode _cryptoAmountFocus;
@@ -98,8 +98,8 @@ class AddressPage extends BasePage {
     _setEffects(context);
 
     autorun((_) async {
-      if (!walletViewModel.isOutdatedElectrumWallet ||
-          !walletViewModel.settingsStore.shouldShowReceiveWarning) {
+      if (!dashboardViewModel.isOutdatedElectrumWallet ||
+          !dashboardViewModel.settingsStore.shouldShowReceiveWarning) {
         return;
       }
 
@@ -115,7 +115,7 @@ class AddressPage extends BasePage {
                   actionLeftButton: () => Navigator.of(context).pop(),
                   rightButtonText: S.of(context).do_not_show_me,
                   actionRightButton: () {
-                    walletViewModel.settingsStore.setShouldShowReceiveWarning(false);
+                    dashboardViewModel.settingsStore.setShouldShowReceiveWarning(false);
                     Navigator.of(context).pop();
                   });
             });
@@ -145,7 +145,7 @@ class AddressPage extends BasePage {
                 addressListViewModel: addressListViewModel,
                 amountTextFieldFocusNode: _cryptoAmountFocus,
                 isAmountFieldShow: !addressListViewModel.hasAccounts,
-                isLight: walletViewModel.settingsStore.currentTheme.type == ThemeType.light))
+                isLight: dashboardViewModel.settingsStore.currentTheme.type == ThemeType.light))
               ),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
