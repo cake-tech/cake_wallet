@@ -30,10 +30,8 @@ class UnspentCoinsListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final itemColor = isSending? selectedItemColor : unselectedItemColor;
-    final _note = (note?.isNotEmpty ?? false) ? note : address;
-
     return Container(
-        height: 62,
+        height: 80,
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -52,49 +50,61 @@ class UnspentCoinsListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: AutoSizeText(
-                              amount,
+                      Expanded(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            AutoSizeText(
+                              note,
                               style: TextStyle(
                                   color: amountColor,
-                                  fontSize: 16,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.w600
                               ),
                               maxLines: 1,
                             ),
-                          ),
-                          if (isFrozen) Container(
-                            height: 17,
-                            padding: EdgeInsets.only(left: 6, right: 6),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(8.5)),
-                              color: Colors.white),
-                            alignment: Alignment.center,
-                            child: Text(
-                                S.of(context).frozen,
-                                style: TextStyle(
-                                  color: amountColor,
-                                  fontSize: 7,
-                                  fontWeight: FontWeight.w600
-                                ),
+                            if (isFrozen) Container(
+                              height: 17,
+                              padding: EdgeInsets.only(left: 6, right: 6),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                color: Colors.white),
+                              alignment: Alignment.center,
+                              child: Text(
+                                  S.of(context).frozen,
+                                  style: TextStyle(
+                                    color: amountColor,
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.w600
+                                  ),
+                              )
                             )
-                          )
-                        ],
-                      ),
-                      Text(
-                        _note,
-                        style: TextStyle(
-                          color: addressColor,
-                          fontSize: 12,
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis
-                      )
+                      ),
+                      Expanded(
+                        child: AutoSizeText(
+                          amount,
+                          style: TextStyle(
+                              color: amountColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                      Expanded(
+                        child: AutoSizeText(
+                          address,
+                          style: TextStyle(
+                              color: addressColor,
+                              fontSize: 12,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
                     ]
                 )
             )
