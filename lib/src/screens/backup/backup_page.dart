@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/share_util.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -27,8 +29,7 @@ class BackupPage extends BasePage {
   @override
   Widget trailing(BuildContext context) => TrailButton(
       caption: S.of(context).change_password,
-      onPressed: () =>
-          Navigator.of(context).pushNamed(Routes.editBackupPassword),
+      onPressed: () => Navigator.of(context).pushNamed(Routes.editBackupPassword),
       textColor: Palette.blueCraiola);
 
   @override
@@ -51,9 +52,8 @@ class BackupPage extends BasePage {
                       child: Observer(
                           builder: (_) => GestureDetector(
                                 onTap: () {
-                                  Clipboard.setData(ClipboardData(
-                                      text:
-                                          backupViewModelBase.backupPassword));
+                                  Clipboard.setData(
+                                      ClipboardData(text: backupViewModelBase.backupPassword));
                                   showBar<void>(
                                       context,
                                       S.of(context).transaction_details_copied(
@@ -108,8 +108,10 @@ class BackupPage extends BasePage {
 
                 if (Platform.isAndroid) {
                   onExportAndroid(context, backup);
-                } else {
+                } else if (Platform.isIOS) {
                   await share(backup, context);
+                } else {
+                  await _saveFile(backup);
                 }
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
@@ -133,8 +135,7 @@ class BackupPage extends BasePage {
                   return;
                 }
 
-                await backupViewModelBase.saveToDownload(
-                    backup.name, backup.content);
+                await backupViewModelBase.saveToDownload(backup.name, backup.content);
                 Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () async {
@@ -148,5 +149,21 @@ class BackupPage extends BasePage {
     final path = await backupViewModelBase.saveBackupFileLocally(backup);
     await ShareUtil.shareFile(filePath: path, fileName: backup.name, context: context);
     await backupViewModelBase.removeBackupFileLocally(backup);
+  }
+
+  Future<void> _saveFile(BackupExportFile backup) async {
+    String? outputFile = await FilePicker.platform
+        .saveFile(dialogTitle: 'Save Your File to desired location', fileName: backup.name);
+
+    try {
+      File returnedFile = File(outputFile!);
+      await returnedFile.writeAsBytes(backup.content);
+    } catch (exception, stackTrace) {
+      ExceptionHandler.onError(FlutterErrorDetails(
+        exception: exception,
+        stack: stackTrace,
+        library: "Export Backup",
+      ));
+    }
   }
 }
