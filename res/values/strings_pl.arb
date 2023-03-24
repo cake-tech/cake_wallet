@@ -686,5 +686,15 @@
   "do_not_send": "Nie wysyłaj",
   "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
   "decimal_places_error": "Za dużo miejsc dziesiętnych",
-  "edit_node": "Edytuj węzeł"
+  "edit_node": "Edytuj węzeł",
+  "invoice_details": "Dane do faktury",
+  "donation_link_details": "Szczegóły linku darowizny",
+  "anonpay_description": "Wygeneruj ${type}. Odbiorca może ${method} z dowolną obsługiwaną kryptowalutą, a Ty otrzymasz środki w tym portfelu.",
+  "create_invoice": "Wystaw fakturę",
+  "create_donation_link": "Utwórz link do darowizny",
+  "optional_email_hint": "Opcjonalny e-mail z powiadomieniem odbiorcy płatności",
+  "optional_description": "Opcjonalny opis",
+  "optional_name": "Opcjonalna nazwa odbiorcy",
+  "clearnet_link": "łącze Clearnet",
+  "onion_link": "Łącznik cebulowy"
 }

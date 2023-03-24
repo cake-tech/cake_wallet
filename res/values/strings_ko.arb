@@ -686,5 +686,15 @@
   "do_not_send": "보내지 마세요",
   "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오.",
   "decimal_places_error": "소수점 이하 자릿수가 너무 많습니다.",
-  "edit_node": "노드 편집"
+  "edit_node": "노드 편집",
+  "invoice_details": "인보이스 세부정보",
+  "donation_link_details": "기부 링크 세부정보",
+  "anonpay_description": "${type} 생성. 수신자는 지원되는 모든 암호화폐로 ${method}할 수 있으며 이 지갑에서 자금을 받게 됩니다.",
+  "create_invoice": "인보이스 생성",
+  "create_donation_link": "기부 링크 만들기",
+  "optional_email_hint": "선택적 수취인 알림 이메일",
+  "optional_description": "선택적 설명",
+  "optional_name": "선택적 수신자 이름",
+  "clearnet_link": "클리어넷 링크",
+  "onion_link": "양파 링크"
 }

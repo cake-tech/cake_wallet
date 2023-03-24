@@ -1,5 +1,7 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
@@ -48,7 +50,9 @@ abstract class DashboardViewModelBase with Store {
       required this.transactionFilterStore,
       required this.settingsStore,
       required this.yatStore,
-      required this.ordersStore})
+      required this.ordersStore,
+      required this.anonpayTransactionsStore,
+      })
   : isOutdatedElectrumWallet = false,
     hasSellAction = false,
     isEnabledSellAction = false,
@@ -227,6 +231,11 @@ abstract class DashboardViewModelBase with Store {
   List<OrderListItem> get orders => ordersStore.orders
       .where((item) => item.order.walletId == wallet.id)
       .toList();
+  
+  @computed
+  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
+      .where((item) => item.transaction.walletId == wallet.id)
+      .toList();
 
   @computed
   double get price => balanceViewModel.price;
@@ -235,7 +244,7 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(transactionFilterStore.filtered(transactions: transactions));
+    _items.addAll(transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
 
@@ -261,6 +270,8 @@ abstract class DashboardViewModelBase with Store {
   OrdersStore ordersStore;
 
   TradeFilterStore tradeFilterStore;
+
+  AnonpayTransactionsStore anonpayTransactionsStore;
 
   TransactionFilterStore transactionFilterStore;
 

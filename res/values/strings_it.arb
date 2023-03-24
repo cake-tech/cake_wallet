@@ -686,5 +686,15 @@
   "do_not_send": "Non inviare",
   "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione.",
   "decimal_places_error": "Troppe cifre decimali",
-  "edit_node": "Modifica nodo"
+  "edit_node": "Modifica nodo",
+  "invoice_details": "Dettagli della fattura",
+  "donation_link_details": "Dettagli del collegamento alla donazione",
+  "anonpay_description": "Genera ${type}. Il destinatario può ${method} con qualsiasi criptovaluta supportata e riceverai fondi in questo portafoglio.",
+  "create_invoice": "Crea fattura",
+  "create_donation_link": "Crea un link per la donazione",
+  "optional_email_hint": "Email di notifica del beneficiario facoltativa",
+  "optional_description": "Descrizione facoltativa",
+  "optional_name": "Nome del destinatario facoltativo",
+  "clearnet_link": "Collegamento Clearnet",
+  "onion_link": "Collegamento a cipolla"
 }

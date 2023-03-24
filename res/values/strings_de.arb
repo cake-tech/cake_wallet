@@ -686,5 +686,15 @@
   "do_not_send": "Nicht senden",
   "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern.",
   "decimal_places_error": "Zu viele Nachkommastellen",
-  "edit_node": "Knoten bearbeiten"
+  "edit_node": "Knoten bearbeiten",
+  "invoice_details": "Rechnungs-Details",
+  "donation_link_details": "Details zum Spendenlink",
+  "anonpay_description": "Generieren Sie ${type}. Der Empfänger kann ${method} mit jeder unterstützten Kryptowährung verwenden, und Sie erhalten Geld in dieser Brieftasche.",
+  "create_invoice": "Rechnung erstellen",
+  "create_donation_link": "Spendenlink erstellen",
+  "optional_email_hint": "Optionale Benachrichtigungs-E-Mail für den Zahlungsempfänger",
+  "optional_description": "Optionale Beschreibung",
+  "optional_name": "Optionaler Empfängername",
+  "clearnet_link": "Clearnet-Link",
+  "onion_link": "Zwiebel-Link"
 }

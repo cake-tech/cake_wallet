@@ -686,5 +686,15 @@
   "do_not_send": "Niet sturen",
   "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren.",
   "decimal_places_error": "Te veel decimalen",
-  "edit_node": "Knooppunt bewerken"
+  "edit_node": "Knooppunt bewerken",
+  "invoice_details": "Factuurgegevens",
+  "donation_link_details": "Details van de donatielink",
+  "anonpay_description": "Genereer ${type}. De ontvanger kan ${method} gebruiken met elke ondersteunde cryptocurrency en u ontvangt geld in deze portemonnee",
+  "create_invoice": "Factuur maken",
+  "create_donation_link": "Maak een donatielink aan",
+  "optional_email_hint": "Optionele kennisgeving per e-mail aan de begunstigde",
+  "optional_description": "Optionele beschrijving",
+  "optional_name": "Optionele naam ontvanger",
+  "clearnet_link": "Clearnet-link",
+  "onion_link": "Ui koppeling"
 }

@@ -686,5 +686,15 @@
   "do_not_send": "Gönderme",
   "error_dialog_content": "Hay aksi, bir hatamız var.\n\nUygulamayı daha iyi hale getirmek için lütfen kilitlenme raporunu destek ekibimize gönderin.",
   "decimal_places_error": "Çok fazla ondalık basamak",
-  "edit_node": "Düğümü Düzenle"
+  "edit_node": "Düğümü Düzenle",
+  "invoice_details": "fatura detayları",
+  "donation_link_details": "Bağış bağlantısı ayrıntıları",
+  "anonpay_description": "${type} oluşturun. Alıcı, desteklenen herhangi bir kripto para birimi ile ${method} yapabilir ve bu cüzdanda para alırsınız.",
+  "create_invoice": "Fatura oluşturmak",
+  "create_donation_link": "Bağış bağlantısı oluştur",
+  "optional_email_hint": "İsteğe bağlı alacaklı bildirim e-postası",
+  "optional_description": "İsteğe bağlı açıklama",
+  "optional_name": "İsteğe bağlı alıcı adı",
+  "clearnet_link": "Net bağlantı",
+  "onion_link": "soğan bağlantısı"
 }

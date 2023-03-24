@@ -82,4 +82,7 @@ class Routes {
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
+  static const anonPayInvoicePage = '/anon_pay_invoice_page';
+  static const anonPayReceivePage = '/anon_pay_receive_page';
+  static const anonPayDetailsPage = '/anon_pay_details_page';
 }

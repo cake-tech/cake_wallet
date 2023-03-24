@@ -686,5 +686,15 @@
   "do_not_send": "Neodesílat",
   "error_dialog_content": "Nastala chyba.\n\nProsím odešlete zprávu o chybě naší podpoře, aby mohli zajistit opravu.",
   "decimal_places_error": "Příliš mnoho desetinných míst",
-  "edit_node": "Upravit uzel"
+  "edit_node": "Upravit uzel",
+  "invoice_details": "detaily faktury",
+  "donation_link_details": "Podrobnosti odkazu na darování",
+  "anonpay_description": "Vygenerujte ${type}. Příjemce může ${method} s jakoukoli podporovanou kryptoměnou a vy obdržíte prostředky v této peněžence.",
+  "create_invoice": "Vytvořit fakturu",
+  "create_donation_link": "Vytvořit odkaz na darování",
+  "optional_email_hint": "Volitelný e-mail s upozorněním na příjemce platby",
+  "optional_description": "Volitelný popis",
+  "optional_name": "Volitelné jméno příjemce",
+  "clearnet_link": "Odkaz na Clearnet",
+  "onion_link": "Cibulový odkaz"
 }

@@ -685,6 +685,16 @@
   "arrive_in_this_address" : "${currency} ${tag}will arrive in this address",
   "do_not_send": "Don't send",
   "error_dialog_content": "Oops, we got some error.\n\nPlease send the crash report to our support team to make the application better.",
+  "invoice_details": "Invoice details",
+  "donation_link_details": "Donation link details",
+  "anonpay_description": "Generate ${type}. The recipient can ${method} with any supported cryptocurrency, and you will receive funds in this wallet.",
+  "create_invoice": "Create invoice",
+  "create_donation_link": "Create donation link",
+  "optional_email_hint": "Optional payee notification email",
+  "optional_description": "Optional description",
+  "optional_name": "Optional recipient name",
+  "clearnet_link": "Clearnet link",
+  "onion_link": "Onion link",
   "decimal_places_error": "Too many decimal places",
   "edit_node": "Edit Node"
 }
