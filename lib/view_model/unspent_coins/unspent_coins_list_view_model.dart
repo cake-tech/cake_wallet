@@ -35,9 +35,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
           address: elem.address,
           amount: amount,
           hash: elem.hash,
-          isFrozen: elem.isFrozen,
+          isFrozen: info.isFrozen,
           note: info.note,
-          isSending: elem.isSending
+          isSending: info.isSending
       );
     }));
 
