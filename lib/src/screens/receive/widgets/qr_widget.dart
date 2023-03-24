@@ -16,11 +16,12 @@ class QRWidget extends StatelessWidget {
   QRWidget(
       {required this.addressListViewModel,
       required this.isLight,
+      this.qrVersion,
       this.isAmountFieldShow = false,
       this.amountTextFieldFocusNode})
       : amountController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
-    amountController.addListener(() => addressListViewModel.amount =
+    amountController.addListener(() => addressListViewModel?.amount =
         _formKey.currentState!.validate() ? amountController.text : '');
   }
 
@@ -30,6 +31,7 @@ class QRWidget extends StatelessWidget {
   final FocusNode? amountTextFieldFocusNode;
   final GlobalKey<FormState> _formKey;
   final bool isLight;
+  final int? qrVersion;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +69,6 @@ class QRWidget extends StatelessWidget {
                             Routes.fullscreenQR,
                             arguments: {
                               'qrData': addressListViewModel.uri.toString(),
-                              'isLight': isLight,
                             },
                           );
                         });
@@ -115,8 +116,10 @@ class QRWidget extends StatelessWidget {
                       hintText: S.of(context).receive_amount,
                       textColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                       borderColor: Theme.of(context).textTheme!.headline5!.decorationColor!,
-                      validator: AmountValidator(currency:
-                        walletTypeToCryptoCurrency(addressListViewModel.type), isAutovalidate: true),
+                      validator: AmountValidator(
+                          currency: walletTypeToCryptoCurrency(addressListViewModel!.type),
+                          isAutovalidate: true),
+                      // FIX-ME: Check does it equal to autovalidate: true,
                       autovalidateMode: AutovalidateMode.always,
                       placeholderTextStyle: TextStyle(
                         color: Theme.of(context).hoverColor,
@@ -129,39 +132,40 @@ class QRWidget extends StatelessWidget {
               ],
             ),
           ),
-        Padding(
-          padding: EdgeInsets.only(top: 8, bottom: 8),
-          child: Builder(
-            builder: (context) => Observer(
-              builder: (context) => GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: addressListViewModel.address.address));
-                  showBar<void>(context, S.of(context).copied_to_clipboard);
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        addressListViewModel.address.address,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
+          Padding(
+            padding: EdgeInsets.only(top: 8, bottom: 8),
+            child: Builder(
+              builder: (context) => Observer(
+                builder: (context) => GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: addressListViewModel!.address.address));
+                    showBar<void>(context, S.of(context).copied_to_clipboard);
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          addressListViewModel!.address.address,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color:
+                                  Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 12),
-                      child: copyImage,
-                    )
-                  ],
+                      Padding(
+                        padding: EdgeInsets.only(left: 12),
+                        child: copyImage,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        )
+          )
       ],
     );
   }

@@ -37,4 +37,6 @@ class PreferencesKey {
     => '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
+  static const clearnetDonationLink = 'clearnet_donation_link'; 
+  static const onionDonationLink = 'onion_donation_link'; 
 }

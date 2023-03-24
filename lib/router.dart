@@ -1,10 +1,15 @@
+import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
@@ -451,7 +456,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<FullscreenQRPage>(
                 param1: args['qrData'] as String,
-                param2: args['isLight'] as bool,
+                param2: args['version'] as int?,
+
               ));
 
     case Routes.ioniaWelcomePage:
@@ -529,12 +535,24 @@ Route<dynamic> createRoute(RouteSettings settings) {
             getIt.get<NodeCreateOrEditViewModel>(param1: type),
           ));
 
+    case Routes.anonPayInvoicePage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
+
+    case Routes.anonPayReceivePage:
+        final anonInvoiceViewData = settings.arguments as AnonpayInfoBase;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonInvoiceViewData));
+
+    case Routes.anonPayDetailsPage:
+      final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonpayDetailsPage>(param1: anonInvoiceViewData));
+
     case Routes.desktop_actions:
       return PageRouteBuilder(
         opaque: false,
         pageBuilder: (_, __, ___) => DesktopDashboardActions(getIt<DashboardViewModel>()),
       );
-    
+
     case Routes.desktop_settings_page:
       return CupertinoPageRoute<void>(
           builder: (_) => DesktopSettingsPage());
@@ -542,13 +560,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(
           builder: (_) => SizedBox.shrink());
-    
+
     case Routes.transactionsPage:
       return CupertinoPageRoute<void>(
           settings: settings,
           fullscreenDialog: true,
           builder: (_) => getIt.get<TransactionsPage>());
-          
+
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(
