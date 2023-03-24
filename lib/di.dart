@@ -762,8 +762,8 @@ Future setup(
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
     walletType: getIt.get<AppStore>().wallet!.type));
 
-  getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
-          (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
+  getIt.registerFactoryParam<FullscreenQRPage, String, int?>(
+          (String qrData, int? version) => FullscreenQRPage(qrData: qrData, version: version,));
 
   getIt.registerFactory(() => IoniaApi());
 

@@ -73,7 +73,6 @@ class QRWidget extends StatelessWidget {
                             Routes.fullscreenQR,
                             arguments: {
                               'qrData': addressListViewModel.uri.toString(),
-                              'isLight': isLight,
                             },
                           );
                           // ignore: unawaited_futures

@@ -33,7 +33,6 @@ class WalletKeysPage extends BasePage {
           Routes.fullscreenQR,
           arguments: {
             'qrData': (await walletKeysViewModel.url).toString(),
-            'isLight': true,
           },
         );
         // ignore: unawaited_futures

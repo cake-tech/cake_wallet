@@ -445,7 +445,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<FullscreenQRPage>(
                 param1: args['qrData'] as String,
-                param2: args['isLight'] as bool,
+                param2: args['version'] as int?,
+                
               ));
 
     case Routes.ioniaWelcomePage:
