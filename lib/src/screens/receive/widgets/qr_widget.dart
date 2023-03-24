@@ -13,9 +13,8 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 
 class QRWidget extends StatelessWidget {
   QRWidget(
-      {this.addressListViewModel,
+      {required this.addressListViewModel,
       required this.isLight,
-      required this.urlString,
       this.qrVersion,
       this.isAmountFieldShow = false,
       this.amountTextFieldFocusNode})
@@ -25,13 +24,12 @@ class QRWidget extends StatelessWidget {
         _formKey.currentState!.validate() ? amountController.text : '');
   }
 
-  final WalletAddressListViewModel? addressListViewModel;
+  final WalletAddressListViewModel addressListViewModel;
   final bool isAmountFieldShow;
   final TextEditingController amountController;
   final FocusNode? amountTextFieldFocusNode;
   final GlobalKey<FormState> _formKey;
   final bool isLight;
-  final String urlString;
   final int? qrVersion;
 
   @override
@@ -59,53 +57,57 @@ class QRWidget extends StatelessWidget {
             Row(
               children: <Widget>[
                 Spacer(flex: 3),
-                Flexible(
-                  flex: 5,
-                  child: GestureDetector(
-                    onTap: () async {
-                      // Get the current brightness:
-                      final double brightness = await DeviceDisplayBrightness.getBrightness();
+                Observer(
+                  builder: (_) {
+                    return Flexible(
+                      flex: 5,
+                      child: GestureDetector(
+                        onTap: () async {
+                          // Get the current brightness:
+                          final double brightness = await DeviceDisplayBrightness.getBrightness();
 
-                      // ignore: unawaited_futures
-                      DeviceDisplayBrightness.setBrightness(1.0);
-                      await Navigator.pushNamed(
-                        context,
-                        Routes.fullscreenQR,
-                        arguments: {
-                          'qrData': urlString,
-                          'isLight': isLight,
+                          // ignore: unawaited_futures
+                          DeviceDisplayBrightness.setBrightness(1.0);
+                          await Navigator.pushNamed(
+                            context,
+                            Routes.fullscreenQR,
+                            arguments: {
+                              'qrData': addressListViewModel.uri.toString(),
+                              'isLight': isLight,
+                            },
+                          );
+                          // ignore: unawaited_futures
+                          DeviceDisplayBrightness.setBrightness(brightness);
                         },
-                      );
-                      // ignore: unawaited_futures
-                      DeviceDisplayBrightness.setBrightness(brightness);
-                    },
-                    child: Hero(
-                      tag: Key(urlString),
-                      child: Center(
-                        child: AspectRatio(
-                          aspectRatio: 1.0,
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 3,
-                                color:
-                                    Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                        child: Hero(
+                          tag: Key(addressListViewModel.uri.toString()),
+                          child: Center(
+                            child: AspectRatio(
+                              aspectRatio: 1.0,
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 3,
+                                    color:
+                                        Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                                  ),
+                                ),
+                                child: QrImage(data: addressListViewModel.uri.toString(), version: qrVersion),
                               ),
                             ),
-                            child: QrImage(data: urlString, version: qrVersion),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  }
                 ),
                 Spacer(flex: 3)
               ],
             ),
           ],
         ),
-        if (isAmountFieldShow && addressListViewModel != null)
+        if (isAmountFieldShow)
           Padding(
             padding: EdgeInsets.only(top: 10),
             child: Row(
@@ -138,7 +140,6 @@ class QRWidget extends StatelessWidget {
               ],
             ),
           ),
-        if (addressListViewModel != null)
           Padding(
             padding: EdgeInsets.only(top: 8, bottom: 8),
             child: Builder(

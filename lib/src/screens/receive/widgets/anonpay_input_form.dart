@@ -20,10 +20,9 @@ class AnonInvoiceForm extends StatelessWidget {
     required this.emailController,
     required this.descriptionController,
     required this.depositAmountFocus,
-    required this.nameFocus,
-    required this.emailFocus,
-    required this.descriptionFocus,
-  });
+  })  : _nameFocusNode = FocusNode(),
+        _emailFocusNode = FocusNode(),
+        _descriptionFocusNode = FocusNode();
 
   final TextEditingController amountController;
   final TextEditingController nameController;
@@ -31,9 +30,9 @@ class AnonInvoiceForm extends StatelessWidget {
   final TextEditingController descriptionController;
   final AnonInvoicePageViewModel anonInvoicePageViewModel;
   final FocusNode depositAmountFocus;
-  final FocusNode nameFocus;
-  final FocusNode emailFocus;
-  final FocusNode descriptionFocus;
+  final FocusNode _nameFocusNode;
+  final FocusNode _emailFocusNode;
+  final FocusNode _descriptionFocusNode;
   final GlobalKey<FormState> formKey;
   final bool isInvoice;
 
@@ -64,7 +63,7 @@ class AnonInvoiceForm extends StatelessWidget {
             ),
             BaseTextFormField(
               controller: nameController,
-              focusNode: nameFocus,
+              focusNode: _nameFocusNode,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_name,
@@ -82,7 +81,7 @@ class AnonInvoiceForm extends StatelessWidget {
             ),
             BaseTextFormField(
               controller: descriptionController,
-              focusNode: descriptionFocus,
+              focusNode: _descriptionFocusNode,
               textInputAction: TextInputAction.next,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
@@ -99,7 +98,7 @@ class AnonInvoiceForm extends StatelessWidget {
             BaseTextFormField(
               controller: emailController,
               textInputAction: TextInputAction.next,
-              focusNode: emailFocus,
+              focusNode: _emailFocusNode,
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
               suffixIcon: SizedBox(width: 36),
               keyboardType: TextInputType.emailAddress,

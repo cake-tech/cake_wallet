@@ -4,7 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -26,10 +26,7 @@ class AnonPayInvoicePage extends BasePage {
   AnonPayInvoicePage(
     this.anonInvoicePageViewModel,
     this.receiveOptionViewModel,
-  )   : _nameFocusNode = FocusNode(),
-        _emailFocusNode = FocusNode(),
-        _descriptionFocusNode = FocusNode(),
-        _amountFocusNode = FocusNode() {
+  ) : _amountFocusNode = FocusNode() {
     _nameController.text = anonInvoicePageViewModel.receipientName;
     _descriptionController.text = anonInvoicePageViewModel.description;
     _emailController.text = anonInvoicePageViewModel.receipientEmail;
@@ -39,10 +36,7 @@ class AnonPayInvoicePage extends BasePage {
   final _emailController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
-  FocusNode _nameFocusNode;
-  FocusNode _emailFocusNode;
-  FocusNode _descriptionFocusNode;
-  FocusNode _amountFocusNode;
+  final FocusNode _amountFocusNode;
 
   final AnonInvoicePageViewModel anonInvoicePageViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
@@ -114,9 +108,6 @@ class AnonPayInvoicePage extends BasePage {
                   descriptionController: _descriptionController,
                   amountController: _amountController,
                   emailController: _emailController,
-                  nameFocus: _nameFocusNode,
-                  emailFocus: _emailFocusNode,
-                  descriptionFocus: _descriptionFocusNode,
                   depositAmountFocus: _amountFocusNode,
                   formKey: _formKey,
                   isInvoice: receiveOptionViewModel.selectedReceiveOption ==

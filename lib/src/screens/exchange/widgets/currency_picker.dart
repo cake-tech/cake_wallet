@@ -141,11 +141,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                               aspectRatio: 6,
                               child: PickerItemWidget(
                                 title: items[widget.selectedAtIndex].name,
-                                iconImage:Image.asset(
-                                  items[widget.selectedAtIndex].iconPath ?? '',
-                                  width: 20,
-                                  height: 20,
-                                ),
+                                iconPath: items[widget.selectedAtIndex].iconPath,
                                 isSelected: true,
                                 tag: items[widget.selectedAtIndex].tag,
                               ),

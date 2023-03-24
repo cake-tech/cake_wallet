@@ -6,8 +6,9 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_status_section.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/share_link_item.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/copy_link_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -119,10 +120,49 @@ class AnonPayReceivePage extends BasePage {
             AnonInvoiceStatusSection(invoiceInfo: invoiceInfo as AnonpayInvoiceInfo),
           Padding(
             padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
-            child: QRWidget(
-              isLight: currentTheme.type == ThemeType.light,
-              urlString: invoiceInfo.clearnetUrl,
-              qrVersion: QrVersions.auto,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.5,
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  final double brightness = await DeviceDisplayBrightness.getBrightness();
+
+                  // ignore: unawaited_futures
+                  DeviceDisplayBrightness.setBrightness(1.0);
+                  await Navigator.pushNamed(
+                    context,
+                    Routes.fullscreenQR,
+                    arguments: {
+                      'qrData': invoiceInfo.clearnetUrl,
+                      'isLight': currentTheme.type == ThemeType.light,
+                    },
+                  );
+                  // ignore: unawaited_futures
+                  DeviceDisplayBrightness.setBrightness(brightness);
+                },
+                child: Hero(
+                  tag: Key(invoiceInfo.clearnetUrl),
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1.0,
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 3,
+                            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                          ),
+                        ),
+                        child: QrImage(
+                          data: invoiceInfo.clearnetUrl,
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
           SizedBox(height: 24),

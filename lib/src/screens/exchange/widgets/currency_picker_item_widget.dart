@@ -4,15 +4,15 @@ import 'package:cake_wallet/palette.dart';
 class PickerItemWidget extends StatelessWidget {
   const PickerItemWidget({
     required this.title,
+    this.iconPath,
     this.isSelected = false,
     this.tag,
-    this.iconImage,
     this.onTap});
 
+  final String? iconPath;
   final String title;
   final bool isSelected;
   final String? tag;
-  final Widget? iconImage;
   final VoidCallback? onTap;
 
   @override
@@ -26,7 +26,11 @@ class PickerItemWidget extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                child: iconImage,
+                child: Image.asset(
+                  iconPath ?? '',
+                  height: 20.0,
+                  width: 20.0,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

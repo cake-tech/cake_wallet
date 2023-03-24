@@ -2,7 +2,7 @@ import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/present_fee_picker.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -158,15 +158,13 @@ class AddressPage extends BasePage {
           padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
           child: Column(
             children: <Widget>[
-              Expanded(
-                  child: Observer(
-                      builder: (_) => QRWidget(
-                          addressListViewModel: addressListViewModel,
-                          amountTextFieldFocusNode: _cryptoAmountFocus,
-                          isAmountFieldShow: !addressListViewModel.hasAccounts,
-                          urlString: addressListViewModel.uri.toString(),
-                          isLight:
-                              walletViewModel.settingsStore.currentTheme.type == ThemeType.light))),
+            Expanded(
+              child: Observer(builder: (_) => QRWidget(
+                addressListViewModel: addressListViewModel,
+                amountTextFieldFocusNode: _cryptoAmountFocus,
+                isAmountFieldShow: !addressListViewModel.hasAccounts,
+                isLight: walletViewModel.settingsStore.currentTheme.type == ThemeType.light))
+              ),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
                     ? GestureDetector(
@@ -224,7 +222,7 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      Navigator.pop(context);  
+      Navigator.pop(context);
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pushReplacementNamed(
@@ -234,26 +232,26 @@ class AddressPage extends BasePage {
           );
           break;
         case ReceivePageOption.anonPayDonationLink:
-          final sharedPreferences =  getIt.get<SharedPreferences>(); 
+          final sharedPreferences = getIt.get<SharedPreferences>();
           final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
           final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
 
-          if (clearnetUrl != null && onionUrl != null){
+          if (clearnetUrl != null && onionUrl != null) {
             Navigator.pushReplacementNamed(
               context,
               Routes.anonPayReceivePage,
               arguments: AnonpayDonationLinkInfo(
-                clearnetUrl: clearnetUrl, 
-                onionUrl: onionUrl, 
+                clearnetUrl: clearnetUrl,
+                onionUrl: onionUrl,
                 address: addressListViewModel.address.address,
               ),
             );
           } else {
-              Navigator.pushReplacementNamed(
-                context,
-                Routes.anonPayInvoicePage,
-                arguments: [addressListViewModel.address.address, option],
-              );
+            Navigator.pushReplacementNamed(
+              context,
+              Routes.anonPayInvoicePage,
+              arguments: [addressListViewModel.address.address, option],
+            );
           }
           break;
         default:
