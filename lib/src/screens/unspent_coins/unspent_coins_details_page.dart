@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/widgets/unspent_coins_switch_row.dart';
@@ -58,6 +59,14 @@ class UnspentCoinsDetailsPage extends BasePage {
               switchValue: item.switchValue(),
               onSwitchValueChange: item.onSwitchValueChange
             ));
+          }
+
+          if (item is BlockExplorerListItem) {
+            return GestureDetector(
+              onTap: item.onTap,
+              child:
+              ListRow(title: '${item.title}:', value: item.value),
+            );
           }
 
           return Container();

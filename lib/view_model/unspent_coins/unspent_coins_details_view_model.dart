@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
@@ -5,7 +6,9 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_switch_item.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'unspent_coins_details_view_model.g.dart';
 
@@ -47,8 +50,35 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
           }
           await unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
         }
-      )
+      ),
+      BlockExplorerListItem(
+          title: S.current.view_in_block_explorer,
+          value: _explorerDescription(unspentCoinsListViewModel.wallet.type),
+          onTap: () => launch(_explorerUrl(unspentCoinsListViewModel.wallet.type,
+              unspentCoinsItem.hash)))
     ];
+  }
+
+  String _explorerUrl(WalletType type, String txId) {
+    switch (type) {
+      case WalletType.bitcoin:
+        return 'https://ordinals.com/tx/${txId}';
+      case WalletType.litecoin:
+        return 'https://litecoin.earlyordies.com/tx/${txId}';
+      default:
+        return '';
+    }
+  }
+
+  String _explorerDescription(WalletType type) {
+    switch (type) {
+      case WalletType.bitcoin:
+        return S.current.view_transaction_on + 'Ordinals.com';
+      case WalletType.litecoin:
+        return S.current.view_transaction_on + 'Earlyordies.com';
+      default:
+        return '';
+    }
   }
 
   @observable
