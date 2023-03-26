@@ -684,5 +684,6 @@
   "do_not_send": "N'envoyez pas",
   "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport de plantage à notre équipe d'assistance pour améliorer l'application.",
   "decimal_places_error": "Trop de décimales",
-  "edit_node": "Modifier le nœud"
+  "edit_node": "Modifier le nœud",
+  "frozen_balance": "Équilibre gelé"
 }

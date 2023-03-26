@@ -75,6 +75,8 @@ class BalancePage extends StatelessWidget{
                       additionalBalanceLabel: '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
                       additionalBalance: balance.additionalBalance,
                       additionalFiatBalance: balance.fiatAdditionalBalance,
+                      frozenBalance: balance.frozenBalance,
+                      frozenFiatBalance: balance.fiatFrozenBalance,
                       currency: balance.formattedAssetTitle);
                     });
              })
@@ -88,6 +90,8 @@ class BalancePage extends StatelessWidget{
       required String additionalBalanceLabel,
       required String additionalBalance,
       required String additionalFiatBalance,
+      required String frozenBalance,
+      required String frozenFiatBalance,
       required String currency}) {
     return Container(    
       margin: const EdgeInsets.only(left: 16, right: 16),
@@ -153,7 +157,50 @@ class BalancePage extends StatelessWidget{
                           .headline2!
                           .backgroundColor!,
                   height: 1)),
-              SizedBox(height: 26),
+               SizedBox(height: 26),
+              if(frozenBalance.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+               Text(S.current.frozen_balance + ':',
+                   textAlign: TextAlign.center,
+                   style: TextStyle(
+                       fontSize: 12,
+                       fontFamily: 'Lato',
+                       fontWeight: FontWeight.w400,
+                       color: Theme.of(context)
+                           .accentTextTheme!
+                           .headline3!
+                           .backgroundColor!,
+                       height: 1)),
+               SizedBox(height: 8),
+               AutoSizeText(
+                   frozenBalance,
+                   style: TextStyle(
+                       fontSize: 20,
+                       fontFamily: 'Lato',
+                       fontWeight: FontWeight.w400,
+                       color: Theme.of(context)
+                           .accentTextTheme!
+                           .headline2!
+                           .backgroundColor!,
+                       height: 1),
+                   maxLines: 1,
+                   textAlign: TextAlign.center),
+               SizedBox(height: 4),
+               Text(frozenFiatBalance,
+                 textAlign: TextAlign.center,
+                 style: TextStyle(
+                     fontSize: 12,
+                     fontFamily: 'Lato',
+                     fontWeight: FontWeight.w400,
+                     color: Theme.of(context)
+                         .accentTextTheme!
+                         .headline2!
+                         .backgroundColor!,
+                     height: 1),
+               ),
+               SizedBox(height: 12)]),
               Text('${additionalBalanceLabel}',
                 textAlign: TextAlign.center,
                 style: TextStyle(

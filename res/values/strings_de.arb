@@ -686,5 +686,6 @@
   "do_not_send": "Nicht senden",
   "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern.",
   "decimal_places_error": "Zu viele Nachkommastellen",
-  "edit_node": "Knoten bearbeiten"
+  "edit_node": "Knoten bearbeiten",
+  "frozen_balance": "Gefrorenes Gleichgewicht"
 }

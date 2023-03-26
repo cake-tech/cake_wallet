@@ -685,5 +685,6 @@
   "do_not_send": "não envie",
   "error_dialog_content": "Ops, houve algum erro.\n\nPor favor, envie o relatório de falha para nossa equipe de suporte para melhorar o aplicativo.",
   "decimal_places_error": "Muitas casas decimais",
-  "edit_node": "Editar nó"
+  "edit_node": "Editar nó",
+  "frozen_balance": "Saldo Congelado"
 }

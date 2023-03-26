@@ -668,5 +668,6 @@
   "contact_list_contacts": "Kontak",
   "contact_list_wallets": "Dompet Saya",
   "decimal_places_error": "Terlalu banyak tempat desimal",
-  "edit_node": "Sunting Node"
+  "edit_node": "Sunting Node",
+  "frozen_balance": "Saldo Beku"
 }

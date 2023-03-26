@@ -686,5 +686,6 @@
   "do_not_send": "Nie wysyłaj",
   "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
   "decimal_places_error": "Za dużo miejsc dziesiętnych",
-  "edit_node": "Edytuj węzeł"
+  "edit_node": "Edytuj węzeł",
+  "frozen_balance": "Zamrożona równowaga"
 }

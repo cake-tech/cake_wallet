@@ -8,4 +8,8 @@ abstract class Balance {
   String get formattedAvailableBalance;
 
   String get formattedAdditionalBalance;
+
+  String get formattedFrozenBalance;
+
+  String get formattedTotalAvailableBalance;
 }

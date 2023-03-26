@@ -686,5 +686,6 @@
   "do_not_send": "Niet sturen",
   "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren.",
   "decimal_places_error": "Te veel decimalen",
-  "edit_node": "Knooppunt bewerken"
+  "edit_node": "Knooppunt bewerken",
+  "frozen_balance": "Bevroren saldo"
 }

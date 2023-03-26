@@ -686,5 +686,6 @@
   "do_not_send": "Neodesílat",
   "error_dialog_content": "Nastala chyba.\n\nProsím odešlete zprávu o chybě naší podpoře, aby mohli zajistit opravu.",
   "decimal_places_error": "Příliš mnoho desetinných míst",
-  "edit_node": "Upravit uzel"
+  "edit_node": "Upravit uzel",
+  "frozen_balance": "Zmrazená bilance"
 }

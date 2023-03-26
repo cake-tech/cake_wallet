@@ -686,5 +686,6 @@
   "do_not_send": "Don't send",
   "error_dialog_content": "Oops, we got some error.\n\nPlease send the crash report to our support team to make the application better.",
   "decimal_places_error": "Too many decimal places",
-  "edit_node": "Edit Node"
+  "edit_node": "Edit Node",
+  "frozen_balance": "Frozen Balance"
 }

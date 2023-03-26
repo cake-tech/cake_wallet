@@ -53,6 +53,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
       await info.save();
       bitcoin!.updateUnspents(wallet);
+      wallet.updateBalance();
     } catch (e) {
       print(e.toString());
     }
