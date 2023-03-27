@@ -26,10 +26,4 @@ class MoneroBalance extends Balance {
 
   @override
   String get formattedAdditionalBalance => formattedFullBalance;
-
-  @override
-  String get formattedFrozenBalance => '';
-
-  @override
-  String get formattedTotalAvailableBalance => '';
 }

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -151,7 +152,7 @@ abstract class BalanceViewModelBase with Store {
       return '---';
     }
 
-    return walletBalance.formattedFrozenBalance;
+    return getFormattedFrozenBalance(walletBalance);
   }
 
   @computed
@@ -165,7 +166,7 @@ abstract class BalanceViewModelBase with Store {
 
     return  _getFiatBalance(
         price: price,
-        cryptoAmount: walletBalance.formattedFrozenBalance) + ' ' + fiatCurrency.toString();
+        cryptoAmount: getFormattedFrozenBalance(walletBalance)) + ' ' + fiatCurrency.toString();
 
   }
 
@@ -241,26 +242,26 @@ abstract class BalanceViewModelBase with Store {
         + ' '
         + _getFiatBalance(
             price: price,
-            cryptoAmount: value.formattedFrozenBalance.isEmpty
+            cryptoAmount: getFormattedFrozenBalance(value).isEmpty
                 ? value.formattedAvailableBalance
-                : value.formattedTotalAvailableBalance));
+                : getFormattedTotalAvailableBalance(value)));
 
 
       final frozenFiatBalance = isFiatDisabled ? '' : (fiatCurrency.toString()
           + ' '
           + _getFiatBalance(
               price: price,
-              cryptoAmount: value.formattedFrozenBalance));
+              cryptoAmount: getFormattedFrozenBalance(value)));
 
 
       return MapEntry(
           key,
           BalanceRecord(
-              availableBalance: value.formattedFrozenBalance.isEmpty
+              availableBalance:getFormattedFrozenBalance(value).isEmpty
                   ? value.formattedAvailableBalance
-                  : value.formattedTotalAvailableBalance,
+                  : getFormattedTotalAvailableBalance(value),
               additionalBalance: value.formattedAdditionalBalance,
-              frozenBalance: value.formattedFrozenBalance,
+              frozenBalance: getFormattedFrozenBalance(value),
               fiatAdditionalBalance: additionalFiatBalance,
               fiatAvailableBalance: availableFiatBalance,
               fiatFrozenBalance: frozenFiatBalance,
@@ -363,5 +364,12 @@ abstract class BalanceViewModelBase with Store {
         return asset.toString();
     }
   }
+
+
+  String getFormattedFrozenBalance(Balance walletBalance) =>
+      walletBalance is ElectrumBalance ? walletBalance.formattedFrozenBalance : '';
+
+  String getFormattedTotalAvailableBalance(Balance walletBalance) =>
+      walletBalance is ElectrumBalance ? walletBalance.formattedTotalAvailableBalance : '';
 }
 

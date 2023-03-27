@@ -34,8 +34,6 @@ class ElectrumBalance extends Balance {
     final frozenFormatted = bitcoinAmountToString(amount: frozen);
     return frozenFormatted == '0.0' ? '' : frozenFormatted;
   }
-
-  @override
   String get formattedTotalAvailableBalance => bitcoinAmountToString(amount: confirmed - frozen);
 
   String toJSON() =>
