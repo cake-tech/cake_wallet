@@ -56,7 +56,13 @@ class AuthService with Store {
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
-    return duration >= requiredPinInterval.value;
+    if (duration <= 3) {
+      
+      return false;
+    }
+    final durationInMinutes = duration / 60;
+
+    return durationInMinutes >= requiredPinInterval.value;
   }
 
   int _durationToRequireAuth(int timestamp) {
@@ -64,6 +70,6 @@ class AuthService with Store {
     DateTime now = DateTime.now();
     Duration timeDifference = now.difference(before);
 
-    return timeDifference.inMinutes;
+    return timeDifference.inSeconds;
   }
 }

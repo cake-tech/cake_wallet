@@ -1,5 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
@@ -91,8 +92,20 @@ import 'package:cw_core/node.dart';
 
 late RouteSettings currentRouteSettings;
 
+const _routesRequireAuth = [
+  Routes.showKeys,
+  Routes.backup,
+  Routes.setupPin,
+];
+
 Route<dynamic> createRoute(RouteSettings settings) {
   currentRouteSettings = settings;
+
+  final showAuth = getIt.get<AuthService>().requireAuth();
+
+  if (showAuth && _routesRequireAuth.contains(settings.name)) {
+    return _getAuthRoute(settings);
+  }
 
   switch (settings.name) {
     case Routes.welcome:
@@ -539,4 +552,21 @@ Route<dynamic> createRoute(RouteSettings settings) {
               body: Center(
                   child: Text(S.current.router_no_route(settings.name ?? 'No route')))));
   }
+}
+
+MaterialPageRoute<void> _getAuthRoute(RouteSettings settings) {
+  return MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (_) => getIt.get<AuthPage>(
+        param1: (bool isAuthenticated, AuthPageState state) {
+        if (isAuthenticated) {
+          state.close(
+            route: settings.name,
+            arguments: settings.arguments
+          );
+        }
+      },
+    param2: true,
+    ),
+  );
 }

@@ -27,35 +27,22 @@ class SecurityBackupPage extends BasePage {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SettingsCellWithArrow(
           title: S.current.show_keys,
-          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.showKeys);
-            }
-          }),
+          handler: (_) => Navigator.of(context).pushNamed(Routes.showKeys),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
-          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.backup);
-            }
-          }),
+          handler: (_) => Navigator.of(context).pushNamed(Routes.backup),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
             title: S.current.settings_change_pin,
-            handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-                    arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                  auth.close(
-                    route: isAuthenticatedSuccessfully ? Routes.setupPin : null,
-                    arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
-                      setupPinContext.close();
-                    },
-                  );
-                })),
+            handler: (_) => Navigator.of(context).pushNamed(Routes.setupPin,
+              arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                setupPinContext.close();
+            },
+          ),
+        ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         Observer(builder: (_) {
           return SettingsSwitcherCell(
