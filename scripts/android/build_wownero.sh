@@ -3,8 +3,8 @@
 . ./config.sh
 
 WOWNERO_URL="https://git.wownero.com/wownero/wownero.git"
-WOWNERO_VERSION=v0.11.0.0
-WOWNERO_SHA_HEAD="6b28de1cdc020493dee2bf20b62c6d9227140ef2"
+WOWNERO_VERSION=v0.11.0.1
+WOWNERO_SHA_HEAD="a21819cc22587e16af00e2c3d8f70156c11310a0"
 WOWNERO_SRC_DIR=${WORKDIR}/wownero
 
 echo "Cloning wownero from - $WOWNERO_URL to - $WOWNERO_SRC_DIR"		
