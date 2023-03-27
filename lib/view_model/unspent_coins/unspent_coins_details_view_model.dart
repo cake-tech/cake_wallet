@@ -16,21 +16,14 @@ class UnspentCoinsDetailsViewModel = UnspentCoinsDetailsViewModelBase
     with _$UnspentCoinsDetailsViewModel;
 
 abstract class UnspentCoinsDetailsViewModelBase with Store {
-  UnspentCoinsDetailsViewModelBase({
-    required this.unspentCoinsItem,
-    required this.unspentCoinsListViewModel})
+  UnspentCoinsDetailsViewModelBase(
+      {required this.unspentCoinsItem, required this.unspentCoinsListViewModel})
       : items = <TransactionDetailsListItem>[],
         isFrozen = unspentCoinsItem.isFrozen,
         note = unspentCoinsItem.note {
     items = [
-      StandartListItem(
-        title: S.current.transaction_details_amount,
-        value: unspentCoinsItem.amount
-      ),
-      StandartListItem(
-        title: S.current.widgets_address,
-        value: unspentCoinsItem.address
-      ),
+      StandartListItem(title: S.current.transaction_details_amount, value: unspentCoinsItem.amount),
+      StandartListItem(title: S.current.widgets_address, value: unspentCoinsItem.address),
       TextFieldListItem(
           title: S.current.note_tap_to_change,
           value: note,
@@ -39,27 +32,25 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
             unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
           }),
       UnspentCoinsSwitchItem(
-        title: S.current.freeze,
-        value: '',
-        switchValue: () => isFrozen,
-        onSwitchValueChange: (value) async {
-          isFrozen = value;
-          unspentCoinsItem.isFrozen = value;
-          if (value) {
-            unspentCoinsItem.isSending = !value;
-          }
-          await unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
-        }
-      ),
+          title: S.current.freeze,
+          value: '',
+          switchValue: () => isFrozen,
+          onSwitchValueChange: (value) async {
+            isFrozen = value;
+            unspentCoinsItem.isFrozen = value;
+            if (value) {
+              unspentCoinsItem.isSending = !value;
+            }
+            await unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
+          }),
       BlockExplorerListItem(
           title: S.current.view_in_block_explorer,
           value: _explorerDescription(unspentCoinsListViewModel.wallet.type),
           onTap: () {
-            final url = Uri.parse(_explorerUrl(unspentCoinsListViewModel.wallet.type,
-                unspentCoinsItem.hash));
+            final url = Uri.parse(
+                _explorerUrl(unspentCoinsListViewModel.wallet.type, unspentCoinsItem.hash));
             return launchUrl(url);
-          }
-      )
+          })
     ];
   }
 

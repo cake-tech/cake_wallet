@@ -13,10 +13,9 @@ part 'unspent_coins_list_view_model.g.dart';
 class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCoinsListViewModel;
 
 abstract class UnspentCoinsListViewModelBase with Store {
-  UnspentCoinsListViewModelBase({
-    required this.wallet,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo})
-    : _unspentCoinsInfo = unspentCoinsInfo {
+  UnspentCoinsListViewModelBase(
+      {required this.wallet, required Box<UnspentCoinsInfo> unspentCoinsInfo})
+      : _unspentCoinsInfo = unspentCoinsInfo {
     bitcoin!.updateUnspents(wallet);
   }
 
@@ -24,28 +23,27 @@ abstract class UnspentCoinsListViewModelBase with Store {
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
   @computed
-  ObservableList<UnspentCoinsItem> get items => ObservableList.of(bitcoin!.getUnspents(wallet).map((elem) {
-      final amount = bitcoin!.formatterBitcoinAmountToString(amount: elem.value) +
-          ' ${wallet.currency.title}';
-  
-     final info = _unspentCoinsInfo.values
-          .firstWhere((element) => element.walletId == wallet.id && element.hash == elem.hash);
+  ObservableList<UnspentCoinsItem> get items =>
+      ObservableList.of(bitcoin!.getUnspents(wallet).map((elem) {
+        final amount = bitcoin!.formatterBitcoinAmountToString(amount: elem.value) +
+            ' ${wallet.currency.title}';
 
-      return UnspentCoinsItem(
-          address: elem.address,
-          amount: amount,
-          hash: elem.hash,
-          isFrozen: info.isFrozen,
-          note: info.note,
-          isSending: info.isSending
-      );
-    }));
+        final info = _unspentCoinsInfo.values
+            .firstWhere((element) => element.walletId == wallet.id && element.hash == elem.hash);
+
+        return UnspentCoinsItem(
+            address: elem.address,
+            amount: amount,
+            hash: elem.hash,
+            isFrozen: info.isFrozen,
+            note: info.note,
+            isSending: info.isSending);
+      }));
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
-      final info = _unspentCoinsInfo.values
-          .firstWhere((element) => element.walletId.contains(wallet.id) &&
-          element.hash.contains(item.hash));
+      final info = _unspentCoinsInfo.values.firstWhere(
+          (element) => element.walletId.contains(wallet.id) && element.hash.contains(item.hash));
 
       info.isFrozen = item.isFrozen;
       info.isSending = item.isSending;
