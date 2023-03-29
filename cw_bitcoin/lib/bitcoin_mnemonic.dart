@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
 import 'package:cryptography/cryptography.dart' as cryptography;
-import 'package:cw_core/sec_random_native.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 const segwit = '100';
 final wordlist = englishWordlist;
@@ -90,20 +90,9 @@ List<bool> prefixMatches(String source, List<String> prefixes) {
   return prefixes.map((prefix) => hx.startsWith(prefix.toLowerCase())).toList();
 }
 
-Future<String> generateMnemonic(
-    {int strength = 264, String prefix = segwit}) async {
-  final wordBitlen = logBase(wordlist.length, 2).ceil();
-  final wordCount = strength / wordBitlen;
-  final byteCount = ((wordCount * wordBitlen).ceil() / 8).ceil();
-  var result = '';
-
-  do {
-    final bytes = await secRandom(byteCount);
-    maskBytes(bytes, strength);
-    result = encode(bytes);
-  } while (!prefixMatches(result, [prefix]).first);
-
-  return result;
+String generateMnemonic({int strength = 256}) {
+  
+  return  bip39.generateMnemonic(strength: strength);
 }
 
 Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {
@@ -124,6 +113,12 @@ bool matchesAnyPrefix(String mnemonic) =>
     prefixMatches(mnemonic, [segwit]).any((el) => el);
 
 bool validateMnemonic(String mnemonic, {String prefix = segwit}) {
+  
+  if (bip39.validateMnemonic(mnemonic)) {
+  
+    return true;
+  }
+
   try {
     return matchesAnyPrefix(mnemonic);
   } catch (e) {
