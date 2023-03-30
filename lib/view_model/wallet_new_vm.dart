@@ -33,14 +33,14 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options as String);
+            name: name, language: options as String, password: walletPassword);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.litecoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
-            name: name, language: options as String);
+            name: name, language: options as String, password: walletPassword);
       default:
         throw Exception('Unexpected type: ${type.toString()}');;
     }

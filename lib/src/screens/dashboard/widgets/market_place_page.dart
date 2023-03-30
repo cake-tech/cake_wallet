@@ -1,6 +1,7 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/market_place_item.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -43,12 +44,13 @@ class MarketPlacePage extends StatelessWidget {
                 child: ListView(
                   controller: _scrollController,
                   children: <Widget>[
-                    SizedBox(height: 20),
-                    MarketPlaceItem(
-                      onTap: () =>_navigatorToGiftCardsPage(context),
-                      title: S.of(context).cake_pay_title,
-                      subTitle: S.of(context).cake_pay_subtitle,
-                    ),
+                    if (!SettingsStoreBase.walletPasswordDirectInput)
+                      ...[SizedBox(height: 20),
+                      MarketPlaceItem(
+                        onTap: () =>_navigatorToGiftCardsPage(context),
+                        title: S.of(context).cake_pay_title,
+                        subTitle: S.of(context).cake_pay_subtitle,
+                      )],
                     SizedBox(height: 20),
                     MarketPlaceItem(
                       onTap: () => launchUrl(

@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Monedero Monero",
   "wallet_restoration_store_incorrect_seed_length" : "Longitud de semilla incorrecta",
 
+  "invalid_password" : "Contraseña invalida",
+  "unlock" : "desbloquear",
+  "enter_wallet_password" : "Ingrese la contraseña de la billetera",
 
   "full_balance" : "Balance completo",
   "available_balance" : "Balance disponible",

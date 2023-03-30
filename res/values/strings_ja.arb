@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Monero 財布",
   "wallet_restoration_store_incorrect_seed_length" : "誤ったシード長s",
 
+  "invalid_password" : "無効なパスワード",
+  "unlock" : "ロック解除",
+  "enter_wallet_password" : "ウォレットのパスワードを入力してください",
 
   "full_balance" : "フルバランス",
   "available_balance" : "利用可能残高",

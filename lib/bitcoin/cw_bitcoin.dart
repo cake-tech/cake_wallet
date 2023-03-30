@@ -22,8 +22,9 @@ class CWBitcoin extends Bitcoin {
 	@override
 	WalletCredentials createBitcoinNewWalletCredentials({
     required String name,
-    WalletInfo? walletInfo})
-		=> BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
+    WalletInfo? walletInfo,
+    String? password})
+		=> BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
 
 	@override
 	List<String> getWordList() => wordlist;

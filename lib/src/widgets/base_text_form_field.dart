@@ -28,7 +28,8 @@ class BaseTextFormField extends StatelessWidget {
       this.focusNode,
       this.initialValue,
       this.onSubmit,
-      this.borderWidth = 1.0});
+      this.borderWidth = 1.0,
+      this.obscureText = false});
 
   final TextEditingController? controller;
   final TextInputType? keyboardType;
@@ -56,6 +57,7 @@ class BaseTextFormField extends StatelessWidget {
   final String? initialValue;
   final double borderWidth;
   final void Function(String)? onSubmit;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +76,7 @@ class BaseTextFormField extends StatelessWidget {
       enabled: enabled,
       maxLength: maxLength,
       onFieldSubmitted: onSubmit,
+      obscureText: obscureText,
       style: textStyle ??
           TextStyle(
               fontSize: 16.0,

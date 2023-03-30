@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:collection/collection.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -136,9 +136,8 @@ Future<void> ios_migrate_pin() async {
     return;
   }
 
-  final flutterSecureStorage = FlutterSecureStorage();
-  final pinPassword = await flutterSecureStorage.read(
-      key: 'pin_password', iOptions: IOSOptions());
+  final flutterSecureStorage = secureStorageShared;
+  final pinPassword = await flutterSecureStorage.readNoIOptions(key: 'pin_password');
   // No pin
   if (pinPassword == null) {
     await prefs.setBool('ios_migration_pin_completed', true);
@@ -159,7 +158,7 @@ Future<void> ios_migrate_wallet_passwords() async {
   }
 
   final appDocDir = await getApplicationDocumentsDirectory();
-  final flutterSecureStorage = FlutterSecureStorage();
+  final flutterSecureStorage = secureStorageShared;
   final keyService = KeyService(flutterSecureStorage);
   final walletsDir = Directory('${appDocDir.path}/wallets');
   final moneroWalletsDir = Directory('${walletsDir.path}/monero');
@@ -174,8 +173,7 @@ Future<void> ios_migrate_wallet_passwords() async {
       if (item is Directory) {
         final name = item.path.split('/').last;
         final oldKey = 'wallet_monero_' + name + '_password';
-        final password = await flutterSecureStorage.read(
-            key: oldKey, iOptions: IOSOptions());
+        final password = await flutterSecureStorage.readNoIOptions(key: oldKey);
         await keyService.saveWalletPassword(
             walletName: name, password: password!);
       }
@@ -371,9 +369,8 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
     }
 
     final content = file.readAsBytesSync();
-    final flutterSecureStorage = FlutterSecureStorage();
-    final masterPassword = await flutterSecureStorage.read(
-        key: 'master_password', iOptions: IOSOptions());
+    final flutterSecureStorage = secureStorageShared;
+    final masterPassword = await flutterSecureStorage.readNoIOptions(key: 'master_password');
     final key = masterPassword!.replaceAll('-', '');
     final decoded =
         await ios_legacy_helper.decrypt(content, key: key, salt: secrets.salt);

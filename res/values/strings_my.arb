@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Monero ပိုက်ဆံအိတ်",
   "wallet_restoration_store_incorrect_seed_length" : "မျိုးစေ့အရှည် မမှန်ပါ။",
 
+  "invalid_password" : "စကားဝှက် မမှန်ကန်ပါ။",
+  "unlock" : "သော့ဖွင့်ပါ။",
+  "enter_wallet_password" : "ပိုက်ဆံအိတ်စကားဝှက်ကိုထည့်ပါ။",
 
   "full_balance" : "Balance အပြည့်",
   "available_balance" : "လက်ကျန်ငွေ ရရှိနိုင်",

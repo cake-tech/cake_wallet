@@ -341,6 +341,9 @@
   "wallet_store_monero_wallet" : "Portefeuille (Wallet) Monero",
   "wallet_restoration_store_incorrect_seed_length" : "Longueur de phrase secrète (seed) incorrecte",
 
+  "invalid_password" : "Mot de passe incorrect",
+  "unlock" : "Ouvrir",
+  "enter_wallet_password" : "Entrez le mot de passe du portefeuille",
 
   "full_balance" : "Solde Complet",
   "available_balance" : "Solde Disponible",

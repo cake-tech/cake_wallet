@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Carteira Monero",
   "wallet_restoration_store_incorrect_seed_length" : "Comprimento de semente incorreto",
 
+  "invalid_password" : "Senha inválida",
+  "unlock" : "desbloquear",
+  "enter_wallet_password" : "Digite a senha da carteira",
 
   "full_balance" : "Saldo total",
   "available_balance" : "Saldo disponível",

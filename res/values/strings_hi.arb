@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "मोनरो वॉलेट",
   "wallet_restoration_store_incorrect_seed_length" : "गलत बीज की लंबाई",
 
+  "invalid_password" : "अवैध पासवर्ड",
+  "unlock" : "अनलॉक",
+  "enter_wallet_password" : "वॉलेट पासवर्ड दर्ज करें",
 
   "full_balance" : "पूर्ण संतुलन",
   "available_balance" : "उपलब्ध शेष राशि",

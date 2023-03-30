@@ -12,7 +12,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/router.dart' as Router;
@@ -100,7 +100,7 @@ Future<void> main() async {
       Hive.registerAdapter(UnspentCoinsInfoAdapter());
     }
 
-    final secureStorage = FlutterSecureStorage();
+    final secureStorage = secureStorageShared;
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
     final tradesBoxKey = await getEncryptionKey(
@@ -157,7 +157,7 @@ Future<void> initialSetup(
     required Box<Template> templates,
     required Box<ExchangeTemplate> exchangeTemplates,
     required Box<TransactionDescription> transactionDescriptions,
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();

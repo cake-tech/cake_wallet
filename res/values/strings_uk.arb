@@ -342,6 +342,9 @@
   "wallet_store_monero_wallet" : "Monero гаманець",
   "wallet_restoration_store_incorrect_seed_length" : "Невірна довжина мнемонічної фрази",
 
+  "invalid_password" : "Невірний пароль",
+  "unlock" : "Розблокувати",
+  "enter_wallet_password" : "Введіть пароль гаманця",
 
   "full_balance" : "Весь баланс",
   "available_balance" : "Доступний баланс",

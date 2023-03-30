@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Monero novčanik",
   "wallet_restoration_store_incorrect_seed_length" : "Netočna dužina pristupnog izraza",
 
+  "invalid_password" : "Érvénytelen jelszó",
+  "unlock" : "Kinyit",
+  "enter_wallet_password" : "Adja meg a pénztárca jelszavát",
 
   "full_balance" : "Pun iznos",
   "available_balance" : "Raspoloživ iznos",

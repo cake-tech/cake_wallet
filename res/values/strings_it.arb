@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Portafoglio Monero",
   "wallet_restoration_store_incorrect_seed_length" : "Lunghezza seme non corretta",
 
+  "invalid_password" : "Password non valida",
+  "unlock" : "Sbloccare",
+  "enter_wallet_password" : "Inserisci la password del portafoglio",
 
   "full_balance" : "Saldo Completo",
   "available_balance" : "Saldo Disponibile",

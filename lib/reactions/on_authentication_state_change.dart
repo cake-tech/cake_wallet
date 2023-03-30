@@ -1,4 +1,5 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
@@ -13,7 +14,7 @@ void startAuthenticationStateChange(
   _onAuthenticationStateChange ??= autorun((_) async {
     final state = authenticationStore.state;
 
-    if (state == AuthenticationState.installed) {
+    if (state == AuthenticationState.installed && !SettingsStoreBase.walletPasswordDirectInput) {
       try {
         await loadCurrentWallet();
       } catch (e) {

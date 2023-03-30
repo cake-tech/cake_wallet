@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "모네로 월렛",
   "wallet_restoration_store_incorrect_seed_length" : "시드 길이가 잘못되었습니다",
 
+  "invalid_password" : "유효하지 않은 비밀번호",
+  "unlock" : "터놓다",
+  "enter_wallet_password" : "지갑 비밀번호를 입력하세요",
 
   "full_balance" : "풀 밸런스",
   "available_balance" : "사용 가능한 잔액",

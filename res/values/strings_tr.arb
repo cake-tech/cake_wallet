@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Monero Cüzdanı",
   "wallet_restoration_store_incorrect_seed_length" : "Yanlış tohum uzunluğu",
 
+  "invalid_password" : "Geçersiz şifre",
+  "unlock" : "Kilidini aç",
+  "enter_wallet_password" : "cüzdan şifresini girin",
 
   "full_balance" : "Tüm bakiye",
   "available_balance" : "Kullanılabilir Bakiye",

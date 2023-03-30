@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/secret_store.dart';
 
@@ -13,7 +13,7 @@ abstract class EditBackupPasswordViewModelBase with Store {
   : backupPassword = secretStore.read(generateStoreKeyFor(key: SecretStoreKey.backupPassword)),
     _originalPassword = '';
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SecretStore secretStore;
 
   @observable

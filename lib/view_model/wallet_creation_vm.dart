@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -26,6 +27,11 @@ abstract class WalletCreationVMBase with Store {
 
   @observable
   ExecutionState state;
+
+  @observable
+  String? walletPassword;
+
+  bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
 
   WalletType type;
   final bool isRecovery;

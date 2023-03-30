@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -37,18 +38,19 @@ class SecurityBackupPage extends BasePage {
               : Navigator.of(context).pushNamed(Routes.showKeys),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        SettingsCellWithArrow(
-          title: S.current.create_backup,
-          handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
-              ? Navigator.of(context).pushNamed(Routes.auth,
-                  arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                  if (isAuthenticatedSuccessfully) {
-                    auth.close(route: Routes.backup);
-                  }
-                })
-              : Navigator.of(context).pushNamed(Routes.backup),
-        ),
-        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        if (!SettingsStoreBase.walletPasswordDirectInput)
+          ...[SettingsCellWithArrow(
+            title: S.current.create_backup,
+            handler: (_) => _securitySettingsViewModel.checkPinCodeRiquired()
+                ? Navigator.of(context).pushNamed(Routes.auth,
+                    arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                    if (isAuthenticatedSuccessfully) {
+                      auth.close(route: Routes.backup);
+                    }
+                  })
+                : Navigator.of(context).pushNamed(Routes.backup),
+          ),
+          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24))],
         SettingsCellWithArrow(
             title: S.current.settings_change_pin,
             handler: (_) => Navigator.of(context).pushNamed(Routes.auth,

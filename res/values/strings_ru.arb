@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Monero Кошелёк",
   "wallet_restoration_store_incorrect_seed_length" : "Неверная длина мнемонической фразы",
 
+  "invalid_password" : "Invalid password",
+  "unlock" : "Unlock",
+  "enter_wallet_password" : "Enter the wallet password",
 
   "full_balance" : "Весь баланс",
   "available_balance" : "Доступный баланс",

@@ -3,7 +3,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -28,7 +28,7 @@ const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 Future defaultSettingsMigration(
     {required int version,
     required SharedPreferences sharedPreferences,
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required Box<Node> nodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Trade> tradeSource,
@@ -365,7 +365,7 @@ Future<void> updateDisplayModes(SharedPreferences sharedPreferences) async {
       PreferencesKey.currentBalanceDisplayModeKey, balanceDisplayMode);
 }
 
-Future<void> generateBackupPassword(FlutterSecureStorage secureStorage) async {
+Future<void> generateBackupPassword(SecureStorage secureStorage) async {
   final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
 
   if ((await secureStorage.read(key: key))?.isNotEmpty ?? false) {

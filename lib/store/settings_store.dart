@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -169,6 +170,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
+  static final walletPasswordDirectInput = Platform.isLinux;
 
   @observable
   FiatCurrency fiatCurrency;

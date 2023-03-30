@@ -85,4 +85,6 @@ class Routes {
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const desktop_actions = '/desktop_actions';
   static const transactionsPage = '/transactions_page';
+  static const walletPasswordUnlock = '/wallet_password_unlock';
+  static const walletUnlockLoadable = '/wallet_unlock_loadable';
 }

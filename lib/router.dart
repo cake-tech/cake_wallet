@@ -28,6 +28,8 @@ import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -86,6 +88,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.da
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 
 late RouteSettings currentRouteSettings;
 
@@ -97,6 +100,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => createWelcomePage());
 
     case Routes.newWalletFromWelcome:
+      if (SettingsStoreBase.walletPasswordDirectInput) {
+        if (availableWalletTypes.length == 1) {
+          return createRoute(RouteSettings(name: Routes.newWallet, arguments: availableWalletTypes.first));
+        } else {
+          return createRoute(RouteSettings(name: Routes.newWalletType));
+        }
+      }
+
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
@@ -105,7 +116,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       		  } else {
       		    Navigator.of(context.context).pushNamed(Routes.newWalletType);
       		  }
-		  }),
+		      }),
           fullscreenDialog: true);
 
     case Routes.newWalletType:
@@ -150,6 +161,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param2: false));
 
     case Routes.restoreOptions:
+      if (SettingsStoreBase.walletPasswordDirectInput) {
+        return createRoute(RouteSettings(name: Routes.restoreWalletType));
+      }
+
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<RestoreOptionsPage>());
 
@@ -277,18 +292,43 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.auth:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<AuthPage>(
-              param1: settings.arguments as OnAuthenticationFinished,
+          builder: (_) 
+            => SettingsStoreBase.walletPasswordDirectInput
+                ? getIt.get<WalletUnlockPage>(
+                    param1: WalletUnlockArguments(
+                      callback: settings.arguments as OnAuthenticationFinished),
+                      instanceName: 'wallet_unlock_verifiable',
+                    param2: true)
+                : getIt.get<AuthPage>(
+                    param1: settings.arguments as OnAuthenticationFinished,
+                    param2: true));
+
+    case Routes.walletUnlockLoadable:
+      return MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) 
+            => getIt.get<WalletUnlockPage>(
+              param1: settings.arguments as WalletUnlockArguments,
+                instanceName: 'wallet_unlock_loadable',
               param2: true));
 
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => WillPopScope(
-              child: getIt.get<AuthPage>(
-                  param1: settings.arguments as OnAuthenticationFinished,
-                  param2: false),
-              onWillPop: () async => false));
+          builder: (_)
+            => SettingsStoreBase.walletPasswordDirectInput
+                ? WillPopScope(
+                    child: getIt.get<WalletUnlockPage>(
+                      param1: WalletUnlockArguments(
+                        callback: settings.arguments as OnAuthenticationFinished),
+                      param2: false,
+                      instanceName: 'wallet_unlock_verifiable'),
+                    onWillPop: () async => false)
+                : WillPopScope(
+                    child: getIt.get<AuthPage>(
+                      param1: settings.arguments as OnAuthenticationFinished,
+                      param2: false),
+                  onWillPop: () async => false));
 
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(
@@ -322,7 +362,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.login:
       return CupertinoPageRoute<void>(
           builder: (context) => WillPopScope(
-              child: getIt.get<AuthPage>(instanceName: 'login'),
+              child: SettingsStoreBase.walletPasswordDirectInput
+                ? getIt.get<WalletUnlockPage>(instanceName: 'wallet_password_login')
+                : getIt.get<AuthPage>(instanceName: 'login'),
               onWillPop: () async =>
               // FIX-ME: Additional check does it works correctly
                   (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ?? false)),

@@ -7,7 +7,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 
-Future<void> loadCurrentWallet() async {
+Future<void> loadCurrentWallet({String? password}) async {
   final appStore = getIt.get<AppStore>();
   final name = getIt
       .get<SharedPreferences>()
@@ -22,6 +22,9 @@ Future<void> loadCurrentWallet() async {
 
   final type = deserializeFromInt(typeRaw);
   final walletLoadingService = getIt.get<WalletLoadingService>();
-  final wallet = await walletLoadingService.load(type, name);
+  final wallet = await walletLoadingService.load(
+    type,
+    name,
+    password: password);
   appStore.changeCurrentWallet(wallet);
 }

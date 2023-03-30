@@ -343,6 +343,9 @@
   "wallet_store_monero_wallet" : "Monero-Wallet",
   "wallet_restoration_store_incorrect_seed_length" : "Falsche Seed-Länge",
 
+  "invalid_password" : "Ongeldig wachtwoord",
+  "unlock" : "Freischalten",
+  "enter_wallet_password" : "Geben Sie das Wallet-Passwort ein",
 
   "full_balance" : "Gesamtguthaben",
   "available_balance" : "Verfügbares Guthaben",

@@ -66,12 +66,16 @@ class WalletRestorePage extends BasePage {
                 } else {
                   walletRestoreViewModel.isButtonEnabled = _isValidSeed();
                 }
-              }));
+              },
+              displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
+              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password));
           break;
         case WalletRestoreMode.keys:
           _pages.add(WalletRestoreFromKeysFrom(
               key: walletRestoreFromKeysFormKey,
               walletRestoreViewModel: walletRestoreViewModel,
+              displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
+              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
               onHeightOrDateEntered: (value) => walletRestoreViewModel.isButtonEnabled = value));
           break;
         default:

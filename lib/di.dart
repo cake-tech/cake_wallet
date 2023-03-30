@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
@@ -17,6 +18,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
@@ -44,6 +46,9 @@ import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -142,7 +147,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -169,6 +174,7 @@ import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -225,7 +231,7 @@ Future setup(
 
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
 
-  getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
+  getIt.registerSingleton<SecureStorage>(secureStorageShared);
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
@@ -248,22 +254,21 @@ Future setup(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(YatStore(
       appStore: getIt.get<AppStore>(),
-      secureStorage: getIt.get<FlutterSecureStorage>())
+      secureStorage: getIt.get<SecureStorage>())
     ..init());
 
   final secretStore =
-      await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
+      await SecretStoreBase.load(getIt.get<SecureStorage>());
 
   getIt.registerSingleton<SecretStore>(secretStore);
 
   getIt.registerFactory<KeyService>(
-      () => KeyService(getIt.get<FlutterSecureStorage>()));
+      () => KeyService(getIt.get<SecureStorage>()));
 
   getIt.registerFactoryParam<WalletCreationService, WalletType, void>(
       (type, _) => WalletCreationService(
           initialType: type,
           keyService: getIt.get<KeyService>(),
-          secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
           walletInfoSource: _walletInfoSource));
 
@@ -319,7 +324,7 @@ Future setup(
       ordersStore: getIt.get<OrdersStore>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
-      secureStorage: getIt.get<FlutterSecureStorage>(),
+      secureStorage: getIt.get<SecureStorage>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       settingsStore: getIt.get<SettingsStore>(),
       ),
@@ -638,18 +643,18 @@ Future setup(
           settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => BackupService(
-      getIt.get<FlutterSecureStorage>(),
+      getIt.get<SecureStorage>(),
       _walletInfoSource,
       getIt.get<KeyService>(),
       getIt.get<SharedPreferences>()));
 
-  getIt.registerFactory(() => BackupViewModel(getIt.get<FlutterSecureStorage>(),
+  getIt.registerFactory(() => BackupViewModel(getIt.get<SecureStorage>(),
       getIt.get<SecretStore>(), getIt.get<BackupService>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
   getIt.registerFactory(
-      () => EditBackupPasswordViewModel(getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>()));
+      () => EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
 
   getIt.registerFactory(
       () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
@@ -737,7 +742,7 @@ Future setup(
   getIt.registerFactory(() => AnyPayApi());
 
   getIt.registerFactory<IoniaService>(
-      () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
+      () => IoniaService(getIt.get<SecureStorage>(), getIt.get<IoniaApi>()));
 
   getIt.registerFactory<IoniaAnyPay>(
       () => IoniaAnyPay(
@@ -854,6 +859,63 @@ Future setup(
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>((type, _) =>
       AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+
+  getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
+    final currentWalletName = getIt
+      .get<SharedPreferences>()
+      .getString(PreferencesKey.currentWalletName) ?? '';
+    final currentWalletTypeRaw =
+      getIt.get<SharedPreferences>()
+        .getInt(PreferencesKey.currentWalletType) ?? 0;
+    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    return WalletUnlockLoadableViewModel(
+      getIt.get<AppStore>(),
+      getIt.get<WalletLoadingService>(),
+      walletName: args.walletName ?? currentWalletName,
+      walletType: args.walletType ?? currentWalletType);
+  });
+
+  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>((args, _) {
+    final currentWalletName = getIt
+      .get<SharedPreferences>()
+      .getString(PreferencesKey.currentWalletName) ?? '';
+    final currentWalletTypeRaw =
+      getIt.get<SharedPreferences>()
+        .getInt(PreferencesKey.currentWalletType) ?? 0;
+    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    return WalletUnlockVerifiableViewModel(
+      getIt.get<AppStore>(),
+      walletName: args.walletName ?? currentWalletName,
+      walletType: args.walletType ?? currentWalletType);
+  });
+
+  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    return WalletUnlockPage(
+      getIt.get<WalletUnlockLoadableViewModel>(param1: args),
+      args.callback,
+      closable: closable);
+  }, instanceName: 'wallet_unlock_loadable');
+
+  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    return WalletUnlockPage(
+      getIt.get<WalletUnlockVerifiableViewModel>(param1: args),
+      args.callback,
+      closable: closable);
+  }, instanceName: 'wallet_unlock_verifiable');
+
+  getIt.registerFactory<WalletUnlockPage>(
+      () => getIt.get<WalletUnlockPage>(
+        param1: WalletUnlockArguments(
+          callback: (bool successful, _) {
+            if (successful) {
+              final authStore = getIt.get<AuthenticationStore>();
+              authStore.allowed();
+            }}),
+        param2: false,
+        instanceName: 'wallet_unlock_loadable'),
+      instanceName: 'wallet_password_login');
 
   _isSetupFinished = true;
 }

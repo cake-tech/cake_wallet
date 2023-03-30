@@ -53,7 +53,7 @@ class RestoreWalletFromSeedPage extends BasePage {
   void _setPages(BuildContext context) {
     _pages = <Widget>[
       // FIX-ME: Added args (displayBlockHeightSelector: true, displayLanguageSelector: true, type: type)
-      WalletRestoreFromSeedForm(displayBlockHeightSelector: true, displayLanguageSelector: true, type: type),
+      WalletRestoreFromSeedForm(displayBlockHeightSelector: true, displayLanguageSelector: true, type: type, displayWalletPassword: false),
       RestoreFromKeysFrom(),
     ];
   }

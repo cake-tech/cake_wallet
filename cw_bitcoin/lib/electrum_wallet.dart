@@ -107,6 +107,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @override
   String get seed => mnemonic;
 
+  @override
+  String get password => _password;
+
   bitcoin.NetworkType networkType;
 
   @override

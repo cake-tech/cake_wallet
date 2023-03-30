@@ -16,10 +16,10 @@ class WalletLoadingService {
 	final KeyService keyService;
 	final WalletService Function(WalletType type) walletServiceFactory;
 
-	Future<WalletBase> load(WalletType type, String name) async {
+	Future<WalletBase> load(WalletType type, String name, {String? password}) async {
 		final walletService = walletServiceFactory.call(type);
-		final password = await keyService.getWalletPassword(walletName: name);
-  	final wallet = await walletService.openWallet(name, password);
+		final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+ 		final wallet = await walletService.openWallet(name, walletPassword);
 
   	if (type == WalletType.monero) {
   		await upateMoneroWalletPassword(wallet);

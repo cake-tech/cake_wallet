@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -14,7 +14,7 @@ class AuthService with Store {
     required this.settingsStore,
   });
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
 

@@ -4,7 +4,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -139,6 +141,20 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
 
   Future<void> _loadWallet(WalletListItem wallet) async {
     if (await widget.walletListViewModel.checkIfAuthRequired()) {
+      if (SettingsStoreBase.walletPasswordDirectInput) {
+        Navigator.of(context).pushNamed(
+          Routes.walletUnlockLoadable,
+          arguments: WalletUnlockArguments(
+            callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+              if (isAuthenticatedSuccessfully) {
+                auth.close();
+                setState(() {});
+              }
+          }, walletName: wallet.name,
+          walletType: wallet.type));
+        return;
+      }
+
       await Navigator.of(context).pushNamed(Routes.auth,
           arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
         if (!isAuthenticatedSuccessfully) {

@@ -71,7 +71,9 @@ class MoneroWalletService extends WalletService<
           path: path,
           password: credentials.password!,
           language: credentials.language);
-      final wallet = MoneroWallet(walletInfo: credentials.walletInfo!);
+      final wallet = MoneroWallet(
+        walletInfo: credentials.walletInfo!,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -107,7 +109,9 @@ class MoneroWalletService extends WalletService<
           .openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values.firstWhere(
           (info) => info.id == WalletBase.idFor(name, getType()));
-      final wallet = MoneroWallet(walletInfo: walletInfo);
+      final wallet = MoneroWallet(
+        walletInfo: walletInfo,
+        password: password);
       final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
@@ -161,7 +165,9 @@ class MoneroWalletService extends WalletService<
           address: credentials.address,
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
-      final wallet = MoneroWallet(walletInfo: credentials.walletInfo!);
+      final wallet = MoneroWallet(
+        walletInfo: credentials.walletInfo!,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -182,7 +188,9 @@ class MoneroWalletService extends WalletService<
           password: credentials.password!,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
-      final wallet = MoneroWallet(walletInfo: credentials.walletInfo!);
+      final wallet = MoneroWallet(
+        walletInfo: credentials.walletInfo!,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
