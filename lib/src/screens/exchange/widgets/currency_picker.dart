@@ -67,113 +67,162 @@ class CurrencyPickerState extends State<CurrencyPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final double padding = 24;
+
+    final mq = MediaQuery.of(context);
+    final bottom = mq.viewInsets.bottom;
+    final height = mq.size.height - bottom;
+    final screenCenter = height / 2;
+
+    double closeButtonBottom = 60;
+    double containerHeight = height * 0.65;
+    if (bottom > 0) {
+      // increase a bit or it gets too squished in the top
+      containerHeight = height * 0.75;
+
+      final containerCenter = containerHeight / 2;
+      final containerBottom = screenCenter - containerCenter;
+
+      // position the close button right below the search container
+      closeButtonBottom = closeButtonBottom - containerBottom + padding;
+    }
+
     return AlertBackground(
-      child: Stack(
-        alignment: Alignment.center,
+      child: Column(
         children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if (widget.title?.isNotEmpty ?? false)
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    widget.title!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.none,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              Padding(
-                padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
-                  child: Container(
-                    color: Theme.of(context).accentTextTheme!.headline6!.color!,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.65,
+          Expanded(
+            flex: 1,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    if (widget.title?.isNotEmpty ?? false)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: padding),
+                        child: Text(
+                          widget.title!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.none,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.hintText != null)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: TextFormField(
-                                style: TextStyle(color: Palette.darkBlueCraiola),
-                                decoration: InputDecoration(
-                                  hintText: widget.hintText,
-                                  prefixIcon: Image.asset("assets/images/search_icon.png"),
-                                  filled: true,
-                                  fillColor: const Color(0xffF2F0FA),
-                                  alignLabelWithHint: false,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(
-                                        color: Colors.transparent,
-                                      )),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(
-                                        color: Colors.transparent,
-                                      )),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: padding),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(30)),
+                        child: Container(
+                          color: Theme.of(context)
+                              .accentTextTheme!
+                              .headline6!
+                              .color!,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: containerHeight,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (widget.hintText != null)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: TextFormField(
+                                      style: TextStyle(
+                                          color: Palette.darkBlueCraiola),
+                                      decoration: InputDecoration(
+                                        hintText: widget.hintText,
+                                        prefixIcon: Image.asset(
+                                            "assets/images/search_icon.png"),
+                                        filled: true,
+                                        fillColor: const Color(0xffF2F0FA),
+                                        alignLabelWithHint: false,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 4, horizontal: 16),
+                                        enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            )),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            )),
+                                      ),
+                                      onChanged: (value) {
+                                        this.textFieldValue = value;
+                                        cleanSubPickerItemsList();
+                                        currencySearchBySubstring(
+                                            textFieldValue);
+                                      },
+                                    ),
+                                  ),
+                                Divider(
+                                  color: Theme.of(context)
+                                      .accentTextTheme!
+                                      .headline6!
+                                      .backgroundColor!,
+                                  height: 1,
                                 ),
-                                onChanged: (value) {
-                                  this.textFieldValue = value;
-                                  cleanSubPickerItemsList();
-                                  currencySearchBySubstring(textFieldValue);
-                                },
-                              ),
-                            ),
-                          Divider(
-                            color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
-                            height: 1,
-                          ),
-                          if (widget.selectedAtIndex != -1)
-                            AspectRatio(
-                              aspectRatio: 6,
-                              child: PickerItemWidget(
-                                title: items[widget.selectedAtIndex].name,
-                                iconPath: items[widget.selectedAtIndex].iconPath,
-                                isSelected: true,
-                                tag: items[widget.selectedAtIndex].tag,
-                              ),
-                            ),
-                          Flexible(
-                            child: CurrencyPickerWidget(
-                              crossAxisCount: 2,
-                              selectedAtIndex: widget.selectedAtIndex,
-                              pickerItemsList: subPickerItemsList,
-                              pickListItem: (int index) {
-                                setState(() {
-                                  widget.selectedAtIndex = index;
-                                });
-                                widget.onItemSelected(subPickerItemsList[index]);
-                                if (widget.isConvertFrom &&
-                                    !widget.isMoneroWallet &&
-                                    (subPickerItemsList[index] == CryptoCurrency.xmr)) {
-                                } else {
-                                  Navigator.of(context).pop();
-                                }
-                              },
+                                if (widget.selectedAtIndex != -1)
+                                  AspectRatio(
+                                    aspectRatio: 6,
+                                    child: PickerItemWidget(
+                                      title:
+                                          items[widget.selectedAtIndex].name,
+                                      iconPath: items[widget.selectedAtIndex]
+                                          .iconPath,
+                                      isSelected: true,
+                                      tag: items[widget.selectedAtIndex].tag,
+                                    ),
+                                  ),
+                                Flexible(
+                                  child: CurrencyPickerWidget(
+                                    crossAxisCount: 2,
+                                    selectedAtIndex: widget.selectedAtIndex,
+                                    pickerItemsList: subPickerItemsList,
+                                    pickListItem: (int index) {
+                                      setState(() {
+                                        widget.selectedAtIndex = index;
+                                      });
+                                      widget.onItemSelected(
+                                          subPickerItemsList[index]);
+                                      if (widget.isConvertFrom &&
+                                          !widget.isMoneroWallet &&
+                                          (subPickerItemsList[index] ==
+                                              CryptoCurrency.xmr)) {
+                                      } else {
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-            ],
+                AlertCloseButton(bottom: closeButtonBottom),
+              ],
+            ),
           ),
-          AlertCloseButton(),
+          // gives the extra spacing using MediaQuery.viewInsets.bottom
+          // to simulate a keyboard area
+          SizedBox(
+            height: bottom,
+          )
         ],
       ),
     );
