@@ -130,61 +130,61 @@ abstract class EthereumWalletBase
     }
 
 
-    // if (hasMultiDestination) {
-    //   if (outputs.any((item) => item.sendAll
-    //       || (item.formattedCryptoAmount ?? 0) <= 0)) {
-    //     throw EthereumTransactionCreationException();
-    //   }
-    //
-    //   final BigInt totalAmount = outputs.fold(0, (acc, value) =>
-    //   acc + (value.formattedCryptoAmount ?? 0));
-    //
-    //   if (balance.getInWei < EtherAmount.inWei(totalAmount)) {
-    //     throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
-    //   }
-    //
-    //   final moneroOutputs = outputs.map((output) {
-    //     final outputAddress = output.isParsedAddress
-    //         ? output.extractedAddress
-    //         : output.address;
-    //
-    //     return MoneroOutput(
-    //         address: outputAddress!,
-    //         amount: output.cryptoAmount!.replaceAll(',', '.'));
-    //   }).toList();
-    //
-    //   pendingTransactionDescription =
-    //   await transaction_history.createTransactionMultDest(
-    //       outputs: moneroOutputs,
-    //       priorityRaw: _credentials.priority.serialize(),
-    //       accountIndex: walletAddresses.account!.id);
-    // } else {
-    //   final output = outputs.first;
-    //   final address = output.isParsedAddress
-    //       ? output.extractedAddress
-    //       : output.address;
-    //   final amount = output.sendAll
-    //       ? null
-    //       : output.cryptoAmount!.replaceAll(',', '.');
-    //   final formattedAmount = output.sendAll
-    //       ? null
-    //       : output.formattedCryptoAmount;
-    //
-    //   if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
-    //       (formattedAmount == null && unlockedBalance <= 0)) {
-    //     final formattedBalance = moneroAmountToString(amount: unlockedBalance);
-    //
-    //     throw MoneroTransactionCreationException(
-    //         'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
-    //   }
-    //
-    //   pendingTransactionDescription =
-    //   await transaction_history.createTransaction(
-    //       address: address!,
-    //       amount: amount,
-    //       priorityRaw: _credentials.priority.serialize(),
-    //       accountIndex: walletAddresses.account!.id);
-    // }
+    if (hasMultiDestination) {
+      if (outputs.any((item) => item.sendAll
+          || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        throw EthereumTransactionCreationException();
+      }
+
+      final BigInt totalAmount = outputs.fold(0, (acc, value) =>
+      acc + (value.formattedCryptoAmount ?? 0));
+
+      if (balance.getInWei < EtherAmount.inWei(totalAmount)) {
+        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+      }
+
+      final moneroOutputs = outputs.map((output) {
+        final outputAddress = output.isParsedAddress
+            ? output.extractedAddress
+            : output.address;
+
+        return MoneroOutput(
+            address: outputAddress!,
+            amount: output.cryptoAmount!.replaceAll(',', '.'));
+      }).toList();
+
+      pendingTransactionDescription =
+      await transaction_history.createTransactionMultDest(
+          outputs: moneroOutputs,
+          priorityRaw: _credentials.priority.serialize(),
+          accountIndex: walletAddresses.account!.id);
+    } else {
+      final output = outputs.first;
+      final address = output.isParsedAddress
+          ? output.extractedAddress
+          : output.address;
+      final amount = output.sendAll
+          ? null
+          : output.cryptoAmount!.replaceAll(',', '.');
+      final formattedAmount = output.sendAll
+          ? null
+          : output.formattedCryptoAmount;
+
+      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
+          (formattedAmount == null && unlockedBalance <= 0)) {
+        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+
+        throw MoneroTransactionCreationException(
+            'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      }
+
+      pendingTransactionDescription =
+      await transaction_history.createTransaction(
+          address: address!,
+          amount: amount,
+          priorityRaw: _credentials.priority.serialize(),
+          accountIndex: walletAddresses.account!.id);
+    }
 
     return PendingEthereumTransaction(
       client: _client,

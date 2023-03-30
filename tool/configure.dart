@@ -484,7 +484,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_ethereum/ethereum_formatter.dart';
 import 'package:cw_ethereum/ethereum_mnemonics.dart';
+import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
@@ -506,6 +508,8 @@ abstract class Ethereum {
 
   Object createEthereumTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
   Object createEthereumTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
+
+  int formatterEthereumParseAmount(String amount);
 }
   """;
 
