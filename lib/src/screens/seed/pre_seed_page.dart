@@ -13,7 +13,7 @@ class PreSeedPage extends BasePage {
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
         wordsCount = type == WalletType.monero
             ? 25
-            : 24; // FIXME: Stupid fast implementation
+            : 12; // FIXME: Stupid fast implementation
 
   final Image imageDark;
   final Image imageLight;
