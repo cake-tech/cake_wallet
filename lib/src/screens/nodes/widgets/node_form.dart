@@ -22,8 +22,8 @@ class NodeForm extends StatelessWidget {
       nodeViewModel
         ..setAddress((editingNode!.uri.host.toString()))
         ..setPort((editingNode!.uri.port.toString()))
-        ..setPassword((editingNode!.password.toString()))
-        ..setLogin((editingNode!.login.toString()))
+        ..setPassword((editingNode?.password ?? ''))
+        ..setLogin((editingNode?.login ?? ''))
         ..setSSL((editingNode!.isSSL))
         ..setTrusted((editingNode!.trusted));
     }

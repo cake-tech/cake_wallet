@@ -98,16 +98,20 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
+    final node = Node(
+        uri: uri,
+        type: _walletType,
+        login: login,
+        password: password,
+        useSSL: useSSL,
+        trusted: trusted);
     try {
       state = IsExecutingState();
       if (editingNode != null) {
-        await _nodeSource.delete(editingNode.key);
+        await _nodeSource.put(editingNode.key, node);
+      } else {
+        await _nodeSource.add(node);
       }
-      final node =
-          Node(uri: uri, type: _walletType, login: login, password: password,
-              useSSL: useSSL, trusted: trusted);
-      await _nodeSource.add(node);
-
       if (saveAsCurrent) {
         _settingsStore.nodes[_walletType] = node;
       }
