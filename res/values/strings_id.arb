@@ -475,7 +475,6 @@
   "buy_alert_content" : "Saat ini kami hanya mendukung pembelian Bitcoin dan Litecoin. Untuk membeli Bitcoin atau Litecoin, silakan buat atau beralih ke dompet Bitcoin atau Litecoin Anda.",
   "sell_alert_content": "Saat ini kami hanya mendukung penjualan Bitcoin. Untuk menjual Bitcoin, silakan buat atau beralih ke dompet Bitcoin Anda.",
 
-  "outdated_electrum_wallet_description" : "Dompet Bitcoin baru yang dibuat di Cake sekarang memiliki biji semai 24 kata. Wajib bagi Anda untuk membuat dompet Bitcoin baru dan mentransfer semua dana Anda ke dompet 24 kata baru, dan berhenti menggunakan dompet dengan biji semai 12 kata. Silakan lakukan ini segera untuk mengamankan dana Anda.",
   "understand" : "Saya mengerti",
 
   "apk_update" : "Pembaruan APK",
@@ -483,9 +482,6 @@
   "buy_bitcoin" : "Beli Bitcoin",
   "buy_with" : "Beli dengan",
   "moonpay_alert_text" : "Nilai jumlah harus lebih atau sama dengan ${minAmount} ${fiatCurrency}",
-
-  "outdated_electrum_wallet_receive_warning": "Jika dompet ini memiliki biji semai 12 kata dan dibuat di Cake, JANGAN deposit Bitcoin ke dalam dompet ini. BTC apapun yang ditransfer ke dompet ini mungkin hilang. Buat dompet 24 kata baru (ketuk menu di pojok kanan atas, pilih Dompet, pilih Buat Dompet Baru, lalu pilih Bitcoin) dan SEGERA pindahkan BTC Anda ke sana. Dompet BTC (24 kata) baru dari Cake aman",
-  "do_not_show_me": "Jangan tampilkan ini lagi",
 
   "unspent_coins_title" : "Koin yang tidak terpakai",
   "unspent_coins_details_title" : "Rincian koin yang tidak terpakai",

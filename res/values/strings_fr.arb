@@ -486,7 +486,6 @@
   "buy_alert_content" : "Pour le moment nous ne supportons que l'achat de Bitcoin et Litecoin. Pour acheter du Bitcoin ou du Litecoin, merci de créer ou de sélectionner votre portefeuille (wallet) Bitcoin ou Litecoin.",
   "sell_alert_content": "Pour le moment nous ne supportons que la vente de Bitcoin. Pour vendre du Bitcoin, merci de créer ou de sélectionner votre portefeuille (wallet) Bitcoin.",
 
-  "outdated_electrum_wallet_description" : "Les nouveaux portefeuilles (wallets) Bitcoin créés dans Cake ont dorénavant une phrase secrète (seed) de 24 mots. Il est impératif que vous créiez un nouveau portefeuille Bitcoin, que vous y transfériez tous vos fonds puis que vous cessiez d'utiliser le portefeuille avec une phrase secrète de 12 mots. Merci de faire cela immédiatement pour assurer la sécurité de vos avoirs.",
   "understand" : "J'ai compris",
 
   "apk_update" : "Mise à jour d'APK",
@@ -494,9 +493,6 @@
   "buy_bitcoin" : "Acheter du Bitcoin",
   "buy_with" : "Acheter avec",
   "moonpay_alert_text" : "Le montant doit être au moins égal à ${minAmount} ${fiatCurrency}",
-
-  "outdated_electrum_wallet_receive_warning": "Si ce portefeuille (wallet) a une phrase secrète (seed) de 12 mots et a été créé dans Cake, NE PAS y déposer de Bitcoin. Tous les BTC transférés vers ce portefeuille seront perdus. Créez un nouveau portefeuille avec phrase secrète de 24 mots (appuyez sur le menu en haut à droite, sélectionnez Portefeuilles puis Créer un Nouveau Portefeuille et enfin Bitcoin) et transférez y IMMÉDIATEMENT vos BTC. Les nouveaux portefeuilles BTC Cake (avec phrase secrète de 24 mots) sont sécurisés",
-  "do_not_show_me": "Ne plus me montrer ceci à l'avenir",
 
   "unspent_coins_title" : "Pièces (coins) non dépensées",
   "unspent_coins_details_title" : "Détails des pièces (coins) non dépensées",

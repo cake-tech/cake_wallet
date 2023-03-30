@@ -488,7 +488,6 @@
   "buy_alert_content" : "Şu anda sadece Bitcoin ve Litecoin satın alımını destekliyoruz. Bitcoin veya Litecoin satın almak için lütfen Bitcoin veya Litecoin cüzdanınızı oluşturun veya bu cüzdanlardan birine geçiş yapın.",
   "sell_alert_content": "Şu anda sadece Bitcoin satışını destekliyoruz. Bitcoin satmak için lütfen Bitcoin cüzdanınızı oluşturun veya Bitcoin cüzdanınıza geçiş yapın.",
 
-  "outdated_electrum_wallet_description" : "Cake'te oluşturulan yeni Bitcoin cüzdanları artık 24 kelimelik bir tohuma sahip. Yeni bir Bitcoin cüzdanı oluşturmanız ve tüm paranızı 24 kelimelik yeni cüzdana aktarmanız ve 12 kelimelik tohuma sahip cüzdanları kullanmayı bırakmanız zorunludur. Lütfen paranızı güvence altına almak için bunu hemen yapın.",
   "understand" : "Anladım",
 
   "apk_update" : "APK güncellemesi",
@@ -496,9 +495,6 @@
   "buy_bitcoin" : "Bitcoin Satın Al",
   "buy_with" : "Şunun ile al: ",
   "moonpay_alert_text" : "Tutar ${minAmount} ${fiatCurrency} miktarına eşit veya daha fazla olmalıdır",
-
-  "outdated_electrum_wallet_receive_warning": "Bu cüzdanın 12 kelimelik bir tohumu varsa ve Cake'te oluşturulduysa, bu cüzdana Bitcoin YATIRMAYIN. Bu cüzdana aktarılan tüm BTC'ler kaybolabilir. 24 kelimelik yeni bir cüzdan oluşturun (sağ üstteki menüye dokunun, Cüzdanlar'ı seçin, Yeni Cüzdan Oluştur'u seçin, ardından Bitcoin'i seçin) ve BTC'nizi HEMEN oraya taşıyın. Cake'in yeni (24 kelimelik) BTC cüzdanları güvenlidir",
-  "do_not_show_me": "Bana bunu bir daha gösterme",
 
   "unspent_coins_title" : "Harcanmamış koinler",
   "unspent_coins_details_title" : "Harcanmamış koin detayları",

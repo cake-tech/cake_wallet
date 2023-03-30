@@ -488,7 +488,6 @@
   "buy_alert_content" : "V současné době podporujeme nákup pouze Bitcoinu a Litecoinu. Pro nákup Bitcoinu, nebo Litecoinu si prosím vytvořte Bitcoinovou, nebo Litecoinovou peněženku, nebo se do ní přepněte.",
   "sell_alert_content": "V současné době podporujeme pouze prodej Bitcoinu. Pro prodej Bitcoinu si prosím vytvořte Bitcoinovou peněženku, nebo se do ní přepněte.",
 
-  "outdated_electrum_wallet_description" : "Nové Bitcoinové peněženky vytvořené v Cake mají nyní seed se 24 slovy. Je třeba si vytvořit novou Bitcoinovou peněženku se 24 slovy, převést na ni všechny prostředky a přestat používat seed se 12 slovy. Prosím udělejte to hned pro zabezpečení svých prostředků.",
   "understand" : "Rozumím",
 
   "apk_update" : "aktualizace APK",
@@ -496,9 +495,6 @@
   "buy_bitcoin" : "Nakoupit Bitcoin",
   "buy_with" : "Nakoupit pomocí",
   "moonpay_alert_text" : "Částka musí být větší nebo rovna ${minAmount} ${fiatCurrency}",
-
-  "outdated_electrum_wallet_receive_warning": "Tato peněženka má seed se 12 slovy a byla vytvořena pomocí Cake, NEUKLÁDEJTE Bitcoin na tuto peněženku. Jakékoliv BTC převedené na tuto peněženku může být ztraceno. Vytvořte si novou peněženku s 24 slovy (otevřete menu vpravo nahoře, vyberte Peněženky, zvolte Vytvořit novou peněženku a pak zvolte Bitcoin) a IHNED tam přesuňte své BTC. Nové (24-slovní) BTC peněženky z Cake jsou bezpečné",
-  "do_not_show_me": "Příště nezobrazovat",
 
   "unspent_coins_title" : "Neutracené mince",
   "unspent_coins_details_title" : "Podrobnosti o neutracených mincích",

@@ -90,9 +90,9 @@ List<bool> prefixMatches(String source, List<String> prefixes) {
   return prefixes.map((prefix) => hx.startsWith(prefix.toLowerCase())).toList();
 }
 
-String generateMnemonic({int strength = 256}) {
+String generateMnemonic() {
   
-  return  bip39.generateMnemonic(strength: strength);
+  return  bip39.generateMnemonic();
 }
 
 Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {

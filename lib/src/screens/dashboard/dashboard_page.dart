@@ -222,26 +222,6 @@ class DashboardPage extends BasePage {
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;
 
-    autorun((_) async {
-      if (!walletViewModel.isOutdatedElectrumWallet) {
-        return;
-      }
-
-      await Future<void>.delayed(Duration(seconds: 1));
-      if (context.mounted) {
-        await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.of(context).pre_seed_title,
-                alertContent:
-                    S.of(context).outdated_electrum_wallet_description,
-                buttonText: S.of(context).understand,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-      }
-    });
-
     var needToPresentYat = false;
     var isInactive = false;
 
