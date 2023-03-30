@@ -27,9 +27,6 @@ class AnonPayInvoicePage extends BasePage {
     this.anonInvoicePageViewModel,
     this.receiveOptionViewModel,
   ) : _amountFocusNode = FocusNode() {
-    _nameController.text = anonInvoicePageViewModel.receipientName;
-    _descriptionController.text = anonInvoicePageViewModel.description;
-    _emailController.text = anonInvoicePageViewModel.receipientEmail;
   }
 
   final _nameController = TextEditingController();
