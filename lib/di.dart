@@ -560,8 +560,7 @@ Future setup(
     (WalletType? type, _) => NodeCreateOrEditViewModel(
         _nodeSource,
         type ?? getIt.get<AppStore>().wallet!.type,
-        getIt.get<SettingsStore>(),
-        getIt.get<NodeListViewModel>()
+        getIt.get<SettingsStore>()
     ));
 
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
