@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -311,7 +312,8 @@ class DashboardPage extends BasePage {
             builder: (BuildContext context) {
               return AlertWithOneAction(
                   alertTitle: S.of(context).sell,
-                  alertContent: S.of(context).sell_alert_content,
+                  alertContent: isMoneroOnly ? S.of(context).sell_monero_com_alert_content
+                      : S.of(context).sell_alert_content,
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop());
             });

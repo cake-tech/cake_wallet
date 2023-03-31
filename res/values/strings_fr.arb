@@ -694,5 +694,6 @@
   "optional_description": "Descriptif facultatif",
   "optional_name": "Nom du destinataire facultatif",
   "clearnet_link": "Lien Clearnet",
-  "onion_link": "Lien d'oignon"
+  "onion_link": "Lien d'oignon",
+  "sell_monero_com_alert_content": "La vente de Monero n'est pas encore prise en charge"
 }

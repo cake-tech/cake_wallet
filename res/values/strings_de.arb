@@ -696,5 +696,6 @@
   "optional_description": "Optionale Beschreibung",
   "optional_name": "Optionaler Empfängername",
   "clearnet_link": "Clearnet-Link",
-  "onion_link": "Zwiebel-Link"
+  "onion_link": "Zwiebel-Link",
+  "sell_monero_com_alert_content": "Der Verkauf von Monero wird noch nicht unterstützt"
 }

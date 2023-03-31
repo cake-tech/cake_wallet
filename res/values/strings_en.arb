@@ -696,5 +696,6 @@
   "clearnet_link": "Clearnet link",
   "onion_link": "Onion link",
   "decimal_places_error": "Too many decimal places",
-  "edit_node": "Edit Node"
+  "edit_node": "Edit Node",
+  "sell_monero_com_alert_content": "Selling Monero is not supported yet"
 }

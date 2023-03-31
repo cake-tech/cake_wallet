@@ -695,5 +695,6 @@
   "optional_description": "Descrição opcional",
   "optional_name": "Nome do destinatário opcional",
   "clearnet_link": "link clear net",
-  "onion_link": "ligação de cebola"
+  "onion_link": "ligação de cebola",
+  "sell_monero_com_alert_content": "A venda de Monero ainda não é suportada"
 }

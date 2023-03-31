@@ -694,5 +694,6 @@
    "optional_description": "وصف اختياري",
    "optional_name": "اسم المستلم الاختياري",
    "clearnet_link": "رابط Clearnet",
-   "onion_link": "رابط البصل"
+   "onion_link": "رابط البصل",
+   "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن"
 }
