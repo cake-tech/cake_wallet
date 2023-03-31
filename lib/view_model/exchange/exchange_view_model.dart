@@ -97,7 +97,6 @@ abstract class ExchangeViewModelBase with Store {
     receiveAddress = '';
     depositAddress = depositCurrency == wallet.currency
         ? wallet.walletAddresses.address : '';
-    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = wallet.type == WalletType.bitcoin ? 8 : 12;
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
