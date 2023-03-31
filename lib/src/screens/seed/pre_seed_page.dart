@@ -11,7 +11,7 @@ class PreSeedPage extends BasePage {
   PreSeedPage(this.type)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        wordsCount = type == WalletType.monero
+        wordsCount = type == WalletType.monero || type == WalletType.haven
             ? 25
             : 12; // FIXME: Stupid fast implementation
 
