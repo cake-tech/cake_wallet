@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker_item_widget.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
+import 'package:cw_core/currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -20,9 +21,9 @@ class CurrencyPicker extends StatefulWidget {
       this.isConvertFrom = false});
 
   int selectedAtIndex;
-  final List<CryptoCurrency> items;
+  final List<Currency> items;
   final String? title;
-  final Function(CryptoCurrency) onItemSelected;
+  final Function(Currency) onItemSelected;
   final bool isMoneroWallet;
   final bool isConvertFrom;
   final String? hintText;
@@ -38,13 +39,13 @@ class CurrencyPickerState extends State<CurrencyPicker> {
         subPickerItemsList = items,
         appBarTextStyle =
           TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white),
-        pickerItemsList = <PickerItem<CryptoCurrency>>[];
+        pickerItemsList = <PickerItem<Currency>>[];
 
-  List<PickerItem<CryptoCurrency>> pickerItemsList;
-  List<CryptoCurrency> items;
+  List<PickerItem<Currency>> pickerItemsList;
+  List<Currency> items;
   bool isSearchBarActive;
   String textFieldValue;
-  List<CryptoCurrency> subPickerItemsList;
+  List<Currency> subPickerItemsList;
   TextStyle appBarTextStyle;
 
   void cleanSubPickerItemsList() => subPickerItemsList = items;
@@ -54,7 +55,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
       if (subString.isNotEmpty) {
         subPickerItemsList = items
             .where((element) =>
-        (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
+        element.name.toLowerCase().contains(subString.toLowerCase()) ||
             (element.tag != null ? element.tag!.toLowerCase().contains(subString.toLowerCase()) : false) ||
             (element.fullName != null ? element.fullName!.toLowerCase().contains(subString.toLowerCase()) : false))
             .toList();
@@ -139,7 +140,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             AspectRatio(
                               aspectRatio: 6,
                               child: PickerItemWidget(
-                                title: items[widget.selectedAtIndex].title,
+                                title: items[widget.selectedAtIndex].name,
                                 iconPath: items[widget.selectedAtIndex].iconPath,
                                 isSelected: true,
                                 tag: items[widget.selectedAtIndex].tag,
