@@ -51,14 +51,18 @@ class AuthService with Store {
     sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
   }
 
-  bool requireAuth() {
+  bool requireAuth({bool mustAuthenticate = false}) {
     final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
-    if (duration <= 3) {
+    if (duration <= 1) {
       
       return false;
+    }
+    if (mustAuthenticate){
+      
+      return true;
     }
     final durationInMinutes = duration / 60;
 

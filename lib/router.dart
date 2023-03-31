@@ -101,9 +101,11 @@ const _routesRequireAuth = [
 Route<dynamic> createRoute(RouteSettings settings) {
   currentRouteSettings = settings;
 
-  final showAuth = getIt.get<AuthService>().requireAuth();
+  final showAuth = getIt.get<AuthService>().requireAuth(
+    mustAuthenticate: _routesRequireAuth.contains(settings.name),
+  );
 
-  if (showAuth && _routesRequireAuth.contains(settings.name)) {
+  if (showAuth) {
     return _getAuthRoute(settings);
   }
 
