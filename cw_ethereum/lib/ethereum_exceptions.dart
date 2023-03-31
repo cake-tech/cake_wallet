@@ -1,6 +1,9 @@
 class EthereumTransactionCreationException implements Exception {
-  EthereumTransactionCreationException();
+  final String exceptionMessage;
+
+  EthereumTransactionCreationException(
+      {this.exceptionMessage = 'Wrong balance. Not enough Ether on your balance.'});
 
   @override
-  String toString() => 'Wrong balance. Not enough Ether on your balance.';
+  String toString() => exceptionMessage;
 }

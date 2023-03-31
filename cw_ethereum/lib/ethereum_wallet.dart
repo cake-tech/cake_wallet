@@ -72,6 +72,7 @@ abstract class EthereumWalletBase
   late ObservableMap<CryptoCurrency, EthereumBalance> balance;
 
   Future<void> init() async {
+    await walletAddresses.init();
     _privateKey = await getPrivateKey(_mnemonic, _password);
     transactionHistory = EthereumTransactionHistory();
     walletAddresses.address = EthPrivateKey.fromHex(_privateKey).address.toString();
@@ -120,76 +121,42 @@ abstract class EthereumWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    print("!!!!!!!!!!!!!!!!!!!");
     final _credentials = credentials as EthereumTransactionCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
     final balance = await _client.getBalance(_privateKey);
+    int totalAmount = 0;
 
     if (hasMultiDestination) {
-      outputs.any((element) => element.sendAll);
-    }
-
-
-    if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll
-          || (item.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw EthereumTransactionCreationException();
       }
 
-      final BigInt totalAmount = outputs.fold(0, (acc, value) =>
-      acc + (value.formattedCryptoAmount ?? 0));
+      totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      if (balance.getInWei < EtherAmount.inWei(totalAmount)) {
-        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+      if (balance.getInWei < EtherAmount.inWei(totalAmount as BigInt).getInWei) {
+        throw EthereumTransactionCreationException();
       }
-
-      final moneroOutputs = outputs.map((output) {
-        final outputAddress = output.isParsedAddress
-            ? output.extractedAddress
-            : output.address;
-
-        return MoneroOutput(
-            address: outputAddress!,
-            amount: output.cryptoAmount!.replaceAll(',', '.'));
-      }).toList();
-
-      pendingTransactionDescription =
-      await transaction_history.createTransactionMultDest(
-          outputs: moneroOutputs,
-          priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account!.id);
     } else {
       final output = outputs.first;
-      final address = output.isParsedAddress
-          ? output.extractedAddress
-          : output.address;
-      final amount = output.sendAll
-          ? null
-          : output.cryptoAmount!.replaceAll(',', '.');
-      final formattedAmount = output.sendAll
-          ? null
-          : output.formattedCryptoAmount;
+      final int allAmount = balance.getInWei.toInt() - feeRate(_credentials.priority!);
+      totalAmount = output.sendAll ? allAmount : output.formattedCryptoAmount ?? 0;
 
-      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
-          (formattedAmount == null && unlockedBalance <= 0)) {
-        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
-
-        throw MoneroTransactionCreationException(
-            'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      if ((output.sendAll &&
+              balance.getInWei < EtherAmount.inWei(totalAmount as BigInt).getInWei) ||
+          (!output.sendAll && balance.getInWei.toInt() <= 0)) {
+        throw EthereumTransactionCreationException();
       }
-
-      pendingTransactionDescription =
-      await transaction_history.createTransaction(
-          address: address!,
-          amount: amount,
-          priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account!.id);
     }
+
+    await _client.signTransaction(_privateKey, _credentials.outputs.first.address, totalAmount.toString());
 
     return PendingEthereumTransaction(
       client: _client,
       credentials: _credentials,
       privateKey: _privateKey,
+      amount: totalAmount,
     );
   }
 
@@ -208,6 +175,7 @@ abstract class EthereumWalletBase
 
   @override
   Future<void> save() async {
+    await walletAddresses.updateAddressesInBox();
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();

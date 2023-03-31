@@ -15,14 +15,19 @@ abstract class EthereumWalletAddressesBase extends WalletAddresses with Store {
   String address;
 
   @override
-  Future<void> init() {
-    // TODO: implement init
-    throw UnimplementedError();
+  Future<void> init() async {
+    address = walletInfo.address;
+    await updateAddressesInBox();
   }
 
   @override
-  Future<void> updateAddressesInBox() {
-    // TODO: implement updateAddressesInBox
-    throw UnimplementedError();
+  Future<void> updateAddressesInBox() async {
+    try {
+      addressesMap.clear();
+      addressesMap[address] = '';
+      await saveAddressesInBox();
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }
