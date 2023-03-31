@@ -485,7 +485,7 @@
 
   "submit_request" : "presentar una solicitud",
 
-  "buy_alert_content" : "Actualmente solo apoyamos la compra de Bitcoin y Litecoin. Para comprar Bitcoin o Litecoin, cree o cambie a su billetera Bitcoin o Litecoin.",
+  "buy_alert_content" : "Actualmente solo admitimos la compra de Bitcoin, Litecoin y Monero. Cree o cambie a su billetera Bitcoin, Litecoin o Monero.",
   "sell_alert_content": "Actualmente solo admitimos la venta de Bitcoin. Para vender Bitcoin, cree o cambie a su billetera Bitcoin.",
 
   "outdated_electrum_wallet_description" : "Las nuevas carteras de Bitcoin creadas en Cake ahora tienen una semilla de 24 palabras. Es obligatorio que cree una nueva billetera de Bitcoin y transfiera todos sus fondos a la nueva billetera de 24 palabras, y deje de usar billeteras con una semilla de 12 palabras. Haga esto de inmediato para asegurar sus fondos.",
@@ -696,5 +696,6 @@
   "optional_description": "Descripción opcional",
   "optional_name": "Nombre del destinatario opcional",
   "clearnet_link": "enlace Clearnet",
-  "onion_link": "Enlace de cebolla"
+  "onion_link": "Enlace de cebolla",
+  "sell_monero_com_alert_content": "Aún no se admite la venta de Monero"
 }

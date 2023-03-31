@@ -483,7 +483,7 @@
 
   "submit_request" : "soumettre une requête",
 
-  "buy_alert_content" : "Pour le moment nous ne supportons que l'achat de Bitcoin et Litecoin. Pour acheter du Bitcoin ou du Litecoin, merci de créer ou de sélectionner votre portefeuille (wallet) Bitcoin ou Litecoin.",
+  "buy_alert_content" : "Actuellement, nous ne prenons en charge que l'achat de Bitcoin, Litecoin et Monero. Veuillez créer ou basculer vers votre portefeuille Bitcoin, Litecoin ou Monero.",
   "sell_alert_content": "Pour le moment nous ne supportons que la vente de Bitcoin. Pour vendre du Bitcoin, merci de créer ou de sélectionner votre portefeuille (wallet) Bitcoin.",
 
   "outdated_electrum_wallet_description" : "Les nouveaux portefeuilles (wallets) Bitcoin créés dans Cake ont dorénavant une phrase secrète (seed) de 24 mots. Il est impératif que vous créiez un nouveau portefeuille Bitcoin, que vous y transfériez tous vos fonds puis que vous cessiez d'utiliser le portefeuille avec une phrase secrète de 12 mots. Merci de faire cela immédiatement pour assurer la sécurité de vos avoirs.",
@@ -694,5 +694,6 @@
   "optional_description": "Descriptif facultatif",
   "optional_name": "Nom du destinataire facultatif",
   "clearnet_link": "Lien Clearnet",
-  "onion_link": "Lien d'oignon"
+  "onion_link": "Lien d'oignon",
+  "sell_monero_com_alert_content": "La vente de Monero n'est pas encore prise en charge"
 }

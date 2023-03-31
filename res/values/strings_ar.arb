@@ -485,7 +485,7 @@
 
    "submit_request":"تقديم طلب",
 
-   "buy_alert_content":"لا ندعم حاليًا سوى شراء Bitcoin و Litecoin. لشراء Bitcoin أو Litecoin ، يرجى إنشاء محفظة Bitcoin أو Litecoin أو التبديل إليها.",
+   "buy_alert_content":"لا ندعم حاليًا سوى شراء Bitcoin و Litecoin و Monero. يرجى إنشاء محفظة Bitcoin أو Litecoin أو Monero أو التبديل إليها.",
    "sell_alert_content":"نحن ندعم حاليًا بيع البيتكوين فقط. لبيع Bitcoin ، يرجى إنشاء أو التبديل إلى محفظة Bitcoin الخاصة بك.",
 
    "outdated_electrum_wallet_description":"محافظ Bitcoin الجديدة التي تم إنشاؤها في Cake الآن سييد مكونة من 24 كلمة. من الضروري أن تقوم بإنشاء محفظة Bitcoin جديدة وتحويل جميع أموالك إلى المحفظة الجديدة المكونة من 24 كلمة ، والتوقف عن استخدام محافظ سييد مكونة من 12 كلمة. يرجى القيام بذلك على الفور لتأمين أموالك.",
@@ -694,5 +694,6 @@
    "optional_description": "وصف اختياري",
    "optional_name": "اسم المستلم الاختياري",
    "clearnet_link": "رابط Clearnet",
-   "onion_link": "رابط البصل"
+   "onion_link": "رابط البصل",
+   "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن"
 }

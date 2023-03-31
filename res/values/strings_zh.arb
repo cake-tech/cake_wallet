@@ -484,7 +484,8 @@
 
   "submit_request" : "提交请求",
 
-  "buy_alert_content" : "目前我们只支持购买比特币和莱特币。 要购买比特币或莱特币，请创建或切换到您的比特币或莱特币钱包。",
+  "buy_alert_content" : "目前我们只支持购买比特币、莱特币和门罗币。 请创建或切换到您的比特币、莱特币或门罗币钱包。",
+  "sell_alert_content" : "我们目前只支持比特币的销售。 要出售比特币，请创建或切换到您的比特币钱包。",
 
   "outdated_electrum_wallet_description" : "在Cake创建的新比特币钱包现在有一个24字的种子。你必须创建一个新的比特币钱包，并将你所有的资金转移到新的24字钱包，并停止使用12字种子的钱包。请立即这样做以保证你的资金安全。",
   "understand" : "我已知晓",
@@ -694,5 +695,6 @@
   "optional_description": "可选说明",
   "optional_name": "可选收件人姓名",
   "clearnet_link": "明网链接",
-  "onion_link": "洋葱链接"
+  "onion_link": "洋葱链接",
+  "sell_monero_com_alert_content": "尚不支持出售门罗币"
 }

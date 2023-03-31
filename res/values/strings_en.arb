@@ -485,7 +485,7 @@
 
   "submit_request" : "submit a request",
 
-  "buy_alert_content" : "Currently we only support the purchase of Bitcoin and Litecoin. To buy Bitcoin or Litecoin, please create or switch to your Bitcoin or Litecoin wallet.",
+  "buy_alert_content" : "Currently we only support the purchase of Bitcoin, Litecoin, and Monero. Please create or switch to your Bitcoin, Litecoin, or Monero wallet.",
   "sell_alert_content": "We currently only support the sale of Bitcoin. To sell Bitcoin, please create or switch to your Bitcoin wallet.",
 
   "outdated_electrum_wallet_description" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
@@ -696,5 +696,6 @@
   "clearnet_link": "Clearnet link",
   "onion_link": "Onion link",
   "decimal_places_error": "Too many decimal places",
-  "edit_node": "Edit Node"
+  "edit_node": "Edit Node",
+  "sell_monero_com_alert_content": "Selling Monero is not supported yet"
 }

@@ -485,7 +485,7 @@
 
   "submit_request" : "Eine Anfrage stellen",
 
-  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin und Litecoin. Um Bitcoin oder Litecoin zu kaufen, erstellen oder wechseln Sie bitte zu Ihrem Bitcoin- oder Litecoin-Wallet.",
+  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin, Litecoin und Monero. Bitte erstellen oder wechseln Sie zu Ihrer Bitcoin-, Litecoin- oder Monero-Wallet.",
   "sell_alert_content": "Wir unterstützen derzeit nur den Verkauf von Bitcoin. Um Bitcoin zu verkaufen, erstellen Sie bitte Ihre Bitcoin-Wallet oder wechseln Sie zu ihr.",
   
   "outdated_electrum_wallet_description" : "Neue Bitcoin-Wallets, die in Cake erstellt wurden, haben jetzt einen 24-Wort-Seed. Sie müssen eine neue Bitcoin-Wallet erstellen, Ihr gesamtes Geld in die neue 24-Wort-Wallet überweisen und keine Wallet mit einem 12-Wort-Seed mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
@@ -696,5 +696,6 @@
   "optional_description": "Optionale Beschreibung",
   "optional_name": "Optionaler Empfängername",
   "clearnet_link": "Clearnet-Link",
-  "onion_link": "Zwiebel-Link"
+  "onion_link": "Zwiebel-Link",
+  "sell_monero_com_alert_content": "Der Verkauf von Monero wird noch nicht unterstützt"
 }

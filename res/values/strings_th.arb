@@ -483,7 +483,7 @@
 
   "submit_request" : "ส่งคำขอ",
 
-  "buy_alert_content" : "ในปัจจุบันเรารองรับการซื้อ Bitcoin และ Litecoin เท่านั้น หากต้องการซื้อ Bitcoin หรือ Litecoin โปรดสร้างหรือเปลี่ยนเป็นกระเป๋า Bitcoin หรือ Litecoin ของคุณ",
+  "buy_alert_content" : "ขณะนี้เรารองรับการซื้อ Bitcoin, Litecoin และ Monero เท่านั้น โปรดสร้างหรือเปลี่ยนเป็นกระเป๋าเงิน Bitcoin, Litecoin หรือ Monero ของคุณ",
   "sell_alert_content" : "ในปัจจุบันเรารองรับการขาย Bitcoin เท่านั้น หากต้องการขาย Bitcoin โปรดสร้างหรือเปลี่ยนเป็นกระเป๋า Bitcoin ของคุณ",
 
   "outdated_electrum_wallet_description" : "กระเป๋า Bitcoin ใหม่ที่สร้างใน Cake มี seed ขนาด 24 คำ ซึ่งจำเป็นต้องสร้างกระเป๋า Bitcoin ใหม่และโอนทุกเงินของคุณไปยังกระเป๋าใหม่ขนาด 24 คำ และหยุดใช้กระเป๋าที่มี seed ขนาด 12 คำ กรุณาทำด่วนเพื่อรักษาเงินของคุณ",
@@ -694,5 +694,6 @@
   "optional_description": "คำอธิบายเพิ่มเติม",
   "optional_name": "ชื่อผู้รับเพิ่มเติม",
   "clearnet_link": "ลิงค์เคลียร์เน็ต",
-  "onion_link": "ลิงค์หัวหอม"
+  "onion_link": "ลิงค์หัวหอม",
+  "sell_monero_com_alert_content": "ยังไม่รองรับการขาย Monero"
 }
