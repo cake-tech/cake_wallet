@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/seed_show_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -44,6 +45,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/seed_show_page_view_model.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
@@ -328,6 +330,11 @@ Future setup(
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>())
     );
 
+   getIt.registerFactory(() => SeedShowPageViewModel(
+      seed: getIt.get<AppStore>().wallet?.seed ?? ''),
+    );
+
+
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
@@ -380,6 +387,9 @@ Future setup(
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+
+  getIt.registerFactory<SeedShowPage>(() => SeedShowPage( viewModel: getIt.get<SeedShowPageViewModel>()));
+
   
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>((pageOption, _) => ReceiveOptionViewModel(
       getIt.get<AppStore>().wallet!, pageOption));
