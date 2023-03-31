@@ -402,8 +402,7 @@ abstract class DashboardViewModelBase with Store {
 
   void updateActions() {
     hasExchangeAction = !isHaven;
-    isEnabledBuyAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero;
+    isEnabledBuyAction = wallet.type != WalletType.haven;
     hasBuyAction = !isMoneroOnly && !isHaven;
     isEnabledSellAction = wallet.type != WalletType.haven
       && wallet.type != WalletType.monero

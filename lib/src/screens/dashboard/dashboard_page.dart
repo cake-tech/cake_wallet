@@ -277,6 +277,9 @@ class DashboardPage extends BasePage {
       case WalletType.litecoin:
         Navigator.of(context).pushNamed(Routes.onramperPage);
         break;
+      case WalletType.monero:
+        Navigator.of(context).pushNamed(Routes.payfuraPage);
+        break;
       default:
         await showPopUp<void>(
             context: context,

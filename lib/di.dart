@@ -11,6 +11,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -572,6 +573,10 @@ Future setup(
   getIt.registerFactory(() => OnRamperPage(
     settingsStore: getIt.get<AppStore>().settingsStore,
     wallet: getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory(() => PayFuraPage(
+      settingsStore: getIt.get<AppStore>().settingsStore,
+      wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>().wallet!,
