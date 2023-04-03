@@ -83,10 +83,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         password: password,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: snp.addresses,
-        initialBalance: snp.balance,
         seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
-        initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+);
   }
 }

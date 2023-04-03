@@ -302,7 +302,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
-            initialRoute: Routes.seedShowPage,
+            initialRoute: initialRoute,
           ));
     });
   }

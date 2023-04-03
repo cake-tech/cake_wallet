@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
-import 'package:cake_wallet/src/screens/seed_show_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -219,10 +218,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => RestoreWalletFromKeysPage(
               walletRestorationFromKeysVM: walletRestorationFromKeysVM));
 
-    case Routes.seedShowPage:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SeedShowPage>());
-              
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<DashboardPage>());

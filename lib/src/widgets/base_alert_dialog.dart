@@ -128,24 +128,29 @@ class BaseAlertDialog extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
-                              child: title(context),
+                        SizedBox(
+                          height: 400,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+                                  child: title(context),
+                                ),
+                                isDividerExists
+                                    ? Padding(
+                                        padding: EdgeInsets.only(top: 16, bottom: 8),
+                                        child: const SectionDivider(),
+                                      )
+                                    : Offstage(),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
+                                  child: content(context)),
+                              
+                              ],
                             ),
-                            isDividerExists
-                                ? Padding(
-                                    padding: EdgeInsets.only(top: 16, bottom: 8),
-                                    child: const SectionDivider(),
-                                  )
-                                : Offstage(),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
-                              child: content(context),
-                            )
-                          ],
+                          ),
                         ),
                         const SectionDivider(),
                         actionButtons(context)
