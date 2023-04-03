@@ -481,8 +481,8 @@
   "xrp_extra_info" : "ایکسچینج کے لیے XRP ٹرانزیکشن بھیجتے وقت ڈیسٹینیشن ٹیگ بتانا نہ بھولیں۔",
 
   "exchange_incorrect_current_wallet_for_xmr" : "اگر آپ اپنے Cake والیٹ Monero بیلنس سے XMR کا تبادلہ کرنا چاہتے ہیں، تو براہ کرم پہلے اپنے Monero والیٹ پر جائیں۔",
-  "confirmed" : "تصدیق شدہ",
-  "unconfirmed" : "غیر تصدیق شدہ",
+  "confirmed" : "تصدیق شدہ بیلنس",
+  "unconfirmed" : "غیر تصدیق شدہ بیلنس",
   "displayable" : "قابل نمائش",
 
   "submit_request" : "درخواست بھیج دو",

@@ -162,7 +162,7 @@ class BalancePage extends StatelessWidget{
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-               Text(S.current.frozen_balance + ':',
+               Text(S.current.frozen_balance,
                    textAlign: TextAlign.center,
                    style: TextStyle(
                        fontSize: 12,
@@ -200,7 +200,7 @@ class BalancePage extends StatelessWidget{
                          .backgroundColor!,
                      height: 1),
                ),
-               SizedBox(height: 12)]),
+               SizedBox(height: 24)]),
               Text('${additionalBalanceLabel}',
                 textAlign: TextAlign.center,
                 style: TextStyle(

@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Gentilmente ricorda di indicare il Tag di Destinazione quando invii una transazione XRP per lo scambio",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Se vuoi scambiare XMR dal tuo saldo Cake Wallet Monero, gentilmente passa al tuo portafoglio Monero.",
-  "confirmed" : "Confermato",
-  "unconfirmed" : "Non confermato",
+  "confirmed" : "Saldo confermato",
+  "unconfirmed" : "Saldo non confermato",
   "displayable" : "Visualizzabile",
 
   "submit_request" : "invia una richiesta",

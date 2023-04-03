@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Prosím nezapomeňte zadat Destination Tag, když posíláte XRP transakce ke směně",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Pokud chcete směnit XMR z Monero částky v Cake Wallet, prosím přepněte se nejprve do své Monero peněženky.",
-  "confirmed" : "Potvrzeno",
-  "unconfirmed" : "Nepotvrzeno",
+  "confirmed" : "Potvrzený zůstatek",
+  "unconfirmed" : "Nepotvrzený zůstatek",
   "displayable" : "Zobrazitelné",
 
   "submit_request" : "odeslat požadavek",

@@ -479,8 +479,8 @@
   "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet Moneroの残高からXMRを交換する場合は、最初にMoneroウォレットに切り替えてください。",
-  "confirmed" : "確認済み",
-  "unconfirmed" : "未確認",
+  "confirmed" : "確認済み残高",
+  "unconfirmed" : "残高未確認",
   "displayable" : "表示可能",
 
   "submit_request" : "リクエストを送信する",

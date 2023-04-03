@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Lütfen takas için XRP işlemi gönderirken Hedef Etiketi (Destination Tag) belirtmeyi unutmayın",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet'daki Monero bakiyenizi kullanarak takas yapmak istiyorsan, lütfen önce Monero cüzdanına geç.",
-  "confirmed" : "Onaylı",
-  "unconfirmed" : "Onaylanmamış",
+  "confirmed" : "Onaylanmış Bakiye",
+  "unconfirmed" : "Onaylanmamış Bakiye",
   "displayable" : "Gösterilebilir",
 
   "submit_request" : "talep gönder",

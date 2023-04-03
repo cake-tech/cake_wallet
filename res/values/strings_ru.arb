@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Не забудьте указать целевой тег при отправке транзакции XRP для обмена",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Если вы хотите обменять XMR со своего баланса Monero в Cake Wallet, сначала переключитесь на свой кошелек Monero.",
-  "confirmed" : "Подтверждено",
-  "unconfirmed" : "Неподтвержденный",
+  "confirmed" : "Подтвержденный баланс",
+  "unconfirmed" : "Неподтвержденный баланс",
   "displayable" : "Отображаемый",
 
   "submit_request" : "отправить запрос",

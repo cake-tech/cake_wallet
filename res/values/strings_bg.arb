@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Не забравяйте да дадете Destination Tag-а, когато изпращате XRP транзакцията за обмена",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Ако искате да обмените XMR от своя Cake Wallet Monero баланс, първо изберете своя Monero портфейл.",
-  "confirmed" : "Потвърдено",
-  "unconfirmed" : "Непотвърдено",
+  "confirmed" : "Потвърден баланс",
+  "unconfirmed" : "Непотвърден баланс",
   "displayable" : "Възможност за показване",
 
   "submit_request" : "изпращане на заявка",

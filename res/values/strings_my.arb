@@ -479,8 +479,8 @@
   "xrp_extra_info" : "လဲလှယ်မှုအတွက် XRP ငွေလွှဲပို့နေစဉ် Destination Tag ကို သတ်မှတ်ရန် မမေ့ပါနှင့်",
 
   "exchange_incorrect_current_wallet_for_xmr" : "သင်၏ Cake Wallet Monero လက်ကျန်မှ XMR ကိုလဲလှယ်လိုပါက၊ သင်၏ Monero ပိုက်ဆံအိတ်သို့ ဦးစွာပြောင်းပါ။",
-  "confirmed" : "အတည်ပြုခဲ့သည်။",
-  "unconfirmed" : "အတည်မပြုနိုင်ပါ။",
+  "confirmed" : "အတည်ပြုထားသော လက်ကျန်ငွေ",
+  "unconfirmed" : "အတည်မပြုနိုင်သော လက်ကျန်ငွေ",
   "displayable" : "ပြသနိုင်သည်။",
 
   "submit_request" : "တောင်းဆိုချက်တစ်ခုတင်ပြပါ။",

@@ -477,8 +477,8 @@
   "xrp_extra_info" : "Merci de ne pas oublier de spécifier le tag de destination lors de l'envoi de la transaction XRP de l'échange",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Si vous souhaitez échanger des XMR du solde Monero de votre Cake Wallet, merci de sélectionner votre portefeuille (wallet) Monero au préalable.",
-  "confirmed" : "Confirmé",
-  "unconfirmed" : "Non confirmé",
+  "confirmed" : "Solde confirmé",
+  "unconfirmed" : "Solde non confirmé",
   "displayable" : "Visible",
 
   "submit_request" : "soumettre une requête",

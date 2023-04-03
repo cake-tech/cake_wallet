@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange",
 
   "exchange_incorrect_current_wallet_for_xmr" : "If you want to exchange XMR from your Cake Wallet Monero balance, please switch to your Monero wallet first.",
-  "confirmed" : "Confirmed",
-  "unconfirmed" : "Unconfirmed",
+  "confirmed" : "Confirmed Balance",
+  "unconfirmed" : "Unconfirmed Balance",
   "displayable" : "Displayable",
 
   "submit_request" : "submit a request",

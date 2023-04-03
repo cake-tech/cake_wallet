@@ -477,8 +477,8 @@
   "xrp_extra_info": "โปรดอย่าลืมระบุ Destination Tag ในขณะที่ส่งธุรกรรม XRP สำหรับการแลกเปลี่ยน",
 
   "exchange_incorrect_current_wallet_for_xmr" : "หากคุณต้องการแลกเปลี่ยน XMR จากยอดคงเหลือ Monero ใน Cake Wallet ของคุณ กรุณาเปลี่ยนเป็นกระเป๋า Monero ก่อน",
-  "confirmed" : "ได้รับการยืนยัน",
-  "unconfirmed" : "ยังไม่ได้รับการยืนยัน",
+  "confirmed" : "ยอดคงเหลือที่ยืนยันแล้ว",
+  "unconfirmed" : "ยอดคงเหลือที่ไม่ได้รับการยืนยัน",
   "displayable" : "สามารถแสดงได้",
 
   "submit_request" : "ส่งคำขอ",

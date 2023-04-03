@@ -479,8 +479,8 @@
    "xrp_extra_info":"من فضلك لا تنس تحديد علامة الوجهة أثناء إرسال معاملة XRP للتبادل",
 
    "exchange_incorrect_current_wallet_for_xmr":"إذا كنت ترغب في استبدال XMR من رصيد Cake Wallet Monero ، فيرجى التبديل إلى محفظة Monero أولاً.",
-   "confirmed":"مؤكد",
-   "unconfirmed":"غير مؤكد",
+   "confirmed":"رصيد مؤكد",
+   "unconfirmed":"رصيد غير مؤكد",
    "displayable":"قابل للعرض",
 
    "submit_request":"تقديم طلب",
