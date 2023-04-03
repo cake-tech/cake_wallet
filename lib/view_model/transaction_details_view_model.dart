@@ -14,7 +14,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/haven/haven.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -150,7 +149,11 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.add(BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
         value: _explorerDescription(type),
-        onTap: () => launch(_explorerUrl(type, tx.id))));
+        onTap: () {
+          try {
+            launch(_explorerUrl(type, tx.id));
+          } catch (e) {}
+        }));
 
     final description = transactionDescriptionBox.values.firstWhere(
         (val) => val.id == transactionInfo.id,

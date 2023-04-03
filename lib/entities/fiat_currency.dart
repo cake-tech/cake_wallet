@@ -1,6 +1,7 @@
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 
-class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
+class FiatCurrency extends EnumerableItem<String> with Serializable<String> implements Currency {
   const FiatCurrency({required String symbol, required this.countryCode, required this.fullName}) : super(title: symbol, raw: symbol);
 
   final String countryCode;
@@ -118,4 +119,13 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
 
   @override
   int get hashCode => raw.hashCode ^ title.hashCode;
+  
+  @override
+  String get name => raw;
+  
+  @override
+  String? get tag => null;
+
+  @override
+  String get iconPath => "assets/images/flags/$countryCode.png"; 
 }

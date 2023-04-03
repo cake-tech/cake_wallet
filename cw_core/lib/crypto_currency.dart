@@ -1,6 +1,7 @@
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 
-class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
+class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
     String title = '',
     int raw = -1,
@@ -162,6 +163,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
       return acc;
     });
 
+  static final Map<String, CryptoCurrency> _fullNameCurrencyMap =
+    [...all, ...havenCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
+      if(item.fullName != null){
+        acc.addAll({item.fullName!.toLowerCase(): item});
+      }
+      return acc;
+    });
+
   static CryptoCurrency deserialize({required int raw}) {
 
     if (CryptoCurrency._rawCurrencyMap[raw] == null) {
@@ -179,6 +188,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     }
     return CryptoCurrency._nameCurrencyMap[name.toLowerCase()]!;
   }
+
+  static CryptoCurrency fromFullName(String name) {
+
+    if (CryptoCurrency._fullNameCurrencyMap[name.toLowerCase()] == null) {
+      final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
+      throw  ArgumentError.value(name, 'Fullname', s);
+    }
+    return CryptoCurrency._fullNameCurrencyMap[name.toLowerCase()]!;
+  }
+  
 
   @override
   String toString() => title;

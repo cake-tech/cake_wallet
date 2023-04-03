@@ -485,7 +485,7 @@
 
   "submit_request" : "enviar um pedido",
 
-  "buy_alert_content" : "Atualmente, apoiamos apenas a compra de Bitcoin e Litecoin. Para comprar Bitcoin ou Litecoin, crie ou troque para sua carteira Bitcoin ou Litecoin.",
+  "buy_alert_content" : "Atualmente, oferecemos suporte apenas à compra de Bitcoin, Litecoin e Monero. Crie ou troque para sua carteira Bitcoin, Litecoin ou Monero.",
   "sell_alert_content": "Atualmente, apoiamos apenas a venda de Bitcoin. Para vender Bitcoin, crie ou mude para sua carteira Bitcoin.",
 
   "outdated_electrum_wallet_description" : "As novas carteiras Bitcoin criadas no Cake agora têm uma semente de 24 palavras. É obrigatório que você crie uma nova carteira Bitcoin e transfira todos os seus fundos para a nova carteira de 24 palavras, e pare de usar carteiras com semente de 12 palavras. Faça isso imediatamente para garantir seus fundos.",
@@ -690,5 +690,16 @@
   "sweeping_wallet": "Carteira varrendo",
   "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI",
   "decimal_places_error": "Muitas casas decimais",
-  "edit_node": "Editar nó"
+  "edit_node": "Editar nó",
+  "invoice_details": "Detalhes da fatura",
+  "donation_link_details": "Detalhes do link de doação",
+  "anonpay_description": "Gere ${type}. O destinatário pode ${method} com qualquer criptomoeda suportada e você receberá fundos nesta carteira.",
+  "create_invoice": "Criar recibo",
+  "create_donation_link": "Criar link de doação",
+  "optional_email_hint": "E-mail opcional de notificação do beneficiário",
+  "optional_description": "Descrição opcional",
+  "optional_name": "Nome do destinatário opcional",
+  "clearnet_link": "link clear net",
+  "onion_link": "ligação de cebola",
+  "sell_monero_com_alert_content": "A venda de Monero ainda não é suportada"
 }

@@ -17,13 +17,14 @@ class ExceptionHandler {
   static bool _hasError = false;
   static const _coolDownDurationInDays = 7;
 
-  static void _saveException(String? error, StackTrace? stackTrace) async {
+  static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
     final appDocDir = await getApplicationDocumentsDirectory();
 
     final file = File('${appDocDir.path}/error.txt');
     final exception = {
       "${DateTime.now()}": {
-        "Error": error,
+        "Error": "$error\n\n",
+        "Library": "$library\n\n",
         "StackTrace": stackTrace.toString(),
       }
     };
@@ -31,7 +32,7 @@ class ExceptionHandler {
     const String separator = '''\n\n==========================================================
       ==========================================================\n\n''';
 
-    await file.writeAsString(
+    file.writeAsStringSync(
       "$exception $separator",
       mode: FileMode.append,
     );
@@ -75,7 +76,11 @@ class ExceptionHandler {
       return;
     }
 
-    _saveException(errorDetails.exception.toString(), errorDetails.stack);
+    _saveException(
+      errorDetails.exceptionAsString(),
+      errorDetails.stack,
+      library: errorDetails.library,
+    );
 
     final sharedPrefs = await SharedPreferences.getInstance();
 
@@ -131,9 +136,13 @@ class ExceptionHandler {
     "errno = 54", // SocketException: Connection reset by peer
     "errno = 57", // SocketException: Read failed (OS Error: Socket is not connected)
     "errno = 60", // SocketException: Operation timed out
+    "errno = 65", // SocketException: No route to host
     "errno = 103", // SocketException: Software caused connection abort
     "errno = 104", // SocketException: Connection reset by peer
     "errno = 110", // SocketException: Connection timed out
+    "HttpException: Connection reset by peer",
+    "HttpException: Connection closed before full header was received",
+    "HandshakeException: Connection terminated during handshake",
     "PERMISSION_NOT_GRANTED",
   ];
 
