@@ -328,4 +328,10 @@ class CWHaven extends Haven {
   @override
   List<AssetRate> getAssetRate() =>
       getRate().map((rate) => AssetRate(rate.getAssetType(), rate.getRate())).toList();
+      
+        @override
+        int getHeigthByDate({required DateTime date}) {
+          // TODO: implement getHeigthByDate
+          throw UnimplementedError();
+        }
 }

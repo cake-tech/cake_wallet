@@ -66,7 +66,7 @@ abstract class WalletKeysViewModelBase with Store {
 
   Future<int?> currentHeight() async {
     if (_wallet.type == WalletType.haven) {
-      return await haven!.getCurrentHeight();
+      // return await haven!.getCurrentHeight();
     }
     if (_wallet.type == WalletType.monero) {
       return monero_wallet.getCurrentHeight();

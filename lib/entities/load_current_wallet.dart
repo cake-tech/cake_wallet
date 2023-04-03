@@ -36,7 +36,6 @@ Future<void> loadCurrentWallet() async {
       buttonAction: () {
         Clipboard.setData(ClipboardData(text: wallet.seed));
         showBar<void>(navigatorKey.currentContext!,S.current.copied_to_clipboard);  
-        navigatorKey.currentState!.pop();
       }
     ));
   // appStore.changeCurrentWallet(wallet);
