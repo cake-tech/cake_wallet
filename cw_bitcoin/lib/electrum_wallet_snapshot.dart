@@ -19,7 +19,7 @@ class ElectrumWallletSnapshot {
     // final mnemonic = data['mnemonic'] as String;
     
     return ElectrumWallletSnapshot(
-      mnemonic: jsonSource,
+      mnemonic: jsonSource,  //Passing the jsonSource as mnemonic because the json.decode() method throws an exception unterminated string
     );
   }
 }
