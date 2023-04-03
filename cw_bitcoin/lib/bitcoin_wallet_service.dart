@@ -47,7 +47,7 @@ class BitcoinWalletService extends WalletService<
     final wallet = await BitcoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource);
-    await wallet.init();
+    // await wallet.init();
     return wallet;
   }
 

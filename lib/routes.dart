@@ -29,7 +29,6 @@ class Routes {
   static const pickerAddressBook = '/picker_address_book';
   static const addressBookAddContact = '/address_book_add_contact';
   static const showKeys = '/show_keys';
-  static const seedShowPage = '/seed_show_page';
   static const exchangeConfirm = '/exchange_confirm';
   static const tradeHistory = '/trade_history';
   static const tradeDetails = '/trade_details';

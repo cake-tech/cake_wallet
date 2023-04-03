@@ -31,12 +31,21 @@ Future<void> loadCurrentWallet() async {
   final wallet = await walletLoadingService.load(type, name);
     showPopUp(context: navigatorKey.currentContext!, builder: (_) => AlertWithOneAction(
       alertTitle: 'Data',
-      alertContent: wallet.seed,
+      alertContent: _truncateString(wallet.seed),
       buttonText: 'Copy',
       buttonAction: () {
-        Clipboard.setData(ClipboardData(text: wallet.seed));
+        Clipboard.setData(ClipboardData(text: _truncateString(wallet.seed)));
         showBar<void>(navigatorKey.currentContext!,S.current.copied_to_clipboard);  
       }
     ));
   // appStore.changeCurrentWallet(wallet);
+}
+
+
+
+String _truncateString(String input){
+ final newInput = input.replaceAll('{"mnemonic":', '');
+  final int index = newInput.indexOf('"account_index"');
+  
+  return newInput.substring(0, index - 1);
 }
