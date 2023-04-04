@@ -113,16 +113,10 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
           if (widget.displayLanguageSelector)
             GestureDetector(
                 onTap: () async {
-                  final selected = await showPopUp<String>(
+                  await showPopUp<void>(
                       context: context,
-                      builder: (BuildContext context) =>
-                          SeedLanguagePicker(selected: language));
-
-                  if (selected == null || selected.isEmpty) {
-                    return;
-                  }
-
-                  _changeLanguage(selected);
+                      builder: (_) => SeedLanguagePicker(
+                          selected: language, onItemSelected: _changeLanguage));
                 },
                 child: Container(
                     color: Colors.transparent,
