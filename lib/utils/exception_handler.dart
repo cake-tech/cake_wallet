@@ -136,9 +136,11 @@ class ExceptionHandler {
     "errno = 54", // SocketException: Connection reset by peer
     "errno = 57", // SocketException: Read failed (OS Error: Socket is not connected)
     "errno = 60", // SocketException: Operation timed out
+    "errno = 65", // SocketException: No route to host
     "errno = 103", // SocketException: Software caused connection abort
     "errno = 104", // SocketException: Connection reset by peer
     "errno = 110", // SocketException: Connection timed out
+    "HttpException: Connection reset by peer",
     "HttpException: Connection closed before full header was received",
     "HandshakeException: Connection terminated during handshake",
     "PERMISSION_NOT_GRANTED",

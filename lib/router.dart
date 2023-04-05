@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
@@ -511,6 +512,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.onramperPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
+
+    case Routes.payfuraPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<PayFuraPage>());
 
     case Routes.advancedPrivacySettings:
       final type = settings.arguments as WalletType;
