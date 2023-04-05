@@ -3,11 +3,12 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
+import 'package:web3dart/web3dart.dart';
 
 class PendingEthereumTransaction with PendingTransaction {
   final EthereumClient client;
   final EthereumTransactionCredentials credentials;
-  final String privateKey;
+  final EthPrivateKey privateKey;
   final int amount;
 
   PendingEthereumTransaction({

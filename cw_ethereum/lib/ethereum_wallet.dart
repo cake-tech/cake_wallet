@@ -22,9 +22,7 @@ import 'package:cw_ethereum/file.dart';
 import 'package:cw_ethereum/pending_ethereum_transaction.dart';
 import 'package:mobx/mobx.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:ed25519_hd_key/ed25519_hd_key.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:hex/hex.dart';
 
 part 'ethereum_wallet.g.dart';
 
@@ -45,7 +43,7 @@ abstract class EthereumWalletBase
         _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EthereumBalance>.of(
-            {CryptoCurrency.eth: initialBalance ?? EthereumBalance(available: 0, additional: 0)}),
+            {CryptoCurrency.eth: initialBalance ?? EthereumBalance(EtherAmount.zero())}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
   }
@@ -53,7 +51,7 @@ abstract class EthereumWalletBase
   final String _mnemonic;
   final String _password;
 
-  late final String _privateKey;
+  late final EthPrivateKey _privateKey;
 
   late EthereumClient _client;
 
@@ -75,7 +73,7 @@ abstract class EthereumWalletBase
     await walletAddresses.init();
     _privateKey = await getPrivateKey(_mnemonic, _password);
     transactionHistory = EthereumTransactionHistory();
-    walletAddresses.address = EthPrivateKey.fromHex(_privateKey).address.toString();
+    walletAddresses.address = _privateKey.address.toString();
   }
 
   @override
@@ -121,11 +119,10 @@ abstract class EthereumWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    print("!!!!!!!!!!!!!!!!!!!");
     final _credentials = credentials as EthereumTransactionCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final balance = await _client.getBalance(_privateKey);
+    final balance = await _client.getBalance(_privateKey.address);
     int totalAmount = 0;
 
     if (hasMultiDestination) {
@@ -150,7 +147,12 @@ abstract class EthereumWalletBase
       }
     }
 
-    await _client.signTransaction(_privateKey, _credentials.outputs.first.address, totalAmount.toString());
+    await _client.signTransaction(
+      _privateKey,
+      _credentials.outputs.first.address,
+      totalAmount.toString(),
+      _priorityFees[_credentials.priority!.raw],
+    );
 
     return PendingEthereumTransaction(
       client: _client,
@@ -235,8 +237,8 @@ abstract class EthereumWalletBase
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
-    final balance = EthereumBalance.fromJSON(data['balance'] as String) ??
-        EthereumBalance(available: 0, additional: 0);
+    final balance =
+        EthereumBalance.fromJSON(data['balance'] as String) ?? EthereumBalance(EtherAmount.zero());
 
     return EthereumWallet(
       walletInfo: walletInfo,
@@ -252,21 +254,12 @@ abstract class EthereumWalletBase
   }
 
   Future<EthereumBalance> _fetchBalances() async {
-    final balance = await _client.getBalance(_privateKey);
-
-    return EthereumBalance(
-      available: balance.getInEther.toInt(),
-      additional: balance.getInEther.toInt(),
-    );
+    final balance = await _client.getBalance(_privateKey.address);
+    return EthereumBalance(balance);
   }
 
-  Future<String> getPrivateKey(String mnemonic, String password) async {
+  Future<EthPrivateKey> getPrivateKey(String mnemonic, String password) async {
     final seed = bip39.mnemonicToSeedHex(mnemonic);
-    final master = await ED25519_HD_KEY.getMasterKeyFromSeed(
-      HEX.decode(seed),
-      masterSecret: password,
-    );
-    final privateKey = HEX.encode(master.key);
-    return privateKey;
+    return EthPrivateKey.fromHex(seed);
   }
 }

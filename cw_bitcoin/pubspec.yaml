@@ -27,7 +27,7 @@ dependencies:
   unorm_dart: ^0.2.0
   cryptography: ^2.0.5
   encrypt: ^5.0.1
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

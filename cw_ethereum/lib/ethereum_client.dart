@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:http/http.dart';
@@ -17,10 +19,8 @@ class EthereumClient {
     }
   }
 
-  Future<EtherAmount> getBalance(String privateKey) async {
-    final private = EthPrivateKey.fromHex(privateKey);
-
-    return _client!.getBalance(private.address);
+  Future<EtherAmount> getBalance(EthereumAddress address) async {
+    return await _client!.getBalance(address);
   }
 
   Future<int> getGasUnitPrice() async {
@@ -39,35 +39,33 @@ class EthereumClient {
     return result.map((e) => e.toInt()).toList();
   }
 
-  Future<String> signTransaction(String privateKey, String toAddress, String amount) async {
-    final credentials = EthPrivateKey.fromHex(privateKey);
-
+  Future<String> signTransaction(
+    EthPrivateKey privateKey,
+    String toAddress,
+    String amount,
+    int fee,
+  ) async {
     final transaction = Transaction(
-      from: credentials.address,
+      from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
-      value: EtherAmount.zero(),
+      value: EtherAmount.fromUnitAndValue(EtherUnit.ether, amount),
+      // maxPriorityFeePerGas: EtherAmount.inWei(BigInt.from(fee)),
     );
-    print("@@@@@@@@@@@@@@@@@");
-    print(transaction);
 
-    String tr = bytesToHex(await _client!.signTransaction(credentials, transaction));
-    print("@@@@@@@@@@@@@@@@@");
-    print(tr);
+    final Uint8List signedTransaction = await _client!.signTransaction(privateKey, transaction);
 
-    return tr;
+    return bytesToHex(signedTransaction);
   }
 
-  Future<String> sendTransaction(String privateKey, String toAddress, String amount) async {
-    final credentials = EthPrivateKey.fromHex(privateKey);
-
+  Future<String> sendTransaction(EthPrivateKey privateKey, String toAddress, String amount) async {
     final transaction = Transaction(
-      from: credentials.address,
+      from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, amount),
     );
 
     return await _client!.sendTransaction(
-      credentials,
+      privateKey,
       transaction,
     );
   }
