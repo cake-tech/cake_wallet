@@ -5,6 +5,8 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
+import 'node_list_view_model.dart';
+
 part 'node_create_or_edit_view_model.g.dart';
 
 class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
@@ -77,14 +79,39 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  Future<void> save({bool saveAsCurrent = false}) async {
+  void setPort (String val) => port = val;
+
+  @action
+  void setAddress (String val) => address = val;
+
+  @action
+  void setLogin (String val) => login = val;
+
+  @action
+  void setPassword (String val) => password = val;
+
+  @action
+  void setSSL (bool val) => useSSL = val;
+
+  @action
+  void setTrusted (bool val) => trusted = val;
+
+  @action
+  Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
+    final node = Node(
+        uri: uri,
+        type: _walletType,
+        login: login,
+        password: password,
+        useSSL: useSSL,
+        trusted: trusted);
     try {
       state = IsExecutingState();
-      final node =
-          Node(uri: uri, type: _walletType, login: login, password: password,
-              useSSL: useSSL, trusted: trusted);
-      await _nodeSource.add(node);
-
+      if (editingNode != null) {
+        await _nodeSource.put(editingNode.key, node);
+      } else {
+        await _nodeSource.add(node);
+      }
       if (saveAsCurrent) {
         _settingsStore.nodes[_walletType] = node;
       }

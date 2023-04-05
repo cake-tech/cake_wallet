@@ -27,6 +27,9 @@ class SecretKey {
     SecretKey('trocadorApiKey', () => ''),
     SecretKey('trocadorExchangeMarkup', () => ''),
     SecretKey('twitterBearerToken', () => ''),
+    SecretKey('anonPayReferralCode', () => ''),
+    SecretKey('fiatApiKey', () => ''),
+    SecretKey('payfuraApiKey', () => ''),
   ];
 
   final String name;

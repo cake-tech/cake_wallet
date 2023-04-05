@@ -485,7 +485,7 @@
 
   "submit_request" : "요청을 제출",
 
-  "buy_alert_content" : "현재 우리는 비트 코인과 라이트 코인 구매 만 지원합니다. 비트 코인 또는 라이트 코인을 구매하려면 비트 코인 또는 라이트 코인 지갑을 생성하거나 전환하십시오.",
+  "buy_alert_content" : "현재 우리는 Bitcoin, Litecoin 및 Monero 구매만 지원합니다. Bitcoin, Litecoin 또는 Monero 지갑을 생성하거나 전환하십시오.",
   "sell_alert_content": "현재 비트코인 ​​판매만 지원합니다. 비트코인을 판매하려면 비트코인 ​​지갑을 생성하거나 전환하세요.",
 
   "outdated_electrum_wallet_description" : "Cake에서 생성 된 새로운 비트 코인 지갑에는 이제 24 단어 시드가 있습니다. 새로운 비트 코인 지갑을 생성하고 모든 자금을 새로운 24 단어 지갑으로 이체하고 12 단어 시드가있는 지갑 사용을 중지해야합니다. 자금을 확보하려면 즉시이 작업을 수행하십시오.",
@@ -684,5 +684,18 @@
   "send_to_this_address" : "이 주소로 ${currency} ${tag}송금",
   "arrive_in_this_address" : "${currency} ${tag}이(가) 이 주소로 도착합니다",
   "do_not_send": "보내지 마세요",
-  "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오."
+  "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오.",
+  "decimal_places_error": "소수점 이하 자릿수가 너무 많습니다.",
+  "edit_node": "노드 편집",
+  "invoice_details": "인보이스 세부정보",
+  "donation_link_details": "기부 링크 세부정보",
+  "anonpay_description": "${type} 생성. 수신자는 지원되는 모든 암호화폐로 ${method}할 수 있으며 이 지갑에서 자금을 받게 됩니다.",
+  "create_invoice": "인보이스 생성",
+  "create_donation_link": "기부 링크 만들기",
+  "optional_email_hint": "선택적 수취인 알림 이메일",
+  "optional_description": "선택적 설명",
+  "optional_name": "선택적 수신자 이름",
+  "clearnet_link": "클리어넷 링크",
+  "onion_link": "양파 링크",
+  "sell_monero_com_alert_content": "지원되지 않습니다."
 }

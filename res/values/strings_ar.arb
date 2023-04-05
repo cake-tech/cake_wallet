@@ -485,7 +485,7 @@
 
    "submit_request":"تقديم طلب",
 
-   "buy_alert_content":"لا ندعم حاليًا سوى شراء Bitcoin و Litecoin. لشراء Bitcoin أو Litecoin ، يرجى إنشاء محفظة Bitcoin أو Litecoin أو التبديل إليها.",
+   "buy_alert_content":"لا ندعم حاليًا سوى شراء Bitcoin و Litecoin و Monero. يرجى إنشاء محفظة Bitcoin أو Litecoin أو Monero أو التبديل إليها.",
    "sell_alert_content":"نحن ندعم حاليًا بيع البيتكوين فقط. لبيع Bitcoin ، يرجى إنشاء أو التبديل إلى محفظة Bitcoin الخاصة بك.",
 
    "outdated_electrum_wallet_description":"محافظ Bitcoin الجديدة التي تم إنشاؤها في Cake الآن سييد مكونة من 24 كلمة. من الضروري أن تقوم بإنشاء محفظة Bitcoin جديدة وتحويل جميع أموالك إلى المحفظة الجديدة المكونة من 24 كلمة ، والتوقف عن استخدام محافظ سييد مكونة من 12 كلمة. يرجى القيام بذلك على الفور لتأمين أموالك.",
@@ -682,5 +682,18 @@
    "send_to_this_address" : "أرسل ${currency} ${tag}إلى هذا العنوان",
    "arrive_in_this_address" : "سيصل ${currency} ${tag}إلى هذا العنوان",
    "do_not_send": "لا ترسل",
-   "error_dialog_content": "عفوًا ، لقد حصلنا على بعض الخطأ.\n\nيرجى إرسال تقرير التعطل إلى فريق الدعم لدينا لتحسين التطبيق."
+   "error_dialog_content": "عفوًا ، لقد حصلنا على بعض الخطأ.\n\nيرجى إرسال تقرير التعطل إلى فريق الدعم لدينا لتحسين التطبيق.",
+   "decimal_places_error": "عدد كبير جدًا من المنازل العشرية",
+   "edit_node": "تحرير العقدة",
+   "invoice_details": "تفاصيل الفاتورة",
+   "donation_link_details": "تفاصيل رابط التبرع",
+   "anonpay_description": "توليد ${type}. يمكن للمستلم ${method} بأي عملة مشفرة مدعومة ، وستتلقى أموالاً في هذه",
+   "create_invoice": "إنشاء فاتورة",
+   "create_donation_link": "إنشاء رابط التبرع",
+   "optional_email_hint": "البريد الإلكتروني إخطار المدفوع لأمره الاختياري",
+   "optional_description": "وصف اختياري",
+   "optional_name": "اسم المستلم الاختياري",
+   "clearnet_link": "رابط Clearnet",
+   "onion_link": "رابط البصل",
+   "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن"
 }

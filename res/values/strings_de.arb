@@ -485,7 +485,7 @@
 
   "submit_request" : "Eine Anfrage stellen",
 
-  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin und Litecoin. Um Bitcoin oder Litecoin zu kaufen, erstellen oder wechseln Sie bitte zu Ihrem Bitcoin- oder Litecoin-Wallet.",
+  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin, Litecoin und Monero. Bitte erstellen oder wechseln Sie zu Ihrer Bitcoin-, Litecoin- oder Monero-Wallet.",
   "sell_alert_content": "Wir unterstützen derzeit nur den Verkauf von Bitcoin. Um Bitcoin zu verkaufen, erstellen Sie bitte Ihre Bitcoin-Wallet oder wechseln Sie zu ihr.",
   
   "outdated_electrum_wallet_description" : "Neue Bitcoin-Wallets, die in Cake erstellt wurden, haben jetzt einen 24-Wort-Seed. Sie müssen eine neue Bitcoin-Wallet erstellen, Ihr gesamtes Geld in die neue 24-Wort-Wallet überweisen und keine Wallet mit einem 12-Wort-Seed mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
@@ -684,5 +684,18 @@
   "send_to_this_address" : "Senden Sie ${currency} ${tag}an diese Adresse",
   "arrive_in_this_address" : "${currency} ${tag}wird an dieser Adresse ankommen",
   "do_not_send": "Nicht senden",
-  "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern."
+  "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern.",
+  "decimal_places_error": "Zu viele Nachkommastellen",
+  "edit_node": "Knoten bearbeiten",
+  "invoice_details": "Rechnungs-Details",
+  "donation_link_details": "Details zum Spendenlink",
+  "anonpay_description": "Generieren Sie ${type}. Der Empfänger kann ${method} mit jeder unterstützten Kryptowährung verwenden, und Sie erhalten Geld in dieser Brieftasche.",
+  "create_invoice": "Rechnung erstellen",
+  "create_donation_link": "Spendenlink erstellen",
+  "optional_email_hint": "Optionale Benachrichtigungs-E-Mail für den Zahlungsempfänger",
+  "optional_description": "Optionale Beschreibung",
+  "optional_name": "Optionaler Empfängername",
+  "clearnet_link": "Clearnet-Link",
+  "onion_link": "Zwiebel-Link",
+  "sell_monero_com_alert_content": "Der Verkauf von Monero wird noch nicht unterstützt"
 }

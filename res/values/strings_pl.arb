@@ -485,7 +485,7 @@
 
   "submit_request" : "Złóż wniosek",
 
-  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoina i Litecoina. Aby kupić Bitcoin lub Litecoin, utwórz lub przełącz się na swój portfel Bitcoin lub Litecoin.",
+  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoin, Litecoin i Monero. Utwórz lub przełącz się na swój portfel Bitcoin, Litecoin lub Monero.",
   "sell_alert_content": "Obecnie obsługujemy tylko sprzedaż Bitcoina. Aby sprzedać Bitcoin, utwórz lub przełącz się na swój portfel Bitcoin.",
 
   "outdated_electrum_wallet_description" : "Nowe portfele Bitcoin utworzone w Cake mają teraz fraze seed składające się z 24 słów. Konieczne jest utworzenie nowego portfela Bitcoin i przeniesienie wszystkich środków do nowego portfela na 24 słowa oraz zaprzestanie korzystania z portfeli z frazą seed na 12 słów. Zrób to natychmiast, aby zabezpieczyć swoje fundusze.",
@@ -684,5 +684,18 @@
   "send_to_this_address" : "Wyślij ${currency} ${tag}na ten adres",
   "arrive_in_this_address" : "${currency} ${tag}dotrze na ten adres",
   "do_not_send": "Nie wysyłaj",
-  "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację."
+  "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
+  "decimal_places_error": "Za dużo miejsc dziesiętnych",
+  "edit_node": "Edytuj węzeł",
+  "invoice_details": "Dane do faktury",
+  "donation_link_details": "Szczegóły linku darowizny",
+  "anonpay_description": "Wygeneruj ${type}. Odbiorca może ${method} z dowolną obsługiwaną kryptowalutą, a Ty otrzymasz środki w tym portfelu.",
+  "create_invoice": "Wystaw fakturę",
+  "create_donation_link": "Utwórz link do darowizny",
+  "optional_email_hint": "Opcjonalny e-mail z powiadomieniem odbiorcy płatności",
+  "optional_description": "Opcjonalny opis",
+  "optional_name": "Opcjonalna nazwa odbiorcy",
+  "clearnet_link": "łącze Clearnet",
+  "onion_link": "Łącznik cebulowy",
+  "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana"
 }

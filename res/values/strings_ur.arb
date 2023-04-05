@@ -487,7 +487,7 @@
 
   "submit_request" : "درخواست بھیج دو",
 
-  "buy_alert_content" : "فی الحال ہم صرف Bitcoin اور Litecoin کی خریداری کی حمایت کرتے ہیں۔ Bitcoin یا Litecoin خریدنے کے لیے، براہ کرم اپنا Bitcoin یا Litecoin والیٹ بنائیں یا اس میں سوئچ کریں۔",
+  "buy_alert_content" : "فی الحال ہم صرف Bitcoin، Litecoin، اور Monero کی خریداری کی حمایت کرتے ہیں۔ براہ کرم اپنا Bitcoin، Litecoin، یا Monero والیٹ بنائیں یا اس پر سوئچ کریں۔",
   "sell_alert_content" : "ہم فی الحال صرف Bitcoin کی فروخت کی حمایت کرتے ہیں۔ Bitcoin فروخت کرنے کے لیے، براہ کرم اپنا Bitcoin والیٹ بنائیں یا اس میں سوئچ کریں۔",
 
   "outdated_electrum_wallet_description" : "Cake میں بنائے گئے نئے Bitcoin بٹوے میں اب 24 الفاظ کا بیج ہے۔ یہ لازمی ہے کہ آپ ایک نیا Bitcoin والیٹ بنائیں اور اپنے تمام فنڈز کو نئے 24 الفاظ والے والیٹ میں منتقل کریں، اور 12 الفاظ کے بیج والے بٹوے کا استعمال بند کریں۔ براہ کرم اپنے فنڈز کو محفوظ بنانے کے لیے فوری طور پر ایسا کریں۔",
@@ -685,5 +685,18 @@
   "send_to_this_address" : "اس پتے پر ${currency} ${tag} بھیجیں۔",
   "arrive_in_this_address" : "${currency} ${tag}اس پتے پر پہنچے گا۔",
   "do_not_send" : "مت بھیجیں۔",
-  "error_dialog_content" : "افوہ، ہمیں کچھ خرابی ملی۔\n\nایپلی کیشن کو بہتر بنانے کے لیے براہ کرم کریش رپورٹ ہماری سپورٹ ٹیم کو بھیجیں۔"
+  "error_dialog_content" : "افوہ، ہمیں کچھ خرابی ملی۔\n\nایپلی کیشن کو بہتر بنانے کے لیے براہ کرم کریش رپورٹ ہماری سپورٹ ٹیم کو بھیجیں۔",
+  "decimal_places_error": "بہت زیادہ اعشاریہ جگہیں۔",
+  "edit_node": "نوڈ میں ترمیم کریں۔",
+  "invoice_details": "رسید کی تفصیلات",
+  "donation_link_details": "عطیہ کے لنک کی تفصیلات",
+  "anonpay_description": "${type} بنائیں۔ وصول کنندہ کسی بھی تعاون یافتہ کرپٹو کرنسی کے ساتھ ${method} کرسکتا ہے، اور آپ کو اس بٹوے میں فنڈز موصول ہوں گے۔",
+  "create_invoice": "انوائس بنائیں",
+  "create_donation_link": "عطیہ کا لنک بنائیں",
+  "optional_email_hint": "اختیاری وصول کنندہ کی اطلاع کا ای میل",
+  "optional_description": "اختیاری تفصیل",
+  "optional_name": "اختیاری وصول کنندہ کا نام",
+  "clearnet_link": "کلیرنیٹ لنک",
+  "onion_link": "پیاز کا لنک",
+  "sell_monero_com_alert_content": "Monero فروخت کرنا ابھی تک تعاون یافتہ نہیں ہے۔"
 }

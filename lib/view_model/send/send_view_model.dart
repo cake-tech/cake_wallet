@@ -127,7 +127,8 @@ abstract class SendViewModelBase with Store {
 
   CryptoCurrency get currency => _wallet.currency;
 
-  Validator get amountValidator => AmountValidator(type: _wallet.type);
+  Validator get amountValidator =>
+      AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
   Validator get allAmountValidator => AllAmountValidator();
 

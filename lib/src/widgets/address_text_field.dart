@@ -56,6 +56,8 @@ class AddressTextField extends StatelessWidget {
     return Stack(
       children: <Widget>[
         TextFormField(
+          enableIMEPersonalizedLearning: false,
+          keyboardType: TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
           enabled: isActive,
           controller: controller,
