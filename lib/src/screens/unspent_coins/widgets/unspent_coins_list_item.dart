@@ -29,98 +29,77 @@ class UnspentCoinsListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemColor = isSending? selectedItemColor : unselectedItemColor;
+    final itemColor = isSending ? selectedItemColor : unselectedItemColor;
     return Container(
         height: 70,
         padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            color: itemColor),
+        decoration:
+            BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12)), color: itemColor),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
                 padding: EdgeInsets.only(right: 12),
                 child: StandardCheckbox(
-                    value: isSending, onChanged: (value) => onCheckBoxTap?.call())
-            ),
+                    value: isSending, onChanged: (value) => onCheckBoxTap?.call())),
             Expanded(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (note.isNotEmpty)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AutoSizeText(
-                              note,
-                              style: TextStyle(
-                                  color: amountColor,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600
-                              ),
-                              maxLines: 1,
-                            ),
-                          ],
+                        if (note.isNotEmpty)
+                          AutoSizeText(
+                            note,
+                            style: TextStyle(
+                                color: amountColor, fontSize: 15, fontWeight: FontWeight.w600),
+                            maxLines: 1,
+                          ),
+                        AutoSizeText(
+                          amount,
+                          style:
+                              TextStyle(color: amountColor, fontSize: 15, fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                        )
+                      ]),
+                      if (isFrozen)
+                        Container(
+                            height: 17,
+                            padding: EdgeInsets.only(left: 6, right: 6),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                color: Colors.white),
+                            alignment: Alignment.center,
+                            child: Text(
+                              S.of(context).frozen,
+                              style:
+                              TextStyle(color: amountColor, fontSize: 7, fontWeight: FontWeight.w600),
+                            ))
+                    ],
+                  ),
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AutoSizeText(
+                          address,
+                          style: TextStyle(
+                            color: addressColor,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
                         ),
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            AutoSizeText(
-                              amount,
-                              style: TextStyle(
-                                  color: amountColor,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600
-                              ),
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            AutoSizeText(
-                              address,
-                              style: TextStyle(
-                                  color: addressColor,
-                                  fontSize: 12,
-                              ),
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]
-                )
-            ),
-            if (isFrozen) Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                    height: 17,
-                    padding: EdgeInsets.only(left: 6, right: 6),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(8.5)),
-                        color: Colors.white),
-                    alignment: Alignment.center,
-                    child: Text(
-                      S.of(context).frozen,
-                      style: TextStyle(
-                          color: amountColor,
-                          fontSize: 7,
-                          fontWeight: FontWeight.w600
-                      ),
-                    )
-                ),
-              ],
-            )
+                      ],
+                    ),
+                  ),
+                ])),
           ],
-        )
-    );
+        ));
   }
 }

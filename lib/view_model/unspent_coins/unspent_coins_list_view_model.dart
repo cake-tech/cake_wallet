@@ -28,8 +28,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
         final amount = bitcoin!.formatterBitcoinAmountToString(amount: elem.value) +
             ' ${wallet.currency.title}';
 
-        final info = _unspentCoinsInfo.values
-            .firstWhere((element) => element.walletId == wallet.id && element.hash == elem.hash);
+        final info = getUnspentCoinInfo(elem.hash, elem.address);
 
         return UnspentCoinsItem(
             address: elem.address,
@@ -42,8 +41,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
-      final info = _unspentCoinsInfo.values.firstWhere(
-          (element) => element.walletId.contains(wallet.id) && element.hash.contains(item.hash));
+      final info = getUnspentCoinInfo(item.hash, item.address);
 
       info.isFrozen = item.isFrozen;
       info.isSending = item.isSending;
@@ -55,5 +53,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  UnspentCoinsInfo getUnspentCoinInfo(String hash, String address) {
+    return _unspentCoinsInfo.values.firstWhere((element) =>
+        element.walletId == wallet.id && element.hash == hash && element.address == address);
   }
 }
