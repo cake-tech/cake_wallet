@@ -93,7 +93,7 @@ class ExchangeTemplatePage extends BasePage {
         child: Form(
             key: _formKey,
             child: ScrollableWithBottomSection(
-              contentPadding: EdgeInsets.only(bottom: 24),
+              contentPadding: EdgeInsets.symmetric(vertical: 24),
               content: Container(
                 padding: EdgeInsets.only(bottom: 32),
                 decoration: BoxDecoration(
