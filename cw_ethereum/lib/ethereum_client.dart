@@ -39,7 +39,7 @@ class EthereumClient {
     return result.map((e) => e.toInt()).toList();
   }
 
-  Future<String> signTransaction(
+  Future<TransactionInformation> signTransaction(
     EthPrivateKey privateKey,
     String toAddress,
     String amount,
@@ -52,21 +52,25 @@ class EthereumClient {
       // maxPriorityFeePerGas: EtherAmount.inWei(BigInt.from(fee)),
     );
 
-    final Uint8List signedTransaction = await _client!.signTransaction(privateKey, transaction);
+    final Uint8List signedTransactionRaw = await _client!.signTransaction(privateKey, transaction);
 
-    return bytesToHex(signedTransaction);
+    final transactionHash = bytesToHex(signedTransactionRaw);
+
+    final signedTransaction = await _client!.getTransactionByHash(transactionHash);
+
+    return signedTransaction;
   }
 
-  Future<String> sendTransaction(EthPrivateKey privateKey, String toAddress, String amount) async {
+  Future<String> sendTransaction(
+      EthPrivateKey privateKey, TransactionInformation transactionInformation) async {
     final transaction = Transaction(
-      from: privateKey.address,
-      to: EthereumAddress.fromHex(toAddress),
-      value: EtherAmount.fromUnitAndValue(EtherUnit.ether, amount),
+      from: transactionInformation.from,
+      to: transactionInformation.to,
+      value: transactionInformation.value,
+      gasPrice: transactionInformation.gasPrice,
+      data: transactionInformation.input,
     );
 
-    return await _client!.sendTransaction(
-      privateKey,
-      transaction,
-    );
+    return await _client!.sendTransaction(privateKey, transaction);
   }
 }

@@ -147,7 +147,7 @@ abstract class EthereumWalletBase
       }
     }
 
-    await _client.signTransaction(
+    final transactionInfo = await _client.signTransaction(
       _privateKey,
       _credentials.outputs.first.address,
       totalAmount.toString(),
@@ -155,10 +155,8 @@ abstract class EthereumWalletBase
     );
 
     return PendingEthereumTransaction(
-      client: _client,
-      credentials: _credentials,
-      privateKey: _privateKey,
-      amount: totalAmount,
+      sendTransaction: () => _client.sendTransaction(_privateKey, transactionInfo),
+      transactionInformation: transactionInfo,
     );
   }
 
@@ -225,7 +223,6 @@ abstract class EthereumWalletBase
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'balance': balance[currency]!.toJSON(),
-        // TODO: save other attributes
       });
 
   static Future<EthereumWallet> open({

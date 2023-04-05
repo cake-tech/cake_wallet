@@ -1,42 +1,32 @@
-import 'package:cw_core/amount_converter.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_ethereum/ethereum_client.dart';
-import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
 import 'package:web3dart/web3dart.dart';
 
 class PendingEthereumTransaction with PendingTransaction {
-  final EthereumClient client;
-  final EthereumTransactionCredentials credentials;
-  final EthPrivateKey privateKey;
-  final int amount;
+  final Function sendTransaction;
+  final TransactionInformation transactionInformation;
 
   PendingEthereumTransaction({
-    required this.client,
-    required this.credentials,
-    required this.privateKey,
-    required this.amount,
+    required this.sendTransaction,
+    required this.transactionInformation,
   });
 
   @override
-  String get amountFormatted => AmountConverter.amountIntToString(CryptoCurrency.eth, amount);
+  String get amountFormatted =>
+      transactionInformation.value.getValueInUnit(EtherUnit.ether).toString();
 
   @override
-  Future<void> commit() async {
-    for (var output in credentials.outputs) {
-      await client.sendTransaction(privateKey, output.address, output.cryptoAmount!);
-    }
+  Future<void> commit() async => sendTransaction();
+
+  @override
+  String get feeFormatted {
+    final fee = transactionInformation.gasPrice.getInWei * BigInt.from(transactionInformation.gas);
+
+    return EtherAmount.inWei(fee).getValueInUnit(EtherUnit.ether).toString();
   }
 
   @override
-  // TODO: implement feeFormatted
-  String get feeFormatted => "0.01";
+  String get hex => transactionInformation.hash;
 
   @override
-  // TODO: implement hex
-  String get hex => "hex";
-
-  @override
-  // TODO: implement id
-  String get id => "id";
+  String get id => transactionInformation.hashCode.toString();
 }
