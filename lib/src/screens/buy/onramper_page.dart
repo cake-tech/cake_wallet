@@ -38,7 +38,7 @@ class OnRamperPageBody extends StatefulWidget {
       required this.supportSwap,
       required this.backgroundColor});
 
-  static const baseUrl = 'widget.onramper.com';
+  static const baseUrl = 'buy.onramper.com';
   final SettingsStore settingsStore;
   final WalletBase wallet;
   final Color backgroundColor;
