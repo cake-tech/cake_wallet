@@ -404,7 +404,6 @@ abstract class Haven {
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
-  int getHeightByDate({required DateTime date});
   Future<int> getCurrentHeight();
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
