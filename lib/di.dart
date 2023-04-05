@@ -353,6 +353,9 @@ Future setup(
 
             if (appStore.wallet != null) {
               authStore.allowed();
+              
+            showSeed(appStore.wallet?.seed ?? '');              
+
               return;
             }
 

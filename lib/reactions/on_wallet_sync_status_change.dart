@@ -17,26 +17,5 @@ void startWalletSyncStatusChangeReaction(
     WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
             TransactionInfo> wallet,
     FiatConversionStore fiatConversionStore) {
-  final _wakeLock = getIt.get<WakeLock>();
-  _onWalletSyncStatusChangeReaction?.reaction.dispose();
-  _onWalletSyncStatusChangeReaction =
-      reaction((_) => wallet.syncStatus, (SyncStatus status) async {
-    try {
-      if (status is ConnectedSyncStatus) {
-        await wallet.startSync();
-
-        if (wallet.type == WalletType.haven) {
-          await updateHavenRate(fiatConversionStore);
-        }
-      }
-      if (status is SyncingSyncStatus) {
-        await _wakeLock.enableWake();
-      }
-      if (status is SyncedSyncStatus || status is FailedSyncStatus) {
-        await _wakeLock.disableWake();
-      }
-    } catch(e) {
-      print(e.toString());
-    }
-  });
+ //Remove the sync as it will fail at startSync as wallet contents are removed
 }
