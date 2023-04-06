@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/release_notes_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -18,20 +20,21 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
     required this.balancePage,
     required this.walletViewModel,
-    required this.addressListViewModel,
-  });
+    required this.addressListViewModel});
   final BalancePage balancePage;
-  
+
   @override
   Color get backgroundLightColor =>
       currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -158,7 +161,7 @@ class DashboardPage extends BasePage {
                           .accentTextTheme!
                           .headline3!
                           .backgroundColor!
-                        : null),  
+                        : null),
                   ActionButton(
                       image: receiveImage,
                       title: S.of(context).receive,
@@ -209,7 +212,7 @@ class DashboardPage extends BasePage {
               ),),
             ),),);
           }),
-       
+
       ],
     ));
   }
@@ -240,6 +243,20 @@ class DashboardPage extends BasePage {
                 buttonText: S.of(context).understand,
                 buttonAction: () => Navigator.of(context).pop());
           });
+      }
+    });
+
+    autorun((_) async {
+      if (VersionComparator.isVersion1Greater(
+          v1: walletViewModel.settingsStore.appVersion, v2: walletViewModel.lastSeenAppVersion)) {
+        await Future<void>.delayed(Duration(seconds: 1));
+        await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return ReleaseNotesScreen(
+                  title: 'Version ${walletViewModel.settingsStore.appVersion}');
+            });
+        walletViewModel.updateLastSeenAppVersion(walletViewModel.settingsStore.appVersion);
       }
     });
 

@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/release_notes_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -105,6 +106,10 @@ Future<void> main() async {
       Hive.registerAdapter(AnonpayInvoiceInfoAdapter());
     }
 
+    if (!Hive.isAdapterRegistered(ReleaseNotesInfo.typeId)) {
+      Hive.registerAdapter(ReleaseNotesInfoAdapter());
+    }
+
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -126,6 +131,7 @@ Future<void> main() async {
     final exchangeTemplates =
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
     final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+    final releaseNoteInfo = await Hive.openBox<ReleaseNotesInfo>(ReleaseNotesInfo.boxName);
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
     
     if (!isMoneroOnly) {
@@ -146,6 +152,7 @@ Future<void> main() async {
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
         anonpayInvoiceInfo: anonpayInvoiceInfo,
+        releaseNoteInfo: releaseNoteInfo,
         initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
@@ -166,6 +173,7 @@ Future<void> initialSetup(
     required Box<TransactionDescription> transactionDescriptions,
     required FlutterSecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
+      required Box<ReleaseNotesInfo> releaseNoteInfo,
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
@@ -188,6 +196,7 @@ Future<void> initialSetup(
       ordersSource: ordersSource,
       anonpayInvoiceInfoSource: anonpayInvoiceInfo,
       unspentCoinsInfoSource: unspentCoinsInfoSource,
+    releaseNoteInfo: releaseNoteInfo,
       );
   await bootstrap(navigatorKey);
   monero?.onStartup();

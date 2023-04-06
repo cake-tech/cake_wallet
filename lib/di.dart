@@ -51,6 +51,7 @@ import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cw_core/release_notes_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -190,6 +191,7 @@ late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo>? _unspentCoinsInfoSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
+late Box<ReleaseNotesInfo> _releaseNoteInfo;
 
 Future setup(
     {required Box<WalletInfo> walletInfoSource,
@@ -201,7 +203,8 @@ Future setup(
     required Box<TransactionDescription> transactionDescriptionBox,
     required Box<Order> ordersSource,
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource
+    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
+    required Box<ReleaseNotesInfo> releaseNoteInfo
     }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -213,6 +216,7 @@ Future setup(
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
   _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
+  _releaseNoteInfo = releaseNoteInfo;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
@@ -259,6 +263,7 @@ Future setup(
     ..init());
   getIt.registerSingleton<AnonpayTransactionsStore>(AnonpayTransactionsStore(
       anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
+  getIt.registerFactory<Box<ReleaseNotesInfo>>(() => _releaseNoteInfo);
 
   final secretStore =
       await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
@@ -326,7 +331,8 @@ Future setup(
       settingsStore: settingsStore,
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>())
+      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+      releaseNoteInfo: _releaseNoteInfo)
     );
 
   getIt.registerFactory<AuthService>(() => AuthService(
@@ -380,7 +386,9 @@ Future setup(
   getIt.registerFactory(() =>
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(),
+      walletViewModel: getIt.get<DashboardViewModel>(),
+      addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>((pageOption, _) => ReceiveOptionViewModel(
       getIt.get<AppStore>().wallet!, pageOption));

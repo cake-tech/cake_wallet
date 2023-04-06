@@ -16,7 +16,6 @@ class FilterWidget extends StatelessWidget {
   FilterWidget({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
-  final closeIcon = Image.asset('assets/images/close.png', color: Palette.darkBlueCraiola);
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +100,7 @@ class FilterWidget extends StatelessWidget {
               ),
             ],
           ),
-          AlertCloseButton(image: closeIcon)
+          AlertCloseButton()
         ],
       ),
     );

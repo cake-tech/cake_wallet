@@ -65,7 +65,6 @@ class SeedLanguagePicker extends StatefulWidget {
 class SeedLanguagePickerState extends State<SeedLanguagePicker> {
   SeedLanguagePickerState({required this.selected});
 
-  final closeButton = Image.asset('assets/images/close.png');
   String selected;
 
   @override
@@ -136,7 +135,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
             )
           ],
         ),
-        AlertCloseButton(image: closeButton)
+        AlertCloseButton()
       ],
     ));
   }
