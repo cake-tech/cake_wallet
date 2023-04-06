@@ -661,7 +661,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     var totalFrozen = 0;
     unspentCoinsInfo.values.forEach((info) {
       unspentCoins.forEach((element) {
-        if (element.hash == info.hash && info.isFrozen && element.address.address == info.address) {
+        if (element.hash == info.hash && info.isFrozen && element.address.address == info.address
+            && element.value == info.value) {
           totalFrozen += element.value;
         }
       });
