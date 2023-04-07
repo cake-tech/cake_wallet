@@ -330,6 +330,8 @@
   "error_text_wallet_name" : "Wallet name can only contain letters, numbers, _ - symbols \nand must be between 1 and 33 characters long",
   "error_text_keys" : "Wallet keys can only contain 64 chars in hex",
   "error_text_crypto_currency" : "The number of fraction digits\nmust be less or equal to 12",
+  "error_input_below_min" : "Amount is lower than the minimum",
+  "error_input_above_max" : "Amount is higher than the maximum",
   "error_text_minimal_limit" : "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}",
   "error_text_maximum_limit" : "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Trade for ${provider} is not created. Limits loading failed",

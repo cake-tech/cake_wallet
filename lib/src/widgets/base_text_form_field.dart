@@ -2,32 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class BaseTextFormField extends StatelessWidget {
-  BaseTextFormField(
-      {this.controller,
-      this.keyboardType = TextInputType.text,
-      this.textInputAction = TextInputAction.done,
-      this.textAlign = TextAlign.start,
-      this.autovalidateMode,
-      this.hintText = '',
-      this.maxLines = 1,
-      this.inputFormatters,
-      this.textColor,
-      this.hintColor,
-      this.borderColor,
-      this.prefix,
-      this.prefixIcon,
-      this.suffix,
-      this.suffixIcon,
-      this.enabled = true,
-      this.readOnly = false,
-      this.enableInteractiveSelection = true,
-      this.validator,
-      this.textStyle,
-      this.placeholderTextStyle,
-      this.maxLength,
-      this.focusNode,
-      this.initialValue,
-      this.borderWidth = 1.0});
+  BaseTextFormField({
+    this.controller,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction = TextInputAction.done,
+    this.textAlign = TextAlign.start,
+    this.autovalidateMode,
+    this.hintText = '',
+    this.maxLines = 1,
+    this.inputFormatters,
+    this.textColor,
+    this.hintColor,
+    this.borderColor,
+    this.prefix,
+    this.prefixIcon,
+    this.suffix,
+    this.suffixIcon,
+    this.enabled = true,
+    this.readOnly = false,
+    this.enableInteractiveSelection = true,
+    this.validator,
+    this.textStyle,
+    this.placeholderTextStyle,
+    this.maxLength,
+    this.focusNode,
+    this.initialValue,
+    this.borderWidth = 1.0,
+  });
 
   final TextEditingController? controller;
   final TextInputType? keyboardType;
@@ -74,33 +75,40 @@ class BaseTextFormField extends StatelessWidget {
       style: textStyle ??
           TextStyle(
               fontSize: 16.0,
-              color:
-                  textColor ?? Theme.of(context).primaryTextTheme!.headline6!.color!),
+              color: textColor ??
+                  Theme.of(context).primaryTextTheme!.headline6!.color!),
       decoration: InputDecoration(
-          prefix: prefix,
-          prefixIcon: prefixIcon,
-          suffix: suffix,
-          suffixIcon: suffixIcon,
-          hintStyle: placeholderTextStyle ??
-              TextStyle(
-                  color: hintColor ?? Theme.of(context).hintColor,
-                  fontSize: 16),
-          hintText: hintText,
-          focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: borderColor ??
-                      Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
-                  width: borderWidth)),
-          disabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: borderColor ??
-                      Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
-                  width: borderWidth)),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: borderColor ??
-                      Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
-                  width: borderWidth))),
+        prefix: prefix,
+        prefixIcon: prefixIcon,
+        suffix: suffix,
+        suffixIcon: suffixIcon,
+        hintStyle: placeholderTextStyle ??
+            TextStyle(
+                color: hintColor ?? Theme.of(context).hintColor, fontSize: 16),
+        hintText: hintText,
+        focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+                color: borderColor ??
+                    Theme.of(context)
+                        .primaryTextTheme!
+                        .headline6!
+                        .backgroundColor!,
+                width: borderWidth)),
+        disabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: borderColor ??
+                Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
+            width: borderWidth,
+          ),
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: borderColor ??
+                Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
+            width: borderWidth,
+          ),
+        ),
+      ),
       validator: validator,
     );
   }

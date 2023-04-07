@@ -7,7 +7,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 
 abstract class ExchangeProvider {
   ExchangeProvider({required this.pairList});
-  
+
   String get title;
   List<ExchangePair> pairList;
   ExchangeProviderDescription get description;
@@ -23,15 +23,14 @@ abstract class ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode});
-  Future<Trade> createTrade({
-    required TradeRequest request,
-    required bool isFixedRateMode});
+  Future<Trade> createTrade(
+      {required TradeRequest request, required bool isFixedRateMode});
   Future<Trade> findTradeById({required String id});
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount});
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount});
   Future<bool> checkIsAvailable();
 }

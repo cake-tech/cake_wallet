@@ -5,20 +5,21 @@ abstract class Validator<T> {
 
   final String errorMessage;
 
+
   bool isValid(T? value);
 
-  String? call(T? value) =>  !isValid(value) ? errorMessage : null;
+  String? call(T? value) => !isValid(value) ? errorMessage : null;
 }
 
 class TextValidator extends Validator<String> {
-  TextValidator(
-      {this.minLength,
-      this.maxLength,
-      this.pattern,
-      String errorMessage = '',
-      this.length,
-      this.isAutovalidate = false})
-      : super(errorMessage: errorMessage);
+  TextValidator({
+    this.minLength,
+    this.maxLength,
+    this.pattern,
+    String errorMessage = '',
+    this.length,
+    this.isAutovalidate = false,
+  }) : super(errorMessage: errorMessage);
 
   final int? minLength;
   final int? maxLength;
@@ -38,5 +39,6 @@ class TextValidator extends Validator<String> {
         (pattern != null ? match(value) : true);
   }
 
-  bool match(String value) => pattern != null ? RegExp(pattern!).hasMatch(value) : false;
+  bool match(String value) =>
+      pattern != null ? RegExp(pattern!).hasMatch(value) : false;
 }

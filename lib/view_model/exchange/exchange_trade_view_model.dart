@@ -19,7 +19,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 part 'exchange_trade_view_model.g.dart';
 
-class ExchangeTradeViewModel = ExchangeTradeViewModelBase with _$ExchangeTradeViewModel;
+class ExchangeTradeViewModel = ExchangeTradeViewModelBase
+    with _$ExchangeTradeViewModel;
 
 abstract class ExchangeTradeViewModelBase with Store {
   ExchangeTradeViewModelBase(
@@ -47,7 +48,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.simpleSwap:
         _provider = SimpleSwapExchangeProvider();
         break;
-        case ExchangeProviderDescription.trocador:
+      case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
         break;
     }
@@ -76,14 +77,20 @@ abstract class ExchangeTradeViewModelBase with Store {
           : '';
 
   @computed
-  String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFiatAmount + ' ' + sendViewModel.fiat.title;
+  String get pendingTransactionFiatAmountValueFormatted =>
+      sendViewModel.isFiatDisabled
+          ? ''
+          : sendViewModel.pendingTransactionFiatAmount +
+              ' ' +
+              sendViewModel.fiat.title;
 
   @computed
-  String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
+  String get pendingTransactionFeeFiatAmountFormatted =>
+      sendViewModel.isFiatDisabled
+          ? ''
+          : sendViewModel.pendingTransactionFeeFiatAmount +
+              ' ' +
+              sendViewModel.fiat.title;
 
   @observable
   ObservableList<ExchangeTradeItem> items;
@@ -127,7 +134,9 @@ abstract class ExchangeTradeViewModelBase with Store {
     final tagTo = trade.to.tag != null ? '${trade.to.tag}' + ' ' : '';
     items.clear();
     items.add(ExchangeTradeItem(
-        title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
+        title: "${trade.provider.title} ${S.current.id}",
+        data: '${trade.id}',
+        isCopied: true));
 
     if (trade.extraId != null) {
       final title = trade.from == CryptoCurrency.xrp
@@ -136,11 +145,13 @@ abstract class ExchangeTradeViewModelBase with Store {
               ? S.current.memo
               : S.current.extra_id;
 
-      items.add(ExchangeTradeItem(title: title, data: '${trade.extraId}', isCopied: false));
+      items.add(ExchangeTradeItem(
+          title: title, data: '${trade.extraId}', isCopied: false));
     }
 
     items.addAll([
-      ExchangeTradeItem(title: S.current.amount, data: '${trade.amount}', isCopied: false),
+      ExchangeTradeItem(
+          title: S.current.amount, data: '${trade.amount}', isCopied: false),
       ExchangeTradeItem(
           title: S.current.send_to_this_address('${trade.from}', tagFrom) + ':',
           data: trade.inputAddress ?? '',

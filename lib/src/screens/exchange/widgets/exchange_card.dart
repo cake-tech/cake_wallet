@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -73,15 +74,15 @@ class ExchangeCard extends StatefulWidget {
 
 class ExchangeCardState extends State<ExchangeCard> {
   ExchangeCardState()
-    : _title = '',
-    _min = '',
-    _max = '',
-    _isAmountEditable = false,
-    _isAddressEditable = false,
-    _walletName = '',
-    _selectedCurrency = CryptoCurrency.btc,
-    _isAmountEstimated = false,
-    _isMoneroWallet = false;
+      : _title = '',
+        _min = '',
+        _max = '',
+        _isAmountEditable = false,
+        _isAddressEditable = false,
+        _walletName = '',
+        _selectedCurrency = CryptoCurrency.btc,
+        _isAmountEstimated = false,
+        _isMoneroWallet = false;
 
   final addressController = TextEditingController();
   final amountController = TextEditingController();
@@ -89,6 +90,9 @@ class ExchangeCardState extends State<ExchangeCard> {
   String _title;
   String? _min;
   String? _max;
+
+  String? get min => _min;
+  String? get max => _max;
   CryptoCurrency _selectedCurrency;
   String _walletName;
   bool _isAmountEditable;
@@ -106,6 +110,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     _isAmountEstimated = widget.isAmountEstimated;
     _isMoneroWallet = widget.isMoneroWallet;
     addressController.text = widget.initialAddress;
+
     super.initState();
   }
 
@@ -157,10 +162,12 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   @override
   Widget build(BuildContext context) {
-    final copyImage = Image.asset('assets/images/copy_content.png',
-        height: 16,
-        width: 16,
-        color: Theme.of(context).primaryTextTheme!.headline3!.color!);
+    final copyImage = Image.asset(
+      'assets/images/copy_content.png',
+      height: 16,
+      width: 16,
+      color: Theme.of(context).primaryTextTheme.headline3!.color!,
+    );
 
     return Container(
       width: double.infinity,
@@ -173,9 +180,10 @@ class ExchangeCardState extends State<ExchangeCard> {
             Text(
               _title,
               style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme!.headline5!.color!),
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).textTheme.headline5!.color!,
+              ),
             )
           ],
         ),
@@ -190,51 +198,69 @@ class ExchangeCardState extends State<ExchangeCard> {
                   child: InkWell(
                     onTap: () => _presentPicker(context),
                     child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(right: 5),
-                            child: widget.imageArrow,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(right: 5),
+                          child: widget.imageArrow,
+                        ),
+                        Text(
+                          _selectedCurrency.toString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.white,
                           ),
-                          Text(_selectedCurrency.toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.white))
-                        ]),
-                  ),
-                ),
-                _selectedCurrency.tag != null ? Padding(
-                  padding: const EdgeInsets.only(right:3.0),
-                  child: Container(
-                    height: 32,
-                    decoration: BoxDecoration(
-                        color: widget.addressButtonsColor ?? Theme.of(context).primaryTextTheme!.headline4!.color!,
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(6))),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Text(_selectedCurrency.tag!,
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headline4!
-                                    .decorationColor!)),
-                      ),
+                        )
+                      ],
                     ),
                   ),
-                ) : Container(),
+                ),
+                _selectedCurrency.tag != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 3.0),
+                        child: Container(
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: widget.addressButtonsColor ??
+                                Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline4!
+                                    .color!,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(6),
+                            ),
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: Text(
+                                _selectedCurrency.tag!,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline4!
+                                      .decorationColor!,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(),
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
-                  child: Text(':',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Colors.white)),
+                  child: Text(
+                    ':',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: Row(
@@ -242,57 +268,69 @@ class ExchangeCardState extends State<ExchangeCard> {
                     children: [
                       Flexible(
                         child: BaseTextFormField(
-                            focusNode: widget.amountFocusNode,
-                            controller: amountController,
-                            enabled: _isAmountEditable,
-                            textAlign: TextAlign.left,
-                            keyboardType: TextInputType.numberWithOptions(
-                                signed: false, decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.deny(
-                                  RegExp('[\\-|\\ ]'))
-                            ],
-                            hintText: '0.0000',
-                            borderColor: Colors.transparent,
-                            //widget.borderColor,
-                            textStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white),
-                            placeholderTextStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .headline1!
-                                    .decorationColor!),
-                            validator: _isAmountEditable
-                                ? widget.currencyValueValidator
-                                : null),
+                          focusNode: widget.amountFocusNode,
+                          controller: amountController,
+                          enabled: _isAmountEditable,
+                          textAlign: TextAlign.left,
+                          keyboardType: TextInputType.numberWithOptions(
+                            signed: false,
+                            decimal: true,
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(
+                              RegExp('[\\-|\\ ]'),
+                            )
+                          ],
+                          hintText: '0.0000',
+                          borderColor: Colors.transparent,
+                          //widget.borderColor,
+                          textStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          placeholderTextStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context)
+                                .accentTextTheme
+                                .headline1!
+                                .decorationColor!,
+                          ),
+                          validator: _isAmountEditable
+                              ? widget.currencyValueValidator
+                              : null,
+                        ),
                       ),
                       if (widget.hasAllAmount)
                         Container(
                           height: 32,
                           width: 32,
                           decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headline4!
-                                  .color!,
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(6))),
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .headline4!
+                                .color!,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(6),
+                            ),
+                          ),
                           child: InkWell(
                             onTap: () => widget.allAmount?.call(),
                             child: Center(
-                              child: Text(S.of(context).all,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headline4!
-                                          .decorationColor!)),
+                              child: Text(
+                                S.of(context).all,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline4!
+                                      .decorationColor!,
+                                ),
+                              ),
                             ),
                           ),
                         )
@@ -301,46 +339,53 @@ class ExchangeCardState extends State<ExchangeCard> {
                 ),
               ],
             )),
-        Divider(height: 1,color: Theme.of(context)
-            .primaryTextTheme!
-            .headline5!
-            .decorationColor!),
+        Divider(
+          height: 1,
+          color: Theme.of(context).primaryTextTheme.headline5!.decorationColor!,
+        ),
         Padding(
           padding: EdgeInsets.only(top: 5),
           child: Container(
-              height: 15,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    _min != null
-                        ? Text(
-                            S
-                                .of(context)
-                                .min_value(_min ?? '', _selectedCurrency.toString()),
-                            style: TextStyle(
-                                fontSize: 10,
-                                height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .headline1!
-                                    .decorationColor!),
-                          )
-                        : Offstage(),
-                    _min != null ? SizedBox(width: 10) : Offstage(),
-                    _max != null
-                        ? Text(
-                            S
-                                .of(context)
-                                .max_value(_max ?? '', _selectedCurrency.toString()),
-                            style: TextStyle(
-                                fontSize: 10,
-                                height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .headline1!
-                                    .decorationColor!))
-                        : Offstage(),
-                  ])),
+            height: 15,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                _min != null
+                    ? Text(
+                        S.of(context).min_value(
+                              _min ?? '',
+                              _selectedCurrency.toString(),
+                            ),
+                        style: TextStyle(
+                          fontSize: 10,
+                          height: 1.2,
+                          color: Theme.of(context)
+                              .accentTextTheme
+                              .headline1!
+                              .decorationColor,
+                        ),
+                      )
+                    : Offstage(),
+                _min != null ? SizedBox(width: 10) : Offstage(),
+                _max != null
+                    ? Text(
+                        S.of(context).max_value(
+                              _max ?? '',
+                              _selectedCurrency.toString(),
+                            ),
+                        style: TextStyle(
+                          fontSize: 10,
+                          height: 1.2,
+                          color: Theme.of(context)
+                              .accentTextTheme
+                              .headline1!
+                              .decorationColor!,
+                        ),
+                      )
+                    : Offstage(),
+              ],
+            ),
+          ),
         ),
         !_isAddressEditable && widget.hasRefundAddress
             ? Padding(
@@ -351,7 +396,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context)
-                          .accentTextTheme!
+                          .accentTextTheme
                           .headline1!
                           .decorationColor!),
                 ))
@@ -371,7 +416,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                         return;
                       }
                       widget.amountFocusNode?.requestFocus();
-                        amountController.text = paymentRequest.amount;
+                      amountController.text = paymentRequest.amount;
                     },
                     placeholder: widget.hasRefundAddress
                         ? S.of(context).refund_address
@@ -390,16 +435,14 @@ class ExchangeCardState extends State<ExchangeCard> {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context)
-                            .accentTextTheme!
+                            .accentTextTheme
                             .headline1!
                             .decorationColor!),
                     buttonColor: widget.addressButtonsColor,
                     validator: widget.addressTextFieldValidator,
                     onPushPasteButton: widget.onPushPasteButton,
                     onPushAddressBookButton: widget.onPushAddressBookButton,
-                    selectedCurrency: _selectedCurrency
-                ),
-
+                    selectedCurrency: _selectedCurrency),
               )
             : Padding(
                 padding: EdgeInsets.only(top: 10),
@@ -458,7 +501,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                                   child: Image.asset(
                                                     'assets/images/open_book.png',
                                                     color: Theme.of(context)
-                                                        .primaryTextTheme!
+                                                        .primaryTextTheme
                                                         .headline4!
                                                         .decorationColor!,
                                                   )),
@@ -502,10 +545,9 @@ class ExchangeCardState extends State<ExchangeCard> {
             hintText: S.of(context).search_currency,
             isMoneroWallet: _isMoneroWallet,
             isConvertFrom: widget.hasRefundAddress,
-            onItemSelected: (Currency item) =>
-                widget.onCurrencySelected != null
-                    ? widget.onCurrencySelected(item as CryptoCurrency)
-                    : null),
+            onItemSelected: (Currency item) => widget.onCurrencySelected != null
+                ? widget.onCurrencySelected(item as CryptoCurrency)
+                : null),
         context: context);
   }
 
@@ -524,7 +566,6 @@ class ExchangeCardState extends State<ExchangeCard> {
                 Navigator.of(context).pop();
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
-        }
-    );
+        });
   }
 }
