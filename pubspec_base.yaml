@@ -63,6 +63,7 @@ dependencies:
   platform_device_id: ^1.0.1
   flutter_mailer: ^2.0.2
   device_info_plus: ^8.1.0
+  in_app_review: ^2.0.6
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
