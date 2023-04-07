@@ -12,7 +12,8 @@ abstract class UnspentCoinsItemBase with Store {
     required this.isFrozen,
     required this.note,
     required this.isSending,
-    required this.amountRaw});
+    required this.amountRaw,
+    required this.vout});
 
   @observable
   String address;
@@ -34,4 +35,7 @@ abstract class UnspentCoinsItemBase with Store {
 
   @observable
   int amountRaw;
+
+  @observable
+  int vout;
 }

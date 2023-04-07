@@ -501,6 +501,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         noteRaw: coin.note,
         address: coin.address.address,
         value: coin.value,
+        vout: coin.vout,
     );
 
     await unspentCoinsInfo.add(newInfo);
