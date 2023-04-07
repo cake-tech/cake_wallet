@@ -1,8 +1,10 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -154,6 +156,9 @@ abstract class DashboardViewModelBase with Store {
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);
+    
+    reaction((_) => [orders, outgoingTransactions],
+       (_) => RequestReviewHandler.requestReview());
 
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
@@ -217,6 +222,11 @@ abstract class DashboardViewModelBase with Store {
 
     return statusText;
   }
+
+  @computed
+  List<TransactionInfo> get outgoingTransactions => wallet.transactionHistory.transactions.values
+      .where((tx) => tx.direction == TransactionDirection.outgoing)
+      .toList();
 
   @computed
   BalanceDisplayMode get balanceDisplayMode =>
