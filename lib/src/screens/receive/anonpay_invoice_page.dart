@@ -83,7 +83,7 @@ class AnonPayInvoicePage extends BasePage {
       child: Container(
         color: Theme.of(context).backgroundColor,
         child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.symmetric(vertical: 24),
+          contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
@@ -99,7 +99,7 @@ class AnonPayInvoicePage extends BasePage {
             ),
             child: Observer(builder: (_) {
               return Padding(
-                padding: EdgeInsets.fromLTRB(24, 100, 24, 0),
+                padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
                 child: AnonInvoiceForm(
                   nameController: _nameController,
                   descriptionController: _descriptionController,
