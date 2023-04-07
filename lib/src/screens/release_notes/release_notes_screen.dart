@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -20,7 +21,8 @@ class _ReleaseNotesScreenState extends State<ReleaseNotesScreen> {
   List<Widget> notesWidgetList = [];
 
   Future<void> getFileLines() async {
-    _fileText = await rootBundle.loadString('assets/text/Release_Notes.txt');
+    _fileText = await rootBundle.loadString(isMoneroOnly ? 'assets/text/Monerocom_Release_Notes.txt'
+        :'assets/text/Release_Notes.txt');
     getWidgetsList(_fileText);
 
     setState(() {});

@@ -39,4 +39,5 @@ class PreferencesKey {
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const clearnetDonationLink = 'clearnet_donation_link'; 
   static const onionDonationLink = 'onion_donation_link'; 
+  static const lastSeenAppVersion = 'last_seen_app_version';
 }

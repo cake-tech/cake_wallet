@@ -3,7 +3,6 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cw_core/release_notes_info.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -52,9 +51,7 @@ abstract class DashboardViewModelBase with Store {
       required this.settingsStore,
       required this.yatStore,
       required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      required Box<ReleaseNotesInfo> releaseNoteInfo,
-      })
+      required this.anonpayTransactionsStore})
   : isOutdatedElectrumWallet = false,
     hasSellAction = false,
     isEnabledSellAction = false,
@@ -64,7 +61,6 @@ abstract class DashboardViewModelBase with Store {
     isShowFirstYatIntroduction = false,
     isShowSecondYatIntroduction = false,
     isShowThirdYatIntroduction = false,
-        _releaseNoteInfo = releaseNoteInfo,
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -280,8 +276,6 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  Box<ReleaseNotesInfo> _releaseNoteInfo;
-
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
@@ -413,18 +407,5 @@ abstract class DashboardViewModelBase with Store {
       && wallet.type != WalletType.monero
       && wallet.type != WalletType.litecoin;
     hasSellAction = !isHaven;
-  }
-
-  Future<void> updateLastSeenAppVersion(String appVersion) async {
-    try {
-      _releaseNoteInfo.put('key', ReleaseNotesInfo(lastSeenAppVersion: appVersion));
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
-  String get lastSeenAppVersion {
-    final info = _releaseNoteInfo.get('key', defaultValue: ReleaseNotesInfo(lastSeenAppVersion: '4.6.2'));
-    return info!.lastSeenAppVersion;
   }
 }

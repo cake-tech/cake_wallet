@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cw_core/release_notes_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -20,8 +20,8 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
@@ -247,8 +247,11 @@ class DashboardPage extends BasePage {
     });
 
     autorun((_) async {
+      final sharedPrefs = await SharedPreferences.getInstance();
+      final lastSeenAppVersion = sharedPrefs.getString(PreferencesKey.lastSeenAppVersion) ??
+          walletViewModel.settingsStore.appVersion;
       if (VersionComparator.isVersion1Greater(
-          v1: walletViewModel.settingsStore.appVersion, v2: walletViewModel.lastSeenAppVersion)) {
+          v1: walletViewModel.settingsStore.appVersion, v2: lastSeenAppVersion)) {
         await Future<void>.delayed(Duration(seconds: 1));
         await showPopUp<void>(
             context: context,
@@ -256,7 +259,8 @@ class DashboardPage extends BasePage {
               return ReleaseNotesScreen(
                   title: 'Version ${walletViewModel.settingsStore.appVersion}');
             });
-        walletViewModel.updateLastSeenAppVersion(walletViewModel.settingsStore.appVersion);
+        sharedPrefs.setString(
+            PreferencesKey.lastSeenAppVersion, walletViewModel.settingsStore.appVersion);
       }
     });
 
