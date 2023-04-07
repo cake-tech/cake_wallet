@@ -45,7 +45,7 @@ class OnRamperPage extends BasePage {
         primaryColor = '456effff';
         secondaryColor = '1b2747ff';
         primaryTextColor = secondaryTextColor = 'ffffff';
-        containerColor = '131d38ff';
+        containerColor = '19233C';
         cardColor = '232f4fff';
         break;
     }
