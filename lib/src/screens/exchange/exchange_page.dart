@@ -346,7 +346,6 @@ class ExchangePage extends BasePage {
                                           ? AmountValidator(
                                               currency: exchangeViewModel
                                                   .receiveCurrency,
-                                              isAutovalidate: true,
                                               minValue: exchangeViewModel
                                                   .limits.min
                                                   .toString(),
