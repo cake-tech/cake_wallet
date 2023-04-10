@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:cw_bitcoin/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -22,7 +23,6 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_wrong_balance_exception.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
-import 'package:cw_bitcoin/file.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -49,6 +49,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       required this.networkType,
       required this.mnemonic,
       required Uint8List seedBytes,
+      required this.encryptionFileUtils,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
@@ -70,7 +71,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
     transactionHistory =
-        ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+        ElectrumTransactionHistory(
+          walletInfo: walletInfo,
+          password: password,
+          encryptionFileUtils: encryptionFileUtils);
   }
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
@@ -78,6 +82,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
+  final EncryptionFileUtils encryptionFileUtils;
 
   late ElectrumClient electrumClient;
   Box<UnspentCoinsInfo> unspentCoinsInfo;
@@ -428,7 +433,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @override
   Future<void> save() async {
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 

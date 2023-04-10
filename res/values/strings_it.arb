@@ -346,6 +346,9 @@
   "invalid_password" : "Password non valida",
   "unlock" : "Sbloccare",
   "enter_wallet_password" : "Inserisci la password del portafoglio",
+  "repeate_wallet_password" : "Ripeti la password del portafoglio",
+  "wallet_password_is_empty" : "La password del portafoglio è vuota. La password del portafoglio non deve essere vuota",
+  "repeated_password_is_incorrect" : "La password ripetuta non è corretta. Ripeti di nuovo la password del portafoglio.",
 
   "full_balance" : "Saldo Completo",
   "available_balance" : "Saldo Disponibile",

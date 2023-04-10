@@ -346,6 +346,9 @@
   "invalid_password" : "Nieprawidłowe hasło",
   "unlock" : "Odblokować",
   "enter_wallet_password" : "Wprowadź hasło do portfela",
+  "repeate_wallet_password" : "Powtórz hasło do portfela",
+  "wallet_password_is_empty" : "Hasło portfela jest puste. Hasło portfela nie powinno być puste",
+  "repeated_password_is_incorrect" : "Powtórzone hasło jest nieprawidłowe. Powtórz hasło do portfela jeszcze raz.",
 
   "full_balance" : "Pełne saldo",
   "available_balance" : "Dostępne środki",

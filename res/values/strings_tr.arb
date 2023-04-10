@@ -346,6 +346,9 @@
   "invalid_password" : "Geçersiz şifre",
   "unlock" : "Kilidini aç",
   "enter_wallet_password" : "cüzdan şifresini girin",
+  "repeate_wallet_password" : "M-cüzdan şifresini tekrarla",
+  "wallet_password_is_empty" : "Cüzdan şifresi boş. Cüzdan şifresi boş olmamalıdır",
+  "repeated_password_is_incorrect" : "Tekrarlanan şifre yanlış. Lütfen cüzdan şifresini tekrar tekrarlayın.",
 
   "full_balance" : "Tüm bakiye",
   "available_balance" : "Kullanılabilir Bakiye",

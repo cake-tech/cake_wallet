@@ -345,6 +345,9 @@
   "invalid_password" : "Невірний пароль",
   "unlock" : "Розблокувати",
   "enter_wallet_password" : "Введіть пароль гаманця",
+  "repeate_wallet_password" : "Повторіть пароль гаманця",
+  "wallet_password_is_empty" : "Пароль гаманця порожній. Пароль гаманця не повинен бути порожнім",
+  "repeated_password_is_incorrect" : "Повторний пароль неправильний. Будь ласка, повторіть пароль гаманця ще раз.",
 
   "full_balance" : "Весь баланс",
   "available_balance" : "Доступний баланс",

@@ -583,10 +583,12 @@ Future setup(
         return monero!.createMoneroWalletService(_walletInfoSource);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(
-            _walletInfoSource, _unspentCoinsInfoSource!);
+            _walletInfoSource, _unspentCoinsInfoSource!,
+            SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
-            _walletInfoSource, _unspentCoinsInfoSource!);
+            _walletInfoSource, _unspentCoinsInfoSource!,
+            SettingsStoreBase.walletPasswordDirectInput);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }

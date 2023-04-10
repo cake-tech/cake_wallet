@@ -15,6 +15,7 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
   WalletRestoreFromKeysFrom({
     required this.walletRestoreViewModel,
     required this.displayWalletPassword,
+    required this.onRepeatedPasswordChange,
     this.onPasswordChange,
     Key? key,
     this.onHeightOrDateEntered,})
@@ -24,6 +25,7 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
   final WalletRestoreViewModel walletRestoreViewModel;
   final bool displayWalletPassword;
   final void Function(String)? onPasswordChange;
+  final void Function(String)? onRepeatedPasswordChange;
 
   @override
   WalletRestoreFromKeysFromState createState() =>
@@ -39,7 +41,8 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
         viewKeyController = TextEditingController(),
         spendKeyController = TextEditingController(),
         nameTextEditingController = TextEditingController(),
-        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null;
+        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
+        repeatedPasswordTextEditingController = displayWalletPassword ? TextEditingController() : null;
 
   final GlobalKey<FormState> formKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
@@ -49,13 +52,20 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
   final TextEditingController spendKeyController;
   final TextEditingController nameTextEditingController;
   final TextEditingController? passwordTextEditingController;
+  final TextEditingController? repeatedPasswordTextEditingController;
   void Function()? passwordListener;
+  void Function()? repeatedPasswordListener;
 
   @override
   void initState() {
     if (passwordTextEditingController != null) {
       passwordListener = () => widget.onPasswordChange?.call(passwordTextEditingController!.text);
       passwordTextEditingController?.addListener(passwordListener!);
+    }
+
+    if (repeatedPasswordTextEditingController != null) {
+      repeatedPasswordListener = () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
+      repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
     }
     super.initState();
   }
@@ -70,6 +80,10 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
     passwordTextEditingController?.dispose();
     if (passwordListener != null) {
       passwordTextEditingController?.removeListener(passwordListener!);
+    }
+
+    if (repeatedPasswordListener != null) {
+      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
     }
     super.dispose();
   }
@@ -121,12 +135,18 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
               ],
             ),
             if (widget.displayWalletPassword)
-                Container(
+              ...[Container(
                   padding: EdgeInsets.only(top: 20.0),
                   child: BaseTextFormField(
                     controller: passwordTextEditingController,
                     hintText: S.of(context).password,
                     obscureText: true)),
+                Container(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: BaseTextFormField(
+                    controller: repeatedPasswordTextEditingController,
+                    hintText: S.of(context).repeate_wallet_password,
+                    obscureText: true))],
             Container(height: 20),
             BaseTextFormField(
                 controller: addressController,

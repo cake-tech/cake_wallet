@@ -50,7 +50,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
       : _formKey = GlobalKey<FormState>(),
         _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
         _nameController = TextEditingController(),
-        _passwordController = _walletNewVM.hasWalletPassword ? TextEditingController() : null;
+        _passwordController = _walletNewVM.hasWalletPassword ? TextEditingController() : null,
+        _repeatedPasswordController = _walletNewVM.hasWalletPassword ? TextEditingController() : null;
 
   static const aspectRatioImage = 1.22;
 
@@ -59,6 +60,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
   final WalletNewVM _walletNewVM;
   final TextEditingController _nameController;
   final TextEditingController? _passwordController;
+  final TextEditingController? _repeatedPasswordController;
   ReactionDisposer? _stateReaction;
 
   @override
@@ -171,7 +173,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             validator: WalletNameValidator(),
                           ),
                           if (_walletNewVM.hasWalletPassword)
-                            TextFormField(
+                            ...[TextFormField(
                               onChanged: (value) => _walletNewVM.walletPassword = value,
                               controller: _passwordController,
                               textAlign: TextAlign.center,
@@ -203,6 +205,38 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                 )
                               )
                             ),
+                            TextFormField(
+                              onChanged: (value) => _walletNewVM.repeatedWalletPassword = value,
+                              controller: _repeatedPasswordController,
+                              textAlign: TextAlign.center,
+                              obscureText: true,
+                              style: TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                                hintText: S.of(context).repeate_wallet_password,
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .accentTextTheme!
+                                            .headline2!
+                                            .decorationColor!,
+                                        width: 1.0)),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .accentTextTheme!
+                                          .headline2!
+                                          .decorationColor!,
+                                      width: 1.0),
+                                )
+                              )
+                            )],
                         ],
                       ),
                     ),

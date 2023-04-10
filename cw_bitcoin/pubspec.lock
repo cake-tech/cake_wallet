@@ -155,6 +155,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.4.4"
+  cake_backup:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "3aba867dcab6737f6707782f5db15d71f303db38"
+      url: "https://github.com/cake-tech/cake_backup.git"
+    source: git
+    version: "1.0.0+1"
   characters:
     dependency: transitive
     description:
@@ -219,6 +228,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.5.0"
+  cupertino_icons:
+    dependency: transitive
+    description:
+      name: cupertino_icons
+      sha256: e35129dc44c9118cee2a5603506d823bab99c68393879edb440e0090d07586be
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   cw_core:
     dependency: "direct main"
     description:
@@ -681,6 +698,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: "0ea99cd2f9352b2586583ab2ce6489d1f95a5f6de6fb9492faaf97ae2060f0aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   typed_data:
     dependency: transitive
     description:

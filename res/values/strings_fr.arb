@@ -344,6 +344,9 @@
   "invalid_password" : "Mot de passe incorrect",
   "unlock" : "Ouvrir",
   "enter_wallet_password" : "Entrez le mot de passe du portefeuille",
+  "repeate_wallet_password" : "Répétez le mot de passe du portefeuille",
+  "wallet_password_is_empty" : "Le mot de passe du portefeuille est vide. Le mot de passe du portefeuille ne doit pas être vide",
+  "repeated_password_is_incorrect" : "Le mot de passe répété est incorrect. Veuillez répéter le mot de passe du portefeuille.",
 
   "full_balance" : "Solde Complet",
   "available_balance" : "Solde Disponible",

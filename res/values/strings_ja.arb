@@ -346,6 +346,9 @@
   "invalid_password" : "無効なパスワード",
   "unlock" : "ロック解除",
   "enter_wallet_password" : "ウォレットのパスワードを入力してください",
+  "repeate_wallet_password" : "ウォレットのパスワードを繰り返す",
+  "wallet_password_is_empty" : "ウォレットのパスワードが空です。 ウォレットのパスワードを空にすることはできません",
+  "repeated_password_is_incorrect" : "繰り返されるパスワードが正しくありません。 ウォレットのパスワードをもう一度入力してください。",
 
   "full_balance" : "フルバランス",
   "available_balance" : "利用可能残高",

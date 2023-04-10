@@ -344,6 +344,9 @@
   "invalid_password" : "รหัสผ่านไม่ถูกต้อง",
   "unlock" : "ปลดล็อค",
   "enter_wallet_password" : "ป้อนรหัสผ่านกระเป๋าเงิน",
+  "repeate_wallet_password" : "ทำซ้ำรหัสผ่านกระเป๋าเงิน",
+  "wallet_password_is_empty" : "รหัสผ่าน Wallet ว่างเปล่า รหัสผ่าน Wallet ไม่ควรว่างเปล่า",
+  "repeated_password_is_incorrect" : "รหัสผ่านซ้ำไม่ถูกต้อง กรุณากรอกรหัสผ่านกระเป๋าเงินซ้ำอีกครั้ง",
 
   "full_balance" : "ยอดคงเหลือทั้งหมด",
   "available_balance" : "ยอดคงเหลือที่ใช้งานได้",

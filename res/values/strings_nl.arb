@@ -346,6 +346,9 @@
   "invalid_password" : "Ongeldig wachtwoord",
   "unlock" : "Ontgrendelen",
   "enter_wallet_password" : "Voer het portemonnee-wachtwoord in",
+  "repeate_wallet_password" : "Herhaal het wachtwoord van de portemonnee",
+  "wallet_password_is_empty" : "Wallet-wachtwoord is leeg. Wallet-wachtwoord mag niet leeg zijn",
+  "repeated_password_is_incorrect" : "Herhaald wachtwoord is onjuist. Herhaal het wachtwoord van de portemonnee nogmaals.",
 
   "full_balance" : "Volledig saldo",
   "available_balance" : "Beschikbaar saldo",

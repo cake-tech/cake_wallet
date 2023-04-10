@@ -346,6 +346,9 @@
   "invalid_password" : "유효하지 않은 비밀번호",
   "unlock" : "터놓다",
   "enter_wallet_password" : "지갑 비밀번호를 입력하세요",
+  "repeate_wallet_password" : "지갑 비밀번호를 반복하십시오",
+  "wallet_password_is_empty" : "지갑 비밀번호가 비어 있습니다. 월렛 비밀번호는 비워둘 수 없습니다.",
+  "repeated_password_is_incorrect" : "반복되는 비밀번호가 올바르지 않습니다. 지갑 비밀번호를 다시 한번 입력해주세요.",
 
   "full_balance" : "풀 밸런스",
   "available_balance" : "사용 가능한 잔액",

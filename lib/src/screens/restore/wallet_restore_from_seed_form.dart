@@ -23,7 +23,8 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
       this.onHeightOrDateEntered,
       this.onSeedChange,
       this.onLanguageChange,
-      this.onPasswordChange})
+      this.onPasswordChange,
+      this.onRepeatedPasswordChange})
       : super(key: key);
 
   final WalletType type;
@@ -35,6 +36,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final void Function(String)? onSeedChange;
   final void Function(String)? onLanguageChange;
   final void Function(String)? onPasswordChange;
+  final void Function(String)? onRepeatedPasswordChange;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -48,16 +50,19 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         formKey = GlobalKey<FormState>(),
         languageController = TextEditingController(),
         nameTextEditingController = TextEditingController(),
-        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null;
+        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
+        repeatedPasswordTextEditingController = displayWalletPassword ? TextEditingController() : null;
 
   final GlobalKey<SeedWidgetState> seedWidgetStateKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
   final TextEditingController languageController;
   final TextEditingController nameTextEditingController;
   final TextEditingController? passwordTextEditingController;
+  final TextEditingController? repeatedPasswordTextEditingController;
   final GlobalKey<FormState> formKey;
   String language;
   void Function()? passwordListener;
+  void Function()? repeatedPasswordListener;
 
   @override
   void initState() {
@@ -66,6 +71,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       passwordListener = () => widget.onPasswordChange?.call(passwordTextEditingController!.text);
       passwordTextEditingController?.addListener(passwordListener!);
     }
+
+    if (repeatedPasswordTextEditingController != null) {
+      repeatedPasswordListener = () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
+      repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
+    }
     super.initState();
   }
 
@@ -73,6 +83,10 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void dispose() {
     if (passwordListener != null) {
       passwordTextEditingController?.removeListener(passwordListener!);
+    }
+
+    if (repeatedPasswordListener != null) {
+      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
     }
     super.dispose();
   }
@@ -130,10 +144,14 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               type: widget.type,
               onSeedChange: widget.onSeedChange),
           if (widget.displayWalletPassword)
-            BaseTextFormField(
+            ...[BaseTextFormField(
               controller: passwordTextEditingController,
               hintText: S.of(context).password,
               obscureText: true),
+            BaseTextFormField(
+              controller: repeatedPasswordTextEditingController,
+              hintText: S.of(context).repeate_wallet_password,
+              obscureText: true)],
           if (widget.displayLanguageSelector)
             GestureDetector(
                 onTap: () async {

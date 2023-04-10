@@ -346,6 +346,9 @@
   "invalid_password" : "无效的密码",
   "unlock" : "开锁",
   "enter_wallet_password" : "输入钱包密码",
+  "repeate_wallet_password" : "重复钱包密码",
+  "wallet_password_is_empty" : "钱包密码为空。 钱包密码不能为空",
+  "repeated_password_is_incorrect" : "重复的密码不正确。 请再次输入钱包密码。",
 
   "full_balance" : "全部余额",
   "available_balance" : "可用余额",

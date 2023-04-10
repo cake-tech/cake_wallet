@@ -346,6 +346,9 @@
   "invalid_password" : "Invalid password",
   "unlock" : "Unlock",
   "enter_wallet_password" : "Enter the wallet password",
+  "repeate_wallet_password" : "Repeat the wallet password",
+  "wallet_password_is_empty" : "Wallet password is empty. Wallet password should not be empty",
+  "repeated_password_is_incorrect" : "Repeated password is incorrect. Please repeat the wallet password again.",
 
   "full_balance" : "Full Balance",
   "available_balance" : "Available Balance",

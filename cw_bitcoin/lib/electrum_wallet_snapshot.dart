@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/file.dart';
+import 'package:cw_bitcoin/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -26,9 +26,9 @@ class ElectrumWallletSnapshot {
   int regularAddressIndex;
   int changeAddressIndex;
 
-  static Future<ElectrumWallletSnapshot> load(String name, WalletType type, String password) async {
+  static Future<ElectrumWallletSnapshot> load(EncryptionFileUtils encryptionFileUtils, String name, WalletType type, String password) async {
     final path = await pathForWallet(name: name, type: type);
-    final jsonSource = await read(path: path, password: password);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final mnemonic = data['mnemonic'] as String;

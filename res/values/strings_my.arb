@@ -346,6 +346,9 @@
   "invalid_password" : "စကားဝှက် မမှန်ကန်ပါ။",
   "unlock" : "သော့ဖွင့်ပါ။",
   "enter_wallet_password" : "ပိုက်ဆံအိတ်စကားဝှက်ကိုထည့်ပါ။",
+  "repeate_wallet_password" : "ပိုက်ဆံအိတ်စကားဝှက်ကို ပြန်လုပ်ပါ။",
+  "wallet_password_is_empty" : "ပိုက်ဆံအိတ်စကားဝှက်သည် ဗလာဖြစ်နေသည်။ ပိုက်ဆံအိတ်စကားဝှက်သည် ဗလာမဖြစ်သင့်ပါ။",
+  "repeated_password_is_incorrect" : "ထပ်ခါတလဲလဲ စကားဝှက် မမှန်ပါ။ ပိုက်ဆံအိတ်စကားဝှက်ကို ထပ်လုပ်ပါ။",
 
   "full_balance" : "Balance အပြည့်",
   "available_balance" : "လက်ကျန်ငွေ ရရှိနိုင်",

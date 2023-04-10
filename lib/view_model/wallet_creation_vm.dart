@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -31,6 +31,9 @@ abstract class WalletCreationVMBase with Store {
   @observable
   String? walletPassword;
 
+  @observable
+  String? repeatedWalletPassword;
+
   bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
 
   WalletType type;
@@ -50,6 +53,14 @@ abstract class WalletCreationVMBase with Store {
       state = IsExecutingState();
       if (name.isEmpty) {
             name = await generateName();
+      }
+
+      if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
+        throw Exception(S.current.wallet_password_is_empty);
+      }
+
+      if (hasWalletPassword && walletPassword != repeatedWalletPassword) {
+        throw Exception(S.current.repeated_password_is_incorrect);
       }
 
       walletCreationService.checkIfExists(name);

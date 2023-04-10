@@ -1,5 +1,6 @@
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/encryption_file_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
@@ -26,6 +27,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required Uint8List seedBytes,
+      required EncryptionFileUtils encryptionFileUtils,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
       int initialRegularAddressIndex = 0,
@@ -39,6 +41,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
             seedBytes: seedBytes,
+            encryptionFileUtils: encryptionFileUtils,
             currency: CryptoCurrency.ltc) {
     walletAddresses = LitecoinWalletAddresses(
         walletInfo,
@@ -58,6 +61,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
     int initialRegularAddressIndex = 0,
@@ -71,6 +75,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         initialAddresses: initialAddresses,
         initialBalance: initialBalance,
         seedBytes: await mnemonicToSeedBytes(mnemonic),
+        encryptionFileUtils: encryptionFileUtils,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex);
   }
@@ -80,8 +85,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
+    required EncryptionFileUtils encryptionFileUtils
   }) async {
-    final snp = await ElectrumWallletSnapshot.load (name, walletInfo.type, password);
+    final snp = await ElectrumWallletSnapshot.load(encryptionFileUtils, name, walletInfo.type, password);
     return LitecoinWallet(
         mnemonic: snp.mnemonic,
         password: password,
@@ -90,6 +96,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         initialAddresses: snp.addresses,
         initialBalance: snp.balance,
         seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+        encryptionFileUtils: encryptionFileUtils,
         initialRegularAddressIndex: snp.regularAddressIndex,
         initialChangeAddressIndex: snp.changeAddressIndex);
   }
