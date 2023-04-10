@@ -2,6 +2,7 @@ import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
@@ -613,16 +614,19 @@ Future setup(
           editingNode: editingNode,
           isSelected: isSelected));
 
-  getIt.registerLazySingleton<OnRamperBuyProvider>(() => OnRamperBuyProvider(
+  getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
     settingsStore: getIt.get<AppStore>().settingsStore,
     wallet: getIt.get<AppStore>().wallet!,
   ));
 
   getIt.registerFactory(() => OnRamperPage(getIt.get<OnRamperBuyProvider>()));
 
-  getIt.registerFactory(() => PayFuraPage(
-      settingsStore: getIt.get<AppStore>().settingsStore,
-      wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory<PayfuraBuyProvider>(() => PayfuraBuyProvider(
+    settingsStore: getIt.get<AppStore>().settingsStore,
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
+
+  getIt.registerFactory(() => PayFuraPage(getIt.get<PayfuraBuyProvider>()));
 
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>().wallet!,

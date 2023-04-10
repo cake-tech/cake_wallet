@@ -1,5 +1,6 @@
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -51,7 +52,17 @@ class MainActions {
           } else {
             final uri = getIt
                 .get<OnRamperBuyProvider>()
-                .requestUrl(Theme.of(context).brightness == Brightness.dark);
+                .requestUrl();
+            await launchUrl(uri);
+          }
+          break;
+        case WalletType.monero:
+          if (DeviceInfo.instance.isMobile) {
+            Navigator.of(context).pushNamed(Routes.payfuraPage);
+          } else {
+            final uri = getIt
+                .get<PayfuraBuyProvider>()
+                .requestUrl();
             await launchUrl(uri);
           }
           break;

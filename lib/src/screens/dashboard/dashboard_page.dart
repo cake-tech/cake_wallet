@@ -4,7 +4,6 @@ import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -249,63 +248,5 @@ class _DashboardPageView extends BasePage {
 
       needToPresentYat = true;
     });
-  }
-
-  Future<void> _onClickBuyButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.bitcoin:
-        Navigator.of(context).pushNamed(Routes.onramperPage);
-        break;
-      case WalletType.litecoin:
-        Navigator.of(context).pushNamed(Routes.onramperPage);
-        break;
-      case WalletType.monero:
-        Navigator.of(context).pushNamed(Routes.payfuraPage);
-        break;
-      default:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).buy,
-                  alertContent: S.of(context).buy_alert_content,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-    }
-  }
-
-  Future<void> _onClickSellButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.bitcoin:
-        final moonPaySellProvider = MoonPaySellProvider();
-        final uri = await moonPaySellProvider.requestUrl(
-            currency: walletViewModel.wallet.currency,
-            refundWalletAddress:
-                walletViewModel.wallet.walletAddresses.address);
-        await launch(uri);
-        break;
-      default:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).sell,
-                  alertContent: isMoneroOnly ? S.of(context).sell_monero_com_alert_content
-                      : S.of(context).sell_alert_content,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-    }
-  }
-
-  Future<void> _onClickExchangeButton(BuildContext context) async {
-    if (walletViewModel.isEnabledExchangeAction) {
-      await Navigator.of(context).pushNamed(Routes.exchange);
-    }
   }
 }
