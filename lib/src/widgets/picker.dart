@@ -54,30 +54,30 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   ScrollController controller = ScrollController();
 
+  void clearFilteredItemsList() {
+    filteredItems = List.from(
+      items,
+      growable: true,
+    );
+    filteredImages = List.from(
+      images,
+      growable: true,
+    );
+
+    if (widget.selectedAtIndex != -1) {
+      if (widget.selectedAtIndex < filteredItems.length) {
+        filteredItems.removeAt(widget.selectedAtIndex);
+      }
+
+      if (widget.selectedAtIndex < filteredImages.length) {
+        filteredImages.removeAt(widget.selectedAtIndex);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-
-    void clearFilteredItemsList() {
-      filteredItems = List.from(
-        items,
-        growable: true,
-      );
-      filteredImages = List.from(
-        images,
-        growable: true,
-      );
-
-      if (widget.selectedAtIndex != -1) {
-        if (widget.selectedAtIndex < filteredItems.length) {
-          filteredItems.removeAt(widget.selectedAtIndex);
-        }
-
-        if (widget.selectedAtIndex < filteredImages.length) {
-          filteredImages.removeAt(widget.selectedAtIndex);
-        }
-      }
-    }
 
     clearFilteredItemsList();
 
