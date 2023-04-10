@@ -220,7 +220,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                   height: 1,
                                 ),
                                 if (widget.selectedAtIndex != -1)
-                                  buildItem(widget.selectedAtIndex, true),
+                                  buildSelectedItem(widget.selectedAtIndex),
                                 Flexible(
                                   child: Stack(
                                     alignment: Alignment.center,
@@ -313,10 +313,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
   }
 
-  Widget buildItem(int index, [bool? buildSelected]) {
-    final isSelected = buildSelected == true;
-
-    final item = isSelected == true ? items[index] : filteredItems[index];
+  Widget buildItem(int index) {
+    final item = filteredItems[index];
     final tag = item is Currency ? item.tag : null;
 
     final icon = item is Currency && item.iconPath != null
@@ -327,11 +325,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
           )
         : null;
 
-    final image = images.isNotEmpty
-        ? isSelected == true
-            ? images[index]
-            : filteredImages[index]
-        : icon;
+    final image = images.isNotEmpty ? filteredImages[index] : icon;
 
     return GestureDetector(
       onTap: () {
@@ -358,10 +352,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
                         widget.displayItem?.call(item) ?? item.toString(),
                         softWrap: true,
                         style: TextStyle(
-                          fontSize: isSelected ? 16 : 14,
+                          fontSize: 14,
                           fontFamily: 'Lato',
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight: FontWeight.w600,
                           color: Theme.of(context)
                               .primaryTextTheme
                               .headline6!
@@ -383,7 +376,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
                                   color: Theme.of(context)
-                                      .textTheme!
+                                      .textTheme
                                       .bodyText2!
                                       .color!),
                             ),
@@ -392,7 +385,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
                             color: Theme.of(context)
-                                .textTheme!
+                                .textTheme
                                 .bodyText2!
                                 .decorationColor!,
                           ),
@@ -402,9 +395,96 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 ),
               ),
             ),
-            if (isSelected)
-              Icon(Icons.check_circle,
-                  color: Theme.of(context).accentTextTheme.bodyText1!.color!),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildSelectedItem(int index) {
+    final item = items[index];
+    final tag = item is Currency ? item.tag : null;
+
+    final icon = item is Currency && item.iconPath != null
+        ? Image.asset(
+            item.iconPath!,
+            height: 20.0,
+            width: 20.0,
+          )
+        : null;
+
+    final image = images.isNotEmpty ? images[index] : icon;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+        onItemSelected(item!);
+      },
+      child: Container(
+        height: 55,
+        color: Theme.of(context).accentTextTheme.headline6!.color!,
+        padding: EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: widget.mainAxisAlignment,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            image ?? Offstage(),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(left: image != null ? 12 : 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.displayItem?.call(item) ?? item.toString(),
+                        softWrap: true,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .headline6!
+                              .color!,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ),
+                    if (tag != null)
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          width: 35.0,
+                          height: 18.0,
+                          child: Center(
+                            child: Text(
+                              tag,
+                              style: TextStyle(
+                                  fontSize: 7.0,
+                                  fontFamily: 'Lato',
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2!
+                                      .color!),
+                            ),
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6.0),
+                            //border: Border.all(color: ),
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyText2!
+                                .decorationColor!,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Icon(Icons.check_circle,
+                color: Theme.of(context).accentTextTheme.bodyText1!.color!),
           ],
         ),
       ),
