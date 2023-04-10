@@ -28,9 +28,6 @@ class AnonPayInvoicePage extends BasePage {
     this.anonInvoicePageViewModel,
     this.receiveOptionViewModel,
   ) : _amountFocusNode = FocusNode() {
-    _nameController.text = anonInvoicePageViewModel.receipientName;
-    _descriptionController.text = anonInvoicePageViewModel.description;
-    _emailController.text = anonInvoicePageViewModel.receipientEmail;
   }
 
   final _nameController = TextEditingController();
@@ -103,7 +100,7 @@ class AnonPayInvoicePage extends BasePage {
             ) : null,
             child: Observer(builder: (_) {
               return Padding(
-                padding: EdgeInsets.fromLTRB(24, 100, 24, 0),
+                padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
                 child: AnonInvoiceForm(
                   nameController: _nameController,
                   descriptionController: _descriptionController,

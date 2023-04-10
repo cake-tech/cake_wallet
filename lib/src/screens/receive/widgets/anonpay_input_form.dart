@@ -22,7 +22,12 @@ class AnonInvoiceForm extends StatelessWidget {
     required this.depositAmountFocus,
   })  : _nameFocusNode = FocusNode(),
         _emailFocusNode = FocusNode(),
-        _descriptionFocusNode = FocusNode();
+        _descriptionFocusNode = FocusNode(){
+          amountController.text = anonInvoicePageViewModel.amount;
+          nameController.text = anonInvoicePageViewModel.receipientName;
+          descriptionController.text = anonInvoicePageViewModel.description;
+          emailController.text = anonInvoicePageViewModel.receipientEmail;
+        }
 
   final TextEditingController amountController;
   final TextEditingController nameController;

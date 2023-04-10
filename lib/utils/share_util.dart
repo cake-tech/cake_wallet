@@ -28,7 +28,11 @@ class ShareUtil {
     );
   }
 
-  static Rect? _sharePosition(BuildContext context) {
+  static Rect _sharePosition(BuildContext context) {
+    if (!context.mounted) {
+      return Rect.zero;
+    }
+
     final box = context.findRenderObject() as RenderBox?;
 
     return box!.localToGlobal(Offset.zero) & box.size;
