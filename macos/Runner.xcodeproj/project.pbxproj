@@ -28,7 +28,6 @@
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		4171CB1F5A4EA2E4DC33F52F /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B38D1DBC56DBD386923BC063 /* Pods_Runner.framework */; };
 		9F565D5929954F53009A75FB /* secRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5729954F53009A75FB /* secRandom.swift */; };
-		9F565D5A29954F53009A75FB /* decrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5829954F53009A75FB /* decrypt.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -345,7 +344,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F565D5929954F53009A75FB /* secRandom.swift in Sources */,
-				9F565D5A29954F53009A75FB /* decrypt.swift in Sources */,
 				33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
