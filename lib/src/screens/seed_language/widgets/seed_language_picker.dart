@@ -65,8 +65,8 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
   SeedLanguagePickerState(
       {required this.selected, required this.onItemSelected});
 
-  String selected;
-  Function(String) onItemSelected;
+  final String selected;
+  final Function(String) onItemSelected;
 
   @override
   Widget build(BuildContext context) {
