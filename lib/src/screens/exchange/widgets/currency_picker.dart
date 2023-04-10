@@ -14,7 +14,7 @@ class CurrencyPicker extends StatefulWidget {
       this.isMoneroWallet = false,
       this.isConvertFrom = false});
 
-  int selectedAtIndex;
+  final int selectedAtIndex;
   final List<Currency> items;
   final String? title;
   final Function(Currency) onItemSelected;
@@ -30,7 +30,6 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   CurrencyPickerState(this.items)
       : isSearchBarActive = false,
         textFieldValue = '',
-        subPickerItemsList = items,
         appBarTextStyle = TextStyle(
             fontSize: 20,
             fontFamily: 'Lato',
@@ -42,7 +41,6 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   List<Currency> items;
   bool isSearchBarActive;
   String textFieldValue;
-  List<Currency> subPickerItemsList;
   TextStyle appBarTextStyle;
 
   bool currencySearchBySubstring(Currency currency, String subString) {
@@ -64,15 +62,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
       title: widget.title,
       hintText: widget.hintText,
       matchingCriteria: currencySearchBySubstring,
-      onItemSelected: (Currency selected) {
-        final index = items.indexOf(selected);
-
-        setState(() {
-          widget.selectedAtIndex = index;
-        });
-
-        widget.onItemSelected(subPickerItemsList[index]);
-      },
+      onItemSelected: widget.onItemSelected,
     );
   }
 }
