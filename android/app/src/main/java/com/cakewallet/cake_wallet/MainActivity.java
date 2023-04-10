@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel;
 
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.WindowManager;
@@ -56,7 +57,7 @@ public class MainActivity extends FlutterFragmentActivity {
                     handler.post(() -> result.success(bytes));
                     break;
                 case "getUnstoppableDomainAddress":
-                    int  version = Build.VERSION.SDK_INT;
+                    int version = Build.VERSION.SDK_INT;
                     if (version >= UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK) {
                         getUnstoppableDomainAddress(call, result);
                     } else {
@@ -86,5 +87,11 @@ public class MainActivity extends FlutterFragmentActivity {
                 handler.post(() -> result.success(""));
             }
         });
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
 }
