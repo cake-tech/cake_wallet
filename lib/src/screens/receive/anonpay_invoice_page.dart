@@ -99,7 +99,7 @@ class AnonPayInvoicePage extends BasePage {
             ),
             child: Observer(builder: (_) {
               return Padding(
-                padding: EdgeInsets.fromLTRB(24, 100, 24, 0),
+                padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
                 child: AnonInvoiceForm(
                   nameController: _nameController,
                   descriptionController: _descriptionController,
