@@ -248,10 +248,10 @@ class DashboardPage extends BasePage {
 
     autorun((_) async {
       final sharedPrefs = await SharedPreferences.getInstance();
-      final lastSeenAppVersion = sharedPrefs.getString(PreferencesKey.lastSeenAppVersion) ??
-          walletViewModel.settingsStore.appVersion;
-      if (VersionComparator.isVersion1Greater(
-          v1: walletViewModel.settingsStore.appVersion, v2: lastSeenAppVersion)) {
+      final currentAppVersion = VersionComparator.getExtendedVersionNumber(walletViewModel.settingsStore.appVersion);
+      final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+
+      if(currentAppVersion != lastSeenAppVersion) {
         await Future<void>.delayed(Duration(seconds: 1));
         await showPopUp<void>(
             context: context,
@@ -259,8 +259,8 @@ class DashboardPage extends BasePage {
               return ReleaseNotesScreen(
                   title: 'Version ${walletViewModel.settingsStore.appVersion}');
             });
-        sharedPrefs.setString(
-            PreferencesKey.lastSeenAppVersion, walletViewModel.settingsStore.appVersion);
+        sharedPrefs.setInt(
+            PreferencesKey.lastSeenAppVersion, currentAppVersion);
       }
     });
 
