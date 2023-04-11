@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -49,7 +50,7 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
   final String language;
 
   @override
-  WalletCredentials getCredentials(dynamic options) {
+  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoredWallet) {
     final password = generateWalletPassword();
 
     switch (type) {
@@ -66,11 +67,11 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
         return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
             name: name, password: password, wif: wif);
       default:
-        throw Exception('Unexpected type: ${type.toString()}');;
+        throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials) async =>
+  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoredWallet) async =>
       walletCreationService.restoreFromKeys(credentials);
 }

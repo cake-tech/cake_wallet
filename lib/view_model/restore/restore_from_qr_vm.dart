@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
@@ -19,14 +20,14 @@ class WalletRestorationFromQRVM = WalletRestorationFromQRVMBase with _$WalletRes
 abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store {
   WalletRestorationFromQRVMBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
-      {required this.wallet, required this.language})
+      {required this.isNewInstall})
       : height = 0,
         viewKey = '',
         spendKey = '',
         wif = '',
         address = '',
         super(appStore, walletInfoSource, walletCreationService,
-            type: wallet.type, isRecovery: true);
+            type: WalletType.monero, isRecovery: true);
 
   @observable
   int height;
@@ -45,51 +46,65 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
 
   bool get hasRestorationHeight => type == WalletType.monero;
 
-  final String language;
-
-  final RestoredWallet wallet;
+  final bool isNewInstall;
 
   @override
-  WalletCredentials getCredentials(dynamic options) {
+  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoreWallet) {
     final password = generateWalletPassword();
 
-    switch (wallet.restoreMode) {
+    switch (restoreWallet?.restoreMode) {
       case WalletRestoreMode.keys:
-        return monero!.createMoneroRestoreWalletFromKeysCredentials(
-            name: name,
-            password: password,
-            language: language,
-            address: wallet.address,
-            viewKey: wallet.viewKey ?? '',
-            spendKey: wallet.spendKey ?? '',
-            height: wallet.height ?? 0);
+        switch (restoreWallet?.type) {
+          case WalletType.monero:
+            return monero!.createMoneroRestoreWalletFromKeysCredentials(
+                name: name,
+                password: password,
+                language: 'English',
+                address: address,
+                viewKey: viewKey,
+                spendKey: spendKey,
+                height: height);
+          case WalletType.bitcoin:
+          case WalletType.litecoin:
+            return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
+                name: name, password: password, wif: wif);
+          default:
+            throw Exception('Unexpected type: ${restoreWallet?.type.toString()}');
+        }
       case WalletRestoreMode.seed:
-        return monero!.createMoneroRestoreWalletFromSeedCredentials(
-            name: name,
-            height: wallet.height ?? 0,
-            mnemonic: wallet.mnemonicSeed ?? '',
-            password: password);
+        switch (restoreWallet?.type) {
+          case WalletType.monero:
+            return monero!.createMoneroRestoreWalletFromSeedCredentials(
+                name: name,
+                height: height,
+                mnemonic: restoreWallet?.mnemonicSeed ?? '',
+                password: password);
+          case WalletType.bitcoin:
+          case WalletType.litecoin:
+            return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet?.mnemonicSeed ?? '', password: password);
+          default:
+            throw Exception('Unexpected type: ${type.toString()}');
+        }
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials) async {
-
-    try{
-      switch (wallet.restoreMode) {
+  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoreWallet) async {
+    walletCreationService.changeWalletType(type: restoreWallet!.type);
+    try {
+      switch (restoreWallet.restoreMode) {
         case WalletRestoreMode.keys:
           return walletCreationService.restoreFromKeys(credentials);
         case WalletRestoreMode.seed:
           return walletCreationService.restoreFromSeed(credentials);
         default:
-          throw Exception('Unexpected restore mode: ${wallet.restoreMode.toString()}');
+          throw Exception('Unexpected restore mode: ${restoreWallet.restoreMode.toString()}');
       }
-    } catch (e){
+    } catch (e) {
       throw Exception('Unexpected restore mode: ${e.toString()}');
     }
   }
-
-  }
-
+}

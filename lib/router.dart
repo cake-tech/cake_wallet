@@ -201,16 +201,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
                       .pushNamed(Routes.restoreWallet, arguments: type),
               param2: false));
 
-    case Routes.restoreWalletQRFromWelcome:
-      final args = settings.arguments as List<dynamic>;
-      final isNewInstall = args[2] as bool;
-      return isNewInstall ? CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-              Navigator.pushNamed(context.context, Routes.sweepingWalletPage,arguments: args)),
-          fullscreenDialog: true) : CupertinoPageRoute<void>(
-          builder: (_) => SweepingWalletPage(restoreVMfromQR: getIt.get<WalletRestorationFromQRVM>(param1: args)));
-
     case Routes.seed:
       return MaterialPageRoute<void>(
           builder: (_) =>
@@ -240,17 +230,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
               walletRestorationFromKeysVM: walletRestorationFromKeysVM));
 
     case Routes.sweepingWalletPage:
-      final args = settings.arguments as List<dynamic>;
-      final wallet = args.first as RestoredWallet;
-      final language =
-      wallet.type == WalletType.monero ? wallet.type.toString() : LanguageList.english;
-
-      final walletRestorationFromQRVM =
-      getIt.get<WalletRestorationFromQRVM>(param1: [wallet, language]);
-
       return CupertinoPageRoute<void>(
-          builder: (_) => SweepingWalletPage(
-              restoreVMfromQR: walletRestorationFromQRVM));
+          builder: (_) => getIt.get<SweepingWalletPage>());
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(

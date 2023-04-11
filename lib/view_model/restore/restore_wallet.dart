@@ -41,11 +41,13 @@ class RestoredWallet {
 
   factory RestoredWallet.fromSeed(Map<String, dynamic> json) {
     final height = json['height'] as String?;
+    final mnemonic_seed = json['mnemonic_seed'] as String?;
+    final seed = json['seed'] as String?;
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
       address: json['address'] as String,
-      mnemonicSeed: json['mnemonic_seed'] as String?,
+      mnemonicSeed: mnemonic_seed ?? seed,
       height: height != null ? int.parse(height) : 0,
     );
   }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -39,7 +40,8 @@ abstract class WalletCreationVMBase with Store {
   bool typeExists(WalletType type)
     => walletCreationService.typeExists(type);
 
-  Future<void> create({dynamic options}) async {
+  Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
+    final type = restoreWallet?.type ?? this.type;
     try {
       state = IsExecutingState();
       if (name.isEmpty) {
@@ -49,7 +51,7 @@ abstract class WalletCreationVMBase with Store {
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
-      final credentials = getCredentials(options);
+      final credentials = getCredentials(options, restoreWallet);
       final walletInfo = WalletInfo.external(
           id: WalletBase.idFor(name, type),
           name: name,
@@ -62,7 +64,7 @@ abstract class WalletCreationVMBase with Store {
           address: '',
           showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
       credentials.walletInfo = walletInfo;
-      final wallet = await process(credentials);
+      final wallet = await process(credentials, restoreWallet);
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       _appStore.changeCurrentWallet(wallet);
@@ -73,9 +75,9 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  WalletCredentials getCredentials(dynamic options) =>
+  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoreWallet) =>
       throw UnimplementedError();
 
-  Future<WalletBase> process(WalletCredentials credentials) =>
+  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoreWallet) =>
       throw UnimplementedError();
 }

@@ -1,21 +1,17 @@
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/scheduler.dart';
 
 class SweepingWalletPage extends BasePage {
-  SweepingWalletPage({required this.restoreVMfromQR});
+  SweepingWalletPage();
 
   static const aspectRatioImage = 1.25;
   final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
   final welcomeImageDark = Image.asset('assets/images/welcome.png');
 
-  final WalletRestorationFromQRVM restoreVMfromQR;
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +28,6 @@ class SweepingWalletPage extends BasePage {
     return SweepingWalletWidget(
       aspectRatioImage: aspectRatioImage,
       welcomeImage: welcomeImage,
-      restoreVMfromQR: restoreVMfromQR,
     );
   }
 }
@@ -41,12 +36,10 @@ class SweepingWalletWidget extends StatefulWidget {
   const SweepingWalletWidget({
     required this.aspectRatioImage,
     required this.welcomeImage,
-    required this.restoreVMfromQR,
   });
 
   final double aspectRatioImage;
   final Image welcomeImage;
-  final WalletRestorationFromQRVM restoreVMfromQR;
 
   @override
   State<SweepingWalletWidget> createState() => _SweepingWalletWidgetState();
@@ -56,11 +49,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
   @override
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await widget.restoreVMfromQR.create();
-      if (widget.restoreVMfromQR.state is FailureState) {
-        _onWalletCreateFailure(
-            context, 'Create wallet state: ${widget.restoreVMfromQR.state.runtimeType.toString()}');
-      }
+
     });
     super.initState();
   }
@@ -131,15 +120,4 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
   }
 }
 
-void _onWalletCreateFailure(BuildContext context, String error) {
-  var count = 0;
-  showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-            alertTitle: S.current.error,
-            alertContent: error,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.popUntil(context, (route) => count++ == 3));
-      });
-}
+

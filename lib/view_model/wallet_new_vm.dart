@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -29,7 +30,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
   @override
-  WalletCredentials getCredentials(dynamic options) {
+  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoredWallet) {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
@@ -47,7 +48,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials) async {
+  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoredWallet) async {
     walletCreationService.changeWalletType(type: type);
     return walletCreationService.create(credentials);
   }

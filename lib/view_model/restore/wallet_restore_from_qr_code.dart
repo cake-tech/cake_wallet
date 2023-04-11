@@ -10,22 +10,20 @@ class WalletRestoreFromQRCode {
 
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
     final code = await presentQRScanner();
-    print(code);
     Map<String, dynamic> credentials = {};
     Map<String, String> parameters = {};
 
     if (code.isEmpty) {
       throw Exception('Unexpected scan QR code value: value is empty');
     }
-    final formattedUrl = getFormattedUrl(code);
-    final uri = Uri.parse(formattedUrl);
+    final uri = Uri.parse(code);
     credentials['type'] = getWalletTypeFromUrl(uri.scheme);
     credentials['address'] = getAddressFromUrl(
       type: credentials['type'] as WalletType,
       address: uri.path,
     );
     parameters = uri.queryParameters;
-    credentials['mode'] = getWalletRestoreMode(parameters);
+    credentials['mode'] = getWalletRestoreMode(parameters, credentials['address'] as String);
     credentials.addAll(parameters);
 
     switch (credentials['mode']) {
@@ -40,22 +38,16 @@ class WalletRestoreFromQRCode {
     }
   }
 
-  static String getFormattedUrl(String url) {
-    int idx = url.indexOf(":");
-    String substring1 = url.substring(0, idx);
-    String substring2 = url.substring(idx);
-    final result =
-        substring1.contains('_') ? substring1.substring(0, substring1.indexOf('_')) : substring1;
-    return result + substring2;
-  }
-
   static WalletType getWalletTypeFromUrl(String scheme) {
     switch (scheme) {
       case 'monero':
+      case 'monero-wallet':
         return WalletType.monero;
       case 'bitcoin':
+      case 'bitcoin-wallet':
         return WalletType.bitcoin;
       case 'litecoin':
+      case 'litecoin-wallet':
         return WalletType.litecoin;
       default:
         throw Exception('Unexpected wallet type: ${scheme.toString()}');
@@ -64,15 +56,18 @@ class WalletRestoreFromQRCode {
 
   static String getAddressFromUrl({required WalletType type, required String address}) {
     final formattedAddress = address.replaceAll('address=', '').toString();
+    if (formattedAddress.isEmpty) {
+      return formattedAddress;
+    }
     final addressPattern = AddressValidator.getPattern(walletTypeToCryptoCurrency(type));
     final match = RegExp(addressPattern).hasMatch(formattedAddress);
     return match
         ? formattedAddress
         : throw Exception('Unexpected wallet address: address is invalid'
-            'or does not match the type ${type.toString()}');
+            ' or does not match the type ${type.toString()}');
   }
 
-  static WalletRestoreMode getWalletRestoreMode(Map<String, String> parameters) {
+  static WalletRestoreMode getWalletRestoreMode(Map<String, String> parameters, String credential) {
     if (parameters.containsKey('tx_payment_id')) {
       final txIdValue = parameters['tx_payment_id'] ?? '';
       return txIdValue.isNotEmpty
@@ -80,19 +75,18 @@ class WalletRestoreFromQRCode {
           : throw Exception('Unexpected restore mode: tx_payment_id is invalid');
     }
 
-    if (parameters.containsKey('mnemonic_seed')) {
+    if (parameters.containsKey('mnemonic_seed') || parameters.containsKey('seed')) {
       //TODO implement seed validation
-      final seedValue = parameters['mnemonic_seed'] ?? '';
+      var seedValue = '';
+      if (parameters.containsKey('mnemonic_seed')) {
+        seedValue = parameters['mnemonic_seed'] ?? '';
+      }
+      if (parameters.containsKey('seed')) {
+        seedValue = parameters['seed'] ?? '';
+      }
       return seedValue.isNotEmpty
           ? WalletRestoreMode.seed
           : throw Exception('Unexpected restore mode: mnemonic_seed is invalid');
-    }
-
-    if (parameters.containsKey('seed')) {
-      final seedValue = parameters['seed'] ?? '';
-      return seedValue.isNotEmpty
-          ? WalletRestoreMode.seed
-          : throw Exception('Unexpected restore mode: seed is invalid');
     }
 
     if (parameters.containsKey('spend_key') || parameters.containsKey('view_key')) {

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/mnemonic_length.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -53,7 +54,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   bool isButtonEnabled;
   
   @override
-  WalletCredentials getCredentials(dynamic options) {
+  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoreWallet) {
     final password = generateWalletPassword();
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
@@ -121,7 +122,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials) async {
+  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoredWallet) async {
     if (mode == WalletRestoreMode.keys) {
       return walletCreationService.restoreFromKeys(credentials);
     }
