@@ -132,7 +132,7 @@ class ExchangeTemplatePage extends BasePage {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight),
                       ),
-                      padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
+                      padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                       child: Observer(
                         builder: (_) => ExchangeCard(
                           amountFocusNode: _depositAmountFocus,
