@@ -48,7 +48,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   @computed
-  String get address => receiveAddresses.first.address;
+  String get address {
+    if (receiveAddresses.isEmpty) {
+      return generateNewAddress().address;
+    }
+
+    return receiveAddresses.first.address;
+  }
 
   @override
   set address(String addr) => null;
@@ -121,8 +127,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  Future<BitcoinAddressRecord> generateNewAddress(
-      {bitcoin.HDWallet? hd, bool isHidden = false}) async {
+  BitcoinAddressRecord generateNewAddress(
+      {bitcoin.HDWallet? hd, bool isHidden = false}) {
     currentReceiveAddressIndex += 1;
     // FIX-ME: Check logic for whichi HD should be used here  ???
     final address = BitcoinAddressRecord(
@@ -165,7 +171,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> _discoverAddresses(bitcoin.HDWallet hd, bool isHidden) async {
     var hasAddrUse = true;
     List<BitcoinAddressRecord> addrs;
-    
+
     if (addresses.isNotEmpty) {
       addrs = addresses
         .where((addr) => addr.isHidden == isHidden)
@@ -179,7 +185,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           hd: hd,
           isHidden: isHidden);
     }
-    
+
     while(hasAddrUse) {
       final addr = addrs.last.address;
       hasAddrUse = await _hasAddressUsed(addr);
