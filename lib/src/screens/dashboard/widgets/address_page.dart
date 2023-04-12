@@ -87,11 +87,7 @@ class AddressPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    final shareImage = Image.asset('assets/images/share.png',
-        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
-
-    return !addressListViewModel.hasAddressList
-        ? Material(
+      return  Material(
             color: Colors.transparent,
             child: IconButton(
               padding: EdgeInsets.zero,
@@ -105,10 +101,12 @@ class AddressPage extends BasePage {
                   context: context,
                 );
               },
-              icon: shareImage,
+              icon: Icon(Icons.share,
+                  size: 20,
+                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                ),
             ),
-          )
-        : null;
+          );
   }
 
   @override
@@ -155,14 +153,13 @@ class AddressPage extends BasePage {
               )
             ]),
         child: Container(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+          padding: EdgeInsets.fromLTRB(24, 0, 24, 32),
           child: Column(
             children: <Widget>[
             Expanded(
               child: Observer(builder: (_) => QRWidget(
                 addressListViewModel: addressListViewModel,
                 amountTextFieldFocusNode: _cryptoAmountFocus,
-                isAmountFieldShow: !addressListViewModel.hasAccounts,
                 isLight: walletViewModel.settingsStore.currentTheme.type == ThemeType.light))
               ),
               Observer(builder: (_) {

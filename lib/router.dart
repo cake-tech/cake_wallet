@@ -238,7 +238,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.receive:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<ReceivePage>());
+          builder: (_) => getIt.get<ReceivePage>());
 
     case Routes.addressPage:
       return CupertinoPageRoute<void>(

@@ -310,7 +310,9 @@ Future setup(
 
   getIt.registerFactory<WalletAddressListViewModel>(() =>
       WalletAddressListViewModel(
-          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>()));
+          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>(),
+          fiatConversionStore: getIt.get<FiatConversionStore>()
+      ));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),

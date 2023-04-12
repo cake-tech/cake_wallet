@@ -87,10 +87,6 @@ class ReceivePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final shareImage =
-        Image.asset('assets/images/share.png',
-            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
-
     return Material(
         color: Colors.transparent,
         child: IconButton(
@@ -105,7 +101,10 @@ class ReceivePage extends BasePage {
                 context: context,
               );
             },
-            icon: shareImage
+           icon: Icon(Icons.share,
+            size: 20,
+            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+          ),
         )
     );
   }
@@ -129,10 +128,10 @@ class ReceivePage extends BasePage {
           child: Column(
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.fromLTRB(24, 80, 24, 24),
+                padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
                 child: QRWidget(
                     addressListViewModel: addressListViewModel,
-                    isAmountFieldShow: true,
+                    heroDisabled: true,
                     amountTextFieldFocusNode: _cryptoAmountFocus,
                     isLight: currentTheme.type == ThemeType.light),
               ),
@@ -222,7 +221,6 @@ class ReceivePage extends BasePage {
             flex: 7,
             child: QRWidget(
                 addressListViewModel: addressListViewModel,
-                isAmountFieldShow: true,
                 amountTextFieldFocusNode: _cryptoAmountFocus,
                 isLight: currentTheme.type == ThemeType.light),
           ),

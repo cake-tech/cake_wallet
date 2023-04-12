@@ -1,5 +1,8 @@
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cw_core/currency.dart';
+import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/utils/list_item.dart';
@@ -11,9 +14,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'dart:async';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 
@@ -41,7 +42,7 @@ class MoneroURI extends PaymentURI {
   String toString() {
     var base = 'monero:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -59,7 +60,7 @@ class HavenURI extends PaymentURI {
   String toString() {
     var base = 'haven:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -77,7 +78,7 @@ class BitcoinURI extends PaymentURI {
   String toString() {
     var base = 'bitcoin:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -95,7 +96,7 @@ class LitecoinURI extends PaymentURI {
   String toString() {
     var base = 'litecoin:' + address;
 
-    if (amount?.isNotEmpty ?? false) {
+    if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
 
@@ -106,10 +107,13 @@ class LitecoinURI extends PaymentURI {
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
-    required this.yatStore
+    required this.yatStore,
+    required this.fiatConversionStore,
   }) : _appStore = appStore,
       _baseItems = <ListItem>[],
       _wallet = appStore.wallet!,
+      selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
+      _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
       hasAccounts = appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
       amount = '' {
     _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<
@@ -123,6 +127,20 @@ abstract class WalletAddressListViewModelBase with Store {
     });
     _init();
   }
+
+  static const String _cryptoNumberPattern = '0.0';
+
+  final NumberFormat _cryptoNumberFormat;
+
+  final FiatConversionStore fiatConversionStore;
+
+  List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
+
+  @observable
+  Currency selectedCurrency;
+
+  @computed
+  int get selectedCurrencyIndex => currencies.indexOf(selectedCurrency);
 
   @observable
   String amount;
@@ -257,5 +275,32 @@ abstract class WalletAddressListViewModelBase with Store {
     }
 
     _baseItems.add(WalletAddressListHeader());
+  }
+
+  @action
+  void selectCurrency(Currency currency) {
+    selectedCurrency = currency; 
+  }
+
+  @action
+  void changeAmount(String amount) {
+    this.amount = amount;
+    if (selectedCurrency is FiatCurrency) {
+      _convertAmountToCrypto();
+    }
+  }
+
+  void _convertAmountToCrypto() {
+    final cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
+    try {
+      final crypto = double.parse(amount.replaceAll(',', '.')) /
+          fiatConversionStore.prices[cryptoCurrency]!;
+          final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
+      if (amount != cryptoAmountTmp) {
+        amount = cryptoAmountTmp;
+      }
+    } catch (e) {
+      amount = '';
+    }
   }
 }
