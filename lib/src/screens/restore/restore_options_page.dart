@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -54,17 +55,27 @@ class RestoreOptionsPage extends BasePage {
                 padding: EdgeInsets.only(top: 24),
                 child: RestoreButton(
                     onPressed: () async {
-                      try {
-                        final restoreWallet =
-                            await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+                      bool isPinSet = false;
+                      if (restoreFromQRViewModel.isNewInstall) {
+                        await Navigator.pushNamed(context, Routes.setupPin,
+                            arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                          setupPinContext.close();
+                          isPinSet = true;
+                        });
+                      }
+                      if (!restoreFromQRViewModel.isNewInstall || isPinSet) {
+                        try {
+                          final restoreWallet =
+                              await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
-                        await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
-                        if (restoreFromQRViewModel.state is FailureState) {
-                          _onWalletCreateFailure(context,
-                              'Create wallet state: ${restoreFromQRViewModel.state.runtimeType.toString()}');
+                          await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
+                          if (restoreFromQRViewModel.state is FailureState) {
+                            _onWalletCreateFailure(context,
+                                'Create wallet state: ${restoreFromQRViewModel.state.runtimeType.toString()}');
+                          }
+                        } catch (e) {
+                          _onScanQRFailure(context, e.toString());
                         }
-                      } catch (e) {
-                        _onScanQRFailure(context, e.toString());
                       }
                     },
                     image: qrCode,
