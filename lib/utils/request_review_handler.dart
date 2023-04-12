@@ -3,12 +3,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_review/in_app_review.dart';
 
 class RequestReviewHandler {
-    static const _coolDownDurationInDays = 30;
+  static const _coolDownDurationInDays = 30;
 
-    
   static void requestReview() async {
-    
-  final sharedPrefs = await SharedPreferences.getInstance();
+    final sharedPrefs = await SharedPreferences.getInstance();
 
     final lastReviewRequestDate =
         DateTime.tryParse(sharedPrefs.getString(PreferencesKey.lastAppReviewDate) ?? '') ??
@@ -22,12 +20,10 @@ class RequestReviewHandler {
 
     sharedPrefs.setString(PreferencesKey.lastAppReviewDate, DateTime.now().toString());
 
-
     final InAppReview inAppReview = InAppReview.instance;
 
     if (await inAppReview.isAvailable()) {
       inAppReview.requestReview();
     }
-
   }
 }
