@@ -74,16 +74,16 @@ abstract class WalletKeysViewModelBase with Store {
     return null;
   }
 
-  String get _path {
+  String get _scheme {
     switch (_wallet.type) {
       case WalletType.monero:
-        return 'monero_wallet:';
+        return 'monero-wallet';
       case WalletType.bitcoin:
-        return 'bitcoin_wallet:';
+        return 'bitcoin-wallet';
       case WalletType.litecoin:
-        return 'litecoin_wallet:';
+        return 'litecoin-wallet';
       case WalletType.haven:
-        return 'haven_wallet:';
+        return 'haven-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.toString()}');
     }
@@ -110,7 +110,7 @@ abstract class WalletKeysViewModelBase with Store {
 
   Future<Uri> get url async {
     return Uri(
-      path: _path,
+      scheme: _scheme,
       queryParameters: await _queryParams,
     );
   }
