@@ -225,21 +225,35 @@ class WalletRestorePage extends BasePage {
       .currentState
       !.seedWidgetStateKey
       .currentState
-      !.words
-      .toSet();
-    return seedWords
-      .toSet()
-      .difference(words)
-      .toSet()
-      .isEmpty;
+      !.words;
+
+    if (walletRestoreViewModel.type == WalletType.monero) {
+      return seedWords.every(
+        (seedWord) => words.any(
+          (word) => word.startsWith(seedWord)
+        )
+      );
+    }
+    return seedWords.every((String word) => words.contains(word));
   }
 
   Map<String, dynamic> _credentials() {
     final credentials = <String, dynamic>{};
 
     if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
-      credentials['seed'] = walletRestoreFromSeedFormKey
-          .currentState!.seedWidgetStateKey.currentState!.text;
+      final words = walletRestoreFromSeedFormKey
+          .currentState!.seedWidgetStateKey.currentState!.words;
+
+      final seed = walletRestoreFromSeedFormKey
+          .currentState!.seedWidgetStateKey.currentState!.text
+          .split(' ')
+          .map(
+            (seedWord) => words.firstWhere(
+              (word) => seedWord.startsWith(word)
+            )
+          ).join();
+
+      credentials['seed'] = seed;
 
       if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
         credentials['height'] = walletRestoreFromSeedFormKey
