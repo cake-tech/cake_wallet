@@ -60,10 +60,10 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 name: name,
                 password: password,
                 language: 'English',
-                address: address,
-                viewKey: viewKey,
-                spendKey: spendKey,
-                height: height);
+                address: restoreWallet?.address ?? '',
+                viewKey: restoreWallet?.viewKey ?? '',
+                spendKey: restoreWallet?.spendKey ?? '',
+                height: restoreWallet?.height ?? 0);
           case WalletType.bitcoin:
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
@@ -76,7 +76,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.monero:
             return monero!.createMoneroRestoreWalletFromSeedCredentials(
                 name: name,
-                height: height,
+                height: restoreWallet?.height ?? 0,
                 mnemonic: restoreWallet?.mnemonicSeed ?? '',
                 password: password);
           case WalletType.bitcoin:
