@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,8 +56,8 @@ Future<void> main() async {
 
       return true;
     };
-
-    final appDir = await getApplicationDocumentsDirectory();
+    setRootDirFromEnv();
+    final appDir = await getAppDir();
     await Hive.close();
     Hive.init(appDir.path);
 
