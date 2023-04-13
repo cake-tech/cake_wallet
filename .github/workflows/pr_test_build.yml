@@ -123,7 +123,6 @@ jobs:
         run: echo -e "id=com.cakewallet.test\nname=$GITHUB_HEAD_REF" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
-        continue-on-error: true
         run: |
           cd /opt/android/cake_wallet
           flutter build apk --release
@@ -142,14 +141,12 @@ jobs:
 #              --quiet
 
       - name: Rename apk file
-        continue-on-error: true
         run: |
           cd /opt/android/cake_wallet/build/app/outputs/apk/release
           mkdir test-apk
           cp app-release.apk test-apk/$GITHUB_HEAD_REF.apk
 
       - name: Upload Artifact
-        continue-on-error: true
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
