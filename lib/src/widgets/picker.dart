@@ -422,7 +422,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
-        onItemSelected(item!);
       },
       child: Container(
         height: 55,
