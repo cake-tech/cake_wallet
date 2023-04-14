@@ -21,6 +21,7 @@ import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 part 'trade_details_view_model.g.dart';
 
 class TradeDetailsViewModel = TradeDetailsViewModelBase with _$TradeDetailsViewModel;
@@ -121,23 +122,26 @@ abstract class TradeDetailsViewModelBase with Store {
           title: 'Track',
           value: buildURL,
           onTap: () {
-            launch(buildURL);
+            _launchUrl(buildURL);
           }));
     }
 
     if (trade.provider == ExchangeProviderDescription.sideShift) {
       final buildURL = 'https://sideshift.ai/orders/${trade.id.toString()}';
-      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+      items.add(
+          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
     }
 
     if (trade.provider == ExchangeProviderDescription.simpleSwap) {
       final buildURL = 'https://simpleswap.io/exchange?id=${trade.id.toString()}';
-      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+      items.add(
+          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
     }
 
     if (trade.provider == ExchangeProviderDescription.trocador) {
       final buildURL = 'https://trocador.app/en/checkout/${trade.id.toString()}';
-      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
+      items.add(
+          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
 
       items.add(StandartListItem(
           title: '${trade.providerName} ${S.current.id.toUpperCase()}',
@@ -147,5 +151,11 @@ abstract class TradeDetailsViewModelBase with Store {
         items.add(StandartListItem(
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
     }
+  }
+
+  void _launchUrl(String url) {
+    try {
+      launch(url);
+    } catch (e) {}
   }
 }

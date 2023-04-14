@@ -97,7 +97,6 @@ abstract class ExchangeViewModelBase with Store {
     receiveAddress = '';
     depositAddress = depositCurrency == wallet.currency
         ? wallet.walletAddresses.address : '';
-    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = wallet.type == WalletType.bitcoin ? 8 : 12;
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
@@ -287,6 +286,7 @@ abstract class ExchangeViewModelBase with Store {
 
       await _calculateBestRate();
     }
+    _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
 
     depositAmount = _cryptoNumberFormat
         .format(_enteredAmount / _bestRate)
@@ -312,6 +312,7 @@ abstract class ExchangeViewModelBase with Store {
 
       await _calculateBestRate();
     }
+    _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
 
     receiveAmount = _cryptoNumberFormat
         .format(_bestRate * _enteredAmount)
@@ -709,4 +710,8 @@ abstract class ExchangeViewModelBase with Store {
       providerList = _allProviders;
     }
   }
+
+  int get depositMaxDigits => depositCurrency == CryptoCurrency.btc ? 8 : 12;
+
+  int get receiveMaxDigits => receiveCurrency == CryptoCurrency.btc ? 8 : 12;
 }

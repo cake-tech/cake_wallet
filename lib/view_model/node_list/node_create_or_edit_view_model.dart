@@ -13,8 +13,7 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
     with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore,
-      this.nodeListViewModel)
+  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -68,7 +67,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   final WalletType _walletType;
   final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
-  final NodeListViewModel nodeListViewModel;
 
   @action
   void reset() {
@@ -100,16 +98,20 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
+    final node = Node(
+        uri: uri,
+        type: _walletType,
+        login: login,
+        password: password,
+        useSSL: useSSL,
+        trusted: trusted);
     try {
       state = IsExecutingState();
       if (editingNode != null) {
-        await nodeListViewModel.delete(editingNode);
+        await _nodeSource.put(editingNode.key, node);
+      } else {
+        await _nodeSource.add(node);
       }
-      final node =
-          Node(uri: uri, type: _walletType, login: login, password: password,
-              useSSL: useSSL, trusted: trusted);
-      await _nodeSource.add(node);
-
       if (saveAsCurrent) {
         _settingsStore.nodes[_walletType] = node;
       }

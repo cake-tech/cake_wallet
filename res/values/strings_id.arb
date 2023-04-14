@@ -472,7 +472,7 @@
 
   "submit_request" : "kirim permintaan",
 
-  "buy_alert_content" : "Saat ini kami hanya mendukung pembelian Bitcoin dan Litecoin. Untuk membeli Bitcoin atau Litecoin, silakan buat atau beralih ke dompet Bitcoin atau Litecoin Anda.",
+  "buy_alert_content" : "Saat ini kami hanya mendukung pembelian Bitcoin, Litecoin, dan Monero. Harap buat atau alihkan ke dompet Bitcoin, Litecoin, atau Monero Anda.",
   "sell_alert_content": "Saat ini kami hanya mendukung penjualan Bitcoin. Untuk menjual Bitcoin, silakan buat atau beralih ke dompet Bitcoin Anda.",
 
   "outdated_electrum_wallet_description" : "Dompet Bitcoin baru yang dibuat di Cake sekarang memiliki biji semai 24 kata. Wajib bagi Anda untuk membuat dompet Bitcoin baru dan mentransfer semua dana Anda ke dompet 24 kata baru, dan berhenti menggunakan dompet dengan biji semai 12 kata. Silakan lakukan ini segera untuk mengamankan dana Anda.",
@@ -678,5 +678,6 @@
   "optional_description": "Deskripsi opsional",
   "optional_name": "Nama penerima opsional",
   "clearnet_link": "Tautan clearnet",
-  "onion_link": "Tautan bawang"
+  "onion_link": "Tautan bawang",
+  "sell_monero_com_alert_content": "Menjual Monero belum didukung"
 }

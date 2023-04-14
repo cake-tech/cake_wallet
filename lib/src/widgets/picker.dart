@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
@@ -142,6 +143,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: <Widget>[
                 Column(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     if (widget.title?.isNotEmpty ?? false)
                       Container(
@@ -170,6 +172,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
                               maxHeight: containerHeight,
+                              maxWidth: ResponsiveLayoutUtil.kPopupWidth,
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -264,6 +267,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                     )
                   ],
                 ),
+                SizedBox(height: ResponsiveLayoutUtil.kPopupSpaceHeight),
                 AlertCloseButton(bottom: closeButtonBottom),
               ],
             ),
