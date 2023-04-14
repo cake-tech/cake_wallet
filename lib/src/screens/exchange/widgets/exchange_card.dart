@@ -407,7 +407,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                     builder: (context) => Stack(children: <Widget>[
                           BaseTextFormField(
                               controller: addressController,
-                              readOnly: true,
+                              // readOnly: true,
                               borderColor: Colors.transparent,
                               suffixIcon:
                                   SizedBox(width: _isMoneroWallet ? 80 : 36),
@@ -430,7 +430,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             height: 34,
                                             padding: EdgeInsets.only(top: 0),
                                             child: InkWell(
-                                              onTap: () async {
+                                              onTap: () async {                                        
                                                 final contact =
                                                     await Navigator.of(context,
                                                             rootNavigator: true)
