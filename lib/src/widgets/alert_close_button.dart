@@ -2,9 +2,10 @@ import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 
 class AlertCloseButton extends StatelessWidget {
-  AlertCloseButton({this.image});
+  AlertCloseButton({this.image, this.bottom});
 
   final Image? image;
+  final double? bottom;
 
   final closeButton = Image.asset(
     'assets/images/close.png',
@@ -13,7 +14,9 @@ class AlertCloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Positioned(
+        bottom: bottom ?? 60,
+        child: GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: Container(
             height: 42,
@@ -26,6 +29,6 @@ class AlertCloseButton extends StatelessWidget {
               child: image ?? closeButton,
             ),
           ),
-    );
+        ));
   }
 }
