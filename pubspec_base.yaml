@@ -34,7 +34,9 @@ dependencies:
   local_auth: ^2.1.0
   package_info: ^2.0.0
   #package_info_plus: ^1.4.2
-  devicelocale: 0.5.5
+  devicelocale:
+    git:
+      url: https://github.com/OmarHatem28/flutter-devicelocale
   auto_size_text: ^3.0.0
   dotted_border: ^2.0.0+2
   smooth_page_indicator: ^1.0.0+2
