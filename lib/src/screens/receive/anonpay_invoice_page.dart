@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +86,7 @@ class AnonPayInvoicePage extends BasePage {
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
-            decoration: BoxDecoration(
+            decoration: DeviceInfo.instance.isMobile ? BoxDecoration(
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(
@@ -96,7 +97,7 @@ class AnonPayInvoicePage extends BasePage {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-            ),
+            ) : null,
             child: Observer(builder: (_) {
               return Padding(
                 padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
@@ -174,7 +175,6 @@ class AnonPayInvoicePage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      Navigator.pop(context);
       switch (option) {
         case ReceivePageOption.mainnet:
           Navigator.popAndPushNamed(context, Routes.addressPage);

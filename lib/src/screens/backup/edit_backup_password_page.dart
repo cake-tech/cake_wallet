@@ -66,7 +66,8 @@ class EditBackupPasswordPage extends BasePage {
               leftButtonText: S.of(context).cancel,
               actionRightButton: () async {
                 await editBackupPasswordViewModel.save();
-                Navigator.of(dialogContext)..pop()..pop();
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pop();
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
         });

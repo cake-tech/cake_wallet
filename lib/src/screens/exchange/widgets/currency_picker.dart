@@ -1,9 +1,8 @@
-import 'dart:ui';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker_item_widget.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/currency.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -68,11 +67,9 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   @override
   Widget build(BuildContext context) {
     return AlertBackground(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Column(
+      child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               if (widget.title?.isNotEmpty ?? false)
                 Container(
@@ -94,10 +91,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
-                    color: Theme.of(context).accentTextTheme!.headline6!.color!,
+                    color: Theme.of(context).accentTextTheme.headline6!.color!,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height * 0.65,
+                        maxWidth: ResponsiveLayoutUtil.kPopupWidth
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -133,7 +131,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                               ),
                             ),
                           Divider(
-                            color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
+                            color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
                             height: 1,
                           ),
                           if (widget.selectedAtIndex != -1)
@@ -171,8 +169,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                   ),
                 ),
               ),
-            ],
-          ),
+           SizedBox(height: ResponsiveLayoutUtil.kPopupSpaceHeight),
           AlertCloseButton(),
         ],
       ),
