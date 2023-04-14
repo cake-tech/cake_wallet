@@ -21,9 +21,21 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ReceivePage extends BasePage {
-  ReceivePage({required this.addressListViewModel}) : _cryptoAmountFocus = FocusNode();
+  ReceivePage({required this.addressListViewModel}) : 
+    _cryptoAmountFocus = FocusNode(),
+    _amountController = TextEditingController(),
+    _formKey = GlobalKey<FormState>(){
+      _amountController.addListener(() {
+        if (_formKey.currentState!.validate()) {
+          addressListViewModel.changeAmount(_amountController.text);
+        }
+      });
+  }
 
   final WalletAddressListViewModel addressListViewModel;
+  final TextEditingController _amountController;
+  final GlobalKey<FormState> _formKey;
+  static const _heroTag = 'receive_page';
 
   @override
   String get title => S.current.receive;
@@ -97,7 +109,7 @@ class ReceivePage extends BasePage {
             iconSize: 25,
             onPressed: () {
               ShareUtil.share(
-                text: addressListViewModel.address.address,
+                text: addressListViewModel.uri.toString(),
                 context: context,
               );
             },
@@ -131,8 +143,10 @@ class ReceivePage extends BasePage {
                 padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
                 child: QRWidget(
                     addressListViewModel: addressListViewModel,
-                    heroDisabled: true,
+                    formKey: _formKey,
+                    heroTag: _heroTag,
                     amountTextFieldFocusNode: _cryptoAmountFocus,
+                    amountController: _amountController,
                     isLight: currentTheme.type == ThemeType.light),
               ),
               Observer(
@@ -220,8 +234,11 @@ class ReceivePage extends BasePage {
           Expanded(
             flex: 7,
             child: QRWidget(
+               formKey: _formKey,
+                heroTag: _heroTag,
                 addressListViewModel: addressListViewModel,
                 amountTextFieldFocusNode: _cryptoAmountFocus,
+                amountController: _amountController,
                 isLight: currentTheme.type == ThemeType.light),
           ),
           Expanded(

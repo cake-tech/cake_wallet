@@ -26,11 +26,23 @@ class AddressPage extends BasePage {
     required this.addressListViewModel,
     required this.dashboardViewModel,
     required this.receiveOptionViewModel,
-  }) : _cryptoAmountFocus = FocusNode();
+  }) : _cryptoAmountFocus = FocusNode(),
+      _formKey = GlobalKey<FormState>(),
+      _amountController = TextEditingController(){
+      _amountController.addListener(() {
+        if (_formKey.currentState!.validate()) {
+          addressListViewModel.changeAmount(
+            _amountController.text,
+          );
+        }
+    });
+  }
 
   final WalletAddressListViewModel addressListViewModel;
   final DashboardViewModel dashboardViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
+  final TextEditingController _amountController;
+  final GlobalKey<FormState> _formKey;
 
   final FocusNode _cryptoAmountFocus;
 
@@ -79,7 +91,7 @@ class AddressPage extends BasePage {
         iconSize: 25,
         onPressed: () {
           ShareUtil.share(
-            text: addressListViewModel.address.address,
+            text: addressListViewModel.uri.toString(),
             context: context,
           );
         },
@@ -142,8 +154,10 @@ class AddressPage extends BasePage {
               Expanded(
                   child: Observer(
                       builder: (_) => QRWidget(
+                          formKey: _formKey,
                           addressListViewModel: addressListViewModel,
                           amountTextFieldFocusNode: _cryptoAmountFocus,
+                          amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
               Observer(builder: (_) {

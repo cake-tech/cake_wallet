@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
@@ -13,28 +14,23 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 
 class QRWidget extends StatelessWidget {
-  QRWidget(
-      {required this.addressListViewModel,
-      required this.isLight,
-      this.qrVersion,
-      this.heroDisabled = false,
-      this.amountTextFieldFocusNode})
-      : amountController = TextEditingController(),
-        _formKey = GlobalKey<FormState>() {
-    amountController.addListener(() {
-      addressListViewModel.changeAmount(
-        _formKey.currentState!.validate() ? amountController.text : '',
-      );
-    });
-  }
+  QRWidget({
+    required this.addressListViewModel,
+    required this.isLight,
+    this.qrVersion,
+    this.heroTag,
+    required this.amountController,
+    required this.formKey,
+    this.amountTextFieldFocusNode,
+  });
 
   final WalletAddressListViewModel addressListViewModel;
   final TextEditingController amountController;
   final FocusNode? amountTextFieldFocusNode;
-  final GlobalKey<FormState> _formKey;
+  final GlobalKey<FormState> formKey;
   final bool isLight;
   final int? qrVersion;
-  final bool heroDisabled;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -66,18 +62,18 @@ class QRWidget extends StatelessWidget {
                     flex: 5,
                     child: GestureDetector(
                       onTap: () {
-                        changeBrightnessForRoute(() async {
-                          await Navigator.pushNamed(
-                            context,
-                            Routes.fullscreenQR,
-                            arguments: {
-                              'qrData': addressListViewModel.uri.toString(),
-                            },
-                          );
-                        });
+                        changeBrightnessForRoute(
+                          () async {
+                            await Navigator.pushNamed(context, Routes.fullscreenQR,
+                                arguments: QrViewData(
+                                  data: addressListViewModel.uri.toString(),
+                                  heroTag: heroTag,
+                                ));
+                          },
+                        );
                       },
                       child: Hero(
-                        tag: Key(addressListViewModel.uri.toString()),
+                        tag: Key(heroTag ?? addressListViewModel.uri.toString()),
                         child: Center(
                           child: AspectRatio(
                             aspectRatio: 1.0,
@@ -110,7 +106,7 @@ class QRWidget extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: CurrencyInputField(
                       focusNode: amountTextFieldFocusNode,
                       controller: amountController,

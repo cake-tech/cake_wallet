@@ -1,16 +1,17 @@
+import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CurrencyInputField extends StatelessWidget {
-  const CurrencyInputField(
-      {super.key,
-      required this.onTapPicker,
-      required this.selectedCurrency,
-      this.focusNode,
-      required this.controller,
-    });
+  const CurrencyInputField({
+    super.key,
+    required this.onTapPicker,
+    required this.selectedCurrency,
+    this.focusNode,
+    required this.controller,
+  });
   final Function() onTapPicker;
   final Currency selectedCurrency;
   final FocusNode? focusNode;
@@ -23,51 +24,64 @@ class CurrencyInputField extends StatelessWidget {
       color: Colors.white,
       height: 8,
     );
+    final _width = MediaQuery.of(context).size.width;
+
     return Column(
       children: [
-        Container(
-            decoration: BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(
-                      color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
-                      width: 1)),
-            ),
-            child: Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Center(
-                child: Row(
-                  children: [
-                    Spacer(),
-                    Container(
-                      padding: EdgeInsets.only(right: 8),
-                      height: 32,
-                      child: InkWell(
-                        onTap: onTapPicker,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(right: 5),
-                                child: arrowBottomPurple,
-                              ),
-                              Text(selectedCurrency.name.toUpperCase(),
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white))
-                            ]),
-                      ),
-                    ),
-                    selectedCurrency.tag != null
-                        ? Padding(
-                            padding: const EdgeInsets.only(right: 3.0),
-                            child: Container(
-                              height: 32,
-                              decoration: BoxDecoration(
+        Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: SizedBox(
+            height: 40,
+            child: BaseTextFormField(
+              focusNode: focusNode,
+              controller: controller,
+              keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,8}'))],
+              hintText: '0.000',
+              placeholderTextStyle: TextStyle(
+                color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                fontWeight: FontWeight.w600,
+              ),
+              borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
+              textColor: Colors.white,
+              textStyle: TextStyle(
+                color: Colors.white,
+              ),
+              prefixIcon: Padding(
+                padding: EdgeInsets.only(
+                  left: _width / 4,
+                ),
+                child: Container(
+                  padding: EdgeInsets.only(right: 8),
+                  child: InkWell(
+                    onTap: onTapPicker,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(right: 5),
+                            child: arrowBottomPurple,
+                          ),
+                          Text(
+                            selectedCurrency.name.toUpperCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                          if (selectedCurrency.tag != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 3.0),
+                              child: Container(
+                                decoration: BoxDecoration(
                                   color: Theme.of(context).primaryTextTheme.headline4!.color!,
-                                  borderRadius: BorderRadius.all(Radius.circular(6))),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(6.0),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(6),
+                                  ),
+                                ),
+                                child: Center(
                                   child: Text(
                                     selectedCurrency.tag!,
                                     style: TextStyle(
@@ -82,55 +96,25 @@ class CurrencyInputField extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          )
-                        : Container(),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 4.0),
-                      child: Text(':',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
-                    ),
-                    SizedBox(
-                      width: 60,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: BaseTextFormField(
-                              focusNode: focusNode,
-                              controller: controller,
-                              textInputAction: TextInputAction.next,
-                              enabled: true,
-                              textAlign: TextAlign.left,
-                              keyboardType:
-                                  TextInputType.numberWithOptions(signed: false, decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
-                              ],
-                              hintText: '0.0000',
-                              borderColor: Colors.transparent,
-                              //widget.borderColor,
-                              textStyle: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                              placeholderTextStyle: TextStyle(
-                                fontSize: 16,
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 3.0),
+                            child: Text(
+                              ':',
+                              style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context).accentTextTheme.headline1!.decorationColor!,
+                                fontSize: 20,
+                                color: Colors.white,
                               ),
-                              validator: null,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Spacer(),
-                  ],
+                        ]),
+                  ),
                 ),
               ),
             ),
           ),
+        ),
       ],
     );
   }
-
 }

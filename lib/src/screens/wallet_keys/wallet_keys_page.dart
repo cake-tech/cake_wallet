@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
@@ -31,9 +32,7 @@ class WalletKeysPage extends BasePage {
         await Navigator.pushNamed(
           context,
           Routes.fullscreenQR,
-          arguments: {
-            'qrData': (await walletKeysViewModel.url).toString(),
-          },
+          arguments: QrViewData(data: await walletKeysViewModel.url.toString()),
         );
         // ignore: unawaited_futures
         DeviceDisplayBrightness.setBrightness(brightness);
