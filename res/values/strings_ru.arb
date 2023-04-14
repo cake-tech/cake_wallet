@@ -697,5 +697,6 @@
   "optional_name": "Необязательное имя получателя",
   "clearnet_link": "Клирнет ссылка",
   "onion_link": "Луковая ссылка",
+  "settings": "Настройки",
   "sell_monero_com_alert_content": "Продажа Monero пока не поддерживается"
 }

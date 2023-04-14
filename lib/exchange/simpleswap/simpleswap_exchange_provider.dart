@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -29,7 +30,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   static const rangePath = '/v1/get_ranges';
   static const getExchangePath = '/v1/get_exchange';
   static const createExchangePath = '/v1/create_exchange';
-  static const apiKey = secrets.simpleSwapApiKey;
+  static final apiKey = DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
 
   @override
   ExchangeProviderDescription get description =>

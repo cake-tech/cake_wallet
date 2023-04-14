@@ -697,5 +697,6 @@
   "onion_link": "Onion link",
   "decimal_places_error": "Too many decimal places",
   "edit_node": "Edit Node",
+  "settings": "Settings",
   "sell_monero_com_alert_content": "Selling Monero is not supported yet"
 }

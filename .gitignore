@@ -135,3 +135,8 @@ assets/images/app_logo.png
 /pubspec.lock
 /android/app.properties
 /android/app/src/main/AndroidManifest.xml
+
+
+macos/Runner/Info.plist
+macos/Runner/DebugProfile.entitlements
+macos/Runner/Release.entitlements
