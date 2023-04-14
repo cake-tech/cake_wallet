@@ -9,7 +9,6 @@ dependencies:
   qr_flutter: ^4.0.0
   uuid: 3.0.6
   shared_preferences: 2.0.15
-  shared_preferences_android: 2.1.0
   flutter_secure_storage:
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
@@ -72,6 +71,9 @@ dependencies:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
       version: 1.0.0
+
+dependency_overrides:
+  shared_preferences_android: 2.1.0
 
 dev_dependencies:
   flutter_test:
