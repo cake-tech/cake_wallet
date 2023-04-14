@@ -696,5 +696,6 @@
   "optional_name": "Додаткове ім'я одержувача",
   "clearnet_link": "Посилання Clearnet",
   "onion_link": "Посилання на цибулю",
+  "settings": "Налаштування",
   "sell_monero_com_alert_content": "Продаж Monero ще не підтримується"
 }

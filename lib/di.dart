@@ -1,17 +1,22 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
-import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -22,8 +27,11 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
@@ -143,7 +151,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -219,12 +226,16 @@ Future setup(
         () => SharedPreferences.getInstance());
   }
 
-  final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
-      (secrets.wyreApiKey?.isNotEmpty ?? false) &&
-      (secrets.wyreAccountId?.isNotEmpty ?? false);
+  final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty ?? false) &&
+      (secrets.wyreApiKey.isNotEmpty ?? false) &&
+      (secrets.wyreAccountId.isNotEmpty ?? false);
 
   final settingsStore = await SettingsStoreBase.load(
-      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
+    nodeSource: _nodeSource,
+    isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+    // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
+    initialTheme: DeviceInfo.instance.isMobile ? null : ThemeList.darkTheme,
+  );
 
   if (_isSetupFinished) {
     return;
@@ -375,42 +386,64 @@ Future setup(
       .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
           (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
               onAuthenticationFinished: onAuthFinished,
-              closable: closable ?? false));
+              closable: closable));
 
   getIt.registerFactory(() =>
    BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
-  
+  getIt.registerFactory<DashboardPage>(() => DashboardPage(
+      balancePage: getIt.get<BalancePage>(),
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+    ));
+  getIt.registerFactory<DesktopSidebarWrapper>(() {
+    final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+    return DesktopSidebarWrapper(
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
+      child: getIt.get<DesktopDashboardPage>(param1: _navigatorKey),
+      desktopNavigatorKey: _navigatorKey,
+    );
+  });
+  getIt.registerFactoryParam<DesktopDashboardPage, GlobalKey<NavigatorState>, void>(
+      (desktopKey, _) => DesktopDashboardPage(
+        balancePage: getIt.get<BalancePage>(),
+        dashboardViewModel: getIt.get<DashboardViewModel>(),
+        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+        desktopKey: desktopKey,
+      ));
+
+  getIt.registerFactory<TransactionsPage>(() => TransactionsPage(dashboardViewModel: getIt.get<DashboardViewModel>()));
+
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>((pageOption, _) => ReceiveOptionViewModel(
       getIt.get<AppStore>().wallet!, pageOption));
 
-  getIt.registerFactoryParam<AnonInvoicePageViewModel, List<dynamic>, void>((args, _) { 
+  getIt.registerFactoryParam<AnonInvoicePageViewModel, List<dynamic>, void>((args, _) {
     final address = args.first as String;
     final pageOption = args.last as ReceivePageOption;
     return AnonInvoicePageViewModel(
-      getIt.get<AnonPayApi>(), 
-      address, 
-      getIt.get<SettingsStore>(), 
-      getIt.get<AppStore>().wallet!, 
-      _anonpayInvoiceInfoSource, 
+      getIt.get<AnonPayApi>(),
+      address,
+      getIt.get<SettingsStore>(),
+      getIt.get<AppStore>().wallet!,
+      _anonpayInvoiceInfoSource,
       getIt.get<SharedPreferences>(),
       pageOption,
-    ); 
+    );
     });
 
-  getIt.registerFactoryParam<AnonPayInvoicePage, List<dynamic>, void>((List<dynamic> args, _) { 
+  getIt.registerFactoryParam<AnonPayInvoicePage, List<dynamic>, void>((List<dynamic> args, _) {
     final pageOption = args.last as ReceivePageOption;
     return AnonPayInvoicePage(
-       getIt.get<AnonInvoicePageViewModel>(param1: args), 
+       getIt.get<AnonInvoicePageViewModel>(param1: args),
        getIt.get<ReceiveOptionViewModel>(param1: pageOption));
-    });  
-  
+    });
+
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<AddressPage>(() => AddressPage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-      walletViewModel: getIt.get<DashboardViewModel>(),
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
       receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>()));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
@@ -445,13 +478,25 @@ Future setup(
   getIt.registerFactory(() => SendTemplatePage(
       sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
-  getIt.registerFactory(() => WalletListViewModel(
-      _walletInfoSource,
-      getIt.get<AppStore>(),
-      getIt.get<WalletLoadingService>(),
-      getIt.get<AuthService>(),
-    ),
-  );
+  if (DeviceInfo.instance.isMobile) {
+    getIt.registerFactory(() => WalletListViewModel(
+        _walletInfoSource,
+        getIt.get<AppStore>(),
+        getIt.get<WalletLoadingService>(),
+        getIt.get<AuthService>(),
+      ),
+    );
+  } else {
+    // register wallet list view model as singleton on desktop since it can be accessed
+    // from multiple places at the same time (Wallets DropDown, Wallets List in settings)
+    getIt.registerLazySingleton(() => WalletListViewModel(
+        _walletInfoSource,
+        getIt.get<AppStore>(),
+        getIt.get<WalletLoadingService>(),
+        getIt.get<AuthService>(),
+      ),
+    );
+  }
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
@@ -523,7 +568,7 @@ Future setup(
           isNewWalletCreated: isWalletCreated));
 
   getIt
-      .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>().wallet!));
+      .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
 
@@ -543,8 +588,7 @@ Future setup(
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(
-        _nodeSource, appStore.wallet!, appStore.settingsStore);
+    return NodeListViewModel(_nodeSource, appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
@@ -570,13 +614,19 @@ Future setup(
           editingNode: editingNode,
           isSelected: isSelected));
 
-  getIt.registerFactory(() => OnRamperPage(
+  getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
     settingsStore: getIt.get<AppStore>().settingsStore,
-    wallet: getIt.get<AppStore>().wallet!));
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
 
-  getIt.registerFactory(() => PayFuraPage(
-      settingsStore: getIt.get<AppStore>().settingsStore,
-      wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => OnRamperPage(getIt.get<OnRamperBuyProvider>()));
+
+  getIt.registerFactory<PayfuraBuyProvider>(() => PayfuraBuyProvider(
+    settingsStore: getIt.get<AppStore>().settingsStore,
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
+
+  getIt.registerFactory(() => PayFuraPage(getIt.get<PayfuraBuyProvider>()));
 
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>().wallet!,
@@ -759,8 +809,6 @@ Future setup(
             param1: item, param2: unspentCoinsListViewModel));
   });
 
-  getIt.registerFactory(() => WakeLock());
-
   getIt.registerFactory(() => YatService());
 
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
@@ -873,10 +921,14 @@ Future setup(
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
-  
+
   getIt.registerFactory(() => AnonPayApi(useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
-    wallet: getIt.get<AppStore>().wallet!) 
+    wallet: getIt.get<AppStore>().wallet!)
   );
+
+  getIt.registerFactory(() => DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>()));
+
+  getIt.registerFactory(() => DesktopSidebarViewModel());
 
   getIt.registerFactoryParam<AnonpayDetailsViewModel, AnonpayInvoiceInfo, void>(
   (AnonpayInvoiceInfo anonpayInvoiceInfo, _)
@@ -890,7 +942,7 @@ Future setup(
     (AnonpayInfoBase anonpayInvoiceInfo, _) => AnonPayReceivePage(invoiceInfo: anonpayInvoiceInfo));
 
   getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
-    (AnonpayInvoiceInfo anonpayInvoiceInfo, _) 
+    (AnonpayInvoiceInfo anonpayInvoiceInfo, _)
     => AnonpayDetailsPage(anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
 
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(

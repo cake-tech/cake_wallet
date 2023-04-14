@@ -180,14 +180,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll
           || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
       final int totalAmount = outputs.fold(0, (acc, value) =>
           acc + (value.formattedCryptoAmount ?? 0));
 
       if (unlockedBalance < totalAmount) {
-        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
       final moneroOutputs = outputs.map((output) {
@@ -222,7 +222,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         final formattedBalance = moneroAmountToString(amount: unlockedBalance);
 
         throw MoneroTransactionCreationException(
-            'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
       pendingTransactionDescription =

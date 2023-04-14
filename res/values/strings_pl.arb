@@ -697,5 +697,6 @@
   "optional_name": "Opcjonalna nazwa odbiorcy",
   "clearnet_link": "łącze Clearnet",
   "onion_link": "Łącznik cebulowy",
+  "settings": "Ustawienia",
   "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana"
 }

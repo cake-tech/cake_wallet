@@ -241,8 +241,8 @@ abstract class SettingsStoreBase with Store {
       {required Box<Node> nodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      BalanceDisplayMode initialBalanceDisplayMode =
-          BalanceDisplayMode.availableBalance}) async {
+      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
+      ThemeBase? initialTheme}) async {
 
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final currentFiatCurrency = FiatCurrency.deserialize(raw:
@@ -292,7 +292,7 @@ abstract class SettingsStoreBase with Store {
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
             : ThemeType.bright.index;
-    final savedTheme = ThemeList.deserialize(
+    final savedTheme = initialTheme ?? ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
             legacyTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();

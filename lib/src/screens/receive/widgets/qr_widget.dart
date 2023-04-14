@@ -1,4 +1,5 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
@@ -35,7 +36,7 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).textTheme!.subtitle1!.decorationColor!);
+        color: Theme.of(context).textTheme.subtitle1!.decorationColor!);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -51,23 +52,18 @@ class QRWidget extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
+                    color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
               ),
             ),
             Row(
               children: <Widget>[
                 Spacer(flex: 3),
                 Observer(
-                  builder: (_) {
-                    return Flexible(
-                      flex: 5,
-                      child: GestureDetector(
-                        onTap: () async {
-                          // Get the current brightness:
-                          final double brightness = await DeviceDisplayBrightness.getBrightness();
-
-                          // ignore: unawaited_futures
-                          DeviceDisplayBrightness.setBrightness(1.0);
+                  builder: (_) => Flexible(
+                    flex: 5,
+                    child: GestureDetector(
+                      onTap: () {
+                        changeBrightnessForRoute(() async {
                           await Navigator.pushNamed(
                             context,
                             Routes.fullscreenQR,
@@ -75,31 +71,28 @@ class QRWidget extends StatelessWidget {
                               'qrData': addressListViewModel.uri.toString(),
                             },
                           );
-                          // ignore: unawaited_futures
-                          DeviceDisplayBrightness.setBrightness(brightness);
-                        },
-                        child: Hero(
-                          tag: Key(addressListViewModel.uri.toString()),
-                          child: Center(
-                            child: AspectRatio(
-                              aspectRatio: 1.0,
-                              child: Container(
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    width: 3,
-                                    color:
-                                        Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-                                  ),
+                        });
+                      },
+                      child: Hero(
+                        tag: Key(addressListViewModel.uri.toString()),
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: 1.0,
+                            child: Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 3,
+                                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                                 ),
-                                child: QrImage(data: addressListViewModel.uri.toString(), version: qrVersion),
                               ),
+                              child: QrImage(data: addressListViewModel.uri.toString()),
                             ),
                           ),
                         ),
                       ),
-                    );
-                  }
+                    ),
+                  ),
                 ),
                 Spacer(flex: 3)
               ],
@@ -175,5 +168,24 @@ class QRWidget extends StatelessWidget {
           )
       ],
     );
+  }
+
+  Future<void> changeBrightnessForRoute(Future<void> Function() navigation) async {
+    // if not mobile, just navigate
+    if (!DeviceInfo.instance.isMobile) {
+      navigation();
+      return;
+    }
+
+    // Get the current brightness:
+    final brightness = await DeviceDisplayBrightness.getBrightness();
+
+    // ignore: unawaited_futures
+    DeviceDisplayBrightness.setBrightness(1.0);
+
+    await navigation();
+
+    // ignore: unawaited_futures
+    DeviceDisplayBrightness.setBrightness(brightness);
   }
 }

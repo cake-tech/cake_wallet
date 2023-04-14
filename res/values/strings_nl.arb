@@ -697,5 +697,6 @@
   "optional_name": "Optionele naam ontvanger",
   "clearnet_link": "Clearnet-link",
   "onion_link": "Ui koppeling",
+  "settings": "Instellingen",
   "sell_monero_com_alert_content": "Het verkopen van Monero wordt nog niet ondersteund"
 }
