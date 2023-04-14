@@ -697,5 +697,6 @@
   "optional_name": "वैकल्पिक प्राप्तकर्ता नाम",
   "clearnet_link": "क्लियरनेट लिंक",
   "onion_link": "प्याज का लिंक",
+  "settings": "समायोजन",
   "sell_monero_com_alert_content": "मोनेरो बेचना अभी तक समर्थित नहीं है"
 }

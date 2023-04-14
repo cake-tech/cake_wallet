@@ -696,5 +696,6 @@
   "optional_name": "可选收件人姓名",
   "clearnet_link": "明网链接",
   "onion_link": "洋葱链接",
+  "settings": "设置",
   "sell_monero_com_alert_content": "尚不支持出售门罗币"
 }

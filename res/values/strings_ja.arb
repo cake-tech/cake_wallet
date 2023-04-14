@@ -697,5 +697,6 @@
   "optional_name": "オプションの受信者名",
   "clearnet_link": "クリアネット リンク",
   "onion_link": "オニオンリンク",
+  "settings": "設定",
   "sell_monero_com_alert_content": "モネロの販売はまだサポートされていません"
 }
