@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cw_core/balance.dart';
 import 'package:web3dart/web3dart.dart';
@@ -11,10 +12,16 @@ class EthereumBalance extends Balance {
   final EtherAmount balance;
 
   @override
-  String get formattedAdditionalBalance => balance.getValueInUnit(EtherUnit.ether).toString();
+  String get formattedAdditionalBalance {
+    final String formattedBalance = balance.getValueInUnit(EtherUnit.ether).toString();
+    return formattedBalance.substring(0, min(12, formattedBalance.length));
+  }
 
   @override
-  String get formattedAvailableBalance => balance.getValueInUnit(EtherUnit.ether).toString();
+  String get formattedAvailableBalance {
+    final String formattedBalance = balance.getValueInUnit(EtherUnit.ether).toString();
+    return formattedBalance.substring(0, min(12, formattedBalance.length));
+  }
 
   String toJSON() => json.encode({'balanceInWei': balance.getInWei.toString()});
 

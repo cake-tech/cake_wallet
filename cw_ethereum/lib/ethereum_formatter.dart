@@ -1,6 +1,6 @@
-import 'package:web3dart/web3dart.dart';
+import 'dart:math';
 
 class EthereumFormatter {
   static int parseEthereumAmount(String amount) =>
-      EtherAmount.fromUnitAndValue(EtherUnit.ether, amount).getInWei.toInt();
+      BigInt.from(double.parse(amount) * (pow(10, 18))).toInt();
 }

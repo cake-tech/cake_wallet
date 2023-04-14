@@ -1,10 +1,7 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
