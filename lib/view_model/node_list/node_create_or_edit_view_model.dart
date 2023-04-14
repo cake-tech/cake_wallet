@@ -132,6 +132,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         useSSL: useSSL,
         trusted: trusted);
     try {
+      connectionState = IsExecutingState();
       final isAlive = await node.requestNode();
       connectionState = ExecutedSuccessfullyState(payload: isAlive);
     } catch (e) {
