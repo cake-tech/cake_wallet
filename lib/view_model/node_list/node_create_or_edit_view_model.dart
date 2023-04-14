@@ -93,14 +93,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   void setTrusted(bool val) => trusted = val;
 
-  Node get node => Node(
-      uri: uri,
-      type: _walletType,
-      login: login,
-      password: password,
-      useSSL: useSSL,
-      trusted: trusted);
-
   @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
@@ -114,9 +106,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       state = IsExecutingState();
       if (editingNode != null) {
         await _nodeSource.put(editingNode.key, node);
-      } else if (existingNode != null) {
-        final node = existingNode;
-        setAsCurrent(node!);
+      } else if (existingNode(node) != null) {
+        setAsCurrent(existingNode(node)!);
       } else {
         await _nodeSource.add(node);
         setAsCurrent(_nodeSource.values.last);
@@ -133,6 +124,13 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> connect() async {
+    final node = Node(
+        uri: uri,
+        type: _walletType,
+        login: login,
+        password: password,
+        useSSL: useSSL,
+        trusted: trusted);
     try {
       final isAlive = await node.requestNode();
       connectionState = ExecutedSuccessfullyState(payload: isAlive);
@@ -141,7 +139,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     }
   }
 
-  Node? get existingNode {
+  Node? existingNode(Node node) {
     final nodes = _nodeSource.values.toList();
     nodes.forEach((item) {
       item.login ??= '';
