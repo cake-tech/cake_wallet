@@ -1,10 +1,8 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
@@ -16,9 +14,6 @@ class BalancePage extends StatelessWidget{
 
   final DashboardViewModel dashboardViewModel;
   final SettingsStore settingsStore;
-  
-  Color get backgroundLightColor =>
-      settingsStore.currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +24,7 @@ class BalancePage extends StatelessWidget{
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 56),
+          SizedBox(height: ResponsiveLayoutUtil.instance.isMobile(context) ? 56 : 16),
           Container(
             margin: const EdgeInsets.only(left: 24, bottom: 16),
             child: Observer(builder: (_) {

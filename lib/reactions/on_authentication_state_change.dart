@@ -9,8 +9,8 @@ ReactionDisposer? _onAuthenticationStateChange;
 
 dynamic loginError;
 
-void startAuthenticationStateChange(AuthenticationStore authenticationStore,
-    GlobalKey<NavigatorState> navigatorKey) {
+void startAuthenticationStateChange(
+    AuthenticationStore authenticationStore, GlobalKey<NavigatorState> navigatorKey) {
   _onAuthenticationStateChange ??= autorun((_) async {
     final state = authenticationStore.state;
 

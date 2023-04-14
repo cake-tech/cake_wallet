@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:flutter/cupertino.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -21,7 +21,12 @@ class AlertBackground extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
             decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
-            child: child,
+            child: Center(
+              child: Container(
+                width: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint,
+                child: child,
+              ),
+            ),
           ),
         ),
       ),

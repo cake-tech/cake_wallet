@@ -166,14 +166,14 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll
           || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw HavenTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+        throw HavenTransactionCreationException('You do not have enough coins to send this amount.');
       }
 
       final int totalAmount = outputs.fold(0, (acc, value) =>
           acc + (value.formattedCryptoAmount ?? 0));
 
       if (unlockedBalance < totalAmount) {
-        throw HavenTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+        throw HavenTransactionCreationException('You do not have enough coins to send this amount.');
       }
 
       final moneroOutputs = outputs.map((output) =>
@@ -204,7 +204,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
         final formattedBalance = moneroAmountToString(amount: unlockedBalance);
 
         throw HavenTransactionCreationException(
-            'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
       pendingTransactionDescription =
