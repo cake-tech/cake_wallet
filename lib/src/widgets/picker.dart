@@ -351,7 +351,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 padding: EdgeInsets.only(left: image != null ? 12 : 0),
                 child: Row(
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Text(
                         widget.displayItem?.call(item) ?? item.toString(),
                         softWrap: true,
@@ -438,7 +438,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 padding: EdgeInsets.only(left: image != null ? 12 : 0),
                 child: Row(
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Text(
                         widget.displayItem?.call(item) ?? item.toString(),
                         softWrap: true,
