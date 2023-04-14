@@ -1,6 +1,7 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
@@ -20,13 +21,12 @@ class QRWidget extends StatelessWidget {
       this.amountTextFieldFocusNode})
       : amountController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
-      amountController.addListener((){
-        addressListViewModel.changeAmount(
-          _formKey.currentState!.validate() ? amountController.text : '',
-          );
-        }
+    amountController.addListener(() {
+      addressListViewModel.changeAmount(
+        _formKey.currentState!.validate() ? amountController.text : '',
       );
-    }
+    });
+  }
 
   final WalletAddressListViewModel addressListViewModel;
   final TextEditingController amountController;
@@ -62,16 +62,11 @@ class QRWidget extends StatelessWidget {
               children: <Widget>[
                 Spacer(flex: 3),
                 Observer(
-                  builder: (_) {
-                    return Flexible(
-                      flex: 5,
-                      child: GestureDetector(
-                        onTap: () async {
-                          // Get the current brightness:
-                          final double brightness = await DeviceDisplayBrightness.getBrightness();
-
-                          // ignore: unawaited_futures
-                          DeviceDisplayBrightness.setBrightness(1.0);
+                  builder: (_) => Flexible(
+                    flex: 5,
+                    child: GestureDetector(
+                      onTap: () {
+                        changeBrightnessForRoute(() async {
                           await Navigator.pushNamed(
                             context,
                             Routes.fullscreenQR,
@@ -79,110 +74,120 @@ class QRWidget extends StatelessWidget {
                               'qrData': addressListViewModel.uri.toString(),
                             },
                           );
-                          // ignore: unawaited_futures
-                          DeviceDisplayBrightness.setBrightness(brightness);
-                        },
-                        child: HeroMode(
-                          enabled: !heroDisabled,
-                          child: Hero(
-                            tag: Key(addressListViewModel.uri.toString()),
-                            child: Center(
-                              child: AspectRatio(
-                                aspectRatio: 1.0,
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 3,
-                                      color:
-                                          Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
-                                    ),
-                                  ),
-                                  child: QrImage(data: addressListViewModel.uri.toString(), version: qrVersion),
+                        });
+                      },
+                      child: Hero(
+                        tag: Key(addressListViewModel.uri.toString()),
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: 1.0,
+                            child: Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 3,
+                                  color:
+                                      Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                                 ),
                               ),
+                              child: QrImage(data: addressListViewModel.uri.toString()),
                             ),
                           ),
                         ),
                       ),
-                    );
-                  }
+                    ),
+                  ),
                 ),
                 Spacer(flex: 3)
               ],
             ),
           ],
         ),
-          Observer(
-            builder: (_) {
-              return Padding(
-                padding: EdgeInsets.only(top: 10),
+        Observer(builder: (_) {
+          return Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Form(
+                    key: _formKey,
+                    child: CurrencyInputField(
+                      focusNode: amountTextFieldFocusNode,
+                      controller: amountController,
+                      onTapPicker: () => _presentPicker(context),
+                      selectedCurrency: addressListViewModel.selectedCurrency,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+        Padding(
+          padding: EdgeInsets.only(top: 20, bottom: 8),
+          child: Builder(
+            builder: (context) => Observer(
+              builder: (context) => GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: addressListViewModel.address.address));
+                  showBar<void>(context, S.of(context).copied_to_clipboard);
+                },
                 child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
-                      child: Form(
-                        key: _formKey,
-                        child:  CurrencyInputField(
-                          focusNode: amountTextFieldFocusNode,
-                          controller: amountController,
-                          onTapPicker: () => _presentPicker(context),
-                          selectedCurrency: addressListViewModel.selectedCurrency,
-                        ) ,
+                      child: Text(
+                        addressListViewModel.address.address,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
                       ),
                     ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 12),
+                      child: copyImage,
+                    )
                   ],
-                ),
-              );
-            }
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 20, bottom: 8),
-            child: Builder(
-              builder: (context) => Observer(
-                builder: (context) => GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: addressListViewModel.address.address));
-                    showBar<void>(context, S.of(context).copied_to_clipboard);
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          addressListViewModel.address.address,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 12),
-                        child: copyImage,
-                      )
-                    ],
-                  ),
                 ),
               ),
             ),
-          )
+          ),
+        )
       ],
     );
   }
 
-
-void _presentPicker(BuildContext context) {                  
+  void _presentPicker(BuildContext context) {
     showPopUp<void>(
       builder: (_) => CurrencyPicker(
-        selectedAtIndex:  addressListViewModel.selectedCurrencyIndex,
+        selectedAtIndex: addressListViewModel.selectedCurrencyIndex,
         items: addressListViewModel.currencies,
         hintText: S.of(context).search_currency,
         onItemSelected: addressListViewModel.selectCurrency,
       ),
       context: context,
     );
+  }
+
+  Future<void> changeBrightnessForRoute(Future<void> Function() navigation) async {
+    // if not mobile, just navigate
+    if (!DeviceInfo.instance.isMobile) {
+      navigation();
+      return;
+    }
+
+    // Get the current brightness:
+    final brightness = await DeviceDisplayBrightness.getBrightness();
+
+    // ignore: unawaited_futures
+    DeviceDisplayBrightness.setBrightness(1.0);
+
+    await navigation();
+
+    // ignore: unawaited_futures
+    DeviceDisplayBrightness.setBrightness(brightness);
   }
 }

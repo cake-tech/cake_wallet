@@ -24,12 +24,12 @@ import 'package:cake_wallet/di.dart';
 class AddressPage extends BasePage {
   AddressPage({
     required this.addressListViewModel,
-    required this.walletViewModel,
+    required this.dashboardViewModel,
     required this.receiveOptionViewModel,
   }) : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
-  final DashboardViewModel walletViewModel;
+  final DashboardViewModel dashboardViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
 
   final FocusNode _cryptoAmountFocus;
@@ -47,28 +47,10 @@ class AddressPage extends BasePage {
   bool effectsInstalled = false;
 
   @override
-  Widget leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
-      size: 16,
-    );
+  Color get titleColor => Colors.white;
 
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
-            onPressed: () => onClose(context),
-            child: _backButton),
-      ),
-    );
-  }
+  @override
+  bool get canUseCloseIcon => true;
 
   @override
   Widget middle(BuildContext context) =>
@@ -87,26 +69,27 @@ class AddressPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-      return  Material(
-            color: Colors.transparent,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              iconSize: 25,
-              onPressed: () {
-                ShareUtil.share(
-                  text: addressListViewModel.address.address,
-                  context: context,
-                );
-              },
-              icon: Icon(Icons.share,
-                  size: 20,
-                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
-                ),
-            ),
+    return Material(
+      color: Colors.transparent,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints(),
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        iconSize: 25,
+        onPressed: () {
+          ShareUtil.share(
+            text: addressListViewModel.address.address,
+            context: context,
           );
+        },
+        icon: Icon(
+          Icons.share,
+          size: 20,
+          color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+        ),
+      ),
+    );
   }
 
   @override
@@ -114,8 +97,8 @@ class AddressPage extends BasePage {
     _setEffects(context);
 
     autorun((_) async {
-      if (!walletViewModel.isOutdatedElectrumWallet ||
-          !walletViewModel.settingsStore.shouldShowReceiveWarning) {
+      if (!dashboardViewModel.isOutdatedElectrumWallet ||
+          !dashboardViewModel.settingsStore.shouldShowReceiveWarning) {
         return;
       }
 
@@ -131,7 +114,7 @@ class AddressPage extends BasePage {
                   actionLeftButton: () => Navigator.of(context).pop(),
                   rightButtonText: S.of(context).do_not_show_me,
                   actionRightButton: () {
-                    walletViewModel.settingsStore.setShouldShowReceiveWarning(false);
+                    dashboardViewModel.settingsStore.setShouldShowReceiveWarning(false);
                     Navigator.of(context).pop();
                   });
             });
@@ -156,12 +139,13 @@ class AddressPage extends BasePage {
           padding: EdgeInsets.fromLTRB(24, 0, 24, 32),
           child: Column(
             children: <Widget>[
-            Expanded(
-              child: Observer(builder: (_) => QRWidget(
-                addressListViewModel: addressListViewModel,
-                amountTextFieldFocusNode: _cryptoAmountFocus,
-                isLight: walletViewModel.settingsStore.currentTheme.type == ThemeType.light))
-              ),
+              Expanded(
+                  child: Observer(
+                      builder: (_) => QRWidget(
+                          addressListViewModel: addressListViewModel,
+                          amountTextFieldFocusNode: _cryptoAmountFocus,
+                          isLight: dashboardViewModel.settingsStore.currentTheme.type ==
+                              ThemeType.light))),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
                     ? GestureDetector(
@@ -219,7 +203,6 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      Navigator.pop(context);
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pushReplacementNamed(

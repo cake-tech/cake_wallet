@@ -17,6 +17,9 @@ class MarketPlaceItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      hoverColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Stack(
         children: [
           Container(
