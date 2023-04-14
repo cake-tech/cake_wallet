@@ -105,6 +105,18 @@ class WelcomePage extends BasePage {
                                 Padding(
                                   padding: EdgeInsets.only(top: 5),
                                   child: Text(
+                                    appTitle(context),
+                                    style: TextStyle(
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5),
+                                  child: Text(
                                     appDescription(context),
                                     style: TextStyle(
                                       fontSize: 16,
@@ -148,7 +160,8 @@ class WelcomePage extends BasePage {
                                   padding: EdgeInsets.only(top: 10),
                                   child: PrimaryImageButton(
                                       onPressed: () {
-                                        Navigator.pushNamed(context, Routes.restoreOptions);
+                                        Navigator.pushNamed(context, Routes.restoreOptions,
+                                            arguments: true);
                                       },
                                       image: restoreWalletImage,
                                       text: S.of(context).restore_wallet,

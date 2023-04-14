@@ -17,7 +17,7 @@ class RestoredWallet {
 
   final WalletRestoreMode restoreMode;
   final WalletType type;
-  final String address;
+  final String? address;
   final String? txId;
   final String? spendKey;
   final String? viewKey;
@@ -32,7 +32,7 @@ class RestoredWallet {
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
-      address: json['address'] as String,
+      address: json['address'] as String?,
       spendKey: json['spend_key'] as String?,
       viewKey: json['view_key'] as String?,
       height: height != null ? int.parse(height) : 0,
@@ -46,7 +46,7 @@ class RestoredWallet {
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
-      address: json['address'] as String,
+      address: json['address'] as String?,
       mnemonicSeed: mnemonic_seed ?? seed,
       height: height != null ? int.parse(height) : 0,
     );
@@ -56,7 +56,7 @@ class RestoredWallet {
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
-      address: json['address'] as String,
+      address: json['address'] as String?,
       txId: json['tx_payment_id'] as String,
       txAmount: json['tx_amount'] as String,
       txDescription: json['tx_description'] as String?,
