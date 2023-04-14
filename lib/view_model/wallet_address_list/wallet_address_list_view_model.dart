@@ -290,12 +290,12 @@ abstract class WalletAddressListViewModelBase with Store {
     }
   }
 
-  void _convertAmountToCrypto() {
+    void _convertAmountToCrypto() {
     final cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     try {
-      final crypto = double.parse(amount.replaceAll(',', '.')) /
-          fiatConversionStore.prices[cryptoCurrency]!;
-          final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
+      final crypto =
+          double.parse(amount.replaceAll(',', '.')) / fiatConversionStore.prices[cryptoCurrency]!;
+      final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
       if (amount != cryptoAmountTmp) {
         amount = cryptoAmountTmp;
       }

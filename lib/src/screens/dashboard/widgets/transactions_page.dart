@@ -25,6 +25,7 @@ class TransactionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Theme.of(context).backgroundColor,
       padding: EdgeInsets.only(top: 24, bottom: 24),
       child: Column(
         children: <Widget>[
