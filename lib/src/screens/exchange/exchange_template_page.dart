@@ -1,13 +1,9 @@
-import 'dart:ui';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:keyboard_actions/keyboard_actions_config.dart';
-import 'package:keyboard_actions/keyboard_actions_item.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -78,7 +74,7 @@ class ExchangeTemplatePage extends BasePage {
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor:
-                Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+                Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -103,115 +99,114 @@ class ExchangeTemplatePage extends BasePage {
                   ),
                   gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).primaryTextTheme!.bodyText2!.color!,
-                        Theme.of(context).primaryTextTheme!.bodyText2!.decorationColor!,
+                        Theme.of(context).primaryTextTheme.bodyText2!.color!,
+                        Theme.of(context).primaryTextTheme.bodyText2!.decorationColor!,
                       ],
                       stops: [0.35, 1.0],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight),
                 ),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(24),
-                            bottomRight: Radius.circular(24)
+                child: FocusTraversalGroup(
+                  policy: OrderedTraversalPolicy(),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(24),
+                              bottomRight: Radius.circular(24)
+                          ),
+                          gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context)
+                                    .primaryTextTheme.subtitle2!
+                                    .color!,
+                                Theme.of(context)
+                                    .primaryTextTheme.subtitle2!
+                                    .decorationColor!,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight),
                         ),
-                        gradient: LinearGradient(
-                            colors: [
-                              Theme.of(context)
-                                  .primaryTextTheme!
-                                  .subtitle2!
-                                  .color!,
-                              Theme.of(context)
-                                  .primaryTextTheme!
-                                  .subtitle2!
-                                  .decorationColor!,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight),
-                      ),
-                      padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
-                      child: Observer(
-                        builder: (_) => ExchangeCard(
-                          amountFocusNode: _depositAmountFocus,
-                          key: depositKey,
-                          title: S.of(context).you_will_send,
-                          initialCurrency:
-                          exchangeViewModel.depositCurrency,
-                          initialWalletName: depositWalletName ?? '',
-                          initialAddress: exchangeViewModel
-                              .depositCurrency ==
-                              exchangeViewModel.wallet.currency
-                              ? exchangeViewModel.wallet.walletAddresses.address
-                              : exchangeViewModel.depositAddress,
-                          initialIsAmountEditable: true,
-                          initialIsAddressEditable: exchangeViewModel
-                              .isDepositAddressEnabled,
-                          isAmountEstimated: false,
-                          hasRefundAddress: true,
-                          isMoneroWallet: exchangeViewModel.isMoneroWallet,
-                          currencies: CryptoCurrency.all,
-                          onCurrencySelected: (currency) =>
-                              exchangeViewModel.changeDepositCurrency(
-                                  currency: currency),
-                          imageArrow: arrowBottomPurple,
-                          currencyButtonColor: Colors.transparent,
-                          addressButtonsColor:
-                          Theme.of(context).focusColor!,
-                          borderColor: Theme.of(context)
-                              .primaryTextTheme!
-                              .bodyText1!
-                              .color!,
-                          currencyValueValidator: AmountValidator(
-                              currency: exchangeViewModel.depositCurrency),
-                          //addressTextFieldValidator: AddressValidator(
-                          //    type: exchangeViewModel.depositCurrency),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 29, left: 24, right: 24),
-                      child: Observer(
+                        padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
+                        child: Observer(
                           builder: (_) => ExchangeCard(
-                            amountFocusNode: _receiveAmountFocus,
-                            key: receiveKey,
-                            title: S.of(context).you_will_get,
+                            amountFocusNode: _depositAmountFocus,
+                            key: depositKey,
+                            title: S.of(context).you_will_send,
                             initialCurrency:
-                            exchangeViewModel.receiveCurrency,
-                            initialWalletName: receiveWalletName ?? '',
-                            initialAddress:
-                            exchangeViewModel.receiveCurrency ==
+                            exchangeViewModel.depositCurrency,
+                            initialWalletName: depositWalletName ?? '',
+                            initialAddress: exchangeViewModel
+                                .depositCurrency ==
                                 exchangeViewModel.wallet.currency
                                 ? exchangeViewModel.wallet.walletAddresses.address
-                                : exchangeViewModel.receiveAddress,
-                            initialIsAmountEditable:
-                            exchangeViewModel.provider is
-                            XMRTOExchangeProvider ? true : false,
-                            initialIsAddressEditable:
-                            exchangeViewModel.isReceiveAddressEnabled,
-                            isAmountEstimated: true,
+                                : exchangeViewModel.depositAddress,
+                            initialIsAmountEditable: true,
+                            initialIsAddressEditable: exchangeViewModel
+                                .isDepositAddressEnabled,
+                            isAmountEstimated: false,
+                            hasRefundAddress: true,
                             isMoneroWallet: exchangeViewModel.isMoneroWallet,
-                            currencies: exchangeViewModel.receiveCurrencies,
+                            currencies: CryptoCurrency.all,
                             onCurrencySelected: (currency) =>
-                                exchangeViewModel.changeReceiveCurrency(
+                                exchangeViewModel.changeDepositCurrency(
                                     currency: currency),
-                            imageArrow: arrowBottomCakeGreen,
+                            imageArrow: arrowBottomPurple,
                             currencyButtonColor: Colors.transparent,
                             addressButtonsColor:
-                            Theme.of(context).focusColor!,
+                            Theme.of(context).focusColor,
                             borderColor: Theme.of(context)
-                                .primaryTextTheme!
-                                .bodyText1!
-                                .decorationColor!,
+                                .primaryTextTheme.bodyText1!
+                                .color!,
                             currencyValueValidator: AmountValidator(
-                                currency: exchangeViewModel.receiveCurrency),
+                                currency: exchangeViewModel.depositCurrency),
                             //addressTextFieldValidator: AddressValidator(
-                            //    type: exchangeViewModel.receiveCurrency),
-                          )),
-                    )
-                  ],
+                            //    type: exchangeViewModel.depositCurrency),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 29, left: 24, right: 24),
+                        child: Observer(
+                            builder: (_) => ExchangeCard(
+                              amountFocusNode: _receiveAmountFocus,
+                              key: receiveKey,
+                              title: S.of(context).you_will_get,
+                              initialCurrency:
+                              exchangeViewModel.receiveCurrency,
+                              initialWalletName: receiveWalletName ?? '',
+                              initialAddress:
+                              exchangeViewModel.receiveCurrency ==
+                                  exchangeViewModel.wallet.currency
+                                  ? exchangeViewModel.wallet.walletAddresses.address
+                                  : exchangeViewModel.receiveAddress,
+                              initialIsAmountEditable:
+                              exchangeViewModel.provider is
+                              XMRTOExchangeProvider ? true : false,
+                              initialIsAddressEditable:
+                              exchangeViewModel.isReceiveAddressEnabled,
+                              isAmountEstimated: true,
+                              isMoneroWallet: exchangeViewModel.isMoneroWallet,
+                              currencies: exchangeViewModel.receiveCurrencies,
+                              onCurrencySelected: (currency) =>
+                                  exchangeViewModel.changeReceiveCurrency(
+                                      currency: currency),
+                              imageArrow: arrowBottomCakeGreen,
+                              currencyButtonColor: Colors.transparent,
+                              addressButtonsColor:
+                              Theme.of(context).focusColor,
+                              borderColor: Theme.of(context)
+                                  .primaryTextTheme.bodyText1!
+                                  .decorationColor!,
+                              currencyValueValidator: AmountValidator(
+                                  currency: exchangeViewModel.receiveCurrency),
+                              //addressTextFieldValidator: AddressValidator(
+                              //    type: exchangeViewModel.receiveCurrency),
+                            )),
+                      )
+                    ],
+                  ),
                 ),
               ),
               bottomSectionPadding:
@@ -230,8 +225,7 @@ class ExchangeTemplatePage extends BasePage {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Theme.of(context)
-                                .primaryTextTheme!
-                                .headline1!
+                                .primaryTextTheme.headline1!
                                 .decorationColor!,
                             fontWeight: FontWeight.w500,
                             fontSize: 12),

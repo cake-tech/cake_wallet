@@ -1,0 +1,118 @@
+PODS:
+  - connectivity_macos (0.0.1):
+    - FlutterMacOS
+    - Reachability
+  - cw_monero (0.0.1):
+    - cw_monero/Boost (= 0.0.1)
+    - cw_monero/Monero (= 0.0.1)
+    - cw_monero/OpenSSL (= 0.0.1)
+    - cw_monero/Sodium (= 0.0.1)
+    - cw_monero/Unbound (= 0.0.1)
+    - FlutterMacOS
+  - cw_monero/Boost (0.0.1):
+    - FlutterMacOS
+  - cw_monero/Monero (0.0.1):
+    - FlutterMacOS
+  - cw_monero/OpenSSL (0.0.1):
+    - FlutterMacOS
+  - cw_monero/Sodium (0.0.1):
+    - FlutterMacOS
+  - cw_monero/Unbound (0.0.1):
+    - FlutterMacOS
+  - device_info_plus (0.0.1):
+    - FlutterMacOS
+  - devicelocale (0.0.1):
+    - FlutterMacOS
+  - flutter_secure_storage_macos (3.3.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+  - package_info (0.0.1):
+    - FlutterMacOS
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - platform_device_id (0.0.1):
+    - FlutterMacOS
+  - platform_device_id_macos (0.0.1):
+    - FlutterMacOS
+  - Reachability (3.2)
+  - share_plus_macos (0.0.1):
+    - FlutterMacOS
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - url_launcher_macos (0.0.1):
+    - FlutterMacOS
+  - wakelock_macos (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - connectivity_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos`)
+  - cw_monero (from `Flutter/ephemeral/.symlinks/plugins/cw_monero/macos`)
+  - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
+  - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
+  - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - package_info (from `Flutter/ephemeral/.symlinks/plugins/package_info/macos`)
+  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos`)
+  - platform_device_id (from `Flutter/ephemeral/.symlinks/plugins/platform_device_id/macos`)
+  - platform_device_id_macos (from `Flutter/ephemeral/.symlinks/plugins/platform_device_id_macos/macos`)
+  - share_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos`)
+  - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
+  - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
+
+SPEC REPOS:
+  trunk:
+    - Reachability
+
+EXTERNAL SOURCES:
+  connectivity_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos
+  cw_monero:
+    :path: Flutter/ephemeral/.symlinks/plugins/cw_monero/macos
+  device_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
+  devicelocale:
+    :path: Flutter/ephemeral/.symlinks/plugins/devicelocale/macos
+  flutter_secure_storage_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  package_info:
+    :path: Flutter/ephemeral/.symlinks/plugins/package_info/macos
+  path_provider_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos
+  platform_device_id:
+    :path: Flutter/ephemeral/.symlinks/plugins/platform_device_id/macos
+  platform_device_id_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/platform_device_id_macos/macos
+  share_plus_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos
+  url_launcher_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
+  wakelock_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos
+
+SPEC CHECKSUMS:
+  connectivity_macos: 5dae6ee11d320fac7c05f0d08bd08fc32b5514d9
+  cw_monero: f8b7f104508efba2591548e76b5c058d05cba3f0
+  device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
+  devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
+  flutter_secure_storage_macos: 6ceee8fbc7f484553ad17f79361b556259df89aa
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  package_info: 6eba2fd8d3371dda2d85c8db6fe97488f24b74b2
+  path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9
+  platform_device_id: 3e414428f45df149bbbfb623e2c0ca27c545b763
+  platform_device_id_macos: f763bb55f088be804d61b96eb4710b8ab6598e94
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
+  shared_preferences_foundation: 986fc17f3d3251412d18b0265f9c64113a8c2472
+  url_launcher_macos: 5335912b679c073563f29d89d33d10d459f95451
+  wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
+
+PODFILE CHECKSUM: 505596d150d38022472859d890f709281982e016
+
+COCOAPODS: 1.11.3

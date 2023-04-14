@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,7 +45,6 @@ class IoniaBuyGiftCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
     final merchant = ioniaBuyCardViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
@@ -67,7 +67,10 @@ class IoniaBuyGiftCardPage extends BasePage {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 25),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
                   gradient: LinearGradient(colors: [
                     Theme.of(context).primaryTextTheme!.subtitle1!.color!,
                     Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
@@ -75,35 +78,28 @@ class IoniaBuyGiftCardPage extends BasePage {
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 150),
-                    BaseTextFormField(
-                      controller: _amountController,
-                      focusNode: _amountFieldFocus,
-                      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,2}'))],
-                      hintText: '1000',
-                      placeholderTextStyle: TextStyle(
-                        color: Theme.of(context).primaryTextTheme!.headline5!.color!,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 36,
-                      ),
-                      borderColor: Theme.of(context).primaryTextTheme!.headline5!.color!,
-                      textColor: Colors.white,
-                      textStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: 36,
-                      ),
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.only(
-                          top: 5.0,
-                          left: _width / 4,
+                    SizedBox(
+                      width: 200,
+                      child: BaseTextFormField(
+                        controller: _amountController,
+                        focusNode: _amountFieldFocus,
+                        keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+(\.|\,)?\d{0,2}'),
+                          ),
+                        ],
+                        hintText: '1000',
+                        placeholderTextStyle: TextStyle(
+                          color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 36,
                         ),
-                        child: Text(
+                        prefixIcon: Text(
                           'USD: ',
                           style: TextStyle(
                             color: Colors.white,
@@ -111,7 +107,16 @@ class IoniaBuyGiftCardPage extends BasePage {
                             fontSize: 36,
                           ),
                         ),
+                        textColor: Colors.white,
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                        ),
                       ),
+                    ),
+                    Divider(
+                      color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                      height: 1,
                     ),
                     SizedBox(height: 8),
                     Row(
@@ -140,7 +145,11 @@ class IoniaBuyGiftCardPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
+                  backgroundColor: Theme.of(context)
+                      .accentTextTheme!
+                      .headline1!
+                      .backgroundColor!
+                      .withOpacity(0.1),
                   discount: merchant.discount,
                   titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
