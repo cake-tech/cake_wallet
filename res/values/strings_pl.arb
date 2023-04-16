@@ -698,5 +698,6 @@
   "clearnet_link": "łącze Clearnet",
   "onion_link": "Łącznik cebulowy",
   "settings": "Ustawienia",
-  "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana"
+  "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana",
+  "show_market_place" : "Pokaż rynek"
 }

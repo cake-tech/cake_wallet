@@ -696,5 +696,6 @@
   "clearnet_link": "ลิงค์เคลียร์เน็ต",
   "onion_link": "ลิงค์หัวหอม",
   "settings": "การตั้งค่า",
-  "sell_monero_com_alert_content": "ยังไม่รองรับการขาย Monero"
+  "sell_monero_com_alert_content": "ยังไม่รองรับการขาย Monero",
+  "show_market_place":"แสดงตลาดกลาง"
 }

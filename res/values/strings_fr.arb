@@ -698,5 +698,6 @@
   "clearnet_link": "Lien Clearnet",
   "settings": "Paramètres",
   "onion_link": "Lien .onion",
-  "sell_monero_com_alert_content": "La vente de Monero n'est pas encore prise en charge"
+  "sell_monero_com_alert_content": "La vente de Monero n'est pas encore prise en charge",
+  "show_market_place" :"Afficher la place de marché"
 }

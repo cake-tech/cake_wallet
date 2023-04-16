@@ -698,5 +698,6 @@
   "clearnet_link": "클리어넷 링크",
   "onion_link": "양파 링크",
   "settings": "설정",
-  "sell_monero_com_alert_content": "지원되지 않습니다."
+  "sell_monero_com_alert_content": "지원되지 않습니다.",
+  "show_market_place":"마켓플레이스 표시"
 }
