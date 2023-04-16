@@ -406,7 +406,6 @@ class ExchangeCardState extends State<ExchangeCard> {
                       order: NumericFocusOrder(3),
                       child: BaseTextFormField(
                           controller: addressController,
-                          // readOnly: true,
                           borderColor: Colors.transparent,
                           suffixIcon:
                               SizedBox(width: _isMoneroWallet ? 80 : 36),
