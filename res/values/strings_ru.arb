@@ -698,5 +698,7 @@
   "clearnet_link": "Клирнет ссылка",
   "onion_link": "Луковая ссылка",
   "settings": "Настройки",
-  "sell_monero_com_alert_content": "Продажа Monero пока не поддерживается"
+  "sell_monero_com_alert_content": "Продажа Monero пока не поддерживается",
+  "error_text_input_below_minimum_limit" : "Сумма меньше минимальной",
+  "error_text_input_above_maximum_limit" : "Сумма больше максимальной"
 }
