@@ -34,6 +34,13 @@ class DisplaySettingsPage extends BasePage {
             onValueChange: (_, bool value) {
                _displaySettingsViewModel.setShouldDisplayBalance(value);          
             }),
+            SettingsSwitcherCell(
+              title: S.current.show_market_place,
+              value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
+              onValueChange: (_, bool value) {
+                _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
+              },
+            ),
             //if (!isHaven) it does not work correctly
             if(!_displaySettingsViewModel.disabledFiatApiMode)
               SettingsPickerCell<FiatCurrency>(

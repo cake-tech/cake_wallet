@@ -698,5 +698,6 @@
   "clearnet_link": "क्लियरनेट लिंक",
   "onion_link": "प्याज का लिंक",
   "settings": "समायोजन",
-  "sell_monero_com_alert_content": "मोनेरो बेचना अभी तक समर्थित नहीं है"
+  "sell_monero_com_alert_content": "मोनेरो बेचना अभी तक समर्थित नहीं है",
+  "show_market_place":"बाज़ार दिखाएँ"
 }
