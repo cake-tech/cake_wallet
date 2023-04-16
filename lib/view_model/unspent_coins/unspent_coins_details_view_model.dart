@@ -47,9 +47,12 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
           title: S.current.view_in_block_explorer,
           value: _explorerDescription(unspentCoinsListViewModel.wallet.type),
           onTap: () {
-            final url = Uri.parse(
-                _explorerUrl(unspentCoinsListViewModel.wallet.type, unspentCoinsItem.hash));
-            return launchUrl(url);
+            try {
+              final url = Uri.parse(
+                  _explorerUrl(unspentCoinsListViewModel.wallet.type, unspentCoinsItem.hash));
+              return launchUrl(url);
+            } catch (e) {}
+
           })
     ];
   }

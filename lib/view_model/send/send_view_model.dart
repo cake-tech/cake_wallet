@@ -141,7 +141,7 @@ abstract class SendViewModelBase with Store {
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => balanceViewModel.balances.values.first.availableBalance;
+  String get balance => balanceViewModel.availableBalance;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;

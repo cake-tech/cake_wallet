@@ -242,9 +242,7 @@ abstract class BalanceViewModelBase with Store {
         + ' '
         + _getFiatBalance(
             price: price,
-            cryptoAmount: getFormattedFrozenBalance(value).isEmpty
-                ? value.formattedAvailableBalance
-                : getFormattedTotalAvailableBalance(value)));
+            cryptoAmount: value.formattedAvailableBalance));
 
 
       final frozenFiatBalance = isFiatDisabled ? '' : (fiatCurrency.toString()
@@ -257,9 +255,7 @@ abstract class BalanceViewModelBase with Store {
       return MapEntry(
           key,
           BalanceRecord(
-              availableBalance:getFormattedFrozenBalance(value).isEmpty
-                  ? value.formattedAvailableBalance
-                  : getFormattedTotalAvailableBalance(value),
+              availableBalance: value.formattedAvailableBalance,
               additionalBalance: value.formattedAdditionalBalance,
               frozenBalance: getFormattedFrozenBalance(value),
               fiatAdditionalBalance: additionalFiatBalance,
@@ -369,7 +365,5 @@ abstract class BalanceViewModelBase with Store {
   String getFormattedFrozenBalance(Balance walletBalance) =>
       walletBalance is ElectrumBalance ? walletBalance.formattedFrozenBalance : '';
 
-  String getFormattedTotalAvailableBalance(Balance walletBalance) =>
-      walletBalance is ElectrumBalance ? walletBalance.formattedTotalAvailableBalance : '';
 }
 
