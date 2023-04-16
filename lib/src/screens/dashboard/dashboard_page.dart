@@ -109,14 +109,15 @@ class _DashboardPageView extends BasePage {
 
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
-  final controller = PageController(initialPage: 1);
-
+  int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
   ObservableList<Widget> pages = ObservableList<Widget>();
   bool _isEffectsInstalled = false;
   StreamSubscription<bool>? _onInactiveSub;
 
   @override
   Widget body(BuildContext context) {
+    final controller = PageController(initialPage: initialPage);
+    
     reaction((_) => dashboardViewModel.shouldShowMarketPlaceInDashboard, (bool value) {
       if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
         controller.jumpToPage(0);
