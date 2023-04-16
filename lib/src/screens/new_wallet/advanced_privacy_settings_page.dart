@@ -105,7 +105,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                     return;
                   }
 
-                  widget.nodeViewModel.save(saveAsCurrent: true);
+                  widget.nodeViewModel.save();
                 }
 
                 Navigator.pop(context);
