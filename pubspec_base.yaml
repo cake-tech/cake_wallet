@@ -37,7 +37,7 @@ dependencies:
   #package_info_plus: ^1.4.2
   devicelocale:
     git:
-      url: https://github.com/OmarHatem28/flutter-devicelocale
+      url: https://github.com/cake-tech/flutter-devicelocale
   auto_size_text: ^3.0.0
   dotted_border: ^2.0.0+2
   smooth_page_indicator: ^1.0.0+2
