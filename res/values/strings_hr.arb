@@ -698,5 +698,7 @@
   "optional_name": "Izborno ime primatelja",
   "clearnet_link": "Clearnet veza",
   "onion_link": "Poveznica luka",
-  "sell_monero_com_alert_content": "Prodaja Monera još nije podržana"
+  "settings": "Postavke",
+  "sell_monero_com_alert_content": "Prodaja Monera još nije podržana",
+  "show_market_place" : "Prikaži tržište"
 }

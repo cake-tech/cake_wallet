@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -54,7 +55,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
 
-    initUniLinks();
+    if (DeviceInfo.instance.isMobile) {
+      initUniLinks();
+    }
   }
 
   @override
