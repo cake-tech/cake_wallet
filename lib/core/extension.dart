@@ -13,20 +13,20 @@ const List<String> _alwaysAuthenticateRoutes = [
 final _authService = getIt.get<AuthService>();
 
 extension AuthenticateRoute on BuildContext {
-  void navigateToAuthenticatedRoute(BuildContext context,
+  void navigateToAuthenticatedRoute(
       {Function(bool)? onAuthSuccess, String route = '', Object? arguments}) {
     if (!_authService.requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
       if (onAuthSuccess != null) {
         onAuthSuccess(true);
       } else {
-        Navigator.of(context).pushNamed(
+        Navigator.of(this).pushNamed(
           route,
           arguments: arguments,
         );
       }
       return;
     }
-    Navigator.of(context).pushNamed(Routes.auth,
+    Navigator.of(this).pushNamed(Routes.auth,
         arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
         onAuthSuccess?.call(false);

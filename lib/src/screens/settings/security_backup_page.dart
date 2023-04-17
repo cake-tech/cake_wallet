@@ -27,18 +27,17 @@ class SecurityBackupPage extends BasePage {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SettingsCellWithArrow(
           title: S.current.show_keys,
-          handler: (_) => context.navigateToAuthenticatedRoute(context, route: Routes.showKeys),
+          handler: (_) => context.navigateToAuthenticatedRoute(route: Routes.showKeys),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
-          handler: (_) => context.navigateToAuthenticatedRoute(context, route: Routes.backup),
+          handler: (_) => context.navigateToAuthenticatedRoute(route: Routes.backup),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.settings_change_pin,
           handler: (_) => context.navigateToAuthenticatedRoute(
-            context,
             route: Routes.setupPin,
             arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
               setupPinContext.close();
@@ -52,7 +51,7 @@ class SecurityBackupPage extends BasePage {
               value: _securitySettingsViewModel.allowBiometricalAuthentication,
               onValueChange: (BuildContext context, bool value) {
                 if (value) {
-                  context.navigateToAuthenticatedRoute(context,
+                  context.navigateToAuthenticatedRoute(
                       onAuthSuccess: (isAuthenticatedSuccessfully) async {
                     if (isAuthenticatedSuccessfully) {
                       if (await _securitySettingsViewModel.biometricAuthenticated()) {
