@@ -1,6 +1,6 @@
+import 'package:cake_wallet/core/extension.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -27,35 +27,24 @@ class SecurityBackupPage extends BasePage {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SettingsCellWithArrow(
           title: S.current.show_keys,
-          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.showKeys);
-            }
-          }),
+          handler: (_) => context.navigateToAuthenticatedRoute(context, route: Routes.showKeys),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
-          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-              auth.close(route: Routes.backup);
-            }
-          }),
+          handler: (_) => context.navigateToAuthenticatedRoute(context, route: Routes.backup),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
-            title: S.current.settings_change_pin,
-            handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
-                    arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                  auth.close(
-                    route: isAuthenticatedSuccessfully ? Routes.setupPin : null,
-                    arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
-                      setupPinContext.close();
-                    },
-                  );
-                })),
+          title: S.current.settings_change_pin,
+          handler: (_) => context.navigateToAuthenticatedRoute(
+            context,
+            route: Routes.setupPin,
+            arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+              setupPinContext.close();
+            },
+          ),
+        ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         Observer(builder: (_) {
           return SettingsSwitcherCell(
@@ -63,8 +52,8 @@ class SecurityBackupPage extends BasePage {
               value: _securitySettingsViewModel.allowBiometricalAuthentication,
               onValueChange: (BuildContext context, bool value) {
                 if (value) {
-                  Navigator.of(context).pushNamed(Routes.auth,
-                      arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+                  context.navigateToAuthenticatedRoute(context,
+                      onAuthSuccess: (isAuthenticatedSuccessfully) async {
                     if (isAuthenticatedSuccessfully) {
                       if (await _securitySettingsViewModel.biometricAuthenticated()) {
                         _securitySettingsViewModel
@@ -74,8 +63,6 @@ class SecurityBackupPage extends BasePage {
                       _securitySettingsViewModel
                           .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                     }
-
-                    auth.close();
                   });
                 } else {
                   _securitySettingsViewModel.setAllowBiometricalAuthentication(value);

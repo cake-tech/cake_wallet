@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 
 class AuthService with Store {
