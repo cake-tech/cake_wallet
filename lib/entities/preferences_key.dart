@@ -31,6 +31,8 @@ class PreferencesKey {
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
   static const lastPopupDate = 'last_popup_date';
+  static const lastAppReviewDate = 'last_app_review_date';
+
 
 
   static String moneroWalletUpdateV1Key(String name)
