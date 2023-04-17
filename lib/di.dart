@@ -549,7 +549,7 @@ Future setup(
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>()));
+  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 

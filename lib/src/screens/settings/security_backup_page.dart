@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/extension.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -13,7 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class SecurityBackupPage extends BasePage {
-  SecurityBackupPage(this._securitySettingsViewModel);
+  SecurityBackupPage(this._securitySettingsViewModel, this._authService);
+
+  final AuthService _authService;
 
   @override
   String get title => S.current.security_and_backup;
@@ -27,17 +29,18 @@ class SecurityBackupPage extends BasePage {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SettingsCellWithArrow(
           title: S.current.show_keys,
-          handler: (_) => context.navigateToAuthenticatedRoute(route: Routes.showKeys),
+          handler: (_) => _authService.authenticateAction(context, route: Routes.showKeys),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.create_backup,
-          handler: (_) => context.navigateToAuthenticatedRoute(route: Routes.backup),
+          handler: (_) => _authService.authenticateAction(context, route: Routes.backup),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         SettingsCellWithArrow(
           title: S.current.settings_change_pin,
-          handler: (_) => context.navigateToAuthenticatedRoute(
+          handler: (_) => _authService.authenticateAction(
+            context,
             route: Routes.setupPin,
             arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
               setupPinContext.close();
@@ -51,7 +54,7 @@ class SecurityBackupPage extends BasePage {
               value: _securitySettingsViewModel.allowBiometricalAuthentication,
               onValueChange: (BuildContext context, bool value) {
                 if (value) {
-                  context.navigateToAuthenticatedRoute(
+                  _authService.authenticateAction(context,
                       onAuthSuccess: (isAuthenticatedSuccessfully) async {
                     if (isAuthenticatedSuccessfully) {
                       if (await _securitySettingsViewModel.biometricAuthenticated()) {

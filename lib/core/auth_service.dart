@@ -1,3 +1,6 @@
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +15,12 @@ class AuthService with Store {
     required this.sharedPreferences,
     required this.settingsStore,
   });
+
+  static const List<String> _alwaysAuthenticateRoutes = [
+    Routes.showKeys,
+    Routes.backup,
+    Routes.setupPin,
+  ];
 
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
@@ -64,5 +73,35 @@ class AuthService with Store {
     Duration timeDifference = now.difference(before);
 
     return timeDifference.inMinutes;
+  }
+
+  void authenticateAction(BuildContext context,
+      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) {
+    assert(route != null || onAuthSuccess != null,
+        'Either route or onAuthSuccess param must be passed.');
+    if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+      if (onAuthSuccess != null) {
+        onAuthSuccess(true);
+      } else {
+        Navigator.of(context).pushNamed(
+          route ?? '',
+          arguments: arguments,
+        );
+      }
+      return;
+    }
+    Navigator.of(context).pushNamed(Routes.auth,
+        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+      if (!isAuthenticatedSuccessfully) {
+        onAuthSuccess?.call(false);
+        return;
+      }
+      if (onAuthSuccess != null) {
+        auth.close();
+        onAuthSuccess.call(true);
+      } else {
+        auth.close(route: route, arguments: arguments);
+      }
+    });
   }
 }
