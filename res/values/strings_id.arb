@@ -679,5 +679,6 @@
   "optional_name": "Nama penerima opsional",
   "clearnet_link": "Tautan clearnet",
   "onion_link": "Tautan bawang",
-  "sell_monero_com_alert_content": "Menjual Monero belum didukung"
+  "sell_monero_com_alert_content": "Menjual Monero belum didukung",
+  "show_market_place": "Tampilkan Pasar"
 }

@@ -697,5 +697,6 @@
   "optional_name": "Volitelné jméno příjemce",
   "clearnet_link": "Odkaz na Clearnet",
   "onion_link": "Cibulový odkaz",
-  "sell_monero_com_alert_content": "Prodej Monero zatím není podporován"
+  "sell_monero_com_alert_content": "Prodej Monero zatím není podporován",
+  "show_market_place": "Zobrazit trh"
 }

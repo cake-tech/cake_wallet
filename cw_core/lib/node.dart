@@ -74,6 +74,25 @@ class Node extends HiveObject with Keyable {
   }
 
   @override
+  bool operator ==(other) =>
+      other is Node &&
+          (other.uriRaw == uriRaw &&
+              other.login == login &&
+              other.password == password &&
+              other.typeRaw == typeRaw &&
+              other.useSSL == useSSL &&
+              other.trusted == trusted);
+
+  @override
+  int get hashCode =>
+      uriRaw.hashCode ^
+      login.hashCode ^
+      password.hashCode ^
+      typeRaw.hashCode ^
+      useSSL.hashCode ^
+      trusted.hashCode;
+
+  @override
   dynamic get keyIndex {
     _keyIndex ??= key;
     return _keyIndex;

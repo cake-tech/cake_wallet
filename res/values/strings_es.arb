@@ -698,5 +698,6 @@
   "clearnet_link": "enlace Clearnet",
   "onion_link": "Enlace de cebolla",
   "settings": "Configuraciones",
-  "sell_monero_com_alert_content": "Aún no se admite la venta de Monero"
+  "sell_monero_com_alert_content": "Aún no se admite la venta de Monero",
+  "show_market_place": "Mostrar mercado"
 }
