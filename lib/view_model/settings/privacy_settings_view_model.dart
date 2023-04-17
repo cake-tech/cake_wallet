@@ -1,10 +1,11 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 part 'privacy_settings_view_model.g.dart';
 
-class PrivacySettingsViewModel = PrivacySettingsViewModelBase
-    with _$PrivacySettingsViewModel;
+class PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore);
@@ -12,18 +13,28 @@ abstract class PrivacySettingsViewModelBase with Store {
   final SettingsStore _settingsStore;
 
   @computed
-  bool get shouldSaveRecipientAddress =>
-      _settingsStore.shouldSaveRecipientAddress;
-  
+  ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
+
   @computed
-  bool get enableAutoGenerateSubaddresses =>
-      _settingsStore.enableAutoGenerateSubaddresses;
+  bool get enableAutoGenerateSubaddresses => _settingsStore.enableAutoGenerateSubaddresses;
 
   @action
   void setenableAutoGenerateSubaddresses(bool value) =>
       _settingsStore.enableAutoGenerateSubaddresses = value;
 
+  @computed
+  bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
+
+  @computed
+  FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
+
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
+
+  @action
+  void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
+
+  @action
+  void setFiatMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
 }

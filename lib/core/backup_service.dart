@@ -214,8 +214,10 @@ class BackupService {
     final currentBitcoinElectrumSererId = data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
+    final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
+    final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
     final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
@@ -266,6 +268,10 @@ class BackupService {
       await _sharedPreferences.setInt(PreferencesKey.displayActionListModeKey,
         displayActionListMode);
 
+    if (fiatApiMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey,
+          fiatApiMode);
+
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength,
         currentPinLength);
@@ -273,6 +279,10 @@ class BackupService {
     if (currentTheme != null)
       await _sharedPreferences.setInt(
         PreferencesKey.currentTheme, currentTheme);
+
+    if (exchangeStatus != null)
+      await _sharedPreferences.setInt(
+        PreferencesKey.exchangeStatusKey, exchangeStatus);
 
     if (currentDefaultSettingsMigrationVersion != null)
       await _sharedPreferences.setInt(
@@ -421,12 +431,16 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.displayActionListModeKey),
       PreferencesKey.currentTheme:
           _sharedPreferences.getInt(PreferencesKey.currentTheme),
+      PreferencesKey.exchangeStatusKey:
+          _sharedPreferences.getInt(PreferencesKey.exchangeStatusKey),
       PreferencesKey.currentDefaultSettingsMigrationVersion: _sharedPreferences
           .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
       PreferencesKey.bitcoinTransactionPriority:
           _sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority),
       PreferencesKey.moneroTransactionPriority:
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
+      PreferencesKey.currentFiatApiModeKey:
+      _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
     };
 
     return json.encode(preferences);

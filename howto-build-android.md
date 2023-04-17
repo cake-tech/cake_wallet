@@ -55,7 +55,7 @@ You may download and install the latest version of Android Studio [here](https:/
 
 ### 3. Installing Flutter
 
-Need to install flutter with version `2.0.4`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually). When flutter repository is downloaded please open it with `cd <flutter-path>` and checkout version 2.0.4 by `git checkout 2.0.4`.
+Need to install flutter with version `3.x.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
 
 ### 4. Verify Installations
 
@@ -66,7 +66,7 @@ Verify that the Android toolchain, Flutter, and Android Studio have been correct
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 2.0.4, on Linux, locale en_US.UTF-8)
+[✓] Flutter (Channel stable, 3.x.x, on Linux, locale en_US.UTF-8)
 [✓] Android toolchain - develop for Android devices (Android SDK version 28)
 [✓] Android Studio (version 4.0)
 ```
@@ -155,6 +155,10 @@ Generate mobx models for `cw_monero`:
 Generate mobx models for `cw_bitcoin`:
 
 `cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
+
+Generate mobx models for `cw_haven`:
+
+`cd cw_haven && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
 Finally build mobx models for the app:
 

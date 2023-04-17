@@ -138,3 +138,7 @@ typedef get_rate = Pointer<Int64> Function();
 typedef size_of_rate = Int32 Function();
 
 typedef update_rate = Void Function();
+
+typedef set_trusted_daemon = Void Function(Int8 trusted);
+
+typedef trusted_daemon = Int8 Function();

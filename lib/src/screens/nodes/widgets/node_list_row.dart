@@ -1,9 +1,5 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NodeListRow extends StandardListRow {
@@ -23,7 +19,7 @@ class NodeListRow extends StandardListRow {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return NodeIndicator(isLive: (snapshot.data as bool)??false);
+              return NodeIndicator(isLive: (snapshot.data as bool?) ?? false);
             default:
               return NodeIndicator(isLive: false);
           }
@@ -40,7 +36,7 @@ class NodeHeaderListRow extends StandardListRow {
     return SizedBox(
       width: 20,
       child: Icon(Icons.add,
-          color: Theme.of(context).accentTextTheme!.subtitle1!.color!, size: 24.0),
+          color: Theme.of(context).accentTextTheme.subtitle1?.color, size: 24.0),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -20,21 +22,28 @@ class SendCard extends StatefulWidget {
   SendCard({
     Key? key,
     required this.output,
-    required this.sendViewModel}) : super(key: key);
+    required this.sendViewModel,
+    this.initialPaymentRequest,
+  }) : super(key: key);
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentRequest? initialPaymentRequest;
 
   @override
   SendCardState createState() => SendCardState(
     output: output,
-    sendViewModel: sendViewModel
+    sendViewModel: sendViewModel,
+    initialPaymentRequest: initialPaymentRequest,
   );
 }
 
 class SendCardState extends State<SendCard>
     with AutomaticKeepAliveClientMixin<SendCard> {
-  SendCardState({required this.output, required this.sendViewModel})
+  SendCardState({
+    required this.output,
+    required this.sendViewModel,
+    this.initialPaymentRequest})
       : addressController = TextEditingController(),
         cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
@@ -49,6 +58,7 @@ class SendCardState extends State<SendCard>
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentRequest? initialPaymentRequest;
 
   final TextEditingController addressController;
   final TextEditingController cryptoAmountController;
@@ -60,6 +70,27 @@ class SendCardState extends State<SendCard>
   final FocusNode addressFocusNode;
 
   bool _effectsInstalled = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// if the current wallet doesn't match the one in the qr code
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: S.of(context).unmatched_currencies,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +120,7 @@ class SendCardState extends State<SendCard>
               color: Colors.transparent,
             )),
         Container(
-          decoration: BoxDecoration(
+          decoration: ResponsiveLayoutUtil.instance.isMobile(context) ? BoxDecoration(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24)),
@@ -100,9 +131,14 @@ class SendCardState extends State<SendCard>
                   .subtitle1!
                   .decorationColor!,
             ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          ),
+          ) : null,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
+            padding: EdgeInsets.fromLTRB(
+              24,
+              ResponsiveLayoutUtil.instance.isMobile(context) ? 100 : 55,
+              24,
+              ResponsiveLayoutUtil.instance.isMobile(context) ? 32 : 0,
+            ),
             child: SingleChildScrollView(
                 child: Observer(builder: (_) => Column(
                   mainAxisSize: MainAxisSize.min,
@@ -154,6 +190,7 @@ class SendCardState extends State<SendCard>
                           await output.fetchParsedAddress(context);
                         },
                         validator: validator,
+                        selectedCurrency: sendViewModel.currency,
                       );
                     }),
                     if (output.isParsedAddress) Padding(
@@ -331,7 +368,8 @@ class SendCardState extends State<SendCard>
                             ],
                           ),
                         )),
-                    Padding(
+                    if (!sendViewModel.isFiatDisabled)
+                      Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: BaseTextFormField(
                           focusNode: fiatAmountFocus,
@@ -437,8 +475,9 @@ class SendCardState extends State<SendCard>
                                           Padding(
                                               padding:
                                               EdgeInsets.only(top: 5),
-                                              child: Text(
-                                                  output
+                                              child: sendViewModel.isFiatDisabled
+                                                  ? const SizedBox(height: 14)
+                                                  : Text(output
                                                       .estimatedFeeFiatAmount
                                                       +  ' ' +
                                                       sendViewModel
@@ -509,8 +548,12 @@ class SendCardState extends State<SendCard>
   }
 
   void _setEffects(BuildContext context) {
-    addressController.text = output.address;
-    cryptoAmountController.text = output.cryptoAmount;
+    if (output.address.isNotEmpty) {
+      addressController.text = output.address;
+    }
+    if (output.cryptoAmount.isNotEmpty) {
+      cryptoAmountController.text = output.cryptoAmount;
+    }
     fiatAmountController.text = output.fiatAmount;
     noteController.text = output.note;
     extractedAddressController.text = output.extractedAddress;
@@ -601,6 +644,13 @@ class SendCardState extends State<SendCard>
     reaction((_) => output.extractedAddress, (String extractedAddress) {
       extractedAddressController.text = extractedAddress;
     });
+
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName == initialPaymentRequest!.scheme.toLowerCase()) {
+      addressController.text = initialPaymentRequest!.address;
+      cryptoAmountController.text = initialPaymentRequest!.amount;
+      noteController.text = initialPaymentRequest!.note;
+    }
 
     _effectsInstalled = true;
   }

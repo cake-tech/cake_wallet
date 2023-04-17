@@ -1,22 +1,19 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/node_address_validator.dart';
-import 'package:cake_wallet/core/node_port_validator.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 
 class NodeCreateOrEditPage extends BasePage {
-  NodeCreateOrEditPage(this.nodeCreateOrEditViewModel)
+  NodeCreateOrEditPage({required this.nodeCreateOrEditViewModel,this.editingNode, this.isSelected})
       : _formKey = GlobalKey<FormState>(),
         _addressController = TextEditingController(),
         _portController = TextEditingController(),
@@ -65,9 +62,11 @@ class NodeCreateOrEditPage extends BasePage {
   final TextEditingController _passwordController;
 
   @override
-  String get title => S.current.node_new;
+  String get title => editingNode != null ? S.current.edit_node : S.current.node_new;
 
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
+  final Node? editingNode;
+  final bool? isSelected;
 
   @override
   Widget body(BuildContext context) {
@@ -108,76 +107,11 @@ class NodeCreateOrEditPage extends BasePage {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24.0),
-          content: Form(
-              key: _formKey,
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: BaseTextFormField(
-                          controller: _addressController,
-                          hintText: S.of(context).node_address,
-                          validator: NodeAddressValidator(),
-                        )
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 10.0),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: BaseTextFormField(
-                          controller: _portController,
-                          hintText: S.of(context).node_port,
-                          keyboardType: TextInputType.numberWithOptions(
-                              signed: false, decimal: false),
-                          validator: NodePortValidator(),
-                        )
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 10.0),
-                  if (nodeCreateOrEditViewModel.hasAuthCredentials) ...[
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: BaseTextFormField(
-                            controller: _loginController,
-                            hintText: S.of(context).login,
-                          )
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 10.0),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: BaseTextFormField(
-                            controller: _passwordController,
-                            hintText: S.of(context).password,
-                          )
-                        )
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Observer(
-                              builder: (_) => StandardCheckbox(
-                                value: nodeCreateOrEditViewModel.useSSL,
-                                onChanged: (value) =>
-                                  nodeCreateOrEditViewModel.useSSL = value,
-                                caption: S.of(context).use_ssl,
-                              ))
-                        ],
-                      ))
-                  ]
-                ],
-              )),
+          content: NodeForm(
+            formKey: _formKey,
+            nodeViewModel: nodeCreateOrEditViewModel,
+            editingNode: editingNode,
+          ),
           bottomSectionPadding: EdgeInsets.only(bottom: 24),
           bottomSection: Observer(
               builder: (_) => Row(
@@ -209,7 +143,8 @@ class NodeCreateOrEditPage extends BasePage {
                               return;
                             }
 
-                            await nodeCreateOrEditViewModel.save();
+                            await nodeCreateOrEditViewModel.save(
+                                editingNode: editingNode, saveAsCurrent: isSelected ?? false);
                             Navigator.of(context).pop();
                           },
                           text: S.of(context).save,

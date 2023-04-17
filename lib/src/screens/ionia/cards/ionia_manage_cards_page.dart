@@ -118,7 +118,7 @@ class IoniaManageCardsPage extends BasePage {
           width: 32,
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: Theme.of(context).textTheme!.headline6!.backgroundColor!,
             border: Border.all(
               color: Colors.white.withOpacity(0.2),
             ),

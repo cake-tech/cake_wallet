@@ -27,6 +27,7 @@ class BaseTextFormField extends StatelessWidget {
       this.maxLength,
       this.focusNode,
       this.initialValue,
+      this.onSubmit,
       this.borderWidth = 1.0});
 
   final TextEditingController? controller;
@@ -54,6 +55,7 @@ class BaseTextFormField extends StatelessWidget {
   final bool? enableInteractiveSelection;
   final String? initialValue;
   final double borderWidth;
+  final void Function(String)? onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +73,12 @@ class BaseTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       enabled: enabled,
       maxLength: maxLength,
+      onFieldSubmitted: onSubmit,
       style: textStyle ??
           TextStyle(
               fontSize: 16.0,
               color:
-                  textColor ?? Theme.of(context).primaryTextTheme!.headline6!.color!),
+                  textColor ?? Theme.of(context).primaryTextTheme.headline6!.color!),
       decoration: InputDecoration(
           prefix: prefix,
           prefixIcon: prefixIcon,
@@ -89,17 +92,17 @@ class BaseTextFormField extends StatelessWidget {
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
+                      Theme.of(context).primaryTextTheme.headline6!.backgroundColor!,
                   width: borderWidth)),
           disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
+                      Theme.of(context).primaryTextTheme.headline6!.backgroundColor!,
                   width: borderWidth)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
+                      Theme.of(context).primaryTextTheme.headline6!.backgroundColor!,
                   width: borderWidth))),
       validator: validator,
     );

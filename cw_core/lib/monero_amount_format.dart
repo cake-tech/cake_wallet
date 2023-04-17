@@ -15,4 +15,4 @@ double moneroAmountToDouble({required int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider);
 
 int moneroParseAmount({required String amount}) =>
-    (double.parse(amount) * moneroAmountDivider).toInt();
+    (double.parse(amount) * moneroAmountDivider).round();

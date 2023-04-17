@@ -48,6 +48,8 @@ class CollapsibleSectionList extends SectionStandardList {
           child: ListTileTheme(
             contentPadding: EdgeInsets.only(right: 16,top:sectionIndex>0?26:0),
             child: ExpansionTile(
+              textColor: themeColor,
+              iconColor: themeColor,
               title: sectionTitleBuilder == null
                   ? Container()
                   : Container(child: buildTitle(items, sectionIndex, context)),

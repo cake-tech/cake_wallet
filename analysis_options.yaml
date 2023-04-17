@@ -18,6 +18,8 @@ analyzer:
 linter:
   rules:
     - cancel_subscriptions
+    - always_declare_return_types
+    - prefer_final_fields
 
 
 # analyzer:

@@ -1,13 +1,16 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
+import 'package:cake_wallet/routes.dart';
 
 class WalletKeysPage extends BasePage {
   WalletKeysPage(this.walletKeysViewModel);
@@ -16,6 +19,31 @@ class WalletKeysPage extends BasePage {
   String get title => walletKeysViewModel.title;
 
   final WalletKeysViewModel walletKeysViewModel;
+
+  @override
+  Widget trailing(BuildContext context) => IconButton(
+      onPressed: () async {
+        // Get the current brightness:
+        final double brightness = await DeviceDisplayBrightness.getBrightness();
+
+        // ignore: unawaited_futures
+        DeviceDisplayBrightness.setBrightness(1.0);
+        await Navigator.pushNamed(
+          context,
+          Routes.fullscreenQR,
+          arguments: {
+            'qrData': (await walletKeysViewModel.url).toString(),
+          },
+        );
+        // ignore: unawaited_futures
+        DeviceDisplayBrightness.setBrightness(brightness);
+      },
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      icon: Image.asset(
+        'assets/images/qr_code_icon.png',
+      ));
 
   @override
   Widget body(BuildContext context) {
@@ -57,10 +85,7 @@ class WalletKeysPage extends BasePage {
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
                       color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
-                      child: Container(
-                        height: 1,
-                        color: Theme.of(context).dividerColor,
-                      ),
+                      child: const SectionDivider(),
                     ),
                 itemCount: walletKeysViewModel.items.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -71,7 +96,7 @@ class WalletKeysPage extends BasePage {
                       Clipboard.setData(ClipboardData(text: item.value));
                       showBar<void>(context, S.of(context).copied_key_to_clipboard(item.title));
                     },
-                    child: StandartListRow(
+                    child: ListRow(
                       title: item.title + ':',
                       value: item.value,
                     ),

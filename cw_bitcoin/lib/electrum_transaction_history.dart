@@ -72,7 +72,7 @@ abstract class ElectrumTransactionHistoryBase
       txs.entries.forEach((entry) {
         final val = entry.value;
 
-        if (val is Map<String, Object>) {
+        if (val is Map<String, dynamic>) {
           final tx = ElectrumTransactionInfo.fromJson(val, walletInfo.type);
           _updateOrInsert(tx);
         }
@@ -85,9 +85,6 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   void _updateOrInsert(ElectrumTransactionInfo transaction) {
-    if (transaction.id == null) {
-      return;
-    }
 
     if (transactions[transaction.id] == null) {
       transactions[transaction.id] = transaction;
@@ -98,6 +95,7 @@ abstract class ElectrumTransactionHistoryBase
       originalTx?.height = transaction.height;
       originalTx?.date ??= transaction.date;
       originalTx?.isPending = transaction.isPending;
+      originalTx?.direction = transaction.direction;
     }
   }
 }

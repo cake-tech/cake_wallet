@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/src/widgets/standart_switch.dart';
+import 'package:cake_wallet/src/widgets/standard_switch.dart';
 
 class SettingsSwitcherCell extends StandardListRow {
   SettingsSwitcherCell(
@@ -11,6 +11,6 @@ class SettingsSwitcherCell extends StandardListRow {
   final void Function(BuildContext context, bool value)? onValueChange;
 
   @override
-  Widget buildTrailing(BuildContext context) => StandartSwitch(
+  Widget buildTrailing(BuildContext context) => StandardSwitch(
       value: value, onTaped: () => onValueChange?.call(context, !value));
 }

@@ -124,3 +124,7 @@ typedef RescanBlockchainAsync = void Function();
 typedef GetSubaddressLabel = Pointer<Utf8> Function(
     int accountIndex,
     int addressIndex);
+
+typedef SetTrustedDaemon = void Function(int);
+
+typedef TrustedDaemon = int Function();

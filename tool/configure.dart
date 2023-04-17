@@ -75,6 +75,7 @@ abstract class Bitcoin {
   List<TransactionPriority> getTransactionPriorities();
   List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
+  TransactionPriority deserializeLitecoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
@@ -401,7 +402,8 @@ abstract class Haven {
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
-  int getHeigthByDate({required DateTime date});
+  int getHeightByDate({required DateTime date});
+  Future<int> getCurrentHeight();
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();

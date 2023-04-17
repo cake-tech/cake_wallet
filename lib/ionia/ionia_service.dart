@@ -148,8 +148,8 @@ class IoniaService {
 
 	// Redeem
 
-	Future<void> redeem(IoniaGiftCard giftCard) async {
-		await chargeGiftCard(giftCardId: giftCard.id, amount: giftCard.remainingAmount);
+	Future<void> redeem({required int giftCardId, required double amount}) async {
+		await chargeGiftCard(giftCardId: giftCardId, amount: amount);
 	}
 
 	// Get Gift Card

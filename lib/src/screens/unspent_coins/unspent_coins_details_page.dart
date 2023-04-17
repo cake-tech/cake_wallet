@@ -5,7 +5,7 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_switch_item.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -30,7 +30,7 @@ class UnspentCoinsDetailsPage extends BasePage {
           final item = unspentCoinsDetailsViewModel.items[index];
 
           if (item is StandartListItem) {
-            return StandartListRow(
+            return ListRow(
                 title: '${item.title}:',
                 value: item.value);
           }

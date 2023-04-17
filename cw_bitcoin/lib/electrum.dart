@@ -40,7 +40,7 @@ class ElectrumClient {
         unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
-  static const aliveTimerDuration = Duration(seconds: 2);
+  static const aliveTimerDuration = Duration(seconds: 4);
 
   bool get isConnected => _isConnected;
   Socket? socket;
@@ -303,7 +303,7 @@ class ElectrumClient {
   Future<List<int>> feeRates() async {
     try {
       final topDoubleString = await estimatefee(p: 1);
-      final middleDoubleString = await estimatefee(p: 20);
+      final middleDoubleString = await estimatefee(p: 5);
       final bottomDoubleString = await estimatefee(p: 100);
       final top =
           (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
@@ -358,7 +358,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method,
       List<Object> params = const [],
-      int timeout = 2000}) async {
+      int timeout = 4000}) async {
     try {
       final completer = Completer<dynamic>();
       _id += 1;

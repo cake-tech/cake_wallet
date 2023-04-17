@@ -7,7 +7,7 @@ Future<String> presentQRScanner() async {
   try {
     final result = await BarcodeScanner.scan();
     isQrScannerShown = false;
-    return result.rawContent;
+    return result.rawContent.trim();
   } catch (e) {
     isQrScannerShown = false;
     rethrow;

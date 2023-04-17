@@ -1,3 +1,5 @@
+import 'package:mobx/mobx.dart';
+
 class FilterItem {
   FilterItem({
     required this.value,
@@ -6,5 +8,5 @@ class FilterItem {
 
   bool Function() value;
   String caption;
-  Function(bool) onChanged;
+  Function onChanged;
 }

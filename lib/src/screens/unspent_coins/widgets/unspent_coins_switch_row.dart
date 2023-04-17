@@ -1,4 +1,4 @@
-import 'package:cake_wallet/src/widgets/standart_switch.dart';
+import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:flutter/material.dart';
 
 class UnspentCoinsSwitchRow extends StatelessWidget {
@@ -33,7 +33,7 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
                   textAlign: TextAlign.left),
               Padding(
                 padding: EdgeInsets.only(top: 12),
-                child: StandartSwitch(
+                child: StandardSwitch(
                     value: switchValue,
                     onTaped: () => onSwitchValueChange(!switchValue))
               )

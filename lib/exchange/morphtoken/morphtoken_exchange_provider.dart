@@ -67,6 +67,9 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
+  bool get supportsFixedRate => false;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.morphToken;
 
@@ -200,7 +203,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> calculateAmount(
+  Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required double amount,

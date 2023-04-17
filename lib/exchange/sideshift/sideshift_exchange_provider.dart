@@ -12,7 +12,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/limits.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
@@ -28,7 +27,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.xhv,
     CryptoCurrency.dcr,
-    CryptoCurrency.husd,
     CryptoCurrency.kmd,
     CryptoCurrency.mkr,
     CryptoCurrency.near,
@@ -39,6 +37,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     CryptoCurrency.rvn,
     CryptoCurrency.scrt,
     CryptoCurrency.stx,
+    CryptoCurrency.bttc,
   ];
 
   static List<ExchangePair> _supportedPairs() {
@@ -48,8 +47,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     return supportedCurrencies
         .map((i) => supportedCurrencies
-            .map((k) => ExchangePair(from: i, to: k, reverse: true))
-            .where((c) => c != null))
+            .map((k) => ExchangePair(from: i, to: k, reverse: true)))
         .expand((i) => i)
         .toList();
   }
@@ -59,7 +57,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       ExchangeProviderDescription.sideShift;
 
   @override
-  Future<double> calculateAmount(
+  Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required double amount,
@@ -81,9 +79,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
       if (amount > max) return 0.00;
 
-      final estimatedAmount = rate * amount;
-
-      return estimatedAmount;
+      return rate;
     } catch (_) {
       return 0.00;
     }
@@ -154,6 +150,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       refundAddress: settleAddress,
       state: TradeState.created,
       amount: _request.depositAmount,
+      payoutAddress: settleAddress,
       createdAt: DateTime.now(),
     );
   }
@@ -248,16 +245,17 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final inputAddress = responseJSON['depositAddress']['address'] as String;
     final expectedSendAmount = responseJSON['depositAmount'].toString();
     final deposits = responseJSON['deposits'] as List?;
+    final settleAddress = responseJSON['settleAddress']['address'] as String;
     TradeState? state;
+    String? status;
 
-    if (deposits != null && deposits.isNotEmpty) {
-      final status = deposits[0]['status'] as String;
-      state = TradeState.deserialize(raw: status);
+    if (deposits?.isNotEmpty ?? false) {
+      status = deposits![0]['status'] as String?;
     }
+    state = TradeState.deserialize(raw: status ?? 'created');
 
     final expiredAtRaw = responseJSON['expiresAtISO'] as String;
-    final expiredAt =
-        expiredAtRaw != null ? DateTime.parse(expiredAtRaw).toLocal() : null;
+    final expiredAt = DateTime.tryParse(expiredAtRaw)?.toLocal();
 
     return Trade(
       id: id,
@@ -268,6 +266,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       amount: expectedSendAmount,
       state: state,
       expiredAt: expiredAt,
+      payoutAddress: settleAddress
     );
   }
 
@@ -276,6 +275,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   @override
   bool get isEnabled => true;
+
+  @override
+  bool get supportsFixedRate => true;
 
   @override
   String get title => 'SideShift';

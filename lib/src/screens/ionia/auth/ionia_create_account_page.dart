@@ -32,8 +32,8 @@ class IoniaCreateAccountPage extends BasePage {
   final FocusNode _emailFocus;
   final TextEditingController _emailController;
 
-  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jaqsmbq9w7dzvnqf';
-  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/hi9awnwxr6mqgiqj';
+  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jhjvdn7qq7k3ukwt';
+  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/uceirymz2ijacq5g';
 
   @override
   Widget middle(BuildContext context) {
@@ -66,6 +66,7 @@ class IoniaCreateAccountPage extends BasePage {
           validator: EmailValidator(),
           keyboardType: TextInputType.emailAddress,
           controller: _emailController,
+          onSubmit: (_) => _createAccount(),
         ),
       ),
       bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),
@@ -77,12 +78,7 @@ class IoniaCreateAccountPage extends BasePage {
               Observer(
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).create_account,
-                  onPressed: () async {
-                    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                      return;
-                    }
-                    await _authViewModel.createUser(_emailController.text);
-                  },
+                  onPressed: _createAccount,
                   isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
                   color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
@@ -151,4 +147,11 @@ class IoniaCreateAccountPage extends BasePage {
         Routes.ioniaVerifyIoniaOtpPage,
         arguments: [authViewModel.email, false],
       );
+
+  void _createAccount() async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+    await _authViewModel.createUser(_emailController.text);
+  }
 }

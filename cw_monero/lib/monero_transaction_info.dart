@@ -8,7 +8,8 @@ import 'package:cw_monero/api/transaction_history.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
+      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
+      this.confirmations);
 
   MoneroTransactionInfo.fromMap(Map<String, Object?> map)
       : id = (map['hash'] ?? '') as String,
@@ -22,6 +23,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
+        confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int ?? 0 {
           additionalInfo = <String, dynamic>{
@@ -41,6 +43,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
+        confirmations = row.confirmations,
         key = getTxKey(row.getHash()),
         fee = row.fee {
           additionalInfo = <String, dynamic>{
@@ -59,6 +62,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   final int amount;
   final int fee;
   final int addressIndex;
+  final int confirmations;
   String? recipientAddress;
   String? key;
   String? _fiatAmount;

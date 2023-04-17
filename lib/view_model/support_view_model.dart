@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'support_view_model.g.dart';
 
@@ -19,7 +18,9 @@ abstract class SupportViewModelBase with Store {
       RegularListItem(
         title: S.current.faq,
         handler: (BuildContext context) async {
-          if (await canLaunch(url)) await launch(url);
+          try {
+            await launch(url);
+          } catch (e) {}
         },
       ),
       LinkListItem(
@@ -42,7 +43,7 @@ abstract class SupportViewModelBase with Store {
           title: 'Telegram',
           icon: 'assets/images/Telegram.png',
           linkTitle: '@cakewallet_bot',
-          link: 'https:t.me/cakewallet_bot'),
+          link: 'https://t.me/cakewallet_bot'),
       LinkListItem(
           title: 'Twitter',
           icon: 'assets/images/Twitter.png',
@@ -84,7 +85,7 @@ abstract class SupportViewModelBase with Store {
       //    link: 'mailto:support@y.at')
   ];
 
-  static const url = 'https://cakewallet.com/guide/';
+  static const url = 'https://guides.cakewallet.com';
 
   List<SettingsListItem> items;
 }

@@ -35,10 +35,11 @@ class ConnectionSyncPage extends BasePage {
             handler: (context) => _presentReconnectAlert(context),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsCellWithArrow(
-            title: S.current.rescan,
-            handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
-          ),
+          if (dashboardViewModel.hasRescan)
+            SettingsCellWithArrow(
+              title: S.current.rescan,
+              handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
+            ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           NodeHeaderListRow(
             title: S.of(context).add_new_node,
@@ -73,7 +74,7 @@ class ConnectionSyncPage extends BasePage {
                             builder: (BuildContext context) {
                               return AlertWithTwoActions(
                                 alertTitle: S.of(context).change_current_node_title,
-                                alertContent: S.of(context).change_current_node(node.uriRaw),
+                                alertContent: nodeListViewModel.getAlertContent(node.uriRaw),
                                 leftButtonText: S.of(context).cancel,
                                 rightButtonText: S.of(context).change,
                                 actionLeftButton: () => Navigator.of(context).pop(),
@@ -88,12 +89,12 @@ class ConnectionSyncPage extends BasePage {
 
                     final dismissibleRow = Slidable(
                       key: Key('${node.keyIndex}'),
-                      startActionPane: _actionPane(context, node),
-                      endActionPane: _actionPane(context, node),
+                      startActionPane: _actionPane(context, node, isSelected),
+                      endActionPane: _actionPane(context, node, isSelected),
                       child: nodeListRow,
                     );
 
-                    return isSelected ? nodeListRow : dismissibleRow;
+                    return dismissibleRow;
                   },
                 ),
               );
@@ -122,33 +123,42 @@ class ConnectionSyncPage extends BasePage {
     );
   }
 
-  ActionPane _actionPane(BuildContext context, Node node) => ActionPane(
+  ActionPane _actionPane(BuildContext context, Node node, bool isSelected) => ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: 0.3,
+        extentRatio: isSelected ? 0.3 : 0.6,
         children: [
-          SlidableAction(
-            onPressed: (context) async {
-              final confirmed = await showPopUp<bool>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertWithTwoActions(
-                            alertTitle: S.of(context).remove_node,
-                            alertContent: S.of(context).remove_node_message,
-                            rightButtonText: S.of(context).remove,
-                            leftButtonText: S.of(context).cancel,
-                            actionRightButton: () => Navigator.pop(context, true),
-                            actionLeftButton: () => Navigator.pop(context, false));
-                      }) ??
-                  false;
+          if (!isSelected)
+            SlidableAction(
+              onPressed: (context) async {
+                final confirmed = await showPopUp<bool>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertWithTwoActions(
+                              alertTitle: S.of(context).remove_node,
+                              alertContent: S.of(context).remove_node_message,
+                              rightButtonText: S.of(context).remove,
+                              leftButtonText: S.of(context).cancel,
+                              actionRightButton: () => Navigator.pop(context, true),
+                              actionLeftButton: () => Navigator.pop(context, false));
+                        }) ??
+                    false;
 
-              if (confirmed) {
-                await nodeListViewModel.delete(node);
-              }
-            },
-            backgroundColor: Colors.red,
+                if (confirmed) {
+                  await nodeListViewModel.delete(node);
+                }
+              },
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: CupertinoIcons.delete,
+              label: S.of(context).delete,
+            ),
+          SlidableAction(
+            onPressed: (_) => Navigator.of(context).pushNamed(Routes.newNode,
+                arguments: {'editingNode': node, 'isSelected': isSelected}),
+            backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
+            icon: Icons.edit,
+            label: S.of(context).edit,
           ),
         ],
       );

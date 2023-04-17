@@ -21,7 +21,6 @@ class Routes {
   static const seedLanguage = '/seed_language';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
-  static const nodeList = '/node_list';
   static const newNode = '/new_node_list';
   static const login = '/login';
   static const splash = '/splash';
@@ -38,6 +37,8 @@ class Routes {
   static const restoreWalletFromSeedDetails = '/restore_from_seed_details';
   static const exchange = '/exchange';
   static const settings = '/settings';
+  static const desktop_settings_page = '/desktop_settings_page';
+  static const empty_no_route = '/empty_no_route';
   static const unlock = '/auth_not_closable';
   static const rescan = '/rescan';
   static const faq = '/faq';
@@ -82,4 +83,11 @@ class Routes {
   static const privacyPage = '/privacy_page';
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';
+  static const advancedPrivacySettings = '/advanced_privacy_settings';
+  static const anonPayInvoicePage = '/anon_pay_invoice_page';
+  static const anonPayReceivePage = '/anon_pay_receive_page';
+  static const anonPayDetailsPage = '/anon_pay_details_page';
+  static const payfuraPage = '/pay_fura_page';
+  static const desktop_actions = '/desktop_actions';
+  static const transactionsPage = '/transactions_page';
 }

@@ -42,7 +42,8 @@ abstract class SendViewModelBase with Store {
       : state = InitialExecutionState(),
         currencies = _wallet.balance.keys.toList(),
         selectedCryptoCurrency = _wallet.currency,
-        outputs = ObservableList<Output>() {
+        outputs = ObservableList<Output>(),
+        fiatFromSettings = _settingsStore.fiatCurrency {
     final priority = _settingsStore.priority[_wallet.type];
     final priorities = priorityForWalletType(_wallet.type);
 
@@ -125,7 +126,8 @@ abstract class SendViewModelBase with Store {
 
   CryptoCurrency get currency => _wallet.currency;
 
-  Validator get amountValidator => AmountValidator(type: _wallet.type);
+  Validator get amountValidator =>
+      AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
   Validator get allAmountValidator => AllAmountValidator();
 
@@ -133,11 +135,26 @@ abstract class SendViewModelBase with Store {
 
   Validator get textValidator => TextValidator();
 
+  final FiatCurrency fiatFromSettings;
+
   @observable
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => balanceViewModel.availableBalance ?? '0.0';
+  String get balance => balanceViewModel.availableBalance;
+
+  @computed
+  bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
+
+  @computed
+  String get pendingTransactionFiatAmountFormatted =>
+      isFiatDisabled ? '' : pendingTransactionFiatAmount +
+          ' ' + fiat.title;
+
+  @computed
+  String get pendingTransactionFeeFiatAmountFormatted =>
+      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount +
+          ' ' + fiat.title;
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
@@ -164,7 +181,13 @@ abstract class SendViewModelBase with Store {
 
   WalletType get walletType => _wallet.type;
 
+  String? get walletCurrencyName =>
+      _wallet.currency.fullName?.toLowerCase() ?? _wallet.currency.name;
+
   bool get hasCurrecyChanger => walletType == WalletType.haven;
+
+  @computed
+  FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
@@ -208,7 +231,7 @@ abstract class SendViewModelBase with Store {
       state = TransactionCommitting();
       await pendingTransaction!.commit();
 
-      if (pendingTransaction!.id?.isNotEmpty ?? false) {
+      if (pendingTransaction!.id.isNotEmpty) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
                 id: pendingTransaction!.id,
@@ -283,4 +306,12 @@ abstract class SendViewModelBase with Store {
 
   bool _isEqualCurrency(String currency) => 
       currency.toLowerCase() == _wallet.currency.title.toLowerCase();
+
+  @action
+  void onClose() =>
+      _settingsStore.fiatCurrency = fiatFromSettings;
+
+  @action
+  void setFiatCurrency(FiatCurrency fiat) =>
+      _settingsStore.fiatCurrency = fiat;
 }

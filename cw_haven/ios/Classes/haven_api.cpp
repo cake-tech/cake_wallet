@@ -927,6 +927,16 @@ extern "C"
         return static_cast<int32_t>(rates.size());
     }
 
+    void set_trusted_daemon(bool arg)
+    {
+        m_wallet->setTrustedDaemon(arg);
+    }
+
+    bool trusted_daemon()
+    {
+        return m_wallet->trustedDaemon();
+    }
+
 #ifdef __cplusplus
 }
 #endif

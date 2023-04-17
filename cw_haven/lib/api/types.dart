@@ -136,3 +136,7 @@ typedef GetRate = Pointer<Int64> Function();
 typedef SizeOfRate = int Function();
 
 typedef UpdateRate = void Function();
+
+typedef SetTrustedDaemon = void Function(int);
+
+typedef TrustedDaemon = int Function();

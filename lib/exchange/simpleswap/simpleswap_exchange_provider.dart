@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -20,8 +21,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
                 .where((i) => i != CryptoCurrency.zaddr)
                 .map((i) => CryptoCurrency.all
                     .where((i) => i != CryptoCurrency.zaddr)
-                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
-                    .where((c) => c != null))
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true)))
                 .expand((i) => i)
                 .toList());
 
@@ -30,14 +30,14 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   static const rangePath = '/v1/get_ranges';
   static const getExchangePath = '/v1/get_exchange';
   static const createExchangePath = '/v1/create_exchange';
-  static const apiKey = secrets.simpleSwapApiKey;
+  static final apiKey = DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
 
   @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.simpleSwap;
 
   @override
-  Future<double> calculateAmount(
+  Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required double amount,
@@ -59,9 +59,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await get(uri);
 
-      if (response.body == null || response.body == "null") return 0.00;
+      if (response.body == "null") return 0.00;
       final data = json.decode(response.body) as String;
-      return double.parse(data);
+      return double.parse(data) / amount;
     } catch (_) {
       return 0.00;
     }
@@ -109,6 +109,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['address_from'] as String;
+    final payoutAddress = responseJSON['address_to'] as String;
     final settleAddress = responseJSON['user_refund_address'] as String;
     final extraId = responseJSON['extra_id_from'] as String?;
     return Trade(
@@ -121,6 +122,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       extraId: extraId,
       state: TradeState.created,
       amount: _request.amount,
+      payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
     );
   }
@@ -190,6 +192,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final expectedSendAmount = responseJSON['expected_amount'].toString();
     final extraId = responseJSON['extra_id_from'] as String?;
     final status = responseJSON['status'] as String;
+    final payoutAddress = responseJSON['address_to'] as String;
     final state = TradeState.deserialize(raw: status);
 
     return Trade(
@@ -201,6 +204,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       inputAddress: inputAddress,
       amount: expectedSendAmount,
       state: state,
+      payoutAddress: payoutAddress,
     );
   }
 
@@ -209,6 +213,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
   @override
   bool get isEnabled => true;
+
+  @override
+  bool get supportsFixedRate => false;
 
   @override
   String get title => 'SimpleSwap';
@@ -229,6 +236,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         return 'usdcpoly';
       case CryptoCurrency.usdcsol:
         return 'usdcspl';
+      case CryptoCurrency.matic:
+        return 'maticerc20';
+      case CryptoCurrency.maticpoly:
+        return 'matic';
       default:
         return currency.title.toLowerCase();
     }

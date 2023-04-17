@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -66,11 +67,10 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await wallet.connectToNode(node: node);
 
       if (wallet.type == WalletType.haven) {
-        settingsStore.fiatCurrency = FiatCurrency.usd;
         await updateHavenRate(fiatConversionStore);
       }
 
-      if (wallet.walletInfo.address?.isEmpty ?? true) {
+      if (wallet.walletInfo.address.isEmpty) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
 
         if (wallet.walletInfo.isInBox) {
@@ -87,14 +87,16 @@ void startCurrentWalletChangeReaction(AppStore appStore,
               TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
           wallet) async {
     try {
-      if (wallet == null) {
+      if (wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
         return;
       }
 
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] =
           await FiatConversionService.fetchPrice(
-              wallet.currency, settingsStore.fiatCurrency);
+              crypto: wallet.currency,
+              fiat: settingsStore.fiatCurrency,
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
     } catch (e) {
       print(e.toString());
     }

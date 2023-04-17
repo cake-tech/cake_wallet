@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -10,7 +11,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 
 part 'balance_view_model.g.dart';
@@ -70,6 +70,9 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
+
+  @computed
+  bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
   String get asset {
@@ -180,8 +183,8 @@ abstract class BalanceViewModelBase with Store {
         return MapEntry(key, BalanceRecord(
           availableBalance: '---',
           additionalBalance: '---',
-          fiatAdditionalBalance: '---',
-          fiatAvailableBalance: '---',
+          fiatAdditionalBalance: isFiatDisabled ? '' : '---',
+          fiatAvailableBalance: isFiatDisabled ? '' : '---',
           asset: key,
           formattedAssetTitle: _formatterAsset(key)));
       }
@@ -192,17 +195,17 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final additionalFiatBalance = fiatCurrency.toString()
-        + ' ' 
+      final additionalFiatBalance = isFiatDisabled ? '' : (fiatCurrency.toString()
+        + ' '
         + _getFiatBalance(
             price: price,
-            cryptoAmount: value.formattedAdditionalBalance);
+            cryptoAmount: value.formattedAdditionalBalance));
 
-      final availableFiatBalance = fiatCurrency.toString()
-        + ' ' 
+      final availableFiatBalance = isFiatDisabled ? '' : (fiatCurrency.toString()
+        + ' '
         + _getFiatBalance(
             price: price,
-            cryptoAmount: value.formattedAvailableBalance);
+            cryptoAmount: value.formattedAvailableBalance));
 
       return MapEntry(key, BalanceRecord(
         availableBalance: value.formattedAvailableBalance,

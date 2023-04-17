@@ -17,6 +17,7 @@ class Node extends HiveObject with Keyable {
       {this.login,
       this.password,
       this.useSSL,
+      this.trusted = false,
       String? uri,
       WalletType? type,}) {
     if (uri != null) {
@@ -31,7 +32,8 @@ class Node extends HiveObject with Keyable {
       : uriRaw = map['uri'] as String? ?? '',
         login = map['login'] as String?,
         password = map['password'] as String?,
-        useSSL = map['useSSL'] as bool?;
+        useSSL = map['useSSL'] as bool?,
+        trusted = map['trusted'] as bool? ?? false;
 
   static const typeId = 1;
   static const boxName = 'Nodes';
@@ -51,6 +53,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(4)
   bool? useSSL;
 
+  @HiveField(5, defaultValue: false)
+  bool trusted;
+
   bool get isSSL => useSSL ?? false;
 
   Uri get uri {
@@ -67,6 +72,25 @@ class Node extends HiveObject with Keyable {
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
   }
+
+  @override
+  bool operator ==(other) =>
+      other is Node &&
+          (other.uriRaw == uriRaw &&
+              other.login == login &&
+              other.password == password &&
+              other.typeRaw == typeRaw &&
+              other.useSSL == useSSL &&
+              other.trusted == trusted);
+
+  @override
+  int get hashCode =>
+      uriRaw.hashCode ^
+      login.hashCode ^
+      password.hashCode ^
+      typeRaw.hashCode ^
+      useSSL.hashCode ^
+      trusted.hashCode;
 
   @override
   dynamic get keyIndex {
@@ -104,28 +128,28 @@ class Node extends HiveObject with Keyable {
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
     final body = {
-        'jsonrpc': '2.0', 
-        'id': '0', 
+        'jsonrpc': '2.0',
+        'id': '0',
         'method': 'get_info'
     };
 
     try {
       final authenticatingClient = HttpClient();
-    
+
       authenticatingClient.addCredentials(
           rpcUri,
-          realm, 
+          realm,
           HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
-    
+
       final http.Client client = ioc.IOClient(authenticatingClient);
-    
+
       final response = await client.post(
           rpcUri,
           headers: {'Content-Type': 'application/json'},
           body: json.encode(body),
       );
-    
+
       client.close();
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;

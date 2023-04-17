@@ -12,32 +12,25 @@ import 'package:package_info/package_info.dart';
 
 part 'other_settings_view_model.g.dart';
 
-class OtherSettingsViewModel = OtherSettingsViewModelBase
-    with _$OtherSettingsViewModel;
-
+class OtherSettingsViewModel = OtherSettingsViewModelBase with _$OtherSettingsViewModel;
 
 abstract class OtherSettingsViewModelBase with Store {
-  OtherSettingsViewModelBase(this._settingsStore,  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          wallet):
-  walletType = wallet.type,
-  _wallet = wallet,
-  currentVersion = ''{
-     PackageInfo.fromPlatform().then(
-        (PackageInfo packageInfo) => currentVersion = packageInfo.version);
+  OtherSettingsViewModelBase(this._settingsStore, this._wallet)
+      : walletType = _wallet.type,
+        currentVersion = '' {
+    PackageInfo.fromPlatform()
+        .then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
-    final priority = _settingsStore.priority[wallet.type];
-    final priorities = priorityForWalletType(wallet.type);
+    final priority = _settingsStore.priority[_wallet.type];
+    final priorities = priorityForWalletType(_wallet.type);
 
     if (!priorities.contains(priority)) {
-      _settingsStore.priority[wallet.type] = priorities.first;
+      _settingsStore.priority[_wallet.type] = priorities.first;
+    }
   }
 
-   }
-
-     final WalletType walletType;
-  final  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo> _wallet;
+  final WalletType walletType;
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   @observable
   String currentVersion;
@@ -55,11 +48,10 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority;
   }
 
-   String getDisplayPriority(dynamic priority) {
+  String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
 
-    if (_wallet.type == WalletType.bitcoin
-        || _wallet.type == WalletType.litecoin) {
+    if (_wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
@@ -68,5 +60,5 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-    _settingsStore.priority[_wallet.type] = priority;
+      _settingsStore.priority[_wallet.type] = priority;
 }

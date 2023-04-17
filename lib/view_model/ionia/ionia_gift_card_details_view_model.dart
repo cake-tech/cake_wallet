@@ -6,21 +6,19 @@ import 'package:device_display_brightness/device_display_brightness.dart';
 
 part 'ionia_gift_card_details_view_model.g.dart';
 
-class IoniaGiftCardDetailsViewModel  = IoniaGiftCardDetailsViewModelBase with _$IoniaGiftCardDetailsViewModel;
+class IoniaGiftCardDetailsViewModel = IoniaGiftCardDetailsViewModelBase
+    with _$IoniaGiftCardDetailsViewModel;
 
 abstract class IoniaGiftCardDetailsViewModelBase with Store {
-
-  IoniaGiftCardDetailsViewModelBase({
-    required this.ioniaService,
-    required this.giftCard}) 
-    : redeemState = InitialExecutionState(),
-      remainingAmount = giftCard.remainingAmount,
-      brightness = 0;
+  IoniaGiftCardDetailsViewModelBase({required this.ioniaService, required this.giftCard})
+      : redeemState = InitialExecutionState(),
+        remainingAmount = giftCard.remainingAmount,
+        brightness = 0;
 
   final IoniaService ioniaService;
-  
+
   double brightness;
-  
+
   @observable
   IoniaGiftCard giftCard;
 
@@ -35,17 +33,18 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
     giftCard.remainingAmount = remainingAmount;
     try {
       redeemState = IsExecutingState();
-      await ioniaService.redeem(giftCard);
+      await ioniaService.redeem(giftCardId: giftCard.id, amount: giftCard.remainingAmount);
       giftCard = await ioniaService.getGiftCard(id: giftCard.id);
       redeemState = ExecutedSuccessfullyState();
-    } catch(e) {
+    } catch (e) {
       redeemState = FailureState(e.toString());
     }
   }
 
   @action
-  void updateRemaining(double amount){
-    remainingAmount = amount;
+  Future<void> refeshCard() async {
+     giftCard = await ioniaService.getGiftCard(id: giftCard.id);
+     remainingAmount = giftCard.remainingAmount;
   }
 
   void increaseBrightness() async {

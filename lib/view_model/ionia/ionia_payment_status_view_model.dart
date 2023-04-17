@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/anypay/any_pay_chain.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
@@ -38,6 +39,8 @@ abstract class IoniaPaymentStatusViewModelBase with Store {
   String error;
 
   Timer? get timer => _timer;
+
+  bool get payingByBitcoin => paymentInfo.anyPayPayment.chain == AnyPayChain.btc;
 
   Timer? _timer;
 

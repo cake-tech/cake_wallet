@@ -14,8 +14,8 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_not_connected;
   }
 
-  if (syncStatus is StartingSyncStatus) {
-    return S.current.sync_status_starting_sync;
+  if (syncStatus is AttemptingSyncStatus) {
+    return S.current.sync_status_attempting_sync;
   }
 
   if (syncStatus is FailedSyncStatus) {

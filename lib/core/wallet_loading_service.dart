@@ -22,13 +22,13 @@ class WalletLoadingService {
   	final wallet = await walletService.openWallet(name, password);
 
   	if (type == WalletType.monero) {
-  		await upateMoneroWalletPassword(wallet);
+  		await updateMoneroWalletPassword(wallet);
   	}
 
   	return wallet;
 	}
 
-	Future<void> upateMoneroWalletPassword(WalletBase wallet) async {
+	Future<void> updateMoneroWalletPassword(WalletBase wallet) async {
 		final key = PreferencesKey.moneroWalletUpdateV1Key(wallet.name);
 		var isPasswordUpdated = sharedPreferences.getBool(key) ?? false;
 
@@ -37,8 +37,8 @@ class WalletLoadingService {
 		}
 
 		final password = generateWalletPassword();
-		// Save new generated password with backup key for case
-		// if wallet will change password, but it will faild to updated in secure storage
+		// Save new generated password with backup key for case where
+		// wallet will change password, but it will fail to update in secure storage
 		final bakWalletName = '#__${wallet.name}_bak__#';
 		await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
 		await wallet.changePassword(password);
