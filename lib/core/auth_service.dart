@@ -75,8 +75,8 @@ class AuthService with Store {
     return timeDifference.inMinutes;
   }
 
-  void authenticateAction(BuildContext context,
-      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) {
+  Future<void> authenticateAction(BuildContext context,
+      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
     assert(route != null || onAuthSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
     if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
@@ -97,8 +97,7 @@ class AuthService with Store {
         return;
       }
       if (onAuthSuccess != null) {
-        auth.close();
-        onAuthSuccess.call(true);
+        auth.close().then((value) => onAuthSuccess.call(true));
       } else {
         auth.close(route: route, arguments: arguments);
       }
