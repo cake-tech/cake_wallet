@@ -27,6 +27,7 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {required SharedPreferences sharedPreferences,
+      required bool initialShouldShowMarketPlaceInDashboard,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -54,6 +55,7 @@ abstract class SettingsStoreBase with Store {
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
     fiatApiMode = initialFiatMode,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+        shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
     exchangeStatus = initialExchangeStatus,
     currentTheme = initialTheme,
     pinCodeLength = initialPinLength,
@@ -134,6 +136,11 @@ abstract class SettingsStoreBase with Store {
             biometricalAuthentication));
 
     reaction(
+        (_) => shouldShowMarketPlaceInDashboard,
+        (bool value) =>
+            sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
+
+    reaction(
         (_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(
             PreferencesKey.currentPinLength, pinLength));
@@ -176,6 +183,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowYatPopup;
+
+  @observable
+  bool shouldShowMarketPlaceInDashboard;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -241,8 +251,8 @@ abstract class SettingsStoreBase with Store {
       {required Box<Node> nodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      BalanceDisplayMode initialBalanceDisplayMode =
-          BalanceDisplayMode.availableBalance}) async {
+      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
+      ThemeBase? initialTheme}) async {
 
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final currentFiatCurrency = FiatCurrency.deserialize(raw:
@@ -285,6 +295,8 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
+    final shouldShowMarketPlaceInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences
             .getInt(PreferencesKey.exchangeStatusKey) ?? ExchangeApiMode.enabled.raw);
@@ -292,7 +304,7 @@ abstract class SettingsStoreBase with Store {
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
             : ThemeType.bright.index;
-    final savedTheme = ThemeList.deserialize(
+    final savedTheme = initialTheme ?? ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
             legacyTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
@@ -348,6 +360,7 @@ abstract class SettingsStoreBase with Store {
 
     return SettingsStore(
         sharedPreferences: sharedPreferences,
+        initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
         appVersion: packageInfo.version,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
@@ -402,6 +415,9 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
+    shouldShowMarketPlaceInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
+            shouldShowMarketPlaceInDashboard;
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences
             .getInt(PreferencesKey.exchangeStatusKey) ?? ExchangeApiMode.enabled.raw);

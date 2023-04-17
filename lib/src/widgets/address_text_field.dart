@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -65,7 +68,7 @@ class AddressTextField extends StatelessWidget {
           style: textStyle ??
               TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                  color: Theme.of(context).primaryTextTheme.headline6!.color!),
           decoration: InputDecoration(
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length +
@@ -102,7 +105,8 @@ class AddressTextField extends StatelessWidget {
               width: prefixIconWidth * options.length +
                   (spaceBetweenPrefixIcons * options.length),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: DeviceInfo.instance.isMobile 
+                  ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
                 children: [
                   SizedBox(width: 5),
                   if (this.options.contains(AddressTextFieldOption.paste)) ...[
@@ -117,8 +121,7 @@ class AddressTextField extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: buttonColor ??
                                       Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline6!
+                                          .accentTextTheme.headline6!
                                           .color!,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
@@ -126,13 +129,13 @@ class AddressTextField extends StatelessWidget {
                                 'assets/images/paste_ios.png',
                                 color: iconColor ??
                                     Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headline4!
+                                        .primaryTextTheme.headline4!
                                         .decorationColor!,
                               )),
                         )),
                   ],
-                  if (this.options.contains(AddressTextFieldOption.qrCode)) ...[
+                  if (this.options.contains(AddressTextFieldOption.qrCode) && DeviceInfo.instance.isMobile) 
+                  ...[
                     Container(
                         width: prefixIconWidth,
                         height: prefixIconHeight,
@@ -144,8 +147,7 @@ class AddressTextField extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: buttonColor ??
                                       Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline6!
+                                          .accentTextTheme.headline6!
                                           .color!,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
@@ -153,12 +155,11 @@ class AddressTextField extends StatelessWidget {
                                 'assets/images/qr_code_icon.png',
                                 color: iconColor ??
                                     Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headline4!
+                                        .primaryTextTheme.headline4!
                                         .decorationColor!,
                               )),
                         ))
-                  ],
+                  ] else SizedBox(width: 5),
                   if (this
                       .options
                       .contains(AddressTextFieldOption.addressBook)) ...[
@@ -173,8 +174,7 @@ class AddressTextField extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: buttonColor ??
                                       Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline6!
+                                          .accentTextTheme.headline6!
                                           .color!,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
@@ -182,8 +182,7 @@ class AddressTextField extends StatelessWidget {
                                 'assets/images/open_book.png',
                                 color: iconColor ??
                                     Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headline4!
+                                        .primaryTextTheme.headline4!
                                         .decorationColor!,
                               )),
                         ))
@@ -211,7 +210,7 @@ class AddressTextField extends StatelessWidget {
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
-    final contact = await Navigator.of(context, rootNavigator: true)
+    final contact = await Navigator.of(context)
         .pushNamed(Routes.pickerAddressBook,arguments: selectedCurrency);
 
     if (contact is ContactBase && contact.address != null) {

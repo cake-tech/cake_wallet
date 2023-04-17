@@ -697,5 +697,6 @@
   "optional_name": "Незадължително име на получател",
   "clearnet_link": "Clearnet връзка",
   "onion_link": "Лукова връзка",
-  "sell_monero_com_alert_content": "Продажбата на Monero все още не се поддържа"
+  "sell_monero_com_alert_content": "Продажбата на Monero все още не се поддържа",
+  "show_market_place":"Покажи пазар"
 }

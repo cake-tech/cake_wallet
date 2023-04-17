@@ -96,11 +96,6 @@ import UnstoppableDomainsResolution
                     
                     result(address)
                 }
-            case "enableWakeScreen":
-                result(enableWakeScreen())
-
-            case "disableWakeScreen":
-                result(disableWakeScreen())
 
             default:
                 result(FlutterMethodNotImplemented)
@@ -110,4 +105,12 @@ import UnstoppableDomainsResolution
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
+
+    override func applicationWillResignActive(_: UIApplication ) {
+        self.window?.isHidden = true;
+      }
+
+      override func applicationDidBecomeActive(_: UIApplication) {
+        self.window?.isHidden = false;
+      }
 }
