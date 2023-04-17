@@ -698,5 +698,6 @@
   "clearnet_link": "Net bağlantı",
   "onion_link": "soğan bağlantısı",
   "settings": "ayarlar",
-  "sell_monero_com_alert_content": "Monero satışı henüz desteklenmiyor"
+  "sell_monero_com_alert_content": "Monero satışı henüz desteklenmiyor",
+  "show_market_place":"Pazar Yerini Göster"
 }

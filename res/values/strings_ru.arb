@@ -698,5 +698,6 @@
   "clearnet_link": "Клирнет ссылка",
   "onion_link": "Луковая ссылка",
   "settings": "Настройки",
-  "sell_monero_com_alert_content": "Продажа Monero пока не поддерживается"
+  "sell_monero_com_alert_content": "Продажа Monero пока не поддерживается",
+  "show_market_place":"Показать торговую площадку"
 }

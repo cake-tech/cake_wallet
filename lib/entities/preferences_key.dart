@@ -39,4 +39,5 @@ class PreferencesKey {
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const clearnetDonationLink = 'clearnet_donation_link'; 
   static const onionDonationLink = 'onion_donation_link'; 
+  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
 }

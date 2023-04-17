@@ -698,5 +698,6 @@
   "clearnet_link": "Collegamento Clearnet",
   "onion_link": "Collegamento a cipolla",
   "settings": "Impostazioni",
-  "sell_monero_com_alert_content": "La vendita di Monero non è ancora supportata"
+  "sell_monero_com_alert_content": "La vendita di Monero non è ancora supportata",
+  "show_market_place":"Mostra mercato"
 }
