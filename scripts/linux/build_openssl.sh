@@ -14,6 +14,6 @@ curl https://www.openssl.org/source/${OPENSSL_FILENAME} -o ${OPENSSL_FILE_PATH}
 rm -rf $OPENSSL_SRC_DIR
 tar -xzf $OPENSSL_FILE_PATH -C $EXTERNAL_LINUX_SOURCE_DIR
 cd $OPENSSL_SRC_DIR
-
-./config -static --prefix=${EXTERNAL_LINUX_DIR}
+export CFLAGS=-fPIC
+./config -fPIC shared --prefix=${EXTERNAL_LINUX_DIR}
 make install

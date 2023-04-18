@@ -21,7 +21,8 @@ rm -rf $BOOST_SRC_DIR
 tar -xvf $BOOST_FILE_PATH -C $EXTERNAL_LINUX_SOURCE_DIR
 cd $BOOST_SRC_DIR
 ./bootstrap.sh --prefix=${EXTERNAL_LINUX_DIR} 
-./b2 --with-chrono \
+./b2 cxxflags=-fPIC cflags=-fPIC \
+     --with-chrono \
      --with-date_time \
      --with-filesystem \
      --with-program_options \

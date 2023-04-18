@@ -324,7 +324,13 @@ abstract class SettingsStoreBase with Store {
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
-    final packageInfo = await PackageInfo.fromPlatform();
+    var appVersion = '';
+    
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      appVersion = packageInfo.version;
+    } catch(_) {}
+
     final shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
 
@@ -349,7 +355,7 @@ abstract class SettingsStoreBase with Store {
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         nodes: nodes,
-        appVersion: packageInfo.version,
+        appVersion: appVersion,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,

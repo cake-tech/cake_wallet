@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   cw_monero
   devicelocale
-  flutter_secure_storage_linux
   platform_device_id_linux
   url_launcher_linux
 )

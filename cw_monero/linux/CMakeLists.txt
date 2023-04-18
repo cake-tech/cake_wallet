@@ -17,6 +17,7 @@ set(PLUGIN_NAME "cw_monero_plugin")
 # Any new source files that you add to the plugin should be added here.
 add_library(${PLUGIN_NAME} SHARED
   "cw_monero_plugin.cc"
+  "../ios/Classes/monero_api.cpp"
 )
 
 # Apply a standard set of build settings that are configured in the
@@ -37,7 +38,7 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
-
+target_link_libraries(${PLUGIN_NAME} PUBLIC cw_monero)
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
@@ -49,8 +50,6 @@ set(cw_monero_bundled_libraries
 add_library( cw_monero
              STATIC
              ../ios/Classes/monero_api.cpp)
-
-#find_library( log-lib log )
 
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../cw_shared_external/ios/External/linux)
 
@@ -268,6 +267,4 @@ target_link_libraries(  cw_monero
                         crypto
                         
                         sodium
-
-                       #${log-lib}
-                       )
+                        )

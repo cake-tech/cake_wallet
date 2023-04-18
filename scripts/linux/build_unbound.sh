@@ -14,11 +14,12 @@ git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOU
 cd $UNBOUND_DIR_PATH
 test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
-./configure --prefix="${EXTERNAL_LINUX_DIR}" \
+export CFLAGS=-fPIC
+./configure cxxflags=-fPIC cflags=-fPIC \
+	--prefix="${EXTERNAL_LINUX_DIR}" \
 	--with-ssl="${EXTERNAL_LINUX_DIR}" \
 	--with-libexpat="${EXTERNAL_LINUX_DIR}" \
 	--enable-static \
-	--disable-shared \
 	--disable-flto
 make
 make install
