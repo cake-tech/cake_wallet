@@ -58,19 +58,24 @@ abstract class BasePage extends StatelessWidget {
 
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
 
-    return SizedBox(
-      height: isMobileView ? 37 : 45,
-      width: isMobileView ? 37 : 45,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            style: ButtonStyle(
-              overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: canUseCloseIcon && !isMobileView ? 'Close' : 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child:
+                  canUseCloseIcon && !isMobileView ? _closeButton : _backButton,
             ),
-            onPressed: () => onClose(context),
-            child: canUseCloseIcon && !isMobileView
-                ? _closeButton
-                : _backButton,
+          ),
         ),
       ),
     );

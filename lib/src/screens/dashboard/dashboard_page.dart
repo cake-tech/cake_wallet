@@ -104,7 +104,7 @@ class _DashboardPageView extends BasePage {
             //splashColor: Colors.transparent,
             //padding: EdgeInsets.all(0),
             onPressed: () => onOpenEndDrawer(),
-            child: menuButton));
+            child: Semantics(label: 'Menu', child: menuButton)));
   }
 
   final DashboardViewModel dashboardViewModel;
@@ -149,17 +149,21 @@ class _DashboardPageView extends BasePage {
             Padding(
                 padding: EdgeInsets.only(bottom: 24, top: 10),
                 child: Observer(builder: (context) {
-                  return SmoothPageIndicator(
-                    controller: controller,
-                    count: pages.length,
-                    effect: ColorTransitionEffect(
-                        spacing: 6.0,
-                        radius: 6.0,
-                        dotWidth: 6.0,
-                        dotHeight: 6.0,
-                        dotColor: Theme.of(context).indicatorColor,
-                        activeDotColor:
-                            Theme.of(context).accentTextTheme!.headline4!.backgroundColor!),
+                  return ExcludeSemantics(
+                    child: SmoothPageIndicator(
+                      controller: controller,
+                      count: pages.length,
+                      effect: ColorTransitionEffect(
+                          spacing: 6.0,
+                          radius: 6.0,
+                          dotWidth: 6.0,
+                          dotHeight: 6.0,
+                          dotColor: Theme.of(context).indicatorColor,
+                          activeDotColor: Theme.of(context)
+                              .accentTextTheme!
+                              .headline4!
+                              .backgroundColor!),
+                    ),
                   );
                 }
                 )),
@@ -184,27 +188,38 @@ class _DashboardPageView extends BasePage {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: MainActions.all
                             .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
-                            .map((action) => ActionButton(
-                                  image: Image.asset(action.image,
-                                      height: 24,
-                                      width: 24,
-                                      color: action.isEnabled?.call(dashboardViewModel) ?? true
-                                          ? Theme.of(context)
-                                              .accentTextTheme
-                                              .headline2!
-                                              .backgroundColor!
-                                          : Theme.of(context)
-                                              .accentTextTheme
-                                              .headline3!
-                                              .backgroundColor!),
-                                  title: action.name(context),
-                                  onClick: () async => await action.onTap(context, dashboardViewModel),
-                                  textColor: action.isEnabled?.call(dashboardViewModel) ?? true
-                                      ? null
-                                      : Theme.of(context)
-                                          .accentTextTheme
-                                          .headline3!
-                                          .backgroundColor!,
+                            .map((action) => Semantics(
+                                  button: true,
+                                  enabled: (action.isEnabled
+                                          ?.call(dashboardViewModel) ??
+                                      true),
+                                  child: ActionButton(
+                                    image: Image.asset(action.image,
+                                        height: 24,
+                                        width: 24,
+                                        color: action.isEnabled?.call(
+                                                    dashboardViewModel) ??
+                                                true
+                                            ? Theme.of(context)
+                                                .accentTextTheme
+                                                .headline2!
+                                                .backgroundColor!
+                                            : Theme.of(context)
+                                                .accentTextTheme
+                                                .headline3!
+                                                .backgroundColor!),
+                                    title: action.name(context),
+                                    onClick: () async => await action.onTap(
+                                        context, dashboardViewModel),
+                                    textColor: action.isEnabled
+                                                ?.call(dashboardViewModel) ??
+                                            true
+                                        ? null
+                                        : Theme.of(context)
+                                            .accentTextTheme
+                                            .headline3!
+                                            .backgroundColor!,
+                                  ),
                                 ))
                             .toList(),
                       ),
@@ -222,10 +237,14 @@ class _DashboardPageView extends BasePage {
       return;
     }
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
-      pages.add(MarketPlacePage(dashboardViewModel: dashboardViewModel));
+      pages.add(Semantics(
+          label: 'Marketplace Page',
+          child: MarketPlacePage(dashboardViewModel: dashboardViewModel)));
     }
-    pages.add(balancePage);
-    pages.add(TransactionsPage(dashboardViewModel: dashboardViewModel));
+    pages.add(Semantics(label: 'Balance Page', child: balancePage));
+    pages.add(Semantics(
+        label: 'Transactions Page',
+        child: TransactionsPage(dashboardViewModel: dashboardViewModel)));
     _isEffectsInstalled = true;
 
     autorun((_) async {
