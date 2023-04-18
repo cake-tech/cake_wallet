@@ -36,8 +36,9 @@ class RestoreOptionsPage extends BasePage {
             child: Column(
               children: <Widget>[
                 RestoreButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, Routes.restoreWalletOptionsFromWelcome),
+                    onPressed: () => Navigator.pushNamed(
+                        context, Routes.restoreWalletOptionsFromWelcome,
+                        arguments: restoreFromQRViewModel.isNewInstall),
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
                     description: S.of(context).restore_description_from_seed_keys),
@@ -73,7 +74,7 @@ class RestoreOptionsPage extends BasePage {
                                   'Create wallet state: ${restoreFromQRViewModel.state.runtimeType.toString()}');
                             }
                           } catch (e) {
-                            _onScanQRFailure(context, e.toString());
+                            _onWalletCreateFailure(context, e.toString());
                           }
                         }
                       },
@@ -85,18 +86,6 @@ class RestoreOptionsPage extends BasePage {
             ),
           )),
     );
-  }
-
-  void _onScanQRFailure(BuildContext context, String error) {
-    showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-              alertTitle: S.current.error,
-              alertContent: error,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
-        });
   }
 
   void _onWalletCreateFailure(BuildContext context, String error) {

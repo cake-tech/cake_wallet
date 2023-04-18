@@ -30,7 +30,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
   @override
-  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoredWallet) {
+  WalletCredentials getCredentials(dynamic options) {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
@@ -48,7 +48,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoredWallet) async {
+  Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
     return walletCreationService.create(credentials);
   }

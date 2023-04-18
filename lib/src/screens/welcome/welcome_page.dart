@@ -105,18 +105,6 @@ class WelcomePage extends BasePage {
                                 Padding(
                                   padding: EdgeInsets.only(top: 5),
                                   child: Text(
-                                    appTitle(context),
-                                    style: TextStyle(
-                                      fontSize: 36,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 5),
-                                  child: Text(
                                     appDescription(context),
                                     style: TextStyle(
                                       fontSize: 16,

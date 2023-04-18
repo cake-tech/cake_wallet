@@ -54,7 +54,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   bool isButtonEnabled;
   
   @override
-  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoreWallet) {
+  WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
@@ -122,7 +122,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoredWallet) async {
+  Future<WalletBase> process(WalletCredentials credentials) async {
     if (mode == WalletRestoreMode.keys) {
       return walletCreationService.restoreFromKeys(credentials);
     }

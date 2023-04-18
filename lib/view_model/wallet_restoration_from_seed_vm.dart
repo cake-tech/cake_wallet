@@ -37,7 +37,7 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
   final String language;
 
   @override
-  WalletCredentials getCredentials(dynamic options, RestoredWallet? restoredWallet) {
+  WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
 
     switch (type) {
@@ -53,6 +53,6 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
   }
 
   @override
-  Future<WalletBase> process(WalletCredentials credentials, RestoredWallet? restoredWallet) async =>
+  Future<WalletBase> process(WalletCredentials credentials) async =>
       walletCreationService.restoreFromSeed(credentials);
 }
