@@ -70,11 +70,16 @@ class AddressCell extends StatelessWidget {
             ),
           ),
         ));
-    return Slidable(
-      key: Key(address),
-      startActionPane: _actionPane(context),
-      endActionPane: _actionPane(context),
-      child: cell,
+    return Semantics(
+      label: 'Slidable',
+      selected: isCurrent,
+      enabled: !isCurrent,
+      child: Slidable(
+        key: Key(address),
+        startActionPane: _actionPane(context),
+        endActionPane: _actionPane(context),
+        child: cell,
+      ),
     );
   }
 
