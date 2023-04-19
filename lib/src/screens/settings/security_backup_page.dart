@@ -92,6 +92,15 @@ class SecurityBackupPage extends BasePage {
             },
           );
         }),
+        SettingsCellWithArrow(
+          title: 'Set up Cake 2FA',
+          handler: (_) => Navigator.of(context).pushNamed(Routes.auth,
+              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            if (isAuthenticatedSuccessfully) {
+              auth.close(route: Routes.setup_2faPage);
+            }
+          }),
+        ),
       ]),
     );
   }

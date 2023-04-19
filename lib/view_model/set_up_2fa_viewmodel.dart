@@ -1,0 +1,1 @@
+class Setup2FAViewModel {}

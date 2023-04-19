@@ -31,6 +31,9 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
@@ -570,6 +573,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
           settings: settings,
           fullscreenDialog: true,
           builder: (_) => getIt.get<TransactionsPage>());
+
+    case Routes.setup_2faPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAPage>());
+
+    case Routes.setup_2faQRPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAQRPage>());
+
+    case Routes.setup_2faEnterCodePage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAEnterCodePage>());
 
     default:
       return MaterialPageRoute<void>(
