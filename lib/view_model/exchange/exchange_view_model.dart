@@ -307,19 +307,6 @@ abstract class ExchangeViewModelBase with Store {
 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    double minLimit = limits.min ?? 0;
-    double? maxLimit = limits.max;
-
-    if (_enteredAmount < minLimit) {
-      depositAmount = '';
-      return;
-    }
-
-    if (maxLimit != null && _enteredAmount > maxLimit) {
-      depositAmount = '';
-      return;
-    }
-
     /// in case the best rate was not calculated yet
     if (_bestRate == 0) {
       receiveAmount = S.current.fetching;

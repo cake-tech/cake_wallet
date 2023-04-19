@@ -456,12 +456,8 @@ class ExchangePage extends BasePage {
     depositAmountController.addListener(() {
       if (depositAmountController.text != exchangeViewModel.depositAmount) {
         _depositAmountDebounce.run(() { 
-
-          if (exchangeViewModel.checkIfInputMeetsMinOrMaxCondition(depositAmountController.text)) {
-            exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
-            exchangeViewModel.isReceiveAmountEntered = false;
-          }
-
+          exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+          exchangeViewModel.isReceiveAmountEntered = false;
         });
       }
     });
@@ -472,11 +468,8 @@ class ExchangePage extends BasePage {
     receiveAmountController.addListener(() {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
         _receiveAmountDebounce.run(() {
-          if (exchangeViewModel.checkIfInputMeetsMinOrMaxCondition(receiveAmountController.text)) {
-            exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
-            exchangeViewModel.isReceiveAmountEntered = true;
-          }
-
+          exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
+          exchangeViewModel.isReceiveAmountEntered = true;
         });
       }
     });
