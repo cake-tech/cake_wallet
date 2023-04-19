@@ -27,7 +27,6 @@ using namespace std::chrono_literals;
 extern "C"
 {
 #endif
-    const uint64_t MONERO_BLOCK_SIZE = 1000;
 
     struct Utf8Box
     {
