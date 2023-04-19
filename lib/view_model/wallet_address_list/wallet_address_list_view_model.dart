@@ -20,22 +20,17 @@ import 'package:cake_wallet/haven/haven.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
-class WalletAddressListViewModel = WalletAddressListViewModelBase
-    with _$WalletAddressListViewModel;
+class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
 
 abstract class PaymentURI {
-  PaymentURI({
-    required this.amount,
-    required this.address});
+  PaymentURI({required this.amount, required this.address});
 
   final String amount;
   final String address;
 }
 
 class MoneroURI extends PaymentURI {
-  MoneroURI({
-      required String amount,
-      required String address})
+  MoneroURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -51,9 +46,7 @@ class MoneroURI extends PaymentURI {
 }
 
 class HavenURI extends PaymentURI {
-  HavenURI({
-      required String amount,
-      required String address})
+  HavenURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -69,9 +62,7 @@ class HavenURI extends PaymentURI {
 }
 
 class BitcoinURI extends PaymentURI {
-  BitcoinURI({
-      required String amount,
-      required String address})
+  BitcoinURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -87,9 +78,7 @@ class BitcoinURI extends PaymentURI {
 }
 
 class LitecoinURI extends PaymentURI {
-  LitecoinURI({
-    required String amount,
-    required String address})
+  LitecoinURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -109,26 +98,18 @@ abstract class WalletAddressListViewModelBase with Store {
     required AppStore appStore,
     required this.yatStore,
     required this.fiatConversionStore,
-  }) : _appStore = appStore,
-      _baseItems = <ListItem>[],
-      _wallet = appStore.wallet!,
-      selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
-      _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-      hasAccounts = appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
-      amount = '' {
-    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<
-            Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-        wallet) {
-      if (wallet == null) {
-        return;
-      }
-      _wallet = wallet;
-      hasAccounts = _wallet.type == WalletType.monero;
-    });
+  })  : _appStore = appStore,
+        _baseItems = <ListItem>[],
+        _wallet = appStore.wallet!,
+        selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
+        _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
+        hasAccounts =
+            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+        amount = '' {
     _init();
   }
 
-  static const String _cryptoNumberPattern = '0.0';
+  static const String _cryptoNumberPattern = '0.0000000';
 
   final NumberFormat _cryptoNumberFormat;
 
@@ -174,8 +155,9 @@ abstract class WalletAddressListViewModelBase with Store {
   }
 
   @computed
-  ObservableList<ListItem> get items =>
-      ObservableList<ListItem>()..addAll(_baseItems)..addAll(addressList);
+  ObservableList<ListItem> get items => ObservableList<ListItem>()
+    ..addAll(_baseItems)
+    ..addAll(addressList);
 
   @computed
   ObservableList<ListItem> get addressList {
@@ -184,10 +166,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (wallet.type == WalletType.monero) {
       final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = monero
-        !.getSubaddressList(wallet)
-        .subaddresses
-          .map((subaddress) {
+      final addressItems = monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -201,10 +180,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (wallet.type == WalletType.haven) {
       final primaryAddress = haven!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = haven
-        !.getSubaddressList(wallet)
-        .subaddresses
-          .map((subaddress) {
+      final addressItems = haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -221,8 +197,7 @@ abstract class WalletAddressListViewModelBase with Store {
       final bitcoinAddresses = bitcoin!.getAddresses(wallet).map((addr) {
         final isPrimary = addr == primaryAddress;
 
-        return WalletAddressListItem(
-            isPrimary: isPrimary, name: null, address: addr);
+        return WalletAddressListItem(isPrimary: isPrimary, name: null, address: addr);
       });
       addressList.addAll(bitcoinAddresses);
     }
@@ -252,16 +227,13 @@ abstract class WalletAddressListViewModelBase with Store {
   bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
-      _wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   List<ListItem> _baseItems;
 
   AppStore _appStore;
 
   final YatStore yatStore;
-
-  ReactionDisposer? _onWalletChangeReaction;
 
   @action
   void setAddress(WalletAddressListItem address) =>
@@ -279,7 +251,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @action
   void selectCurrency(Currency currency) {
-    selectedCurrency = currency; 
+    selectedCurrency = currency;
   }
 
   @action
@@ -290,7 +262,7 @@ abstract class WalletAddressListViewModelBase with Store {
     }
   }
 
-    void _convertAmountToCrypto() {
+  void _convertAmountToCrypto() {
     final cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     try {
       final crypto =
