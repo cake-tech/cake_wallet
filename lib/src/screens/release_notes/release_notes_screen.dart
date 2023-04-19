@@ -83,7 +83,6 @@ class ReleaseNotesScreen extends StatelessWidget {
               child: Column(
                 children: [
                   AlertCloseButton(
-                    isPositioned: false,
                   ),
                 ],
               ),
