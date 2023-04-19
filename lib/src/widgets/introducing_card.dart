@@ -33,54 +33,59 @@ class IntroducingCard extends StatelessWidget {
           children: [
             Expanded(
               flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AutoSizeText(title ?? '',
-                        style: TextStyle(
-                            fontSize: 24,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .headline2!
-                                .backgroundColor!,
-                            height: 1),
-                        maxLines: 1,
-                        textAlign: TextAlign.center),
-                    SizedBox(height: 14),
-                    Text(subTitle ?? '',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Lato',
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .headline2!
-                                .backgroundColor!,
-                            height: 1)),
-                  ],
+              child: MergeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AutoSizeText(title ?? '',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .headline2!
+                                  .backgroundColor!,
+                              height: 1),
+                          maxLines: 1,
+                          textAlign: TextAlign.center),
+                      SizedBox(height: 14),
+                      Text(subTitle ?? '',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'Lato',
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .headline2!
+                                  .backgroundColor!,
+                              height: 1)),
+                    ],
+                  ),
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0,16,16,0),
-              child: GestureDetector(
-                onTap: closeCard,
-                child: Container(
-                  height: 23,
-                  width: 23,
-                  decoration: BoxDecoration(
-                      color: Colors.white, shape: BoxShape.circle),
-                  child: Center(
-                      child: Image.asset(
-                    'assets/images/x.png',
-                    color: Palette.darkBlueCraiola,
-                    height: 15,
-                    width: 15,
-                  )),
+              child: Semantics(
+                label: 'Close',
+                child: GestureDetector(
+                  onTap: closeCard,
+                  child: Container(
+                    height: 23,
+                    width: 23,
+                    decoration: BoxDecoration(
+                        color: Colors.white, shape: BoxShape.circle),
+                    child: Center(
+                        child: Image.asset(
+                      'assets/images/x.png',
+                      color: Palette.darkBlueCraiola,
+                      height: 15,
+                      width: 15,
+                    )),
+                  ),
                 ),
               ),
             )

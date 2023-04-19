@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -25,7 +26,9 @@ class TransactionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).backgroundColor,
+      color: ResponsiveLayoutUtil.instance.isMobile(context)
+          ? null
+          : Theme.of(context).backgroundColor,
       padding: EdgeInsets.only(top: 24, bottom: 24),
       child: Column(
         children: <Widget>[

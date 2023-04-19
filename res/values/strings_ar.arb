@@ -696,5 +696,6 @@
    "clearnet_link": "رابط Clearnet",
    "onion_link": "رابط البصل",
    "settings": "إعدادات",
-   "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن"
+   "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن",
+   "show_market_place": "إظهار السوق"
 }

@@ -31,6 +31,8 @@ class PreferencesKey {
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
   static const lastPopupDate = 'last_popup_date';
+  static const lastAppReviewDate = 'last_app_review_date';
+
 
 
   static String moneroWalletUpdateV1Key(String name)
@@ -39,4 +41,5 @@ class PreferencesKey {
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const clearnetDonationLink = 'clearnet_donation_link'; 
   static const onionDonationLink = 'onion_donation_link'; 
+  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
 }

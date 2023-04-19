@@ -106,8 +106,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       state = IsExecutingState();
       if (editingNode != null) {
         await _nodeSource.put(editingNode.key, node);
-      } else if (existingNode(node) != null) {
-        setAsCurrent(existingNode(node)!);
+      } else if (_existingNode(node) != null) {
+        setAsCurrent(_existingNode(node)!);
       } else {
         await _nodeSource.add(node);
         setAsCurrent(_nodeSource.values.last);
@@ -140,7 +140,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     }
   }
 
-  Node? existingNode(Node node) {
+  Node? _existingNode(Node node) {
     final nodes = _nodeSource.values.toList();
     nodes.forEach((item) {
       item.login ??= '';

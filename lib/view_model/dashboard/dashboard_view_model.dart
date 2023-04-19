@@ -146,7 +146,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);
-
+    
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
@@ -213,6 +213,11 @@ abstract class DashboardViewModelBase with Store {
   @computed
   BalanceDisplayMode get balanceDisplayMode =>
       appStore.settingsStore.balanceDisplayMode;
+    
+  @computed
+  bool get shouldShowMarketPlaceInDashboard {
+    return appStore.settingsStore.shouldShowMarketPlaceInDashboard;
+  }
 
   @computed
   List<TradeListItem> get trades => tradesStore.trades
