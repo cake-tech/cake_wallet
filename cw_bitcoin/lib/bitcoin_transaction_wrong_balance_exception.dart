@@ -6,5 +6,5 @@ class BitcoinTransactionWrongBalanceException implements Exception {
   final CryptoCurrency currency;
 
   @override
-  String toString() => 'Wrong balance. Not enough ${currency.title} on your balance.';
+  String toString() => 'You do not have enough ${currency.title} to send this amount.';
 }

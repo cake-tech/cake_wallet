@@ -128,7 +128,7 @@ class ExchangeTemplatePage extends BasePage {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight),
                         ),
-                        padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
+                        padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                         child: Observer(
                           builder: (_) => ExchangeCard(
                             amountFocusNode: _depositAmountFocus,
@@ -160,7 +160,7 @@ class ExchangeTemplatePage extends BasePage {
                                 .primaryTextTheme.bodyText1!
                                 .color!,
                             currencyValueValidator: AmountValidator(
-                                type: exchangeViewModel.wallet.type),
+                                currency: exchangeViewModel.depositCurrency),
                             //addressTextFieldValidator: AddressValidator(
                             //    type: exchangeViewModel.depositCurrency),
                           ),
@@ -200,7 +200,7 @@ class ExchangeTemplatePage extends BasePage {
                                   .primaryTextTheme.bodyText1!
                                   .decorationColor!,
                               currencyValueValidator: AmountValidator(
-                                  type: exchangeViewModel.wallet.type),
+                                  currency: exchangeViewModel.receiveCurrency),
                               //addressTextFieldValidator: AddressValidator(
                               //    type: exchangeViewModel.receiveCurrency),
                             )),

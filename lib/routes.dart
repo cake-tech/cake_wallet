@@ -36,6 +36,7 @@ class Routes {
   static const exchangeTrade = '/exchange_trade';
   static const restoreWalletFromSeedDetails = '/restore_from_seed_details';
   static const exchange = '/exchange';
+  static const settings = '/settings';
   static const desktop_settings_page = '/desktop_settings_page';
   static const empty_no_route = '/empty_no_route';
   static const unlock = '/auth_not_closable';
@@ -87,4 +88,10 @@ class Routes {
   static const transactionsPage = '/transactions_page';
   static const walletPasswordUnlock = '/wallet_password_unlock';
   static const walletUnlockLoadable = '/wallet_unlock_loadable';
+  static const anonPayInvoicePage = '/anon_pay_invoice_page';
+  static const anonPayReceivePage = '/anon_pay_receive_page';
+  static const anonPayDetailsPage = '/anon_pay_details_page';
+  static const payfuraPage = '/pay_fura_page';
+  static const desktop_actions = '/desktop_actions';
+  static const transactionsPage = '/transactions_page';
 }

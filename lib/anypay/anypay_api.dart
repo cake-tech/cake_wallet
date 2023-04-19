@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -55,6 +56,7 @@ class AnyPayApi {
 		final response = await post(url, headers: headers, body: utf8.encode(json.encode(body)));
 
     if (response.statusCode != 200) {
+			ExceptionHandler.onError(FlutterErrorDetails(exception: response));
       throw Exception('Unexpected response http code: ${response.statusCode}');
 		}
 

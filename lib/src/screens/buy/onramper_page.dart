@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -17,27 +15,16 @@ class OnRamperPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final darkMode = Theme.of(context).brightness == Brightness.dark;
-    return OnRamperPageBody(
-      onRamperBuyProvider: _onRamperBuyProvider,
-      darkMode: darkMode,
-      backgroundColor: darkMode ? backgroundDarkColor : backgroundLightColor,
-    );
+    return OnRamperPageBody(_onRamperBuyProvider);
   }
 }
 
 class OnRamperPageBody extends StatefulWidget {
-  OnRamperPageBody({
-    required this.onRamperBuyProvider,
-    required this.darkMode,
-    required this.backgroundColor,
-  });
+  OnRamperPageBody(this.onRamperBuyProvider);
 
   final OnRamperBuyProvider onRamperBuyProvider;
-  final Color backgroundColor;
-  final bool darkMode;
 
-  Uri get uri => onRamperBuyProvider.requestUrl(darkMode);
+  Uri get uri => onRamperBuyProvider.requestUrl();
 
   @override
   OnRamperPageBodyState createState() => OnRamperPageBodyState();

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_navbar.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu.dart';
@@ -20,14 +19,14 @@ class DesktopSidebarWrapper extends BasePage {
   final Widget child;
   final DesktopSidebarViewModel desktopSidebarViewModel;
   final DashboardViewModel dashboardViewModel;
+  final GlobalKey<NavigatorState> desktopNavigatorKey;
 
   DesktopSidebarWrapper({
     required this.child,
     required this.desktopSidebarViewModel,
     required this.dashboardViewModel,
+    required this.desktopNavigatorKey,
   });
-
-  static Key _pageViewKey = GlobalKey();
 
   @override
   ObstructingPreferredSizeWidget appBar(BuildContext context) => DesktopDashboardNavbar(
@@ -41,34 +40,16 @@ class DesktopSidebarWrapper extends BasePage {
         ),
         trailing: InkWell(
           onTap: () {
-            String? currentPath;
-
-            DesktopDashboardPage.desktopKey.currentState?.popUntil((route) {
-              currentPath = route.settings.name;
-              return true;
-            });
-
-            switch (currentPath) {
-              case Routes.transactionsPage:
-                desktopSidebarViewModel.resetSidebar();
-                break;
-              default:
-                desktopSidebarViewModel.resetSidebar();
-                Future.delayed(Duration(milliseconds: 10), () {
-                  desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
-                  DesktopDashboardPage.desktopKey.currentState?.pushNamed(Routes.transactionsPage);
-                });
-            }
+            Navigator.of(context).pushNamed(
+              Routes.unlock,
+              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                if (isAuthenticatedSuccessfully) {
+                  auth.close();
+                }
+              },
+            );
           },
-          child: Observer(
-            builder: (_) {
-              return Image.asset(
-                desktopSidebarViewModel.currentPage == SidebarItem.transactions
-                    ? selectedIconPath
-                    : unselectedIconPath,
-              );
-            },
-          ),
+          child: Icon(Icons.lock_outline),
         ),
       );
 
@@ -99,18 +80,31 @@ class DesktopSidebarWrapper extends BasePage {
                 onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.dashboard),
               ),
               SideMenuItem(
-                icon: Icons.lock_outline,
                 onTap: () {
-                  Navigator.of(context).pushNamed(
-                    Routes.unlock,
-                    arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                      if (isAuthenticatedSuccessfully) {
-                        auth.close();
-                      }
-                    },
-                  );
+                  String? currentPath;
+
+                  desktopNavigatorKey.currentState?.popUntil((route) {
+                    currentPath = route.settings.name;
+                    return true;
+                  });
+
+                  switch (currentPath) {
+                    case Routes.transactionsPage:
+                      desktopSidebarViewModel.resetSidebar();
+                      break;
+                    default:
+                      desktopSidebarViewModel.resetSidebar();
+                      Future.delayed(Duration(milliseconds: 10), () {
+                        desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
+                        desktopNavigatorKey.currentState?.pushNamed(Routes.transactionsPage);
+                      });
+                  }
                 },
-              )
+                isSelected: desktopSidebarViewModel.currentPage == SidebarItem.transactions,
+                imagePath: desktopSidebarViewModel.currentPage == SidebarItem.transactions
+                    ? selectedIconPath
+                    : unselectedIconPath,
+              ),
             ],
             bottomItems: [
               SideMenuItem(
@@ -127,7 +121,6 @@ class DesktopSidebarWrapper extends BasePage {
         }),
         Expanded(
           child: PageView(
-            key: _pageViewKey,
             controller: pageController,
             physics: NeverScrollableScrollPhysics(),
             children: [
@@ -161,13 +154,11 @@ class DesktopSidebarWrapper extends BasePage {
     );
   }
 
-  final desktopKey = DesktopDashboardPage.desktopKey;
-
   void _setEffects() async {
     reaction<SidebarItem>((_) => desktopSidebarViewModel.currentPage, (page) {
       String? currentPath;
 
-      desktopKey.currentState?.popUntil((route) {
+      desktopNavigatorKey.currentState?.popUntil((route) {
         currentPath = route.settings.name;
         return true;
       });
@@ -176,7 +167,7 @@ class DesktopSidebarWrapper extends BasePage {
       }
 
       if (currentPath == Routes.transactionsPage) {
-        Navigator.of(desktopKey.currentContext!).pop();
+        Navigator.of(desktopNavigatorKey.currentContext!).pop();
       }
       pageController.jumpToPage(page.index);
     });

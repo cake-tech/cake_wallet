@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -6,7 +7,6 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
@@ -65,9 +65,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   @override
   void initState() {
-    _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) {
+    _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) async {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(context).pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
+        Navigator.of(navigatorKey.currentContext!)
+            .pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
       }
 
       if (state is FailureState) {
@@ -95,7 +96,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
           content: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+              constraints:
+                  BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -140,32 +142,35 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                         .decorationColor!,
                                     width: 1.0),
                               ),
-                              suffixIcon: IconButton(
-                                onPressed: () async {
-                                  final rName = await generateName();
-                                  FocusManager.instance.primaryFocus?.unfocus();
+                              suffixIcon: Semantics(
+                                label: 'Generate Name',
+                                child: IconButton(
+                                  onPressed: () async {
+                                    final rName = await generateName();
+                                    FocusManager.instance.primaryFocus?.unfocus();
 
-                                  setState(() {
-                                    _nameController.text = rName;
-                                    _walletNewVM.name = rName;
-                                    _nameController.selection = TextSelection.fromPosition(
-                                        TextPosition(offset: _nameController.text.length));
-                                  });
-                                },
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.0),
-                                    color: Theme.of(context).hintColor,
-                                  ),
-                                  width: 34,
-                                  height: 34,
-                                  child: Image.asset(
-                                    'assets/images/refresh_icon.png',
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headline4!
-                                        .decorationColor!,
+                                    setState(() {
+                                      _nameController.text = rName;
+                                      _walletNewVM.name = rName;
+                                      _nameController.selection = TextSelection.fromPosition(
+                                          TextPosition(offset: _nameController.text.length));
+                                    });
+                                  },
+                                  icon: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(6.0),
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                    width: 34,
+                                    height: 34,
+                                    child: Image.asset(
+                                      'assets/images/refresh_icon.png',
+                                      color: Theme.of(context)
+                                          .primaryTextTheme!
+                                          .headline4!
+                                          .decorationColor!,
+                                    ),
                                   ),
                                 ),
                               ),

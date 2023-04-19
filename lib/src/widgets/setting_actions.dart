@@ -26,6 +26,7 @@ class SettingActions {
 
   static List<SettingActions> desktopSettings = [
     connectionSettingAction,
+    walletSettingAction,
     addressBookSettingAction,
     securityBackupSettingAction,
     privacySettingAction,

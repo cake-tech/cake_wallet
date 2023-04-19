@@ -26,7 +26,9 @@ Future<void> startFiatRateUpdate(
       } else {
         fiatConversionStore.prices[appStore.wallet!.currency] =
             await FiatConversionService.fetchPrice(
-                appStore.wallet!.currency, settingsStore.fiatCurrency);
+                crypto: appStore.wallet!.currency,
+                fiat: settingsStore.fiatCurrency,
+                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
       }
     } catch (e) {
       print(e);

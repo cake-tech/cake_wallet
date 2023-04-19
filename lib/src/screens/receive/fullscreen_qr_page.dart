@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FullscreenQRPage extends BasePage {
-  FullscreenQRPage({required this.qrData, required this.isLight});
+  FullscreenQRPage({required this.qrData, int? this.version});
 
-  final bool isLight;
   final String qrData;
+  final int? version;
 
   @override
   Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -71,7 +71,7 @@ class FullscreenQRPage extends BasePage {
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                   border: Border.all(width: 3, color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
-              child: QrImage(data: qrData),
+              child: QrImage(data: qrData, version: version),
             ),
           ),
         ),

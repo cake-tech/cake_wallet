@@ -57,7 +57,7 @@ class AnyPayPayment {
 
 	List<String> get outAddresses {
 		return instructions
-			.map((instuction) => instuction.outputs.map((out) => out.address))
+			.map((instruction) => instruction.outputs.map((out) => out.address))
 			.expand((e) => e)
 			.toList();
 	}

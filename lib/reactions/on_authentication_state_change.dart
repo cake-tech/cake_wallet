@@ -1,4 +1,5 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -17,19 +18,16 @@ void startAuthenticationStateChange(
     if (state == AuthenticationState.installed && !SettingsStoreBase.walletPasswordDirectInput) {
       try {
         await loadCurrentWallet();
-      } catch (e) {
-        loginError = e;
+      } catch (error, stack) {
+        loginError = error;
+        ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
       }
       return;
     }
 
     if (state == AuthenticationState.allowed) {
-      // Temporary workaround for the issue with desktopKey dispose
-      // TODO: Remove this workaround and fix global key issue
-      Future.delayed(Duration(milliseconds: 500), () async {
-        await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-        return;
-      });
+      await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+      return;
     }
   });
 }

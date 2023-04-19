@@ -40,7 +40,7 @@ class ElectrumClient {
         unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
-  static const aliveTimerDuration = Duration(seconds: 2);
+  static const aliveTimerDuration = Duration(seconds: 4);
 
   bool get isConnected => _isConnected;
   Socket? socket;
@@ -358,7 +358,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method,
       List<Object> params = const [],
-      int timeout = 2000}) async {
+      int timeout = 4000}) async {
     try {
       final completer = Completer<dynamic>();
       _id += 1;

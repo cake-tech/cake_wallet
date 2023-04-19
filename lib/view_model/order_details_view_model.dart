@@ -81,21 +81,23 @@ abstract class OrderDetailsViewModelBase with Store {
               : S.current.trade_details_fetching),
     ]);
 
-    if (order.provider != null) {
-      items.add(
-        StandartListItem(
-            title: 'Buy provider',
-            value: order.provider.title)
-      );
-    }
+    items.add(
+      StandartListItem(
+          title: 'Buy provider',
+          value: order.provider.title)
+    );
 
-    if (_provider!.trackUrl?.isNotEmpty ?? false) {
+    if (_provider?.trackUrl.isNotEmpty ?? false) {
       final buildURL = _provider!.trackUrl + '${order.transferId}';
       items.add(
         TrackTradeListItem(
             title: 'Track',
             value: buildURL,
-            onTap: () => launch(buildURL)
+            onTap: () {
+              try {
+                launch(buildURL);
+              } catch (e) {}
+            }
         )
       );
     }

@@ -17,13 +17,13 @@ class DesktopDashboardPage extends StatelessWidget {
     required this.balancePage,
     required this.dashboardViewModel,
     required this.addressListViewModel,
+    required this.desktopKey,
   });
 
   final BalancePage balancePage;
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
-
-  static final GlobalKey<NavigatorState> desktopKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> desktopKey;
 
   bool _isEffectsInstalled = false;
   StreamSubscription<bool>? _onInactiveSub;
@@ -109,4 +109,3 @@ class DesktopDashboardPage extends StatelessWidget {
     });
   }
 }
-

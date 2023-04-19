@@ -1,9 +1,9 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/entities/transaction_history.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -17,10 +17,6 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
@@ -46,7 +42,9 @@ abstract class DashboardViewModelBase with Store {
       required this.transactionFilterStore,
       required this.settingsStore,
       required this.yatStore,
-      required this.ordersStore})
+      required this.ordersStore,
+      required this.anonpayTransactionsStore,
+      })
   : isOutdatedElectrumWallet = false,
     hasSellAction = false,
     isEnabledSellAction = false,
@@ -96,6 +94,11 @@ abstract class DashboardViewModelBase with Store {
             caption: ExchangeProviderDescription.simpleSwap.title,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
+        FilterItem(
+            value: () => tradeFilterStore.displayTrocador,
+            caption: ExchangeProviderDescription.trocador.title,
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.trocador)),
       ]
     },
     subname = '',
@@ -143,7 +146,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);
-
+    
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
@@ -210,6 +213,11 @@ abstract class DashboardViewModelBase with Store {
   @computed
   BalanceDisplayMode get balanceDisplayMode =>
       appStore.settingsStore.balanceDisplayMode;
+    
+  @computed
+  bool get shouldShowMarketPlaceInDashboard {
+    return appStore.settingsStore.shouldShowMarketPlaceInDashboard;
+  }
 
   @computed
   List<TradeListItem> get trades => tradesStore.trades
@@ -220,6 +228,11 @@ abstract class DashboardViewModelBase with Store {
   List<OrderListItem> get orders => ordersStore.orders
       .where((item) => item.order.walletId == wallet.id)
       .toList();
+  
+  @computed
+  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
+      .where((item) => item.transaction.walletId == wallet.id)
+      .toList();
 
   @computed
   double get price => balanceViewModel.price;
@@ -228,7 +241,7 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(transactionFilterStore.filtered(transactions: transactions));
+    _items.addAll(transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
 
@@ -255,6 +268,8 @@ abstract class DashboardViewModelBase with Store {
 
   TradeFilterStore tradeFilterStore;
 
+  AnonpayTransactionsStore anonpayTransactionsStore;
+
   TransactionFilterStore transactionFilterStore;
 
   Map<String, List<FilterItem>> filterItems;
@@ -268,7 +283,7 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => !settingsStore.disableExchange;
+  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
   bool hasExchangeAction;
@@ -384,12 +399,11 @@ abstract class DashboardViewModelBase with Store {
 
   void updateActions() {
     hasExchangeAction = !isHaven;
-    isEnabledBuyAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero;
-    hasBuyAction = !isMoneroOnly && !isHaven;
+    isEnabledBuyAction = wallet.type != WalletType.haven;
+    hasBuyAction = !isHaven;
     isEnabledSellAction = wallet.type != WalletType.haven
       && wallet.type != WalletType.monero
       && wallet.type != WalletType.litecoin;
-    hasSellAction = !isMoneroOnly && !isHaven;
+    hasSellAction = !isHaven;
   }
 }

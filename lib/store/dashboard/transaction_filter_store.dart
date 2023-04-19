@@ -1,8 +1,8 @@
+import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 part 'transaction_filter_store.g.dart';
 
@@ -57,8 +57,8 @@ abstract class TransactionFilterStoreBase with Store {
   @action
   void changeEndDate(DateTime date) => endDate = date;
 
-  List<TransactionListItem> filtered({required List<TransactionListItem> transactions}) {
-    var _transactions = <TransactionListItem>[];
+  List<ActionListItem> filtered({required List<ActionListItem> transactions}) {
+    var _transactions = <ActionListItem>[];
     final needToFilter = !displayAll ||
         (startDate != null && endDate != null);
 
@@ -67,16 +67,26 @@ abstract class TransactionFilterStoreBase with Store {
         var allowed = true;
 
         if (allowed && startDate != null && endDate != null) {
+          if(item is TransactionListItem){
           allowed = (startDate?.isBefore(item.transaction.date) ?? false)
               && (endDate?.isAfter(item.transaction.date) ?? false);
+           }else if(item is AnonpayTransactionListItem){
+            allowed = (startDate?.isBefore(item.transaction.createdAt) ?? false)
+                && (endDate?.isAfter(item.transaction.createdAt) ?? false);
+            }
         }
 
         if (allowed && (!displayAll)) {
+          if(item is TransactionListItem){
           allowed = (displayOutgoing &&
               item.transaction.direction ==
                   TransactionDirection.outgoing) ||
               (displayIncoming &&
                   item.transaction.direction == TransactionDirection.incoming);
+        } else if(item is AnonpayTransactionListItem){
+            allowed = displayIncoming;
+          }
+        
         }
 
         return allowed;

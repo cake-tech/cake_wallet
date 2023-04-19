@@ -491,7 +491,7 @@
 
   "submit_request" : "リクエストを送信する",
 
-  "buy_alert_content" : "現在、ビットコインとライトコインの購入のみをサポートしています。 ビットコインまたはライトコインを購入するには、ビットコインまたはライトコインのウォレットを作成するか、ウォレットに切り替えてください。",
+  "buy_alert_content" : "現在、ビットコイン、ライトコイン、モネロの購入のみをサポートしています。 Bitcoin、Litecoin、または Monero ウォレットを作成するか、切り替えてください。",
   "sell_alert_content": "現在、ビットコインの販売のみをサポートしています。ビットコインを販売するには、ビットコインウォレットを作成するか切り替えてください。",
 
   "outdated_electrum_wallet_description" : "Cakeで作成された新しいビットコインウォレットには、24ワードのシードがあります。 新しいビットコインウォレットを作成し、すべての資金を新しい24ワードのウォレットに転送し、12ワードのシードを持つウォレットの使用を停止することが必須です。 あなたの資金を確保するためにこれをすぐに行ってください。",
@@ -690,6 +690,20 @@
   "send_to_this_address" : "${currency} ${tag}をこのアドレスに送金",
   "arrive_in_this_address" : "${currency} ${tag}はこの住所に到着します",
   "do_not_send": "送信しない",
-  "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione.",
-  "settings": "設定"
+  "error_dialog_content": "エラーが発生しました。\n\nアプリケーションを改善するために、クラッシュ レポートをサポート チームに送信してください。",
+  "decimal_places_error": "小数点以下の桁数が多すぎる",
+  "edit_node": "ノードを編集",
+  "invoice_details": "請求の詳細",
+  "donation_link_details": "寄付リンクの詳細",
+  "anonpay_description": "${type} を生成します。受取人はサポートされている任意の暗号通貨で ${method} でき、あなたはこのウォレットで資金を受け取ります。",
+  "create_invoice": "請求書の作成",
+  "create_donation_link": "寄付リンクを作成",
+  "optional_email_hint": "オプションの受取人通知メール",
+  "optional_description": "オプションの説明",
+  "optional_name": "オプションの受信者名",
+  "clearnet_link": "クリアネット リンク",
+  "onion_link": "オニオンリンク",
+  "settings": "設定",
+  "sell_monero_com_alert_content": "モネロの販売はまだサポートされていません",
+  "show_market_place":"マーケットプレイスを表示"
 }

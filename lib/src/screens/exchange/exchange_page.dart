@@ -627,7 +627,7 @@ class ExchangePage extends BasePage {
       addressButtonsColor: Theme.of(context).focusColor!,
       borderColor: Theme.of(context).primaryTextTheme!.bodyText1!.color!,
       currencyValueValidator:
-      AmountValidator(type: exchangeViewModel.wallet.type),
+      AmountValidator(currency: exchangeViewModel.depositCurrency),
       addressTextFieldValidator:
       AddressValidator(type: exchangeViewModel.depositCurrency),
       onPushPasteButton: (context) async {
@@ -669,7 +669,7 @@ class ExchangePage extends BasePage {
       borderColor:
       Theme.of(context).primaryTextTheme!.bodyText1!.decorationColor!,
       currencyValueValidator:
-      AmountValidator(type: exchangeViewModel.wallet.type),
+      AmountValidator(currency: exchangeViewModel.receiveCurrency),
       addressTextFieldValidator:
       AddressValidator(type: exchangeViewModel.receiveCurrency),
       onPushPasteButton: (context) async {

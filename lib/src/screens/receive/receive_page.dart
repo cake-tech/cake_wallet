@@ -41,26 +41,7 @@ class ReceivePage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Widget leading(BuildContext context) {
-    final _backButton = Icon(Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-      size: 16,);
-
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-          // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
-            onPressed: () => onClose(context),
-            child: _backButton),
-      ),
-    );
-  }
+  Color get titleColor => Colors.white;
 
   @override
   Widget middle(BuildContext context) {
@@ -93,19 +74,22 @@ class ReceivePage extends BasePage {
 
     return Material(
         color: Colors.transparent,
-        child: IconButton(
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            iconSize: 25,
-            onPressed: () {
-              ShareUtil.share(
-                text: addressListViewModel.address.address,
-                context: context,
-              );
-            },
-            icon: shareImage
+        child: Semantics(
+          label: 'Share',
+          child: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              iconSize: 25,
+              onPressed: () {
+                ShareUtil.share(
+                  text: addressListViewModel.address.address,
+                  context: context,
+                );
+              },
+              icon: shareImage
+          ),
         )
     );
   }
