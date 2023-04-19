@@ -89,15 +89,4 @@ public class MainActivity extends FlutterFragmentActivity {
             }
         });
     }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            if (!isAppSecure) {
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
-            }
-        } else {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-        }
-    }
 }
