@@ -140,7 +140,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     }
 
     items.addAll([
-      ExchangeTradeItem(title: S.current.amount, data: '${trade.amount}', isCopied: false),
+      ExchangeTradeItem(title: S.current.amount, data: '${trade.amount}', isCopied: true),
       ExchangeTradeItem(
           title: S.current.send_to_this_address('${trade.from}', tagFrom) + ':',
           data: trade.inputAddress ?? '',

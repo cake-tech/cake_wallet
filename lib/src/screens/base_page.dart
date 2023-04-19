@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
@@ -20,7 +21,7 @@ abstract class BasePage extends StatelessWidget {
 
   String? get title => null;
 
-  bool get isModalBackButton => false;
+  bool get canUseCloseIcon => false;
 
   Color get backgroundLightColor => Colors.white;
 
@@ -50,23 +51,32 @@ abstract class BasePage extends StatelessWidget {
     }
 
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor ?? Theme.of(context).primaryTextTheme!.headline6!.color!,
+      color: titleColor ?? Theme.of(context).primaryTextTheme.headline6!.color!,
       size: 16,);
     final _closeButton = currentTheme.type == ThemeType.dark
         ? closeButtonImageDarkTheme : closeButtonImage;
 
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
-            onPressed: () => onClose(context),
-            child: isModalBackButton ? _closeButton : _backButton),
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: canUseCloseIcon && !isMobileView ? 'Close' : 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child:
+                  canUseCloseIcon && !isMobileView ? _closeButton : _backButton,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -92,7 +102,7 @@ abstract class BasePage extends StatelessWidget {
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final appBarColor = currentTheme.type == ThemeType.dark
         ? backgroundDarkColor : backgroundLightColor;
-
+  
     switch (appBarStyle) {
       case AppBarStyle.regular:
         // FIX-ME: NavBar no context
