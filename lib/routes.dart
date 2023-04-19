@@ -92,6 +92,4 @@ class Routes {
   static const anonPayReceivePage = '/anon_pay_receive_page';
   static const anonPayDetailsPage = '/anon_pay_details_page';
   static const payfuraPage = '/pay_fura_page';
-  static const desktop_actions = '/desktop_actions';
-  static const transactionsPage = '/transactions_page';
 }
