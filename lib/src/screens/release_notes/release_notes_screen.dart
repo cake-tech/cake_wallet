@@ -5,67 +5,17 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ReleaseNotesScreen extends StatefulWidget {
-  ReleaseNotesScreen({
+class ReleaseNotesScreen extends StatelessWidget {
+  const ReleaseNotesScreen({
     required this.title,
   });
 
   final String title;
 
-  @override
-  _ReleaseNotesScreenState createState() => _ReleaseNotesScreenState();
-}
-
-class _ReleaseNotesScreenState extends State<ReleaseNotesScreen> {
-  String _fileText = '';
-  List<Widget> notesWidgetList = [];
-
-  Future<void> getFileLines() async {
-    _fileText = await rootBundle.loadString(isMoneroOnly ? 'assets/text/Monerocom_Release_Notes.txt'
-        :'assets/text/Release_Notes.txt');
-    getWidgetsList(_fileText);
-
-    setState(() {});
-  }
-
-  List<Widget> getWidgetsList(String myString) {
-    final LineSplitter ls = LineSplitter();
-    final List<String> _notesList = ls.convert(myString);
-    _notesList.forEach((element) {
-      notesWidgetList.add(Column(
-        children: [
-          DefaultTextStyle(
-              style: TextStyle(
-                  decoration: TextDecoration.none,
-                  fontSize: 16.0,
-                  fontFamily: 'Lato',
-                  color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-                  ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Text('•'),
-                  ),
-                  Expanded(
-                    child: Text(element),
-                  ),
-                ],
-              )),
-          SizedBox(
-            height: 16.0,
-          )
-        ],
-      ));
-    });
-    return notesWidgetList;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getFileLines();
+  Future<List<String>> _loadStrings() async {
+    String notesContent = await rootBundle.loadString(
+        isMoneroOnly ? 'assets/text/Monerocom_Release_Notes.txt' : 'assets/text/Release_Notes.txt');
+    return LineSplitter().convert(notesContent);
   }
 
   @override
@@ -103,7 +53,7 @@ class _ReleaseNotesScreenState extends State<ReleaseNotesScreen> {
                             fontFamily: 'Lato',
                             color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                           ),
-                          child: Text(widget.title),
+                          child: Text(title),
                         ),
                       ),
                     ),
@@ -112,15 +62,7 @@ class _ReleaseNotesScreenState extends State<ReleaseNotesScreen> {
                     ),
                     Expanded(
                       flex: 20,
-                      child: Container(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(0),
-                          itemCount: notesWidgetList.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return notesWidgetList[index];
-                          },
-                        ),
-                      ),
+                      child: _getNotesWidget(),
                     ),
                     Expanded(
                       flex: 2,
@@ -148,5 +90,54 @@ class _ReleaseNotesScreenState extends State<ReleaseNotesScreen> {
             )),
       ],
     ));
+  }
+
+  Widget _getNotesWidget() {
+    return FutureBuilder<List<String>>(
+      future: _loadStrings(),
+      builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _getNoteItemWidget(snapshot.data![index], context);
+            },
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
+    );
+  }
+
+  Widget _getNoteItemWidget(String myString, BuildContext context) {
+    return Column(
+      children: [
+        DefaultTextStyle(
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              fontSize: 16.0,
+              fontFamily: 'Lato',
+              color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text('•'),
+                ),
+                Expanded(
+                  child: Text(myString),
+                ),
+              ],
+            )),
+        SizedBox(
+          height: 16.0,
+        )
+      ],
+    );
   }
 }
