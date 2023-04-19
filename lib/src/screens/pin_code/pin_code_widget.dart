@@ -208,58 +208,29 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 const double marginLeft = 15;
 
                                 if (index == 9) {
+                                  // Empty container
                                   return Container(
                                     margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                    child: TextButton(
-                                        onPressed: () => null,
-                                        // (widget.hasLengthSwitcher ||
-                                        //         !settingsStore
-                                        //             .allowBiometricalAuthentication)
-                                        //     ? null
-                                        //     : () {
-                                        // FIXME
-                                        //                                        if (authStore != null) {
-                                        //                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        //                                            final biometricAuth = BiometricAuth();
-                                        //                                            biometricAuth.isAuthenticated().then(
-                                        //                                                    (isAuth) {
-                                        //                                                  if (isAuth) {
-                                        //                                                    authStore.biometricAuth();
-                                        //                                                    _key.currentState.showSnackBar(
-                                        //                                                      SnackBar(
-                                        //                                                        content: Text(S.of(context).authenticated),
-                                        //                                                        backgroundColor: Colors.green,
-                                        //                                                      ),
-                                        //                                                    );
-                                        //                                                  }
-                                        //                                                }
-                                        //                                            );
-                                        //                                          });
-                                        //                                        }
-                                        //                                       },
-                                        // FIX-ME: Style
-                                        //color: Theme.of(context).backgroundColor,
-                                        //shape: CircleBorder(),
-                                        child: Container()
-                                        // (widget.hasLengthSwitcher ||
-                                        //         !settingsStore
-                                        //             .allowBiometricalAuthentication)
-                                        //     ? Offstage()
-                                        //     : faceImage,
-                                        ),
                                   );
                                 } else if (index == 10) {
                                   index = 0;
                                 } else if (index == 11) {
-                                  return Container(
-                                    margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                    child: TextButton(
-                                      onPressed: () => _pop(),
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Theme.of(context).backgroundColor,
-                                        shape: CircleBorder(),
+                                  return MergeSemantics(
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                      child: Semantics(
+                                        label: 'Delete',
+                                        button: true,
+                                        onTap: () => _pop(),
+                                        child: TextButton(
+                                          onPressed: () => _pop(),
+                                          style: TextButton.styleFrom(
+                                            backgroundColor: Theme.of(context).backgroundColor,
+                                            shape: CircleBorder(),
+                                          ),
+                                          child: deleteIconImage,
+                                        ),
                                       ),
-                                      child: deleteIconImage,
                                     ),
                                   );
                                 } else {
