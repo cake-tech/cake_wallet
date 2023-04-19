@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -351,8 +352,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       right: 24,
                       bottom: 24,
                       child: PrimaryButton(
-                          onPressed: () =>
-                              Navigator.of(popupContext).pop(),
+                          onPressed: () {
+                            Navigator.of(popupContext).pop();
+                            RequestReviewHandler.requestReview();
+                          },  
                           text: S.of(popupContext).send_got_it,
                           color: Theme.of(popupContext)
                               .accentTextTheme!

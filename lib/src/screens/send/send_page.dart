@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
@@ -383,9 +384,11 @@ class SendPage extends BasePage {
                                     alertContent: S.of(context).send_success(
                                         sendViewModel.selectedCryptoCurrency.toString()),
                                     buttonText: S.of(context).ok,
-                                    buttonAction: () =>
-                                        Navigator.of(context).pop());
-                              }
+                                    buttonAction: () {
+                                      Navigator.of(context).pop();
+                                      RequestReviewHandler.requestReview();
+                                  });
+                                }
 
                               return Offstage();
                             });
