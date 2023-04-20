@@ -410,7 +410,7 @@ class ElectrumClient {
     switch (method) {
       case 'blockchain.scripthash.subscribe':
         final params = request['params'] as List<dynamic>;
-        final scripthash = params.first as String;
+        final scripthash = params.first as String?;
         final id = 'blockchain.scripthash.subscribe:$scripthash';
 
         _tasks[id]?.subject?.add(params.last);
@@ -430,15 +430,17 @@ class ElectrumClient {
 
   void _handleResponse(Map<String, dynamic> response) {
     final method = response['method'];
-    final id = response['id'] as String;
+    final id = response['id'] as String?;
     final result = response['result'];
 
     if (method is String) {
       _methodHandler(method: method, request: response);
       return;
     }
-
-    _finish(id, result);
+    
+    if (id != null){
+      _finish(id, result);
+    }
   }
 }
 
