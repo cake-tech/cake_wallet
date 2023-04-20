@@ -109,7 +109,7 @@ abstract class WalletAddressListViewModelBase with Store {
     _init();
   }
 
-  static const String _cryptoNumberPattern = '0.0000000';
+  static const String _cryptoNumberPattern = '0.00000000';
 
   final NumberFormat _cryptoNumberFormat;
 
