@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Não se esqueça de especificar a etiqueta de destino ao enviar a transação XRP para a troca",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Se você deseja trocar o XMR de seu saldo da Carteira Monero Cake, troque primeiro para sua carteira Monero.",
-  "confirmed" : "Confirmada",
-  "unconfirmed" : "Não confirmado",
+  "confirmed" : "Saldo Confirmado",
+  "unconfirmed" : "Saldo não confirmado",
   "displayable" : "Exibível",
 
   "submit_request" : "enviar um pedido",
@@ -686,6 +686,7 @@
   "error_dialog_content": "Ops, houve algum erro.\n\nPor favor, envie o relatório de falha para nossa equipe de suporte para melhorar o aplicativo.",
   "decimal_places_error": "Muitas casas decimais",
   "edit_node": "Editar nó",
+  "frozen_balance": "Saldo Congelado",
   "invoice_details": "Detalhes da fatura",
   "donation_link_details": "Detalhes do link de doação",
   "anonpay_description": "Gere ${type}. O destinatário pode ${method} com qualquer criptomoeda suportada e você receberá fundos nesta carteira.",

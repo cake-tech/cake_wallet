@@ -479,8 +479,8 @@
   "xrp_extra_info" : "No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Si desea intercambiar XMR de su saldo de Cake Wallet Monero, primero cambie a su billetera Monero.",
-  "confirmed" : "Confirmada",
-  "unconfirmed" : "Inconfirmado",
+  "confirmed" : "Saldo confirmado",
+  "unconfirmed" : "Saldo no confirmado",
   "displayable" : "Visualizable",
 
   "submit_request" : "presentar una solicitud",
@@ -686,7 +686,8 @@
   "do_not_send": "no enviar",
   "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe el informe de bloqueo a nuestro equipo de soporte para mejorar la aplicación.",
   "decimal_places_error": "Demasiados lugares decimales",
-  "edit_node": "Edit Node",
+  "edit_node": "Editar nodo",
+  "frozen_balance": "Balance congelado",
   "invoice_details": "Detalles de la factura",
   "donation_link_details": "Detalles del enlace de donación",
   "anonpay_description": "Genera ${type}. El destinatario puede ${method} con cualquier criptomoneda admitida, y recibirá fondos en esta billetera.",

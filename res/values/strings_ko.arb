@@ -479,8 +479,8 @@
   "xrp_extra_info" : "교환을 위해 XRP 트랜잭션을 보내는 동안 대상 태그를 지정하는 것을 잊지 마십시오",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet Monero 잔액에서 XMR을 교환하려면 먼저 Monero 지갑으로 전환하십시오.",
-  "confirmed" : "확인",
-  "unconfirmed" : "미확인",
+  "confirmed" : "확인된 잔액",
+  "unconfirmed" : "확인되지 않은 잔액",
   "displayable" : "표시 가능",
 
   "submit_request" : "요청을 제출",
@@ -687,6 +687,7 @@
   "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오.",
   "decimal_places_error": "소수점 이하 자릿수가 너무 많습니다.",
   "edit_node": "노드 편집",
+  "frozen_balance": "얼어붙은 균형",
   "invoice_details": "인보이스 세부정보",
   "donation_link_details": "기부 링크 세부정보",
   "anonpay_description": "${type} 생성. 수신자는 지원되는 모든 암호화폐로 ${method}할 수 있으며 이 지갑에서 자금을 받게 됩니다.",

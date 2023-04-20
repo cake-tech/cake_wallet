@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Prosím nezapomeňte zadat Destination Tag, když posíláte XRP transakce ke směně",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Pokud chcete směnit XMR z Monero částky v Cake Wallet, prosím přepněte se nejprve do své Monero peněženky.",
-  "confirmed" : "Potvrzeno",
-  "unconfirmed" : "Nepotvrzeno",
+  "confirmed" : "Potvrzený zůstatek",
+  "unconfirmed" : "Nepotvrzený zůstatek",
   "displayable" : "Zobrazitelné",
 
   "submit_request" : "odeslat požadavek",
@@ -687,6 +687,7 @@
   "error_dialog_content": "Nastala chyba.\n\nProsím odešlete zprávu o chybě naší podpoře, aby mohli zajistit opravu.",
   "decimal_places_error": "Příliš mnoho desetinných míst",
   "edit_node": "Upravit uzel",
+  "frozen_balance": "Zmrazená bilance",
   "invoice_details": "detaily faktury",
   "donation_link_details": "Podrobnosti odkazu na darování",
   "anonpay_description": "Vygenerujte ${type}. Příjemce může ${method} s jakoukoli podporovanou kryptoměnou a vy obdržíte prostředky v této peněžence.",

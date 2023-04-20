@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Als u XMR wilt omwisselen van uw Cake Wallet Monero-saldo, moet u eerst overschakelen naar uw Monero-portemonnee.",
-  "confirmed" : "Bevestigd",
-  "unconfirmed" : "Niet bevestigd",
+  "confirmed" : "Bevestigd saldo",
+  "unconfirmed" : "Onbevestigd saldo",
   "displayable" : "Weer te geven",
 
   "submit_request" : "een verzoek indienen",
@@ -687,6 +687,7 @@
   "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren.",
   "decimal_places_error": "Te veel decimalen",
   "edit_node": "Knooppunt bewerken",
+  "frozen_balance": "Bevroren saldo",
   "invoice_details": "Factuurgegevens",
   "donation_link_details": "Details van de donatielink",
   "anonpay_description": "Genereer ${type}. De ontvanger kan ${method} gebruiken met elke ondersteunde cryptocurrency en u ontvangt geld in deze portemonnee",

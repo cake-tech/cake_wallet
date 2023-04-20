@@ -478,8 +478,8 @@
   "xrp_extra_info" : "发送用于交换的XRP交易时，请不要忘记指定目标Tag",
 
   "exchange_incorrect_current_wallet_for_xmr" : "如果要从Cake Wallet Monero余额中兑换XMR，请先切换到Monero钱包。",
-  "confirmed" : "已确认",
-  "unconfirmed" : "未经证实",
+  "confirmed" : "确认余额",
+  "unconfirmed" : "未确认余额",
   "displayable" : "可显示",
 
   "submit_request" : "提交请求",
@@ -686,6 +686,7 @@
   "error_dialog_content": "糟糕，我们遇到了一些错误。\n\n请将崩溃报告发送给我们的支持团队，以改进应用程序。",
   "decimal_places_error": "小数位太多",
   "edit_node": "编辑节点",
+  "frozen_balance": "冻结余额",
   "invoice_details": "发票明细",
   "donation_link_details": "捐赠链接详情",
   "anonpay_description": "生成 ${type}。收款人可以使用任何受支持的加密货币 ${method}，您将在此钱包中收到资金。",

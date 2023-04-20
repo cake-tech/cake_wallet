@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange",
 
   "exchange_incorrect_current_wallet_for_xmr" : "If you want to exchange XMR from your Cake Wallet Monero balance, please switch to your Monero wallet first.",
-  "confirmed" : "Confirmed",
-  "unconfirmed" : "Unconfirmed",
+  "confirmed" : "Confirmed Balance",
+  "unconfirmed" : "Unconfirmed Balance",
   "displayable" : "Displayable",
 
   "submit_request" : "submit a request",
@@ -697,6 +697,7 @@
   "onion_link": "Onion link",
   "decimal_places_error": "Too many decimal places",
   "edit_node": "Edit Node",
+  "frozen_balance": "Frozen Balance",
   "settings": "Settings",
   "sell_monero_com_alert_content": "Selling Monero is not supported yet",
   "error_text_input_below_minimum_limit" : "Amount is less than the minimum",

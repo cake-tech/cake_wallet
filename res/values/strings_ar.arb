@@ -479,8 +479,8 @@
    "xrp_extra_info":"من فضلك لا تنس تحديد علامة الوجهة أثناء إرسال معاملة XRP للتبادل",
 
    "exchange_incorrect_current_wallet_for_xmr":"إذا كنت ترغب في استبدال XMR من رصيد Cake Wallet Monero ، فيرجى التبديل إلى محفظة Monero أولاً.",
-   "confirmed":"مؤكد",
-   "unconfirmed":"غير مؤكد",
+   "confirmed":"رصيد مؤكد",
+   "unconfirmed":"رصيد غير مؤكد",
    "displayable":"قابل للعرض",
 
    "submit_request":"تقديم طلب",
@@ -685,6 +685,7 @@
    "error_dialog_content": "عفوًا ، لقد حصلنا على بعض الخطأ.\n\nيرجى إرسال تقرير التعطل إلى فريق الدعم لدينا لتحسين التطبيق.",
    "decimal_places_error": "عدد كبير جدًا من المنازل العشرية",
    "edit_node": "تحرير العقدة",
+   "frozen_balance": "الرصيد المجمد",
    "invoice_details": "تفاصيل الفاتورة",
    "donation_link_details": "تفاصيل رابط التبرع",
    "anonpay_description": "توليد ${type}. يمكن للمستلم ${method} بأي عملة مشفرة مدعومة ، وستتلقى أموالاً في هذه",

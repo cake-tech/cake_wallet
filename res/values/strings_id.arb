@@ -466,8 +466,8 @@
   "xrp_extra_info" : "Jangan lupa untuk menentukan Tag Tujuan saat mengirim transaksi XRP untuk pertukaran",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Jika Anda ingin menukar XMR dari saldo Monero Cake Wallet Anda, silakan beralih ke dompet Monero Anda terlebih dahulu.",
-  "confirmed" : "Dikonfirmasi",
-  "unconfirmed" : "Tidak dikonfirmasi",
+  "confirmed" : "Saldo Terkonfirmasi",
+  "unconfirmed" : "Saldo Belum Dikonfirmasi",
   "displayable" : "Dapat ditampilkan",
 
   "submit_request" : "kirim permintaan",
@@ -669,6 +669,7 @@
   "contact_list_wallets": "Dompet Saya",
   "decimal_places_error": "Terlalu banyak tempat desimal",
   "edit_node": "Sunting Node",
+  "frozen_balance": "Saldo Beku",
   "invoice_details": "Detail faktur",
   "donation_link_details": "Detail tautan donasi",
   "anonpay_description": "Hasilkan ${type}. Penerima dapat ${method} dengan cryptocurrency apa pun yang didukung, dan Anda akan menerima dana di dompet ini.",

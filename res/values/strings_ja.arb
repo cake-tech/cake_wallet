@@ -479,8 +479,8 @@
   "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet Moneroの残高からXMRを交換する場合は、最初にMoneroウォレットに切り替えてください。",
-  "confirmed" : "確認済み",
-  "unconfirmed" : "未確認",
+  "confirmed" : "確認済み残高",
+  "unconfirmed" : "残高未確認",
   "displayable" : "表示可能",
 
   "submit_request" : "リクエストを送信する",
@@ -687,6 +687,7 @@
   "error_dialog_content": "エラーが発生しました。\n\nアプリケーションを改善するために、クラッシュ レポートをサポート チームに送信してください。",
   "decimal_places_error": "小数点以下の桁数が多すぎる",
   "edit_node": "ノードを編集",
+  "frozen_balance": "冷凍残高",
   "invoice_details": "請求の詳細",
   "donation_link_details": "寄付リンクの詳細",
   "anonpay_description": "${type} を生成します。受取人はサポートされている任意の暗号通貨で ${method} でき、あなたはこのウォレットで資金を受け取ります。",

@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Molimo ne zaboravite navesti odredišnu oznaku prilikom slanja XRP transakcije na razmjenu",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Ako želite razmijeniti XMR s vlastitog Monero računa na Cake Wallet novčaniku, molimo prvo se prebacite na svoj Monero novčanik.",
-  "confirmed" : "Potvrđeno",
-  "unconfirmed" : "Nepotvrđeno",
+  "confirmed" : "Potvrđeno stanje",
+  "unconfirmed" : "Nepotvrđeno stanje",
   "displayable" : "Dostupno za prikaz",
 
   "submit_request" : "podnesi zahtjev",
@@ -687,6 +687,7 @@
   "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju.",
   "decimal_places_error": "Previše decimalnih mjesta",
   "edit_node": "Uredi čvor",
+  "frozen_balance": "Zamrznuti saldo",
   "invoice_details": "Podaci o fakturi",
   "donation_link_details": "Detalji veza za donacije",
   "anonpay_description": "Generiraj ${type}. Primatelj može ${method} s bilo kojom podržanom kriptovalutom, a vi ćete primiti sredstva u ovaj novčanik.",

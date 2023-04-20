@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Jeśli chcesz wymienić XMR z salda Cake Wallet Monero, najpierw przełącz się na portfel Monero.",
-  "confirmed" : "Potwierdzony",
-  "unconfirmed" : "Niepotwierdzony",
+  "confirmed" : "Potwierdzone saldo",
+  "unconfirmed" : "Niepotwierdzone saldo",
   "displayable" : "Wyświetlane",
 
   "submit_request" : "Złóż wniosek",
@@ -687,6 +687,7 @@
   "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
   "decimal_places_error": "Za dużo miejsc dziesiętnych",
   "edit_node": "Edytuj węzeł",
+  "frozen_balance": "Zamrożona równowaga",
   "invoice_details": "Dane do faktury",
   "donation_link_details": "Szczegóły linku darowizny",
   "anonpay_description": "Wygeneruj ${type}. Odbiorca może ${method} z dowolną obsługiwaną kryptowalutą, a Ty otrzymasz środki w tym portfelu.",

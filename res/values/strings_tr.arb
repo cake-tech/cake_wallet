@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Lütfen takas için XRP işlemi gönderirken Hedef Etiketi (Destination Tag) belirtmeyi unutmayın",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet'daki Monero bakiyenizi kullanarak takas yapmak istiyorsan, lütfen önce Monero cüzdanına geç.",
-  "confirmed" : "Onaylı",
-  "unconfirmed" : "Onaylanmamış",
+  "confirmed" : "Onaylanmış Bakiye",
+  "unconfirmed" : "Onaylanmamış Bakiye",
   "displayable" : "Gösterilebilir",
 
   "submit_request" : "talep gönder",
@@ -687,6 +687,7 @@
   "error_dialog_content": "Hay aksi, bir hatamız var.\n\nUygulamayı daha iyi hale getirmek için lütfen kilitlenme raporunu destek ekibimize gönderin.",
   "decimal_places_error": "Çok fazla ondalık basamak",
   "edit_node": "Düğümü Düzenle",
+  "frozen_balance": "Dondurulmuş Bakiye",
   "invoice_details": "fatura detayları",
   "donation_link_details": "Bağış bağlantısı ayrıntıları",
   "anonpay_description": "${type} oluşturun. Alıcı, desteklenen herhangi bir kripto para birimi ile ${method} yapabilir ve bu cüzdanda para alırsınız.",

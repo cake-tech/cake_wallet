@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Wenn Sie XMR von Ihrem Cake Wallet Monero-Guthaben umtauschen möchten, wechseln Sie bitte zuerst zu Ihrer Monero-Wallet.",
-  "confirmed" : "Bestätigt",
-  "unconfirmed" : "Unbestätigt",
+  "confirmed" : "Bestätigter Saldo",
+  "unconfirmed" : "Unbestätigter Saldo",
   "displayable" : "Anzeigebar",
 
   "submit_request" : "Eine Anfrage stellen",
@@ -687,6 +687,7 @@
   "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern.",
   "decimal_places_error": "Zu viele Nachkommastellen",
   "edit_node": "Knoten bearbeiten",
+  "frozen_balance": "Gefrorenes Gleichgewicht",
   "invoice_details": "Rechnungs-Details",
   "donation_link_details": "Details zum Spendenlink",
   "anonpay_description": "Generieren Sie ${type}. Der Empfänger kann ${method} mit jeder unterstützten Kryptowährung verwenden, und Sie erhalten Geld in dieser Brieftasche.",
