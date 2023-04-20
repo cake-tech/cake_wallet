@@ -699,5 +699,6 @@
   "onion_link": "Zwiebel-Link",
   "settings": "Einstellungen",
   "sell_monero_com_alert_content": "Der Verkauf von Monero wird noch nicht unterstützt",
-  "show_market_place": "Marktplatz anzeigen"
+  "show_market_place": "Marktplatz anzeigen",
+  "prevent_screenshots": "Verhindern Sie Screenshots und Bildschirmaufzeichnungen"
 }

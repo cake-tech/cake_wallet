@@ -698,5 +698,6 @@
   "onion_link": "Посилання на цибулю",
   "settings": "Налаштування",
   "sell_monero_com_alert_content": "Продаж Monero ще не підтримується",
-  "show_market_place":"Шоу Ринок"
+  "show_market_place":"Показувати маркетплейс",
+  "prevent_screenshots": "Запобігати знімкам екрана та запису екрана"
 }

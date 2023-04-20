@@ -699,5 +699,6 @@
   "onion_link": "Poveznica luka",
   "settings": "Postavke",
   "sell_monero_com_alert_content": "Prodaja Monera još nije podržana",
-  "show_market_place" : "Prikaži tržište"
+  "show_market_place" : "Prikaži tržište",
+  "prevent_screenshots": "Spriječite snimke zaslona i snimanje zaslona"
 }

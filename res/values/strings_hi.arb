@@ -699,5 +699,6 @@
   "onion_link": "प्याज का लिंक",
   "settings": "समायोजन",
   "sell_monero_com_alert_content": "मोनेरो बेचना अभी तक समर्थित नहीं है",
-  "show_market_place":"बाज़ार दिखाएँ"
+  "show_market_place":"बाज़ार दिखाएँ",
+  "prevent_screenshots": "स्क्रीनशॉट और स्क्रीन रिकॉर्डिंग रोकें"
 }

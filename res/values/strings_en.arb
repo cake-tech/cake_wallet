@@ -700,5 +700,5 @@
   "settings": "Settings",
   "sell_monero_com_alert_content": "Selling Monero is not supported yet",
   "show_market_place" :"Show Marketplace",
-  "prevent_screenshots": "Prevent screenshots"
+  "prevent_screenshots": "Prevent screenshots and screen recording"
 }

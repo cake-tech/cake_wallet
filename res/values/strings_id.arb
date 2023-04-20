@@ -680,5 +680,6 @@
   "clearnet_link": "Tautan clearnet",
   "onion_link": "Tautan bawang",
   "sell_monero_com_alert_content": "Menjual Monero belum didukung",
-  "show_market_place": "Tampilkan Pasar"
+  "show_market_place": "Tampilkan Pasar",
+  "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar"
 }

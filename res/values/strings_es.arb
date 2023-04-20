@@ -699,5 +699,6 @@
   "onion_link": "Enlace de cebolla",
   "settings": "Configuraciones",
   "sell_monero_com_alert_content": "Aún no se admite la venta de Monero",
-  "show_market_place": "Mostrar mercado"
+  "show_market_place": "Mostrar mercado",
+  "prevent_screenshots": "Evitar capturas de pantalla y grabación de pantalla"
 }

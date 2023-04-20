@@ -697,5 +697,6 @@
   "onion_link": "ลิงค์หัวหอม",
   "settings": "การตั้งค่า",
   "sell_monero_com_alert_content": "ยังไม่รองรับการขาย Monero",
-  "show_market_place":"แสดงตลาดกลาง"
+  "show_market_place":"แสดงตลาดกลาง",
+  "prevent_screenshots": "ป้องกันภาพหน้าจอและการบันทึกหน้าจอ"
 }

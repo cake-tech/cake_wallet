@@ -699,5 +699,6 @@
   "onion_link": "Łącznik cebulowy",
   "settings": "Ustawienia",
   "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana",
-  "show_market_place" : "Pokaż rynek"
+  "show_market_place" : "Pokaż rynek",
+  "prevent_screenshots": "Zapobiegaj zrzutom ekranu i nagrywaniu ekranu"
 }

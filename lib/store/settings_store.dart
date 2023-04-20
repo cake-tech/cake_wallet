@@ -433,6 +433,8 @@ abstract class SettingsStoreBase with Store {
             .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
+    isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
