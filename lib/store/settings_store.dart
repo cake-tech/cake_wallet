@@ -19,6 +19,8 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cw_core/set_app_secure_native.dart';
+import 'dart:io' show Platform;
 
 part 'settings_store.g.dart';
 
@@ -31,6 +33,7 @@ abstract class SettingsStoreBase with Store {
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
+      required bool initialAppSecure,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required ExchangeApiMode initialExchangeStatus,
@@ -53,6 +56,7 @@ abstract class SettingsStoreBase with Store {
     fiatCurrency = initialFiatCurrency,
     balanceDisplayMode = initialBalanceDisplayMode,
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
+        isAppSecure = initialAppSecure,
     fiatApiMode = initialFiatMode,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
@@ -118,6 +122,17 @@ abstract class SettingsStoreBase with Store {
         (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
             PreferencesKey.shouldSaveRecipientAddressKey,
             shouldSaveRecipientAddress));
+
+    reaction((_) => isAppSecure, (bool isAppSecure) {
+      sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
+      if (Platform.isAndroid) {
+        setIsAppSecureNative(isAppSecure);
+      }
+    });
+
+    if (Platform.isAndroid) {
+      setIsAppSecureNative(isAppSecure);
+    }
 
     reaction(
             (_) => fiatApiMode,
@@ -198,6 +213,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldSaveRecipientAddress;
+
+  @observable
+  bool isAppSecure;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -289,6 +307,8 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
+    final isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences
             .getInt(PreferencesKey.currentFiatApiModeKey) ?? FiatApiMode.enabled.raw);
@@ -316,7 +336,7 @@ abstract class SettingsStoreBase with Store {
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
-    
+
     // If no value
     if (pinLength == null || pinLength == 0) {
       pinLength = defaultPinLength;
@@ -367,6 +387,7 @@ abstract class SettingsStoreBase with Store {
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialAppSecure: isAppSecure,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialExchangeStatus: exchangeStatus,
@@ -412,6 +433,8 @@ abstract class SettingsStoreBase with Store {
             .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
+    isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
