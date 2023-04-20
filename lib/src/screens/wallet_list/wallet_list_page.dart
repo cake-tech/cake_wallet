@@ -1,4 +1,4 @@
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -19,18 +19,21 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
-  WalletListPage({required this.walletListViewModel});
+  WalletListPage({required this.walletListViewModel, required this.authService});
 
   final WalletListViewModel walletListViewModel;
+  final AuthService authService;
 
   @override
-  Widget body(BuildContext context) => WalletListBody(walletListViewModel: walletListViewModel);
+  Widget body(BuildContext context) =>
+      WalletListBody(walletListViewModel: walletListViewModel, authService: authService);
 }
 
 class WalletListBody extends StatefulWidget {
-  WalletListBody({required this.walletListViewModel});
+  WalletListBody({required this.walletListViewModel, required this.authService});
 
   final WalletListViewModel walletListViewModel;
+  final AuthService authService;
 
   @override
   WalletListBodyState createState() => WalletListBodyState();
@@ -129,7 +132,8 @@ class WalletListBodyState extends State<WalletListBody> {
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
-                                                .primaryTextTheme.headline6!
+                                                .primaryTextTheme
+                                                .headline6!
                                                 .color!),
                                       )
                                     ],
@@ -201,61 +205,40 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    if (await widget.walletListViewModel.checkIfAuthRequired()) {
-      await Navigator.of(context).pushNamed(Routes.auth,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
+    await widget.authService.authenticateAction(context,
+        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+      if (!isAuthenticatedSuccessfully) {
+        return;
+      }
 
-        try {
-          auth.changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-          await widget.walletListViewModel.loadWallet(wallet);
-          auth.hideProgressText();
-          auth.close();
-          // only pop the wallets route in mobile as it will go back to dashboard page
-          // in desktop platforms the navigation tree is different
-          if (DeviceInfo.instance.isMobile) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop();
-            });
-          }
-        } catch (e) {
-          auth.changeProcessText(
-              S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
-        }
-      });
-    } else {
       try {
         changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
-        hideProgressText();
+        await hideProgressText();
         // only pop the wallets route in mobile as it will go back to dashboard page
         // in desktop platforms the navigation tree is different
         if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pop();
+          });
         }
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
-    }
+    });
   }
 
   Future<void> _removeWallet(WalletListItem wallet) async {
-    if (widget.walletListViewModel.checkIfAuthRequired()) {
-      await Navigator.of(context).pushNamed(Routes.auth,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
-        _onSuccessfulAuth(wallet, auth);
-      });
-    } else {
-      _onSuccessfulAuth(wallet, null);
-    }
+    widget.authService.authenticateAction(context,
+        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+      if (!isAuthenticatedSuccessfully) {
+        return;
+      }
+      _onSuccessfulAuth(wallet);
+    });
   }
 
-  void _onSuccessfulAuth(WalletListItem wallet, AuthPageState? auth) async {
+  void _onSuccessfulAuth(WalletListItem wallet) async {
     bool confirmed = false;
     await showPopUp<void>(
         context: context,
@@ -275,31 +258,23 @@ class WalletListBodyState extends State<WalletListBody> {
 
     if (confirmed) {
       try {
-        auth != null
-            ? auth.changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name))
-            : changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
+        changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
         await widget.walletListViewModel.remove(wallet);
         hideProgressText();
       } catch (e) {
-        auth != null
-            ? auth.changeProcessText(
-                S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
-              )
-            : changeProcessText(
-                S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
-              );
+        changeProcessText(
+          S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
+        );
       }
     }
-
-    auth?.close();
   }
 
   void changeProcessText(String text) {
     _progressBar = createBar<void>(text, duration: null)..show(context);
   }
 
-  void hideProgressText() {
-    Future.delayed(Duration(milliseconds: 50), () {
+  Future<void> hideProgressText() async {
+    await Future.delayed(Duration(milliseconds: 50), () {
       _progressBar?.dismiss();
       _progressBar = null;
     });
