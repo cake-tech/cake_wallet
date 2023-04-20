@@ -680,5 +680,7 @@
   "clearnet_link": "Tautan clearnet",
   "onion_link": "Tautan bawang",
   "sell_monero_com_alert_content": "Menjual Monero belum didukung",
+  "error_text_input_below_minimum_limit" : "Jumlah kurang dari minimal",
+  "error_text_input_above_maximum_limit" : "Jumlah lebih dari maksimal",
   "show_market_place": "Tampilkan Pasar"
 }

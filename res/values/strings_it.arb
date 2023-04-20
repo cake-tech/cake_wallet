@@ -699,5 +699,7 @@
   "onion_link": "Collegamento a cipolla",
   "settings": "Impostazioni",
   "sell_monero_com_alert_content": "La vendita di Monero non è ancora supportata",
+  "error_text_input_below_minimum_limit" : "L'ammontare è inferiore al minimo",
+  "error_text_input_above_maximum_limit" : "L'ammontare è superiore al massimo",
   "show_market_place":"Mostra mercato"
 }

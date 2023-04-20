@@ -698,5 +698,7 @@
   "onion_link": "洋葱链接",
   "settings": "设置",
   "sell_monero_com_alert_content": "尚不支持出售门罗币",
+  "error_text_input_below_minimum_limit" : "金额小于最小值",
+  "error_text_input_above_maximum_limit" : "金额大于最大值",
   "show_market_place" :"显示市场"
 }

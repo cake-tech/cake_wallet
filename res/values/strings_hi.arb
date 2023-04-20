@@ -699,5 +699,7 @@
   "onion_link": "प्याज का लिंक",
   "settings": "समायोजन",
   "sell_monero_com_alert_content": "मोनेरो बेचना अभी तक समर्थित नहीं है",
+  "error_text_input_below_minimum_limit" : "राशि न्यूनतम से कम है",
+  "error_text_input_above_maximum_limit" : "राशि अधिकतम से अधिक है",
   "show_market_place":"बाज़ार दिखाएँ"
 }

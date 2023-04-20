@@ -699,5 +699,7 @@
   "onion_link": "Enlace de cebolla",
   "settings": "Configuraciones",
   "sell_monero_com_alert_content": "Aún no se admite la venta de Monero",
+  "error_text_input_below_minimum_limit" : "La cantidad es menos que mínima",
+  "error_text_input_above_maximum_limit" : "La cantidad es más que el máximo",
   "show_market_place": "Mostrar mercado"
 }

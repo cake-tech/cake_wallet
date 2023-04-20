@@ -699,5 +699,7 @@
   "onion_link": "Zwiebel-Link",
   "settings": "Einstellungen",
   "sell_monero_com_alert_content": "Der Verkauf von Monero wird noch nicht unterstützt",
+  "error_text_input_below_minimum_limit" : "Menge ist unter dem Minimum",
+  "error_text_input_above_maximum_limit" : "Menge ist über dem Maximum",
   "show_market_place": "Marktplatz anzeigen"
 }

@@ -699,5 +699,7 @@
   "onion_link": "ကြက်သွန်လင့်",
   "settings": "ဆက်တင်များ",
   "sell_monero_com_alert_content": "Monero ရောင်းချခြင်းကို မပံ့ပိုးရသေးပါ။",
+  "error_text_input_below_minimum_limit" : "ပမာဏသည် အနိမ့်ဆုံးထက်နည်းသည်။",
+  "error_text_input_above_maximum_limit" : "ပမာဏသည် အများဆုံးထက် ပိုများသည်။",
   "show_market_place":"စျေးကွက်ကိုပြသပါ။"
 }

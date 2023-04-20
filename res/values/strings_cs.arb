@@ -698,5 +698,7 @@
   "clearnet_link": "Odkaz na Clearnet",
   "onion_link": "Cibulový odkaz",
   "sell_monero_com_alert_content": "Prodej Monero zatím není podporován",
+  "error_text_input_below_minimum_limit" : "Částka je menší než minimální hodnota",
+  "error_text_input_above_maximum_limit" : "Částka je větší než maximální hodnota",
   "show_market_place": "Zobrazit trh"
 }

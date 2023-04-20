@@ -698,5 +698,7 @@
   "clearnet_link": "Clearnet връзка",
   "onion_link": "Лукова връзка",
   "sell_monero_com_alert_content": "Продажбата на Monero все още не се поддържа",
+  "error_text_input_below_minimum_limit" : "Сумата е по-малко от минималната",
+  "error_text_input_above_maximum_limit" : "Сумата надвишава максималната",
   "show_market_place":"Покажи пазар"
 }

@@ -697,5 +697,7 @@
    "onion_link": "رابط البصل",
    "settings": "إعدادات",
    "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن",
+   "error_text_input_below_minimum_limit":" المبلغ أقل من الحد الأدنى",
+   "error_text_input_above_maximum_limit":"المبلغ أكبر من الحد الأقصى",
    "show_market_place": "إظهار السوق"
 }

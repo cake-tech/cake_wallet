@@ -698,5 +698,7 @@
   "onion_link": "Посилання на цибулю",
   "settings": "Налаштування",
   "sell_monero_com_alert_content": "Продаж Monero ще не підтримується",
+  "error_text_input_below_minimum_limit" : "Сума менша мінімальної",
+  "error_text_input_above_maximum_limit" : "Сума більше максимальної",
   "show_market_place":"Шоу Ринок"
 }

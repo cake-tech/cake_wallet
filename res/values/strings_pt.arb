@@ -698,5 +698,7 @@
   "onion_link": "ligação de cebola",
   "settings": "Configurações",
   "sell_monero_com_alert_content": "A venda de Monero ainda não é suportada",
+  "error_text_input_below_minimum_limit" : "O valor é menor que o mínimo",
+  "error_text_input_above_maximum_limit" : "O valor é superior ao máximo",
   "show_market_place":"Mostrar mercado"
 }
