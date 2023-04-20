@@ -537,8 +537,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final transactionHex = verboseTransaction['hex'] as String;
     final original = bitcoin.Transaction.fromHex(transactionHex);
     final ins = <bitcoin.Transaction>[];
-    final time = verboseTransaction['time'] as int;
-    final confirmations = verboseTransaction['confirmations'] as int ?? 0;
+    final time = verboseTransaction['time'] as int?;
+    final confirmations = verboseTransaction['confirmations'] as int? ?? 0;
 
     for (final vin in original.ins) {
       final id = HEX.encode(vin.hash!.reversed.toList());
