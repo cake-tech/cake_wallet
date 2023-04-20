@@ -499,7 +499,7 @@ Future setup(
   }
 
   getIt.registerFactory(() =>
-      WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
+      WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>(), authService: getIt.get<AuthService>(),));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
@@ -593,7 +593,7 @@ Future setup(
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>()));
+  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 
@@ -926,7 +926,7 @@ Future setup(
     wallet: getIt.get<AppStore>().wallet!)
   );
 
-  getIt.registerFactory(() => DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>()));
+  getIt.registerFactory(() => DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => DesktopSidebarViewModel());
 

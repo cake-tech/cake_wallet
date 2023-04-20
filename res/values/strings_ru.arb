@@ -700,5 +700,8 @@
   "onion_link": "Луковая ссылка",
   "settings": "Настройки",
   "sell_monero_com_alert_content": "Продажа Monero пока не поддерживается",
-  "show_market_place":"Показать торговую площадку"
+  "error_text_input_below_minimum_limit" : "Сумма меньше минимальной",
+  "error_text_input_above_maximum_limit" : "Сумма больше максимальной",
+  "show_market_place":"Показать торговую площадку",
+  "prevent_screenshots": "Предотвратить скриншоты и запись экрана"
 }

@@ -9,6 +9,7 @@ class PreferencesKey {
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
+  static const isAppSecureKey = 'is_app_secure';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
@@ -31,6 +32,8 @@ class PreferencesKey {
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
   static const lastPopupDate = 'last_popup_date';
+  static const lastAppReviewDate = 'last_app_review_date';
+
 
 
   static String moneroWalletUpdateV1Key(String name)

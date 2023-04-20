@@ -146,7 +146,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);
-
+    
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
