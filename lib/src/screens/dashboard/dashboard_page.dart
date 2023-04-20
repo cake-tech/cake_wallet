@@ -123,7 +123,7 @@ class _DashboardPageView extends BasePage {
   @override
   Widget body(BuildContext context) {
     final controller = PageController(initialPage: initialPage);
-    
+
     reaction((_) => dashboardViewModel.shouldShowMarketPlaceInDashboard, (bool value) {
       if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
         controller.jumpToPage(0);
@@ -137,7 +137,7 @@ class _DashboardPageView extends BasePage {
       } else {
         controller.jumpToPage(0);
       }
-    }); 
+    });
     _setEffects(context);
 
     return SafeArea(
@@ -274,10 +274,12 @@ class _DashboardPageView extends BasePage {
 
     autorun((_) async {
       final sharedPrefs = await SharedPreferences.getInstance();
-      final currentAppVersion = VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+      final currentAppVersion =
+      VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
       final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+      final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
 
-      if(currentAppVersion != lastSeenAppVersion) {
+      if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
         await Future<void>.delayed(Duration(seconds: 1));
         await showPopUp<void>(
             context: context,
@@ -285,8 +287,9 @@ class _DashboardPageView extends BasePage {
               return ReleaseNotesScreen(
                   title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
             });
-        sharedPrefs.setInt(
-            PreferencesKey.lastSeenAppVersion, currentAppVersion);
+        sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+      } else if (isNewInstall!) {
+        sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
       }
     });
 
