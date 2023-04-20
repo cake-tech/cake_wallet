@@ -105,6 +105,9 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
+  Future<void>? updateBalance() => null;
+
+  @override
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
