@@ -209,6 +209,7 @@ class BackupService {
     final currentBalanceDisplayMode = data[PreferencesKey.currentBalanceDisplayModeKey] as int?;
     final currentFiatCurrency = data[PreferencesKey.currentFiatCurrencyKey] as String?;
     final shouldSaveRecipientAddress = data[PreferencesKey.shouldSaveRecipientAddressKey] as bool?;
+    final isAppSecure = data[PreferencesKey.isAppSecureKey] as bool?;
     final currentTransactionPriorityKeyLegacy = data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
     final allowBiometricalAuthentication = data[PreferencesKey.allowBiometricalAuthenticationKey] as bool?;
     final currentBitcoinElectrumSererId = data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
@@ -244,6 +245,11 @@ class BackupService {
       await _sharedPreferences.setBool(
         PreferencesKey.shouldSaveRecipientAddressKey,
         shouldSaveRecipientAddress);
+
+    if (isAppSecure != null)
+      await _sharedPreferences.setBool(
+          PreferencesKey.isAppSecureKey,
+          isAppSecure);
 
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(

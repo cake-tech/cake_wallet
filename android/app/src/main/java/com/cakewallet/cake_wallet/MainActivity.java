@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 public class MainActivity extends FlutterFragmentActivity {
     final String UTILS_CHANNEL = "com.cake_wallet/native_utils";
     final int UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK = 24;
+    boolean isAppSecure = false;
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
@@ -56,6 +57,14 @@ public class MainActivity extends FlutterFragmentActivity {
                         handler.post(() -> result.success(""));
                     }
                     break;
+                case "setIsAppSecure":
+                    isAppSecure = call.argument("isAppSecure");
+                    if (isAppSecure) {
+                        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+                    } else {
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+                    }
+                    break;
                 default:
                     handler.post(() -> result.notImplemented());
             }
@@ -79,11 +88,5 @@ public class MainActivity extends FlutterFragmentActivity {
                 handler.post(() -> result.success(""));
             }
         });
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
 }

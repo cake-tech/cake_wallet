@@ -1,10 +1,12 @@
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 
 class AuthService with Store {
@@ -13,6 +15,12 @@ class AuthService with Store {
     required this.sharedPreferences,
     required this.settingsStore,
   });
+
+  static const List<String> _alwaysAuthenticateRoutes = [
+    Routes.showKeys,
+    Routes.backup,
+    Routes.setupPin,
+  ];
 
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
@@ -65,5 +73,34 @@ class AuthService with Store {
     Duration timeDifference = now.difference(before);
 
     return timeDifference.inMinutes;
+  }
+
+  Future<void> authenticateAction(BuildContext context,
+      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
+    assert(route != null || onAuthSuccess != null,
+        'Either route or onAuthSuccess param must be passed.');
+    if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+      if (onAuthSuccess != null) {
+        onAuthSuccess(true);
+      } else {
+        Navigator.of(context).pushNamed(
+          route ?? '',
+          arguments: arguments,
+        );
+      }
+      return;
+    }
+    Navigator.of(context).pushNamed(Routes.auth,
+        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+      if (!isAuthenticatedSuccessfully) {
+        onAuthSuccess?.call(false);
+        return;
+      }
+      if (onAuthSuccess != null) {
+        auth.close().then((value) => onAuthSuccess.call(true));
+      } else {
+        auth.close(route: route, arguments: arguments);
+      }
+    });
   }
 }

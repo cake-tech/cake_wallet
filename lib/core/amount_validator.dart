@@ -3,17 +3,45 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class AmountValidator extends TextValidator {
-  AmountValidator({required CryptoCurrency currency, bool isAutovalidate = false}) {
+  AmountValidator({
+    required CryptoCurrency currency,
+    bool isAutovalidate = false,
+    String? minValue,
+    String? maxValue,
+  }) {
     symbolsAmountValidator =
         SymbolsAmountValidator(isAutovalidate: isAutovalidate);
     decimalAmountValidator = DecimalAmountValidator(currency: currency,isAutovalidate: isAutovalidate);
+
+    amountMinValidator = AmountMinValidator(
+      minValue: minValue,
+      isAutovalidate: isAutovalidate,
+    );
+
+    amountMaxValidator = AmountMaxValidator(
+      maxValue: maxValue,
+      isAutovalidate: isAutovalidate,
+    );
   }
+
+  late final AmountMinValidator amountMinValidator;
+
+  late final AmountMaxValidator amountMaxValidator;
 
   late final SymbolsAmountValidator symbolsAmountValidator;
 
   late final DecimalAmountValidator decimalAmountValidator;
 
-  String? call(String? value) => symbolsAmountValidator(value) ?? decimalAmountValidator(value);
+  String? call(String? value) {
+    //* Validate for Text(length, symbols, decimals etc)
+
+    final textValidation = symbolsAmountValidator(value) ?? decimalAmountValidator(value);
+
+    //* Validate for Comparison(Value greater than min and less than )
+    final comparisonValidation = amountMinValidator(value) ?? amountMaxValidator(value);
+
+    return textValidation ?? comparisonValidation;
+  }
 }
 
 class SymbolsAmountValidator extends TextValidator {
@@ -56,4 +84,72 @@ class AllAmountValidator extends TextValidator {
             pattern: S.current.all,
             minLength: 0,
             maxLength: 0);
+}
+
+class AmountMinValidator extends Validator<String> {
+  final String? minValue;
+  final bool isAutovalidate;
+
+  AmountMinValidator({
+    this.minValue,
+    required this.isAutovalidate,
+  }) : super(errorMessage: S.current.error_text_input_below_minimum_limit);
+
+  @override
+  bool isValid(String? value) {
+    if (value == null || value.isEmpty) {
+      return isAutovalidate ? true : false;
+    }
+
+    if (minValue == null || minValue == "null") {
+      return true;
+    }
+
+    final valueInDouble = parseToDouble(value);
+    final minInDouble = parseToDouble(minValue ?? '');
+
+    if (valueInDouble == null || minInDouble == null) {
+      return false;
+    }
+
+    return valueInDouble > minInDouble;
+  }
+
+  double? parseToDouble(String value) {
+    final data = double.tryParse(value.replaceAll(',', '.'));
+    return data;
+  }
+}
+
+class AmountMaxValidator extends Validator<String> {
+  final String? maxValue;
+  final bool isAutovalidate;
+
+  AmountMaxValidator({
+    this.maxValue,
+    required this.isAutovalidate,
+  }) : super(errorMessage: S.current.error_text_input_above_maximum_limit);
+
+  @override
+  bool isValid(String? value) {
+    if (value == null || value.isEmpty) {
+      return isAutovalidate ? true : false;
+    }
+
+    if (maxValue == null || maxValue == "null") {
+      return true;
+    }
+
+    final valueInDouble = parseToDouble(value);
+    final maxInDouble = parseToDouble(maxValue ?? '');
+
+    if (valueInDouble == null || maxInDouble == null) {
+      return false;
+    }
+    return valueInDouble < maxInDouble;
+  }
+
+  double? parseToDouble(String value) {
+    return double.tryParse(value.replaceAll(',', '.'));
+  }
 }
