@@ -1,8 +1,9 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -16,8 +17,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
+  final AuthService _authService;
 
-  DesktopWalletSelectionDropDown(this.walletListViewModel, {Key? key}) : super(key: key);
+  DesktopWalletSelectionDropDown(this.walletListViewModel, this._authService, {Key? key})
+      : super(key: key);
 
   @override
   State<DesktopWalletSelectionDropDown> createState() => _DesktopWalletSelectionDropDownState();
@@ -140,25 +143,12 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    if (await widget.walletListViewModel.checkIfAuthRequired()) {
-      await Navigator.of(context).pushNamed(Routes.auth,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
+    widget._authService.authenticateAction(context,
+        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+      if (!isAuthenticatedSuccessfully) {
+        return;
+      }
 
-        try {
-          auth.changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-          await widget.walletListViewModel.loadWallet(wallet);
-          auth.hideProgressText();
-          auth.close();
-          setState(() {});
-        } catch (e) {
-          auth.changeProcessText(
-              S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
-        }
-      });
-    } else {
       try {
         changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
@@ -167,7 +157,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
-    }
+    });
   }
 
   void _navigateToCreateWallet() {
