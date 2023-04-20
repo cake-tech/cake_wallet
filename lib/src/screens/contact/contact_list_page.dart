@@ -119,8 +119,9 @@ class ContactListPage extends BasePage {
 
         if (isCopied) {
           await Clipboard.setData(ClipboardData(text: contact.address));
-          await showBar<void>(context, S.of(context).copied_to_clipboard);
           Navigator.of(context).pop(contact);
+          await showBar<void>(context, S.of(context).copied_to_clipboard);
+         
         }
       },
       child: Container(
