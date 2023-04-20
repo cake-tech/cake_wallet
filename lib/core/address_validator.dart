@@ -86,7 +86,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.pivx:
         return 'D([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.btcln:
-        return '^(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+){1}'
+        return '^(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       default:
         return '[0-9a-zA-Z]';
     }
