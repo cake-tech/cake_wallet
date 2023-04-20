@@ -432,7 +432,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                                               onTap: () async {
                                                 final contact =
                                                     await Navigator.of(context)
-                                                        .pushNamed(Routes.pickerAddressBook);
+                                                    .pushNamed(
+                                                  Routes.pickerAddressBook,
+                                                  arguments: widget.initialCurrency,
+                                                );
 
                                                 if (contact is ContactBase &&
                                                     contact.address != null) {
