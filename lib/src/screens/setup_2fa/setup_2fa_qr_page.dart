@@ -1,16 +1,12 @@
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter/services.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 
-import '../../widgets/base_text_form_field.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/standard_list.dart';
 
@@ -24,6 +20,9 @@ class Setup2FAQRPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final totpLink =
+        'otpauth://totp/Cake%20Wallet:${setup2FAViewModel.deviceName}?secret=${setup2FAViewModel.secretKey}&issuer=Cake%20Wallet&algorithm=SHA1&digits=6&period=30';
+
     final copyImage = Image.asset(
       'assets/images/copy_content.png',
       height: 12,
@@ -39,8 +38,7 @@ class Setup2FAQRPage extends BasePage {
           SizedBox(height: 10),
           QrImage(
             size: 327,
-            data:
-                'otpauth://totp/Cake%20Wallet:Samsung%20S21%20Ultra?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=Cake%20Wallet&algorithm=SHA1&digits=6&period=30',
+            data: totpLink,
           ),
           SizedBox(height: 13),
           Row(
@@ -55,7 +53,7 @@ class Setup2FAQRPage extends BasePage {
                     Text('TOTP Secret Code'),
                     SizedBox(height: 8),
                     Text(
-                      'HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ',
+                      '${setup2FAViewModel.secretKey}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -86,10 +84,15 @@ class Setup2FAQRPage extends BasePage {
           StandardListSeparator(),
           Spacer(),
           PrimaryButton(
-            onPressed: () =>
-                Navigator.of(context).pushReplacementNamed(Routes.setup_2faEnterCodePage),
+            onPressed: () {
+   
+              Navigator.of(context).pushReplacementNamed(
+                Routes.setup_2faEnterCodePage
+   
+              );
+            },
             text: S.of(context).continue_text,
-            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+            color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
             textColor: Colors.white,
           ),
           SizedBox(height: 24),

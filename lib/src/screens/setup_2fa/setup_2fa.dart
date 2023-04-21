@@ -1,14 +1,10 @@
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter/material.dart';
+
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
+import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 
 import '../../widgets/standard_list.dart';
 

@@ -332,7 +332,7 @@ Future setup(
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>()));
 
-  getIt.registerFactory(() => Setup2FAViewModel());
+  getIt.registerFactory(() => Setup2FAViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
