@@ -53,6 +53,8 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
@@ -318,6 +320,13 @@ Future setup(
     return WalletRestorationFromKeysVM(getIt.get<AppStore>(),
         getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
         type: type, language: language);
+  });
+
+  getIt
+      .registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
+    return WalletRestorationFromQRVM(getIt.get<AppStore>(),
+        getIt.get<WalletCreationService>(param1: type),
+        _walletInfoSource, type);
   });
 
   getIt.registerFactory<WalletAddressListViewModel>(() =>
@@ -743,7 +752,9 @@ Future setup(
   getIt.registerFactory(
       () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
-  getIt.registerFactory(() => RestoreOptionsPage());
+  getIt.registerFactoryParam<RestoreOptionsPage, bool, void>((bool isNewInstall, _) =>
+              RestoreOptionsPage(isNewInstall: isNewInstall));
+
 
   getIt.registerFactory(
       () => RestoreFromBackupViewModel(getIt.get<BackupService>()));

@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
@@ -40,6 +41,8 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -158,8 +161,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param2: false));
 
     case Routes.restoreOptions:
+      final isNewInstall = settings.arguments as bool;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<RestoreOptionsPage>());
+          builder: (_) => getIt.get<RestoreOptionsPage>(param1: isNewInstall));
 
     case Routes.restoreWalletOptions:
       final type = WalletType.monero; //settings.arguments as WalletType;
@@ -189,12 +193,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
               }));
 
     case Routes.restoreWalletOptionsFromWelcome:
-      return CupertinoPageRoute<void>(
+      final isNewInstall = settings.arguments as bool;
+      return isNewInstall ? CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
                   Navigator.pushNamed(
                       context.context, Routes.restoreWalletType)),
-          fullscreenDialog: true);
+          fullscreenDialog: true) : CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<NewWalletTypePage>(
+              param1: (BuildContext context, WalletType type) =>
+                  Navigator.of(context)
+                      .pushNamed(Routes.restoreWallet, arguments: type),
+              param2: false));
 
     case Routes.seed:
       return MaterialPageRoute<void>(
@@ -223,6 +233,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => RestoreWalletFromKeysPage(
               walletRestorationFromKeysVM: walletRestorationFromKeysVM));
+
+    case Routes.sweepingWalletPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SweepingWalletPage>());
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
