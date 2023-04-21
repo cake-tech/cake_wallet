@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobx/mobx.dart';
@@ -31,6 +32,7 @@ abstract class AuthViewModelBase with Store {
   int get pinLength => _settingsStore.pinCodeLength;
 
   bool get isBiometricalAuthenticationAllowed => _settingsStore.allowBiometricalAuthentication;
+  bool get useTotp2FA => _settingsStore.useTOTP2FA;
 
   @observable
   int _failureCounter;
@@ -117,6 +119,26 @@ abstract class AuthViewModelBase with Store {
       }
     } catch (e) {
       state = FailureState(e.toString());
+    }
+  }
+
+  @action
+  Future<void> totp2FAAuth(BuildContext context) async {
+    final response = await Navigator.pushNamed(context, Routes.setup_2faQRPage);
+    final bool? result = response as bool?;
+
+    switch (result) {
+      case true:
+        state = ExecutedSuccessfullyState();
+        break;
+      case false:
+        state = FailureState('Error with auth');
+        break;
+      case null:
+        state = FailureState('Error with auth');
+        break;
+      default:
+        state = FailureState('Error with auth');
     }
   }
 

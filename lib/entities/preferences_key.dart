@@ -12,6 +12,7 @@ class PreferencesKey {
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
+  static const useTOTP2FA = 'use_totp_2fa';
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';

@@ -18,42 +18,44 @@ class Setup2FAPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Important note'),
-              SizedBox(height: 16),
-              Text(
-                ''' Cake 2FA is NOT as secure as cold storage. 2FA protects against basic '''
-                '''types of attacks, such as your friend providing your fingerprint while you are sleeping.\n\n'''
-                '''Cake 2FA does NOT protect against a compromised device by a sophisticated attacker.\n\n'''
-                '''If you lose access to your 2FA codes, YOU WILL LOSE ACCESS TO THIS WALLET.'''
-                ''' You will need to restore your wallet from mnemonic seed. YOU MUST THEREFORE '''
-                '''BACK UP YOUR MNEMONIC SEEDS! Further, someone with access to your mnemonic seed(s) '''
-                '''will be able to steal your funds, bypassing Cake 2FA.\n\n'''
-                '''Cake support staff will be unable to assist you if you lose '''
-                '''access to your mnemonic seed, since Cake is a noncustodial wallet.''',
-              ),
-            ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Important note'),
+                SizedBox(height: 16),
+                Text(
+                  ''' Cake 2FA is NOT as secure as cold storage. 2FA protects against basic '''
+                  '''types of attacks, such as your friend providing your fingerprint while you are sleeping.\n\n'''
+                  '''Cake 2FA does NOT protect against a compromised device by a sophisticated attacker.\n\n'''
+                  '''If you lose access to your 2FA codes, YOU WILL LOSE ACCESS TO THIS WALLET.'''
+                  ''' You will need to restore your wallet from mnemonic seed. YOU MUST THEREFORE '''
+                  '''BACK UP YOUR MNEMONIC SEEDS! Further, someone with access to your mnemonic seed(s) '''
+                  '''will be able to steal your funds, bypassing Cake 2FA.\n\n'''
+                  '''Cake support staff will be unable to assist you if you lose '''
+                  '''access to your mnemonic seed, since Cake is a noncustodial wallet.''',
+                ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 86),
-        SettingsCellWithArrow(
-          title: 'Set up TOTP(Recommended)',
-          handler: (_) => Navigator.of(context).pushNamed(Routes.setup_2faQRPage),
-        ),
-        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        SettingsCellWithArrow(
-          title: 'Set up HOTP',
-          handler: (_) {},
-        ),
-        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-      ],
+          SizedBox(height: 86),
+          SettingsCellWithArrow(
+            title: 'Set up TOTP(Recommended)',
+            handler: (_) => Navigator.of(context).pushNamed(Routes.setup_2faQRPage),
+          ),
+          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          SettingsCellWithArrow(
+            title: 'Set up HOTP',
+            handler: (_) {},
+          ),
+          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        ],
+      ),
     );
   }
 }
