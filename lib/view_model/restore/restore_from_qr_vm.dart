@@ -19,15 +19,14 @@ class WalletRestorationFromQRVM = WalletRestorationFromQRVMBase with _$WalletRes
 
 abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store {
   WalletRestorationFromQRVMBase(AppStore appStore, WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource,
-      {required this.isNewInstall})
+      Box<WalletInfo> walletInfoSource, WalletType type)
       : height = 0,
         viewKey = '',
         spendKey = '',
         wif = '',
         address = '',
         super(appStore, walletInfoSource, walletCreationService,
-            type: WalletType.monero, isRecovery: true);
+            type: type, isRecovery: true);
 
   @observable
   int height;
@@ -45,8 +44,6 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   String address;
 
   bool get hasRestorationHeight => type == WalletType.monero;
-
-  final bool isNewInstall;
 
   @override
   WalletCredentials getCredentialsFromRestoredWallet(dynamic options, RestoredWallet restoreWallet) {
@@ -93,7 +90,6 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
 
   @override
   Future<WalletBase> processFromRestoredWallet(WalletCredentials credentials, RestoredWallet restoreWallet) async {
-    walletCreationService.changeWalletType(type: restoreWallet.type);
     try {
       switch (restoreWallet.restoreMode) {
         case WalletRestoreMode.keys:

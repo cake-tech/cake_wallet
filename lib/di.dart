@@ -322,10 +322,10 @@ Future setup(
   });
 
   getIt
-      .registerFactoryParam<WalletRestorationFromQRVM, bool, void>((bool isNewInstall, _) {
+      .registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
-        getIt.get<WalletCreationService>(param1: WalletType.monero),
-        _walletInfoSource, isNewInstall: isNewInstall);
+        getIt.get<WalletCreationService>(param1: type),
+        _walletInfoSource, type);
   });
 
   getIt.registerFactory<WalletAddressListViewModel>(() =>
@@ -749,7 +749,7 @@ Future setup(
       () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
   getIt.registerFactoryParam<RestoreOptionsPage, bool, void>((bool isNewInstall, _) =>
-              RestoreOptionsPage(getIt.get<WalletRestorationFromQRVM>(param1: isNewInstall)));
+              RestoreOptionsPage(isNewInstall: isNewInstall));
 
 
   getIt.registerFactory(

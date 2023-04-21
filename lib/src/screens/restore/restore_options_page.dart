@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/language_list.dart';
@@ -14,13 +15,13 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class RestoreOptionsPage extends BasePage {
-  RestoreOptionsPage(this.restoreFromQRViewModel);
+  RestoreOptionsPage({required this.isNewInstall});
 
   @override
   String get title => S.current.restore_restore_wallet;
 
-  final WalletRestorationFromQRVM restoreFromQRViewModel;
 
+  final bool isNewInstall;
   final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png');
   final imageBackup = Image.asset('assets/images/backup.png');
   final qrCode = Image.asset('assets/images/qr_code_icon.png');
@@ -38,11 +39,11 @@ class RestoreOptionsPage extends BasePage {
                 RestoreButton(
                     onPressed: () => Navigator.pushNamed(
                         context, Routes.restoreWalletOptionsFromWelcome,
-                        arguments: restoreFromQRViewModel.isNewInstall),
+                        arguments: isNewInstall),
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
                     description: S.of(context).restore_description_from_seed_keys),
-                if (restoreFromQRViewModel.isNewInstall)
+                if (isNewInstall)
                   Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: RestoreButton(
@@ -56,17 +57,19 @@ class RestoreOptionsPage extends BasePage {
                   child: RestoreButton(
                       onPressed: () async {
                         bool isPinSet = false;
-                        if (restoreFromQRViewModel.isNewInstall) {
+                        if (isNewInstall) {
                           await Navigator.pushNamed(context, Routes.setupPin,
                               arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
                             setupPinContext.close();
                             isPinSet = true;
                           });
                         }
-                        if (!restoreFromQRViewModel.isNewInstall || isPinSet) {
+                        if (!isNewInstall || isPinSet) {
                           try {
                             final restoreWallet =
                                 await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+
+                            final restoreFromQRViewModel = getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
 
                             await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
                             if (restoreFromQRViewModel.state is FailureState) {
