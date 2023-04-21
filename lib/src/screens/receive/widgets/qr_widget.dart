@@ -156,8 +156,8 @@ class QRWidget extends StatelessWidget {
     );
   }
 
-  void _presentPicker(BuildContext context) {
-    showPopUp<void>(
+  void _presentPicker(BuildContext context) async {
+    await showPopUp<void>(
       builder: (_) => CurrencyPicker(
         selectedAtIndex: addressListViewModel.selectedCurrencyIndex,
         items: addressListViewModel.currencies,
@@ -166,6 +166,8 @@ class QRWidget extends StatelessWidget {
       ),
       context: context,
     );
+    // update amount if currency changed
+    addressListViewModel.changeAmount(amountController.text);
   }
 
   Future<void> changeBrightnessForRoute(Future<void> Function() navigation) async {
