@@ -25,6 +25,7 @@ class ReleaseNotesScreen extends StatelessWidget {
       children: [
         AlertBackground(
           child: AlertDialog(
+            insetPadding: EdgeInsets.only(left: 16, right: 16, bottom: 48),
             elevation: 0.0,
             contentPadding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
