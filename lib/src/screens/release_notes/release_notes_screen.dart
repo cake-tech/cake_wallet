@@ -20,53 +20,60 @@ class ReleaseNotesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertBackground(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        Expanded(child: SizedBox()),
-        Expanded(
-          flex: 19,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28.0),
-            child: Container(
+        AlertBackground(
+          child: AlertDialog(
+            elevation: 0.0,
+            contentPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
+            content: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
-                gradient: LinearGradient(colors: [
-                  Theme.of(context).colorScheme.secondary,
-                  Theme.of(context).scaffoldBackgroundColor,
-                ], begin: Alignment.centerLeft, end: Alignment.centerRight),
-              ),
+                  borderRadius: BorderRadius.circular(30.0),
+                  gradient: LinearGradient(colors: [
+                    Theme.of(context).colorScheme.secondary,
+                    Theme.of(context).scaffoldBackgroundColor,
+                  ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
+                child: Stack(
                   children: [
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        alignment: Alignment.bottomCenter,
-                        child: DefaultTextStyle(
-                          style: TextStyle(
-                            decoration: TextDecoration.none,
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Lato',
-                            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                    SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Container(
+                          alignment: Alignment.bottomCenter,
+                          child: DefaultTextStyle(
+                            style: TextStyle(
+                              decoration: TextDecoration.none,
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Lato',
+                              color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                            ),
+                            child: Text(title),
                           ),
-                          child: Text(title),
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: SizedBox(),
-                    ),
-                    Expanded(
-                      flex: 20,
-                      child: _getNotesWidget(),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: SizedBox(),
+                    SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 48, bottom: 16),
+                        child: Container(
+                          width: double.maxFinite,
+                          child: Column(
+                            children: <Widget>[
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight: MediaQuery.of(context).size.height * 0.7,
+                                ),
+                                child: _getNotesWidget(),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -74,22 +81,11 @@ class ReleaseNotesScreen extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
-          child: SizedBox(),
-        ),
-        Expanded(
-            flex: 3,
-            child: Container(
-              child: Column(
-                children: [
-                  AlertCloseButton(
-                    isPositioned: false,
-                  ),
-                ],
-              ),
-            )),
+        AlertCloseButton(
+          bottom: 30,
+        )
       ],
-    ));
+    );
   }
 
   Widget _getNotesWidget() {
@@ -98,6 +94,7 @@ class ReleaseNotesScreen extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
+            shrinkWrap: true,
             itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext context, int index) {
               return _getNoteItemWidget(snapshot.data![index], context);
