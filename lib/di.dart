@@ -183,6 +183,7 @@ import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
 
 final getIt = GetIt.instance;
 
@@ -321,7 +322,9 @@ Future setup(
 
   getIt.registerFactory<WalletAddressListViewModel>(() =>
       WalletAddressListViewModel(
-          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>()));
+          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>(),
+          fiatConversionStore: getIt.get<FiatConversionStore>()
+      ));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -815,8 +818,8 @@ Future setup(
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
     walletType: getIt.get<AppStore>().wallet!.type));
 
-  getIt.registerFactoryParam<FullscreenQRPage, String, int?>(
-          (String qrData, int? version) => FullscreenQRPage(qrData: qrData, version: version,));
+  getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
+          (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
 
   getIt.registerFactory(() => IoniaApi());
 

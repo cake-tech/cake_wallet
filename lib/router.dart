@@ -2,6 +2,7 @@ import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
@@ -242,7 +243,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.receive:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<ReceivePage>());
+          builder: (_) => getIt.get<ReceivePage>());
 
     case Routes.addressPage:
       return CupertinoPageRoute<void>(
@@ -451,14 +452,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   param1: args));
 
     case Routes.fullscreenQR:
-      final args = settings.arguments as Map<String, dynamic>;
-
       return MaterialPageRoute<void>(
           builder: (_) =>
               getIt.get<FullscreenQRPage>(
-                param1: args['qrData'] as String,
-                param2: args['version'] as int?,
-
+                param1: settings.arguments as QrViewData,
               ));
 
     case Routes.ioniaWelcomePage:
