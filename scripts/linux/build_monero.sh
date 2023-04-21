@@ -5,7 +5,7 @@
 
 MONERO_URL="https://github.com/cake-tech/monero.git"
 MONERO_DIR_PATH="${EXTERNAL_LINUX_SOURCE_DIR}/monero"
-MONERO_VERSION=release-v0.18.0.0
+MONERO_VERSION=release-v0.18.2.2
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_LINUX_DIR}
 DEST_LIB_DIR=${EXTERNAL_LINUX_LIB_DIR}/monero
