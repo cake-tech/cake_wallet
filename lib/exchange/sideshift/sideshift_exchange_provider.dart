@@ -29,9 +29,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     CryptoCurrency.dcr,
     CryptoCurrency.kmd,
     CryptoCurrency.mkr,
-    CryptoCurrency.near,
     CryptoCurrency.oxt,
-    CryptoCurrency.paxg,
     CryptoCurrency.pivx,
     CryptoCurrency.rune,
     CryptoCurrency.rvn,
@@ -300,6 +298,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'usdcsol';
       case CryptoCurrency.maticpoly:
         return 'polygon';
+      case CryptoCurrency.btcln:
+        return 'ln';
       default:
         return currency.title.toLowerCase();
     }

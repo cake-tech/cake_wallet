@@ -22,6 +22,8 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cw_core/set_app_secure_native.dart';
+import 'dart:io' show Platform;
 
 part 'settings_store.g.dart';
 
@@ -34,6 +36,7 @@ abstract class SettingsStoreBase with Store {
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
+      required bool initialAppSecure,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required bool initialUseTOTP2FA,
@@ -61,6 +64,8 @@ abstract class SettingsStoreBase with Store {
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         useTOTP2FA = initialUseTOTP2FA,
+        isAppSecure = initialAppSecure,
+ 
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -123,6 +128,17 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldSaveRecipientAddress,
         (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
+
+    reaction((_) => isAppSecure, (bool isAppSecure) {
+      sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
+      if (Platform.isAndroid) {
+        setIsAppSecureNative(isAppSecure);
+      }
+    });
+
+    if (Platform.isAndroid) {
+      setIsAppSecureNative(isAppSecure);
+    }
 
     reaction(
         (_) => fiatApiMode,
@@ -199,6 +215,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldSaveRecipientAddress;
+
+  @observable
+  bool isAppSecure;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -291,6 +310,8 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
+    final isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -366,6 +387,7 @@ abstract class SettingsStoreBase with Store {
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialAppSecure: isAppSecure,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialUseTOTP2FA: useTOTP2FA,
@@ -414,6 +436,7 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
             allowBiometricalAuthentication;
+    isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??

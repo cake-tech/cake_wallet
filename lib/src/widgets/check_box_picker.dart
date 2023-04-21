@@ -33,62 +33,71 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
   @override
   Widget build(BuildContext context) {
     return AlertBackground(
-      child: Center(
-        child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (widget.title.isNotEmpty)
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      widget.title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(30)),
-                    child: Container(
-                      color: Theme.of(context).accentTextTheme.headline6!.color!,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.65,
-                          maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+      child: Column(
+        children: [
+          Expanded(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    if (widget.title.isNotEmpty)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          widget.title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.none,
+                            color: Colors.white,
+                          ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: <Widget>[
-                                  items.length > 3
-                                      ? Scrollbar(
-                                          controller: controller,
-                                          child: itemsList(),
-                                        )
-                                      : itemsList(),
-                                ],
-                              ),
+                      ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(30)),
+                        child: Container(
+                          color: Theme.of(context).accentTextTheme.headline6!.color!,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: MediaQuery.of(context).size.height * 0.65,
+                              maxWidth: ResponsiveLayoutUtil.kPopupWidth,
                             ),
-                          ],
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: <Widget>[
+                                      items.length > 3
+                                          ? Scrollbar(
+                                              controller: controller,
+                                              child: itemsList(),
+                                            )
+                                          : itemsList(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-            SizedBox(height: ResponsiveLayoutUtil.kPopupSpaceHeight),
-            AlertCloseButton(),
-          ],
-        ),
+                SizedBox(height: ResponsiveLayoutUtil.kPopupSpaceHeight),
+                AlertCloseButton(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -146,7 +155,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
             if (value == null) {
               return;
             }
-            
+
             item.value = value;
             widget.onChanged(index, value);
             setState(() {});

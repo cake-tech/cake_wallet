@@ -9,7 +9,6 @@ dependencies:
   qr_flutter: ^4.0.0
   uuid: 3.0.6
   shared_preferences: ^2.0.15
-  shared_preferences_android: 2.1.0
   flutter_secure_storage:
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
@@ -33,6 +32,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   local_auth: ^2.1.0
+  local_auth_android: 1.0.21
   package_info: ^2.0.0
   #package_info_plus: ^1.4.2
   devicelocale:
