@@ -1,13 +1,16 @@
-Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)Added Fixed Rate for exchanges
-WWEE(enter the "receive" amount on the exchange page to get the fixed rate)Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)
-Changed algorithm for choosing of change address for BTC and LTC electrum wallets
-Changed algorithm for choosing of change address for BTC and LTC electrum wallets
-Keep screen awake while the synchronization function
-Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)
-Changed algorithm for choosing of change address for BTC and LTC electrum wallets
-Changed algorithm for choosing of change address for BTC and LTC electrum wallets
-Keep screen awake while the synchronization function
-Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)
-Changed algorithm for choosing of change address for BTC and LTC electrum wallets
-Changed algorithm for choosing of change address for BTC and LTC electrum wallets
-Keep screen awake while the synchronizatio
+This update includes a HUGE number of usability improvements!
+BTC/LTC coin control enhancements and bugfixes; easily look up Ordinals
+Type a fiat amount in the receive screen
+New Onramper Buy widget
+Easily restore wallets from QR code
+Substantially better reliability for seeing incoming, unconfirmed BTC/LTC transactions
+Pay Bitcoin Lightning invoices in exchange
+Optionally disable the marketplace in display settings
+Better warning messages if trying to exchange outside the min/max limits
+More address flexibility when exchanging the currently-active wallet asset
+Modernized the seed language selection picker
+Adjusted pickers to resize if the keyboard is active
+Improved accessibility
+Click to copy additional fields in the exchange checkout
+Fix padding on some devices
+Bug fixes and code refactoring
