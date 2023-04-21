@@ -47,23 +47,19 @@ const List<String> seedLanguages = [
 enum Places { topLeft, topRight, bottomLeft, bottomRight, inside }
 
 class SeedLanguagePicker extends StatefulWidget {
-  SeedLanguagePicker(
-      {Key? key,
-      this.selected = defaultSeedLanguage,
-      required this.onItemSelected})
+  SeedLanguagePicker({Key? key, this.selected = defaultSeedLanguage, required this.onItemSelected})
       : super(key: key);
 
   final String selected;
   final Function(String) onItemSelected;
 
   @override
-  SeedLanguagePickerState createState() => SeedLanguagePickerState(
-      selected: selected, onItemSelected: onItemSelected);
+  SeedLanguagePickerState createState() =>
+      SeedLanguagePickerState(selected: selected, onItemSelected: onItemSelected);
 }
 
 class SeedLanguagePickerState extends State<SeedLanguagePicker> {
-  SeedLanguagePickerState(
-      {required this.selected, required this.onItemSelected});
+  SeedLanguagePickerState({required this.selected, required this.onItemSelected});
 
   final String selected;
   final Function(String) onItemSelected;

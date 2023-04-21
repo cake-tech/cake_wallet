@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
@@ -11,6 +14,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/router.dart' as Router;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DesktopDashboardPage extends StatelessWidget {
   DesktopDashboardPage({
@@ -107,5 +111,24 @@ class DesktopDashboardPage extends StatelessWidget {
 
       needToPresentYat = true;
     });
+
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final currentAppVersion =
+        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+      await Future<void>.delayed(Duration(seconds: 1));
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return ReleaseNotesScreen(
+                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
+          });
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    } else if (isNewInstall!) {
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
   }
 }

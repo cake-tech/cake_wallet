@@ -1,0 +1,13 @@
+Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)Added Fixed Rate for exchanges
+WWEE(enter the "receive" amount on the exchange page to get the fixed rate)Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)
+Changed algorithm for choosing of change address for BTC and LTC electrum wallets
+Changed algorithm for choosing of change address for BTC and LTC electrum wallets
+Keep screen awake while the synchronization function
+Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)
+Changed algorithm for choosing of change address for BTC and LTC electrum wallets
+Changed algorithm for choosing of change address for BTC and LTC electrum wallets
+Keep screen awake while the synchronization function
+Added Fixed Rate for exchanges (enter the "receive" amount on the exchange page to get the fixed rate)
+Changed algorithm for choosing of change address for BTC and LTC electrum wallets
+Changed algorithm for choosing of change address for BTC and LTC electrum wallets
+Keep screen awake while the synchronizatio

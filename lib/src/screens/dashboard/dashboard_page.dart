@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -22,8 +24,12 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
@@ -117,7 +123,7 @@ class _DashboardPageView extends BasePage {
   @override
   Widget body(BuildContext context) {
     final controller = PageController(initialPage: initialPage);
-    
+
     reaction((_) => dashboardViewModel.shouldShowMarketPlaceInDashboard, (bool value) {
       if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
         controller.jumpToPage(0);
@@ -131,7 +137,7 @@ class _DashboardPageView extends BasePage {
       } else {
         controller.jumpToPage(0);
       }
-    }); 
+    });
     _setEffects(context);
 
     return SafeArea(
@@ -265,6 +271,25 @@ class _DashboardPageView extends BasePage {
           });
       }
     });
+
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final currentAppVersion =
+        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+      await Future<void>.delayed(Duration(seconds: 1));
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return ReleaseNotesScreen(
+                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
+          });
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    } else if (isNewInstall!) {
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
 
     var needToPresentYat = false;
     var isInactive = false;

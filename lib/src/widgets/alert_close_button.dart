@@ -15,20 +15,18 @@ class AlertCloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        bottom: bottom ?? 60,
-        child: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle
-            ),
-            child: Center(
-              child: image ?? closeButton,
-            ),
+      bottom: bottom ?? 60,
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Container(
+          height: 42,
+          width: 42,
+          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+          child: Center(
+            child: image ?? closeButton,
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

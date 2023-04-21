@@ -208,7 +208,7 @@ Future setup(
     required Box<TransactionDescription> transactionDescriptionBox,
     required Box<Order> ordersSource,
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource
+    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
     }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -396,6 +396,7 @@ Future setup(
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
     ));
+
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
     return DesktopSidebarWrapper(
