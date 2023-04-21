@@ -27,8 +27,7 @@ dependencies:
   hive_flutter: ^1.1.0
   local_auth: ^2.1.0
   local_auth_android: 1.0.21
-  package_info: ^2.0.0
-  #package_info_plus: ^1.4.2
+  package_info_plus: ^3.1.0
   devicelocale:
     git:
       url: https://github.com/cake-tech/flutter-devicelocale
