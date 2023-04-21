@@ -272,26 +272,24 @@ class _DashboardPageView extends BasePage {
       }
     });
 
-    autorun((_) async {
-      final sharedPrefs = await SharedPreferences.getInstance();
-      final currentAppVersion =
-      VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
-      final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
-      final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final currentAppVersion =
+        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
 
-      if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
-        await Future<void>.delayed(Duration(seconds: 1));
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return ReleaseNotesScreen(
-                  title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
-            });
-        sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
-      } else if (isNewInstall!) {
-        sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
-      }
-    });
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+      await Future<void>.delayed(Duration(seconds: 1));
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return ReleaseNotesScreen(
+                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
+          });
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    } else if (isNewInstall!) {
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
 
     var needToPresentYat = false;
     var isInactive = false;
