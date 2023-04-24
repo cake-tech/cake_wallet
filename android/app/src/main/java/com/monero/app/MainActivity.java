@@ -23,6 +23,7 @@ import java.security.SecureRandom;
 public class MainActivity extends FlutterFragmentActivity {
     final String UTILS_CHANNEL = "com.cake_wallet/native_utils";
     final int UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK = 24;
+    boolean isAppSecure = false;
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
