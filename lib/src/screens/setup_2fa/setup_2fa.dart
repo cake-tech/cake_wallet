@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 
+import '../../../palette.dart';
 import '../../widgets/standard_list.dart';
 
 class Setup2FAPage extends BasePage {
@@ -27,7 +28,15 @@ class Setup2FAPage extends BasePage {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Important note'),
+                Text(
+                  'Important note',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    height: 1.571,
+                    color: Palette.darkBlueCraiola,
+                  ),
+                ),
                 SizedBox(height: 16),
                 Text(
                   ''' Cake 2FA is NOT as secure as cold storage. 2FA protects against basic '''
@@ -39,6 +48,12 @@ class Setup2FAPage extends BasePage {
                   '''will be able to steal your funds, bypassing Cake 2FA.\n\n'''
                   '''Cake support staff will be unable to assist you if you lose '''
                   '''access to your mnemonic seed, since Cake is a noncustodial wallet.''',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    height: 1.571,
+                    color: Palette.darkBlueCraiola,
+                  ),
                 ),
               ],
             ),

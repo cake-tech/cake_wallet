@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 
+import '../../../palette.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/standard_list.dart';
 
@@ -34,7 +35,15 @@ class Setup2FAQRPage extends BasePage {
       child: Column(
         children: [
           SizedBox(height: 58),
-          Text('Add this secret code to another device'),
+          Text(
+            'Add this secret code to another device',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              height: 1.5714,
+              color: Palette.darkBlueCraiola,
+            ),
+          ),
           SizedBox(height: 10),
           QrImage(
             size: 327,
@@ -50,10 +59,23 @@ class Setup2FAQRPage extends BasePage {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('TOTP Secret Code'),
+                    Text(
+                      'TOTP Secret Code',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Palette.darkGray,
+                        height: 1.8333,
+                      ),
+                    ),
                     SizedBox(height: 8),
                     Text(
                       '${setup2FAViewModel.secretKey}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        height: 1.375,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

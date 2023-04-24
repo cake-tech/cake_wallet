@@ -9,6 +9,8 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/totp_utils.dart' as Utils;
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 
+import '../../../palette.dart';
+
 class Setup2FAEnterCodePage extends BasePage {
   Setup2FAEnterCodePage({required this.setup2FAViewModel, required this.isForSetup})
       : totpController = TextEditingController();
@@ -18,6 +20,8 @@ class Setup2FAEnterCodePage extends BasePage {
   final bool isForSetup;
   @override
   String get title => isForSetup ? 'Set up Cake 2FA' : 'Verify with Cake 2FA';
+
+
 
   @override
   Widget body(BuildContext context) {
@@ -40,6 +44,12 @@ class Setup2FAEnterCodePage extends BasePage {
           SizedBox(height: 16),
           Text(
             'Please fill in the 6-digit code present on your other device',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              height: 1.2,
+              color: Palette.darkGray,
+            ),
             textAlign: TextAlign.center,
           ),
           Spacer(),

@@ -82,7 +82,7 @@ class SecurityBackupPage extends BasePage {
           );
         }),
         SettingsCellWithArrow(
-          title: 'Set up Cake 2FA',
+          title: _securitySettingsViewModel.useTotp2FA ? 'Modify Cake 2FA' : 'Set up Cake 2FA',
           handler: (_) => _authService.authenticateAction(context, route: Routes.setup_2faPage),
         ),
       ]),
