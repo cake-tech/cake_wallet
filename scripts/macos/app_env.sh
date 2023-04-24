@@ -15,7 +15,7 @@ if [ -n "$1" ]; then
 fi
 
 CAKEWALLET_NAME="Cake Wallet"
-CAKEWALLET_VERSION="1.0.3"
+CAKEWALLET_VERSION="1.0.2"
 CAKEWALLET_BUILD_NUMBER=15
 CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
 
