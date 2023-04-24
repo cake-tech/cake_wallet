@@ -48,11 +48,19 @@ public class MainActivity extends FlutterFragmentActivity {
                     handler.post(() -> result.success(bytes));
                     break;
                 case "getUnstoppableDomainAddress":
-                    int  version = Build.VERSION.SDK_INT;
+                    int version = Build.VERSION.SDK_INT;
                     if (version >= UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK) {
                         getUnstoppableDomainAddress(call, result);
                     } else {
                         handler.post(() -> result.success(""));
+                    }
+                    break;
+                case "setIsAppSecure":
+                    isAppSecure = call.argument("isAppSecure");
+                    if (isAppSecure) {
+                        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+                    } else {
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
                     }
                     break;
                 default:
