@@ -581,9 +581,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAQRPage>());
 
     case Routes.setup_2faEnterCodePage:
-      final totp = settings.arguments as String;
+      final args = settings.arguments as bool;
       return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<Setup2FAEnterCodePage>(param1: totp),
+        builder: (_) => getIt.get<Setup2FAEnterCodePage>(param1: args),
       );
 
     default:

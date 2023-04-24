@@ -124,7 +124,11 @@ abstract class AuthViewModelBase with Store {
 
   @action
   Future<void> totp2FAAuth(BuildContext context) async {
-    final response = await Navigator.pushNamed(context, Routes.setup_2faQRPage);
+    final response = await Navigator.pushNamed(
+      context,
+      Routes.setup_2faEnterCodePage,
+      arguments: false,
+    );
     final bool? result = response as bool?;
 
     switch (result) {

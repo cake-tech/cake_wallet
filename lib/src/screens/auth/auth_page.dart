@@ -79,7 +79,14 @@ class AuthPageState extends State<AuthPage> {
       }
     });
 
-    if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
+    if (widget.authViewModel.useTotp2FA) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future<void>.delayed(Duration(milliseconds: 100));
+        await widget.authViewModel.totp2FAAuth(context);
+      });
+    }
+    if (widget.authViewModel.isBiometricalAuthenticationAllowed &&
+        !widget.authViewModel.useTotp2FA) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future<void>.delayed(Duration(milliseconds: 100));
         await widget.authViewModel.biometricAuth();

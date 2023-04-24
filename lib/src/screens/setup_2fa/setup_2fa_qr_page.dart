@@ -5,7 +5,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/totp_utils.dart' as Utils;
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 
 import '../../widgets/primary_button.dart';
@@ -86,10 +85,9 @@ class Setup2FAQRPage extends BasePage {
           Spacer(),
           PrimaryButton(
             onPressed: () {
-              final code = Utils.totpNow(setup2FAViewModel.secretKey);
               Navigator.of(context).pushReplacementNamed(
                 Routes.setup_2faEnterCodePage,
-                arguments: code,
+                arguments: true,
               );
             },
             text: S.of(context).continue_text,

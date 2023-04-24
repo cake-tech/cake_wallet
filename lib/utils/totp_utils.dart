@@ -22,7 +22,7 @@ String generateRandomBase32SecretKey(int byteLength) {
 String generateOTP({required String secretKey, required int input}) {
   /// base32 decode the secret
   var hmacKey = base32.decode(secretKey);
-
+  
   /// initial the HMAC-SHA1 object
   var hmacSha = Hmac(sha1, hmacKey);
 

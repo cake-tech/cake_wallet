@@ -412,11 +412,8 @@ Future setup(
   getIt.registerFactory<Setup2FAQRPage>(
       () => Setup2FAQRPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
 
-  getIt.registerFactoryParam<Setup2FAEnterCodePage, String, void>(
-    (totp, _) => Setup2FAEnterCodePage(
-      setup2FAViewModel: getIt.get<Setup2FAViewModel>(),
-      totp: totp,
-    ),
+  getIt.registerFactoryParam<Setup2FAEnterCodePage, bool, void>((args, _) =>
+      Setup2FAEnterCodePage(setup2FAViewModel: getIt.get<Setup2FAViewModel>(), isForSetup: args)
   );
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(

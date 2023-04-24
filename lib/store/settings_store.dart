@@ -39,6 +39,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialAppSecure,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
       required ExchangeApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
@@ -63,9 +64,9 @@ abstract class SettingsStoreBase with Store {
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+        totpSecretKey = initialTotpSecretKey,
         useTOTP2FA = initialUseTOTP2FA,
         isAppSecure = initialAppSecure,
- 
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -153,8 +154,11 @@ abstract class SettingsStoreBase with Store {
         (bool biometricalAuthentication) => sharedPreferences.setBool(
             PreferencesKey.allowBiometricalAuthenticationKey, biometricalAuthentication));
 
-    reaction((_) => useTOTP2FA,
-        (bool use) => sharedPreferences.setBool(PreferencesKey.useTOTP2FA, useTOTP2FA));
+    reaction(
+        (_) => useTOTP2FA, (bool use) => sharedPreferences.setBool(PreferencesKey.useTOTP2FA, use));
+
+    reaction((_) => totpSecretKey,
+        (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
 
     reaction(
         (_) => shouldShowMarketPlaceInDashboard,
@@ -221,6 +225,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool allowBiometricalAuthentication;
+
+  @observable
+  String totpSecretKey;
 
   @observable
   bool useTOTP2FA;
@@ -316,6 +323,7 @@ abstract class SettingsStoreBase with Store {
             FiatApiMode.enabled.raw);
     final allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
+    final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
@@ -389,6 +397,7 @@ abstract class SettingsStoreBase with Store {
         initialAppSecure: isAppSecure,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialTotpSecretKey: totpSecretKey,
         initialUseTOTP2FA: useTOTP2FA,
         initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
@@ -435,6 +444,7 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
             allowBiometricalAuthentication;
+    totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
     shouldShowMarketPlaceInDashboard =

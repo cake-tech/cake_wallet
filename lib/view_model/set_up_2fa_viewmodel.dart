@@ -15,17 +15,24 @@ abstract class Setup2FAViewModelBase with Store {
     getRandomBase32SecretKey();
   }
 
-  String _randomBase32Key = '';
-  String get secretKey => _randomBase32Key;
+  String get secretKey => _settingsStore.totpSecretKey;
   String get deviceName => _settingsStore.deviceName;
 
   @computed
   bool get useTOTP2FA => _settingsStore.useTOTP2FA;
 
   void getRandomBase32SecretKey() {
-    _randomBase32Key = Utils.generateRandomBase32SecretKey(16);
+    final randomBase32Key = Utils.generateRandomBase32SecretKey(16);
+    setBase32SecretKey(randomBase32Key);
   }
 
   @action
   void setUseTOTP2FA(bool value) => _settingsStore.useTOTP2FA = value;
+
+  @action
+  void setBase32SecretKey(String value) {
+    if (_settingsStore.totpSecretKey == '') {
+      _settingsStore.totpSecretKey = value;
+    }
+  }
 }
