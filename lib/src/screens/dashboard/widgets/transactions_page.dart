@@ -61,7 +61,8 @@ class TransactionsPage extends StatelessWidget {
                                         ? ''
                                         : item.formattedFiatAmount,
                                 isPending: transaction.isPending,
-                                title: item.formattedTitle + item.formattedStatus));
+                                title: item.formattedTitle + item.formattedStatus
+                                    + item.formattedLockedStatus));
                       }
 
                       if (item is AnonpayTransactionListItem) {
