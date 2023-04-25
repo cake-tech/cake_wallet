@@ -1,0 +1,1 @@
+enum WalletRestoreMode { seed, keys, txids }

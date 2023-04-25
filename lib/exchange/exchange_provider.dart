@@ -14,6 +14,7 @@ abstract class ExchangeProvider {
   bool get isAvailable;
   bool get isEnabled;
   bool get supportsFixedRate;
+  bool get supportsOnionAddress => false;
 
   @override
   String toString() => title;

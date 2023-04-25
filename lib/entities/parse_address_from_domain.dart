@@ -25,14 +25,15 @@ class AddressResolver {
     '888',
     'nft',
     'dao',
-    'blockchain'
+    'blockchain',
+    'polygon'
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
     final addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
     if (addressPattern == null) {
-      throw 'Unexpected token: $type for getAddressFromStringPattern';
+      throw Exception('Unexpected token: $type for getAddressFromStringPattern');
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);

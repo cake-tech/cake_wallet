@@ -2,7 +2,6 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -42,9 +41,13 @@ class ConnectionSyncPage extends BasePage {
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          NodeHeaderListRow(
-            title: S.of(context).add_new_node,
-            onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newNode),
+          Semantics(
+            button: true,
+            child: NodeHeaderListRow(
+              title: S.of(context).add_new_node,
+              onTap: (_) async =>
+                  await Navigator.of(context).pushNamed(Routes.newNode),
+            ),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SizedBox(height: 100),
@@ -61,41 +64,49 @@ class ConnectionSyncPage extends BasePage {
                   itemBuilder: (_, sectionIndex, index) {
                     final node = nodeListViewModel.nodes[index];
                     final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
-                    final nodeListRow = NodeListRow(
-                      title: node.uriRaw,
-                      isSelected: isSelected,
-                      isAlive: node.requestNode(),
-                      onTap: (_) async {
-                        if (isSelected) {
-                          return;
-                        }
+                    final nodeListRow = Semantics(
+                      label: 'Slidable',
+                      selected: isSelected,
+                      enabled: !isSelected,
+                      child: NodeListRow(
+                        title: node.uriRaw,
+                        isSelected: isSelected,
+                        isAlive: node.requestNode(),
+                        onTap: (_) async {
+                          if (isSelected) {
+                            return;
+                          }
 
-                        await showPopUp<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertWithTwoActions(
-                                alertTitle: S.of(context).change_current_node_title,
-                                alertContent: nodeListViewModel.getAlertContent(node.uriRaw),
-                                leftButtonText: S.of(context).cancel,
-                                rightButtonText: S.of(context).change,
-                                actionLeftButton: () => Navigator.of(context).pop(),
-                                actionRightButton: () async {
-                                  await nodeListViewModel.setAsCurrent(node);
-                                  Navigator.of(context).pop();
-                                },
-                              );
-                            });
-                      },
+                          await showPopUp<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertWithTwoActions(
+                                  alertTitle:
+                                      S.of(context).change_current_node_title,
+                                  alertContent: nodeListViewModel
+                                      .getAlertContent(node.uriRaw),
+                                  leftButtonText: S.of(context).cancel,
+                                  rightButtonText: S.of(context).change,
+                                  actionLeftButton: () =>
+                                      Navigator.of(context).pop(),
+                                  actionRightButton: () async {
+                                    await nodeListViewModel.setAsCurrent(node);
+                                    Navigator.of(context).pop();
+                                  },
+                                );
+                              });
+                        },
+                      ),
                     );
 
                     final dismissibleRow = Slidable(
                       key: Key('${node.keyIndex}'),
-                      startActionPane: _actionPane(context, node),
-                      endActionPane: _actionPane(context, node),
+                      startActionPane: _actionPane(context, node, isSelected),
+                      endActionPane: _actionPane(context, node, isSelected),
                       child: nodeListRow,
                     );
 
-                    return isSelected ? nodeListRow : dismissibleRow;
+                    return dismissibleRow;
                   },
                 ),
               );
@@ -124,33 +135,42 @@ class ConnectionSyncPage extends BasePage {
     );
   }
 
-  ActionPane _actionPane(BuildContext context, Node node) => ActionPane(
+  ActionPane _actionPane(BuildContext context, Node node, bool isSelected) => ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: 0.3,
+        extentRatio: isSelected ? 0.3 : 0.6,
         children: [
-          SlidableAction(
-            onPressed: (context) async {
-              final confirmed = await showPopUp<bool>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertWithTwoActions(
-                            alertTitle: S.of(context).remove_node,
-                            alertContent: S.of(context).remove_node_message,
-                            rightButtonText: S.of(context).remove,
-                            leftButtonText: S.of(context).cancel,
-                            actionRightButton: () => Navigator.pop(context, true),
-                            actionLeftButton: () => Navigator.pop(context, false));
-                      }) ??
-                  false;
+          if (!isSelected)
+            SlidableAction(
+              onPressed: (context) async {
+                final confirmed = await showPopUp<bool>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertWithTwoActions(
+                              alertTitle: S.of(context).remove_node,
+                              alertContent: S.of(context).remove_node_message,
+                              rightButtonText: S.of(context).remove,
+                              leftButtonText: S.of(context).cancel,
+                              actionRightButton: () => Navigator.pop(context, true),
+                              actionLeftButton: () => Navigator.pop(context, false));
+                        }) ??
+                    false;
 
-              if (confirmed) {
-                await nodeListViewModel.delete(node);
-              }
-            },
-            backgroundColor: Colors.red,
+                if (confirmed) {
+                  await nodeListViewModel.delete(node);
+                }
+              },
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: CupertinoIcons.delete,
+              label: S.of(context).delete,
+            ),
+          SlidableAction(
+            onPressed: (_) => Navigator.of(context).pushNamed(Routes.newNode,
+                arguments: {'editingNode': node, 'isSelected': isSelected}),
+            backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
+            icon: Icons.edit,
+            label: S.of(context).edit,
           ),
         ],
       );

@@ -24,10 +24,6 @@ class ContactListPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    if (!contactListViewModel.isEditable) {
-      return null;
-    }
-
     return Container(
         width: 32.0,
         height: 32.0,
@@ -124,6 +120,7 @@ class ContactListPage extends BasePage {
         if (isCopied) {
           await Clipboard.setData(ClipboardData(text: contact.address));
           await showBar<void>(context, S.of(context).copied_to_clipboard);
+         
         }
       },
       child: Container(

@@ -32,12 +32,12 @@ class PickerItemWidget extends StatelessWidget {
                   width: 20.0,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 12),
               Expanded(
                 child: Row(
                   children: [
                     Text(
-                      title,
+                      title.toUpperCase(),
                       style: TextStyle(
                         color: isSelected ? Palette.blueCraiola : Theme.of(context).primaryTextTheme!.headline6!.color!,
                         fontSize: isSelected ? 16 : 14.0,

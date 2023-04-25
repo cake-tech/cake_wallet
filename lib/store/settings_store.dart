@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -18,6 +19,8 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cw_core/set_app_secure_native.dart';
+import 'dart:io' show Platform;
 
 part 'settings_store.g.dart';
 
@@ -26,12 +29,14 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {required SharedPreferences sharedPreferences,
+      required bool initialShouldShowMarketPlaceInDashboard,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
+      required bool initialAppSecure,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
-      required bool initialExchangeEnabled,
+      required ExchangeApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
@@ -51,9 +56,11 @@ abstract class SettingsStoreBase with Store {
     fiatCurrency = initialFiatCurrency,
     balanceDisplayMode = initialBalanceDisplayMode,
     shouldSaveRecipientAddress = initialSaveRecipientAddress,
+        isAppSecure = initialAppSecure,
     fiatApiMode = initialFiatMode,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
-    disableExchange = initialExchangeEnabled,
+        shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
+    exchangeStatus = initialExchangeStatus,
     currentTheme = initialTheme,
     pinCodeLength = initialPinLength,
     languageCode = initialLanguageCode,
@@ -116,6 +123,17 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.shouldSaveRecipientAddressKey,
             shouldSaveRecipientAddress));
 
+    reaction((_) => isAppSecure, (bool isAppSecure) {
+      sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
+      if (Platform.isAndroid) {
+        setIsAppSecureNative(isAppSecure);
+      }
+    });
+
+    if (Platform.isAndroid) {
+      setIsAppSecureNative(isAppSecure);
+    }
+
     reaction(
             (_) => fiatApiMode,
             (FiatApiMode mode) => sharedPreferences.setInt(
@@ -131,6 +149,11 @@ abstract class SettingsStoreBase with Store {
         (bool biometricalAuthentication) => sharedPreferences.setBool(
             PreferencesKey.allowBiometricalAuthenticationKey,
             biometricalAuthentication));
+
+    reaction(
+        (_) => shouldShowMarketPlaceInDashboard,
+        (bool value) =>
+            sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
 
     reaction(
         (_) => pinCodeLength,
@@ -153,9 +176,9 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
     reaction(
-            (_) => disableExchange,
-            (bool disableExchange) => sharedPreferences.setBool(
-            PreferencesKey.disableExchangeKey, disableExchange));
+            (_) => exchangeStatus,
+            (ExchangeApiMode mode) => sharedPreferences.setInt(
+            PreferencesKey.exchangeStatusKey, mode.serialize()));
 
     this
         .nodes
@@ -177,6 +200,9 @@ abstract class SettingsStoreBase with Store {
   bool shouldShowYatPopup;
 
   @observable
+  bool shouldShowMarketPlaceInDashboard;
+
+  @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
 
   @observable
@@ -189,10 +215,13 @@ abstract class SettingsStoreBase with Store {
   bool shouldSaveRecipientAddress;
 
   @observable
+  bool isAppSecure;
+
+  @observable
   bool allowBiometricalAuthentication;
 
   @observable
-  bool disableExchange;
+  ExchangeApiMode exchangeStatus;
 
   @observable
   ThemeBase currentTheme;
@@ -240,8 +269,8 @@ abstract class SettingsStoreBase with Store {
       {required Box<Node> nodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      BalanceDisplayMode initialBalanceDisplayMode =
-          BalanceDisplayMode.availableBalance}) async {
+      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
+      ThemeBase? initialTheme}) async {
 
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final currentFiatCurrency = FiatCurrency.deserialize(raw:
@@ -278,19 +307,24 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
+    final isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences
             .getInt(PreferencesKey.currentFiatApiModeKey) ?? FiatApiMode.enabled.raw);
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
-    final disableExchange = sharedPreferences
-            .getBool(PreferencesKey.disableExchangeKey) ?? false;
+    final shouldShowMarketPlaceInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
+    final exchangeStatus = ExchangeApiMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.exchangeStatusKey) ?? ExchangeApiMode.enabled.raw);
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
             : ThemeType.bright.index;
-    final savedTheme = ThemeList.deserialize(
+    final savedTheme = initialTheme ?? ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
             legacyTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
@@ -302,7 +336,7 @@ abstract class SettingsStoreBase with Store {
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
-    
+
     // If no value
     if (pinLength == null || pinLength == 0) {
       pinLength = defaultPinLength;
@@ -346,15 +380,17 @@ abstract class SettingsStoreBase with Store {
 
     return SettingsStore(
         sharedPreferences: sharedPreferences,
+        initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
         appVersion: packageInfo.version,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialAppSecure: isAppSecure,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-        initialExchangeEnabled: disableExchange,
+        initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
@@ -397,10 +433,17 @@ abstract class SettingsStoreBase with Store {
             .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
+    isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
-    disableExchange = sharedPreferences.getBool(PreferencesKey.disableExchangeKey) ?? disableExchange;
+    shouldShowMarketPlaceInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
+            shouldShowMarketPlaceInDashboard;
+    exchangeStatus = ExchangeApiMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.exchangeStatusKey) ?? ExchangeApiMode.enabled.raw);
     final legacyTheme =
         (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index

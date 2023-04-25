@@ -12,7 +12,8 @@ abstract class TradeFilterStoreBase with Store {
         displayChangeNow = true,
         displaySideShift = true,
         displayMorphToken = true,
-        displaySimpleSwap = true;
+        displaySimpleSwap = true,
+        displayTrocador = true;
 
   @observable
   bool displayXMRTO;
@@ -29,8 +30,11 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displaySimpleSwap;
 
+  @observable
+  bool displayTrocador;
+
   @computed
-  bool get displayAllTrades => displayChangeNow && displaySideShift && displaySimpleSwap;
+  bool get displayAllTrades => displayChangeNow && displaySideShift && displaySimpleSwap && displayTrocador;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -50,6 +54,9 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.morphToken:
         displayMorphToken = !displayMorphToken;
         break;
+      case ExchangeProviderDescription.trocador:
+        displayTrocador = !displayTrocador;
+        break; 
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -57,12 +64,14 @@ abstract class TradeFilterStoreBase with Store {
           displayXMRTO = false;
           displayMorphToken = false;
           displaySimpleSwap = false;
+          displayTrocador = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
           displayXMRTO = true;
           displayMorphToken = true;
           displaySimpleSwap = true;
+          displayTrocador = true;
         }
         break;
     }
@@ -88,7 +97,8 @@ abstract class TradeFilterStoreBase with Store {
                 ExchangeProviderDescription.morphToken)
         ||(displaySimpleSwap &&
             item.trade.provider ==
-                ExchangeProviderDescription.simpleSwap))
+                ExchangeProviderDescription.simpleSwap)
+        ||(displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador))
         .toList()
         : _trades;
   }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
@@ -26,7 +27,8 @@ abstract class SendTemplateViewModelBase with Store {
 
   Output output;
 
-  Validator get amountValidator => AmountValidator(type: _wallet.type);
+  Validator get amountValidator =>
+      AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
   Validator get addressValidator => AddressValidator(type: _wallet.currency);
 
