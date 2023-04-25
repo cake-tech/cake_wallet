@@ -115,10 +115,6 @@ class ExchangePage extends BasePage {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
-    if (exchangeViewModel.isLowFee) {
-      _showFeeAlert(context);
-    }
-
     return KeyboardActions(
         disableScroll: true,
         config: KeyboardActionsConfig(
@@ -317,6 +313,10 @@ class ExchangePage extends BasePage {
       BuildContext context, ExchangeViewModel exchangeViewModel) {
     if (_isReactionsSet) {
       return;
+    }
+
+     if (exchangeViewModel.isLowFee) {
+      _showFeeAlert(context);
     }
 
     final depositAddressController = depositKey.currentState!.addressController;

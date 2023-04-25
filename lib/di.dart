@@ -58,6 +58,8 @@ import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
+import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
@@ -188,6 +190,7 @@ import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
 
 final getIt = GetIt.instance;
 
@@ -213,7 +216,8 @@ Future setup(
     required Box<TransactionDescription> transactionDescriptionBox,
     required Box<Order> ordersSource,
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource}) async {
+    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
+    }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _contactSource = contactSource;
@@ -314,8 +318,18 @@ Future setup(
         type: type, language: language);
   });
 
+  getIt
+      .registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
+    return WalletRestorationFromQRVM(getIt.get<AppStore>(),
+        getIt.get<WalletCreationService>(param1: type),
+        _walletInfoSource, type);
+  });
+
   getIt.registerFactory<WalletAddressListViewModel>(() =>
-      WalletAddressListViewModel(appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>()));
+      WalletAddressListViewModel(
+          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>(),
+          fiatConversionStore: getIt.get<FiatConversionStore>()
+      ));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -383,10 +397,11 @@ Future setup(
       settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
-        balancePage: getIt.get<BalancePage>(),
-        dashboardViewModel: getIt.get<DashboardViewModel>(),
-        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-      ));
+      balancePage: getIt.get<BalancePage>(),
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+    ));
+
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
     return DesktopSidebarWrapper(
@@ -726,7 +741,9 @@ Future setup(
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
-  getIt.registerFactory(() => RestoreOptionsPage());
+  getIt.registerFactoryParam<RestoreOptionsPage, bool, void>((bool isNewInstall, _) =>
+              RestoreOptionsPage(isNewInstall: isNewInstall));
+
 
   getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupService>()));
 
@@ -798,11 +815,8 @@ Future setup(
   getIt.registerFactory(() => AddressResolver(
       yatService: getIt.get<YatService>(), walletType: getIt.get<AppStore>().wallet!.type));
 
-  getIt.registerFactoryParam<FullscreenQRPage, String, int?>(
-      (String qrData, int? version) => FullscreenQRPage(
-            qrData: qrData,
-            version: version,
-          ));
+  getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
+          (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
 
   getIt.registerFactory(() => IoniaApi());
 

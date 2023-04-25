@@ -43,8 +43,7 @@ abstract class DashboardViewModelBase with Store {
       required this.settingsStore,
       required this.yatStore,
       required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      })
+      required this.anonpayTransactionsStore})
   : isOutdatedElectrumWallet = false,
     hasSellAction = false,
     isEnabledSellAction = false,

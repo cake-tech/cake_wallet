@@ -21,6 +21,7 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)

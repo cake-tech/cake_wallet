@@ -21,16 +21,28 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ReceivePage extends BasePage {
-  ReceivePage({required this.addressListViewModel}) : _cryptoAmountFocus = FocusNode();
+  ReceivePage({required this.addressListViewModel})
+      : _cryptoAmountFocus = FocusNode(),
+        _amountController = TextEditingController(),
+        _formKey = GlobalKey<FormState>() {
+    _amountController.addListener(() {
+      if (_formKey.currentState!.validate()) {
+        addressListViewModel.changeAmount(_amountController.text);
+      }
+    });
+  }
 
   final WalletAddressListViewModel addressListViewModel;
+  final TextEditingController _amountController;
+  final GlobalKey<FormState> _formKey;
+  static const _heroTag = 'receive_page';
 
   @override
   String get title => S.current.receive;
 
   @override
-  Color get backgroundLightColor => currentTheme.type == ThemeType.bright
-      ? Colors.transparent : Colors.white;
+  Color get backgroundLightColor =>
+      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
 
   @override
   Color get backgroundDarkColor => Colors.transparent;
@@ -68,162 +80,153 @@ class ReceivePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final shareImage =
-        Image.asset('assets/images/share.png',
-            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
-
     return Material(
         color: Colors.transparent,
         child: Semantics(
           label: 'Share',
           child: IconButton(
-              padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              iconSize: 25,
-              onPressed: () {
-                ShareUtil.share(
-                  text: addressListViewModel.address.address,
-                  context: context,
-                );
-              },
-              icon: shareImage
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            iconSize: 25,
+            onPressed: () {
+              ShareUtil.share(
+                text: addressListViewModel.uri.toString(),
+                context: context,
+              );
+            },
+            icon: Icon(
+              Icons.share,
+              size: 20,
+              color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+            ),
           ),
-        )
-    );
+        ));
   }
 
   @override
   Widget body(BuildContext context) {
-    return (addressListViewModel.type == WalletType.monero || addressListViewModel.type == WalletType.haven)
+    return (addressListViewModel.type == WalletType.monero ||
+            addressListViewModel.type == WalletType.haven)
         ? KeyboardActions(
-        config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!
-                .backgroundColor!,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _cryptoAmountFocus,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
-              )
-            ]),
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.fromLTRB(24, 80, 24, 24),
-                child: QRWidget(
-                    addressListViewModel: addressListViewModel,
-                    isAmountFieldShow: true,
-                    amountTextFieldFocusNode: _cryptoAmountFocus,
-                    isLight: currentTheme.type == ThemeType.light),
+            config: KeyboardActionsConfig(
+                keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+                keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+                nextFocus: false,
+                actions: [
+                  KeyboardActionsItem(
+                    focusNode: _cryptoAmountFocus,
+                    toolbarButtons: [(_) => KeyboardDoneButton()],
+                  )
+                ]),
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
+                    child: QRWidget(
+                        addressListViewModel: addressListViewModel,
+                        formKey: _formKey,
+                        heroTag: _heroTag,
+                        amountTextFieldFocusNode: _cryptoAmountFocus,
+                        amountController: _amountController,
+                        isLight: currentTheme.type == ThemeType.light),
+                  ),
+                  Observer(
+                      builder: (_) => ListView.separated(
+                          padding: EdgeInsets.all(0),
+                          separatorBuilder: (context, _) => const SectionDivider(),
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: addressListViewModel.items.length,
+                          itemBuilder: (context, index) {
+                            final item = addressListViewModel.items[index];
+                            Widget cell = Container();
+
+                            if (item is WalletAccountListHeader) {
+                              cell = HeaderTile(
+                                  onTap: () async => await showPopUp<void>(
+                                      context: context,
+                                      builder: (_) => getIt.get<MoneroAccountListPage>()),
+                                  title: S.of(context).accounts,
+                                  icon: Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 14,
+                                    color: Theme.of(context).textTheme!.headline4!.color!,
+                                  ));
+                            }
+
+                            if (item is WalletAddressListHeader) {
+                              cell = HeaderTile(
+                                  onTap: () =>
+                                      Navigator.of(context).pushNamed(Routes.newSubaddress),
+                                  title: S.of(context).addresses,
+                                  icon: Icon(
+                                    Icons.add,
+                                    size: 20,
+                                    color: Theme.of(context).textTheme!.headline4!.color!,
+                                  ));
+                            }
+
+                            if (item is WalletAddressListItem) {
+                              cell = Observer(builder: (_) {
+                                final isCurrent =
+                                    item.address == addressListViewModel.address.address;
+                                final backgroundColor = isCurrent
+                                    ? Theme.of(context).textTheme!.headline2!.decorationColor!
+                                    : Theme.of(context).textTheme!.headline3!.decorationColor!;
+                                final textColor = isCurrent
+                                    ? Theme.of(context).textTheme!.headline2!.color!
+                                    : Theme.of(context).textTheme!.headline3!.color!;
+
+                                return AddressCell.fromItem(item,
+                                    isCurrent: isCurrent,
+                                    backgroundColor: backgroundColor,
+                                    textColor: textColor,
+                                    onTap: (_) => addressListViewModel.setAddress(item),
+                                    onEdit: () => Navigator.of(context)
+                                        .pushNamed(Routes.newSubaddress, arguments: item));
+                              });
+                            }
+
+                            return index != 0
+                                ? cell
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(30),
+                                        topRight: Radius.circular(30)),
+                                    child: cell,
+                                  );
+                          })),
+                ],
               ),
-              Observer(
-                  builder: (_) => ListView.separated(
-                      padding: EdgeInsets.all(0),
-                      separatorBuilder: (context, _) => const SectionDivider(),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: addressListViewModel.items.length,
-                      itemBuilder: (context, index) {
-                        final item = addressListViewModel.items[index];
-                        Widget cell = Container();
-
-                        if (item is WalletAccountListHeader) {
-                          cell = HeaderTile(
-                              onTap: () async => await showPopUp<void>(
-                                  context: context,
-                                  builder: (_) =>
-                                      getIt.get<MoneroAccountListPage>()),
-                              title: S.of(context).accounts,
-                              icon: Icon(
-                                Icons.arrow_forward_ios,
-                                size: 14,
-                                color:
-                                Theme.of(context).textTheme!.headline4!.color!,
-                              ));
-                        }
-
-                        if (item is WalletAddressListHeader) {
-                          cell = HeaderTile(
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(Routes.newSubaddress),
-                              title: S.of(context).addresses,
-                              icon: Icon(
-                                Icons.add,
-                                size: 20,
-                                color:
-                                Theme.of(context).textTheme!.headline4!.color!,
-                              ));
-                        }
-
-                        if (item is WalletAddressListItem) {
-                          cell = Observer(builder: (_) {
-                            final isCurrent = item.address ==
-                                addressListViewModel.address.address;
-                            final backgroundColor = isCurrent
-                                ? Theme.of(context)
-                                .textTheme!
-                                .headline2!
-                                .decorationColor!
-                                : Theme.of(context)
-                                .textTheme!
-                                .headline3!
-                                .decorationColor!;
-                            final textColor = isCurrent
-                                ? Theme.of(context).textTheme!.headline2!.color!
-                                : Theme.of(context).textTheme!.headline3!.color!;
-
-                            return AddressCell.fromItem(item,
-                                isCurrent: isCurrent,
-                                backgroundColor: backgroundColor,
-                                textColor: textColor,
-                                onTap: (_) => addressListViewModel.setAddress(item),
-                                onEdit: () => Navigator.of(context).pushNamed(
-                                    Routes.newSubaddress,
-                                    arguments: item));
-                          });
-                        }
-
-                        return index != 0
-                            ? cell
-                            : ClipRRect(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30)),
-                          child: cell,
-                        );
-                      })),
-            ],
-          ),
-        )) : Padding(
-      padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 7,
-            child: QRWidget(
-                addressListViewModel: addressListViewModel,
-                isAmountFieldShow: true,
-                amountTextFieldFocusNode: _cryptoAmountFocus,
-                isLight: currentTheme.type == ThemeType.light),
-          ),
-          Expanded(
-            flex: 2,
-            child: SizedBox(),
-          ),
-          Text(S.of(context).electrum_address_disclaimer,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 15,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .headline3!
-                      .backgroundColor!)),
-        ],
-      ),
-    );
+            ))
+        : Padding(
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 7,
+                  child: QRWidget(
+                      formKey: _formKey,
+                      heroTag: _heroTag,
+                      addressListViewModel: addressListViewModel,
+                      amountTextFieldFocusNode: _cryptoAmountFocus,
+                      amountController: _amountController,
+                      isLight: currentTheme.type == ThemeType.light),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(),
+                ),
+                Text(S.of(context).electrum_address_disclaimer,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).accentTextTheme!.headline3!.backgroundColor!)),
+              ],
+            ),
+          );
   }
 }
