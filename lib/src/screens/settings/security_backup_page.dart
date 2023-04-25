@@ -24,68 +24,76 @@ class SecurityBackupPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 10),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        SettingsCellWithArrow(
-          title: S.current.show_keys,
-          handler: (_) => _authService.authenticateAction(context, route: Routes.showKeys),
-        ),
-        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        SettingsCellWithArrow(
-          title: S.current.create_backup,
-          handler: (_) => _authService.authenticateAction(context, route: Routes.backup),
-        ),
-        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        SettingsCellWithArrow(
-          title: S.current.settings_change_pin,
-          handler: (_) => _authService.authenticateAction(
-            context,
-            route: Routes.setupPin,
-            arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
-              setupPinContext.close();
-            },
+    return Observer(builder: (context) {
+      return Container(
+        padding: EdgeInsets.only(top: 10),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          SettingsCellWithArrow(
+            title: S.current.show_keys,
+            handler: (_) => _authService.authenticateAction(context, route: Routes.showKeys),
           ),
-        ),
-        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        Observer(builder: (_) {
-          return SettingsSwitcherCell(
-              title: S.current.settings_allow_biometrical_authentication,
-              value: _securitySettingsViewModel.allowBiometricalAuthentication,
-              onValueChange: (BuildContext context, bool value) {
-                if (value) {
-                  _authService.authenticateAction(context,
-                      onAuthSuccess: (isAuthenticatedSuccessfully) async {
-                    if (isAuthenticatedSuccessfully) {
-                      if (await _securitySettingsViewModel.biometricAuthenticated()) {
+          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          SettingsCellWithArrow(
+            title: S.current.create_backup,
+            handler: (_) => _authService.authenticateAction(context, route: Routes.backup),
+          ),
+          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          SettingsCellWithArrow(
+            title: S.current.settings_change_pin,
+            handler: (_) => _authService.authenticateAction(
+              context,
+              route: Routes.setupPin,
+              arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                setupPinContext.close();
+              },
+            ),
+          ),
+          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          Observer(builder: (_) {
+            return SettingsSwitcherCell(
+                title: S.current.settings_allow_biometrical_authentication,
+                value: _securitySettingsViewModel.allowBiometricalAuthentication,
+                onValueChange: (BuildContext context, bool value) {
+                  if (value) {
+                    _authService.authenticateAction(context,
+                        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                      if (isAuthenticatedSuccessfully) {
+                        if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                          _securitySettingsViewModel
+                              .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                        }
+                      } else {
                         _securitySettingsViewModel
                             .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                       }
-                    } else {
-                      _securitySettingsViewModel
-                          .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
-                    }
-                  });
-                } else {
-                  _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
-                }
-              });
-        }),
-        Observer(builder: (_) {
-          return SettingsPickerCell<PinCodeRequiredDuration>(
-            title: S.current.require_pin_after,
-            items: PinCodeRequiredDuration.values,
-            selectedItem: _securitySettingsViewModel.pinCodeRequiredDuration,
-            onItemSelected: (PinCodeRequiredDuration code) {
-              _securitySettingsViewModel.setPinCodeRequiredDuration(code);
-            },
-          );
-        }),
-        SettingsCellWithArrow(
-          title: _securitySettingsViewModel.useTotp2FA ? 'Modify Cake 2FA' : 'Set up Cake 2FA',
-          handler: (_) => _authService.authenticateAction(context, route: Routes.setup_2faPage),
-        ),
-      ]),
+                    });
+                  } else {
+                    _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
+                  }
+                });
+          }),
+          Observer(builder: (_) {
+            return SettingsPickerCell<PinCodeRequiredDuration>(
+              title: S.current.require_pin_after,
+              items: PinCodeRequiredDuration.values,
+              selectedItem: _securitySettingsViewModel.pinCodeRequiredDuration,
+              onItemSelected: (PinCodeRequiredDuration code) {
+                _securitySettingsViewModel.setPinCodeRequiredDuration(code);
+              },
+            );
+          }),
+          SettingsCellWithArrow(
+            title: _securitySettingsViewModel.useTotp2FA ? 'Modify Cake 2FA' : 'Set up Cake 2FA',
+            handler: (_) => _authService.authenticateAction(
+              context,
+              route: _securitySettingsViewModel.useTotp2FA
+                  ? Routes.modify2FAPage
+                  : Routes.setup_2faPage,
+            ),
+          ),
+        ]),
+      );
+    }
     );
   }
 }

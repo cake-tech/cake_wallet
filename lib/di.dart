@@ -27,6 +27,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -413,8 +414,11 @@ Future setup(
       () => Setup2FAQRPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
 
   getIt.registerFactoryParam<Setup2FAEnterCodePage, bool, void>((args, _) =>
-      Setup2FAEnterCodePage(setup2FAViewModel: getIt.get<Setup2FAViewModel>(), isForSetup: args)
+      Setup2FAEnterCodePage(setup2FAViewModel: getIt.get<Setup2FAViewModel>(), isForSetup: args)  
   );
+
+  getIt.registerFactory<Modify2FAPage>(
+      () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));

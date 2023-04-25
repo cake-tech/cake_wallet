@@ -35,4 +35,9 @@ abstract class Setup2FAViewModelBase with Store {
       _settingsStore.totpSecretKey = value;
     }
   }
+
+  @action
+  void clearBase32SecretKey() {
+    _settingsStore.totpSecretKey = '';
+  }
 }

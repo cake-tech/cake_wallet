@@ -21,6 +21,7 @@ class AuthService with Store {
     Routes.backup,
     Routes.setupPin,
     Routes.setup_2faPage,
+    Routes.modify2FAPage,
   ];
 
   final FlutterSecureStorage secureStorage;
