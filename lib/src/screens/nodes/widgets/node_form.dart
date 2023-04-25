@@ -7,54 +7,26 @@ import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:mobx/mobx.dart';
 
 class NodeForm extends StatelessWidget {
   NodeForm({
     required this.nodeViewModel,
     required this.formKey,
     this.editingNode,
-  })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
-        _portController = TextEditingController(text: editingNode?.uri.port.toString()),
-        _loginController = TextEditingController(text: editingNode?.login),
-        _passwordController = TextEditingController(text: editingNode?.password) {
-    if (editingNode != null) {
-      nodeViewModel
-        ..setAddress((editingNode!.uri.host.toString()))
-        ..setPort((editingNode!.uri.port.toString()))
-        ..setPassword((editingNode!.password ?? ''))
-        ..setLogin((editingNode!.login ?? ''))
-        ..setSSL((editingNode!.isSSL))
-        ..setTrusted((editingNode!.trusted));
-    }
-    if (nodeViewModel.hasAuthCredentials) {
-      reaction((_) => nodeViewModel.login, (String login) {
-        if (login != _loginController.text) {
-          _loginController.text = login;
-        }
-      });
-
-      reaction((_) => nodeViewModel.password, (String password) {
-        if (password != _passwordController.text) {
-          _passwordController.text = password;
-        }
-      });
-    }
-
-    _addressController.addListener(() => nodeViewModel.address = _addressController.text);
-    _portController.addListener(() => nodeViewModel.port = _portController.text);
-    _loginController.addListener(() => nodeViewModel.login = _loginController.text);
-    _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
-  }
+    required this.addressController,
+    required this.portController,
+    required this.loginController,
+    required this.passwordController,
+  });
 
   final NodeCreateOrEditViewModel nodeViewModel;
   final GlobalKey<FormState> formKey;
   final Node? editingNode;
 
-  final TextEditingController _addressController;
-  final TextEditingController _portController;
-  final TextEditingController _loginController;
-  final TextEditingController _passwordController;
+  final TextEditingController addressController;
+  final TextEditingController portController;
+  final TextEditingController loginController;
+  final TextEditingController passwordController;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +38,7 @@ class NodeForm extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: BaseTextFormField(
-                  controller: _addressController,
+                  controller: addressController,
                   hintText: S.of(context).node_address,
                   validator: NodeAddressValidator(),
                 ),
@@ -78,7 +50,7 @@ class NodeForm extends StatelessWidget {
             children: <Widget>[
               Expanded(
                   child: BaseTextFormField(
-                controller: _portController,
+                controller: portController,
                 hintText: S.of(context).node_port,
                 keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
                 validator: NodePortValidator(),
@@ -91,7 +63,7 @@ class NodeForm extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                     child: BaseTextFormField(
-                  controller: _loginController,
+                  controller: loginController,
                   hintText: S.of(context).login,
                 ))
               ],
@@ -101,7 +73,7 @@ class NodeForm extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                     child: BaseTextFormField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   hintText: S.of(context).password,
                 ))
               ],

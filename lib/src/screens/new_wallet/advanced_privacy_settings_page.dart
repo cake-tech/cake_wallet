@@ -12,9 +12,50 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:mobx/mobx.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
-  AdvancedPrivacySettingsPage(this.advancedPrivacySettingsViewModel, this.nodeViewModel);
+  AdvancedPrivacySettingsPage(this.advancedPrivacySettingsViewModel, this.nodeViewModel)
+      : _addressController = TextEditingController(),
+        _portController = TextEditingController(),
+        _loginController = TextEditingController(),
+        _passwordController = TextEditingController() {
+    reaction((_) => nodeViewModel.address, (String address) {
+      if (address != _addressController.text) {
+        _addressController.text = address;
+      }
+    });
+
+    reaction((_) => nodeViewModel.port, (String port) {
+      if (port != _portController.text) {
+        _portController.text = port;
+      }
+    });
+
+    if (nodeViewModel.hasAuthCredentials) {
+      reaction((_) => nodeViewModel.login, (String login) {
+        if (login != _loginController.text) {
+          _loginController.text = login;
+        }
+      });
+
+      reaction((_) => nodeViewModel.password, (String password) {
+        if (password != _passwordController.text) {
+          _passwordController.text = password;
+        }
+      });
+    }
+
+    _addressController.addListener(() => nodeViewModel.address = _addressController.text);
+    _portController.addListener(() => nodeViewModel.port = _portController.text);
+    _loginController.addListener(() => nodeViewModel.login = _loginController.text);
+    _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
+  }
+
+  final TextEditingController _addressController;
+  final TextEditingController _portController;
+  final TextEditingController _loginController;
+  final TextEditingController _passwordController;
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
@@ -23,14 +64,30 @@ class AdvancedPrivacySettingsPage extends BasePage {
   String get title => S.current.privacy_settings;
 
   @override
-  Widget body(BuildContext context) =>
-      AdvancedPrivacySettingsBody(advancedPrivacySettingsViewModel, nodeViewModel);
+  Widget body(BuildContext context) => AdvancedPrivacySettingsBody(
+        privacySettingsViewModel: advancedPrivacySettingsViewModel,
+        nodeViewModel: nodeViewModel,
+        addressController: _addressController,
+        portController: _portController,
+        loginController: _loginController,
+        passwordController: _passwordController,
+      );
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
-  const AdvancedPrivacySettingsBody(this.privacySettingsViewModel, this.nodeViewModel, {Key? key})
-      : super(key: key);
+  AdvancedPrivacySettingsBody({
+    required this.privacySettingsViewModel,
+    required this.nodeViewModel,
+    required this.addressController,
+    required this.portController,
+    required this.loginController,
+    required this.passwordController,
+  });
 
+  final TextEditingController addressController;
+  final TextEditingController portController;
+  final TextEditingController loginController;
+  final TextEditingController passwordController;
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
 
@@ -88,6 +145,10 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       child: NodeForm(
                         formKey: _formKey,
                         nodeViewModel: widget.nodeViewModel,
+                        addressController: widget.addressController,
+                        portController: widget.portController,
+                        loginController: widget.loginController,
+                        passwordController: widget.passwordController,
                       ),
                     )
                 ],
