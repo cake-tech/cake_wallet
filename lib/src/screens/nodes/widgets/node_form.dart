@@ -9,65 +9,57 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:mobx/mobx.dart';
 
-class NodeForm extends StatefulWidget {
+class NodeForm extends StatelessWidget {
   NodeForm({
     required this.nodeViewModel,
     required this.formKey,
     this.editingNode,
-  });
-
-  final NodeCreateOrEditViewModel nodeViewModel;
-  final GlobalKey<FormState> formKey;
-  final Node? editingNode;
-
-  @override
-  State<NodeForm> createState() => _NodeFormState();
-}
-
-class _NodeFormState extends State<NodeForm> {
-  late final _addressController =
-      TextEditingController(text: widget.editingNode?.uri.host.toString());
-  late final _portController = TextEditingController(text: widget.editingNode?.uri.port.toString());
-  late final _loginController = TextEditingController(text: widget.editingNode?.login);
-  late final _passwordController = TextEditingController(text: widget.editingNode?.password);
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.editingNode != null) {
-      widget.nodeViewModel
-        ..setAddress((widget.editingNode!.uri.host.toString()))
-        ..setPort((widget.editingNode!.uri.port.toString()))
-        ..setPassword((widget.editingNode!.password ?? ''))
-        ..setLogin((widget.editingNode!.login ?? ''))
-        ..setSSL((widget.editingNode!.isSSL))
-        ..setTrusted((widget.editingNode!.trusted));
+  })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
+        _portController = TextEditingController(text: editingNode?.uri.port.toString()),
+        _loginController = TextEditingController(text: editingNode?.login),
+        _passwordController = TextEditingController(text: editingNode?.password) {
+    if (editingNode != null) {
+      nodeViewModel
+        ..setAddress((editingNode!.uri.host.toString()))
+        ..setPort((editingNode!.uri.port.toString()))
+        ..setPassword((editingNode!.password ?? ''))
+        ..setLogin((editingNode!.login ?? ''))
+        ..setSSL((editingNode!.isSSL))
+        ..setTrusted((editingNode!.trusted));
     }
-    if (widget.nodeViewModel.hasAuthCredentials) {
-      reaction((_) => widget.nodeViewModel.login, (String login) {
+    if (nodeViewModel.hasAuthCredentials) {
+      reaction((_) => nodeViewModel.login, (String login) {
         if (login != _loginController.text) {
           _loginController.text = login;
         }
       });
 
-      reaction((_) => widget.nodeViewModel.password, (String password) {
+      reaction((_) => nodeViewModel.password, (String password) {
         if (password != _passwordController.text) {
           _passwordController.text = password;
         }
       });
     }
 
-    _addressController.addListener(() => widget.nodeViewModel.address = _addressController.text);
-    _portController.addListener(() => widget.nodeViewModel.port = _portController.text);
-    _loginController.addListener(() => widget.nodeViewModel.login = _loginController.text);
-    _passwordController.addListener(() => widget.nodeViewModel.password = _passwordController.text);
+    _addressController.addListener(() => nodeViewModel.address = _addressController.text);
+    _portController.addListener(() => nodeViewModel.port = _portController.text);
+    _loginController.addListener(() => nodeViewModel.login = _loginController.text);
+    _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
   }
+
+  final NodeCreateOrEditViewModel nodeViewModel;
+  final GlobalKey<FormState> formKey;
+  final Node? editingNode;
+
+  final TextEditingController _addressController;
+  final TextEditingController _portController;
+  final TextEditingController _loginController;
+  final TextEditingController _passwordController;
 
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: widget.formKey,
+      key: formKey,
       child: Column(
         children: <Widget>[
           Row(
@@ -94,7 +86,7 @@ class _NodeFormState extends State<NodeForm> {
             ],
           ),
           SizedBox(height: 10.0),
-          if (widget.nodeViewModel.hasAuthCredentials) ...[
+          if (nodeViewModel.hasAuthCredentials) ...[
             Row(
               children: <Widget>[
                 Expanded(
@@ -122,8 +114,8 @@ class _NodeFormState extends State<NodeForm> {
                 children: [
                   Observer(
                     builder: (_) => StandardCheckbox(
-                      value: widget.nodeViewModel.useSSL,
-                      onChanged: (value) => widget.nodeViewModel.useSSL = value,
+                      value: nodeViewModel.useSSL,
+                      onChanged: (value) => nodeViewModel.useSSL = value,
                       caption: S.of(context).use_ssl,
                     ),
                   )
@@ -138,8 +130,8 @@ class _NodeFormState extends State<NodeForm> {
                 children: [
                   Observer(
                     builder: (_) => StandardCheckbox(
-                      value: widget.nodeViewModel.trusted,
-                      onChanged: (value) => widget.nodeViewModel.trusted = value,
+                      value: nodeViewModel.trusted,
+                      onChanged: (value) => nodeViewModel.trusted = value,
                       caption: S.of(context).trusted,
                     ),
                   ),
