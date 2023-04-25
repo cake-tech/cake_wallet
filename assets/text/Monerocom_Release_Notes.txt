@@ -1,1 +1,2 @@
 Fix for QR codes
+Fix for creating sub-addresses
