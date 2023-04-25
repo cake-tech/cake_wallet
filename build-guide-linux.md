@@ -19,6 +19,20 @@ CakeWallet requires some packages to be install on your build system. You may ea
 
 `$ sudo apt install build-essential cmake pkg-config git curl autoconf libtool`
 
+> ### Check gcc version
+> Need to use gcc 10 or 9 for successfully link dependecnies with flutter.\
+> Check what gcc version is using:\
+> ```
+> $ gcc --version
+> $ g++ --version
+> ```
+> If you are using gcc version newer than 10, then need to downgrade to version 10.4.0.\
+> ```
+> $ sudo apt install gcc-10 g++-10
+> $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
+> $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
+> ```
+
 ### 2. Installing Flutter
 
 Need to install flutter. For this please check section [How to install flutter on Linux](https://docs.flutter.dev/get-started/install/linux).
@@ -106,5 +120,10 @@ Then we need to generate localization files.
 Path to executable file will be:
 
 `build/linux/x64/release/bundle/cake_wallet`
+
+> ### Troubleshooting
+>
+> If you got an error while building the application with `$ flutter build linux --release` command, add `-v` argument to the command (`$ flutter build linux -v --release`) to get details.\
+> If you got in flutter build logs: undefined reference to `hid_free_enumeration`, or another error with undefined reference to `hid_*`, then rebuild monero lib without hidapi lib. Check does exists `libhidapi-dev` in your scope and remove it from your scope for build without it.
 
 Copyright (c) 2023 Cake Technologies LLC.
