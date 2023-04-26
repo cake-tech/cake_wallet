@@ -14,10 +14,27 @@ part 'contact_list_view_model.g.dart';
 class ContactListViewModel = ContactListViewModelBase with _$ContactListViewModel;
 
 abstract class ContactListViewModelBase with Store {
-  ContactListViewModelBase(this.contactSource, this.walletInfoSource, this._currency)
+  ContactListViewModelBase(this.contactSource, this.walletInfoSource, this._currency, this.isAutoGenerateEnabled)
       : contacts = ObservableList<ContactRecord>(),
         walletContacts = [] {
     walletInfoSource.values.forEach((info) {
+      if(isAutoGenerateEnabled && info.type == WalletType.monero && (info.addresses?.isNotEmpty ?? false)  ) {
+        info.addresses?.forEach((address, label) {
+          if(info.address == address) {
+          final name = label.isNotEmpty ? info.name + ' ($label)' : info.name;
+
+          walletContacts.add(WalletContact(
+            address,
+            name,
+            walletTypeToCryptoCurrency(info.type),
+          ));
+            return;
+          }
+         
+        });
+
+        return;
+      }
       if (info.addresses?.isNotEmpty ?? false) {
         info.addresses?.forEach((address, label) {
           final name = label.isNotEmpty ? info.name + ' ($label)' : info.name;
@@ -36,6 +53,7 @@ abstract class ContactListViewModelBase with Store {
         initialFire: true);
   }
 
+  final bool isAutoGenerateEnabled;
   final Box<Contact> contactSource;
   final Box<WalletInfo> walletInfoSource;
   final ObservableList<ContactRecord> contacts;

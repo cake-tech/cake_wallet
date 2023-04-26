@@ -74,7 +74,7 @@ class AddressPage extends BasePage {
   @override
   Widget? trailing(BuildContext context) {
     final shareImage = Image.asset('assets/images/share.png',
-        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
+        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
 
     return !addressListViewModel.hasAddressList
         ? Material(
@@ -156,7 +156,7 @@ class AddressPage extends BasePage {
                 return addressListViewModel.hasAddressList
                     ? Column(children: [
                         GestureDetector(
-                          onTap: () async => walletViewModel.enableAutoGenerateSubaddresses
+                          onTap: () async => dashboardViewModel.enableAutoGenerateSubaddresses
                               ? await showPopUp<void>(
                                   context: context,
                                   builder: (_) => getIt.get<MoneroAccountListPage>())
@@ -168,53 +168,46 @@ class AddressPage extends BasePage {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(25)),
                                 border: Border.all(
-                                    color: Theme.of(context).textTheme!.subtitle1!.color!,
-                                    width: 1),
+                                    color: Theme.of(context).textTheme.subtitle1!.color!, width: 1),
                                 color: Theme.of(context).buttonColor),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                walletViewModel.enableAutoGenerateSubaddresses
-                                    ? Observer(
-                                        builder: (_) => Text(
-                                              addressListViewModel.hasAccounts
-                                                  ? S.of(context).accounts
-                                                  : S.of(context).account,
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Theme.of(context)
-                                                      .accentTextTheme!
-                                                      .headline2!
-                                                      .backgroundColor!),
-                                            ))
-                                    : Observer(
-                                        builder: (_) => Text(
-                                              addressListViewModel.hasAccounts
-                                                  ? S.of(context).accounts_subaddresses
-                                                  : S.of(context).addresses,
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Theme.of(context)
-                                                      .accentTextTheme!
-                                                      .headline2!
-                                                      .backgroundColor!),
-                                            )),
+                                Observer(
+                                  builder: (_) {
+                                    String label = addressListViewModel.hasAccounts
+                                        ? S.of(context).accounts_subaddresses
+                                        : S.of(context).addresses;
+
+                                    if (dashboardViewModel.enableAutoGenerateSubaddresses) {
+                                      label = addressListViewModel.hasAccounts
+                                          ? S.of(context).accounts
+                                          : S.of(context).account;
+                                    }
+                                    return Text(
+                                      label,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context)
+                                              .accentTextTheme
+                                              .headline2!
+                                              .backgroundColor!),
+                                    );
+                                  },
+                                ),
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   size: 14,
-                                  color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .headline2!
-                                      .backgroundColor!,
+                                  color:
+                                      Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                                 )
                               ],
                             ),
                           ),
                         ),
-                        if (walletViewModel.enableAutoGenerateSubaddresses) ...[
+                        if (dashboardViewModel.enableAutoGenerateSubaddresses) ...[
                           SizedBox(height: 24),
                           Text(
                             S.of(context).electrum_address_disclaimer,

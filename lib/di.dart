@@ -4,6 +4,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -225,7 +226,7 @@ Future setup(
     getIt.registerSingletonAsync<SharedPreferences>(
         () => SharedPreferences.getInstance());
   }
-
+  
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty ?? false) &&
       (secrets.wyreApiKey.isNotEmpty ?? false) &&
       (secrets.wyreAccountId.isNotEmpty ?? false);
@@ -321,7 +322,8 @@ Future setup(
 
   getIt.registerFactory<WalletAddressListViewModel>(() =>
       WalletAddressListViewModel(
-          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>()));
+          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>(),
+        ));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -548,7 +550,7 @@ Future setup(
   });
 
   getIt.registerFactory(() {
-    return PrivacySettingsViewModel(getIt.get<SettingsStore>());
+    return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
   getIt.registerFactory(() {
@@ -576,8 +578,17 @@ Future setup(
       (ContactRecord? contact, _) =>
           ContactViewModel(_contactSource, contact: contact));
 
-  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) => ContactListViewModel(_contactSource, _walletInfoSource, cur));
+   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>((CryptoCurrency? cur, _) {
+    final enableAutoGenerateSubaddresses =
+        getIt.get<SettingsStore>().autoGenerateSubaddressStatus ==
+            AutoGenerateSubaddressStatus.enabled;
+    return ContactListViewModel(
+      _contactSource,
+      _walletInfoSource,
+      cur,
+      enableAutoGenerateSubaddresses,
+    );
+  });
 
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _)
       => ContactListPage(getIt.get<ContactListViewModel>(param1: cur)));

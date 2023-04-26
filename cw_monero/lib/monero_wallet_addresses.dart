@@ -4,6 +4,7 @@ import 'package:cw_core/account.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:cw_monero/monero_subaddress_list.dart';
 import 'package:cw_core/subaddress.dart';
+import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:mobx/mobx.dart';
 
 part 'monero_wallet_addresses.g.dart';
@@ -12,12 +13,14 @@ class MoneroWalletAddresses = MoneroWalletAddressesBase
     with _$MoneroWalletAddresses;
 
 abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
-  MoneroWalletAddressesBase(WalletInfo walletInfo)
+  MoneroWalletAddressesBase(WalletInfo walletInfo, MoneroTransactionHistory moneroTransactionHistory)
     : accountList = MoneroAccountList(),
-      subaddressList = MoneroSubaddressList(),
+      _moneroTransactionHistory = moneroTransactionHistory,
+      subaddressList = MoneroSubaddressList(moneroTransactionHistory),
       address = '',
       super(walletInfo);
 
+  final MoneroTransactionHistory _moneroTransactionHistory;
   @override
   @observable
   String address;
@@ -43,7 +46,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> updateAddressesInBox() async {
     try {
-      final _subaddressList = MoneroSubaddressList();
+      final _subaddressList = MoneroSubaddressList(_moneroTransactionHistory);
 
       addressesMap.clear();
 
@@ -80,6 +83,12 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
+    subaddress = subaddressList.subaddresses.first;
+    address = subaddress!.address;
+  }
+
+  Future<void> updateUnusedSubaddress({required int accountIndex, required String defaultLabel}) async {
+     await subaddressList.updateWithAutoGenerate(accountIndex: accountIndex, defaultLabel: defaultLabel);
     subaddress = subaddressList.subaddresses.first;
     address = subaddress!.address;
   }

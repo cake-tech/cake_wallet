@@ -47,7 +47,7 @@ class PrivacyPage extends BasePage {
               title: S.current.auto_generate_subaddresses,
               value: _privacySettingsViewModel.enableAutoGenerateSubaddresses,
               onValueChange: (BuildContext _, bool value) {
-                _privacySettingsViewModel.setenableAutoGenerateSubaddresses(value);
+                _privacySettingsViewModel.setEnableAutoGenerateSubaddresses(value);
               },
             ),
             SettingsSwitcherCell(

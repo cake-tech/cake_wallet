@@ -37,7 +37,7 @@ class PreferencesKey {
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
-  static const enableAutoGenerateSubaddressesKey = 'enable-auto-generate-subaddresses';
+  static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';

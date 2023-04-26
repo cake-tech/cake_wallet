@@ -86,6 +86,12 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   late ElectrumWalletAddresses walletAddresses;
 
   @override
+  bool get enableAutoGenerate => false;
+
+  @override
+  set enableAutoGenerate(bool value){}
+
+  @override
   @observable
   late ObservableMap<CryptoCurrency, ElectrumBalance> balance;
 

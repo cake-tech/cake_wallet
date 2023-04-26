@@ -112,6 +112,12 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
+  bool get enableAutoGenerate => false;
+
+  @override
+  set enableAutoGenerate(bool value) {}
+
+  @override
   Future<void> connectToNode({required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();

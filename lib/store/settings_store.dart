@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -31,7 +32,7 @@ abstract class SettingsStoreBase with Store {
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
-      required bool initialAutoGenerateSubaddresses,
+      required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required ExchangeApiMode initialExchangeStatus,
@@ -54,7 +55,7 @@ abstract class SettingsStoreBase with Store {
         fiatCurrency = initialFiatCurrency,
         balanceDisplayMode = initialBalanceDisplayMode,
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
-        enableAutoGenerateSubaddresses = initialAutoGenerateSubaddresses,
+        autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
@@ -121,9 +122,9 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
 
     reaction(
-        (_) => enableAutoGenerateSubaddresses,
-        (bool enableAutoGenerateSubaddresses) => sharedPreferences.setBool(
-            PreferencesKey.enableAutoGenerateSubaddressesKey, enableAutoGenerateSubaddresses));
+        (_) => autoGenerateSubaddressStatus,
+        (AutoGenerateSubaddressStatus autoGenerateSubaddressStatus) => sharedPreferences.setInt(
+            PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus.value));
 
     reaction(
         (_) => fiatApiMode,
@@ -176,6 +177,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
+  static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -199,7 +201,7 @@ abstract class SettingsStoreBase with Store {
   bool shouldSaveRecipientAddress;
 
   @observable
-  bool enableAutoGenerateSubaddresses;
+  AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -331,8 +333,12 @@ abstract class SettingsStoreBase with Store {
     final havenNode = nodeSource.get(havenNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
-    final enableAutoGenerateSubaddresses =
-        sharedPreferences.getBool(PreferencesKey.enableAutoGenerateSubaddressesKey) ?? true;
+    final generateSubaddresses = sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
+    
+    final autoGenerateSubaddressStatus = generateSubaddresses != null
+        ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
+        : defaultAutoGenerateSubaddressStatus;
+
     final nodes = <WalletType, Node>{};
 
     if (moneroNode != null) {
@@ -360,7 +366,7 @@ abstract class SettingsStoreBase with Store {
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
-        initialAutoGenerateSubaddresses: enableAutoGenerateSubaddresses,
+        initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialExchangeStatus: exchangeStatus,

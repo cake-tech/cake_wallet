@@ -44,10 +44,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
-        walletAddresses = MoneroWalletAddresses(walletInfo),
+        enableAutoGenerate = false,
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
+    walletAddresses = MoneroWalletAddresses(walletInfo, transactionHistory);
+    
     _onAccountChangeReaction = reaction((_) => walletAddresses.account,
             (Account? account) {
       if (account == null) {
@@ -63,12 +65,27 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         });
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
+    
+    reaction((_) => enableAutoGenerate, (bool enabled) {
+      if (!enabled) {
+        walletAddresses.updateSubaddressList(accountIndex: walletAddresses.account?.id ?? 0);
+      } else {
+        walletAddresses.updateUnusedSubaddress(
+          accountIndex: walletAddresses.account?.id ?? 0, 
+          defaultLabel: walletAddresses.account?.label ?? '',
+        );
+      }
+    });
   }
 
   static const int _autoSaveInterval = 30;
 
   @override
-  MoneroWalletAddresses walletAddresses;
+  late MoneroWalletAddresses walletAddresses;
+
+  @override
+  @observable
+  bool enableAutoGenerate;
 
   @override
   @observable
@@ -429,6 +446,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     try {
       await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
+      if(enableAutoGenerate){
+        walletAddresses.updateUnusedSubaddress(accountIndex: walletAddresses.account?.id ?? 0, defaultLabel: walletAddresses.account?.label ?? '');
+      }
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
       print(e.toString());

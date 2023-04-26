@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 class AccountTile extends StatelessWidget {
   AccountTile({
     required this.isCurrent,
     required this.accountName,
     required this.onTap,
-    required this.onEdit
+    required this.onEdit,
   });
 
   final bool isCurrent;
@@ -18,17 +16,17 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).textTheme!.subtitle2!.decorationColor!
-        : Theme.of(context).textTheme!.headline1!.decorationColor!;
+        ? Theme.of(context).textTheme.subtitle2!.decorationColor!
+        : Theme.of(context).textTheme.headline1!.decorationColor!;
     final textColor = isCurrent
-        ? Theme.of(context).textTheme!.subtitle2!.color!
-        : Theme.of(context).textTheme!.headline1!.color!;
+        ? Theme.of(context).textTheme.subtitle2!.color!
+        : Theme.of(context).textTheme.headline1!.color!;
 
     final Widget cell = GestureDetector(
       onTap: onTap,
       child: Container(
         height: 77,
-        padding: EdgeInsets.only(left: 24, right: 24),
+        padding: EdgeInsets.only(left: 60, right: 24),
         alignment: Alignment.centerLeft,
         color: color,
         child: Text(

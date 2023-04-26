@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -14,20 +15,23 @@ import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
 class MoneroAccountListPage extends StatelessWidget {
   MoneroAccountListPage({required this.accountListViewModel})
-    : backgroundHeight = 194,
-      thumbHeight = 72,
-      isAlwaysShowScrollThumb = false,
-      controller = ScrollController() {
+      : backgroundHeight = 194,
+        thumbHeight = 72,
+        isAlwaysShowScrollThumb = false,
+        controller = ScrollController() {
     controller.addListener(() {
       final scrollOffsetFromTop = controller.hasClients
-          ? (controller.offset / controller.position.maxScrollExtent * (backgroundHeight - thumbHeight))
+          ? (controller.offset /
+              controller.position.maxScrollExtent *
+              (backgroundHeight - thumbHeight))
           : 0.0;
       accountListViewModel.setScrollOffsetFromTop(scrollOffsetFromTop);
     });
   }
 
   final MoneroAccountListViewModel accountListViewModel;
-  final closeIcon = Image.asset('assets/images/close.png',
+  final closeIcon = Image.asset(
+    'assets/images/close.png',
     color: Palette.darkBlueCraiola,
   );
 
@@ -39,9 +43,10 @@ class MoneroAccountListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertBackground(
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
+        child: Column(children: [
+      Expanded(
+        flex: 1,
+        child: Stack(alignment: Alignment.center, children: <Widget>[
           Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -55,8 +60,7 @@ class MoneroAccountListPage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Lato',
                       decoration: TextDecoration.none,
-                      color: Colors.white
-                  ),
+                      color: Colors.white),
                 ),
               ),
               Padding(
@@ -67,64 +71,51 @@ class MoneroAccountListPage extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(14)),
                     child: Container(
                       height: 296,
-                      color: Theme.of(context).textTheme!.headline1!.decorationColor!,
+                      color: Theme.of(context).textTheme.headline1!.decorationColor!,
                       child: Column(
                         children: <Widget>[
-                          Expanded(
-                              child: Observer(
-                                  builder: (_) {
-                                    final accounts = accountListViewModel.accounts;
-                                    isAlwaysShowScrollThumb = accounts == null
-                                        ? false
-                                        : accounts.length > 3;
+                          Expanded(child: Observer(builder: (_) {
+                            final accounts = accountListViewModel.accounts;
+                            isAlwaysShowScrollThumb = accounts.length > 3;
 
-                                    return Stack(
-                                      alignment: Alignment.center,
-                                      children: <Widget>[
-                                        ListView.separated(
-                                          padding: EdgeInsets.zero,
-                                          controller: controller,
-                                          separatorBuilder: (context, index) =>
-                                          const SectionDivider(),
-                                          itemCount: accounts.length ?? 0,
-                                          itemBuilder: (context, index) {
-                                            final account = accounts[index];
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                ListView.separated(
+                                  padding: EdgeInsets.zero,
+                                  controller: controller,
+                                  separatorBuilder: (context, index) => const SectionDivider(),
+                                  itemCount: accounts.length,
+                                  itemBuilder: (context, index) {
+                                    final account = accounts[index];
 
-                                            return AccountTile(
-                                                isCurrent: account.isSelected,
-                                                accountName: account.label,
-                                                onTap: () {
-                                                  if (account.isSelected) {
-                                                    return;
-                                                  }
+                                    return AccountTile(
+                                        isCurrent: account.isSelected,
+                                        accountName: account.label,
+                                        onTap: () {
+                                          if (account.isSelected) {
+                                            return;
+                                          }
 
-                                                  accountListViewModel
-                                                      .select(account);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                onEdit: () async =>
-                                                await Navigator.of(context)
-                                                    .pushNamed(
-                                                    Routes.accountCreation,
-                                                    arguments: account));
-                                          },
-                                        ),
-                                        isAlwaysShowScrollThumb
-                                            ? CakeScrollbar(
-                                            backgroundHeight: backgroundHeight,
-                                            thumbHeight: thumbHeight,
-                                            fromTop: accountListViewModel
-                                                .scrollOffsetFromTop
-                                        )
-                                            : Offstage(),
-                                      ],
-                                    );
-                                  }
-                              )
-                          ),
+                                          accountListViewModel.select(account);
+                                          Navigator.of(context).pop();
+                                        },
+                                        onEdit: () async => await Navigator.of(context)
+                                            .pushNamed(Routes.accountCreation, arguments: account));
+                                  },
+                                ),
+                                isAlwaysShowScrollThumb
+                                    ? CakeScrollbar(
+                                        backgroundHeight: backgroundHeight,
+                                        thumbHeight: thumbHeight,
+                                        fromTop: accountListViewModel.scrollOffsetFromTop)
+                                    : Offstage(),
+                              ],
+                            );
+                          })),
                           GestureDetector(
-                            onTap: () async => await Navigator.of(context)
-                                .pushNamed(Routes.accountCreation),
+                            onTap: () async =>
+                                await Navigator.of(context).pushNamed(Routes.accountCreation),
                             child: Container(
                               height: 62,
                               color: Theme.of(context).cardColor,
@@ -160,12 +151,13 @@ class MoneroAccountListPage extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
-          AlertCloseButton(image: closeIcon)
-        ],
-      ),
-    );
+          SizedBox(height: ResponsiveLayoutUtil.kPopupSpaceHeight),
+          AlertCloseButton(),
+        ]),
+      )
+    ]));
   }
 }

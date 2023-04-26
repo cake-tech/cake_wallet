@@ -50,6 +50,10 @@ abstract class WalletBase<
 
   late HistoryType transactionHistory;
 
+  set enableAutoGenerate(bool value);
+
+  bool get enableAutoGenerate;
+
   Future<void> connectToNode({required Node node});
 
   Future<void> startSync();

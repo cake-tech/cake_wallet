@@ -1,5 +1,10 @@
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
@@ -8,19 +13,28 @@ part 'privacy_settings_view_model.g.dart';
 class PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
-  PrivacySettingsViewModelBase(this._settingsStore);
+  PrivacySettingsViewModelBase(this._settingsStore, this.wallet);
 
   final SettingsStore _settingsStore;
+
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
-  bool get enableAutoGenerateSubaddresses => _settingsStore.enableAutoGenerateSubaddresses;
+  bool get enableAutoGenerateSubaddresses =>
+      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
   @action
-  void setenableAutoGenerateSubaddresses(bool value) =>
-      _settingsStore.enableAutoGenerateSubaddresses = value;
+  void setEnableAutoGenerateSubaddresses(bool value) {
+    wallet.enableAutoGenerate = value;
+    if (value) {
+      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.enabled;
+    } else {
+      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
+    }
+  }
 
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
