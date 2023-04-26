@@ -45,18 +45,18 @@ class PrivacyPage extends BasePage {
               ),
             ),
             SettingsSwitcherCell(
-              title: S.current.auto_generate_subaddresses,
-              value: _privacySettingsViewModel.enableAutoGenerateSubaddresses,
-              onValueChange: (BuildContext _, bool value) {
-                _privacySettingsViewModel.setEnableAutoGenerateSubaddresses(value);
-              },
-            ),
-            SettingsSwitcherCell(
                 title: S.current.settings_save_recipient_address,
                 value: _privacySettingsViewModel.shouldSaveRecipientAddress,
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
                 }),
+            SettingsSwitcherCell(
+              title: S.current.auto_generate_subaddresses,
+              value: _privacySettingsViewModel.enableAutoGenerateSubaddresses,
+              onValueChange: (BuildContext _, bool value) {
+                _privacySettingsViewModel.setAutoGenerateSubaddresses(value);
+              },
+            ),
             if (Platform.isAndroid)
             SettingsSwitcherCell(
                 title: S.current.prevent_screenshots,
