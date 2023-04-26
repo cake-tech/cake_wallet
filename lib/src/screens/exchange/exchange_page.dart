@@ -2,6 +2,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
@@ -108,16 +109,42 @@ class ExchangePage extends BasePage {
       });
 
   @override
-  bool get canUseCloseIcon => true;
+  Widget? leading(BuildContext context) {
+    final _backButton = Icon(Icons.arrow_back_ios,
+      color: titleColor,
+      size: 16,
+    );
+    final _closeButton = currentTheme.type == ThemeType.dark
+        ? closeButtonImageDarkTheme : closeButtonImage;
+
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: !isMobileView ? 'Close' : 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child: !isMobileView ? _closeButton : _backButton,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget body(BuildContext context) {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
-
-    if (exchangeViewModel.isLowFee) {
-      _showFeeAlert(context);
-    }
 
     return KeyboardActions(
         disableScroll: true,
@@ -319,6 +346,10 @@ class ExchangePage extends BasePage {
       return;
     }
 
+     if (exchangeViewModel.isLowFee) {
+      _showFeeAlert(context);
+    }
+
     final depositAddressController = depositKey.currentState!.addressController;
     final depositAmountController = depositKey.currentState!.amountController;
     final receiveAddressController = receiveKey.currentState!.addressController;
@@ -456,8 +487,7 @@ class ExchangePage extends BasePage {
     depositAmountController.addListener(() {
       if (depositAmountController.text != exchangeViewModel.depositAmount) {
         _depositAmountDebounce.run(() { 
-          exchangeViewModel.changeDepositAmount(
-              amount: depositAmountController.text);
+          exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
         });
       }
@@ -469,8 +499,7 @@ class ExchangePage extends BasePage {
     receiveAmountController.addListener(() {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
         _receiveAmountDebounce.run(() {
-          exchangeViewModel.changeReceiveAmount(
-              amount: receiveAmountController.text);
+          exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = true;
         });
       }
@@ -626,8 +655,16 @@ class ExchangePage extends BasePage {
       currencyButtonColor: Colors.transparent,
       addressButtonsColor: Theme.of(context).focusColor!,
       borderColor: Theme.of(context).primaryTextTheme!.bodyText1!.color!,
-      currencyValueValidator:
-      AmountValidator(currency: exchangeViewModel.depositCurrency),
+      currencyValueValidator: (value) {
+        return !exchangeViewModel.isFixedRateMode
+            ? AmountValidator(
+                isAutovalidate: true,
+                currency: exchangeViewModel.depositCurrency,
+                minValue: exchangeViewModel.limits.min.toString(),
+                maxValue: exchangeViewModel.limits.max.toString(),
+              ).call(value)
+            : null;
+      },
       addressTextFieldValidator:
       AddressValidator(type: exchangeViewModel.depositCurrency),
       onPushPasteButton: (context) async {
@@ -668,8 +705,16 @@ class ExchangePage extends BasePage {
       addressButtonsColor: Theme.of(context).focusColor!,
       borderColor:
       Theme.of(context).primaryTextTheme!.bodyText1!.decorationColor!,
-      currencyValueValidator:
-      AmountValidator(currency: exchangeViewModel.receiveCurrency),
+      currencyValueValidator: (value) {
+        return exchangeViewModel.isFixedRateMode
+            ? AmountValidator(
+                isAutovalidate: true,
+                currency: exchangeViewModel.receiveCurrency,
+                minValue: exchangeViewModel.limits.min.toString(),
+                maxValue: exchangeViewModel.limits.max.toString(),
+              ).call(value)
+            : null;
+      },
       addressTextFieldValidator:
       AddressValidator(type: exchangeViewModel.receiveCurrency),
       onPushPasteButton: (context) async {

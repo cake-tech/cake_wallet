@@ -27,7 +27,7 @@ abstract class PrivacySettingsViewModelBase with Store {
       _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
   @action
-  void setEnableAutoGenerateSubaddresses(bool value) {
+  void setAutoGenerateSubaddresses(bool value) {
     wallet.enableAutoGenerate = value;
     if (value) {
       _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.enabled;
@@ -42,6 +42,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
 
+  @computed
+  bool get isAppSecure => _settingsStore.isAppSecure;
+
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
@@ -51,4 +54,8 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setFiatMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
+
+  @action
+  void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
+
 }

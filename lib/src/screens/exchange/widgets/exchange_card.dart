@@ -406,7 +406,6 @@ class ExchangeCardState extends State<ExchangeCard> {
                       order: NumericFocusOrder(3),
                       child: BaseTextFormField(
                           controller: addressController,
-                          readOnly: true,
                           borderColor: Colors.transparent,
                           suffixIcon:
                               SizedBox(width: _isMoneroWallet ? 80 : 36),
@@ -433,7 +432,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                                               onTap: () async {
                                                 final contact =
                                                     await Navigator.of(context)
-                                                        .pushNamed(Routes.pickerAddressBook);
+                                                    .pushNamed(
+                                                  Routes.pickerAddressBook,
+                                                  arguments: widget.initialCurrency,
+                                                );
 
                                                 if (contact is ContactBase &&
                                                     contact.address != null) {

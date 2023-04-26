@@ -9,6 +9,7 @@ class PreferencesKey {
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
+  static const isAppSecureKey = 'is_app_secure';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const allowBiometricalAuthenticationKey = 'allow_biometrical_authentication';
   static const disableExchangeKey = 'disable_exchange';
@@ -38,7 +39,9 @@ class PreferencesKey {
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
-  static const clearnetDonationLink = 'clearnet_donation_link';
+  static const clearnetDonationLink = 'clearnet_donation_link'; 
   static const onionDonationLink = 'onion_donation_link';
+  static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
+  static const isNewInstall = 'is_new_install';
 }

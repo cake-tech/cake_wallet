@@ -20,6 +20,8 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cw_core/set_app_secure_native.dart';
+import 'dart:io' show Platform;
 
 part 'settings_store.g.dart';
 
@@ -33,6 +35,7 @@ abstract class SettingsStoreBase with Store {
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
+      required bool initialAppSecure,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required ExchangeApiMode initialExchangeStatus,
@@ -50,14 +53,16 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
       TransactionPriority? initialLitecoinTransactionPriority})
-      : nodes = ObservableMap<WalletType, Node>.of(nodes),
-        _sharedPreferences = sharedPreferences,
-        fiatCurrency = initialFiatCurrency,
-        balanceDisplayMode = initialBalanceDisplayMode,
-        shouldSaveRecipientAddress = initialSaveRecipientAddress,
-        autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
-        fiatApiMode = initialFiatMode,
-        allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+  : nodes = ObservableMap<WalletType, Node>.of(nodes),
+    _sharedPreferences = sharedPreferences,
+    fiatCurrency = initialFiatCurrency,
+    balanceDisplayMode = initialBalanceDisplayMode,
+    shouldSaveRecipientAddress = initialSaveRecipientAddress,
+            autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
+
+        isAppSecure = initialAppSecure,
+    fiatApiMode = initialFiatMode,
+    allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -120,6 +125,17 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldSaveRecipientAddress,
         (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
+
+    reaction((_) => isAppSecure, (bool isAppSecure) {
+      sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
+      if (Platform.isAndroid) {
+        setIsAppSecureNative(isAppSecure);
+      }
+    });
+
+    if (Platform.isAndroid) {
+      setIsAppSecureNative(isAppSecure);
+    }
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -202,6 +218,7 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
+  bool isAppSecure;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -289,6 +306,8 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
+    final isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -367,6 +386,7 @@ abstract class SettingsStoreBase with Store {
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
+        initialAppSecure: isAppSecure,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialExchangeStatus: exchangeStatus,
@@ -409,11 +429,12 @@ abstract class SettingsStoreBase with Store {
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =
-        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
-            shouldSaveRecipientAddress;
-    allowBiometricalAuthentication =
-        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
-            allowBiometricalAuthentication;
+        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
+    isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
+    allowBiometricalAuthentication = sharedPreferences
+        .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+        allowBiometricalAuthentication;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;

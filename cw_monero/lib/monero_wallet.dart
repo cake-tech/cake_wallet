@@ -135,6 +135,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
        Duration(seconds: _autoSaveInterval),
        (_) async => await save());
   }
+  @override
+  Future<void>? updateBalance() => null;
 
   @override
   void close() {
