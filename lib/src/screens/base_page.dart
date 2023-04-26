@@ -1,5 +1,4 @@
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
@@ -20,8 +19,6 @@ abstract class BasePage extends StatelessWidget {
     Image.asset('assets/images/close_button_dark_theme.png');
 
   String? get title => null;
-
-  bool get canUseCloseIcon => false;
 
   Color get backgroundLightColor => Colors.white;
 
@@ -53,27 +50,22 @@ abstract class BasePage extends StatelessWidget {
     final _backButton = Icon(Icons.arrow_back_ios,
       color: titleColor ?? Theme.of(context).primaryTextTheme.headline6!.color!,
       size: 16,);
-    final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme : closeButtonImage;
-
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
 
     return MergeSemantics(
       child: SizedBox(
-        height: isMobileView ? 37 : 45,
-        width: isMobileView ? 37 : 45,
+        height: 37,
+        width: 37,
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: canUseCloseIcon && !isMobileView ? 'Close' : 'Back',
+            label: 'Back',
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(
                     (states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
-              child:
-                  canUseCloseIcon && !isMobileView ? _closeButton : _backButton,
+              child: _backButton,
             ),
           ),
         ),
