@@ -239,7 +239,7 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get enableAutoGenerateSubaddresses =>
-      settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled;
+      settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
   @computed
   List<ActionListItem> get items {

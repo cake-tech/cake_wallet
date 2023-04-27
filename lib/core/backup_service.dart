@@ -222,6 +222,7 @@ class BackupService {
     final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
+    final autoGenerateSubaddressStatus = data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName,
         currentWalletName);
@@ -277,6 +278,9 @@ class BackupService {
     if (fiatApiMode != null)
       await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey,
           fiatApiMode);
+    if (autoGenerateSubaddressStatus != null)
+      await _sharedPreferences.setInt(PreferencesKey.autoGenerateSubaddressStatusKey,
+          autoGenerateSubaddressStatus);
 
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength,
