@@ -157,7 +157,7 @@ class ContactPage extends BasePage {
             selectedAtIndex: contactViewModel.currency != null
                 ? contactViewModel.currencies
                     .indexOf(contactViewModel.currency!)
-                : 0,
+                : -1,
             items: contactViewModel.currencies,
             title: S.of(context).please_select,
             hintText: S.of(context).search_currency,
