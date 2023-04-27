@@ -73,6 +73,10 @@ dependencies:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
       version: 1.0.0
+  flutter_plugin_android_lifecycle: 2.0.9
+  path_provider_android: 2.0.24
+  shared_preferences_android: 2.0.17
+  url_launcher_android: 6.0.24
 
 dev_dependencies:
   flutter_test:
