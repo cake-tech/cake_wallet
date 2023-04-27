@@ -90,6 +90,9 @@ class MoneroAccountListPage extends StatelessWidget {
                                             return AccountTile(
                                                 isCurrent: account.isSelected,
                                                 accountName: account.label,
+                                                accountBalance: account.balance ?? '0.00',
+                                                currency: accountListViewModel
+                                                    .currency.toString(),
                                                 onTap: () {
                                                   if (account.isSelected) {
                                                     return;

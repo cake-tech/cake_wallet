@@ -1,6 +1,8 @@
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_monero/api/account_list.dart' as account_list;
+import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 
 part 'monero_account_list.g.dart';
 
@@ -43,9 +45,16 @@ abstract class MoneroAccountListBase with Store {
 
   List<Account> getAll() => account_list
       .getAllAccount()
-      .map((accountRow) => Account(
+      .map((accountRow) {
+      final accountIndex = accountRow.getId();
+      final balance = monero_wallet.getFullBalance(accountIndex: accountIndex);
+      
+      return Account(
         id: accountRow.getId(),
-        label: accountRow.getLabel()))
+        label: accountRow.getLabel(),
+        balance: moneroAmountToString(amount: balance),
+        );
+      })
       .toList();
 
   Future<void> addAccount({required String label}) async {

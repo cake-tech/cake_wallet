@@ -1,3 +1,4 @@
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -21,6 +22,8 @@ abstract class MoneroAccountListViewModelBase with Store {
     this.scrollOffsetFromTop = scrollOffsetFromTop;
   }
 
+  CryptoCurrency get currency => _wallet.currency;
+
   @computed
   List<AccountListItem> get accounts {
     if (_wallet.type == WalletType.haven) {
@@ -39,6 +42,7 @@ abstract class MoneroAccountListViewModelBase with Store {
         .accounts.map((acc) => AccountListItem(
             label: acc.label,
             id: acc.id,
+            balance: acc.balance,
             isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
         .toList();
     }
@@ -53,7 +57,9 @@ abstract class MoneroAccountListViewModelBase with Store {
       monero!.setCurrentAccount(
         _wallet,
         item.id,
-        item.label);
+        item.label,
+        item.balance,
+        );
     }
 
     if (_wallet.type == WalletType.haven) {

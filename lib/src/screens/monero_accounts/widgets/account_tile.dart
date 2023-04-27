@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 class AccountTile extends StatelessWidget {
   AccountTile({
     required this.isCurrent,
     required this.accountName,
+    this.accountBalance,
+    required this.currency,
     required this.onTap,
     required this.onEdit
   });
 
   final bool isCurrent;
   final String accountName;
+  final String? accountBalance;
+  final String currency;
   final Function() onTap;
   final Function() onEdit;
 
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).textTheme!.subtitle2!.decorationColor!
-        : Theme.of(context).textTheme!.headline1!.decorationColor!;
+        ? Theme.of(context).textTheme.subtitle2!.decorationColor!
+        : Theme.of(context).textTheme.headline1!.decorationColor!;
     final textColor = isCurrent
-        ? Theme.of(context).textTheme!.subtitle2!.color!
-        : Theme.of(context).textTheme!.headline1!.color!;
+        ? Theme.of(context).textTheme.subtitle2!.color!
+        : Theme.of(context).textTheme.headline1!.color!;
 
     final Widget cell = GestureDetector(
       onTap: onTap,
@@ -31,15 +33,31 @@ class AccountTile extends StatelessWidget {
         padding: EdgeInsets.only(left: 24, right: 24),
         alignment: Alignment.centerLeft,
         color: color,
-        child: Text(
-          accountName,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Lato',
-            color: textColor,
-            decoration: TextDecoration.none,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              accountName,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Lato',
+                color: textColor,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            if (accountBalance != null)
+             Text(
+              '${accountBalance.toString()} $currency',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Lato',
+                color: Theme.of(context).textTheme.headline4!.color!,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ],
         ),
       ),
     );
