@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -170,7 +169,12 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void _navigateToRestoreWallet() {
-    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+    if (isSingleCoin) {
+      Navigator.of(context)
+          .pushNamed(Routes.restoreWallet, arguments: widget.walletListViewModel.currentWalletType);
+    } else {
+      Navigator.of(context).pushNamed(Routes.restoreWalletType);
+    }
   }
 
   void changeProcessText(String text) {
