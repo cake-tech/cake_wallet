@@ -88,7 +88,7 @@ class Setup2FAQRPage extends BasePage {
                 height: 32,
                 child: InkWell(
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: ''));
+                    Clipboard.setData(ClipboardData(text: '${setup2FAViewModel.secretKey}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(
