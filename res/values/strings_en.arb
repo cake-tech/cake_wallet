@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "Amount is less than the minimum",
   "error_text_input_above_maximum_limit" : "Amount is more than the maximum",
   "show_market_place" :"Show Marketplace",
-  "prevent_screenshots": "Prevent screenshots and screen recording"
+  "prevent_screenshots": "Prevent screenshots and screen recording",
+  "fiat_rate": "Fiat rate",
+  "historical_fiat_rate": "Historical fiat rate"
 }

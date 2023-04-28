@@ -36,6 +36,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialAppSecure,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required bool initialShowHistoricalFiatRate,
       required ExchangeApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
       required int initialPinLength,
@@ -59,6 +60,7 @@ abstract class SettingsStoreBase with Store {
         isAppSecure = initialAppSecure,
     fiatApiMode = initialFiatMode,
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+        showHistoricalFiatRate = initialShowHistoricalFiatRate,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
     exchangeStatus = initialExchangeStatus,
     currentTheme = initialTheme,
@@ -151,6 +153,12 @@ abstract class SettingsStoreBase with Store {
             biometricalAuthentication));
 
     reaction(
+            (_) => showHistoricalFiatRate,
+            (bool historicalFiatRate) => sharedPreferences.setBool(
+            PreferencesKey.showHistoricalFiatRateKey,
+                historicalFiatRate));
+
+    reaction(
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
@@ -219,6 +227,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool allowBiometricalAuthentication;
+
+  @observable
+  bool showHistoricalFiatRate;
 
   @observable
   ExchangeApiMode exchangeStatus;
@@ -315,6 +326,9 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
+    final showHistoricalFiatRate = sharedPreferences
+        .getBool(PreferencesKey.showHistoricalFiatRateKey) ??
+        false;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final exchangeStatus = ExchangeApiMode.deserialize(
@@ -390,6 +404,7 @@ abstract class SettingsStoreBase with Store {
         initialAppSecure: isAppSecure,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialShowHistoricalFiatRate: showHistoricalFiatRate,
         initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
@@ -438,6 +453,9 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
+    showHistoricalFiatRate = sharedPreferences
+        .getBool(PreferencesKey.showHistoricalFiatRateKey) ??
+        showHistoricalFiatRate;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
