@@ -126,4 +126,35 @@ Path to executable file will be:
 > If you got an error while building the application with `$ flutter build linux --release` command, add `-v` argument to the command (`$ flutter build linux -v --release`) to get details.\
 > If you got in flutter build logs: undefined reference to `hid_free_enumeration`, or another error with undefined reference to `hid_*`, then rebuild monero lib without hidapi lib. Check does exists `libhidapi-dev` in your scope and remove it from your scope for build without it.
 
+# Flatpak
+
+For package the built application into flatpak you need fistly to install `flatpak` and `flatpak-builder`:
+
+`$ sudo apt install flatpak flatpak-builder`
+
+Then need to [add flathub](https://flatpak.org/setup/Ubuntu) (or just `$ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo`). Then need to install freedesktop runtime and sdk:
+
+`$ flatpak install flathub org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08`
+
+To build with using of `flatpak-build` directory run next:
+
+`$ flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml`
+
+And then export bundle:
+
+`$ flatpak build-export export flatpak-build`
+
+`$ flatpak build-bundle export cake_wallet.flatpak com.cakewallet.CakeWallet`
+
+
+Result file: `cake_wallet.flatpak` should be generated in current directory.
+
+For install generated flatpak file use:
+
+`$ flatpak --user install cake_wallet.flatpak`
+
+For run the installed application run:
+
+`$ flatpak run com.cakewallet.CakeWallet`
+
 Copyright (c) 2023 Cake Technologies LLC.
