@@ -218,6 +218,8 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
+
+  @observable
   bool isAppSecure;
 
   @observable
