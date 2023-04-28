@@ -8,11 +8,11 @@ class EthereumTransactionPriority extends TransactionPriority {
 
   static const List<EthereumTransactionPriority> all = [fast, medium, slow];
   static const EthereumTransactionPriority slow =
-      EthereumTransactionPriority(title: 'Slow', raw: 0, tip: 2);
+      EthereumTransactionPriority(title: 'Slow', raw: 0, tip: 50);
   static const EthereumTransactionPriority medium =
-      EthereumTransactionPriority(title: 'Medium', raw: 1, tip: 5);
+      EthereumTransactionPriority(title: 'Medium', raw: 1, tip: 75);
   static const EthereumTransactionPriority fast =
-      EthereumTransactionPriority(title: 'Fast', raw: 2, tip: 10);
+      EthereumTransactionPriority(title: 'Fast', raw: 2, tip: 100);
 
   static EthereumTransactionPriority deserialize({required int raw}) {
     switch (raw) {

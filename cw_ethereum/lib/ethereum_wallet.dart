@@ -19,10 +19,11 @@ import 'package:cw_ethereum/ethereum_transaction_info.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
-import 'package:cw_ethereum/pending_ethereum_transaction.dart';
+import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:bip32/bip32.dart' as bip32;
 
 part 'ethereum_wallet.g.dart';
 
@@ -147,17 +148,15 @@ abstract class EthereumWalletBase
       }
     }
 
-    final transactionInfo = await _client.signTransaction(
+    final pendingEthereumTransaction = await _client.signTransaction(
       _privateKey,
       _credentials.outputs.first.address,
       totalAmount.toString(),
       _priorityFees[_credentials.priority!.raw],
+      _credentials.priority!,
     );
 
-    return PendingEthereumTransaction(
-      sendTransaction: () => _client.sendTransaction(_privateKey, transactionInfo),
-      transactionInformation: transactionInfo,
-    );
+    return pendingEthereumTransaction;
   }
 
   @override
@@ -256,7 +255,14 @@ abstract class EthereumWalletBase
   }
 
   Future<EthPrivateKey> getPrivateKey(String mnemonic, String password) async {
-    final seed = bip39.mnemonicToSeedHex(mnemonic);
-    return EthPrivateKey.fromHex(seed);
+    final seed = bip39.mnemonicToSeed(mnemonic);
+
+    final root = bip32.BIP32.fromSeed(seed);
+
+    const _hdPathEthereum = "m/44'/60'/0'/0";
+    const index = 0;
+    final addressAtIndex = root.derivePath("$_hdPathEthereum/$index");
+
+    return EthPrivateKey.fromHex(HEX.encode(addressAtIndex.privateKey as List<int>));
   }
 }
