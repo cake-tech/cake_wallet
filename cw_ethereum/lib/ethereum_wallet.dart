@@ -265,4 +265,6 @@ abstract class EthereumWalletBase
 
     return EthPrivateKey.fromHex(HEX.encode(addressAtIndex.privateKey as List<int>));
   }
+
+  Future<void>? updateBalance() => null;
 }
