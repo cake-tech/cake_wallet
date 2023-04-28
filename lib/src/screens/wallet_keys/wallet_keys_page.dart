@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -26,13 +25,14 @@ class WalletKeysPage extends BasePage {
       onPressed: () async {
         // Get the current brightness:
         final double brightness = await DeviceDisplayBrightness.getBrightness();
+        final url = await walletKeysViewModel.url;
 
         // ignore: unawaited_futures
         DeviceDisplayBrightness.setBrightness(1.0);
         await Navigator.pushNamed(
           context,
           Routes.fullscreenQR,
-          arguments: QrViewData(data: await walletKeysViewModel.url.toString()),
+          arguments: QrViewData(data: url.toString()),
         );
         // ignore: unawaited_futures
         DeviceDisplayBrightness.setBrightness(brightness);

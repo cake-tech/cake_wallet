@@ -3,14 +3,9 @@ class Routes {
   static const newWallet = '/new_wallet';
   static const setupPin = '/setup_pin_code';
   static const newWalletFromWelcome = '/new_wallet_from_welcome';
-  static const restoreFromWelcome = '/restore_from_welcome';
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
-  static const restoreOptionsFromWelcome = '/restore_options_from_welcome';
-  static const restoreWalletOptions = '/restore_seed_keys';
-  static const restoreWalletOptionsFromWelcome = '/restore_wallet_options_from_welcome';
-  static const restoreWalletFromSeed = '/restore_wallet_from_seed';
-  static const restoreWalletFromKeys = '/restore_wallet_from_keys';
+  static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
@@ -57,8 +52,6 @@ class Routes {
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
-  static const moneroRestoreWalletFromWelcome = '/monero_restore_wallet';
-  static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const addressPage = '/address_page';
   static const fullscreenQR = '/fullscreen_qr';
   static const ioniaWelcomePage = '/cake_pay_welcome_page';
