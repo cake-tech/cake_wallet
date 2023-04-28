@@ -481,8 +481,8 @@
   "xrp_extra_info" : "ایکسچینج کے لیے XRP ٹرانزیکشن بھیجتے وقت ڈیسٹینیشن ٹیگ بتانا نہ بھولیں۔",
 
   "exchange_incorrect_current_wallet_for_xmr" : "اگر آپ اپنے Cake والیٹ Monero بیلنس سے XMR کا تبادلہ کرنا چاہتے ہیں، تو براہ کرم پہلے اپنے Monero والیٹ پر جائیں۔",
-  "confirmed" : "تصدیق شدہ",
-  "unconfirmed" : "غیر تصدیق شدہ",
+  "confirmed" : "تصدیق شدہ بیلنس",
+  "unconfirmed" : "غیر تصدیق شدہ بیلنس",
   "displayable" : "قابل نمائش",
 
   "submit_request" : "درخواست بھیج دو",
@@ -688,6 +688,7 @@
   "error_dialog_content" : "افوہ، ہمیں کچھ خرابی ملی۔\n\nایپلی کیشن کو بہتر بنانے کے لیے براہ کرم کریش رپورٹ ہماری سپورٹ ٹیم کو بھیجیں۔",
   "decimal_places_error": "بہت زیادہ اعشاریہ جگہیں۔",
   "edit_node": "نوڈ میں ترمیم کریں۔",
+  "frozen_balance": "منجمد بیلنس",
   "invoice_details": "رسید کی تفصیلات",
   "donation_link_details": "عطیہ کے لنک کی تفصیلات",
   "anonpay_description": "${type} بنائیں۔ وصول کنندہ کسی بھی تعاون یافتہ کرپٹو کرنسی کے ساتھ ${method} کرسکتا ہے، اور آپ کو اس بٹوے میں فنڈز موصول ہوں گے۔",
@@ -698,5 +699,9 @@
   "optional_name": "اختیاری وصول کنندہ کا نام",
   "clearnet_link": "کلیرنیٹ لنک",
   "onion_link": "پیاز کا لنک",
-  "sell_monero_com_alert_content": "Monero فروخت کرنا ابھی تک تعاون یافتہ نہیں ہے۔"
+  "sell_monero_com_alert_content": "Monero فروخت کرنا ابھی تک تعاون یافتہ نہیں ہے۔",
+  "error_text_input_below_minimum_limit" : "رقم کم از کم سے کم ہے۔",
+  "error_text_input_above_maximum_limit" : "رقم زیادہ سے زیادہ سے زیادہ ہے۔",
+  "show_market_place":"بازار دکھائیں۔",
+  "prevent_screenshots": "اسکرین شاٹس اور اسکرین ریکارڈنگ کو روکیں۔"
 }

@@ -1,13 +1,13 @@
+import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FullscreenQRPage extends BasePage {
-  FullscreenQRPage({required this.qrData, int? this.version});
+  FullscreenQRPage({required this.qrViewData});
 
-  final String qrData;
-  final int? version;
+  final QrViewData qrViewData;
 
   @override
   Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -63,7 +63,7 @@ class FullscreenQRPage extends BasePage {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
       child: Hero(
-        tag: Key(qrData),
+        tag: Key(qrViewData.heroTag ?? qrViewData.data),
         child: Center(
           child: AspectRatio(
             aspectRatio: 1.0,
@@ -71,7 +71,7 @@ class FullscreenQRPage extends BasePage {
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                   border: Border.all(width: 3, color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
-              child: QrImage(data: qrData, version: version),
+              child: QrImage(data: qrViewData.data, version: qrViewData.version),
             ),
           ),
         ),

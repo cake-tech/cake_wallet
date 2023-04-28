@@ -150,7 +150,7 @@
   "receive_amount" : "จำนวน",
   "subaddresses" : "ที่อยู่ย่อย",
   "addresses" : "ที่อยู่",
-  "scan_qr_code" : "สแกน QR code เพื่อรับที่อยู่",
+  "scan_qr_code_to_get_address" : "สแกน QR code เพื่อรับที่อยู่",
   "qr_fullscreen" : "แตะเพื่อเปิดหน้าจอ QR code แบบเต็มจอ",
   "rename" : "เปลี่ยนชื่อ",
   "choose_account" : "เลือกบัญชี",
@@ -477,8 +477,8 @@
   "xrp_extra_info": "โปรดอย่าลืมระบุ Destination Tag ในขณะที่ส่งธุรกรรม XRP สำหรับการแลกเปลี่ยน",
 
   "exchange_incorrect_current_wallet_for_xmr" : "หากคุณต้องการแลกเปลี่ยน XMR จากยอดคงเหลือ Monero ใน Cake Wallet ของคุณ กรุณาเปลี่ยนเป็นกระเป๋า Monero ก่อน",
-  "confirmed" : "ได้รับการยืนยัน",
-  "unconfirmed" : "ยังไม่ได้รับการยืนยัน",
+  "confirmed" : "ยอดคงเหลือที่ยืนยันแล้ว",
+  "unconfirmed" : "ยอดคงเหลือที่ไม่ได้รับการยืนยัน",
   "displayable" : "สามารถแสดงได้",
 
   "submit_request" : "ส่งคำขอ",
@@ -683,8 +683,14 @@
   "arrive_in_this_address" : "${currency} ${tag}จะมาถึงที่อยู่นี้",
   "do_not_send": "อย่าส่ง",
   "error_dialog_content": "อ๊ะ เราพบข้อผิดพลาดบางอย่าง\n\nโปรดส่งรายงานข้อขัดข้องไปยังทีมสนับสนุนของเราเพื่อปรับปรุงแอปพลิเคชันให้ดียิ่งขึ้น",
+  "scan_qr_code": "สแกนรหัส QR",
+  "cold_or_recover_wallet": "เพิ่มกระเป๋าเงินเย็นหรือกู้คืนกระเป๋าเงินกระดาษ",
+  "please_wait": "โปรดรอ",
+  "sweeping_wallet": "กวาดกระเป๋าสตางค์",
+  "sweeping_wallet_alert": "การดำเนินการนี้ใช้เวลาไม่นาน อย่าออกจากหน้าจอนี้ มิฉะนั้นเงินที่กวาดไปอาจสูญหาย",
   "decimal_places_error": "ทศนิยมมากเกินไป",
   "edit_node": "แก้ไขโหนด",
+  "frozen_balance": "ยอดคงเหลือแช่แข็ง",
   "invoice_details": "รายละเอียดใบแจ้งหนี้",
   "donation_link_details": "รายละเอียดลิงค์บริจาค",
   "anonpay_description": "สร้าง ${type} ผู้รับสามารถ ${method} ด้วยสกุลเงินดิจิทัลที่รองรับ และคุณจะได้รับเงินในกระเป๋าสตางค์นี้",
@@ -695,5 +701,10 @@
   "optional_name": "ชื่อผู้รับเพิ่มเติม",
   "clearnet_link": "ลิงค์เคลียร์เน็ต",
   "onion_link": "ลิงค์หัวหอม",
-  "sell_monero_com_alert_content": "ยังไม่รองรับการขาย Monero"
+  "settings": "การตั้งค่า",
+  "sell_monero_com_alert_content": "ยังไม่รองรับการขาย Monero",
+  "error_text_input_below_minimum_limit" : "จำนวนเงินน้อยกว่าขั้นต่ำ",
+  "error_text_input_above_maximum_limit" : "จำนวนเงินสูงกว่าค่าสูงสุด",
+  "show_market_place":"แสดงตลาดกลาง",
+  "prevent_screenshots": "ป้องกันภาพหน้าจอและการบันทึกหน้าจอ"
 }

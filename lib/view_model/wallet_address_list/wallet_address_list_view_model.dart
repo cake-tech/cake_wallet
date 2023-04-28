@@ -1,5 +1,9 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cw_core/currency.dart';
+import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/utils/list_item.dart';
@@ -17,22 +21,17 @@ import 'package:cake_wallet/haven/haven.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
-class WalletAddressListViewModel = WalletAddressListViewModelBase
-    with _$WalletAddressListViewModel;
+class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
 
 abstract class PaymentURI {
-  PaymentURI({
-    required this.amount,
-    required this.address});
+  PaymentURI({required this.amount, required this.address});
 
   final String amount;
   final String address;
 }
 
 class MoneroURI extends PaymentURI {
-  MoneroURI({
-      required String amount,
-      required String address})
+  MoneroURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -48,9 +47,7 @@ class MoneroURI extends PaymentURI {
 }
 
 class HavenURI extends PaymentURI {
-  HavenURI({
-      required String amount,
-      required String address})
+  HavenURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -66,9 +63,7 @@ class HavenURI extends PaymentURI {
 }
 
 class BitcoinURI extends PaymentURI {
-  BitcoinURI({
-      required String amount,
-      required String address})
+  BitcoinURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -84,9 +79,7 @@ class BitcoinURI extends PaymentURI {
 }
 
 class LitecoinURI extends PaymentURI {
-  LitecoinURI({
-    required String amount,
-    required String address})
+  LitecoinURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -122,23 +115,32 @@ class EthereumURI extends PaymentURI {
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
-    required this.yatStore
-  }) : _appStore = appStore,
-      _baseItems = <ListItem>[],
-      _wallet = appStore.wallet!,
-      hasAccounts = appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
-      amount = '' {
-    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<
-            Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-        wallet) {
-      if (wallet == null) {
-        return;
-      }
-      _wallet = wallet;
-      hasAccounts = _wallet.type == WalletType.monero;
-    });
+    required this.yatStore,
+    required this.fiatConversionStore,
+  })  : _appStore = appStore,
+        _baseItems = <ListItem>[],
+        _wallet = appStore.wallet!,
+        selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
+        _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
+        hasAccounts =
+            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+        amount = '' {
     _init();
   }
+
+  static const String _cryptoNumberPattern = '0.00000000';
+
+  final NumberFormat _cryptoNumberFormat;
+
+  final FiatConversionStore fiatConversionStore;
+
+  List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
+
+  @observable
+  Currency selectedCurrency;
+
+  @computed
+  int get selectedCurrencyIndex => currencies.indexOf(selectedCurrency);
 
   @observable
   String amount;
@@ -176,8 +178,9 @@ abstract class WalletAddressListViewModelBase with Store {
   }
 
   @computed
-  ObservableList<ListItem> get items =>
-      ObservableList<ListItem>()..addAll(_baseItems)..addAll(addressList);
+  ObservableList<ListItem> get items => ObservableList<ListItem>()
+    ..addAll(_baseItems)
+    ..addAll(addressList);
 
   @computed
   ObservableList<ListItem> get addressList {
@@ -186,10 +189,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (wallet.type == WalletType.monero) {
       final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = monero
-        !.getSubaddressList(wallet)
-        .subaddresses
-          .map((subaddress) {
+      final addressItems = monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -203,10 +203,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (wallet.type == WalletType.haven) {
       final primaryAddress = haven!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = haven
-        !.getSubaddressList(wallet)
-        .subaddresses
-          .map((subaddress) {
+      final addressItems = haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -223,8 +220,7 @@ abstract class WalletAddressListViewModelBase with Store {
       final bitcoinAddresses = bitcoin!.getAddresses(wallet).map((addr) {
         final isPrimary = addr == primaryAddress;
 
-        return WalletAddressListItem(
-            isPrimary: isPrimary, name: null, address: addr);
+        return WalletAddressListItem(isPrimary: isPrimary, name: null, address: addr);
       });
       addressList.addAll(bitcoinAddresses);
     }
@@ -260,16 +256,13 @@ abstract class WalletAddressListViewModelBase with Store {
   bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
-      _wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   List<ListItem> _baseItems;
 
   AppStore _appStore;
 
   final YatStore yatStore;
-
-  ReactionDisposer? _onWalletChangeReaction;
 
   @action
   void setAddress(WalletAddressListItem address) =>
@@ -283,5 +276,32 @@ abstract class WalletAddressListViewModelBase with Store {
     }
 
     _baseItems.add(WalletAddressListHeader());
+  }
+
+  @action
+  void selectCurrency(Currency currency) {
+    selectedCurrency = currency;
+  }
+
+  @action
+  void changeAmount(String amount) {
+    this.amount = amount;
+    if (selectedCurrency is FiatCurrency) {
+      _convertAmountToCrypto();
+    }
+  }
+
+  void _convertAmountToCrypto() {
+    final cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
+    try {
+      final crypto =
+          double.parse(amount.replaceAll(',', '.')) / fiatConversionStore.prices[cryptoCurrency]!;
+      final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
+      if (amount != cryptoAmountTmp) {
+        amount = cryptoAmountTmp;
+      }
+    } catch (e) {
+      amount = '';
+    }
   }
 }

@@ -20,8 +20,6 @@ abstract class BasePage extends StatelessWidget {
 
   String? get title => null;
 
-  bool get isModalBackButton => false;
-
   Color get backgroundLightColor => Colors.white;
 
   Color get backgroundDarkColor => PaletteDark.backgroundColor;
@@ -50,23 +48,27 @@ abstract class BasePage extends StatelessWidget {
     }
 
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor ?? Theme.of(context).primaryTextTheme!.headline6!.color!,
+      color: titleColor ?? Theme.of(context).primaryTextTheme.headline6!.color!,
       size: 16,);
-    final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme : closeButtonImage;
 
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
-            onPressed: () => onClose(context),
-            child: isModalBackButton ? _closeButton : _backButton),
+    return MergeSemantics(
+      child: SizedBox(
+        height: 37,
+        width: 37,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child: _backButton,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -92,7 +94,7 @@ abstract class BasePage extends StatelessWidget {
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final appBarColor = currentTheme.type == ThemeType.dark
         ? backgroundDarkColor : backgroundLightColor;
-
+  
     switch (appBarStyle) {
       case AppBarStyle.regular:
         // FIX-ME: NavBar no context

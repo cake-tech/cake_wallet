@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -12,84 +13,96 @@ part 'wallet_keys_view_model.g.dart';
 class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 
 abstract class WalletKeysViewModelBase with Store {
-  WalletKeysViewModelBase(WalletBase wallet)
-      : title = wallet.type == WalletType.bitcoin ||
-                wallet.type == WalletType.litecoin ||
-                wallet.type == WalletType.ethereum
+  WalletKeysViewModelBase(this._appStore)
+      : title = _appStore.wallet!.type == WalletType.bitcoin ||
+                _appStore.wallet!.type == WalletType.litecoin ||
+                _appStore.wallet!.type == WalletType.ethereum
             ? S.current.wallet_seed
             : S.current.wallet_keys,
-        _wallet = wallet,
-        _restoreHeight = wallet.walletInfo.restoreHeight,
+        _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
         items = ObservableList<StandartListItem>() {
-    if (wallet.type == WalletType.monero) {
-      final keys = monero!.getKeys(wallet);
-      items.addAll([
-        if (keys['publicSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
-        if (keys['privateSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
-        if (keys['publicViewKey'] != null)
-          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
-        if (keys['privateViewKey'] != null)
-          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
-        StandartListItem(title: S.current.wallet_seed, value: wallet.seed),
-      ]);
-    }
+    _populateItems();
 
-    if (wallet.type == WalletType.haven) {
-      final keys = haven!.getKeys(wallet);
-      items.addAll([
-        if (keys['publicSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
-        if (keys['privateSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
-        if (keys['publicViewKey'] != null)
-          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
-        if (keys['privateViewKey'] != null)
-          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
-        StandartListItem(title: S.current.wallet_seed, value: wallet.seed),
-      ]);
-    }
-
-    if (wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.litecoin ||
-        wallet.type == WalletType.ethereum) {
-      items.addAll([
-        StandartListItem(title: S.current.wallet_seed, value: wallet.seed),
-      ]);
-    }
+    reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
+      _populateItems();
+    });
   }
 
   final ObservableList<StandartListItem> items;
 
   final String title;
 
-  final WalletBase _wallet;
+  final AppStore _appStore;
 
   final int _restoreHeight;
 
+  void _populateItems() {
+    items.clear();
+
+    if (_appStore.wallet!.type == WalletType.monero) {
+      final keys = monero!.getKeys(_appStore.wallet!);
+
+      items.addAll([
+        if (keys['publicSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
+        if (keys['privateSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
+        if (keys['publicViewKey'] != null)
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
+        if (keys['privateViewKey'] != null)
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
+      ]);
+    }
+
+    if (_appStore.wallet!.type == WalletType.haven) {
+      final keys = haven!.getKeys(_appStore.wallet!);
+
+      items.addAll([
+        if (keys['publicSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
+        if (keys['privateSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
+        if (keys['publicViewKey'] != null)
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
+        if (keys['privateViewKey'] != null)
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
+      ]);
+    }
+
+    if (_appStore.wallet!.type == WalletType.bitcoin ||
+        _appStore.wallet!.type == WalletType.litecoin ||
+        _appStore.wallet!.type == WalletType.ethereum) {
+      items.addAll([
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
+      ]);
+    }
+  }
+
   Future<int?> currentHeight() async {
-    if (_wallet.type == WalletType.haven) {
+    if (_appStore.wallet!.type == WalletType.haven) {
       return await haven!.getCurrentHeight();
     }
-    if (_wallet.type == WalletType.monero) {
+    if (_appStore.wallet!.type == WalletType.monero) {
       return monero_wallet.getCurrentHeight();
     }
     return null;
   }
 
-  String get _path {
-    switch (_wallet.type) {
+
+  String get _scheme {
+    switch (_appStore.wallet!.type) {
       case WalletType.monero:
-        return 'monero_wallet:';
+        return 'monero-wallet';
       case WalletType.bitcoin:
-        return 'bitcoin_wallet:';
+        return 'bitcoin-wallet';
       case WalletType.litecoin:
-        return 'litecoin_wallet:';
+        return 'litecoin-wallet';
       case WalletType.haven:
-        return 'haven_wallet:';
+        return 'haven-wallet';
       default:
-        throw Exception('Unexpected wallet type: ${_wallet.toString()}');
+        throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }
   }
 
@@ -107,14 +120,14 @@ abstract class WalletKeysViewModelBase with Store {
   Future<Map<String, String>> get _queryParams async {
     final restoreHeightResult = await restoreHeight;
     return {
-      'seed': _wallet.seed,
+      'seed': _appStore.wallet!.seed,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
     };
   }
 
   Future<Uri> get url async {
     return Uri(
-      path: _path,
+      scheme: _scheme,
       queryParameters: await _queryParams,
     );
   }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';

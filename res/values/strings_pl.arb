@@ -150,7 +150,7 @@
   "receive_amount" : "Ilość",
   "subaddresses" : "Podadresy",
   "addresses" : "Adresy",
-  "scan_qr_code" : "Zeskanuj kod QR, aby uzyskać adres",
+  "scan_qr_code_to_get_address" : "Zeskanuj kod QR, aby uzyskać adres",
   "qr_fullscreen" : "Dotknij, aby otworzyć pełnoekranowy kod QR",
   "rename" : "Zmień nazwę",
   "choose_account" : "Wybierz konto",
@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Jeśli chcesz wymienić XMR z salda Cake Wallet Monero, najpierw przełącz się na portfel Monero.",
-  "confirmed" : "Potwierdzony",
-  "unconfirmed" : "Niepotwierdzony",
+  "confirmed" : "Potwierdzone saldo",
+  "unconfirmed" : "Niepotwierdzone saldo",
   "displayable" : "Wyświetlane",
 
   "submit_request" : "Złóż wniosek",
@@ -685,8 +685,14 @@
   "arrive_in_this_address" : "${currency} ${tag}dotrze na ten adres",
   "do_not_send": "Nie wysyłaj",
   "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
+  "scan_qr_code": "Skanowania QR code",
+  "cold_or_recover_wallet": "Dodaj zimny portfel lub odzyskaj portfel papierowy",
+  "please_wait": "Proszę czekać",
+  "sweeping_wallet": "Zamiatanie portfela",
+  "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI",
   "decimal_places_error": "Za dużo miejsc dziesiętnych",
   "edit_node": "Edytuj węzeł",
+  "frozen_balance": "Zamrożona równowaga",
   "invoice_details": "Dane do faktury",
   "donation_link_details": "Szczegóły linku darowizny",
   "anonpay_description": "Wygeneruj ${type}. Odbiorca może ${method} z dowolną obsługiwaną kryptowalutą, a Ty otrzymasz środki w tym portfelu.",
@@ -697,5 +703,10 @@
   "optional_name": "Opcjonalna nazwa odbiorcy",
   "clearnet_link": "łącze Clearnet",
   "onion_link": "Łącznik cebulowy",
-  "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana"
+  "settings": "Ustawienia",
+  "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana",
+  "error_text_input_below_minimum_limit" : "Kwota jest mniejsza niż minimalna",
+  "error_text_input_above_maximum_limit" : "Kwota jest większa niż maksymalna",
+  "show_market_place" : "Pokaż rynek",
+  "prevent_screenshots": "Zapobiegaj zrzutom ekranu i nagrywaniu ekranu"
 }

@@ -10,6 +10,7 @@ class PreferencesKey {
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
+  static const isAppSecureKey = 'is_app_secure';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
@@ -33,6 +34,8 @@ class PreferencesKey {
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
   static const lastPopupDate = 'last_popup_date';
+  static const lastAppReviewDate = 'last_app_review_date';
+
 
 
   static String moneroWalletUpdateV1Key(String name)
@@ -40,5 +43,8 @@ class PreferencesKey {
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const clearnetDonationLink = 'clearnet_donation_link'; 
-  static const onionDonationLink = 'onion_donation_link'; 
+  static const onionDonationLink = 'onion_donation_link';
+  static const lastSeenAppVersion = 'last_seen_app_version';
+  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
+  static const isNewInstall = 'is_new_install';
 }

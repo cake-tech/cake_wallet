@@ -1,5 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -133,10 +134,9 @@ class AnonPayReceivePage extends BasePage {
                   await Navigator.pushNamed(
                     context,
                     Routes.fullscreenQR,
-                    arguments: {
-                      'qrData': invoiceInfo.clearnetUrl,
-                      'version': qr.QrVersions.auto,
-                    },
+                    arguments: QrViewData(data: invoiceInfo.clearnetUrl,
+                      version: qr.QrVersions.auto,
+                    )
                   );
                   // ignore: unawaited_futures
                   DeviceDisplayBrightness.setBrightness(brightness);

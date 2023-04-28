@@ -136,7 +136,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     return ElectrumTransactionInfo(type,
         id: bundle.originalTransaction.getId(),
         height: height,
-        isPending: false,
+        isPending: bundle.confirmations == 0,
         fee: fee,
         direction: direction,
         amount: amount,

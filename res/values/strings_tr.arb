@@ -150,7 +150,7 @@
   "receive_amount" : "Miktar",
   "subaddresses" : "Alt adresler",
   "addresses" : "Adresler",
-  "scan_qr_code" : "Adresi getirmek için QR kodunu tara",
+  "scan_qr_code_to_get_address" : "Adresi getirmek için QR kodunu tara",
   "qr_fullscreen" : "QR kodunu tam ekranda açmak için dokun",
   "rename" : "Yeniden adlandır",
   "choose_account" : "Hesabı seç",
@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Lütfen takas için XRP işlemi gönderirken Hedef Etiketi (Destination Tag) belirtmeyi unutmayın",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet'daki Monero bakiyenizi kullanarak takas yapmak istiyorsan, lütfen önce Monero cüzdanına geç.",
-  "confirmed" : "Onaylı",
-  "unconfirmed" : "Onaylanmamış",
+  "confirmed" : "Onaylanmış Bakiye",
+  "unconfirmed" : "Onaylanmamış Bakiye",
   "displayable" : "Gösterilebilir",
 
   "submit_request" : "talep gönder",
@@ -685,8 +685,14 @@
   "arrive_in_this_address" : "${currency} ${tag}bu adrese ulaşacak",
   "do_not_send": "Gönderme",
   "error_dialog_content": "Hay aksi, bir hatamız var.\n\nUygulamayı daha iyi hale getirmek için lütfen kilitlenme raporunu destek ekibimize gönderin.",
+  "scan_qr_code": "QR kodunu tarayın",
+  "cold_or_recover_wallet": "Soğuk bir cüzdan ekleyin veya bir kağıt cüzdanı kurtarın",
+  "please_wait": "Lütfen bekleyin",
+  "sweeping_wallet": "Süpürme cüzdanı",
+  "sweeping_wallet_alert": "Bu uzun sürmemeli. BU EKRANDAN BIRAKMAYIN YOKSA SÜPÜRÜLEN FONLAR KAYBOLABİLİR",
   "decimal_places_error": "Çok fazla ondalık basamak",
   "edit_node": "Düğümü Düzenle",
+  "frozen_balance": "Dondurulmuş Bakiye",
   "invoice_details": "fatura detayları",
   "donation_link_details": "Bağış bağlantısı ayrıntıları",
   "anonpay_description": "${type} oluşturun. Alıcı, desteklenen herhangi bir kripto para birimi ile ${method} yapabilir ve bu cüzdanda para alırsınız.",
@@ -697,5 +703,10 @@
   "optional_name": "İsteğe bağlı alıcı adı",
   "clearnet_link": "Net bağlantı",
   "onion_link": "soğan bağlantısı",
-  "sell_monero_com_alert_content": "Monero satışı henüz desteklenmiyor"
+  "settings": "ayarlar",
+  "sell_monero_com_alert_content": "Monero satışı henüz desteklenmiyor",
+  "error_text_input_below_minimum_limit" : "Miktar minimumdan daha azdır",
+  "error_text_input_above_maximum_limit" : "Miktar maksimumdan daha fazla",
+  "show_market_place":"Pazar Yerini Göster",
+  "prevent_screenshots": "Ekran görüntülerini ve ekran kaydını önleyin"
 }

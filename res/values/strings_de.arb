@@ -150,7 +150,7 @@
   "receive_amount" : "Betrag",
   "subaddresses" : "Unteradressen",
   "addresses" : "Adressen",
-  "scan_qr_code" : "Scannen Sie den QR-Code, um die Adresse zu erhalten",
+  "scan_qr_code_to_get_address" : "Scannen Sie den QR-Code, um die Adresse zu erhalten",
   "qr_fullscreen" : "Tippen Sie hier, um den QR-Code im Vollbildmodus zu öffnen",
   "rename" : "Umbenennen",
   "choose_account" : "Konto auswählen",
@@ -479,8 +479,8 @@
   "xrp_extra_info" : "Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden",
 
   "exchange_incorrect_current_wallet_for_xmr" : "Wenn Sie XMR von Ihrem Cake Wallet Monero-Guthaben umtauschen möchten, wechseln Sie bitte zuerst zu Ihrer Monero-Wallet.",
-  "confirmed" : "Bestätigt",
-  "unconfirmed" : "Unbestätigt",
+  "confirmed" : "Bestätigter Saldo",
+  "unconfirmed" : "Unbestätigter Saldo",
   "displayable" : "Anzeigebar",
 
   "submit_request" : "Eine Anfrage stellen",
@@ -685,8 +685,14 @@
   "arrive_in_this_address" : "${currency} ${tag}wird an dieser Adresse ankommen",
   "do_not_send": "Nicht senden",
   "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern.",
+  "scan_qr_code": "QR-Code scannen",
+  "cold_or_recover_wallet": "Fügen Sie eine Cold Wallet hinzu oder stellen Sie eine Paper Wallet wieder her",
+  "please_wait": "Warten Sie mal",
+  "sweeping_wallet": "Kehre Geldbörse",
+  "sweeping_wallet_alert": "Das sollte nicht lange dauern. VERLASSEN SIE DIESEN BILDSCHIRM NICHT, ANDERNFALLS KÖNNEN DIE SWEPT-GELDER VERLOREN GEHEN",
   "decimal_places_error": "Zu viele Nachkommastellen",
   "edit_node": "Knoten bearbeiten",
+  "frozen_balance": "Gefrorenes Gleichgewicht",
   "invoice_details": "Rechnungs-Details",
   "donation_link_details": "Details zum Spendenlink",
   "anonpay_description": "Generieren Sie ${type}. Der Empfänger kann ${method} mit jeder unterstützten Kryptowährung verwenden, und Sie erhalten Geld in dieser Brieftasche.",
@@ -697,5 +703,10 @@
   "optional_name": "Optionaler Empfängername",
   "clearnet_link": "Clearnet-Link",
   "onion_link": "Zwiebel-Link",
-  "sell_monero_com_alert_content": "Der Verkauf von Monero wird noch nicht unterstützt"
+  "settings": "Einstellungen",
+  "sell_monero_com_alert_content": "Der Verkauf von Monero wird noch nicht unterstützt",
+  "error_text_input_below_minimum_limit" : "Menge ist unter dem Minimum",
+  "error_text_input_above_maximum_limit" : "Menge ist über dem Maximum",
+  "show_market_place": "Marktplatz anzeigen",
+  "prevent_screenshots": "Verhindern Sie Screenshots und Bildschirmaufzeichnungen"
 }

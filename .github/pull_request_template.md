@@ -8,6 +8,6 @@ Please include a summary of the changes and which issue is fixed / feature is ad
 
 - [ ] Initial Manual Tests Passed
 - [ ] Double check modified code and verify it with the feature/task requirements
-- [ ] Formate code
+- [ ] Format code
 - [ ] Look for code duplication
 - [ ] Clear naming for variables and methods

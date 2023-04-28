@@ -198,6 +198,9 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isFixedRateMode;
 
+  @observable
+  Limits limits;
+
   @computed
   SyncStatus get status => wallet.syncStatus;
 
@@ -240,8 +243,6 @@ abstract class ExchangeViewModelBase with Store {
   List<CryptoCurrency> receiveCurrencies;
 
   List<CryptoCurrency> depositCurrencies;
-
-  Limits limits;
 
   NumberFormat _cryptoNumberFormat;
 
@@ -318,6 +319,22 @@ abstract class ExchangeViewModelBase with Store {
         .format(_bestRate * _enteredAmount)
         .toString()
         .replaceAll(RegExp('\\,'), '');
+  }
+
+  bool checkIfInputMeetsMinOrMaxCondition(String input) {
+    final _enteredAmount = double.tryParse(input.replaceAll(',', '.')) ?? 0;
+    double minLimit = limits.min ?? 0;
+    double? maxLimit = limits.max;
+
+    if (_enteredAmount < minLimit) {
+      return false;
+    }
+
+    if (maxLimit != null && _enteredAmount > maxLimit) {
+      return false;
+    }
+
+    return true;
   }
 
   Future<void> _calculateBestRate() async {
