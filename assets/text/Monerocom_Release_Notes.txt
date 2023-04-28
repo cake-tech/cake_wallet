@@ -1,4 +1,1 @@
-Fix for QR codes
-Fix for creating sub-addresses
-Fix Add/Edit nodes
-Fix issues with text/amount fields
+Fix Restore from QR code

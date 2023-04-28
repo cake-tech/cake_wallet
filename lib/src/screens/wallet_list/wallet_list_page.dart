@@ -174,12 +174,7 @@ class WalletListBodyState extends State<WalletListBody> {
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () {
-                  if (isSingleCoin) {
-                    Navigator.of(context).pushNamed(Routes.restoreWallet,
-                        arguments: widget.walletListViewModel.currentWalletType);
-                  } else {
-                    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
-                  }
+                  Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,

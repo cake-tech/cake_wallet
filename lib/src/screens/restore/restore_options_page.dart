@@ -7,6 +7,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,7 +39,7 @@ class RestoreOptionsPage extends BasePage {
               children: <Widget>[
                 RestoreButton(
                     onPressed: () => Navigator.pushNamed(
-                        context, Routes.restoreWalletOptionsFromWelcome,
+                        context, Routes.restoreWalletFromSeedKeys,
                         arguments: isNewInstall),
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
