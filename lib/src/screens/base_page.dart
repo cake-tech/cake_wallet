@@ -26,6 +26,8 @@ abstract class BasePage extends StatelessWidget {
 
   Color? get titleColor => null;
 
+  bool get lightTitleColor => false;
+
   bool get resizeToAvoidBottomInset => true;
 
   bool get extendBodyBehindAppBar => false;
@@ -47,9 +49,14 @@ abstract class BasePage extends StatelessWidget {
       return null;
     }
 
-    final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor ?? Theme.of(context).primaryTextTheme.headline6!.color!,
-      size: 16,);
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: titleColor ??
+          (lightTitleColor
+              ? Theme.of(context).accentTextTheme.headline2!.backgroundColor!
+              : Theme.of(context).primaryTextTheme.headline6!.color!),
+      size: 16,
+    );
 
     return MergeSemantics(
       child: SizedBox(
