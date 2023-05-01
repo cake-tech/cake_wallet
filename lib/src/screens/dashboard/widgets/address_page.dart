@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
@@ -62,7 +63,37 @@ class AddressPage extends BasePage {
   Color get titleColor => Colors.white;
 
   @override
-  bool get canUseCloseIcon => true;
+  Widget? leading(BuildContext context) {
+    final _backButton = Icon(Icons.arrow_back_ios,
+      color: titleColor,
+      size: 16,
+    );
+    final _closeButton = currentTheme.type == ThemeType.dark
+        ? closeButtonImageDarkTheme : closeButtonImage;
+
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: !isMobileView ? 'Close' : 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child: !isMobileView ? _closeButton : _backButton,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget middle(BuildContext context) =>

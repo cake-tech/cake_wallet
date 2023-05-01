@@ -115,6 +115,8 @@ PODS:
     - Flutter
   - flutter_secure_storage (3.3.1):
     - Flutter
+  - in_app_review (0.2.0):
+    - Flutter
   - local_auth_ios (0.0.1):
     - Flutter
   - MTBBarcodeScanner (5.0.11)
@@ -165,6 +167,7 @@ DEPENDENCIES:
   - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
   - flutter_mailer (from `.symlinks/plugins/flutter_mailer/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - local_auth_ios (from `.symlinks/plugins/local_auth_ios/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
@@ -220,6 +223,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_mailer/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  in_app_review:
+    :path: ".symlinks/plugins/in_app_review/ios"
   local_auth_ios:
     :path: ".symlinks/plugins/local_auth_ios/ios"
   package_info:
@@ -260,6 +265,7 @@ SPEC CHECKSUMS:
   flutter_inappwebview: bfd58618f49dc62f2676de690fc6dcda1d6c3721
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
+  in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
   local_auth_ios: c6cf091ded637a88f24f86a8875d8b0f526e2605
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
