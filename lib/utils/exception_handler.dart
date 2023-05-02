@@ -172,7 +172,7 @@ class ExceptionHandler {
     }
 
     await file.writeAsString(
-      "App Version: $currentVersion\n\nDevice Info $deviceInfo",
+      "App Version: $currentVersion\n\nDevice Info $deviceInfo\n\n",
       mode: FileMode.append,
     );
   }
@@ -193,6 +193,7 @@ class ExceptionHandler {
       'systemVersion': data.systemVersion,
       'model': data.model,
       'localizedModel': data.localizedModel,
+      'isPhysicalDevice': data.isPhysicalDevice,
     };
   }
 
