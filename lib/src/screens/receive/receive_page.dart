@@ -53,7 +53,8 @@ class ReceivePage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  bool get lightTitleColor => true;
+  Color? get titleColor =>
+      currentTheme.type == ThemeType.bright ? Colors.white : null;
 
   @override
   Widget middle(BuildContext context) {
