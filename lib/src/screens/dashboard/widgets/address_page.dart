@@ -67,7 +67,7 @@ class AddressPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor,
+      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark
