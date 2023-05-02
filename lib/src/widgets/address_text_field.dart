@@ -114,52 +114,63 @@ class AddressTextField extends StatelessWidget {
                         width: prefixIconWidth,
                         height: prefixIconHeight,
                         padding: EdgeInsets.only(top: 0),
-                        child: InkWell(
-                          onTap: () async => _pasteAddress(context),
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color: buttonColor ??
+                        child: Semantics(
+                          label: S.of(context).paste,
+                          child: InkWell(
+                            onTap: () async => _pasteAddress(context),
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color: buttonColor ??
+                                        Theme.of(context)
+                                            .accentTextTheme
+                                            .headline6!
+                                            .color!,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(6))),
+                                child: Image.asset(
+                                  'assets/images/paste_ios.png',
+                                  color: iconColor ??
                                       Theme.of(context)
-                                          .accentTextTheme.headline6!
-                                          .color!,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6))),
-                              child: Image.asset(
-                                'assets/images/paste_ios.png',
-                                color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme.headline4!
-                                        .decorationColor!,
-                              )),
+                                          .primaryTextTheme
+                                          .headline4!
+                                          .decorationColor!,
+                                )),
+                          ),
                         )),
                   ],
-                  if (this.options.contains(AddressTextFieldOption.qrCode) && DeviceInfo.instance.isMobile) 
-                  ...[
+                  if (this.options.contains(AddressTextFieldOption.qrCode) &&
+                      DeviceInfo.instance.isMobile) ...[
                     Container(
                         width: prefixIconWidth,
                         height: prefixIconHeight,
                         padding: EdgeInsets.only(top: 0),
-                        child: InkWell(
-                          onTap: () async => _presentQRScanner(context),
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color: buttonColor ??
+                        child: Semantics(
+                          label: 'Scan',
+                          child: InkWell(
+                            onTap: () async => _presentQRScanner(context),
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color: buttonColor ??
+                                        Theme.of(context)
+                                            .accentTextTheme
+                                            .headline6!
+                                            .color!,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(6))),
+                                child: Image.asset(
+                                  'assets/images/qr_code_icon.png',
+                                  color: iconColor ??
                                       Theme.of(context)
-                                          .accentTextTheme.headline6!
-                                          .color!,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6))),
-                              child: Image.asset(
-                                'assets/images/qr_code_icon.png',
-                                color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme.headline4!
-                                        .decorationColor!,
-                              )),
+                                          .primaryTextTheme
+                                          .headline4!
+                                          .decorationColor!,
+                                )),
+                          ),
                         ))
-                  ] else SizedBox(width: 5),
+                  ] else
+                    SizedBox(width: 5),
                   if (this
                       .options
                       .contains(AddressTextFieldOption.addressBook)) ...[
@@ -167,24 +178,30 @@ class AddressTextField extends StatelessWidget {
                         width: prefixIconWidth,
                         height: prefixIconHeight,
                         padding: EdgeInsets.only(top: 0),
-                        child: InkWell(
-                          onTap: () async => _presetAddressBookPicker(context),
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color: buttonColor ??
+                        child: Semantics(
+                          label: S.of(context).address_book,
+                          child: InkWell(
+                            onTap: () async =>
+                                _presetAddressBookPicker(context),
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color: buttonColor ??
+                                        Theme.of(context)
+                                            .accentTextTheme
+                                            .headline6!
+                                            .color!,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(6))),
+                                child: Image.asset(
+                                  'assets/images/open_book.png',
+                                  color: iconColor ??
                                       Theme.of(context)
-                                          .accentTextTheme.headline6!
-                                          .color!,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6))),
-                              child: Image.asset(
-                                'assets/images/open_book.png',
-                                color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme.headline4!
-                                        .decorationColor!,
-                              )),
+                                          .primaryTextTheme
+                                          .headline4!
+                                          .decorationColor!,
+                                )),
+                          ),
                         ))
                   ]
                 ],
