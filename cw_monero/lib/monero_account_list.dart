@@ -43,19 +43,16 @@ abstract class MoneroAccountListBase with Store {
     }
   }
 
-  List<Account> getAll() => account_list
-      .getAllAccount()
-      .map((accountRow) {
-      final accountIndex = accountRow.getId();
-      final balance = monero_wallet.getFullBalance(accountIndex: accountIndex);
-      
-      return Account(
-        id: accountRow.getId(),
-        label: accountRow.getLabel(),
-        balance: moneroAmountToString(amount: balance),
+  List<Account> getAll() => account_list.getAllAccount().map((accountRow) {
+        final accountIndex = accountRow.getId();
+        final balance = monero_wallet.getFullBalance(accountIndex: accountIndex);
+
+        return Account(
+          id: accountRow.getId(),
+          label: accountRow.getLabel(),
+          balance: moneroAmountToString(amount: balance),
         );
-      })
-      .toList();
+      }).toList();
 
   Future<void> addAccount({required String label}) async {
     await account_list.addAccount(label: label);
@@ -63,8 +60,7 @@ abstract class MoneroAccountListBase with Store {
   }
 
   Future<void> setLabelAccount({required int accountIndex, required String label}) async {
-    await account_list.setLabelForAccount(
-        accountIndex: accountIndex, label: label);
+    await account_list.setLabelForAccount(accountIndex: accountIndex, label: label);
     update();
   }
 

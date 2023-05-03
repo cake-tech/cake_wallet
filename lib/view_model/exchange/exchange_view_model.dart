@@ -222,7 +222,7 @@ abstract class ExchangeViewModelBase with Store {
 
 
   bool get hasAllAmount =>
-      (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) && depositCurrency == wallet.currency;
+      wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
 
   bool get isMoneroWallet  => wallet.type == WalletType.monero;
 
