@@ -60,10 +60,6 @@ class AddressPage extends BasePage {
   bool effectsInstalled = false;
 
   @override
-  Color? get titleColor =>
-      currentTheme.type == ThemeType.bright ? Colors.white : null;
-
-  @override
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
