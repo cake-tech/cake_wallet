@@ -103,7 +103,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   connectivity_macos: 5dae6ee11d320fac7c05f0d08bd08fc32b5514d9
-  cw_monero: f8b7f104508efba2591548e76b5c058d05cba3f0
+  cw_monero: ec03de55a19c4a2b174ea687e0f4202edc716fa4
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
   flutter_secure_storage_macos: 6ceee8fbc7f484553ad17f79361b556259df89aa

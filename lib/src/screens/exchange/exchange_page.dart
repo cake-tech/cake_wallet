@@ -280,8 +280,8 @@ class ExchangePage extends BasePage {
                     return TemplateTile(
                       key: UniqueKey(),
                       amount: template.amount,
-                      from: template.depositCurrency,
-                      to: template.receiveCurrency,
+                      from: template.depositCurrencyTitle,
+                      to: template.receiveCurrencyTitle,
                       onTap: () {
                         applyTemplate(context, exchangeViewModel, template);
                       },
