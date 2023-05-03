@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:ffi';
+import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_monero/api/convert_utf8_to_string.dart';
@@ -6,48 +8,42 @@ import 'package:cw_monero/api/signatures.dart';
 import 'package:cw_monero/api/types.dart';
 import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as ioc;
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
 
-final createWalletNative = moneroApi
-    .lookup<NativeFunction<create_wallet>>('create_wallet')
-    .asFunction<CreateWallet>();
+final createWalletNative =
+    moneroApi.lookup<NativeFunction<create_wallet>>('create_wallet').asFunction<CreateWallet>();
 
 final restoreWalletFromSeedNative = moneroApi
-    .lookup<NativeFunction<restore_wallet_from_seed>>(
-        'restore_wallet_from_seed')
+    .lookup<NativeFunction<restore_wallet_from_seed>>('restore_wallet_from_seed')
     .asFunction<RestoreWalletFromSeed>();
 
 final restoreWalletFromKeysNative = moneroApi
-    .lookup<NativeFunction<restore_wallet_from_keys>>(
-        'restore_wallet_from_keys')
+    .lookup<NativeFunction<restore_wallet_from_keys>>('restore_wallet_from_keys')
     .asFunction<RestoreWalletFromKeys>();
 
 final isWalletExistNative = moneroApi
     .lookup<NativeFunction<is_wallet_exist>>('is_wallet_exist')
     .asFunction<IsWalletExist>();
 
-final loadWalletNative = moneroApi
-    .lookup<NativeFunction<load_wallet>>('load_wallet')
-    .asFunction<LoadWallet>();
+final loadWalletNative =
+    moneroApi.lookup<NativeFunction<load_wallet>>('load_wallet').asFunction<LoadWallet>();
 
-final errorStringNative = moneroApi
-    .lookup<NativeFunction<error_string>>('error_string')
-    .asFunction<ErrorString>();
+final errorStringNative =
+    moneroApi.lookup<NativeFunction<error_string>>('error_string').asFunction<ErrorString>();
 
 void createWalletSync(
-    {required String path,
-     required String password,
-     required String language,
-     int nettype = 0}) {
+    {required String path, required String password, required String language, int nettype = 0}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
-  final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
-          languagePointer, nettype, errorMessagePointer) !=
+  final isWalletCreated = createWalletNative(
+          pathPointer, passwordPointer, languagePointer, nettype, errorMessagePointer) !=
       0;
 
   calloc.free(pathPointer);
@@ -55,8 +51,7 @@ void createWalletSync(
   calloc.free(languagePointer);
 
   if (!isWalletCreated) {
-    throw WalletCreationException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
+    throw WalletCreationException(message: convertUTF8ToString(pointer: errorMessagePointer));
   }
 
   // setupNodeSync(address: "node.moneroworld.com:18089");
@@ -82,12 +77,7 @@ void restoreWalletFromSeedSync(
   final seedPointer = seed.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
   final isWalletRestored = restoreWalletFromSeedNative(
-          pathPointer,
-          passwordPointer,
-          seedPointer,
-          nettype,
-          restoreHeight,
-          errorMessagePointer) !=
+          pathPointer, passwordPointer, seedPointer, nettype, restoreHeight, errorMessagePointer) !=
       0;
 
   calloc.free(pathPointer);
@@ -141,10 +131,7 @@ void restoreWalletFromKeysSync(
   }
 }
 
-void loadWallet({
-  required String path,
-  required String password,
-  int nettype = 0}) {
+void loadWallet({required String path, required String password, int nettype = 0}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final loaded = loadWalletNative(pathPointer, passwordPointer, nettype) != 0;
@@ -152,8 +139,7 @@ void loadWallet({
   calloc.free(passwordPointer);
 
   if (!loaded) {
-    throw WalletOpeningException(
-        message: convertUTF8ToString(pointer: errorStringNative()));
+    throw WalletOpeningException(message: convertUTF8ToString(pointer: errorStringNative()));
   }
 }
 
@@ -202,20 +188,15 @@ bool _isWalletExist(String path) => isWalletExistSync(path: path);
 void openWallet({required String path, required String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
-Future<void> openWalletAsync(Map<String, String> args) async =>
-    compute(_openWallet, args);
+Future<void> openWalletAsync(Map<String, String> args) async => compute(_openWallet, args);
 
 Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
         int nettype = 0}) async =>
-    compute(_createWallet, {
-      'path': path,
-      'password': password,
-      'language': language,
-      'nettype': nettype
-    });
+    compute(_createWallet,
+        {'path': path, 'password': password, 'language': language, 'nettype': nettype});
 
 Future<void> restoreFromSeed(
         {required String path,
@@ -250,5 +231,74 @@ Future<void> restoreFromKeys(
       'nettype': nettype,
       'restoreHeight': restoreHeight
     });
+
+Future<bool> restoreFromTxIdS({
+  required String uriRaw,
+  required String address,
+  List subaddressIndices = const [],
+  int accountIndex = 0,
+  int priority = 0,
+  int ringSize = 0,
+  int outputs = 0,
+  int unlockTime = 1,
+  required String paymentId,
+  bool getTxKeys = false,
+  bool doNotRelay = false,
+  bool getTxHex = false,
+  bool getTxMetadata = false,
+  int belowAmount = 0,
+  String? username,
+  String? password,
+}) async {
+  final uri = Uri.http(uriRaw, '');
+  final path = '/json_rpc';
+  final rpcUri = Uri.https(uri.authority, path);
+  final realm = 'monero-rpc';
+  final body = {
+    'method': 'sweep_all',
+    'params': {
+      'address': address,
+      'account_index': accountIndex,
+      'subaddr_indices': subaddressIndices,
+      'priority': priority,
+      'ring_size': ringSize,
+      'outputs': outputs,
+      'unlock_time': unlockTime,
+      'payment_id': paymentId,
+      'get_tx_keys': getTxKeys,
+      'below_amount': belowAmount,
+      'do_not_relay': doNotRelay,
+      'get_tx_hex': getTxHex,
+      'get_tx_metadata': getTxMetadata,
+    },
+    'jsonrpc': '2.0',
+    'id': '0'
+  };
+
+  try {
+    final authenticatingClient = HttpClient();
+
+    authenticatingClient.addCredentials(
+      rpcUri,
+      realm,
+      HttpClientDigestCredentials(username ?? '', password ?? ''),
+    );
+
+    final http.Client client = ioc.IOClient(authenticatingClient);
+
+    final response = await client.post(
+      rpcUri,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(body),
+    );
+
+    client.close();
+
+    final resBody = json.decode(response.body) as Map<String, dynamic>;
+    return !(resBody['result']['offline'] as bool);
+  } catch (_) {
+    return false;
+  }
+}
 
 Future<bool> isWalletExist({required String path}) => compute(_isWalletExist, path);
