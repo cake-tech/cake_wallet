@@ -4,14 +4,15 @@ part 'exchange_template.g.dart';
 
 @HiveType(typeId: ExchangeTemplate.typeId)
 class ExchangeTemplate extends HiveObject {
-  ExchangeTemplate({
-    required this.amountRaw,
-    required this.depositCurrencyRaw,
-    required this.receiveCurrencyRaw,
-    required this.providerRaw,
-    required this.depositAddressRaw,
-    required this.receiveAddressRaw
-  });
+  ExchangeTemplate(
+      {required this.amountRaw,
+      required this.depositCurrencyRaw,
+      required this.receiveCurrencyRaw,
+      required this.providerRaw,
+      required this.depositAddressRaw,
+      required this.receiveAddressRaw,
+      required this.depositCurrencyTitleRaw,
+      required this.receiveCurrencyTitleRaw});
 
   static const typeId = 7;
   static const boxName = 'ExchangeTemplate';
@@ -34,6 +35,12 @@ class ExchangeTemplate extends HiveObject {
   @HiveField(5)
   String? receiveAddressRaw;
 
+  @HiveField(6)
+  String? depositCurrencyTitleRaw;
+
+  @HiveField(7)
+  String? receiveCurrencyTitleRaw;
+
   String get amount => amountRaw ?? '';
 
   String get depositCurrency => depositCurrencyRaw ?? '';
@@ -45,4 +52,8 @@ class ExchangeTemplate extends HiveObject {
   String get depositAddress => depositAddressRaw ?? '';
 
   String get receiveAddress => receiveAddressRaw ?? '';
+
+  String get depositCurrencyTitle => depositCurrencyTitleRaw ?? '';
+
+  String get receiveCurrencyTitle => receiveCurrencyTitleRaw ?? '';
 }
