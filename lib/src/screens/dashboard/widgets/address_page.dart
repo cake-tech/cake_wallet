@@ -60,16 +60,15 @@ class AddressPage extends BasePage {
   bool effectsInstalled = false;
 
   @override
-  Color get titleColor => Colors.white;
-
-  @override
   Widget? leading(BuildContext context) {
-    final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor,
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme : closeButtonImage;
+        ? closeButtonImageDarkTheme
+        : closeButtonImage;
 
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
 
@@ -84,7 +83,7 @@ class AddressPage extends BasePage {
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.transparent),
+                    (states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,

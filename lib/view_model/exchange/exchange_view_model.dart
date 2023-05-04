@@ -578,14 +578,18 @@ abstract class ExchangeViewModelBase with Store {
           required String receiveCurrency,
           required String provider,
           required String depositAddress,
-          required String receiveAddress}) =>
+          required String receiveAddress,
+          required String depositCurrencyTitle,
+          required String receiveCurrencyTitle}) =>
       _exchangeTemplateStore.addTemplate(
           amount: amount,
           depositCurrency: depositCurrency,
           receiveCurrency: receiveCurrency,
           provider: provider,
           depositAddress: depositAddress,
-          receiveAddress: receiveAddress);
+          receiveAddress: receiveAddress,
+          depositCurrencyTitle: depositCurrencyTitle,
+          receiveCurrencyTitle: receiveCurrencyTitle);
 
   void removeTemplate({required ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);
