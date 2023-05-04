@@ -239,9 +239,13 @@ class ExchangeTemplatePage extends BasePage {
                         exchangeViewModel.addTemplate(
                             amount: exchangeViewModel.depositAmount,
                             depositCurrency:
-                            exchangeViewModel.depositCurrency.toString(),
+                            exchangeViewModel.depositCurrency.name,
+                            depositCurrencyTitle: exchangeViewModel
+                                .depositCurrency.title + ' ${exchangeViewModel.depositCurrency.tag ?? ''}',
                             receiveCurrency:
-                            exchangeViewModel.receiveCurrency.toString(),
+                            exchangeViewModel.receiveCurrency.name,
+                            receiveCurrencyTitle: exchangeViewModel
+                                .receiveCurrency.title + ' ${exchangeViewModel.receiveCurrency.tag ?? ''}',
                             provider: exchangeViewModel.provider.toString(),
                             depositAddress: exchangeViewModel.depositAddress,
                             receiveAddress: exchangeViewModel.receiveAddress);
