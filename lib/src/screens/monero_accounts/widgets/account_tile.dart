@@ -31,32 +31,37 @@ class AccountTile extends StatelessWidget {
       child: Container(
         height: 77,
         padding: EdgeInsets.only(left: 24, right: 24),
-        alignment: Alignment.centerLeft,
         color: color,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              accountName,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Lato',
-                color: textColor,
-                decoration: TextDecoration.none,
+            Expanded(
+              flex: 2,
+              child: Text(
+                accountName,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Lato',
+                  color: textColor,
+                  decoration: TextDecoration.none,
+                ),
               ),
             ),
             if (accountBalance != null)
-             Text(
-              '${accountBalance.toString()} $currency',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Lato',
-                color: Theme.of(context).textTheme.headline4!.color!,
-                decoration: TextDecoration.none,
-              ),
-            ),
+             Expanded(
+               child: Text(
+                '${accountBalance.toString()} $currency',
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Lato',
+                  color: Theme.of(context).textTheme.headline4!.color!,
+                  decoration: TextDecoration.none,
+                ),
+                         ),
+             ),
           ],
         ),
       ),
