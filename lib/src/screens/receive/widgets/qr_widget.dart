@@ -78,7 +78,7 @@ class QRWidget extends StatelessWidget {
                           child: AspectRatio(
                             aspectRatio: 1.0,
                             child: Container(
-                              padding: EdgeInsets.all(5),
+                              padding: EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 3,
