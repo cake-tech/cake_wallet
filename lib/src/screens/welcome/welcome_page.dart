@@ -63,7 +63,7 @@ class WelcomePage extends BasePage {
         onWillPop: () async => false,
         child: Container(
             alignment: Alignment.center,
-            padding: EdgeInsets.all(24),
+            padding: EdgeInsets.only(top: 64, bottom: 24, left: 24, right: 24),
             child: ConstrainedBox(
               constraints: BoxConstraints(
                   maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
@@ -74,10 +74,14 @@ class WelcomePage extends BasePage {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
+                          AspectRatio(
+                            aspectRatio: aspectRatioImage,
+                            child: FittedBox(
+                                child: welcomeImage, fit: BoxFit.contain),
+                          ),
                           Padding(
-                            padding: EdgeInsets.only(top: 40),
+                            padding: EdgeInsets.only(top: 24),
                             child: Text(
                               S.of(context).welcome,
                               style: TextStyle(
@@ -122,11 +126,6 @@ class WelcomePage extends BasePage {
                             ),
                           ),
                         ],
-                      ),
-                      AspectRatio(
-                        aspectRatio: aspectRatioImage,
-                        child:
-                            FittedBox(child: welcomeImage, fit: BoxFit.contain),
                       ),
                       Column(
                         children: <Widget>[
