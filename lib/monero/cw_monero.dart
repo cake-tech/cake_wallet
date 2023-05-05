@@ -10,7 +10,7 @@ class CWMoneroAccountList extends MoneroAccountList {
   	final moneroWallet = _wallet as MoneroWallet;
   	final accounts = moneroWallet.walletAddresses.accountList
   		.accounts
-  		.map((acc) => Account(id: acc.id, label: acc.label))
+  		.map((acc) => Account(id: acc.id, label: acc.label, balance: acc.balance))
   		.toList();
   	return ObservableList<Account>.of(accounts);
   }
@@ -32,7 +32,7 @@ class CWMoneroAccountList extends MoneroAccountList {
   	final moneroWallet = wallet as MoneroWallet;
   	return moneroWallet.walletAddresses.accountList
   		.getAll()
-  		.map((acc) => Account(id: acc.id, label: acc.label))
+  		.map((acc) => Account(id: acc.id, label: acc.label, balance: acc.balance))
   		.toList();
   }
 
@@ -122,7 +122,7 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
   Account get account {
   	final moneroWallet = _wallet as MoneroWallet;
   	final acc = moneroWallet.walletAddresses.account;
-  	return Account(id: acc!.id, label: acc.label);
+  	return Account(id: acc!.id, label: acc.label, balance: acc.balance);
   }
 
   @computed
@@ -316,13 +316,13 @@ class CWMonero extends Monero {
 	Account getCurrentAccount(Object wallet) {
 		final moneroWallet = wallet as MoneroWallet;
 		final acc = moneroWallet.walletAddresses.account;
-		return Account(id: acc!.id, label: acc.label);
+		return Account(id: acc!.id, label: acc.label, balance: acc.balance);
 	}
 
 	@override
-	void setCurrentAccount(Object wallet, int id, String label) {
+	void setCurrentAccount(Object wallet, int id, String label, String? balance) {
 		final moneroWallet = wallet as MoneroWallet;
-		moneroWallet.walletAddresses.account = monero_account.Account(id: id, label: label);
+		moneroWallet.walletAddresses.account = monero_account.Account(id: id, label: label, balance: balance);
 	}
 
 	@override
