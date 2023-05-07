@@ -107,6 +107,7 @@ import UnstoppableDomainsResolution
     }
 
     override func applicationWillResignActive(_: UIApplication ) {
+        self.window?.rootViewController?.view.endEditing(true)
         self.window?.isHidden = true;
       }
 
