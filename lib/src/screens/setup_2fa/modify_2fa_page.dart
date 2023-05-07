@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,7 +14,7 @@ class Modify2FAPage extends BasePage {
   final Setup2FAViewModel setup2FAViewModel;
 
   @override
-  String get title => 'Modify Cake 2FA';
+  String get title => S.current.modify_2fa;
 
   @override
   Widget body(BuildContext context) {
@@ -22,17 +23,16 @@ class Modify2FAPage extends BasePage {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SettingsCellWithArrow(
-              title: 'Disable Cake 2FA',
+              title: S.current.disable_cake_2fa,
               handler: (_) async {
                 await showPopUp<void>(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertWithTwoActions(
-                      alertTitle: 'Disable Cake 2FA',
-                      alertContent:
-                          'Are you sure that you want to disable Cake 2FA? A 2FA code will no longer be needed to access the wallet and certain functions.',
-                      leftButtonText: 'Cancel',
-                      rightButtonText: 'Disable',
+                      alertTitle: S.current.disable_cake_2fa,
+                      alertContent: S.current.question_to_disable_2fa,
+                      leftButtonText: S.current.cancel,
+                      rightButtonText: S.current.disable,
                       actionLeftButton: () {
                         Navigator.of(context).pop();
                       },

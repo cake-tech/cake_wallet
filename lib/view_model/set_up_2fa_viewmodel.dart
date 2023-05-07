@@ -17,6 +17,7 @@ abstract class Setup2FAViewModelBase with Store {
 
   String get secretKey => _settingsStore.totpSecretKey;
   String get deviceName => _settingsStore.deviceName;
+  String get totpVersionOneLink => _settingsStore.totpVersionOneLink;
 
   @computed
   bool get useTOTP2FA => _settingsStore.useTOTP2FA;

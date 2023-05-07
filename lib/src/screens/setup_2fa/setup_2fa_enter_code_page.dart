@@ -19,7 +19,7 @@ class Setup2FAEnterCodePage extends BasePage {
   final TextEditingController totpController;
   final bool isForSetup;
   @override
-  String get title => isForSetup ? 'Set up Cake 2FA' : 'Verify with Cake 2FA';
+  String get title => isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa;
 
 
 
@@ -33,7 +33,7 @@ class Setup2FAEnterCodePage extends BasePage {
         children: [
           BaseTextFormField(
             textAlign: TextAlign.left,
-            hintText: 'TOTP Code',
+            hintText: S.current.totp_code,
             controller: totpController,
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
             placeholderTextStyle: TextStyle(
@@ -43,7 +43,7 @@ class Setup2FAEnterCodePage extends BasePage {
           ),
           SizedBox(height: 16),
           Text(
-            'Please fill in the 6-digit code present on your other device',
+            S.current.please_fill_totp,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
@@ -67,12 +67,12 @@ class Setup2FAEnterCodePage extends BasePage {
                       switch (result) {
                         case true:
                           return isForSetup
-                              ? 'Success! Cake 2FA enabled for this wallet. Remember to save your mnemonic seed in case you lose wallet access.'
-                              : 'Verification Successful!';
+                              ? S.current.totp_2fa_success
+                              : S.current.setup_successful;
                         case false:
-                          return 'Incorrect code. Please try a different code or generate a new secret key.';
+                          return S.current.totp_2fa_failure;
                         default:
-                          return 'Please enter the TOTP Code.';
+                          return S.current.enter_totp_code;
                       }
                     }(),
                     actionButtonText: S.of(context).ok,

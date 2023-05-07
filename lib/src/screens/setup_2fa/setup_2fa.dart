@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class Setup2FAPage extends BasePage {
   final Setup2FAViewModel setup2FAViewModel;
 
   @override
-  String get title => 'Set up Cake 2FA';
+  String get title => S.current.setup_2fa;
 
   @override
   Widget body(BuildContext context) {
@@ -29,7 +30,7 @@ class Setup2FAPage extends BasePage {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Important note',
+                  S.current.important_note,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
@@ -39,15 +40,7 @@ class Setup2FAPage extends BasePage {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  ''' Cake 2FA is NOT as secure as cold storage. 2FA protects against basic '''
-                  '''types of attacks, such as your friend providing your fingerprint while you are sleeping.\n\n'''
-                  '''Cake 2FA does NOT protect against a compromised device by a sophisticated attacker.\n\n'''
-                  '''If you lose access to your 2FA codes, YOU WILL LOSE ACCESS TO THIS WALLET.'''
-                  ''' You will need to restore your wallet from mnemonic seed. YOU MUST THEREFORE '''
-                  '''BACK UP YOUR MNEMONIC SEEDS! Further, someone with access to your mnemonic seed(s) '''
-                  '''will be able to steal your funds, bypassing Cake 2FA.\n\n'''
-                  '''Cake support staff will be unable to assist you if you lose '''
-                  '''access to your mnemonic seed, since Cake is a noncustodial wallet.''',
+                  S.current.setup_2fa_text,
                   style: TextStyle(
                     fontWeight: FontWeight.w400,
                     fontSize: 14,
@@ -60,13 +53,8 @@ class Setup2FAPage extends BasePage {
           ),
           SizedBox(height: 86),
           SettingsCellWithArrow(
-            title: 'Set up TOTP(Recommended)',
+            title: S.current.setup_totp_recommended,
             handler: (_) => Navigator.of(context).pushNamed(Routes.setup_2faQRPage),
-          ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsCellWithArrow(
-            title: 'Set up HOTP',
-            handler: (_) {},
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         ],

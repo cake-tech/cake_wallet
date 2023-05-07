@@ -17,13 +17,11 @@ class Setup2FAQRPage extends BasePage {
   final Setup2FAViewModel setup2FAViewModel;
 
   @override
-  String get title => 'Set up Cake 2FA';
+  String get title => S.current.setup_2fa;
 
   @override
   Widget body(BuildContext context) {
-    final totpLink =
-        'otpauth://totp/Cake%20Wallet:${setup2FAViewModel.deviceName}?secret=${setup2FAViewModel.secretKey}&issuer=Cake%20Wallet&algorithm=SHA1&digits=6&period=30';
-
+  
     final copyImage = Image.asset(
       'assets/images/copy_content.png',
       height: 12,
@@ -36,7 +34,7 @@ class Setup2FAQRPage extends BasePage {
         children: [
           SizedBox(height: 58),
           Text(
-            'Add this secret code to another device',
+            S.current.add_secret_code,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -47,7 +45,7 @@ class Setup2FAQRPage extends BasePage {
           SizedBox(height: 10),
           QrImage(
             size: 327,
-            data: totpLink,
+            data: setup2FAViewModel.totpVersionOneLink
           ),
           SizedBox(height: 13),
           Row(
@@ -60,7 +58,7 @@ class Setup2FAQRPage extends BasePage {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TOTP Secret Code',
+                      S.current.totp_secret_code,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -112,7 +110,7 @@ class Setup2FAQRPage extends BasePage {
                 arguments: true,
               );
             },
-            text: S.of(context).continue_text,
+            text: S.current.continue_text,
             color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
             textColor: Colors.white,
           ),
