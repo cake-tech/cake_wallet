@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
@@ -192,7 +193,20 @@ class MoneroWalletService extends WalletService<
       rethrow;
     }
   }
-
+  @override
+  Future<void> sweepAllFunds(Node node, String address, String paymentId) async {
+    try {
+      await monero_wallet_manager.sweepFundsToNewWallet(
+        node: node,
+        address: address,
+        paymentId: paymentId,
+      );
+    } catch (e) {
+      // TODO: Implement Exception for wallet list service.
+      print('MoneroWalletsManager Error: $e');
+      rethrow;
+    }
+  }
   Future<void> repairOldAndroidWallet(String name) async {
     try {
       if (!Platform.isAndroid) {

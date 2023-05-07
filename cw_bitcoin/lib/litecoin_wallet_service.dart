@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -77,5 +78,11 @@ class LitecoinWalletService extends WalletService<
     await wallet.save();
     await wallet.init();
     return wallet;
+  }
+
+  @override
+  Future<void> sweepAllFunds(Node node, String address, String paymentId) {
+    // TODO: implement sweepAllFunds
+    throw UnimplementedError();
   }
 }

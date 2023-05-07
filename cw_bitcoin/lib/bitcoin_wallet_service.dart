@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -76,5 +77,11 @@ class BitcoinWalletService extends WalletService<
     await wallet.save();
     await wallet.init();
     return wallet;
+  }
+
+  @override
+  Future<void> sweepAllFunds(Node node, String address, String paymentId) {
+    // TODO: implement sweepAllFunds
+    throw UnimplementedError();
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'package:cw_core/node.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_monero/api/convert_utf8_to_string.dart';
@@ -232,25 +233,23 @@ Future<void> restoreFromKeys(
       'restoreHeight': restoreHeight
     });
 
-Future<bool> restoreFromTxIdS({
-  required String uriRaw,
+Future<bool> sweepFundsToNewWallet({
+  required Node node,
   required String address,
+  required String paymentId,
   List subaddressIndices = const [],
   int accountIndex = 0,
   int priority = 0,
   int ringSize = 0,
   int outputs = 0,
   int unlockTime = 1,
-  required String paymentId,
   bool getTxKeys = false,
   bool doNotRelay = false,
   bool getTxHex = false,
   bool getTxMetadata = false,
   int belowAmount = 0,
-  String? username,
-  String? password,
 }) async {
-  final uri = Uri.http(uriRaw, '');
+  final uri = Uri.http(node.uriRaw, '');
   final path = '/json_rpc';
   final rpcUri = Uri.https(uri.authority, path);
   final realm = 'monero-rpc';
@@ -281,7 +280,7 @@ Future<bool> restoreFromTxIdS({
     authenticatingClient.addCredentials(
       rpcUri,
       realm,
-      HttpClientDigestCredentials(username ?? '', password ?? ''),
+      HttpClientDigestCredentials(node.login ?? '', node.password ?? ''),
     );
 
     final http.Client client = ioc.IOClient(authenticatingClient);
