@@ -23,7 +23,7 @@ class QrImage extends StatelessWidget {
       size: size,
       foregroundColor: Colors.black,
       backgroundColor: Colors.white,
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.all(8.0),
     );
   }
 }
