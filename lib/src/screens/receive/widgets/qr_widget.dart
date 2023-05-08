@@ -112,6 +112,7 @@ class QRWidget extends StatelessWidget {
                       controller: amountController,
                       onTapPicker: () => _presentPicker(context),
                       selectedCurrency: addressListViewModel.selectedCurrency,
+                      isLight: isLight,
                     ),
                   ),
                 ),

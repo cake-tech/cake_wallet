@@ -15,8 +15,11 @@ class PresentReceiveOptionPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final arrowBottom =
-        Image.asset('assets/images/arrow_bottom_purple_icon.png', color: Colors.white, height: 6);
+    final arrowBottom = Image.asset(
+      'assets/images/arrow_bottom_purple_icon.png',
+      color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+      height: 6,
+    );
 
     return TextButton(
       onPressed: () => _showPicker(context),
