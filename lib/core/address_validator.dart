@@ -7,7 +7,7 @@ class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
-            useCustomValidation: type == CryptoCurrency.btc
+            useAdditionalValidation: type == CryptoCurrency.btc
                 ? bitcoin.Address.validateAddress
                 : null,
             pattern: getPattern(type),
@@ -21,8 +21,7 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return '^1[0-9a-zA-Z]{32}\$|^1[0-9a-zA-Z]{33}\$|^3[0-9a-zA-Z]{32}\$'
-            '|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{39}\$|^bc1[0-9a-zA-Z]{59}\$';
+        return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:

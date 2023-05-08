@@ -1,8 +1,8 @@
 abstract class Validator<T> {
-  Validator({required this.errorMessage, this.useCustomValidation});
+  Validator({required this.errorMessage, this.useAdditionalValidation});
 
   final String errorMessage;
-  final bool Function(T)? useCustomValidation;
+  final bool Function(T)? useAdditionalValidation;
 
   bool isValid(T? value);
 
@@ -11,7 +11,7 @@ abstract class Validator<T> {
 
 class TextValidator extends Validator<String> {
   TextValidator({
-    bool Function(String)? useCustomValidation,
+    bool Function(String)? useAdditionalValidation,
     this.minLength,
     this.maxLength,
     this.pattern,
@@ -20,7 +20,7 @@ class TextValidator extends Validator<String> {
     this.isAutovalidate = false,
   }) : super(
             errorMessage: errorMessage,
-            useCustomValidation: useCustomValidation);
+            useAdditionalValidation: useAdditionalValidation);
 
   final int? minLength;
   final int? maxLength;
@@ -34,14 +34,14 @@ class TextValidator extends Validator<String> {
       return isAutovalidate ? true : false;
     }
 
-    if (useCustomValidation != null) {
-      return useCustomValidation!(value);
-    }
-
     return value.length > (minLength ?? 0) &&
         (length?.contains(value.length) ?? true) &&
         ((maxLength ?? 0) > 0 ? (value.length <= maxLength!) : true) &&
-        (pattern != null ? match(value) : true);
+        (pattern != null
+            ? (useAdditionalValidation != null &&
+                    useAdditionalValidation!(value)) ||
+                match(value)
+            : true);
   }
 
   bool match(String value) =>
