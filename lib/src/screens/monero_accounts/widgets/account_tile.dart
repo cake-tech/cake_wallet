@@ -4,12 +4,16 @@ class AccountTile extends StatelessWidget {
   AccountTile({
     required this.isCurrent,
     required this.accountName,
+    this.accountBalance,
+    required this.currency,
     required this.onTap,
     required this.onEdit,
   });
 
   final bool isCurrent;
   final String accountName;
+  final String? accountBalance;
+  final String currency;
   final Function() onTap;
   final Function() onEdit;
 
@@ -29,15 +33,37 @@ class AccountTile extends StatelessWidget {
         padding: EdgeInsets.only(left: 60, right: 24),
         alignment: Alignment.centerLeft,
         color: color,
-        child: Text(
-          accountName,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Lato',
-            color: textColor,
-            decoration: TextDecoration.none,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Text(
+                accountName,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Lato',
+                  color: textColor,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+            if (accountBalance != null)
+              Expanded(
+                child: Text(
+                  '${accountBalance.toString()} $currency',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Lato',
+                    color: Theme.of(context).textTheme.headline4!.color!,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
