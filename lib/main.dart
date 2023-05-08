@@ -77,6 +77,10 @@ Future<void> main() async {
       Hive.registerAdapter(TradeAdapter());
     }
 
+    if (!Hive.isAdapterRegistered(AddressInfo.typeId)) {
+      Hive.registerAdapter(AddressInfoAdapter());
+    }
+
     if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
       Hive.registerAdapter(WalletInfoAdapter());
     }

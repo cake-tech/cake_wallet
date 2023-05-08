@@ -60,6 +60,9 @@ class WalletInfo extends HiveObject {
   @HiveField(8, defaultValue: '')
   String address;
 
+  @HiveField(9)
+  List<String>? usedAddresses;
+
   @HiveField(10)
   Map<String, String>? addresses;
 
@@ -71,6 +74,9 @@ class WalletInfo extends HiveObject {
 
   @HiveField(13)
   bool? showIntroCakePayCard;
+
+  @HiveField(14)
+  Map<int, List<AddressInfo>>? addressInfos;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
@@ -93,4 +99,21 @@ class WalletInfo extends HiveObject {
   Stream<String> get yatLastUsedAddressStream => _yatLastUsedAddressController.stream;
 
   StreamController<String> _yatLastUsedAddressController;
+}
+
+@HiveType(typeId: AddressInfo.typeId)
+class AddressInfo extends HiveObject {
+  AddressInfo({required this.address, this.accountIndex, required this.label});
+
+  static const typeId = 11;
+  static const boxName = 'AddressInfo';
+
+  @HiveField(0)
+  int? accountIndex;
+
+  @HiveField(1, defaultValue: '')
+  String address;
+
+  @HiveField(2, defaultValue: '')
+  String label;
 }
