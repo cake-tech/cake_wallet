@@ -101,7 +101,7 @@ class WalletSeedPage extends BasePage {
                     children: <Widget>[
                       AspectRatio(
                           aspectRatio: 1,
-                          child: FittedBox(child: image, fit: BoxFit.fill)),
+                          child: image),
                       Observer(builder: (_) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
