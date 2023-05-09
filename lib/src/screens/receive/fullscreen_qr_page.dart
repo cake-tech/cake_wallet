@@ -71,7 +71,10 @@ class FullscreenQRPage extends BasePage {
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                   border: Border.all(width: 3, color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
-              child: QrImage(data: qrViewData.data, version: qrViewData.version),
+              child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 3, color: Colors.white)),
+                  child: QrImage(data: qrViewData.data, version: qrViewData.version)),
             ),
           ),
         ),
