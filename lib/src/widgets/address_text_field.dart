@@ -146,7 +146,7 @@ class AddressTextField extends StatelessWidget {
                         height: prefixIconHeight,
                         padding: EdgeInsets.only(top: 0),
                         child: Semantics(
-                          label: 'Scan',
+                          label: S.of(context).scan_qr_code,
                           child: InkWell(
                             onTap: () async => _presentQRScanner(context),
                             child: Container(

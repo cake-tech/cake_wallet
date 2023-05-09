@@ -86,7 +86,7 @@ class IoniaManageCardsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final filterButton = Semantics(
-      label: 'Filter',
+      label: S.of(context).filter_by,
       child: InkWell(
           onTap: () async {
             await showCategoryFilter(context);
@@ -299,7 +299,7 @@ class _TrailingIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Profile',
+      label: S.of(context).profile,
       child: Material(
         color: Colors.transparent,
         child: IconButton(
