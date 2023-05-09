@@ -25,6 +25,9 @@ class WalletListPage extends BasePage {
   final AuthService authService;
 
   @override
+  String get title => S.current.wallets;
+
+  @override
   Widget body(BuildContext context) =>
       WalletListBody(walletListViewModel: walletListViewModel, authService: authService);
 }
