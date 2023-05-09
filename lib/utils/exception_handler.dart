@@ -141,9 +141,9 @@ class ExceptionHandler {
     "errno = 103", // SocketException: Software caused connection abort
     "errno = 104", // SocketException: Connection reset by peer
     "errno = 110", // SocketException: Connection timed out
-    "HttpException: Connection reset by peer",
-    "HttpException: Connection closed before full header was received",
-    "HandshakeException: Connection terminated during handshake",
+    "Connection reset by peer",
+    "Connection closed before full header was received",
+    "Connection terminated during handshake",
     "PERMISSION_NOT_GRANTED",
   ];
 
