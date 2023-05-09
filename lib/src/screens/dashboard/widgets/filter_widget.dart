@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/modal_widget.dart';
+import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 //import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
@@ -16,7 +16,7 @@ class FilterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const sectionDivider = const SectionDivider();
-    return ModalWidget(
+    return PickerWrapperWidget(
       children: [
         Padding(
           padding: EdgeInsets.only(left: 24, right: 24, top: 24),

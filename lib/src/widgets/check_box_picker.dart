@@ -1,7 +1,7 @@
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/modal_widget.dart';
+import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 
 class CheckBoxPicker extends StatefulWidget {
   CheckBoxPicker({
@@ -31,7 +31,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return ModalWidget(
+    return PickerWrapperWidget(
       children: [
         if (widget.title.isNotEmpty)
           Container(

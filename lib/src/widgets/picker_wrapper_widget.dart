@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
-class ModalWidget extends StatelessWidget {
-  ModalWidget({required this.children, this.title});
+class PickerWrapperWidget extends StatelessWidget {
+  PickerWrapperWidget({required this.children, this.title});
 
   final List<Widget> children;
   final String? title;

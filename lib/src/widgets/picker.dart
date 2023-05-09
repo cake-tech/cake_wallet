@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cw_core/currency.dart';
-import 'package:cake_wallet/src/widgets/modal_widget.dart';
+import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 
 class Picker<Item> extends StatefulWidget {
   Picker({
@@ -134,7 +134,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
           (hasTitle ? padding : padding / 1.5);
     }
 
-    return ModalWidget(
+    return PickerWrapperWidget(
       title: widget.title,
       children: [
         if (widget.title?.isNotEmpty ?? false)
