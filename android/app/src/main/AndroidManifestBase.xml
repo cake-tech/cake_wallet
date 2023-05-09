@@ -46,8 +46,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="bitcoin" />
+                <data android:scheme="bitcoin-wallet" />
+                <data android:scheme="bitcoin_wallet" />
                 <data android:scheme="monero" />
+                <data android:scheme="monero-wallet" />
+                <data android:scheme="monero_wallet" />
                 <data android:scheme="litecoin" />
+                <data android:scheme="litecoin-wallet" />
+                <data android:scheme="litecoin_wallet" />
             </intent-filter>
         </activity>
         <meta-data
