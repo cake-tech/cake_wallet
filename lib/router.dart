@@ -1,5 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -40,6 +41,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/src/widgets/auth_options_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -264,6 +266,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param1: settings.arguments as OnAuthenticationFinished,
               param2: true));
 
+    case Routes.totpAuthCodePage:
+      final args = settings.arguments as TotpAuthArgumentsModel;
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<TotpAuthCodePage>(
+          param1: args.onTotpAuthenticationFinished,
+          param2: [args.isForSetup, args.closing],
+        ),
+      );
+
+    case Routes.login:
+      return CupertinoPageRoute<void>(
+          builder: (context) => WillPopScope(
+              child: getIt.get<AuthOptions>(instanceName: 'login'),
+              onWillPop: () async =>
+                  // FIX-ME: Additional check does it works correctly
+                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
+                      false)),
+          fullscreenDialog: true);
+
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
@@ -305,14 +326,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
             param1: args?['editingNode'] as Node?,
             param2: args?['isSelected'] as bool?));
 
-    case Routes.login:
-      return CupertinoPageRoute<void>(
-          builder: (context) => WillPopScope(
-              child: getIt.get<AuthPage>(instanceName: 'login'),
-              onWillPop: () async =>
-              // FIX-ME: Additional check does it works correctly
-                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ?? false)),
-          fullscreenDialog: true);
+ 
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
@@ -549,12 +563,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.setup_2faQRPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAQRPage>());
 
-    case Routes.setup_2faEnterCodePage:
-      final args = settings.arguments as bool;
-      return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<Setup2FAEnterCodePage>(param1: args),
-      );
-      
     case Routes.modify2FAPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
 

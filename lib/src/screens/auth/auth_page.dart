@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/src/widgets/auth_options_base.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
-class AuthPage extends StatefulWidget {
+class AuthPage extends AuthOptions {
   AuthPage(this.authViewModel,
       {required this.onAuthenticationFinished,
         this.closable = true});
@@ -79,14 +80,7 @@ class AuthPageState extends State<AuthPage> {
       }
     });
 
-    if (widget.authViewModel.useTotp2FA) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await Future<void>.delayed(Duration(milliseconds: 100));
-        await widget.authViewModel.totp2FAAuth(context);
-      });
-    }
-    if (widget.authViewModel.isBiometricalAuthenticationAllowed &&
-        !widget.authViewModel.useTotp2FA) {
+    if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future<void>.delayed(Duration(milliseconds: 100));
         await widget.authViewModel.biometricAuth();

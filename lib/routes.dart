@@ -86,6 +86,6 @@ class Routes {
   static const transactionsPage = '/transactions_page';
   static const setup_2faPage = '/setup_2fa_page';
   static const setup_2faQRPage = '/setup_2fa_qr_page';
-  static const setup_2faEnterCodePage = '/setup_2fa_enter_code_page';
+  static const totpAuthCodePage = '/totp_auth_code_page';
   static const modify2FAPage = '/modify_2fa_page';
 }

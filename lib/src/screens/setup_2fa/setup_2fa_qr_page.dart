@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -106,8 +108,15 @@ class Setup2FAQRPage extends BasePage {
           PrimaryButton(
             onPressed: () {
               Navigator.of(context).pushReplacementNamed(
-                Routes.setup_2faEnterCodePage,
-                arguments: true,
+                Routes.totpAuthCodePage,
+                  arguments: TotpAuthArgumentsModel(
+                    onTotpAuthenticationFinished:
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState auth) async {
+                      auth.close();
+                    },
+                    isForSetup: true,
+                  )
+                  
               );
             },
             text: S.current.continue_text,

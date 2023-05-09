@@ -41,6 +41,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
+      required int initialFailedTokenTrial,
       required ExchangeApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
       required int initialPinLength,
@@ -66,6 +67,7 @@ abstract class SettingsStoreBase with Store {
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         totpSecretKey = initialTotpSecretKey,
         useTOTP2FA = initialUseTOTP2FA,
+        numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
@@ -157,6 +159,11 @@ abstract class SettingsStoreBase with Store {
     reaction(
         (_) => useTOTP2FA, (bool use) => sharedPreferences.setBool(PreferencesKey.useTOTP2FA, use));
 
+    reaction(
+        (_) => numberOfFailedTokenTrials,
+        (int failedTokenTrail) =>
+            sharedPreferences.setInt(PreferencesKey.failedTotpTokenTrials, failedTokenTrail));
+
     reaction((_) => totpSecretKey,
         (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
 
@@ -236,6 +243,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool useTOTP2FA;
+
+  @observable
+  int numberOfFailedTokenTrials;
 
   @observable
   ExchangeApiMode exchangeStatus;
@@ -330,6 +340,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
     final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
+    final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final exchangeStatus = ExchangeApiMode.deserialize(
@@ -404,6 +415,7 @@ abstract class SettingsStoreBase with Store {
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialTotpSecretKey: totpSecretKey,
         initialUseTOTP2FA: useTOTP2FA,
+        initialFailedTokenTrial: tokenTrialNumber,
         initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
@@ -452,6 +464,8 @@ abstract class SettingsStoreBase with Store {
     totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
+    numberOfFailedTokenTrials =
+        sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;

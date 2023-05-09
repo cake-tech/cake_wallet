@@ -31,6 +31,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/src/widgets/auth_options_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -59,7 +60,6 @@ import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.da
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
@@ -347,7 +347,7 @@ Future setup(
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>()));
 
-  getIt.registerFactory(() => Setup2FAViewModel(getIt.get<SettingsStore>()));
+
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -360,37 +360,90 @@ Future setup(
   getIt.registerFactory<AuthViewModel>(() => AuthViewModel(getIt.get<AuthService>(),
       getIt.get<SharedPreferences>(), getIt.get<SettingsStore>(), BiometricAuth()));
 
-  getIt.registerFactory<AuthPage>(
-      () => AuthPage(getIt.get<AuthViewModel>(),
-              onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
-            if (!isAuthenticated) {
-              return;
-            }
-            final authStore = getIt.get<AuthenticationStore>();
-            final appStore = getIt.get<AppStore>();
-
-            if (appStore.wallet != null) {
-              authStore.allowed();
-              return;
-            }
-
-            authPageState.changeProcessText('Loading the wallet');
-
-            if (loginError != null) {
-              authPageState.changeProcessText('ERROR: ${loginError.toString()}');
-            }
-
-            ReactionDisposer? _reaction;
-            _reaction = reaction((_) => appStore.wallet, (Object? _) {
-              _reaction?.reaction.dispose();
-              authStore.allowed();
-            });
-          }, closable: false),
-      instanceName: 'login');
-
   getIt.registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
       (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
           onAuthenticationFinished: onAuthFinished, closable: closable));
+
+  getIt.registerFactory<Setup2FAViewModel>(
+    () => Setup2FAViewModel(
+      getIt.get<SettingsStore>(),
+      getIt.get<SharedPreferences>(),
+      getIt.get<AuthService>(),
+    ),
+  );
+
+  getIt.registerFactoryParam<TotpAuthCodePage, void Function(bool, TotpAuthCodePageState),
+      List<bool?>>(
+    (OnAuthFinished, totpPageConfigParams) => TotpAuthCodePage(
+      getIt.get<Setup2FAViewModel>(),
+      onAuthenticationFinished: OnAuthFinished,
+      configParams: totpPageConfigParams,
+    ),
+  );
+
+  getIt.registerFactory<AuthOptions>(() {
+    final appStore = getIt.get<AppStore>();
+    final useTotp = appStore.settingsStore.useTOTP2FA;
+    if (useTotp) {
+      return TotpAuthCodePage(
+        getIt.get<Setup2FAViewModel>(),
+        onAuthenticationFinished: (isAuthenticated, TotpAuthCodePageState totpAuthPageState) {
+          if (!isAuthenticated) {
+            return;
+          }
+          final authStore = getIt.get<AuthenticationStore>();
+          final appStore = getIt.get<AppStore>();
+
+          if (appStore.wallet != null) {
+            authStore.allowed();
+            return;
+          }
+
+          totpAuthPageState.changeProcessText('Loading the wallet');
+
+          if (loginError != null) {
+            totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
+          }
+
+          ReactionDisposer? _reaction;
+          _reaction = reaction((_) => appStore.wallet, (Object? _) {
+            _reaction?.reaction.dispose();
+            authStore.allowed();
+          });
+        },
+        // For clarity, the List<bool?> below represents the config params for the totpPage
+        // The configs are isForSetup and closable
+        // i.e [isForSetup, closable]
+        configParams: [false, false],
+      );
+    } else {
+      return AuthPage(getIt.get<AuthViewModel>(),
+          onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
+        if (!isAuthenticated) {
+          return;
+        }
+        final authStore = getIt.get<AuthenticationStore>();
+        final appStore = getIt.get<AppStore>();
+
+        if (appStore.wallet != null) {
+          authStore.allowed();
+          return;
+        }
+
+        authPageState.changeProcessText('Loading the wallet');
+
+        if (loginError != null) {
+          authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+        }
+
+        ReactionDisposer? _reaction;
+        _reaction = reaction((_) => appStore.wallet, (Object? _) {
+          _reaction?.reaction.dispose();
+          authStore.allowed();
+        });
+      }, closable: false);
+    }
+  }, instanceName: 'login');
 
   getIt.registerFactory(() => BalancePage(
       dashboardViewModel: getIt.get<DashboardViewModel>(),
@@ -427,10 +480,6 @@ Future setup(
 
   getIt.registerFactory<Setup2FAQRPage>(
       () => Setup2FAQRPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
-
-  getIt.registerFactoryParam<Setup2FAEnterCodePage, bool, void>((args, _) =>
-      Setup2FAEnterCodePage(setup2FAViewModel: getIt.get<Setup2FAViewModel>(), isForSetup: args)  
-  );
 
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
@@ -741,9 +790,8 @@ Future setup(
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
-  getIt.registerFactoryParam<RestoreOptionsPage, bool, void>((bool isNewInstall, _) =>
-              RestoreOptionsPage(isNewInstall: isNewInstall));
-
+  getIt.registerFactoryParam<RestoreOptionsPage, bool, void>(
+      (bool isNewInstall, _) => RestoreOptionsPage(isNewInstall: isNewInstall));
 
   getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupService>()));
 
