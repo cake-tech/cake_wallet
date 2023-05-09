@@ -685,5 +685,6 @@
   "error_text_input_above_maximum_limit" : "Jumlah lebih dari maksimal",
   "show_market_place": "Tampilkan Pasar",
   "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar",
-  "profile": "Profil"
+  "profile": "Profil",
+  "close": "Menutup"
 }

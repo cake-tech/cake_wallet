@@ -703,5 +703,6 @@
   "error_text_input_above_maximum_limit" : "Сумата надвишава максималната",
   "show_market_place":"Покажи пазар",
   "prevent_screenshots": "Предотвратете екранни снимки и запис на екрана",
-  "profile": "Профил"
+  "profile": "Профил",
+  "close": "затвори"
 }

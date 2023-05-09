@@ -709,5 +709,6 @@
   "error_text_input_above_maximum_limit" : "金額は最大値を超えています",
   "show_market_place":"マーケットプレイスを表示",
   "prevent_screenshots": "スクリーンショットと画面録画を防止する",
-  "profile": "プロフィール"
+  "profile": "プロフィール",
+  "close": "近い"
 }

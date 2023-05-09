@@ -703,5 +703,6 @@
   "error_text_input_above_maximum_limit" : "Částka je větší než maximální hodnota",
   "show_market_place": "Zobrazit trh",
   "prevent_screenshots": "Zabránit vytváření snímků obrazovky a nahrávání obrazovky",
-  "profile": "Profil"
+  "profile": "Profil",
+  "close": "zavřít"
 }

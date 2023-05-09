@@ -709,5 +709,6 @@
   "error_text_input_above_maximum_limit" : "Miktar maksimumdan daha fazla",
   "show_market_place":"Pazar Yerini Göster",
   "prevent_screenshots": "Ekran görüntülerini ve ekran kaydını önleyin",
-  "profile": "Profil"
+  "profile": "Profil",
+  "close": "Kapalı"
 }

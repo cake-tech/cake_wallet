@@ -709,5 +709,6 @@
   "error_text_input_above_maximum_limit" : "L'ammontare è superiore al massimo",
   "show_market_place":"Mostra mercato",
   "prevent_screenshots": "Impedisci screenshot e registrazione dello schermo",
-  "profile": "Profilo"
+  "profile": "Profilo",
+  "close": "Chiudere"
 }

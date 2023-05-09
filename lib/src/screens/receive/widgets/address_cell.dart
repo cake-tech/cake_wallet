@@ -71,7 +71,7 @@ class AddressCell extends StatelessWidget {
           ),
         ));
     return Semantics(
-      label: 'Slidable',
+      label: S.of(context).widgets_address,
       selected: isCurrent,
       enabled: !isCurrent,
       child: Slidable(

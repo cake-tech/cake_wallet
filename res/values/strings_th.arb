@@ -707,5 +707,6 @@
   "error_text_input_above_maximum_limit" : "จำนวนเงินสูงกว่าค่าสูงสุด",
   "show_market_place":"แสดงตลาดกลาง",
   "prevent_screenshots": "ป้องกันภาพหน้าจอและการบันทึกหน้าจอ",
-  "profile": "ประวัติโดยย่อ"
+  "profile": "ประวัติโดยย่อ",
+  "close": "ปิด"
 }

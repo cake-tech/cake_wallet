@@ -140,7 +140,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     width: 1.0),
                               ),
                               suffixIcon: Semantics(
-                                label: 'Generate Name',
+                                label: S.of(context).wallet_name,
                                 child: IconButton(
                                   onPressed: () async {
                                     final rName = await generateName();

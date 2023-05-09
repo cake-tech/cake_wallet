@@ -708,5 +708,6 @@
   "error_text_input_above_maximum_limit" : "Сума більше максимальної",
   "show_market_place":"Відображати маркетплейс",
   "prevent_screenshots": "Запобігати знімкам екрана та запису екрана",
-  "profile": "Профіль"
+  "profile": "Профіль",
+  "close": "Закрити"
 }

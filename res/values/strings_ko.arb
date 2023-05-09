@@ -709,5 +709,6 @@
   "error_text_input_above_maximum_limit" : "금액이 최대 값보다 많습니다.",
   "show_market_place":"마켓플레이스 표시",
   "prevent_screenshots": "스크린샷 및 화면 녹화 방지",
-  "profile": "프로필"
+  "profile": "프로필",
+  "close": "닫다"
 }

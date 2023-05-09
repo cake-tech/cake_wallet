@@ -709,5 +709,6 @@
   "error_text_input_above_maximum_limit" : "राशि अधिकतम से अधिक है",
   "show_market_place":"बाज़ार दिखाएँ",
   "prevent_screenshots": "स्क्रीनशॉट और स्क्रीन रिकॉर्डिंग रोकें",
-  "profile": "प्रोफ़ाइल"
+  "profile": "प्रोफ़ाइल",
+  "close": "बंद करना"
 }

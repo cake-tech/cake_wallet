@@ -709,5 +709,6 @@
   "error_text_input_above_maximum_limit" : "Bedrag is meer dan maximaal",
   "show_market_place":"Toon Marktplaats",
   "prevent_screenshots": "Voorkom screenshots en schermopname",
-  "profile": "Profiel"
+  "profile": "Profiel",
+  "close": "Dichtbij"
 }

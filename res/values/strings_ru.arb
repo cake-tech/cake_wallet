@@ -709,5 +709,6 @@
   "error_text_input_above_maximum_limit" : "Сумма больше максимальной",
   "show_market_place":"Показать торговую площадку",
   "prevent_screenshots": "Предотвратить скриншоты и запись экрана",
-  "profile": "Профиль"
+  "profile": "Профиль",
+  "close": "Закрывать"
 }
