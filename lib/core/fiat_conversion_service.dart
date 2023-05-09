@@ -58,7 +58,7 @@ Future<double> _fetchHistoricalPrice(Map<String, dynamic> args) async {
   final intervalFromNow = DateTime.now().difference(date).inMinutes;
 
   final Map<String, String> queryParams = {
-    'interval_count': '5',
+    'interval_count': '2',
     'base': crypto.toString(),
     'quote': fiat.toString(),
     'key': secrets.fiatApiKey,
@@ -93,6 +93,7 @@ Future<double> _fetchHistoricalPrice(Map<String, dynamic> args) async {
     if (results.isNotEmpty) {
       price = results.values.first as double;
     }
+    print('results.key: ${results.keys.first} results.value: ${results.values.first}');
 
     return price;
   } catch (e) {

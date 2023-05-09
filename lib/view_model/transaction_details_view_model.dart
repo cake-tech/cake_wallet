@@ -34,12 +34,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       isRecipientAddressShown = false,
       showRecipientAddress = settingsStore.shouldSaveRecipientAddress,
         fiatRateListItem = StandartListItem(
-            title: settingsStore.showHistoricalFiatRate
-                ? S.current.historical_fiat_rate
-                : S.current.fiat_rate,
-            value: settingsStore.showHistoricalFiatRate
-                ? '${S.current.fetching.toLowerCase()} ...'
-                : transactionInfo.fiatAmount() + ' ${settingsStore.fiatCurrency}') {
+            title: S.current.historical_fiat_rate,
+            value: '${S.current.fetching.toLowerCase()} ...') {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
@@ -62,7 +58,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         if (feeFormatted != null)
           StandartListItem(
             title: S.current.transaction_details_fee, value: feeFormatted),
-        if (settingsStore.fiatApiMode != FiatApiMode.disabled)
+        if (settingsStore.fiatApiMode != FiatApiMode.disabled &&
+            settingsStore.showHistoricalFiatRate)
         fiatRateListItem,
         if (key?.isNotEmpty ?? false)
           StandartListItem(title: S.current.transaction_key, value: key!)
@@ -118,7 +115,8 @@ abstract class TransactionDetailsViewModelBase with Store {
           StandartListItem(
               title: S.current.transaction_details_fee,
               value: tx.feeFormatted()!),
-        if (settingsStore.fiatApiMode != FiatApiMode.disabled)
+        if (settingsStore.fiatApiMode != FiatApiMode.disabled &&
+            settingsStore.showHistoricalFiatRate)
           fiatRateListItem,
       ];
 
@@ -140,7 +138,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         if (tx.feeFormatted()?.isNotEmpty ?? false)
           StandartListItem(
             title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
-        if (settingsStore.fiatApiMode != FiatApiMode.disabled)
+        if (settingsStore.fiatApiMode != FiatApiMode.disabled &&
+            settingsStore.showHistoricalFiatRate)
           fiatRateListItem,
       ]);
     }
@@ -228,6 +227,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       default:
         formattedFiatAmount;
     }
+
     final historicalFiatAmountFormatted = formattedFiatAmount * historicalFiatRate;
     items[fiatRateItemIndex] = StandartListItem(
         title: S.current.historical_fiat_rate,
