@@ -115,27 +115,15 @@ class _PickerState<Item> extends State<Picker<Item>> {
     final mq = MediaQuery.of(context);
     final bottom = mq.viewInsets.bottom;
     final height = mq.size.height - bottom;
-    final screenCenter = height / 2;
 
-    double closeButtonBottom = 60;
     double containerHeight = height * 0.65;
     if (bottom > 0) {
       // increase a bit or it gets too squished in the top
       containerHeight = height * 0.75;
-
-      final containerCenter = containerHeight / 2;
-      final containerBottom = screenCenter - containerCenter;
-
-      final hasTitle = widget.title == null || widget.title!.isEmpty;
-
-      // position the close button right below the search container
-      closeButtonBottom = closeButtonBottom -
-          containerBottom +
-          (hasTitle ? padding : padding / 1.5);
     }
 
     return PickerWrapperWidget(
-      title: widget.title,
+      hasTitle: widget.title != null && !widget.title!.isEmpty,
       children: [
         if (widget.title?.isNotEmpty ?? false)
           Container(
