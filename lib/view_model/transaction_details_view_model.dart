@@ -32,10 +32,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       required this.settingsStore})
       : items = ObservableList<TransactionDetailsListItem>(),
       isRecipientAddressShown = false,
-      showRecipientAddress = settingsStore.shouldSaveRecipientAddress,
-        fiatRateListItem = StandartListItem(
-            title: S.current.historical_fiat_rate,
-            value: '${S.current.fetching.toLowerCase()} ...') {
+      showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
@@ -58,9 +55,6 @@ abstract class TransactionDetailsViewModelBase with Store {
         if (feeFormatted != null)
           StandartListItem(
             title: S.current.transaction_details_fee, value: feeFormatted),
-        if (settingsStore.fiatApiMode != FiatApiMode.disabled &&
-            settingsStore.showHistoricalFiatRate)
-        fiatRateListItem,
         if (key?.isNotEmpty ?? false)
           StandartListItem(title: S.current.transaction_key, value: key!)
       ];
@@ -114,10 +108,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         if (tx.feeFormatted()?.isNotEmpty ?? false)
           StandartListItem(
               title: S.current.transaction_details_fee,
-              value: tx.feeFormatted()!),
-        if (settingsStore.fiatApiMode != FiatApiMode.disabled &&
-            settingsStore.showHistoricalFiatRate)
-          fiatRateListItem,
+              value: tx.feeFormatted()!)
       ];
 
       items.addAll(_items);
@@ -137,10 +128,7 @@ abstract class TransactionDetailsViewModelBase with Store {
             value: tx.amountFormatted()),
         if (tx.feeFormatted()?.isNotEmpty ?? false)
           StandartListItem(
-            title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
-        if (settingsStore.fiatApiMode != FiatApiMode.disabled &&
-            settingsStore.showHistoricalFiatRate)
-          fiatRateListItem,
+            title: S.current.transaction_details_fee, value: tx.feeFormatted()!)
       ]);
     }
 
@@ -196,7 +184,6 @@ abstract class TransactionDetailsViewModelBase with Store {
   final Box<TransactionDescription> transactionDescriptionBox;
   final SettingsStore settingsStore;
   final WalletBase wallet;
-  final StandartListItem fiatRateListItem;
 
   final ObservableList<TransactionDetailsListItem> items;
   bool showRecipientAddress;
@@ -204,36 +191,39 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   @action
   Future<void> getHistoricalFiatRate() async {
-    final fiatRateItemIndex = items.indexWhere((element) => element == fiatRateListItem);
-    if (fiatRateItemIndex == -1) return;
+    if (settingsStore.fiatApiMode != FiatApiMode.disabled && settingsStore.showHistoricalFiatRate) {
+      var fiatRateItemIndex =
+      items.indexWhere((element) => element.title == S.current.transaction_details_fee);
+      fiatRateItemIndex = fiatRateItemIndex == -1 ? items.length - 3 : fiatRateItemIndex;
 
-    final fiat = settingsStore.fiatCurrency;
+      final fiat = settingsStore.fiatCurrency;
 
-    final historicalFiatRate = await FiatConversionService.fetchHistoricalPrice(
-        crypto: wallet.currency,
-        fiat: fiat,
-        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-        date: transactionInfo.date);
-    var formattedFiatAmount = 0.0;
-    switch (wallet.type) {
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        formattedFiatAmount = bitcoinAmountToDouble(amount: transactionInfo.amount);
-        break;
-      case WalletType.monero:
-      case WalletType.haven:
-        formattedFiatAmount = moneroAmountToDouble(amount: transactionInfo.amount);
-        break;
-      default:
-        formattedFiatAmount;
+      final historicalFiatRate = await FiatConversionService.fetchHistoricalPrice(
+          crypto: wallet.currency,
+          fiat: fiat,
+          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+          date: transactionInfo.date);
+      var formattedFiatAmount = 0.0;
+      switch (wallet.type) {
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+          formattedFiatAmount = bitcoinAmountToDouble(amount: transactionInfo.amount);
+          break;
+        case WalletType.monero:
+        case WalletType.haven:
+          formattedFiatAmount = moneroAmountToDouble(amount: transactionInfo.amount);
+          break;
+        default:
+          formattedFiatAmount;
+      }
+      final historicalFiatAmountFormatted = formattedFiatAmount * historicalFiatRate;
+      if (historicalFiatAmountFormatted > 0.0)
+        items.insert(
+            fiatRateItemIndex + 1,
+            StandartListItem(
+                title: S.current.historical_fiat_rate,
+                value: historicalFiatAmountFormatted.toStringAsFixed(2) + ' ${fiat}'));
     }
-
-    final historicalFiatAmountFormatted = formattedFiatAmount * historicalFiatRate;
-    items[fiatRateItemIndex] = StandartListItem(
-        title: S.current.historical_fiat_rate,
-        value: historicalFiatAmountFormatted > 0.0
-            ? historicalFiatAmountFormatted.toStringAsFixed(2) + ' ${fiat}'
-            : 'no historical data');
   }
 
   String _explorerUrl(WalletType type, String txId) {
