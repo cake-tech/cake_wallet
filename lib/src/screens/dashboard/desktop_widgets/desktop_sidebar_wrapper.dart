@@ -77,18 +77,32 @@ class DesktopSidebarWrapper extends BasePage {
               SideMenuItem(
                 imagePath: 'assets/images/wallet_outline.png',
                 isSelected: desktopSidebarViewModel.currentPage == SidebarItem.dashboard,
-                onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.dashboard),
+                onTap: () {
+                  String? currentPath;
+                  desktopNavigatorKey.currentState?.popUntil((route) {
+                    currentPath = route.settings.name;
+                    return true;
+                  });
+                  
+                  if (currentPath == Routes.transactionDetails) {
+                    desktopNavigatorKey.currentState?.pop();
+                  }
+
+                  desktopSidebarViewModel.onPageChange(SidebarItem.dashboard);
+                },
               ),
               SideMenuItem(
                 onTap: () {
                   String? currentPath;
-
                   desktopNavigatorKey.currentState?.popUntil((route) {
                     currentPath = route.settings.name;
                     return true;
                   });
 
                   switch (currentPath) {
+                    case Routes.transactionDetails:
+                      desktopNavigatorKey.currentState?.pop();
+                      break;
                     case Routes.transactionsPage:
                       desktopSidebarViewModel.resetSidebar();
                       break;
@@ -114,7 +128,10 @@ class DesktopSidebarWrapper extends BasePage {
               SideMenuItem(
                 imagePath: 'assets/images/settings_outline.png',
                 isSelected: desktopSidebarViewModel.currentPage == SidebarItem.settings,
-                onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.settings),
+                onTap: () { 
+                      final name = ModalRoute.of(context)?.settings.name;
+                 print(name);
+                  desktopSidebarViewModel.onPageChange(SidebarItem.settings);},
               ),
             ],
           );
