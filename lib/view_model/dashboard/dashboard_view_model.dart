@@ -45,8 +45,8 @@ abstract class DashboardViewModelBase with Store {
       required this.ordersStore,
       required this.anonpayTransactionsStore})
   : isOutdatedElectrumWallet = false,
-    isEnabledSellAction = false,
-    isEnabledBuyAction = false,
+    hasSellAction = false,
+    hasBuyAction = false,
     hasExchangeAction = false,
     isShowFirstYatIntroduction = false,
     isShowSecondYatIntroduction = false,
@@ -285,17 +285,22 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool hasExchangeAction;
 
-  @observable
-  bool isEnabledBuyAction;
-
   @computed
-  bool get hasBuyAction => !settingsStore.disableBuy && !isHaven;
+  bool get isEnabledBuyAction =>
+      !settingsStore.disableBuy && wallet.type != WalletType.haven;
 
   @observable
-  bool isEnabledSellAction;
+  bool hasBuyAction;
 
   @computed
-  bool get hasSellAction => !settingsStore.disableSell && !isHaven;
+  bool get isEnabledSellAction =>
+      !settingsStore.disableBuy &&
+      wallet.type != WalletType.haven &&
+      wallet.type != WalletType.monero &&
+      wallet.type != WalletType.litecoin;
+
+  @observable
+  bool hasSellAction;
 
   ReactionDisposer? _onMoneroAccountChangeReaction;
 
@@ -396,9 +401,7 @@ abstract class DashboardViewModelBase with Store {
 
   void updateActions() {
     hasExchangeAction = !isHaven;
-    isEnabledBuyAction = wallet.type != WalletType.haven;
-    isEnabledSellAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero
-      && wallet.type != WalletType.litecoin;
+    hasBuyAction = !isHaven;
+    hasSellAction = !isHaven;
   }
 }
