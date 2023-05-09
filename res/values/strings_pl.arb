@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "Kwota jest mniejsza niż minimalna",
   "error_text_input_above_maximum_limit" : "Kwota jest większa niż maksymalna",
   "show_market_place" : "Pokaż rynek",
-  "prevent_screenshots": "Zapobiegaj zrzutom ekranu i nagrywaniu ekranu"
+  "prevent_screenshots": "Zapobiegaj zrzutom ekranu i nagrywaniu ekranu",
+  "disable_buy": "Wyłącz akcję kupna",
+  "disable_sell": "Wyłącz akcję sprzedaży"
 }

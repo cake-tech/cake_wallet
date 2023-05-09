@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "金額は最小額より少ない",
   "error_text_input_above_maximum_limit" : "金額は最大値を超えています",
   "show_market_place":"マーケットプレイスを表示",
-  "prevent_screenshots": "スクリーンショットと画面録画を防止する"
+  "prevent_screenshots": "スクリーンショットと画面録画を防止する",
+  "disable_buy": "購入アクションを無効にする",
+  "disable_sell": "販売アクションを無効にする"
 }
