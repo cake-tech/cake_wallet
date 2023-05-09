@@ -51,6 +51,7 @@ class WalletRestoreFromQRCode {
 
   static String getFormattedUri(String code) {
     final index = code.indexOf(':');
+    if (index == -1) return throw Exception('Unexpected wallet type: $code, try to scan again');
     final scheme = code.substring(0, index).replaceAll('_', '-');
     final query = code.substring(index + 1).replaceAll('?', '&');
     final formattedUri = '$scheme:?$query';
