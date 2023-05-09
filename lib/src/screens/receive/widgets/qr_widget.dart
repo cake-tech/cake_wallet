@@ -86,7 +86,14 @@ class QRWidget extends StatelessWidget {
                                       Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                                 ),
                               ),
-                              child: QrImage(data: addressListViewModel.uri.toString()),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      width: 3,
+                                      color:Colors.white,
+                                    ),
+                                  ),
+                                  child: QrImage(data: addressListViewModel.uri.toString())),
                             ),
                           ),
                         ),
