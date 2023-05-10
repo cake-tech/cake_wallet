@@ -83,7 +83,7 @@ class DesktopSidebarWrapper extends BasePage {
                     currentPath = route.settings.name;
                     return true;
                   });
-                  
+
                   if (currentPath == Routes.transactionDetails) {
                     desktopNavigatorKey.currentState?.pop();
                   }
@@ -128,10 +128,7 @@ class DesktopSidebarWrapper extends BasePage {
               SideMenuItem(
                 imagePath: 'assets/images/settings_outline.png',
                 isSelected: desktopSidebarViewModel.currentPage == SidebarItem.settings,
-                onTap: () { 
-                      final name = ModalRoute.of(context)?.settings.name;
-                 print(name);
-                  desktopSidebarViewModel.onPageChange(SidebarItem.settings);},
+                onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.settings),
               ),
             ],
           );
