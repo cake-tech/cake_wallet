@@ -2,8 +2,6 @@
 
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 
@@ -123,7 +121,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     }
 
     return PickerWrapperWidget(
-      hasTitle: widget.title != null && !widget.title!.isEmpty,
+      hasTitle: widget.title?.isNotEmpty ?? false,
       children: [
         if (widget.title?.isNotEmpty ?? false)
           Container(

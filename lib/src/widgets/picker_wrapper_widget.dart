@@ -4,10 +4,10 @@ import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
 class PickerWrapperWidget extends StatelessWidget {
-  PickerWrapperWidget({required this.children, this.hasTitle});
+  PickerWrapperWidget({required this.children, this.hasTitle = false});
 
   final List<Widget> children;
-  final bool? hasTitle;
+  final bool hasTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +29,7 @@ class PickerWrapperWidget extends StatelessWidget {
 
       // position the close button right below the search container
       closeButtonBottom = closeButtonBottom -
-          containerBottom +
-          (hasTitle == null || !hasTitle! ? padding : padding / 1.5);
+          containerBottom + (!hasTitle ? padding : padding / 1.5);
     }
 
     return AlertBackground(
