@@ -34,14 +34,24 @@ class TextValidator extends Validator<String> {
       return isAutovalidate ? true : false;
     }
 
-    return value.length > (minLength ?? 0) &&
-        (length?.contains(value.length) ?? true) &&
-        ((maxLength ?? 0) > 0 ? (value.length <= maxLength!) : true) &&
-        (pattern != null
-            ? (useAdditionalValidation != null &&
-                    useAdditionalValidation!(value)) ||
-                match(value)
-            : true);
+    final greaterThanMinLength = value.length > (minLength ?? 0);
+    if (!greaterThanMinLength) return false;
+
+    final lengthMatched = length?.contains(value.length) ?? true;
+    if (!lengthMatched) return false;
+
+    final lowerThanMaxLength =
+        (maxLength ?? 0) > 0 ? (value.length <= maxLength!) : true;
+    if (!lowerThanMaxLength) return false;
+
+    if (pattern == null) return true;
+
+    final valueMatched = match(value);
+    final valueValidated = useAdditionalValidation != null
+        ? useAdditionalValidation!(value) || valueMatched
+        : valueMatched;
+
+    return valueValidated;
   }
 
   bool match(String value) =>
