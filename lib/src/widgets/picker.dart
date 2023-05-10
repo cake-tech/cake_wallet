@@ -2,9 +2,8 @@
 
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 
 class Picker<Item> extends StatefulWidget {
   Picker({
@@ -114,171 +113,130 @@ class _PickerState<Item> extends State<Picker<Item>> {
     final mq = MediaQuery.of(context);
     final bottom = mq.viewInsets.bottom;
     final height = mq.size.height - bottom;
-    final screenCenter = height / 2;
 
-    double closeButtonBottom = 60;
     double containerHeight = height * 0.65;
     if (bottom > 0) {
       // increase a bit or it gets too squished in the top
       containerHeight = height * 0.75;
-
-      final containerCenter = containerHeight / 2;
-      final containerBottom = screenCenter - containerCenter;
-
-      final hasTitle = widget.title == null || widget.title!.isEmpty;
-
-      // position the close button right below the search container
-      closeButtonBottom = closeButtonBottom -
-          containerBottom +
-          (hasTitle ? padding : padding / 1.5);
     }
 
-    return AlertBackground(
-      child: Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    if (widget.title?.isNotEmpty ?? false)
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: padding),
-                        child: Text(
-                          widget.title!,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.none,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: padding),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(30)),
-                        child: Container(
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .headline6!
-                              .color!,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: containerHeight,
-                              maxWidth: ResponsiveLayoutUtil.kPopupWidth,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (widget.hintText != null)
-                                  Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: TextFormField(
-                                      controller: searchController,
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .headline6!
-                                              .color!),
-                                      decoration: InputDecoration(
-                                        hintText: widget.hintText,
-                                        prefixIcon: Image.asset(
-                                            "assets/images/search_icon.png"),
-                                        filled: true,
-                                        fillColor: Theme.of(context)
-                                            .accentTextTheme
-                                            .headline3!
-                                            .color!,
-                                        alignLabelWithHint: false,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 4, horizontal: 16),
-                                        enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                            borderSide: const BorderSide(
-                                              color: Colors.transparent,
-                                            )),
-                                        focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                            borderSide: const BorderSide(
-                                              color: Colors.transparent,
-                                            )),
-                                      ),
-                                    ),
-                                  ),
-                                Divider(
-                                  color: Theme.of(context)
-                                      .accentTextTheme
-                                      .headline6!
-                                      .backgroundColor!,
-                                  height: 1,
-                                ),
-                                if (widget.selectedAtIndex != -1)
-                                  buildSelectedItem(widget.selectedAtIndex),
-                                Flexible(
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: <Widget>[
-                                      filteredItems.length > 3
-                                          ? Scrollbar(
-                                              controller: controller,
-                                              child: itemsList(),
-                                            )
-                                          : itemsList(),
-                                      (widget.description?.isNotEmpty ?? false)
-                                          ? Positioned(
-                                              bottom: padding,
-                                              left: padding,
-                                              right: padding,
-                                              child: Text(
-                                                widget.description!,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontFamily: 'Lato',
-                                                  decoration:
-                                                      TextDecoration.none,
-                                                  color: Theme.of(context)
-                                                      .primaryTextTheme
-                                                      .headline6!
-                                                      .color!,
-                                                ),
-                                              ),
-                                            )
-                                          : Offstage(),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                SizedBox(height: ResponsiveLayoutUtil.kPopupSpaceHeight),
-                AlertCloseButton(bottom: closeButtonBottom),
-              ],
+    return PickerWrapperWidget(
+      hasTitle: widget.title?.isNotEmpty ?? false,
+      children: [
+        if (widget.title?.isNotEmpty ?? false)
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: padding),
+            child: Text(
+              widget.title!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'Lato',
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+                color: Colors.white,
+              ),
             ),
           ),
-          // gives the extra spacing using MediaQuery.viewInsets.bottom
-          // to simulate a keyboard area
-          SizedBox(
-            height: bottom,
-          )
-        ],
-      ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(30)),
+            child: Container(
+              color: Theme.of(context).accentTextTheme.headline6!.color!,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: containerHeight,
+                  maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.hintText != null)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: TextFormField(
+                          controller: searchController,
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline6!
+                                  .color!),
+                          decoration: InputDecoration(
+                            hintText: widget.hintText,
+                            prefixIcon:
+                                Image.asset("assets/images/search_icon.png"),
+                            filled: true,
+                            fillColor: Theme.of(context)
+                                .accentTextTheme
+                                .headline3!
+                                .color!,
+                            alignLabelWithHint: false,
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 16),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.transparent,
+                                )),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                  color: Colors.transparent,
+                                )),
+                          ),
+                        ),
+                      ),
+                    Divider(
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .headline6!
+                          .backgroundColor!,
+                      height: 1,
+                    ),
+                    if (widget.selectedAtIndex != -1)
+                      buildSelectedItem(widget.selectedAtIndex),
+                    Flexible(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          filteredItems.length > 3
+                              ? Scrollbar(
+                                  controller: controller,
+                                  child: itemsList(),
+                                )
+                              : itemsList(),
+                          (widget.description?.isNotEmpty ?? false)
+                              ? Positioned(
+                                  bottom: padding,
+                                  left: padding,
+                                  right: padding,
+                                  child: Text(
+                                    widget.description!,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Lato',
+                                      decoration: TextDecoration.none,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .headline6!
+                                          .color!,
+                                    ),
+                                  ),
+                                )
+                              : Offstage(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        )
+      ],
     );
   }
 
