@@ -12,9 +12,10 @@ class DesktopDashboardActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) {
-        return Column(
+    return Observer(builder: (_) {
+      return ColoredBox(
+        color: Theme.of(context).backgroundColor,
+        child: Column(
           children: [
             const SizedBox(height: 16),
             DesktopActionButton(
@@ -73,8 +74,8 @@ class DesktopDashboardActions extends StatelessWidget {
               child: MarketPlacePage(dashboardViewModel: dashboardViewModel),
             ),
           ],
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 }

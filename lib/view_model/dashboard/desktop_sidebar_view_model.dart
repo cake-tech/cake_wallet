@@ -4,9 +4,9 @@ part 'desktop_sidebar_view_model.g.dart';
 
 enum SidebarItem {
   dashboard,
+  transactions,
   support,
   settings,
-  transactions;
 }
 
 class DesktopSidebarViewModel = DesktopSidebarViewModelBase with _$DesktopSidebarViewModel;
@@ -14,12 +14,14 @@ class DesktopSidebarViewModel = DesktopSidebarViewModelBase with _$DesktopSideba
 abstract class DesktopSidebarViewModelBase with Store {
   DesktopSidebarViewModelBase();
 
+  final _sidebarItemsToReset = [SidebarItem.support, SidebarItem.settings];
+
   @observable
   SidebarItem currentPage = SidebarItem.dashboard;
 
   @action
   void onPageChange(SidebarItem item) {
-    if (currentPage == item) {
+    if (currentPage == item && _sidebarItemsToReset.contains(item)) {
       resetSidebar();
 
       return;
