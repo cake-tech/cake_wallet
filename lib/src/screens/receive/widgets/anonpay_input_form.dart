@@ -69,7 +69,7 @@ class AnonInvoiceForm extends StatelessWidget {
             BaseTextFormField(
               controller: nameController,
               focusNode: _nameFocusNode,
-              borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
+              borderColor: Theme.of(context).primaryTextTheme.bodyText1!.color!,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_name,
               textInputAction: TextInputAction.next,
@@ -88,7 +88,7 @@ class AnonInvoiceForm extends StatelessWidget {
               controller: descriptionController,
               focusNode: _descriptionFocusNode,
               textInputAction: TextInputAction.next,
-              borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
+              borderColor: Theme.of(context).primaryTextTheme.bodyText1!.color!,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_description,
               placeholderTextStyle: TextStyle(
@@ -104,7 +104,7 @@ class AnonInvoiceForm extends StatelessWidget {
               controller: emailController,
               textInputAction: TextInputAction.next,
               focusNode: _emailFocusNode,
-              borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor,
+              borderColor: Theme.of(context).primaryTextTheme.bodyText1!.color!,
               suffixIcon: SizedBox(width: 36),
               keyboardType: TextInputType.emailAddress,
               hintText: S.of(context).optional_email_hint,
