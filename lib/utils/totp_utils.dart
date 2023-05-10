@@ -24,7 +24,7 @@ String generateOTP({required String secretKey, required int input}) {
   var hmacKey = base32.decode(secretKey);
   
   /// initial the HMAC-SHA1 object
-  var hmacSha = Hmac(sha1, hmacKey);
+  var hmacSha = Hmac(sha512, hmacKey);
 
   /// get hmac answer
   var hmac = hmacSha.convert(intToBytelist(input: input)).bytes;
@@ -39,8 +39,8 @@ String generateOTP({required String secretKey, required int input}) {
       (hmac[offset + 3] & 0xff));
 
   /// get the initial string code
-  var strCode = (code % pow(10, 6)).toString();
-  strCode = strCode.padLeft(6, '0');
+  var strCode = (code % pow(10, 8)).toString();
+  strCode = strCode.padLeft(8, '0');
 
   return strCode;
 }

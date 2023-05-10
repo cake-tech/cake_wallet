@@ -238,7 +238,7 @@ abstract class SettingsStoreBase with Store {
 
   @computed
   String get totpVersionOneLink {
-    return 'otpauth://totp/Cake%20Wallet:$deviceName?secret=$totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA1&digits=6&period=30';
+    return 'otpauth://totp/Cake%20Wallet:$deviceName?secret=$totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
   }
 
   @observable
