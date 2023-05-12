@@ -8,6 +8,8 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 
+import '../../../routes.dart';
+
 class Modify2FAPage extends BasePage {
   Modify2FAPage({required this.setup2FAViewModel});
 
@@ -38,8 +40,8 @@ class Modify2FAPage extends BasePage {
                       },
                       actionRightButton: () {
                         setup2FAViewModel.setUseTOTP2FA(false);
-                        setup2FAViewModel.clearBase32SecretKey();
-                        Navigator.of(context).pop();
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Routes.dashboard, (route) => false);
                       },
                     );
                   },

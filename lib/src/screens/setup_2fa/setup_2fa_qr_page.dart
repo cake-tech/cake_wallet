@@ -112,7 +112,7 @@ class Setup2FAQRPage extends BasePage {
                   arguments: TotpAuthArgumentsModel(
                     onTotpAuthenticationFinished:
                         (bool isAuthenticatedSuccessfully, TotpAuthCodePageState auth) async {
-                      auth.close();
+                      // auth.close();
                     },
                     isForSetup: true,
                   )

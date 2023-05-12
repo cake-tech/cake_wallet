@@ -22,6 +22,7 @@ abstract class Setup2FAViewModelBase with Store {
 
   Setup2FAViewModelBase(this._settingsStore, this._sharedPreferences, this._authService)
       : _failureCounter = 0,
+        enteredOTPCode = '',
         state = InitialExecutionState() {
     getRandomBase32SecretKey();
     reaction((_) => state, _saveLastAuthTime);
@@ -40,6 +41,9 @@ abstract class Setup2FAViewModelBase with Store {
 
   @observable
   int _failureCounter;
+
+  @observable
+  String enteredOTPCode;
 
   @computed
   bool get useTOTP2FA => _settingsStore.useTOTP2FA;
