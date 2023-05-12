@@ -32,7 +32,7 @@ class AnonpayCurrencyInputField extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
-                      color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
+                      color: Theme.of(context).primaryTextTheme.bodyText1!.color!,
                       width: 1)),
             ),
             child: Padding(

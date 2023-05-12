@@ -6,15 +6,19 @@ dependencies:
   flutter_cupertino_localizations: ^1.0.1
   intl: ^0.17.0
   url_launcher: ^6.1.4
-  qr_flutter: ^4.0.0
+  qr_flutter:
+    git:
+      url: https://github.com/cake-tech/qr.flutter.git
+      ref: cake-4.0.2
+      version: 4.0.2
   uuid: 3.0.6
   shared_preferences: ^2.0.15
   flutter_secure_storage:
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-6.0.0
-      version: 6.0.0
+      ref: cake-8.0.0
+      version: 8.0.0
   # provider: ^6.0.3
   rxdart: ^0.27.4
   yaml: ^3.1.1

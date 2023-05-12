@@ -1,1 +1,3 @@
-Fix Restore from QR code
+Reliability fixes for PIN login, transaction appearance, keyboard inputs, and QR codes
+Show amount received by each Monero account in account overview
+Other bugfixes
