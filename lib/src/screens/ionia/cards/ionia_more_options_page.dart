@@ -78,7 +78,7 @@ class _GradiantContainer extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

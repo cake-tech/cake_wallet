@@ -12,12 +12,10 @@ class LightTheme extends ThemeBase {
   @override
   ThemeType get type => ThemeType.light;
 
-  @override
-  ThemeData get themeData => ThemeData(
+  ThemeData theme = ThemeData(
       fontFamily: 'Lato',
       brightness: Brightness.light,
       backgroundColor: Colors.white,
-      accentColor: Colors.white, // first gradient color
       scaffoldBackgroundColor: Colors.white, // second gradient color
       primaryColor: Colors.white, // third gradient color
       buttonColor: Palette.blueAlice, // action buttons on dashboard page
@@ -234,5 +232,9 @@ class LightTheme extends ThemeBase {
         ),
       ),
       cardColor: Palette.protectiveBlue // bottom button (action list)
-  );
+      );
+
+  @override
+  ThemeData get themeData => theme.copyWith(
+      colorScheme: theme.colorScheme.copyWith(secondary: Colors.white));
 }

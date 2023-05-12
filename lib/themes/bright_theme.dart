@@ -12,12 +12,10 @@ class BrightTheme extends ThemeBase {
   @override
   ThemeType get type => ThemeType.bright;
 
-  @override
-  ThemeData get themeData => ThemeData(
+  ThemeData theme = ThemeData(
       fontFamily: 'Lato',
       brightness: Brightness.light,
       backgroundColor: Colors.white,
-      accentColor: Palette.blueCraiola, // first gradient color
       scaffoldBackgroundColor: Palette.pinkFlamingo, // second gradient color
       primaryColor: Palette.redHat, // third gradient color
       buttonColor: Colors.white.withOpacity(0.2), // action buttons on dashboard page
@@ -235,5 +233,9 @@ class BrightTheme extends ThemeBase {
         ),
       ),
       cardColor: Palette.moderateSlateBlue // bottom button (action list)
-  );
+      );
+
+  @override
+  ThemeData get themeData => theme.copyWith(
+      colorScheme: theme.colorScheme.copyWith(secondary: Palette.blueCraiola));
 }

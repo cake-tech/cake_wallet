@@ -77,7 +77,7 @@ class _DashboardPageView extends BasePage {
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),

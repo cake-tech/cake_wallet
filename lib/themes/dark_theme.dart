@@ -12,13 +12,12 @@ class DarkTheme extends ThemeBase {
   @override
   ThemeType get type => ThemeType.dark;
 
-  @override
-  ThemeData get themeData => ThemeData(
+  ThemeData theme = ThemeData(
       fontFamily: 'Lato',
       brightness: Brightness.dark,
       backgroundColor: PaletteDark.backgroundColor,
-      accentColor: PaletteDark.backgroundColor, // first gradient color
-      scaffoldBackgroundColor: PaletteDark.backgroundColor, // second gradient color
+      scaffoldBackgroundColor:
+          PaletteDark.backgroundColor, // second gradient color
       primaryColor: PaletteDark.backgroundColor, // third gradient color
       buttonColor: PaletteDark.nightBlue, // action buttons on dashboard page
       indicatorColor: PaletteDark.cyanBlue, // page indicator
@@ -234,5 +233,10 @@ class DarkTheme extends ThemeBase {
         ),
       ),
       cardColor: PaletteDark.darkNightBlue // bottom button (action list)
-  );
+      );
+
+  @override
+  ThemeData get themeData => theme.copyWith(
+      colorScheme:
+          theme.colorScheme.copyWith(secondary: PaletteDark.backgroundColor));
 }
