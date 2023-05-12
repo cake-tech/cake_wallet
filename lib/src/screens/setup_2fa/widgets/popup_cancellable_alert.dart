@@ -1,4 +1,3 @@
-
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +9,14 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
   final String contentText;
   final String actionButtonText;
   final VoidCallback? buttonAction;
+  final bool sameActionForButtonAndClose;
 
   const PopUpCancellableAlertDialog({
     super.key,
     this.contentText = '',
     this.actionButtonText = '',
     this.buttonAction,
+    this.sameActionForButtonAndClose = true,
   });
   bool get barrierDismissible => true;
   Color? get actionButtonTextColor => null;
@@ -80,7 +81,9 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
                 ],
               ),
             ),
-            AlertCloseButton(),
+            AlertCloseButton(
+              onTap: sameActionForButtonAndClose ? buttonAction : null,
+            ),
           ],
         ),
       ),
