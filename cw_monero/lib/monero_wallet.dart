@@ -63,18 +63,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             unlockedBalance:
                 monero_wallet.getUnlockedBalance(accountIndex: account.id))
         });
-      walletAddresses.updateSubaddressList(accountIndex: account.id);
+      _updateSubAddress(enableAutoGenerate, account: account);
     });
     
     reaction((_) => enableAutoGenerate, (bool enabled) {
-      if (!enabled) {
-        walletAddresses.updateSubaddressList(accountIndex: walletAddresses.account?.id ?? 0);
-      } else {
-        walletAddresses.updateUnusedSubaddress(
-          accountIndex: walletAddresses.account?.id ?? 0, 
-          defaultLabel: walletAddresses.account?.label ?? '',
-        );
-      }
+      _updateSubAddress(enableAutoGenerate, account: walletAddresses.account);
     });
   }
 
@@ -282,6 +275,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
     await monero_wallet.store();
+    if (enableAutoGenerate) {
+      walletAddresses.updateUnusedSubaddress(accountIndex: walletAddresses.account?.id ?? 0, defaultLabel: walletAddresses.account?.label ?? '');
+    }
   }
 
   @override
@@ -448,12 +444,20 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     try {
       await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
-      if(enableAutoGenerate){
-        walletAddresses.updateUnusedSubaddress(accountIndex: walletAddresses.account?.id ?? 0, defaultLabel: walletAddresses.account?.label ?? '');
-      }
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void _updateSubAddress(bool enableAutoGenerate, {Account? account}) {
+    if (enableAutoGenerate) {
+         walletAddresses.updateUnusedSubaddress(
+          accountIndex: account?.id ?? 0, 
+          defaultLabel: account?.label ?? '',
+        );
+      } else {
+        walletAddresses.updateSubaddressList(accountIndex: account?.id ?? 0);
+      }
   }
 }

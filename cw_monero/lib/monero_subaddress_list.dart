@@ -1,6 +1,3 @@
-import 'package:cw_monero/api/wallet.dart';
-import 'package:cw_monero/monero_transaction_history.dart';
-import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;

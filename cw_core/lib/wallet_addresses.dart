@@ -1,3 +1,4 @@
+import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_info.dart';
 
 abstract class WalletAddresses {

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:cw_core/address_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'dart:async';
@@ -99,21 +99,4 @@ class WalletInfo extends HiveObject {
   Stream<String> get yatLastUsedAddressStream => _yatLastUsedAddressController.stream;
 
   StreamController<String> _yatLastUsedAddressController;
-}
-
-@HiveType(typeId: AddressInfo.typeId)
-class AddressInfo extends HiveObject {
-  AddressInfo({required this.address, this.accountIndex, required this.label});
-
-  static const typeId = 11;
-  static const boxName = 'AddressInfo';
-
-  @HiveField(0)
-  int? accountIndex;
-
-  @HiveField(1, defaultValue: '')
-  String address;
-
-  @HiveField(2, defaultValue: '')
-  String label;
 }
