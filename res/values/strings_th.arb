@@ -706,5 +706,7 @@
   "error_text_input_below_minimum_limit" : "จำนวนเงินน้อยกว่าขั้นต่ำ",
   "error_text_input_above_maximum_limit" : "จำนวนเงินสูงกว่าค่าสูงสุด",
   "show_market_place":"แสดงตลาดกลาง",
-  "prevent_screenshots": "ป้องกันภาพหน้าจอและการบันทึกหน้าจอ"
+  "prevent_screenshots": "ป้องกันภาพหน้าจอและการบันทึกหน้าจอ",
+  "disable_buy": "ปิดการใช้งานการซื้อ",
+  "disable_sell": "ปิดการใช้งานการขาย"
 }

@@ -707,5 +707,7 @@
   "error_text_input_below_minimum_limit" : "金额小于最小值",
   "error_text_input_above_maximum_limit" : "金额大于最大值",
   "show_market_place" :"显示市场",
-  "prevent_screenshots": "防止截屏和录屏"
+  "prevent_screenshots": "防止截屏和录屏",
+  "disable_buy": "禁用购买操作",
+  "disable_sell": "禁用卖出操作"
 }

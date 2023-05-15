@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "La cantidad es menos que mínima",
   "error_text_input_above_maximum_limit" : "La cantidad es más que el máximo",
   "show_market_place": "Mostrar mercado",
-  "prevent_screenshots": "Evitar capturas de pantalla y grabación de pantalla"
+  "prevent_screenshots": "Evitar capturas de pantalla y grabación de pantalla",
+  "disable_buy": "Desactivar acción de compra",
+  "disable_sell": "Desactivar acción de venta"
 }

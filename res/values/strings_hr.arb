@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "Iznos je manji od minimalnog",
   "error_text_input_above_maximum_limit" : "Iznos je veći od maskimalnog",
   "show_market_place" : "Prikaži tržište",
-  "prevent_screenshots": "Spriječite snimke zaslona i snimanje zaslona"
+  "prevent_screenshots": "Spriječite snimke zaslona i snimanje zaslona",
+  "disable_buy": "Onemogući kupnju",
+  "disable_sell": "Onemogući akciju prodaje"
 }

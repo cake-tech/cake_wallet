@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "Amount is less than the minimum",
   "error_text_input_above_maximum_limit" : "Amount is more than the maximum",
   "show_market_place" :"Show Marketplace",
-  "prevent_screenshots": "Prevent screenshots and screen recording"
+  "prevent_screenshots": "Prevent screenshots and screen recording",
+  "disable_buy": "Disable buy action",
+  "disable_sell": "Disable sell action"
 }

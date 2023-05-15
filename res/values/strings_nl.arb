@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "Bedrag is minder dan minimaal",
   "error_text_input_above_maximum_limit" : "Bedrag is meer dan maximaal",
   "show_market_place":"Toon Marktplaats",
-  "prevent_screenshots": "Voorkom screenshots en schermopname"
+  "prevent_screenshots": "Voorkom screenshots en schermopname",
+  "disable_buy": "Koopactie uitschakelen",
+  "disable_sell": "Verkoopactie uitschakelen"
 }
