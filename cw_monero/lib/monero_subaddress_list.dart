@@ -113,24 +113,15 @@ abstract class MoneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-    var subaddresses = allAddresses
-        .where((subaddressRow) => !_usedAddresses.contains(subaddressRow.getAddress()))
-        .toList();
-
-    if (subaddresses.isEmpty) {
+    
+    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last.getAddress())) {
       final isAddressAdded = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (isAddressAdded) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
       }
     }
-
-    if (subaddresses.length > 2) {
-      final primary = subaddresses.first;
-      final rest = subaddresses.sublist(1).reversed;
-      subaddresses = [primary] + rest.toList();
-    }
-
-    return subaddresses
+    
+    return allAddresses
         .map((subaddressRow) => Subaddress(
             id: subaddressRow.getId(),
             address: subaddressRow.getAddress(),
