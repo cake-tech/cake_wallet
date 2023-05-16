@@ -18,7 +18,6 @@ class DarkTheme extends ThemeBase {
       scaffoldBackgroundColor:
           PaletteDark.backgroundColor, // second gradient color
       primaryColor: PaletteDark.backgroundColor, // third gradient color
-      buttonColor: PaletteDark.nightBlue, // action buttons on dashboard page
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
       dividerColor: PaletteDark.dividerColor,

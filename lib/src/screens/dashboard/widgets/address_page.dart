@@ -218,7 +218,10 @@ class AddressPage extends BasePage {
                                       .titleMedium!
                                       .color!,
                                   width: 1),
-                              color: Theme.of(context).buttonColor),
+                              color: Theme.of(context)
+                                  .textTheme!
+                                  .titleLarge!
+                                  .backgroundColor!),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

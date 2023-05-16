@@ -17,8 +17,8 @@ class LightTheme extends ThemeBase {
       brightness: Brightness.light,
       scaffoldBackgroundColor: Colors.white, // second gradient color
       primaryColor: Colors.white, // third gradient color
-      buttonColor: Palette.blueAlice, // action buttons on dashboard page
-      indicatorColor: PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
+      indicatorColor:
+          PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
       hoverColor: Palette.darkBlueCraiola, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,

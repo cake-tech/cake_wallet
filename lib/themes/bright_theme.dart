@@ -17,7 +17,6 @@ class BrightTheme extends ThemeBase {
       brightness: Brightness.light,
       scaffoldBackgroundColor: Palette.pinkFlamingo, // second gradient color
       primaryColor: Palette.redHat, // third gradient color
-      buttonColor: Colors.white.withOpacity(0.2), // action buttons on dashboard page
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       hoverColor: Colors.white, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
