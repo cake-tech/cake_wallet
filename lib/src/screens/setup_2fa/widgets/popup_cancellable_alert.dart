@@ -18,7 +18,7 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
     this.buttonAction,
     this.sameActionForButtonAndClose = true,
   });
-  bool get barrierDismissible => true;
+  bool get barrierDismissible => false;
   Color? get actionButtonTextColor => null;
   Color? get actionButtonColor => null;
 
