@@ -82,7 +82,10 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).accentTextTheme!.headline2!.color!,
+                                  color: Theme.of(context)
+                                      .accentTextTheme!
+                                      .displayMedium!
+                                      .color,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -94,7 +97,10 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                 style: TextStyle(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme!
+                                      .titleLarge!
+                                      .color!,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -106,7 +112,10 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).accentTextTheme!.headline2!.color!,
+                                  color: Theme.of(context)
+                                      .accentTextTheme!
+                                      .displayMedium!
+                                      .color,
                                 ),
                                 textAlign: TextAlign.center,
                               ),

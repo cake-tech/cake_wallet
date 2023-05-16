@@ -29,7 +29,9 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context)
-                          .primaryTextTheme!.overline!.color!),
+                          .primaryTextTheme!
+                          .labelSmall!
+                          .color!),
                   textAlign: TextAlign.left),
               Padding(
                 padding: EdgeInsets.only(top: 12),

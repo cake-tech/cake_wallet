@@ -38,14 +38,20 @@ class EditBackupPasswordPage extends BasePage {
                         keyboardType: TextInputType.visiblePassword,
                         controller: textEditingController,
                         style: TextStyle(
-                          fontSize: 26,
-                          color: Theme.of(context).primaryTextTheme!.headline6!.color!)))),
+                            fontSize: 26,
+                            color: Theme.of(context)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!)))),
             Positioned(
                 child: Observer(
                     builder: (_) => PrimaryButton(
                         onPressed: () => onSave(context),
                         text: S.of(context).save,
-                        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .bodyLarge!
+                            .color!,
                         textColor: Colors.white,
                         isDisabled: !editBackupPasswordViewModel.canSave)),
                 bottom: 24,

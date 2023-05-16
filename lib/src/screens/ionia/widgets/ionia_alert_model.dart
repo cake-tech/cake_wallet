@@ -41,7 +41,7 @@ class IoniaAlertModal extends StatelessWidget {
                     Text(
                       title,
                       style: textLargeSemiBold(
-                        color: Theme.of(context).textTheme!.bodyText2!.color!,
+                        color: Theme.of(context).textTheme!.bodyMedium!.color!,
                       ),
                     ),
                   Container(
@@ -56,8 +56,12 @@ class IoniaAlertModal extends StatelessWidget {
                   PrimaryButton(
                     onPressed: () => Navigator.pop(context),
                     text: actionTitle,
-                    color: Theme.of(context).accentTextTheme!.caption!.color!,
-                    textColor: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .bodySmall!
+                        .color!,
+                    textColor:
+                        Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                   ),
                   SizedBox(height: 21),
                 ],

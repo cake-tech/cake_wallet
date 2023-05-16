@@ -121,7 +121,7 @@ class TransactionsPage extends StatelessWidget {
                       S.of(context).placeholder_transactions,
                       style: TextStyle(
                           fontSize: 14,
-                          color: Theme.of(context).primaryTextTheme.overline!.decorationColor!),
+                          color: Theme.of(context).primaryTextTheme!.labelSmall!.decorationColor!),
                     ),
                   );
           }))

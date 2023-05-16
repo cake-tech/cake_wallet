@@ -20,7 +20,10 @@ class CurrencyPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).accentTextTheme!.headline6!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .titleLarge!
+          .backgroundColor!,
       child: Scrollbar(
         controller: _scrollController,
         child: GridView.builder(

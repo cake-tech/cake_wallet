@@ -24,13 +24,13 @@ class StandardListStatusRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme!.overline!.color!),
+                      color: Theme.of(context).primaryTextTheme!.labelSmall!.color!),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).accentTextTheme!.headline3!.color!,
+                    color: Theme.of(context).accentTextTheme!.displaySmall!.color!,
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: Padding(
@@ -52,7 +52,7 @@ class StandardListStatusRow extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                                 color: Theme.of(context)
                                     .primaryTextTheme!
-                                    .headline6!
+                                    .titleLarge!
                                     .color!))
                       ],
                     ),

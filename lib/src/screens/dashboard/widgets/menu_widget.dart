@@ -84,9 +84,15 @@ class MenuWidgetState extends State<MenuWidget> {
     final itemCount = SettingActions.all.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
-        color: Theme.of(context).accentTextTheme.overline!.decorationColor!);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .labelSmall!
+            .decorationColor!);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
-        color: Theme.of(context).accentTextTheme.overline!.decorationColor!);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .labelSmall!
+            .decorationColor!);
     litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
     havenIcon = Image.asset('assets/images/haven_menu.png');
 
@@ -108,7 +114,8 @@ class MenuWidgetState extends State<MenuWidget> {
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
                 child: Container(
-                  color: Theme.of(context).textTheme.bodyText1!.decorationColor!,
+                  color:
+                      Theme.of(context).textTheme!.bodyLarge!.decorationColor!,
                   child: ListView.separated(
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
@@ -117,9 +124,14 @@ class MenuWidgetState extends State<MenuWidget> {
                             height: headerHeight,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [
-                                Theme.of(context).accentTextTheme.headline4!.color!,
-                                Theme.of(context).accentTextTheme.headline4!.decorationColor!,
-                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                Theme.of(context)
+                                    .accentTextTheme!
+                                    .headlineMedium!
+                                    .color!,
+                                Theme.of(context)
+                                    .accentTextTheme!
+                                    .headlineMedium!
+                                    .decorationColor!,                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                             ),
                             padding: EdgeInsets.only(
                                 left: 24, top: fromTopEdge, right: 24, bottom: fromBottomEdge),
@@ -149,8 +161,8 @@ class MenuWidgetState extends State<MenuWidget> {
                                                   widget.dashboardViewModel.subname,
                                                   style: TextStyle(
                                                       color: Theme.of(context)
-                                                          .accentTextTheme
-                                                          .overline!
+                                                          .accentTextTheme!
+                                                          .labelSmall!
                                                           .decorationColor!,
                                                       fontWeight: FontWeight.w500,
                                                       fontSize: 12),
@@ -182,7 +194,10 @@ class MenuWidgetState extends State<MenuWidget> {
                       },
                       separatorBuilder: (_, index) => Container(
                             height: 1,
-                            color: Theme.of(context).primaryTextTheme.caption!.decorationColor!,
+                            color: Theme.of(context)
+                                .primaryTextTheme!
+                                .bodySmall!
+                                .decorationColor!,
                           ),
                       itemCount: itemCount + 1),
                 )))

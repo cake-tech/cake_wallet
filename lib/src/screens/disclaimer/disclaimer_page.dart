@@ -89,7 +89,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
                                         .primaryTextTheme!
-                                        .headline6!
+                                        .titleLarge!
                                         .color!),
                               ),
                             )
@@ -109,7 +109,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
                                         .primaryTextTheme!
-                                        .headline6!
+                                        .titleLarge!
                                         .color!),
                               ),
                             )
@@ -128,7 +128,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   fontWeight: FontWeight.normal,
                                   color: Theme.of(context)
                                       .primaryTextTheme!
-                                      .headline6!
+                                      .titleLarge!
                                       .color!),
                             ))
                           ],
@@ -148,7 +148,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
                                         .primaryTextTheme!
-                                        .headline6!
+                                        .titleLarge!
                                         .color!),
                               ),
                             )
@@ -234,7 +234,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                       border: Border.all(
                                           color: Theme.of(context)
                                               .primaryTextTheme!
-                                              .caption!
+                                              .bodySmall!
                                               .color!,
                                           width: 1.0),
                                       borderRadius: BorderRadius.all(
@@ -255,7 +255,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                       fontSize: 14.0,
                                       color: Theme.of(context)
                                           .primaryTextTheme!
-                                          .headline6!
+                                          .titleLarge!
                                           .color!),
                                 )
                               ],
@@ -275,11 +275,11 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                       text: 'Accept',
                       color: Theme.of(context)
                           .accentTextTheme!
-                          .subtitle2!
+                          .titleSmall!
                           .decorationColor!,
                       textColor: Theme.of(context)
                           .accentTextTheme!
-                          .headline5!
+                          .headlineSmall!
                           .decorationColor!),
                 ),
               ],

@@ -57,7 +57,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage =
         Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).primaryTextTheme.headline6!.color!);
+        height: 12, width: 12, color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
 
     return Container(
       padding: EdgeInsets.only(top: 16),
@@ -74,7 +74,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
-                        ? Theme.of(context).accentTextTheme.subtitle2!.decorationColor!
+                        ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
                         : Theme.of(context).backgroundColor;
                     final row = GestureDetector(
                         onTap: () async {
@@ -136,7 +136,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
                                                 .primaryTextTheme
-                                                .headline6!
+                                                .titleLarge!
                                                 .color!),
                                       )
                                     ],
@@ -171,7 +171,7 @@ class WalletListBodyState extends State<WalletListBody> {
               },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+              color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
               textColor: Colors.white,
             ),
             SizedBox(height: 10.0),
@@ -181,8 +181,8 @@ class WalletListBodyState extends State<WalletListBody> {
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).accentTextTheme.caption!.color!,
-                textColor: Theme.of(context).primaryTextTheme.headline6!.color!)
+                color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!)
           ])),
     );
   }
