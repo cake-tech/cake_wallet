@@ -37,6 +37,8 @@ abstract class SettingsStoreBase with Store {
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
       required bool initialAppSecure,
+      required bool initialDisableBuy,
+      required bool initialDisableSell,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
@@ -69,6 +71,8 @@ abstract class SettingsStoreBase with Store {
         useTOTP2FA = initialUseTOTP2FA,
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
+        disableBuy = initialDisableBuy,
+        disableSell = initialDisableSell,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -138,6 +142,16 @@ abstract class SettingsStoreBase with Store {
         setIsAppSecureNative(isAppSecure);
       }
     });
+
+    reaction(
+        (_) => disableBuy,
+        (bool disableBuy) => sharedPreferences.setBool(
+            PreferencesKey.disableBuyKey, disableBuy));
+
+    reaction(
+        (_) => disableSell,
+        (bool disableSell) => sharedPreferences.setBool(
+            PreferencesKey.disableSellKey, disableSell));
 
     if (Platform.isAndroid) {
       setIsAppSecureNative(isAppSecure);
@@ -229,6 +243,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool isAppSecure;
+
+  @observable
+  bool disableBuy;
+
+  @observable
+  bool disableSell;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -332,7 +352,12 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
-    final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
+    final isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
+    final disableBuy =
+        sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
+    final disableSell =
+        sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -411,6 +436,8 @@ abstract class SettingsStoreBase with Store {
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAppSecure: isAppSecure,
+        initialDisableBuy: disableBuy,
+        initialDisableSell: disableSell,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialTotpSecretKey: totpSecretKey,
@@ -458,14 +485,20 @@ abstract class SettingsStoreBase with Store {
     shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
             shouldSaveRecipientAddress;
-    allowBiometricalAuthentication =
-        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
-            allowBiometricalAuthentication;
     totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
-    isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
+        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
+    isAppSecure =
+        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
+    disableBuy =
+        sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
+    disableSell =
+        sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
+    allowBiometricalAuthentication = sharedPreferences
+        .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+        allowBiometricalAuthentication;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
