@@ -8,13 +8,12 @@ import 'package:cw_monero/api/convert_utf8_to_string.dart';
 import 'package:cw_monero/api/signatures.dart';
 import 'package:cw_monero/api/types.dart';
 import 'package:cw_monero/api/monero_api.dart';
-import 'package:cw_monero/api/wallet.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart' as ioc;
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as ioc;
 
 final createWalletNative =
     moneroApi.lookup<NativeFunction<create_wallet>>('create_wallet').asFunction<CreateWallet>();
