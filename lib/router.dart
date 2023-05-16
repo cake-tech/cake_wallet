@@ -284,7 +284,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
               onWillPop: () async =>
                   // FIX-ME: Additional check does it works correctly
                   (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
-                      false)),
+                        false),
+              ),
           fullscreenDialog: true);
 
     case Routes.unlock:

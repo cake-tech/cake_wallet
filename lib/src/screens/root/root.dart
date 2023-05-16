@@ -117,46 +117,48 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     if (_isInactive && !_postFrameCallback && _requestAuth) {
       _postFrameCallback = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-
-        if (useTotp) {
-          widget.navigatorKey.currentState?.pushNamed(
-            Routes.totpAuthCodePage,
-            arguments: TotpAuthArgumentsModel(
-              onTotpAuthenticationFinished:
-                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
-                if (!isAuthenticatedSuccessfully) {
-                  return;
-                }
-
+        widget.navigatorKey.currentState?.pushNamed(
+          Routes.unlock,
+          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            if (!isAuthenticatedSuccessfully) {
+              return;
+            } else {
+              final useTotp = widget.appStore.settingsStore.useTOTP2FA;
+              if (useTotp) {
                 _reset();
-                totpAuth.close(
+                auth.close(
+                  route: Routes.totpAuthCodePage,
+                  arguments: TotpAuthArgumentsModel(
+                    onTotpAuthenticationFinished:
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
+                      if (!isAuthenticatedSuccessfully) {
+                        return;
+                      }
+                      _reset();
+                      totpAuth.close(
+                        route: launchUri != null ? Routes.send : null,
+                        arguments: PaymentRequest.fromUri(launchUri),
+                      );
+                      launchUri = null;
+                    },
+                    isForSetup: false,
+                    closing: false,
+                  ),
+                );
+              } else {
+                _reset();
+                auth.close(
                   route: launchUri != null ? Routes.send : null,
                   arguments: PaymentRequest.fromUri(launchUri),
                 );
-                launchUri = null;
-              },
-              isForSetup: false,
-              closing: false,
-            ),
-          );
-        } else {
-          widget.navigatorKey.currentState?.pushNamed(
-            Routes.unlock,
-            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-              if (!isAuthenticatedSuccessfully) {
-                return;
-              }
-
-              _reset();
-              auth.close(
-                route: launchUri != null ? Routes.send : null,
-                arguments: PaymentRequest.fromUri(launchUri),
-              );
               launchUri = null;
+              }
+            }
+
+             
             },
           );
-        }
+    
        
       });
     } else if (launchUri != null) {

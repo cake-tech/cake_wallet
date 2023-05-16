@@ -10,6 +10,7 @@ import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
 import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
@@ -192,6 +193,8 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 
+import 'core/totp_request_details.dart';
+
 final getIt = GetIt.instance;
 
 var _isSetupFinished = false;
@@ -206,18 +209,18 @@ late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo>? _unspentCoinsInfoSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
-Future setup(
-    {required Box<WalletInfo> walletInfoSource,
-    required Box<Node> nodeSource,
-    required Box<Contact> contactSource,
-    required Box<Trade> tradesSource,
-    required Box<Template> templates,
-    required Box<ExchangeTemplate> exchangeTemplates,
-    required Box<TransactionDescription> transactionDescriptionBox,
-    required Box<Order> ordersSource,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
-    }) async {
+Future setup({
+  required Box<WalletInfo> walletInfoSource,
+  required Box<Node> nodeSource,
+  required Box<Contact> contactSource,
+  required Box<Trade> tradesSource,
+  required Box<Template> templates,
+  required Box<ExchangeTemplate> exchangeTemplates,
+  required Box<TransactionDescription> transactionDescriptionBox,
+  required Box<Order> ordersSource,
+  Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+  required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
+}) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _contactSource = contactSource;
@@ -318,18 +321,15 @@ Future setup(
         type: type, language: language);
   });
 
-  getIt
-      .registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
+  getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
-        getIt.get<WalletCreationService>(param1: type),
-        _walletInfoSource, type);
+        getIt.get<WalletCreationService>(param1: type), _walletInfoSource, type);
   });
 
-  getIt.registerFactory<WalletAddressListViewModel>(() =>
-      WalletAddressListViewModel(
-          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>(),
-          fiatConversionStore: getIt.get<FiatConversionStore>()
-      ));
+  getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
+      appStore: getIt.get<AppStore>(),
+      yatStore: getIt.get<YatStore>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -346,8 +346,6 @@ Future setup(
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>()));
-
-
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -382,27 +380,54 @@ Future setup(
   );
 
   getIt.registerFactory<AuthOptions>(() {
-    final appStore = getIt.get<AppStore>();
-    final useTotp = appStore.settingsStore.useTOTP2FA;
-    if (useTotp) {
-      return TotpAuthCodePage(
-        getIt.get<Setup2FAViewModel>(),
-        onAuthenticationFinished: (isAuthenticated, TotpAuthCodePageState totpAuthPageState) {
-          if (!isAuthenticated) {
-            return;
-          }
-          final authStore = getIt.get<AuthenticationStore>();
-          final appStore = getIt.get<AppStore>();
+    return AuthPage(getIt.get<AuthViewModel>(),
+        onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
+      if (!isAuthenticated) {
+        return;
+      } else {
+        final authStore = getIt.get<AuthenticationStore>();
+        final appStore = getIt.get<AppStore>();
+        final useTotp = appStore.settingsStore.useTOTP2FA;
+        if (useTotp) {
+          authPageState.close(
+            route: Routes.totpAuthCodePage,
+            arguments: TotpAuthArgumentsModel(
+              isForSetup: false,
+              closing: false,
+              onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
+                  TotpAuthCodePageState totpAuthPageState) async {
+                if (!isAuthenticatedSuccessfully) {
+                  return;
+                }
+                if (appStore.wallet != null) {
+                  authStore.allowed();
+                  return;
+                }
 
+                totpAuthPageState.changeProcessText('Loading the wallet');
+
+                if (loginError != null) {
+                  totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
+                }
+
+                ReactionDisposer? _reaction;
+                _reaction = reaction((_) => appStore.wallet, (Object? _) {
+                  _reaction?.reaction.dispose();
+                  authStore.allowed();
+                });
+              },
+            ),
+          );
+        } else {
           if (appStore.wallet != null) {
             authStore.allowed();
             return;
           }
 
-          totpAuthPageState.changeProcessText('Loading the wallet');
+          authPageState.changeProcessText('Loading the wallet');
 
           if (loginError != null) {
-            totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
+            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
           }
 
           ReactionDisposer? _reaction;
@@ -410,39 +435,9 @@ Future setup(
             _reaction?.reaction.dispose();
             authStore.allowed();
           });
-        },
-        // For clarity, the List<bool?> below represents the config params for the totpPage
-        // The configs are isForSetup and closable
-        // i.e [isForSetup, closable]
-        configParams: [false, false],
-      );
-    } else {
-      return AuthPage(getIt.get<AuthViewModel>(),
-          onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
-        if (!isAuthenticated) {
-          return;
         }
-        final authStore = getIt.get<AuthenticationStore>();
-        final appStore = getIt.get<AppStore>();
-
-        if (appStore.wallet != null) {
-          authStore.allowed();
-          return;
-        }
-
-        authPageState.changeProcessText('Loading the wallet');
-
-        if (loginError != null) {
-          authPageState.changeProcessText('ERROR: ${loginError.toString()}');
-        }
-
-        ReactionDisposer? _reaction;
-        _reaction = reaction((_) => appStore.wallet, (Object? _) {
-          _reaction?.reaction.dispose();
-          authStore.allowed();
-        });
-      }, closable: false);
-    }
+      }
+    }, closable: false);
   }, instanceName: 'login');
 
   getIt.registerFactory(() => BalancePage(
@@ -450,10 +445,10 @@ Future setup(
       settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
-      balancePage: getIt.get<BalancePage>(),
-      dashboardViewModel: getIt.get<DashboardViewModel>(),
-      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-    ));
+        balancePage: getIt.get<BalancePage>(),
+        dashboardViewModel: getIt.get<DashboardViewModel>(),
+        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      ));
 
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -568,8 +563,10 @@ Future setup(
     );
   }
 
-  getIt.registerFactory(() =>
-      WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>(), authService: getIt.get<AuthService>(),));
+  getIt.registerFactory(() => WalletListPage(
+        walletListViewModel: getIt.get<WalletListViewModel>(),
+        authService: getIt.get<AuthService>(),
+      ));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
@@ -657,7 +654,8 @@ Future setup(
   getIt.registerFactory(
       () => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
+  getIt.registerFactory(
+      () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 
@@ -864,7 +862,7 @@ Future setup(
       yatService: getIt.get<YatService>(), walletType: getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
-          (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
+      (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
 
   getIt.registerFactory(() => IoniaApi());
 
@@ -975,7 +973,8 @@ Future setup(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
       wallet: getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory(() => DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>(), getIt.get<AuthService>()));
+  getIt.registerFactory(() =>
+      DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => DesktopSidebarViewModel());
 

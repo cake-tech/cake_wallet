@@ -97,38 +97,42 @@ class AuthService with Store {
       return;
     }
 
-    if (settingsStore.useTOTP2FA) {
-      Navigator.of(context).pushNamed(
-        Routes.totpAuthCodePage,
-        arguments: TotpAuthArgumentsModel(
-          isForSetup: !settingsStore.useTOTP2FA,
-          onTotpAuthenticationFinished:
-              (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
-            if (!isAuthenticatedSuccessfully) {
-              onAuthSuccess?.call(false);
-              return;
-            }
-            if (onAuthSuccess != null) {
-              totpAuth.close().then((value) => onAuthSuccess.call(true));
-            } else {
-              totpAuth.close(route: route, arguments: arguments);
-            }
-          },
-        ),
-      );
-    } else {
-      Navigator.of(context).pushNamed(Routes.auth,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-        if (!isAuthenticatedSuccessfully) {
-          onAuthSuccess?.call(false);
-          return;
-        }
-        if (onAuthSuccess != null) {
-          auth.close().then((value) => onAuthSuccess.call(true));
+    
+    Navigator.of(context).pushNamed(Routes.auth,
+        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+      if (!isAuthenticatedSuccessfully) {
+        onAuthSuccess?.call(false);
+        return;
+      } else {
+        if (settingsStore.useTOTP2FA) {
+          auth.close(
+            route: Routes.totpAuthCodePage,
+            arguments: TotpAuthArgumentsModel(
+              isForSetup: !settingsStore.useTOTP2FA,
+              onTotpAuthenticationFinished:
+                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
+                if (!isAuthenticatedSuccessfully) {
+                  onAuthSuccess?.call(false);
+                  return;
+                }
+                if (onAuthSuccess != null) {
+                  totpAuth.close().then((value) => onAuthSuccess.call(true));
+                } else {
+                  totpAuth.close(route: route, arguments: arguments);
+                }
+              },
+            ),
+          );
         } else {
-          auth.close(route: route, arguments: arguments);
+          if (onAuthSuccess != null) {
+            auth.close().then((value) => onAuthSuccess.call(true));
+          } else {
+            auth.close(route: route, arguments: arguments);
+          }
         }
+      }
+      
       });
-    }
+  
   }
 }
