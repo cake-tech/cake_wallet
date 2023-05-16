@@ -129,9 +129,7 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => isAppSecure, (bool isAppSecure) {
       sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
-      if (Platform.isAndroid) {
         setIsAppSecureNative(isAppSecure);
-      }
     });
 
     reaction(
@@ -144,9 +142,8 @@ abstract class SettingsStoreBase with Store {
         (bool disableSell) => sharedPreferences.setBool(
             PreferencesKey.disableSellKey, disableSell));
 
-    if (Platform.isAndroid) {
       setIsAppSecureNative(isAppSecure);
-    }
+    
 
     reaction(
             (_) => fiatApiMode,

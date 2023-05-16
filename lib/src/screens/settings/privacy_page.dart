@@ -49,13 +49,12 @@ class PrivacyPage extends BasePage {
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
                 }),
-            if (Platform.isAndroid)
-              SettingsSwitcherCell(
-                  title: S.current.prevent_screenshots,
-                  value: _privacySettingsViewModel.isAppSecure,
-                  onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setIsAppSecure(value);
-                  }),
+            SettingsSwitcherCell(
+                title: S.current.prevent_screenshots,
+                value: _privacySettingsViewModel.isAppSecure,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setIsAppSecure(value);
+                }),
             SettingsSwitcherCell(
                 title: S.current.disable_buy,
                 value: _privacySettingsViewModel.disableBuy,
