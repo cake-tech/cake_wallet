@@ -684,5 +684,7 @@
   "error_text_input_below_minimum_limit" : "Jumlah kurang dari minimal",
   "error_text_input_above_maximum_limit" : "Jumlah lebih dari maksimal",
   "show_market_place": "Tampilkan Pasar",
-  "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar"
+  "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar",
+  "disable_buy": "Nonaktifkan tindakan beli",
+  "disable_sell": "Nonaktifkan aksi jual"
 }

@@ -703,5 +703,7 @@
   "error_text_input_below_minimum_limit" : "رقم کم از کم سے کم ہے۔",
   "error_text_input_above_maximum_limit" : "رقم زیادہ سے زیادہ سے زیادہ ہے۔",
   "show_market_place":"بازار دکھائیں۔",
-  "prevent_screenshots": "اسکرین شاٹس اور اسکرین ریکارڈنگ کو روکیں۔"
+  "prevent_screenshots": "اسکرین شاٹس اور اسکرین ریکارڈنگ کو روکیں۔",
+  "disable_buy": "خرید ایکشن کو غیر فعال کریں۔",
+  "disable_sell": "فروخت کی کارروائی کو غیر فعال کریں۔"
 }

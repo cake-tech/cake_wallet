@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -48,29 +49,30 @@ class SecurityBackupPage extends BasePage {
           ),
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        Observer(builder: (_) {
-          return SettingsSwitcherCell(
-              title: S.current.settings_allow_biometrical_authentication,
-              value: _securitySettingsViewModel.allowBiometricalAuthentication,
-              onValueChange: (BuildContext context, bool value) {
-                if (value) {
-                  _authService.authenticateAction(context,
-                      onAuthSuccess: (isAuthenticatedSuccessfully) async {
-                    if (isAuthenticatedSuccessfully) {
-                      if (await _securitySettingsViewModel.biometricAuthenticated()) {
+        if (DeviceInfo.instance.isMobile)
+          Observer(builder: (_) {
+            return SettingsSwitcherCell(
+                title: S.current.settings_allow_biometrical_authentication,
+                value: _securitySettingsViewModel.allowBiometricalAuthentication,
+                onValueChange: (BuildContext context, bool value) {
+                  if (value) {
+                    _authService.authenticateAction(context,
+                        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                      if (isAuthenticatedSuccessfully) {
+                        if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                          _securitySettingsViewModel
+                              .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                        }
+                      } else {
                         _securitySettingsViewModel
                             .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                       }
-                    } else {
-                      _securitySettingsViewModel
-                          .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
-                    }
-                  });
-                } else {
-                  _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
-                }
-              });
-        }),
+                    });
+                  } else {
+                    _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
+                  }
+                });
+          }),
         Observer(builder: (_) {
           return SettingsPickerCell<PinCodeRequiredDuration>(
             title: S.current.require_pin_after,

@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "금액이 최소보다 적습니다.",
   "error_text_input_above_maximum_limit" : "금액이 최대 값보다 많습니다.",
   "show_market_place":"마켓플레이스 표시",
-  "prevent_screenshots": "스크린샷 및 화면 녹화 방지"
+  "prevent_screenshots": "스크린샷 및 화면 녹화 방지",
+  "disable_buy": "구매 행동 비활성화",
+  "disable_sell": "판매 조치 비활성화"
 }

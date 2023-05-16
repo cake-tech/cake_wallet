@@ -9,14 +9,22 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class PresentReceiveOptionPicker extends StatelessWidget {
-  PresentReceiveOptionPicker({required this.receiveOptionViewModel});
+  PresentReceiveOptionPicker(
+      {required this.receiveOptionViewModel, this.hasWhiteBackground = false});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
+  final bool hasWhiteBackground;
 
   @override
   Widget build(BuildContext context) {
-    final arrowBottom =
-        Image.asset('assets/images/arrow_bottom_purple_icon.png', color: Colors.white, height: 6);
+    final textIconTheme = hasWhiteBackground
+        ? Theme.of(context).accentTextTheme.headline2!.backgroundColor!
+        : Colors.white;
+    final arrowBottom = Image.asset(
+      'assets/images/arrow_bottom_purple_icon.png',
+      color: textIconTheme,
+      height: 6,
+    );
 
     return TextButton(
       onPressed: () => _showPicker(context),
@@ -40,14 +48,14 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
-                    color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
+                    color: textIconTheme),
               ),
               Observer(
                   builder: (_) => Text(receiveOptionViewModel.selectedReceiveOption.toString(),
                       style: TextStyle(
                           fontSize: 10.0,
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).textTheme.headline5!.color!)))
+                          color: textIconTheme)))
             ],
           ),
           SizedBox(width: 5),

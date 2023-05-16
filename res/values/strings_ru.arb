@@ -708,5 +708,7 @@
   "error_text_input_below_minimum_limit" : "Сумма меньше минимальной",
   "error_text_input_above_maximum_limit" : "Сумма больше максимальной",
   "show_market_place":"Показать торговую площадку",
-  "prevent_screenshots": "Предотвратить скриншоты и запись экрана"
+  "prevent_screenshots": "Предотвратить скриншоты и запись экрана",
+  "disable_buy": "Отключить действие покупки",
+  "disable_sell": "Отключить действие продажи"
 }

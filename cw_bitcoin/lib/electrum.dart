@@ -88,7 +88,7 @@ class ElectrumClient {
           unterminatedString = '';
         }
       } on TypeError catch (e) {
-        if (!e.toString().contains('Map<String, Object>') || !e.toString().contains('Map<String, dynamic>')) {
+        if (!e.toString().contains('Map<String, Object>') && !e.toString().contains('Map<String, dynamic>')) {
           return;
         }
 

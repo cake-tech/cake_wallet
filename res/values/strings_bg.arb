@@ -702,5 +702,7 @@
   "error_text_input_below_minimum_limit" : "Сумата е по-малко от минималната",
   "error_text_input_above_maximum_limit" : "Сумата надвишава максималната",
   "show_market_place":"Покажи пазар",
-  "prevent_screenshots": "Предотвратете екранни снимки и запис на екрана"
+  "prevent_screenshots": "Предотвратете екранни снимки и запис на екрана",
+  "disable_buy": "Деактивирайте действието за покупка",
+  "disable_sell": "Деактивирайте действието за продажба"
 }
