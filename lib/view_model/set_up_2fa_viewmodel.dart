@@ -24,7 +24,7 @@ abstract class Setup2FAViewModelBase with Store {
       : _failureCounter = 0,
         enteredOTPCode = '',
         state = InitialExecutionState() {
-    getRandomBase32SecretKey();
+    _getRandomBase32SecretKey();
     reaction((_) => state, _saveLastAuthTime);
   }
 
@@ -48,9 +48,9 @@ abstract class Setup2FAViewModelBase with Store {
   @computed
   bool get useTOTP2FA => _settingsStore.useTOTP2FA;
 
-  void getRandomBase32SecretKey() {
+  void _getRandomBase32SecretKey() {
     final randomBase32Key = Utils.generateRandomBase32SecretKey(16);
-    setBase32SecretKey(randomBase32Key);
+    _setBase32SecretKey(randomBase32Key);
   }
 
   @action
@@ -59,7 +59,7 @@ abstract class Setup2FAViewModelBase with Store {
   }
 
   @action
-  void setBase32SecretKey(String value) {
+  void _setBase32SecretKey(String value) {
     if (_settingsStore.totpSecretKey == '') {
       _settingsStore.totpSecretKey = value;
     }

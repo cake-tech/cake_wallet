@@ -25,8 +25,7 @@ class SecurityBackupPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Observer(builder: (context) {
-      return Container(
+    return Container(
         padding: EdgeInsets.only(top: 10),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           SettingsCellWithArrow(
@@ -84,18 +83,24 @@ class SecurityBackupPage extends BasePage {
               },
             );
           }),
-          SettingsCellWithArrow(
-            title: _securitySettingsViewModel.useTotp2FA ? 'Modify Cake 2FA' : 'Set up Cake 2FA',
+          Observer(
+            builder: (context) {
+              return SettingsCellWithArrow(
+                title: _securitySettingsViewModel.useTotp2FA
+                    ? S.current.modify_2fa
+                    : S.current.setup_2fa,
             handler: (_) => _authService.authenticateAction(
               context,
               route: _securitySettingsViewModel.useTotp2FA
                   ? Routes.modify2FAPage
                   : Routes.setup_2faPage,
-            ),
+                ),
+              );
+            },
           ),
-        ]),
-      );
-    }
+        ],
+      ),
     );
+    
   }
 }

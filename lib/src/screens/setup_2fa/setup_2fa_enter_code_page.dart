@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
 import 'package:flutter/material.dart';
@@ -16,20 +17,18 @@ import 'package:mobx/mobx.dart';
 
 import '../../../palette.dart';
 import '../../../routes.dart';
-import '../../widgets/auth_options_base.dart';
 
 typedef OnTotpAuthenticationFinished = void Function(bool, TotpAuthCodePageState);
 
-class TotpAuthCodePage extends AuthOptions {
+class TotpAuthCodePage extends StatefulWidget {
   TotpAuthCodePage(
     this.setup2FAViewModel, {
-    required this.onAuthenticationFinished,
-    required this.configParams,
+    required this.totpArguments,
   });
 
   final Setup2FAViewModel setup2FAViewModel;
-  final OnTotpAuthenticationFinished onAuthenticationFinished;
-  final List<bool?> configParams;
+
+  final TotpAuthArgumentsModel totpArguments;
 
   @override
   TotpAuthCodePageState createState() => TotpAuthCodePageState();
@@ -46,27 +45,16 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
   void initState() {
     _reaction ??= reaction((_) => widget.setup2FAViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          widget.onAuthenticationFinished(true, this);
-        });
-        setState(() {});
-      }
-
-      if (state is IsExecutingState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {});
+        widget.totpArguments.onTotpAuthenticationFinished!(true, this);
       }
 
       if (state is FailureState) {
         print(state.error);
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          widget.onAuthenticationFinished(false, this);
-        });
+        widget.totpArguments.onTotpAuthenticationFinished!(false, this);
       }
 
       if (state is AuthenticationBanned) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          widget.onAuthenticationFinished(false, this);
-        });
+        widget.totpArguments.onTotpAuthenticationFinished!(false, this);
       }
     });
 
@@ -103,8 +91,8 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
       resizeToAvoidBottomInset: false,
       body: TOTPEnterCode(
         setup2FAViewModel: widget.setup2FAViewModel,
-        isForSetup: widget.configParams[0] ?? false,
-        closable: widget.configParams[1] ?? true,
+        isForSetup: widget.totpArguments.isForSetup ?? false,
+        isClosable: widget.totpArguments.isClosable ?? true,
       ),
     );
   }
@@ -120,7 +108,7 @@ class TOTPEnterCode extends BasePage {
   TOTPEnterCode({
     required this.setup2FAViewModel,
     required this.isForSetup,
-    required this.closable,
+    required this.isClosable,
   }) : totpController = TextEditingController() {
     totpController.addListener(() {
       setup2FAViewModel.enteredOTPCode = totpController.text;
@@ -131,13 +119,13 @@ class TOTPEnterCode extends BasePage {
   String get title => isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa;
 
   Widget? leading(BuildContext context) {
-    return closable ? super.leading(context) : null;
+    return isClosable ? super.leading(context) : null;
   }
 
   final TextEditingController totpController;
   final Setup2FAViewModel setup2FAViewModel;
   final bool isForSetup;
-  final bool closable;
+  final bool isClosable;
 
   @override
   Widget body(BuildContext context) {
@@ -184,21 +172,7 @@ class TOTPEnterCode extends BasePage {
                     builder: (BuildContext context) {
                       return PopUpCancellableAlertDialog(
                         contentText: () {
-                          switch (result) {
-                            case true:
-                              return isForSetup
-                                  ? S.current.totp_2fa_success
-                                  : S.current.totp_verification_success;
-                            case false:
-                              if (bannedState) {
-                                final state = setup2FAViewModel.state as AuthenticationBanned;
-                                return S.of(context).failed_authentication(state.error);
-                              } else {
-                                return S.current.totp_2fa_failure;
-                              }
-                            default:
-                              return S.current.enter_totp_code;
-                          }
+                          return _textDisplayedInPopupOnResult(result, bannedState, context);
                         }(),
                         actionButtonText: S.of(context).ok,
                         buttonAction: () {
@@ -224,5 +198,21 @@ class TOTPEnterCode extends BasePage {
         ],
       ),
     );
+  }
+
+  String _textDisplayedInPopupOnResult(bool result, bool bannedState, BuildContext context) {
+    switch (result) {
+      case true:
+        return isForSetup ? S.current.totp_2fa_success : S.current.totp_verification_success;
+      case false:
+        if (bannedState) {
+          final state = setup2FAViewModel.state as AuthenticationBanned;
+          return S.of(context).failed_authentication(state.error);
+        } else {
+          return S.current.totp_2fa_failure;
+        }
+      default:
+        return S.current.enter_totp_code;
+    }
   }
 }

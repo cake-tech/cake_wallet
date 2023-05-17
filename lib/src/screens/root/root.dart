@@ -142,7 +142,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                       launchUri = null;
                     },
                     isForSetup: false,
-                    closing: false,
+                    isClosable: false,
                   ),
                 );
               } else {

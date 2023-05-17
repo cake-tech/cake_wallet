@@ -32,7 +32,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
-import 'package:cake_wallet/src/widgets/auth_options_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -370,16 +369,14 @@ Future setup({
     ),
   );
 
-  getIt.registerFactoryParam<TotpAuthCodePage, void Function(bool, TotpAuthCodePageState),
-      List<bool?>>(
-    (OnAuthFinished, totpPageConfigParams) => TotpAuthCodePage(
+  getIt.registerFactoryParam<TotpAuthCodePage, TotpAuthArgumentsModel, void>(
+    (totpAuthPageArguments, _) => TotpAuthCodePage(
       getIt.get<Setup2FAViewModel>(),
-      onAuthenticationFinished: OnAuthFinished,
-      configParams: totpPageConfigParams,
+      totpArguments: totpAuthPageArguments,
     ),
   );
 
-  getIt.registerFactory<AuthOptions>(() {
+  getIt.registerFactory<AuthPage>(() {
     return AuthPage(getIt.get<AuthViewModel>(),
         onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
       if (!isAuthenticated) {
@@ -393,7 +390,7 @@ Future setup({
             route: Routes.totpAuthCodePage,
             arguments: TotpAuthArgumentsModel(
               isForSetup: false,
-              closing: false,
+              isClosable: false,
               onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
                   TotpAuthCodePageState totpAuthPageState) async {
                 if (!isAuthenticatedSuccessfully) {

@@ -1,5 +1,4 @@
 import 'package:cake_wallet/core/totp_request_details.dart';
-import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -8,7 +7,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
-
+import 'package:qr_flutter/qr_flutter.dart' as qr;
 import '../../../palette.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/standard_list.dart';
@@ -45,9 +44,28 @@ class Setup2FAQRPage extends BasePage {
             ),
           ),
           SizedBox(height: 10),
-          QrImage(
-            size: 327,
-            data: setup2FAViewModel.totpVersionOneLink
+          AspectRatio(
+            aspectRatio: 1.0,
+            child: Container(
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 3,
+                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                ),
+              ),
+              child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 3,
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: QrImage(
+                    data: setup2FAViewModel.totpVersionOneLink,
+                    version: qr.QrVersions.auto,
+                  )),
+            ),
           ),
           SizedBox(height: 13),
           Row(
@@ -110,10 +128,6 @@ class Setup2FAQRPage extends BasePage {
               Navigator.of(context).pushReplacementNamed(
                 Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
-                    onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState auth) async {
-                      // auth.close();
-                    },
                     isForSetup: true,
                   )
                   
