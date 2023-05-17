@@ -23,7 +23,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-import 'dart:io' show Platform;
 
 part 'settings_store.g.dart';
 
@@ -136,11 +135,11 @@ abstract class SettingsStoreBase with Store {
         (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
 
+    setIsAppSecureNative(isAppSecure);
+
     reaction((_) => isAppSecure, (bool isAppSecure) {
       sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
-      if (Platform.isAndroid) {
         setIsAppSecureNative(isAppSecure);
-      }
     });
 
     reaction(
@@ -152,10 +151,6 @@ abstract class SettingsStoreBase with Store {
         (_) => disableSell,
         (bool disableSell) => sharedPreferences.setBool(
             PreferencesKey.disableSellKey, disableSell));
-
-    if (Platform.isAndroid) {
-      setIsAppSecureNative(isAppSecure);
-    }
 
     reaction(
         (_) => fiatApiMode,

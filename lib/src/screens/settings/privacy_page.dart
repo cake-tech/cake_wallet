@@ -8,7 +8,6 @@ import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'dart:io' show Platform;
 
 class PrivacyPage extends BasePage {
   PrivacyPage(this._privacySettingsViewModel);
@@ -49,13 +48,12 @@ class PrivacyPage extends BasePage {
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
                 }),
-            if (Platform.isAndroid)
-              SettingsSwitcherCell(
-                  title: S.current.prevent_screenshots,
-                  value: _privacySettingsViewModel.isAppSecure,
-                  onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setIsAppSecure(value);
-                  }),
+            SettingsSwitcherCell(
+                title: S.current.prevent_screenshots,
+                value: _privacySettingsViewModel.isAppSecure,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setIsAppSecure(value);
+                }),
             SettingsSwitcherCell(
                 title: S.current.disable_buy,
                 value: _privacySettingsViewModel.disableBuy,
