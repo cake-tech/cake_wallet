@@ -97,7 +97,7 @@ class BrightTheme extends ThemeBase {
         trackColor: MaterialStateProperty.all(Palette.periwinkleCraiola),
         radius: Radius.circular(3),
         thickness: MaterialStateProperty.all(6),
-        isAlwaysShown: true,
+        thumbVisibility: MaterialStateProperty.all(true),
         crossAxisMargin: 6,
       ),
       primaryTextTheme: TextTheme(

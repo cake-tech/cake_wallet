@@ -98,7 +98,7 @@ class DarkTheme extends ThemeBase {
         trackColor: MaterialStateProperty.all(PaletteDark.violetBlue),
         radius: Radius.circular(3),
         thickness: MaterialStateProperty.all(6),
-        isAlwaysShown: true,
+        thumbVisibility: MaterialStateProperty.all(true),
         crossAxisMargin: 6,
       ),
       primaryTextTheme: TextTheme(

@@ -22,7 +22,7 @@ class MarketPlacePage extends StatelessWidget {
       child: RawScrollbar(
         thumbColor: Colors.white.withOpacity(0.15),
         radius: Radius.circular(20),
-        isAlwaysShown: true,
+        thumbVisibility: true,
         thickness: 2,
         controller: _scrollController,
         child: Padding(
