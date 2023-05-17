@@ -67,12 +67,14 @@ class RestoreOptionsPage extends BasePage {
                         }
                         if (!isNewInstall || isPinSet) {
                           try {
+                            //! This gives us the restored wallet
                             final restoreWallet =
                                 await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
-                            final restoreFromQRViewModel = getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
-
-                            await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
+                            //! Next step will be to create a new wallet from this
+                            final restoreFromQRViewModel =
+                                getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+                            await restoreFromQRViewModel.create(restoreWallet: restoreWallet);               
                             if (restoreFromQRViewModel.state is FailureState) {
                               _onWalletCreateFailure(context,
                                   'Create wallet state: ${restoreFromQRViewModel.state.runtimeType.toString()}');

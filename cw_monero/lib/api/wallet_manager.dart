@@ -250,7 +250,7 @@ Future<bool> sweepFundsToNewWallet({
 }) async {
   final uri = Uri.http(node.uriRaw, '');
   final path = '/json_rpc';
-  final rpcUri = Uri.https(uri.authority, path);
+  final rpcUri = node.isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
   final realm = 'monero-rpc';
   final body = {
     'method': 'sweep_all',

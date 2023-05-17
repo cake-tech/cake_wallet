@@ -83,6 +83,18 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           default:
             throw Exception('Unexpected type: ${type.toString()}');
         }
+      case WalletRestoreMode.txids:
+        switch (restoreWallet.type) {
+          case WalletType.monero:
+            return monero!
+                .createMoneroNewWalletCredentials(name: name, language: options as String);
+          case WalletType.bitcoin:
+            return bitcoin!.createBitcoinNewWalletCredentials(name: name);
+          case WalletType.litecoin:
+            return bitcoin!.createBitcoinNewWalletCredentials(name: name);
+          default:
+            throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
+        }
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

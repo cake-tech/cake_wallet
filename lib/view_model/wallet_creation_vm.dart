@@ -65,11 +65,16 @@ abstract class WalletCreationVMBase with Store {
           address: '',
           showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
       credentials.walletInfo = walletInfo;
+
+      //! Restored
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)
           : await process(credentials);
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
+      //---- Code to create new
+
+      //! Before we switch
       _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
