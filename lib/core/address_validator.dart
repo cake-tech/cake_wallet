@@ -61,10 +61,11 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
-      case CryptoCurrency.ltc:
       case CryptoCurrency.bch:
       case CryptoCurrency.bnb:
         return '[0-9a-zA-Z]';
+      case CryptoCurrency.ltc:
+        return '^(?!(ltc|LTC)1)[0-9a-zA-Z]*\$|(^LTC1[A-Z0-9]*\$)|(^ltc1[a-z0-9]*\$)';
       case CryptoCurrency.hbar:
         return '[0-9a-zA-Z.]';
       case CryptoCurrency.zaddr:
