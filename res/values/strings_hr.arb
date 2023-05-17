@@ -709,6 +709,28 @@
   "error_text_input_above_maximum_limit" : "Iznos je veći od maskimalnog",
   "show_market_place" : "Prikaži tržište",
   "prevent_screenshots": "Spriječite snimke zaslona i snimanje zaslona",
+  "modify_2fa": "Izmijenite tortu 2FA",
+  "disable_cake_2fa": "Onemogući Cake 2FA",
+  "question_to_disable_2fa":"Jeste li sigurni da želite onemogućiti Cake 2FA? 2FA kod više neće biti potreban za pristup novčaniku i određenim funkcijama.",
+  "disable": "Onemogući",
+  "setup_2fa": "Postavljanje torte 2FA",
+  "verify_with_2fa": "Provjerite s Cake 2FA",
+  "totp_code": "TOTP kod",
+  "please_fill_totp": "Unesite 8-znamenkasti kod koji se nalazi na vašem drugom uređaju",
+  "totp_2fa_success": "Uspjeh! Cake 2FA omogućen za ovaj novčanik. Ne zaboravite spremiti svoje mnemoničko sjeme u slučaju da izgubite pristup novčaniku.",
+  "totp_verification_success" :"Provjera uspješna!",
+  "totp_2fa_failure": "Neispravan kod. Pokušajte s drugim kodom ili generirajte novi tajni ključ. Koristite kompatibilnu 2FA aplikaciju koja podržava 8-znamenkasti kod i SHA512.",
+  "enter_totp_code": "Unesite TOTP kod.",
+  "add_secret_code":"Dodajte ovaj tajni kod na drugi uređaj",
+  "totp_secret_code":"TOTP tajni kod",
+  "important_note": "Važna nota",
+  "setup_2fa_text": "Torta 2FA NIJE sigurna kao hladno skladište. 2FA štiti od osnovnih vrsta napada, kao što je vaš prijatelj koji vam daje otisak prsta dok spavate.\n\n Cake 2FA NE štiti od kompromitiranog uređaja od strane sofisticiranog napadača.\n\n Ako izgubite pristup svojim 2FA kodovima , IZGUBIT ĆETE PRISTUP OVOM NOVČANIKU. Morat ćete obnoviti svoj novčanik iz mnemoničkog sjemena. STOGA MORATE NAPRAVITI SIGURNOSNE KOPIJE SVOJIH MNEMONIČKIH SJEMENA! Nadalje, netko tko ima pristup vašem mnemoničkom seedu(ima) moći će ukrasti vaša sredstva, zaobilazeći Cake 2FA.\n\n Cake osoblje za podršku neće vam moći pomoći ako izgubite pristup svom mnemoničkom seedu, budući da je Cake neskrbnički novčanik.",
+  "setup_totp_recommended": "Postavite TOTP (preporučeno)",
   "disable_buy": "Onemogući kupnju",
   "disable_sell": "Onemogući akciju prodaje"
 }
+
+
+
+
+

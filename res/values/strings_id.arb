@@ -685,6 +685,34 @@
   "error_text_input_above_maximum_limit" : "Jumlah lebih dari maksimal",
   "show_market_place": "Tampilkan Pasar",
   "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar",
+  "modify_2fa": "Ubah Kue 2FA",
+  "disable_cake_2fa": "Nonaktifkan Kue 2FA",
+  "question_to_disable_2fa":"Apakah Anda yakin ingin menonaktifkan Cake 2FA? Kode 2FA tidak lagi diperlukan untuk mengakses dompet dan fungsi tertentu.",
+  "disable": "Cacat",
+  "setup_2fa": "Siapkan Kue 2FA",
+  "verify_with_2fa": "Verifikasi dengan Cake 2FA",
+  "totp_code": "Kode TOTP",
+  "please_fill_totp": "Harap isi kode 8 digit yang ada di perangkat Anda yang lain",
+  "totp_2fa_success": "Kesuksesan! Cake 2FA diaktifkan untuk dompet ini. Ingatlah untuk menyimpan benih mnemonik Anda jika Anda kehilangan akses dompet.",
+  "totp_verification_success" :"Verifikasi Berhasil!",
+  "totp_2fa_failure": "Kode salah. Silakan coba kode lain atau buat kunci rahasia baru. Gunakan aplikasi 2FA yang kompatibel yang mendukung kode 8 digit dan SHA512.",
+  "enter_totp_code": "Masukkan Kode TOTP.",
+  "add_secret_code":"Tambahkan kode rahasia ini ke perangkat lain",
+  "totp_secret_code":"Kode Rahasia TOTP",
+  "important_note": "Catatan penting",
+  "setup_2fa_text": "Cake 2FA TIDAK seaman cold storage. 2FA melindungi dari jenis serangan dasar, seperti teman Anda memberikan sidik jari saat Anda sedang tidur.\n\n Cake 2FA TIDAK melindungi dari perangkat yang disusupi oleh penyerang canggih.\n\n Jika Anda kehilangan akses ke kode 2FA , ANDA AKAN KEHILANGAN AKSES KE DOMPET INI. Anda perlu memulihkan dompet Anda dari benih mnemonik. OLEH KARENA ITU, ANDA HARUS MENYIMPAN BIJI MNEMONIK ANDA! Selanjutnya, seseorang yang memiliki akses ke benih mnemonik Anda akan dapat mencuri dana Anda, melewati Cake 2FA.\n\n Staf pendukung Cake tidak akan dapat membantu Anda jika Anda kehilangan akses ke benih mnemonik Anda, karena Cake adalah dompet tanpa hak asuh.",
+  "setup_totp_recommended": "Siapkan TOTP (Disarankan)",
   "disable_buy": "Nonaktifkan tindakan beli",
   "disable_sell": "Nonaktifkan aksi jual"
 }
+
+
+
+
+
+
+
+
+
+
+
