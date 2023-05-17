@@ -45,16 +45,22 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
   void initState() {
     _reaction ??= reaction((_) => widget.setup2FAViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        widget.totpArguments.onTotpAuthenticationFinished!(true, this);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.totpArguments.onTotpAuthenticationFinished!(true, this);
+        });
       }
 
       if (state is FailureState) {
         print(state.error);
-        widget.totpArguments.onTotpAuthenticationFinished!(false, this);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.totpArguments.onTotpAuthenticationFinished!(false, this);
+        });
       }
 
       if (state is AuthenticationBanned) {
-        widget.totpArguments.onTotpAuthenticationFinished!(false, this);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.totpArguments.onTotpAuthenticationFinished!(false, this);
+        });
       }
     });
 
@@ -140,7 +146,6 @@ class TOTPEnterCode extends BasePage {
             hintText: S.current.totp_code,
             controller: totpController,
             keyboardType: TextInputType.number,
-            textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
             placeholderTextStyle: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -171,9 +176,7 @@ class TOTPEnterCode extends BasePage {
                     context: context,
                     builder: (BuildContext context) {
                       return PopUpCancellableAlertDialog(
-                        contentText: () {
-                          return _textDisplayedInPopupOnResult(result, bannedState, context);
-                        }(),
+                        contentText: _textDisplayedInPopupOnResult(result, bannedState, context),
                         actionButtonText: S.of(context).ok,
                         buttonAction: () {
                           result ? setup2FAViewModel.success() : null;

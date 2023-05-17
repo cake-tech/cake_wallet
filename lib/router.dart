@@ -154,6 +154,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreOptions:
       final isNewInstall = settings.arguments as bool;
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<RestoreOptionsPage>(param1: isNewInstall));
 
     case Routes.restoreWalletFromSeedKeys:
@@ -270,6 +271,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.totpAuthCodePage:
       final args = settings.arguments as TotpAuthArgumentsModel;
       return MaterialPageRoute<void>(
+        fullscreenDialog: true,
         builder: (_) => getIt.get<TotpAuthCodePage>(
           param1: args,
         ),
@@ -363,6 +365,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.tradeDetails:
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) =>
               getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
@@ -380,6 +383,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as List;
 
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) =>
               getIt.get<BuyWebViewPage>(param1: args));
 
@@ -389,6 +393,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           getIt.get<WalletRestorationFromSeedVM>(param1: args);
 
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => RestoreWalletFromSeedDetailsPage(
               walletRestorationFromSeedVM: walletRestorationFromSeedVM));
 
@@ -422,6 +427,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreFromBackup:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
