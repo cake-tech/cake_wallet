@@ -57,7 +57,7 @@ class StandardListRow extends StatelessWidget {
       : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
 
   Color _backgroundColor(BuildContext context) {
-    return Theme.of(context).backgroundColor;
+    return Theme.of(context).colorScheme.background;
   }
 }
 
@@ -68,7 +68,7 @@ class SectionHeaderListRow extends StatelessWidget {
         Container(
             width: double.infinity,
             height: 40,
-            color: Theme.of(context).backgroundColor),
+            color: Theme.of(context).colorScheme.background),
         //StandardListSeparator(padding: EdgeInsets.only(left: 24))
       ]);
 }
@@ -85,7 +85,7 @@ class StandardListSeparator extends StatelessWidget {
     return Container(
         height: height,
         padding: padding,
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: Container(
             height: height,
             color: Theme.of(context)

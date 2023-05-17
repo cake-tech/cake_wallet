@@ -86,7 +86,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                 margin: EdgeInsets.symmetric(horizontal: 24),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).backgroundColor,
+                  color: Theme.of(context).colorScheme.background,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 24, bottom: 24),

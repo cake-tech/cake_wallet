@@ -9,7 +9,7 @@ class SettingsChoicesCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).backgroundColor,
+      color: Theme.of(context).colorScheme.background,
       padding: EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -93,7 +93,7 @@ class PreOrderPage extends BasePage {
             ]),
       child: Container(
           height: 0,
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.background,
           child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 24),
             content: Observer(builder: (_) => Column(

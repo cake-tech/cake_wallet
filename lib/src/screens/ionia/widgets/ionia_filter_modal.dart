@@ -34,7 +34,7 @@ class IoniaFilterModal extends StatelessWidget {
               padding: EdgeInsets.only(top: 24, bottom: 20),
               margin: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).backgroundColor,
+                color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Column(

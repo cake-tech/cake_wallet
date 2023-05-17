@@ -15,7 +15,6 @@ class BrightTheme extends ThemeBase {
   ThemeData theme = ThemeData(
       fontFamily: 'Lato',
       brightness: Brightness.light,
-      backgroundColor: Colors.white,
       scaffoldBackgroundColor: Palette.pinkFlamingo, // second gradient color
       primaryColor: Palette.redHat, // third gradient color
       buttonColor: Colors.white.withOpacity(0.2), // action buttons on dashboard page
@@ -272,5 +271,6 @@ class BrightTheme extends ThemeBase {
 
   @override
   ThemeData get themeData => theme.copyWith(
-      colorScheme: theme.colorScheme.copyWith(secondary: Palette.blueCraiola));
+      colorScheme: theme.colorScheme
+          .copyWith(background: Colors.white, secondary: Palette.blueCraiola));
 }

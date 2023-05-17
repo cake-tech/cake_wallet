@@ -69,13 +69,13 @@ class WalletListBodyState extends State<WalletListBody> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   separatorBuilder: (_, index) =>
-                      Divider(color: Theme.of(context).backgroundColor, height: 32),
+                      Divider(color: Theme.of(context).colorScheme.background, height: 32),
                   itemCount: widget.walletListViewModel.wallets.length,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
                         ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
-                        : Theme.of(context).backgroundColor;
+                        : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
                         onTap: () async {
                           if (wallet.isCurrent || !wallet.isEnabled) {
@@ -120,7 +120,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 child: Container(
                                   height: tileHeight,
                                   padding: EdgeInsets.only(left: 20, right: 20),
-                                  color: Theme.of(context).backgroundColor,
+                                  color: Theme.of(context).colorScheme.background,
                                   alignment: Alignment.centerLeft,
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.center,

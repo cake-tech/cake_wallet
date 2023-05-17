@@ -176,7 +176,7 @@ class IoniaDebitCardPage extends BasePage {
                     padding: EdgeInsets.only(top: 24, left: 24, right: 24),
                     margin: EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).backgroundColor,
+                      color: Theme.of(context).colorScheme.background,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Column(

@@ -15,7 +15,6 @@ class DarkTheme extends ThemeBase {
   ThemeData theme = ThemeData(
       fontFamily: 'Lato',
       brightness: Brightness.dark,
-      backgroundColor: PaletteDark.backgroundColor,
       scaffoldBackgroundColor:
           PaletteDark.backgroundColor, // second gradient color
       primaryColor: PaletteDark.backgroundColor, // third gradient color
@@ -281,6 +280,7 @@ class DarkTheme extends ThemeBase {
 
   @override
   ThemeData get themeData => theme.copyWith(
-      colorScheme:
-          theme.colorScheme.copyWith(secondary: PaletteDark.backgroundColor));
+      colorScheme: theme.colorScheme.copyWith(
+          background: PaletteDark.backgroundColor,
+          secondary: PaletteDark.backgroundColor));
 }

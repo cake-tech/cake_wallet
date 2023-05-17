@@ -39,7 +39,7 @@ class WelcomePage extends BasePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         resizeToAvoidBottomInset: false,
         body: body(context));
   }

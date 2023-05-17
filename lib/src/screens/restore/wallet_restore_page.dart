@@ -153,7 +153,7 @@ class WalletRestorePage extends BasePage {
       ),
       child: Container(
         height: 0,
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),

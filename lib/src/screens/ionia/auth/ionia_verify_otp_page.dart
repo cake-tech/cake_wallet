@@ -78,7 +78,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
           ]),
       child: Container(
         height: 0,
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.all(24),
           content: Column(

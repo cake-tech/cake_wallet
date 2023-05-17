@@ -18,7 +18,7 @@ class AnonInvoiceStatusSection extends StatelessWidget {
       width: 200,
       padding: EdgeInsets.all(19),
       decoration: BoxDecoration(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Column(

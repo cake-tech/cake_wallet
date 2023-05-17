@@ -133,7 +133,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
         }
       },
       child: Container(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
         child: Column(
           children: <Widget>[
@@ -232,7 +232,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         child: TextButton(
                                           onPressed: () => _pop(),
                                           style: TextButton.styleFrom(
-                                            backgroundColor: Theme.of(context).backgroundColor,
+                                            backgroundColor: Theme.of(context).colorScheme.background,
                                             shape: CircleBorder(),
                                           ),
                                           child: deleteIconImage,
@@ -249,7 +249,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   child: TextButton(
                                     onPressed: () => _push(index),
                                     style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).backgroundColor,
+                                      backgroundColor: Theme.of(context).colorScheme.background,
                                       shape: CircleBorder(),
                                     ),
                                     child: Text('$index',

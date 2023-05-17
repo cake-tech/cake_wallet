@@ -19,7 +19,7 @@ class ListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Theme.of(context).backgroundColor,
+      color: Theme.of(context).colorScheme.background,
       child: Padding(
         padding:
         const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),

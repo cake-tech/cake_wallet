@@ -162,7 +162,7 @@ class ExchangePage extends BasePage {
                   toolbarButtons: [(_) => KeyboardDoneButton()])
             ]),
         child: Container(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.background,
           child: Form(
               key: _formKey,
               child: ScrollableWithBottomSection(
