@@ -3,6 +3,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/hausa_intl.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:flutter/foundation.dart';
@@ -297,6 +298,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               GlobalCupertinoLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
+              HaMaterialLocalizations.delegate,
             ],
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
