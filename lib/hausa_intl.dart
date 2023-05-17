@@ -7,8 +7,6 @@ import 'package:intl/date_symbol_data_custom.dart' as date_symbol_data_custom;
 import 'package:intl/date_symbols.dart' as intl;
 import 'package:intl/intl.dart' as intl;
 
-/// A custom set of date patterns for the `ha` locale.
-///
 // #docregion Date
 const haLocaleDatePatterns = {
   'd': 'd.',
@@ -58,10 +56,6 @@ const haLocaleDatePatterns = {
   'ZZZZ': 'ZZZZ',
 };
 
-/// A custom set of date symbols for the `ha` locale.
-///
-/// These are not accurate and are just a clone of the date symbols for the
-/// `no` locale to demonstrate how one would write and use custom date symbols.
 // #docregion Date2
 const haDateSymbols = {
   'NAME': 'ha',
@@ -303,12 +297,8 @@ class _HaMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLoc
   @override
   bool shouldReload(_HaMaterialLocalizationsDelegate old) => false;
 }
-// #enddocregion Delegate
 
-/// A custom set of localizations for the 'ha' locale. In this example, only
-/// the value for openAppDrawerTooltip was modified to use a custom message as
-/// an example. Everything else uses the American English (en_US) messages
-/// and formatting.
+// #enddocregion Delegate
 class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   const HaMaterialLocalizations({
     super.localeName = 'ha',
