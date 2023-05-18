@@ -80,7 +80,7 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> sweepAllFunds(Node node, String address, String paymentId) {
+  Future<Map<String, dynamic>> sweepAllFunds(Node node, String address, String paymentId) {
     // TODO: implement sweepAllFunds
     throw UnimplementedError();
   }

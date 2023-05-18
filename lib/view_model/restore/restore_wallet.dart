@@ -53,12 +53,17 @@ class RestoredWallet {
   }
 
   factory RestoredWallet.fromTxIds(Map<String, dynamic> json) {
+    final mnemonic_seed = json['mnemonic_seed'] as String?;
+    final seed = json['seed'] as String?;
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
       address: json['address'] as String?,
-      txId: json['tx_payment_id'] as String,
-      txAmount: json['tx_amount'] as String,
+      txId: json['txid'] as String,
+      txAmount: json['tx_amount'] as String?,
+      mnemonicSeed: mnemonic_seed ?? seed,
+      spendKey: json['spend_key'] as String?,
+      viewKey: json['view_key'] as String?,
       txDescription: json['tx_description'] as String?,
       recipientName: json['recipient_name'] as String?,
     );

@@ -1,8 +1,5 @@
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -10,6 +7,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 
@@ -43,7 +41,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return haven!.createHavenNewWalletCredentials(
             name: name, language: options as String);
       default:
-        throw Exception('Unexpected type: ${type.toString()}');;
+        throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 

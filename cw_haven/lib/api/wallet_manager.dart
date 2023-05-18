@@ -48,8 +48,8 @@ void createWalletSync(
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
-  final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
-          languagePointer, nettype, errorMessagePointer) !=
+  final isWalletCreated = createWalletNative(
+          pathPointer, passwordPointer, languagePointer, nettype, errorMessagePointer) !=
       0;
 
   calloc.free(pathPointer);
@@ -57,8 +57,7 @@ void createWalletSync(
   calloc.free(languagePointer);
 
   if (!isWalletCreated) {
-    throw WalletCreationException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
+    throw WalletCreationException(message: convertUTF8ToString(pointer: errorMessagePointer));
   }
 
   // setupNodeSync(address: "node.moneroworld.com:18089");
@@ -84,12 +83,7 @@ void restoreWalletFromSeedSync(
   final seedPointer = seed.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
   final isWalletRestored = restoreWalletFromSeedNative(
-          pathPointer,
-          passwordPointer,
-          seedPointer,
-          nettype,
-          restoreHeight,
-          errorMessagePointer) !=
+          pathPointer, passwordPointer, seedPointer, nettype, restoreHeight, errorMessagePointer) !=
       0;
 
   calloc.free(pathPointer);
@@ -151,8 +145,7 @@ void loadWallet({required String path, required String password, int nettype = 0
   calloc.free(passwordPointer);
 
   if (!loaded) {
-    throw WalletOpeningException(
-        message: convertUTF8ToString(pointer: errorStringNative()));
+    throw WalletOpeningException(message: convertUTF8ToString(pointer: errorStringNative()));
   }
 }
 
@@ -201,20 +194,15 @@ bool _isWalletExist(String path) => isWalletExistSync(path: path);
 void openWallet({required String path, required String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
-Future<void> openWalletAsync(Map<String, String> args) async =>
-    compute(_openWallet, args);
+Future<void> openWalletAsync(Map<String, String> args) async => compute(_openWallet, args);
 
 Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
         int nettype = 0}) async =>
-    compute(_createWallet, {
-      'path': path,
-      'password': password,
-      'language': language,
-      'nettype': nettype
-    });
+    compute(_createWallet,
+        {'path': path, 'password': password, 'language': language, 'nettype': nettype});
 
 Future<void> restoreFromSeed(
         {required String path,
@@ -250,7 +238,7 @@ Future<void> restoreFromKeys(
       'restoreHeight': restoreHeight
     });
 
-Future<bool> sweepFundsToNewWallet({
+Future<Map<String, dynamic>> sweepFundsToNewWallet({
   required Node node,
   required String address,
   required String paymentId,
@@ -311,9 +299,10 @@ Future<bool> sweepFundsToNewWallet({
     client.close();
 
     final resBody = json.decode(response.body) as Map<String, dynamic>;
-    return !(resBody['result']['offline'] as bool);
-  } catch (_) {
-    return false;
+    return resBody;
+  } catch (e) {
+    print(e);
+    throw Exception(e);
   }
 }
 

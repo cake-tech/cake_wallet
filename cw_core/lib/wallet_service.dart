@@ -15,7 +15,7 @@ abstract class WalletService<N extends WalletCredentials,
 
   Future<WalletBase> restoreFromKeys(RFK credentials);
 
-  Future<void> sweepAllFunds(Node node, String address, String paymentId);
+  Future<Map<String, dynamic>> sweepAllFunds(Node node, String address, String paymentId);
 
   Future<WalletBase> openWallet(String name, String password);
 

@@ -21,7 +21,6 @@ class RestoreOptionsPage extends BasePage {
   @override
   String get title => S.current.restore_restore_wallet;
 
-
   final bool isNewInstall;
   final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png');
   final imageBackup = Image.asset('assets/images/backup.png');
@@ -38,8 +37,7 @@ class RestoreOptionsPage extends BasePage {
             child: Column(
               children: <Widget>[
                 RestoreButton(
-                    onPressed: () => Navigator.pushNamed(
-                        context, Routes.restoreWalletFromSeedKeys,
+                    onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys,
                         arguments: isNewInstall),
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
@@ -74,10 +72,11 @@ class RestoreOptionsPage extends BasePage {
                             //! Next step will be to create a new wallet from this
                             final restoreFromQRViewModel =
                                 getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
-                            await restoreFromQRViewModel.create(restoreWallet: restoreWallet);               
+                            await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
                             if (restoreFromQRViewModel.state is FailureState) {
+                              final errorState = restoreFromQRViewModel.state as FailureState;
                               _onWalletCreateFailure(context,
-                                  'Create wallet state: ${restoreFromQRViewModel.state.runtimeType.toString()}');
+                                  'Create wallet state: ${errorState.error}');
                             }
                           } catch (e) {
                             _onWalletCreateFailure(context, e.toString());

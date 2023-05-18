@@ -232,7 +232,7 @@ Future<void> restoreFromKeys(
       'restoreHeight': restoreHeight
     });
 
-Future<bool> sweepFundsToNewWallet({
+Future<Map<String, dynamic>> sweepFundsToNewWallet({
   required Node node,
   required String address,
   required String paymentId,
@@ -253,24 +253,24 @@ Future<bool> sweepFundsToNewWallet({
   final rpcUri = node.isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
   final realm = 'monero-rpc';
   final body = {
-    'method': 'sweep_all',
-    'params': {
-      'address': address,
-      'account_index': accountIndex,
-      'subaddr_indices': subaddressIndices,
-      'priority': priority,
-      'ring_size': ringSize,
-      'outputs': outputs,
-      'unlock_time': unlockTime,
-      'payment_id': paymentId,
-      'get_tx_keys': getTxKeys,
-      'below_amount': belowAmount,
-      'do_not_relay': doNotRelay,
-      'get_tx_hex': getTxHex,
-      'get_tx_metadata': getTxMetadata,
+    "method": "sweep_all",
+    "jsonrpc": "2.0",
+    "id": "0",
+    "params": {
+      "address": address,
+      "account_index": accountIndex,
+      "subaddr_indices": subaddressIndices,
+      "priority": priority,
+      "ring_size": ringSize,
+      "outputs": outputs,
+      "unlock_time": unlockTime,
+      "payment_id": paymentId,
+      "get_tx_keys": getTxKeys,
+      "below_amount": belowAmount,
+      "do_not_relay": doNotRelay,
+      "get_tx_hex": getTxHex,
+      "get_tx_metadata": getTxMetadata,
     },
-    'jsonrpc': '2.0',
-    'id': '0'
   };
 
   try {
@@ -291,11 +291,12 @@ Future<bool> sweepFundsToNewWallet({
     );
 
     client.close();
-
     final resBody = json.decode(response.body) as Map<String, dynamic>;
-    return !(resBody['result']['offline'] as bool);
-  } catch (_) {
-    return false;
+
+    return resBody;
+  } catch (e) {
+    print(e);
+    throw Exception(e);
   }
 }
 

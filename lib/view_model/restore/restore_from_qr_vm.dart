@@ -25,8 +25,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService,
-            type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -46,7 +45,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   bool get hasRestorationHeight => type == WalletType.monero;
 
   @override
-  WalletCredentials getCredentialsFromRestoredWallet(dynamic options, RestoredWallet restoreWallet) {
+  WalletCredentials getCredentialsFromRestoredWallet(
+      dynamic options, RestoredWallet restoreWallet) {
     final password = generateWalletPassword();
 
     switch (restoreWallet.restoreMode) {
@@ -69,6 +69,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
             throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
         }
       case WalletRestoreMode.seed:
+      case WalletRestoreMode.txids:
         switch (restoreWallet.type) {
           case WalletType.monero:
             return monero!.createMoneroRestoreWalletFromSeedCredentials(
@@ -83,30 +84,20 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           default:
             throw Exception('Unexpected type: ${type.toString()}');
         }
-      case WalletRestoreMode.txids:
-        switch (restoreWallet.type) {
-          case WalletType.monero:
-            return monero!
-                .createMoneroNewWalletCredentials(name: name, language: options as String);
-          case WalletType.bitcoin:
-            return bitcoin!.createBitcoinNewWalletCredentials(name: name);
-          case WalletType.litecoin:
-            return bitcoin!.createBitcoinNewWalletCredentials(name: name);
-          default:
-            throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
-        }
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 
   @override
-  Future<WalletBase> processFromRestoredWallet(WalletCredentials credentials, RestoredWallet restoreWallet) async {
+  Future<WalletBase> processFromRestoredWallet(
+      WalletCredentials credentials, RestoredWallet restoreWallet) async {
     try {
       switch (restoreWallet.restoreMode) {
         case WalletRestoreMode.keys:
           return walletCreationService.restoreFromKeys(credentials);
         case WalletRestoreMode.seed:
+        case WalletRestoreMode.txids:
           return walletCreationService.restoreFromSeed(credentials);
         default:
           throw Exception('Unexpected restore mode: ${restoreWallet.restoreMode.toString()}');

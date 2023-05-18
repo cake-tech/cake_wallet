@@ -231,13 +231,14 @@ class HavenWalletService extends WalletService<
   }
 
   @override
-  Future<void> sweepAllFunds(Node node, String address, String paymentId) async {
+  Future<Map<String, dynamic>> sweepAllFunds(Node node, String address, String paymentId) async {
     try {
-      await haven_wallet_manager.sweepFundsToNewWallet(
+      final result = await haven_wallet_manager.sweepFundsToNewWallet(
         node: node,
         address: address,
         paymentId: paymentId,
       );
+      return result;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');
