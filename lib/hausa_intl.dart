@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -735,4 +736,205 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
 
   @override
   String get keyboardKeySpace => 'Space';
+}
+
+/// Cupertino Support
+/// Strings Copied from "https://github.com/flutter/flutter/blob/master/packages/flutter_localizations/lib/src/l10n/generated_cupertino_localizations.dart"
+
+class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+  const _HaCupertinoLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'ha';
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) async {
+    final String localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+    // The locale (in this case `ha`) needs to be initialized into the custom =>> `ha`
+    // date symbols and patterns setup that Flutter uses.
+    date_symbol_data_custom.initializeDateFormattingCustom(
+      locale: localeName,
+      patterns: haLocaleDatePatterns,
+      symbols: intl.DateSymbols.deserializeFromMap(haDateSymbols),
+    );
+
+    return SynchronousFuture<CupertinoLocalizations>(
+      HaCupertinoLocalizations(
+        localeName: localeName,
+        // The `intl` library's NumberFormat class is generated from CLDR data
+        // (see https://github.com/dart-lang/intl/blob/master/lib/number_symbols_data.dart).
+        // Unfortunately, there is no way to use a locale that isn't defined in
+        // this map and the only way to work around this is to use a listed
+        // locale's NumberFormat symbols. So, here we use the number formats
+        // for 'en_US' instead.
+        decimalFormat: intl.NumberFormat('#,##0.###', 'en_US'),
+        // DateFormat here will use the symbols and patterns provided in the
+        // `date_symbol_data_custom.initializeDateFormattingCustom` call above.
+        // However, an alternative is to simply use a supported locale's
+        // DateFormat symbols, similar to NumberFormat above.
+        fullYearFormat: intl.DateFormat('y', localeName),
+        mediumDateFormat: intl.DateFormat('EEE, MMM d', localeName),
+        dayFormat: intl.DateFormat('d', localeName),
+        doubleDigitMinuteFormat: intl.DateFormat('mm', localeName),
+        singleDigitHourFormat: intl.DateFormat('j', localeName),
+        singleDigitMinuteFormat: intl.DateFormat.m(locale),
+        singleDigitSecondFormat: intl.DateFormat.s(locale),
+      ),
+    );
+  }
+
+  @override
+  bool shouldReload(_HaCupertinoLocalizationsDelegate old) => false;
+}
+// #enddocregion Delegate
+
+/// A custom set of localizations for the 'nn' locale. In this example, only =>> `ha`
+/// the value for openAppDrawerTooltip was modified to use a custom message as
+/// an example. Everything else uses the American English (en_US) messages
+/// and formatting.
+class HaCupertinoLocalizations extends GlobalCupertinoLocalizations {
+  const HaCupertinoLocalizations({
+    super.localeName = 'ha',
+    required super.fullYearFormat,
+    required super.mediumDateFormat,
+    required super.decimalFormat,
+    required super.dayFormat,
+    required super.singleDigitHourFormat,
+    required super.singleDigitMinuteFormat,
+    required super.doubleDigitMinuteFormat,
+    required super.singleDigitSecondFormat,
+  });
+
+  @override
+  String get alertDialogLabel => 'Fadakarwa';
+
+  @override
+  String get anteMeridiemAbbreviation => 'AM';
+
+  @override
+  String get copyButtonLabel => 'Kwafa';
+
+  @override
+  String get cutButtonLabel => 'yanke';
+
+  @override
+  String get datePickerDateOrderString => 'mdy';
+
+  @override
+  String get datePickerDateTimeOrderString => 'date_time_dayPeriod';
+
+  @override
+  String? get datePickerHourSemanticsLabelFew => null;
+
+  @override
+  String? get datePickerHourSemanticsLabelMany => null;
+
+  @override
+  String? get datePickerHourSemanticsLabelOne => r"$hour o'clock";
+
+  @override
+  String get datePickerHourSemanticsLabelOther => r"$hour o'clock";
+
+  @override
+  String? get datePickerHourSemanticsLabelTwo => null;
+
+  @override
+  String? get datePickerHourSemanticsLabelZero => null;
+
+  @override
+  String? get datePickerMinuteSemanticsLabelFew => null;
+
+  @override
+  String? get datePickerMinuteSemanticsLabelMany => null;
+
+  @override
+  String? get datePickerMinuteSemanticsLabelOne => '1 minti';
+
+  @override
+  String get datePickerMinuteSemanticsLabelOther => r'$minute minti';
+
+  @override
+  String? get datePickerMinuteSemanticsLabelTwo => null;
+
+  @override
+  String? get datePickerMinuteSemanticsLabelZero => null;
+
+  @override
+  String get modalBarrierDismissLabel => 'Korar';
+
+  @override
+  String get pasteButtonLabel => 'Liƙa';
+
+  @override
+  String get postMeridiemAbbreviation => 'PM';
+
+  @override
+  String get searchTextFieldPlaceholderLabel => 'Bincika';
+
+  @override
+  String get selectAllButtonLabel => 'Zaɓi Duk';
+
+  @override
+  String get tabSemanticsLabelRaw => r'Tab $tabIndex cikin $tabCount';
+
+  @override
+  String? get timerPickerHourLabelFew => null;
+
+  @override
+  String? get timerPickerHourLabelMany => null;
+
+  @override
+  String? get timerPickerHourLabelOne => 'awa';
+
+  @override
+  String get timerPickerHourLabelOther => 'awa';
+
+  @override
+  String? get timerPickerHourLabelTwo => null;
+
+  @override
+  String? get timerPickerHourLabelZero => null;
+
+  @override
+  String? get timerPickerMinuteLabelFew => null;
+
+  @override
+  String? get timerPickerMinuteLabelMany => null;
+
+  @override
+  String? get timerPickerMinuteLabelOne => 'minti.';
+
+  @override
+  String get timerPickerMinuteLabelOther => 'minti.';
+
+  @override
+  String? get timerPickerMinuteLabelTwo => null;
+
+  @override
+  String? get timerPickerMinuteLabelZero => null;
+
+  @override
+  String? get timerPickerSecondLabelFew => null;
+
+  @override
+  String? get timerPickerSecondLabelMany => null;
+
+  @override
+  String? get timerPickerSecondLabelOne => 'dakika.';
+
+  @override
+  String get timerPickerSecondLabelOther => 'dakika.';
+
+  @override
+  String? get timerPickerSecondLabelTwo => null;
+
+  @override
+  String? get timerPickerSecondLabelZero => null;
+
+  @override
+  String get todayLabel => 'Yau';
+
+  static const LocalizationsDelegate<CupertinoLocalizations> delegate =
+      _HaCupertinoLocalizationsDelegate();
 }

@@ -44,7 +44,6 @@ final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 Future<void> main() async {
-
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -107,32 +106,27 @@ Future<void> main() async {
     }
 
     final secureStorage = FlutterSecureStorage();
-    final transactionDescriptionsBoxKey = await getEncryptionKey(
-        secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(
-        secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(
-        secureStorage: secureStorage, forKey: Order.boxKey);
+    final transactionDescriptionsBoxKey =
+        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+    final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
+    final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
     final contacts = await Hive.openBox<Contact>(Contact.boxName);
     final nodes = await Hive.openBox<Node>(Node.boxName);
     final transactionDescriptions = await Hive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
-    final trades =
-        await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders =
-        await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+    final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+    final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
     final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
     final templates = await Hive.openBox<Template>(Template.boxName);
-    final exchangeTemplates =
-        await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+    final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
     final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-    
+
     if (!isMoneroOnly) {
       unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     }
-    
+
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
         nodes: nodes,
@@ -199,8 +193,7 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
-  AppState()
-    : yatStore = getIt.get<YatStore>() {
+  AppState() : yatStore = getIt.get<YatStore>() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
@@ -266,17 +259,14 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
-      final initialRoute =
-      authenticationStore.state == AuthenticationState.uninitialized
+      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
           ? Routes.disclaimer
           : Routes.login;
       final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness = currentTheme.type == ThemeType.dark
-          ? Brightness.light
-          : Brightness.dark;
-      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
-          ? Brightness.light
-          : Brightness.dark;
+      final statusBarBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      final statusBarIconBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: statusBarColor,
           statusBarBrightness: statusBarBrightness,
@@ -299,6 +289,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               HaMaterialLocalizations.delegate,
+              HaCupertinoLocalizations.delegate,
             ],
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
