@@ -30,7 +30,7 @@ abstract class WalletKeysViewModelBase with Store {
     });
 
     if (_appStore.wallet!.type == WalletType.monero || _appStore.wallet!.type == WalletType.haven) {
-      final accountTransactions = _getAccountTransactions(_appStore.wallet!);
+      final accountTransactions = _getWalletTransactions(_appStore.wallet!);
       if (accountTransactions.isNotEmpty) {
         final incomingAccountTransactions =
             accountTransactions.where((tx) => tx.direction == TransactionDirection.incoming);
@@ -145,23 +145,11 @@ abstract class WalletKeysViewModelBase with Store {
         queryParameters: await _queryParams,
       );
 
-  List<TransactionInfo> _getAccountTransactions(WalletBase wallet) {
+  List<TransactionInfo> _getWalletTransactions(WalletBase wallet) {
     if (wallet.type == WalletType.monero) {
-      return monero!
-          .getTransactionHistory(wallet)
-          .transactions
-          .values
-          .where((tx) =>
-              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
-          .toList();
+      return monero!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.haven) {
-      return haven!
-          .getTransactionHistory(wallet)
-          .transactions
-          .values
-          .where(
-              (tx) => haven!.getTransactionInfoAccountId(tx) == haven!.getCurrentAccount(wallet).id)
-          .toList();
+      return haven!.getTransactionHistory(wallet).transactions.values.toList();
     }
     return [];
   }
