@@ -290,7 +290,7 @@ class _HaMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLoc
         mediumDateFormat: intl.DateFormat('EEE, MMM d', localeName),
         longDateFormat: intl.DateFormat('EEEE, MMMM d, y', localeName),
         yearMonthFormat: intl.DateFormat('MMMM y', localeName),
-        shortMonthDayFormat: intl.DateFormat('MMM d'),
+        shortMonthDayFormat: intl.DateFormat('MMM d', localeName),
       ),
     );
   }

@@ -184,6 +184,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.seed:
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) =>
               getIt.get<WalletSeedPage>(param1: settings.arguments as bool));
 
