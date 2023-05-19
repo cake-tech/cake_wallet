@@ -47,23 +47,23 @@ class MainActions {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
-          if (DeviceInfo.instance.isMobile) {
-            Navigator.of(context).pushNamed(Routes.onramperPage);
-          } else {
-            final uri = getIt
-                .get<OnRamperBuyProvider>()
-                .requestUrl();
-            await launchUrl(uri);
+          if (viewModel.isEnabledBuyAction) {
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context).pushNamed(Routes.onramperPage);
+            } else {
+              final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
+              await launchUrl(uri);
+            }
           }
           break;
         case WalletType.monero:
-          if (DeviceInfo.instance.isMobile) {
-            Navigator.of(context).pushNamed(Routes.payfuraPage);
-          } else {
-            final uri = getIt
-                .get<PayfuraBuyProvider>()
-                .requestUrl();
-            await launchUrl(uri);
+          if (viewModel.isEnabledBuyAction) {
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context).pushNamed(Routes.payfuraPage);
+            } else {
+              final uri = getIt.get<PayfuraBuyProvider>().requestUrl();
+              await launchUrl(uri);
+            }
           }
           break;
         default:
@@ -118,12 +118,14 @@ class MainActions {
 
       switch (walletType) {
         case WalletType.bitcoin:
-          final moonPaySellProvider = MoonPaySellProvider();
-          final uri = await moonPaySellProvider.requestUrl(
-            currency: viewModel.wallet.currency,
-            refundWalletAddress: viewModel.wallet.walletAddresses.address,
-          );
-          await launchUrl(uri);
+          if (viewModel.isEnabledSellAction) {
+            final moonPaySellProvider = MoonPaySellProvider();
+            final uri = await moonPaySellProvider.requestUrl(
+              currency: viewModel.wallet.currency,
+              refundWalletAddress: viewModel.wallet.walletAddresses.address,
+            );
+            await launchUrl(uri);
+          }
           break;
         default:
           await showPopUp<void>(

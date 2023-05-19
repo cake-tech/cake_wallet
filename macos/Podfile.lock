@@ -23,7 +23,7 @@ PODS:
     - FlutterMacOS
   - devicelocale (0.0.1):
     - FlutterMacOS
-  - flutter_secure_storage_macos (3.3.1):
+  - flutter_secure_storage_macos (6.1.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - in_app_review (0.2.0):
@@ -106,16 +106,16 @@ SPEC CHECKSUMS:
   cw_monero: ec03de55a19c4a2b174ea687e0f4202edc716fa4
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
-  flutter_secure_storage_macos: 6ceee8fbc7f484553ad17f79361b556259df89aa
+  flutter_secure_storage_macos: d56e2d218c1130b262bef8b4a7d64f88d7f9c9ea
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   in_app_review: a850789fad746e89bce03d4aeee8078b45a53fd0
   package_info: 6eba2fd8d3371dda2d85c8db6fe97488f24b74b2
-  path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9
+  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   platform_device_id: 3e414428f45df149bbbfb623e2c0ca27c545b763
   platform_device_id_macos: f763bb55f088be804d61b96eb4710b8ab6598e94
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
-  shared_preferences_foundation: 986fc17f3d3251412d18b0265f9c64113a8c2472
+  shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
   url_launcher_macos: 5335912b679c073563f29d89d33d10d459f95451
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
 
