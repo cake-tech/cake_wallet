@@ -778,8 +778,8 @@ class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
         dayFormat: intl.DateFormat('d', localeName),
         doubleDigitMinuteFormat: intl.DateFormat('mm', localeName),
         singleDigitHourFormat: intl.DateFormat('j', localeName),
-        singleDigitMinuteFormat: intl.DateFormat.m(locale),
-        singleDigitSecondFormat: intl.DateFormat.s(locale),
+        singleDigitMinuteFormat: intl.DateFormat.m(localeName),
+        singleDigitSecondFormat: intl.DateFormat.s(localeName),
       ),
     );
   }
