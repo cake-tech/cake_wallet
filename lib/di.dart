@@ -349,7 +349,9 @@ Future setup(
       settingsStore: settingsStore,
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>())
+      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+      transactionDescriptionBox: _transactionDescriptionBox,
+  )
     );
 
   getIt.registerFactory<AuthService>(() => AuthService(

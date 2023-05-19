@@ -50,7 +50,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double> _fetchHistoricalPrice(Map<String, dynamic> args) async {
+Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as CryptoCurrency;
   final fiat = args['fiat'] as FiatCurrency;
   final torOnly = args['torOnly'] as bool;
@@ -77,35 +77,28 @@ Future<double> _fetchHistoricalPrice(Map<String, dynamic> args) async {
 
     final response = await get(uri);
 
-    if (response.statusCode != 200) {
-      return 0.0;
-    }
+    if (response.statusCode != 200) return null;
 
     final data = json.decode(response.body) as Map<String, dynamic>;
     final errors = data['errors'] as Map<String, dynamic>;
 
-    if (errors.isNotEmpty) {
-      return 0.0;
-    }
+    if (errors.isNotEmpty) return 0.0;
 
     final results = data['results'] as Map<String, dynamic>;
 
-    if (results.isNotEmpty) {
-      price = results.values.first as double;
-    }
-    print('results.key: ${results.keys.first} results.value: ${results.values.first}');
+    if (results.isNotEmpty) price = results.values.first as double;
 
     return price;
   } catch (e) {
     print(e.toString());
-    return 0.0;
+    return null;
   }
 }
 
 Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
     compute(_fetchPrice, {'fiat': fiat, 'crypto': crypto, 'torOnly': torOnly});
 
-Future<double> _fetchHistoricalAsync(
+Future<double?> _fetchHistoricalAsync(
         CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, DateTime date) async =>
     compute(
         _fetchHistoricalPrice, {'fiat': fiat, 'crypto': crypto, 'torOnly': torOnly, 'date': date});
@@ -118,7 +111,7 @@ class FiatConversionService {
   }) async =>
       await _fetchPriceAsync(crypto, fiat, torOnly);
 
-  static Future<double> fetchHistoricalPrice({
+  static Future<double?> fetchHistoricalPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
