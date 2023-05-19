@@ -707,6 +707,7 @@
   "error_text_input_above_maximum_limit" : "จำนวนเงินสูงกว่าค่าสูงสุด",
   "show_market_place":"แสดงตลาดกลาง",
   "prevent_screenshots": "ป้องกันภาพหน้าจอและการบันทึกหน้าจอ",
+  "historical_fiat_amount": "จำนวนเงินคำสั่งย้อนหลัง",
   "modify_2fa": "แก้ไขเค้ก 2FA",
   "disable_cake_2fa": "ปิดการใช้งานเค้ก 2FA",
   "question_to_disable_2fa":"คุณแน่ใจหรือไม่ว่าต้องการปิดการใช้งาน Cake 2FA ไม่จำเป็นต้องใช้รหัส 2FA ในการเข้าถึงกระเป๋าเงินและฟังก์ชั่นบางอย่างอีกต่อไป",

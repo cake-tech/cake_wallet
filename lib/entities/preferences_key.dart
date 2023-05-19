@@ -50,5 +50,5 @@ class PreferencesKey {
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
-  static const showHistoricalFiatRateKey = 'show_historical_fiat_rate';
+  static const showHistoricalFiatAmountKey = 'show_historical_fiat_amount';
 }

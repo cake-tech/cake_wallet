@@ -709,6 +709,7 @@
   "error_text_input_above_maximum_limit" : "금액이 최대 값보다 많습니다.",
   "show_market_place":"마켓플레이스 표시",
   "prevent_screenshots": "스크린샷 및 화면 녹화 방지",
+  "historical_fiat_amount": "역사적 명목화폐 금액",
   "modify_2fa": "수정 케이크 2FA",
   "disable_cake_2fa": "케이크 2FA 비활성화",
   "question_to_disable_2fa":"Cake 2FA를 비활성화하시겠습니까? 지갑 및 특정 기능에 액세스하는 데 더 이상 2FA 코드가 필요하지 않습니다.",

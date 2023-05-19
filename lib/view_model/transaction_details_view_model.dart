@@ -147,7 +147,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           }
         }));
 
-    if (settingsStore.showHistoricalFiatRate &&
+    if (settingsStore.showHistoricalFiatAmount &&
         description.historicalFiatRate != null &&
         description.historicalFiatRate! > 0) {
       final index =
@@ -156,7 +156,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       items.insert(
           index + 1,
           StandartListItem(
-              title: S.current.historical_fiat_rate,
+              title: S.current.historical_fiat_amount,
               value: description.historicalFiatRate!.toStringAsFixed(2) +
                   ' ' +
                   settingsStore.fiatCurrency.toString()));

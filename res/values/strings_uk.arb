@@ -708,6 +708,7 @@
   "error_text_input_above_maximum_limit" : "Сума більше максимальної",
   "show_market_place":"Відображати маркетплейс",
   "prevent_screenshots": "Запобігати знімкам екрана та запису екрана",
+  "historical_fiat_amount": "Історична сума фіат",
   "modify_2fa": "Змінити торт 2FA",
   "disable_cake_2fa": "Вимкнути Cake 2FA",
   "question_to_disable_2fa":"Ви впевнені, що хочете вимкнути Cake 2FA? Код 2FA більше не потрібен для доступу до гаманця та певних функцій.",

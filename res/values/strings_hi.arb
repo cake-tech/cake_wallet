@@ -709,6 +709,7 @@
   "error_text_input_above_maximum_limit" : "राशि अधिकतम से अधिक है",
   "show_market_place":"बाज़ार दिखाएँ",
   "prevent_screenshots": "स्क्रीनशॉट और स्क्रीन रिकॉर्डिंग रोकें",
+  "historical_fiat_amount": "ऐतिहासिक फिएट राशि",
   "modify_2fa": "केक 2FA संशोधित करें",
   "disable_cake_2fa": "केक 2FA अक्षम करें",
   "question_to_disable_2fa":"क्या आप सुनिश्चित हैं कि आप Cake 2FA को अक्षम करना चाहते हैं? वॉलेट और कुछ कार्यों तक पहुँचने के लिए अब 2FA कोड की आवश्यकता नहीं होगी।",
