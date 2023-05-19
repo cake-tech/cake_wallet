@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -7,6 +7,9 @@ class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
+            useAdditionalValidation: type == CryptoCurrency.btc
+                ? bitcoin.Address.validateAddress
+                : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -18,8 +21,7 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return '^1[0-9a-zA-Z]{32}\$|^1[0-9a-zA-Z]{33}\$|^3[0-9a-zA-Z]{32}\$'
-            '|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{39}\$|^bc1[0-9a-zA-Z]{59}\$';
+        return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:
@@ -63,7 +65,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.bch:
       case CryptoCurrency.bnb:
         return '[0-9a-zA-Z]';
-      case  CryptoCurrency.hbar:
+      case CryptoCurrency.hbar:
         return '[0-9a-zA-Z.]';
       case CryptoCurrency.zaddr:
         return '^zs[0-9a-zA-Z]{75}';
@@ -165,9 +167,9 @@ class AddressValidator extends TextValidator {
         return [34];
       case CryptoCurrency.hbar:
         return [4, 5, 6, 7, 8, 9, 10, 11];
-      case  CryptoCurrency.xvg:
+      case CryptoCurrency.xvg:
         return [34];
-      case  CryptoCurrency.zen:
+      case CryptoCurrency.zen:
         return [35];
       case CryptoCurrency.zaddr:
         return null;
