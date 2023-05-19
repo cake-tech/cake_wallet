@@ -14,14 +14,12 @@ class DesktopSidebarViewModel = DesktopSidebarViewModelBase with _$DesktopSideba
 abstract class DesktopSidebarViewModelBase with Store {
   DesktopSidebarViewModelBase();
 
-  final _sidebarItemsToReset = [SidebarItem.support, SidebarItem.settings];
-
   @observable
   SidebarItem currentPage = SidebarItem.dashboard;
 
   @action
   void onPageChange(SidebarItem item) {
-    if (currentPage == item && _sidebarItemsToReset.contains(item)) {
+    if (currentPage == item) {
       resetSidebar();
 
       return;

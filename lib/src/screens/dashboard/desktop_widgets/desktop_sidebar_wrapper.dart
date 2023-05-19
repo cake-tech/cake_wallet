@@ -85,22 +85,13 @@ class DesktopSidebarWrapper extends BasePage {
               ),
               SideMenuItem(
                 onTap: () {
-                  String? currentPath;
-                  desktopNavigatorKey.currentState?.popUntil((route) {
-                    currentPath = route.settings.name;
-                    return true;
-                  });
-
-                  switch (currentPath) {
-                    case Routes.transactionsPage:
-                      desktopNavigatorKey.currentState
-                          ?.pushNamedAndRemoveUntil(Routes.desktop_actions, (route) => false);
-                      desktopSidebarViewModel.resetSidebar();
-                      break;
-                    default:
-                      desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
-                      desktopNavigatorKey.currentState
-                          ?.pushNamedAndRemoveUntil(Routes.transactionsPage, (route) => false);
+                  if (desktopSidebarViewModel.currentPage == SidebarItem.transactions) {
+                    desktopNavigatorKey.currentState
+                        ?.pushNamedAndRemoveUntil(Routes.desktop_actions, (route) => false);
+                    desktopSidebarViewModel.resetSidebar();
+                  } else {
+                    desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
+                    desktopNavigatorKey.currentState?.pushNamed(Routes.transactionsPage);
                   }
                 },
                 isSelected: desktopSidebarViewModel.currentPage == SidebarItem.transactions,
