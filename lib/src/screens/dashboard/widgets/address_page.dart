@@ -96,7 +96,10 @@ class AddressPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) =>
-      PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
+      PresentReceiveOptionPicker(
+        receiveOptionViewModel: receiveOptionViewModel,
+        hasWhiteBackground: currentTheme.type == ThemeType.light,
+      );
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>

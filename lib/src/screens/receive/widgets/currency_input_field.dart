@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
@@ -10,18 +9,20 @@ class CurrencyInputField extends StatelessWidget {
     required this.onTapPicker,
     required this.selectedCurrency,
     this.focusNode,
-    required this.controller,
+    required this.controller, required this.isLight,
   });
+
   final Function() onTapPicker;
   final Currency selectedCurrency;
   final FocusNode? focusNode;
   final TextEditingController controller;
+  final bool isLight;
 
   @override
   Widget build(BuildContext context) {
     final arrowBottomPurple = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
-      color: Colors.white,
+      color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
       height: 8,
     );
     final _width = MediaQuery.of(context).size.width;
@@ -38,14 +39,14 @@ class CurrencyInputField extends StatelessWidget {
               keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,8}'))],
               hintText: '0.000',
-              placeholderTextStyle: TextStyle(
+              placeholderTextStyle: isLight ? null : TextStyle(
                 color: Theme.of(context).primaryTextTheme.headline5!.color!,
                 fontWeight: FontWeight.w600,
               ),
               borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
-              textColor: Colors.white,
+              textColor: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
               textStyle: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
               ),
               prefixIcon: Padding(
                 padding: EdgeInsets.only(
@@ -68,7 +69,7 @@ class CurrencyInputField extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
-                              color: Colors.white,
+                              color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                             ),
                           ),
                           if (selectedCurrency.tag != null)
@@ -103,7 +104,8 @@ class CurrencyInputField extends StatelessWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 20,
-                                color: Colors.white,
+                                color:
+                                    Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
                               ),
                             ),
                           ),

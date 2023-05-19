@@ -84,4 +84,8 @@ class Routes {
   static const payfuraPage = '/pay_fura_page';
   static const desktop_actions = '/desktop_actions';
   static const transactionsPage = '/transactions_page';
+  static const setup_2faPage = '/setup_2fa_page';
+  static const setup_2faQRPage = '/setup_2fa_qr_page';
+  static const totpAuthCodePage = '/totp_auth_code_page';
+  static const modify2FAPage = '/modify_2fa_page';
 }
