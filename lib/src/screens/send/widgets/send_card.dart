@@ -548,6 +548,10 @@ class SendCardState extends State<SendCard>
   }
 
   void _setEffects(BuildContext context) {
+     if (_effectsInstalled) {
+      return;
+    }
+    
     if (output.address.isNotEmpty) {
       addressController.text = output.address;
     }
@@ -557,10 +561,6 @@ class SendCardState extends State<SendCard>
     fiatAmountController.text = output.fiatAmount;
     noteController.text = output.note;
     extractedAddressController.text = output.extractedAddress;
-
-    if (_effectsInstalled) {
-      return;
-    }
 
     cryptoAmountController.addListener(() {
       final amount = cryptoAmountController.text;

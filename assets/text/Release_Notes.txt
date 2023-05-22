@@ -1,4 +1,3 @@
-Fix for QR codes
-Fix for creating sub-addresses
-Fix Add/Edit nodes
-Fix issues with text/amount fields
+Reliability fixes for PIN login, transaction appearance, keyboard inputs, and QR codes
+Show amount received by each Monero account in account overview
+Other bugfixes
