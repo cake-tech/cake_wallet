@@ -52,7 +52,6 @@ class AccountTile extends StatelessWidget {
             if (accountBalance != null)
               Container(
                 child: Text(
-                  '${111.111111111111} $currency',
                   '${accountBalance.toString()} $currency',
                   textAlign: TextAlign.end,
                   style: TextStyle(
