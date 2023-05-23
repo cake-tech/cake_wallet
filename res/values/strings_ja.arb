@@ -709,6 +709,7 @@
   "error_text_input_above_maximum_limit" : "金額は最大値を超えています",
   "show_market_place":"マーケットプレイスを表示",
   "prevent_screenshots": "スクリーンショットと画面録画を防止する",
+  "historical_fiat_amount": "過去の法定金額",
   "modify_2fa": "ケーキの 2FA を変更する",
   "disable_cake_2fa": "Cake 2FA を無効にする",
   "question_to_disable_2fa":"Cake 2FA を無効にしてもよろしいですか?ウォレットと特定の機能にアクセスするために 2FA コードは必要なくなります。",

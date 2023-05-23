@@ -38,7 +38,7 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get disabledFiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
-  bool get showHistoricalFiatRate => _settingsStore.showHistoricalFiatRate;
+  bool get showHistoricalFiatAmount => _settingsStore.showHistoricalFiatAmount;
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
@@ -71,5 +71,5 @@ abstract class DisplaySettingsViewModelBase with Store {
   }
 
   @action
-  void setShowHistoricalFiatRate(bool value) => _settingsStore.showHistoricalFiatRate = value;
+  void setShowHistoricalFiatAmount(bool value) => _settingsStore.showHistoricalFiatAmount = value;
 }

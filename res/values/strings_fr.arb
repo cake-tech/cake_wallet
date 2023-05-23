@@ -709,6 +709,7 @@
   "error_text_input_above_maximum_limit" : "Le montant est supérieur au maximum",
   "show_market_place" :"Afficher la place de marché",
   "prevent_screenshots": "Empêcher les captures d'écran et l'enregistrement d'écran",
+  "historical_fiat_amount": "Montant fiduciaire historique",
   "modify_2fa": "Modifier le gâteau 2FA",
   "disable_cake_2fa": "Désactiver le gâteau 2FA",
   "question_to_disable_2fa":"Êtes-vous sûr de vouloir désactiver Cake 2FA ? Un code 2FA ne sera plus nécessaire pour accéder au portefeuille et à certaines fonctions.",

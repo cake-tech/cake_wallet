@@ -709,6 +709,7 @@
   "error_text_input_above_maximum_limit" : "Miktar maksimumdan daha fazla",
   "show_market_place":"Pazar Yerini Göster",
   "prevent_screenshots": "Ekran görüntülerini ve ekran kaydını önleyin",
+  "historical_fiat_amount": "Tarihsel itibari para tutarı",
   "modify_2fa": "Cake 2FA'yı Değiştirin",
   "disable_cake_2fa": "Cake 2FA'yı Devre Dışı Bırak",
   "question_to_disable_2fa":"Cake 2FA'yı devre dışı bırakmak istediğinizden emin misiniz? M-cüzdana ve belirli işlevlere erişmek için artık 2FA koduna gerek kalmayacak.",

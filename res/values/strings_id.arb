@@ -685,6 +685,7 @@
   "error_text_input_above_maximum_limit" : "Jumlah lebih dari maksimal",
   "show_market_place": "Tampilkan Pasar",
   "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar",
+  "historical_fiat_amount": "Jumlah fiat historis",
   "modify_2fa": "Ubah Kue 2FA",
   "disable_cake_2fa": "Nonaktifkan Kue 2FA",
   "question_to_disable_2fa":"Apakah Anda yakin ingin menonaktifkan Cake 2FA? Kode 2FA tidak lagi diperlukan untuk mengakses dompet dan fungsi tertentu.",

@@ -57,10 +57,10 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
             SettingsSwitcherCell(
-              title: S.current.historical_fiat_rate,
-              value: _displaySettingsViewModel.showHistoricalFiatRate,
+              title: S.current.historical_fiat_amount,
+              value: _displaySettingsViewModel.showHistoricalFiatAmount,
               onValueChange: (_, bool value) {
-                _displaySettingsViewModel.setShowHistoricalFiatRate(value);
+                _displaySettingsViewModel.setShowHistoricalFiatAmount(value);
               },
             ),
             SettingsPickerCell<String>(
