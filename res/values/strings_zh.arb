@@ -708,6 +708,7 @@
   "error_text_input_above_maximum_limit" : "金额大于最大值",
   "show_market_place" :"显示市场",
   "prevent_screenshots": "防止截屏和录屏",
+  "historical_fiat_amount": "历史法定金额",
   "modify_2fa": "修改蛋糕2FA",
   "disable_cake_2fa": "禁用蛋糕 2FA",
   "question_to_disable_2fa":"您确定要禁用 Cake 2FA 吗？访问钱包和某些功能将不再需要 2FA 代码。",

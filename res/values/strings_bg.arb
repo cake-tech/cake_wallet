@@ -703,6 +703,7 @@
   "error_text_input_above_maximum_limit" : "Сумата надвишава максималната",
   "show_market_place":"Покажи пазар",
   "prevent_screenshots": "Предотвратете екранни снимки и запис на екрана",
+  "historical_fiat_amount": "Историческа фиатна сума",
   "modify_2fa": "Модифициране на тортата 2FA",
   "disable_cake_2fa": "Деактивирайте Cake 2FA",
   "question_to_disable_2fa":"Сигурни ли сте, че искате да деактивирате Cake 2FA? Вече няма да е необходим 2FA код за достъп до портфейла и определени функции.",
