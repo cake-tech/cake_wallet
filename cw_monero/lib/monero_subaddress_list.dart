@@ -47,15 +47,20 @@ abstract class MoneroSubaddressListBase with Store {
       subaddresses = [primary] + rest.toList();
     }
 
-    return subaddresses
-        .map((subaddressRow) => Subaddress(
-            id: subaddressRow.getId(),
-            address: subaddressRow.getAddress(),
-            label: subaddressRow.getId() == 0 &&
-                    subaddressRow.getLabel().toLowerCase() == 'Primary account'.toLowerCase()
-                ? 'Primary address'
-                : subaddressRow.getLabel()))
-        .toList();
+    return subaddresses.map((subaddressRow) {
+      final hasDefaultAddressName =
+          subaddressRow.getLabel().toLowerCase() == 'Primary account'.toLowerCase() ||
+              subaddressRow.getLabel().toLowerCase() == 'Untitled account'.toLowerCase();
+      final isPrimaryAddress = subaddressRow.getId() == 0 && hasDefaultAddressName;
+      return Subaddress(
+          id: subaddressRow.getId(),
+          address: subaddressRow.getAddress(),
+          label: isPrimaryAddress
+              ? 'Primary address'
+              : hasDefaultAddressName
+                  ? ''
+                  : subaddressRow.getLabel());
+    }).toList();
   }
 
   Future<void> addSubaddress({required int accountIndex, required String label}) async {
@@ -113,14 +118,14 @@ abstract class MoneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-    
+
     if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last.getAddress())) {
       final isAddressAdded = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (isAddressAdded) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
       }
     }
-    
+
     return allAddresses
         .map((subaddressRow) => Subaddress(
             id: subaddressRow.getId(),

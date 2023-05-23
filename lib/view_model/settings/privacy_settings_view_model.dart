@@ -5,6 +5,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
@@ -36,6 +37,9 @@ abstract class PrivacySettingsViewModelBase with Store {
     }
   }
 
+  bool get isAutoGenerateSubaddressesVisible =>
+      wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
@@ -57,5 +61,4 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
-
 }
