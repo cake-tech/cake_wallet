@@ -1,6 +1,7 @@
-import 'dart:typed_data';
-
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_ethereum/ethereum_balance.dart';
 import 'package:cw_ethereum/pending_ethereum_transaction.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:cw_core/node.dart';
@@ -32,9 +33,9 @@ class EthereumClient {
     // [53000, 53000, 53000]
     final result = await Future.wait(EthereumTransactionPriority.all.map(
       (priority) => _client!.estimateGas(
-        maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
-        maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
-      ),
+          // maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
+          // maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
+          ),
     ));
 
     return result.map((e) => e.toInt()).toList();
@@ -133,4 +134,53 @@ I/flutter ( 4474): Gas Used: 53000
 //     },
 //   ));
 // }
+
+  Future<Map<CryptoCurrency, ERC20Balance>> fetchERC20Balances(EthereumAddress userAddress) async {
+    final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
+    final contractAbi = ContractAbi.fromJson(abi, "ERC20");
+
+    final Map<CryptoCurrency, ERC20Balance> erc20Balances = {};
+
+    for (var currency in _erc20Currencies.keys) {
+      final contractAddress = _erc20Currencies[currency]!;
+
+      try {
+        final contract = DeployedContract(
+          contractAbi,
+          EthereumAddress.fromHex(contractAddress),
+        );
+
+        final balanceFunction = contract.function('balanceOf');
+        final balance = await _client!.call(
+          contract: contract,
+          function: balanceFunction,
+          params: [userAddress],
+        );
+
+        final decimalsFunction = contract.function('decimals');
+        final decimals = await _client!.call(
+          contract: contract,
+          function: decimalsFunction,
+          params: [],
+        );
+
+        BigInt tokenBalance = BigInt.parse(balance.first.toString());
+        int exponent = int.parse(decimals.first.toString());
+
+        erc20Balances[currency] = ERC20Balance(tokenBalance, exponent: exponent);
+      } catch (e, s) {
+        print(e);
+        print(s);
+        continue;
+      }
+    }
+
+    return erc20Balances;
+  }
 }
+
+Map<CryptoCurrency, String> _erc20Currencies = {
+  CryptoCurrency.usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  CryptoCurrency.usdterc20: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  CryptoCurrency.shib: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+};

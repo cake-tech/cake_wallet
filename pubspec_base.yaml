@@ -112,6 +112,7 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - assets/abi_json/
 
   fonts:
     - family: Lato

@@ -30,21 +30,21 @@ part 'ethereum_wallet.g.dart';
 class EthereumWallet = EthereumWalletBase with _$EthereumWallet;
 
 abstract class EthereumWalletBase
-    extends WalletBase<EthereumBalance, EthereumTransactionHistory, EthereumTransactionInfo>
+    extends WalletBase<ERC20Balance, EthereumTransactionHistory, EthereumTransactionInfo>
     with Store {
   EthereumWalletBase({
     required WalletInfo walletInfo,
     required String mnemonic,
     required String password,
-    EthereumBalance? initialBalance,
+    ERC20Balance? initialBalance,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _priorityFees = [],
         _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
-        balance = ObservableMap<CryptoCurrency, EthereumBalance>.of(
-            {CryptoCurrency.eth: initialBalance ?? EthereumBalance(EtherAmount.zero())}),
+        balance = ObservableMap<CryptoCurrency, ERC20Balance>.of(
+            {CryptoCurrency.eth: initialBalance ?? ERC20Balance(BigInt.zero)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
   }
@@ -68,7 +68,7 @@ abstract class EthereumWalletBase
 
   @override
   @observable
-  late ObservableMap<CryptoCurrency, EthereumBalance> balance;
+  late ObservableMap<CryptoCurrency, ERC20Balance> balance;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -234,7 +234,7 @@ abstract class EthereumWalletBase
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
     final balance =
-        EthereumBalance.fromJSON(data['balance'] as String) ?? EthereumBalance(EtherAmount.zero());
+        ERC20Balance.fromJSON(data['balance'] as String) ?? ERC20Balance(BigInt.zero);
 
     return EthereumWallet(
       walletInfo: walletInfo,
@@ -246,12 +246,13 @@ abstract class EthereumWalletBase
 
   Future<void> _updateBalance() async {
     balance[currency] = await _fetchBalances();
+    balance.addAll(await _client.fetchERC20Balances(_privateKey.address));
     await save();
   }
 
-  Future<EthereumBalance> _fetchBalances() async {
+  Future<ERC20Balance> _fetchBalances() async {
     final balance = await _client.getBalance(_privateKey.address);
-    return EthereumBalance(balance);
+    return ERC20Balance(balance.getInWei);
   }
 
   Future<EthPrivateKey> getPrivateKey(String mnemonic, String password) async {
