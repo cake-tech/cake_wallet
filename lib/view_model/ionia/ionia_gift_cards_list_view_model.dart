@@ -1,17 +1,21 @@
+import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 part 'ionia_gift_cards_list_view_model.g.dart';
 
-class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase with _$IoniaGiftCardsListViewModel;
+class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase
+    with _$IoniaGiftCardsListViewModel;
 
 abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaGiftCardsListViewModelBase({
     required this.ioniaService,
-  })  :
-        cardState = IoniaNoCardState(),
+  })  : cardState = IoniaNoCardState(),
         ioniaMerchants = [],
         ioniaCategories = IoniaCategory.allCategories,
         selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
@@ -21,8 +25,12 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
         createCardState = IoniaCreateCardState(),
         searchString = '',
         ioniaMerchantList = <IoniaMerchant>[] {
-        _getAuthStatus().then((value) => isLoggedIn = value);
+    _getAuthStatus().then((value) => isLoggedIn = value);
   }
+
+  static const _ioniaMerchantListUpdateDurationInHours = 12;
+
+  static List<IoniaMerchant> _ioniaMerchantListCache = [];
 
   final IoniaService ioniaService;
 
@@ -92,15 +100,36 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
     }
   }
 
-  
-  void getMerchants() {
-    merchantState = IoniaLoadingMerchantState();
-    ioniaService.getMerchantsByFilter(categories: selectedIndices).then((value) {
-      value.sort((a, b) => a.legalName.toLowerCase().compareTo(b.legalName.toLowerCase()));
-      ioniaMerchants = ioniaMerchantList = value;
+  Future<void> getMerchants() async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+
+    final lastMerchantListCacheUpdate = DateTime.tryParse(
+            sharedPrefs.getString(PreferencesKey.lastMerchantListCacheUpdate) ?? '') ??
+        DateTime.now().subtract(Duration(hours: _ioniaMerchantListUpdateDurationInHours));
+
+    final durationSinceLastUpdate = DateTime.now().difference(lastMerchantListCacheUpdate).inHours;
+
+    if (_ioniaMerchantListCache.isEmpty ||
+        !selectedIndices.contains(IoniaCategory.all) ||
+        durationSinceLastUpdate > _ioniaMerchantListUpdateDurationInHours) {
+      merchantState = IoniaLoadingMerchantState();
+      try {
+        final value = await ioniaService.getMerchantsByFilter(categories: selectedIndices);
+        value.sort((a, b) => a.legalName.toLowerCase().compareTo(b.legalName.toLowerCase()));
+        ioniaMerchants = ioniaMerchantList = value;
+        if (selectedIndices.contains(IoniaCategory.all)) {
+          _ioniaMerchantListCache = value;
+          await sharedPrefs.setString(
+              PreferencesKey.lastMerchantListCacheUpdate, DateTime.now().toString());
+        }
+        merchantState = IoniaLoadedMerchantState();
+      } catch (error) {
+        merchantState = IoniaErrorMerchantState(error.toString());
+      }
+    } else {
+      ioniaMerchants = ioniaMerchantList = _ioniaMerchantListCache;
       merchantState = IoniaLoadedMerchantState();
-    });
-    
+    }
   }
 
   @action
@@ -132,7 +161,9 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
       ioniaCategories = IoniaCategory.allCategories;
     } else {
       ioniaCategories = IoniaCategory.allCategories
-          .where((e) => e.title.toLowerCase().contains(text.toLowerCase()),)
+          .where(
+            (e) => e.title.toLowerCase().contains(text.toLowerCase()),
+          )
           .toList();
     }
   }

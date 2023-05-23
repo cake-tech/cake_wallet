@@ -63,6 +63,12 @@ class InitialIoniaMerchantLoadingState extends IoniaMerchantState {}
 
 class IoniaLoadingMerchantState extends IoniaMerchantState {}
 
+class IoniaErrorMerchantState extends IoniaMerchantState {
+  IoniaErrorMerchantState(this.error);
+
+  final String error;
+}
+
 class IoniaLoadedMerchantState extends IoniaMerchantState {}
 
 
