@@ -93,7 +93,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(S.of(context).dont_get_code),
+                  Text(S.of(context).didnt_get_code),
                   SizedBox(width: 20),
                   InkWell(
                     onTap: () => isSignIn

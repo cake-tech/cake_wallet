@@ -556,7 +556,7 @@
   "purchase_gift_card": "Comprar vale-presente",
   "verification": "Verificação",
   "fill_code": "Por favor, preencha o código de verificação fornecido ao seu e-mail",
-  "dont_get_code": "Não recebeu o código?",
+  "didnt_get_code": "Não recebeu o código?",
   "resend_code": "Por favor, reenvie",
   "debit_card": "Cartão de débito",
   "cakepay_prepaid_card": "Cartão de débito pré-pago CakePay",
