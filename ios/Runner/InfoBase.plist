@@ -46,6 +46,16 @@
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
+            <string>bitcoin-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>bitcoin-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
             <string>monero</string>
             <key>CFBundleURLSchemes</key>
             <array>
@@ -56,10 +66,30 @@
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
+            <string>monero-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>monero-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
             <string>litecoin</string>
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>litecoin</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>litecoin-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>litecoin-wallet</string>
             </array>
         </dict>
     </array>

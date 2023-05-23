@@ -5,9 +5,10 @@
 ## Links
 
 * Website: https://cakewallet.com
-* App Store: https://cakewallet.com/ios
+* App Store (iOS / MacOS): https://cakewallet.com/ios
 * Google Play: https://cakewallet.com/gp
 * APK: https://github.com/cake-tech/cake_wallet/releases
+* Linux: https://github.com/cake-tech/cake_wallet/releases
 
 ## Features
 
@@ -15,18 +16,22 @@
 
 * Completely noncustodial. *Your keys, your coins.*
 * Built-in exchange for dozens of pairs
-* Buy cryptocurrency with credit/debit/bank
+* Easily pay cryptocurrency invoices with fixed rate exchanges
+* Buy cryptocurrency (BTC/LTC/XMR) with credit/debit/bank
 * Sell cryptocurrency by bank transfer
+* Purchase gift cards at a discount using only an email with [Cake Pay](https://cakepay.com), available in-app
 * Scan QR codes for easy cryptocurrency transfers
 * Create several wallets
 * Select your own custom nodes/servers
 * Address book
 * Backup to external location or iCloud
 * Send to OpenAlias, Unstoppable Domains, Yats, and FIO Crypto Handles
-* Set custom fee levels
+* Set desired network fee level
 * Store local transaction notes
 * Extremely simple user experience
 * Convenient exchange and sending templates for recurring payments
+* Create donation links and invoices in the receive screen
+* Robust privacy settings (eg: Tor-only connections)
 
 ### Monero Specific Features
 
@@ -34,13 +39,13 @@
 * Full support for Monero subaddresses and accounts
 * Specify restore height for faster syncing
 * Specify multiple recipients for batch sending
+* Optionally set Monero nodes as trusted for faster syncing
 
 ### Bitcoin Specific Features
 
 * Bitcoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
-* Buy BTC with over a dozen fiat currencies
 * Sell BTC for USD
 
 ### Litecoin Specific Features
@@ -48,7 +53,6 @@
 * Litecoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
-* Buy LTC with over a dozen fiat currencies
 
 ### Haven Specific Features
 
@@ -63,13 +67,15 @@
 ## Links
 
 * Website: https://monero.com
-* App Store: https://apps.apple.com/app/id1601990386
+* App Store (iOS): https://apps.apple.com/app/id1601990386
 * Google Play: https://play.google.com/store/apps/details?id=com.monero.app
 * APK: https://github.com/cake-tech/cake_wallet/releases
 
 # Support
 
 We have 24/7 free support. Please contact support@cakewallet.com
+
+We have excellent user guides, which are also open-source and open for contributions: https://guides.cakewallet.com
 
 # Build Instructions
 
@@ -136,3 +142,7 @@ The only parts to be translated, if needed, are the values m and s after the var
 3. Add the raw mapping underneath in `lib/entities/fiat_currency.dart` following the same format as the others.
 
 4. Add a flag of the issuing country or organization to `assets/images/flags/XXXX.png`, replacing XXXX with the ISO 3166-1 alpha-3 code used above (eg: `usa.png`, `eur.png`). Do not add this if the flag with the same name already exists. The image must be 42x26 pixels with a 3 pixels of transparent margin on all 4 sides.
+
+---
+
+Copyright (C) 2018-2023 Cake Labs LLC

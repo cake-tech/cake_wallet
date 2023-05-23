@@ -177,7 +177,7 @@ class MenuWidgetState extends State<MenuWidget> {
                           fromTopEdge: fromTopEdge,
                           onTap: () => item.onTap.call(context),
                           image: item.image,
-                          title: item.name,
+                          title: item.name.call(context),
                         );
                       },
                       separatorBuilder: (_, index) => Container(

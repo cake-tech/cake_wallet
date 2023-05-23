@@ -16,14 +16,14 @@ class QrImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return qr.QrImage(
+    return qr.QrImageView(
       data: data,
       errorCorrectionLevel: errorCorrectionLevel,
       version: version ?? 9, // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
       size: size,
       foregroundColor: Colors.black,
       backgroundColor: Colors.white,
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.all(8.0),
     );
   }
 }

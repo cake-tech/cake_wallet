@@ -3,7 +3,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
 
 class SettingActions {
-  final String name;
+  final String Function(BuildContext) name;
   final String image;
   final void Function(BuildContext) onTap;
 
@@ -36,7 +36,7 @@ class SettingActions {
   ];
 
   static SettingActions connectionSettingAction = SettingActions._(
-    name: S.current.connection_sync,
+    name: (context) => S.of(context).connection_sync,
     image: 'assets/images/nodes_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
@@ -45,7 +45,7 @@ class SettingActions {
   );
 
   static SettingActions walletSettingAction = SettingActions._(
-    name: S.current.wallets,
+    name: (context) => S.of(context).wallets,
     image: 'assets/images/wallet_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
@@ -54,7 +54,7 @@ class SettingActions {
   );
 
   static SettingActions addressBookSettingAction = SettingActions._(
-    name: S.current.address_book_menu,
+    name: (context) => S.of(context).address_book_menu,
     image: 'assets/images/open_book_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
@@ -63,7 +63,7 @@ class SettingActions {
   );
 
   static SettingActions securityBackupSettingAction = SettingActions._(
-    name: S.current.security_and_backup,
+    name: (context) => S.of(context).security_and_backup,
     image: 'assets/images/key_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
@@ -72,7 +72,7 @@ class SettingActions {
   );
 
   static SettingActions privacySettingAction = SettingActions._(
-    name: S.current.privacy,
+    name: (context) => S.of(context).privacy,
     image: 'assets/images/privacy_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
@@ -81,7 +81,7 @@ class SettingActions {
   );
 
   static SettingActions displaySettingAction = SettingActions._(
-    name: S.current.display_settings,
+    name: (context) => S.of(context).display_settings,
     image: 'assets/images/eye_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
@@ -90,7 +90,7 @@ class SettingActions {
   );
 
   static SettingActions otherSettingAction = SettingActions._(
-    name: S.current.other_settings,
+    name: (context) => S.of(context).other_settings,
     image: 'assets/images/settings_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
@@ -99,7 +99,7 @@ class SettingActions {
   );
 
   static SettingActions supportSettingAction = SettingActions._(
-    name: S.current.settings_support,
+    name: (context) => S.of(context).settings_support,
     image: 'assets/images/question_mark.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);

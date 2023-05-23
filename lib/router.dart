@@ -1,5 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -33,6 +34,10 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
@@ -149,6 +154,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreOptions:
       final isNewInstall = settings.arguments as bool;
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<RestoreOptionsPage>(param1: isNewInstall));
 
     case Routes.restoreWalletFromSeedKeys:
@@ -169,6 +175,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
             fullscreenDialog: true);
       } else if (isSingleCoin) {
         return MaterialPageRoute<void>(
+            fullscreenDialog: true,
             builder: (_) => getIt.get<WalletRestorePage>(
                 param1: availableWalletTypes.first
             ));
@@ -183,11 +190,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.seed:
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) =>
               getIt.get<WalletSeedPage>(param1: settings.arguments as bool));
 
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<WalletRestorePage>(
               param1: settings.arguments as WalletType));
 
@@ -260,6 +269,26 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param1: settings.arguments as OnAuthenticationFinished,
               param2: true));
 
+    case Routes.totpAuthCodePage:
+      final args = settings.arguments as TotpAuthArgumentsModel;
+      return MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<TotpAuthCodePage>(
+          param1: args,
+        ),
+      );
+
+    case Routes.login:
+      return CupertinoPageRoute<void>(
+          builder: (context) => WillPopScope(
+                child: getIt.get<AuthPage>(instanceName: 'login'),
+              onWillPop: () async =>
+                  // FIX-ME: Additional check does it works correctly
+                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
+                        false),
+              ),
+          fullscreenDialog: true);
+
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
@@ -301,14 +330,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
             param1: args?['editingNode'] as Node?,
             param2: args?['isSelected'] as bool?));
 
-    case Routes.login:
-      return CupertinoPageRoute<void>(
-          builder: (context) => WillPopScope(
-              child: getIt.get<AuthPage>(instanceName: 'login'),
-              onWillPop: () async =>
-              // FIX-ME: Additional check does it works correctly
-                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ?? false)),
-          fullscreenDialog: true);
+ 
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
@@ -344,6 +366,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.tradeDetails:
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) =>
               getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
@@ -361,6 +384,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as List;
 
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) =>
               getIt.get<BuyWebViewPage>(param1: args));
 
@@ -370,6 +394,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           getIt.get<WalletRestorationFromSeedVM>(param1: args);
 
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => RestoreWalletFromSeedDetailsPage(
               walletRestorationFromSeedVM: walletRestorationFromSeedVM));
 
@@ -403,6 +428,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreFromBackup:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
@@ -509,7 +535,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
 
     case Routes.anonPayReceivePage:
         final anonInvoiceViewData = settings.arguments as AnonpayInfoBase;
@@ -538,6 +566,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
           settings: settings,
           fullscreenDialog: true,
           builder: (_) => getIt.get<TransactionsPage>());
+
+    case Routes.setup_2faPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAPage>());
+
+    case Routes.setup_2faQRPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAQRPage>());
+
+    case Routes.modify2FAPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
 
     default:
       return MaterialPageRoute<void>(

@@ -6,15 +6,19 @@ dependencies:
   flutter_cupertino_localizations: ^1.0.1
   intl: ^0.17.0
   url_launcher: ^6.1.4
-  qr_flutter: ^4.0.0
+  qr_flutter:
+    git:
+      url: https://github.com/cake-tech/qr.flutter.git
+      ref: cake-4.0.2
+      version: 4.0.2
   uuid: 3.0.6
   shared_preferences: ^2.0.15
   flutter_secure_storage:
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-6.0.0
-      version: 6.0.0
+      ref: cake-8.0.0
+      version: 8.0.0
   # provider: ^6.0.3
   rxdart: ^0.27.4
   yaml: ^3.1.1
@@ -67,6 +71,7 @@ dependencies:
   wakelock: ^0.6.2
   flutter_mailer: ^2.0.2
   device_info_plus: 8.1.0
+  base32: 2.1.3
   in_app_review: ^2.0.6
   cake_backup:
     git:
@@ -77,6 +82,10 @@ dependencies:
   path_provider_android: 2.0.24
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
+  bitcoin_flutter:
+    git:
+      url: https://github.com/cake-tech/bitcoin_flutter.git
+      ref: cake-update-v2
 
 dev_dependencies:
   flutter_test:

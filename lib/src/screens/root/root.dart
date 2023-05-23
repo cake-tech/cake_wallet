@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:uni_links/uni_links.dart';
+
+import '../setup_2fa/setup_2fa_enter_code_page.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -114,19 +117,49 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     if (_isInactive && !_postFrameCallback && _requestAuth) {
       _postFrameCallback = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.navigatorKey.currentState?.pushNamed(Routes.unlock,
-            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-          if (!isAuthenticatedSuccessfully) {
-            return;
-          }
+        widget.navigatorKey.currentState?.pushNamed(
+          Routes.unlock,
+          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            if (!isAuthenticatedSuccessfully) {
+              return;
+            } else {
+              final useTotp = widget.appStore.settingsStore.useTOTP2FA;
+              if (useTotp) {
+                _reset();
+                auth.close(
+                  route: Routes.totpAuthCodePage,
+                  arguments: TotpAuthArgumentsModel(
+                    onTotpAuthenticationFinished:
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
+                      if (!isAuthenticatedSuccessfully) {
+                        return;
+                      }
+                      _reset();
+                      totpAuth.close(
+                        route: launchUri != null ? Routes.send : null,
+                        arguments: PaymentRequest.fromUri(launchUri),
+                      );
+                      launchUri = null;
+                    },
+                    isForSetup: false,
+                    isClosable: false,
+                  ),
+                );
+              } else {
+                _reset();
+                auth.close(
+                  route: launchUri != null ? Routes.send : null,
+                  arguments: PaymentRequest.fromUri(launchUri),
+                );
+              launchUri = null;
+              }
+            }
 
-          _reset();
-          auth.close(
-            route: launchUri != null ? Routes.send : null,
-            arguments: PaymentRequest.fromUri(launchUri),
+             
+            },
           );
-          launchUri = null;
-        });
+    
+       
       });
     } else if (launchUri != null) {
       widget.navigatorKey.currentState?.pushNamed(
