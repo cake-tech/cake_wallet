@@ -28,7 +28,7 @@ class IoniaWelcomePage extends BasePage {
   Widget body(BuildContext context) {
     reaction((_) => _cardsListViewModel.isLoggedIn, (bool state) {
       if (state) {
-        Navigator.pushReplacementNamed(context, Routes.ioniaManageCardsPage);
+        Navigator.pushNamed(context, Routes.ioniaManageCardsPage);
       }
     });
     return Padding(
@@ -38,7 +38,7 @@ class IoniaWelcomePage extends BasePage {
         children: [
           Column(
             children: [
-              SizedBox(height: 100),
+              SizedBox(height: 90),
               Text(
                 S.of(context).about_cake_pay,
                 style: TextStyle(

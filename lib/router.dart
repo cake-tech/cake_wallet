@@ -199,6 +199,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
+        settings: settings,
           builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
@@ -220,7 +221,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressPage:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<AddressPage>());
+           builder: (_) => getIt.get<AddressPage>());
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -512,7 +513,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
 
     case Routes.anonPayReceivePage:

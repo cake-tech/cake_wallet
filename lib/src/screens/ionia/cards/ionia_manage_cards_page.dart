@@ -83,7 +83,7 @@ class IoniaManageCardsPage extends BasePage {
             //highlightColor: Colors.transparent,
             //splashColor: Colors.transparent,
             //padding: EdgeInsets.all(0),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.popUntil(context, ModalRoute.withName(Routes.dashboard)),
             child: _backButton),
       ),
     );

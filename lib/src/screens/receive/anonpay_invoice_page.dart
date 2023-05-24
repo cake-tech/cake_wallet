@@ -54,6 +54,11 @@ class AnonPayInvoicePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
+  void onClose(BuildContext context) {
+    Navigator.popUntil(context, ModalRoute.withName(Routes.dashboard));
+  }
+
+  @override
   Widget middle(BuildContext context) =>
       PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
 
