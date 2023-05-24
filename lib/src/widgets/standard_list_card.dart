@@ -21,8 +21,8 @@ class TradeDetailsStandardListCard extends StatelessWidget {
     final darkTheme = currentTheme == ThemeType.dark;
 
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).primaryTextTheme!.subtitle2!.color!,
-      Theme.of(context).primaryTextTheme!.subtitle2!.decorationColor!,
+      Theme.of(context).primaryTextTheme!.titleSmall!.color!,
+      Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final gradient = LinearGradient(colors: [

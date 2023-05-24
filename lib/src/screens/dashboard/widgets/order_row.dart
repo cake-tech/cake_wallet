@@ -20,7 +20,7 @@ class OrderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor =
-        Theme.of(context).primaryTextTheme!.headline1!.backgroundColor!;
+        Theme.of(context).primaryTextTheme!.displayLarge!.backgroundColor!;
 
     final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
 
@@ -48,14 +48,14 @@ class OrderRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
+                                    color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!
                                 )),
                             formattedAmount != null
                                 ? Text(formattedAmount! + ' ' + to,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!
+                                    color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!
                                 ))
                                 : Container()
                           ]),
@@ -66,8 +66,10 @@ class OrderRow extends StatelessWidget {
                             Text(createdAtFormattedDate,
                                 style: TextStyle(
                                     fontSize: 14,
-                                    color: Theme.of(context).textTheme!
-                                        .overline!.backgroundColor!))
+                                    color: Theme.of(context)
+                                        .textTheme!
+                                        .labelSmall!
+                                        .backgroundColor!))
                           ])
                     ],
                   )

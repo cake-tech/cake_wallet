@@ -21,12 +21,12 @@ class StandardCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).primaryTextTheme.subtitle1!.color!,
-      Theme.of(context).primaryTextTheme.subtitle1!.decorationColor!,
+      Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+      Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(
-        color: borderColor ?? Theme.of(context).primaryTextTheme.caption!.color!, width: 1.0);
+        color: borderColor ?? Theme.of(context).primaryTextTheme!.bodySmall!.color!, width: 1.0);
 
     final checkedBoxDecoration = BoxDecoration(
         gradient: gradientBackground ? baseGradient : null,
@@ -60,7 +60,7 @@ class StandardCheckbox extends StatelessWidget {
                 child: Text(
                   caption,
                   style: TextStyle(
-                      fontSize: 16.0, color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                      fontSize: 16.0, color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
                 ))
         ],
       ),

@@ -16,14 +16,26 @@ class SelectButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isSelected
-          ? Colors.green
-          : Theme.of(context).accentTextTheme!.caption!.color!;
+        ? Colors.green
+        : Theme.of(context)
+            .accentTextTheme!
+            .bodySmall!
+            .color!;
     final textColor = isSelected
-          ? Theme.of(context).accentTextTheme!.headline5!.decorationColor!
-          : Theme.of(context).primaryTextTheme!.headline6!.color!;
+        ? Theme.of(context)
+            .accentTextTheme!
+            .headlineSmall!
+            .decorationColor!
+        : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
     final arrowColor = isSelected
-        ? Theme.of(context).accentTextTheme!.headline5!.decorationColor!
-        : Theme.of(context).accentTextTheme!.subtitle1!.color!;
+        ? Theme.of(context)
+            .accentTextTheme!
+            .headlineSmall!
+            .decorationColor!
+        : Theme.of(context)
+            .accentTextTheme!
+            .titleMedium!
+            .color!;
 
     final selectArrowImage = Image.asset('assets/images/select_arrow.png',
           color: arrowColor);

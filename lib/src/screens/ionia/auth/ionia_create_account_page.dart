@@ -40,7 +40,10 @@ class IoniaCreateAccountPage extends BasePage {
     return Text(
       S.current.sign_up,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -79,8 +82,12 @@ class IoniaCreateAccountPage extends BasePage {
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).create_account,
                   onPressed: _createAccount,
-                  isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  isLoading:
+                      _authViewModel.createUserState is IoniaCreateStateLoading,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                 ),
               ),
@@ -100,7 +107,10 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                       text: S.of(context).settings_terms_and_conditions,
                       style: TextStyle(
-                        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .bodyLarge!
+                            .color!,
                         fontWeight: FontWeight.w700,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -112,7 +122,10 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                         text: S.of(context).privacy_policy,
                         style: TextStyle(
-                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                          color: Theme.of(context)
+                              .accentTextTheme!
+                              .bodyLarge!
+                              .color!,
                           fontWeight: FontWeight.w700,
                         ),
                         recognizer: TapGestureRecognizer()

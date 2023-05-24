@@ -20,11 +20,11 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).textTheme.subtitle2!.decorationColor!
-        : Theme.of(context).textTheme.headline1!.decorationColor!;
+        ? Theme.of(context).textTheme!.titleSmall!.decorationColor!
+        : Theme.of(context).textTheme!.displayLarge!.decorationColor!;
     final textColor = isCurrent
-        ? Theme.of(context).textTheme.subtitle2!.color!
-        : Theme.of(context).textTheme.headline1!.color!;
+        ? Theme.of(context).textTheme!.titleSmall!.color!
+        : Theme.of(context).textTheme!.displayLarge!.color!;
 
     final Widget cell = GestureDetector(
       onTap: onTap,
@@ -57,7 +57,7 @@ class AccountTile extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).textTheme.headline4!.color!,
+                  color: Theme.of(context).textTheme!.headlineMedium!.color!,
                   decoration: TextDecoration.none,
                 ),
                          ),
