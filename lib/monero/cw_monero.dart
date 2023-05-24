@@ -193,6 +193,8 @@ class CWMonero extends Monero {
 		switch (language.toLowerCase()) {
 		  case 'english':
 		    return EnglishMnemonics.words;
+		  case 'esperanto':
+		    return EsperantoMnemonics.words;
 		  case 'chinese (simplified)':
 		    return ChineseSimplifiedMnemonics.words;
 		  case 'dutch':
