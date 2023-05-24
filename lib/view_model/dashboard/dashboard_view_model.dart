@@ -130,6 +130,13 @@ abstract class DashboardViewModelBase with Store {
           });
         });
 
+    reaction((_) => settingsStore.fiatApiMode,
+            (FiatApiMode fiatApiMode) {
+          _wallet.transactionHistory.transactions.values.forEach((tx) {
+            _getHistoricalFiatRate(tx);
+          });
+        });
+
 
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
@@ -165,7 +172,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);
-    
+
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
@@ -237,7 +244,7 @@ abstract class DashboardViewModelBase with Store {
   @computed
   BalanceDisplayMode get balanceDisplayMode =>
       appStore.settingsStore.balanceDisplayMode;
-    
+
   @computed
   bool get shouldShowMarketPlaceInDashboard {
     return appStore.settingsStore.shouldShowMarketPlaceInDashboard;
@@ -252,7 +259,7 @@ abstract class DashboardViewModelBase with Store {
   List<OrderListItem> get orders => ordersStore.orders
       .where((item) => item.order.walletId == wallet.id)
       .toList();
-  
+
   @computed
   List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
       .where((item) => item.transaction.walletId == wallet.id)
@@ -441,9 +448,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> _getHistoricalFiatRate(TransactionInfo transactionInfo) async {
-    final description = transactionDescriptionBox.values.firstWhere(
-            (val) => val.id == transactionInfo.id,
-        orElse: () => TransactionDescription(id: transactionInfo.id));
+    if (FiatApiMode.disabled == settingsStore.fiatApiMode) return;
+    final description = getTransactionDescription(transactionInfo);
 
     if (description.historicalFiat != settingsStore.fiatCurrency.toString()
         || description.historicalFiatRate == null) {
@@ -484,4 +490,8 @@ abstract class DashboardViewModelBase with Store {
       }
     }
   }
+
+  TransactionDescription getTransactionDescription(TransactionInfo transactionInfo) =>
+      transactionDescriptionBox.values.firstWhere((val) => val.id == transactionInfo.id,
+          orElse: () => TransactionDescription(id: transactionInfo.id));
 }

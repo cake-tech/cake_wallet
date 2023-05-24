@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -48,6 +49,19 @@ class TransactionsPage extends StatelessWidget {
 
                       if (item is TransactionListItem) {
                         final transaction = item.transaction;
+                        final description =
+                        dashboardViewModel.getTransactionDescription(transaction);
+                        final formattedFiatAmount =
+                        dashboardViewModel.settingsStore.fiatApiMode == FiatApiMode.disabled
+                            ? ''
+                            : (dashboardViewModel.settingsStore.showHistoricalFiatAmount
+                            ? (description.historicalFiatRate == null ||
+                            description.historicalFiatRate == 0.0
+                            ? ''
+                            : dashboardViewModel.settingsStore.fiatCurrency.toString() +
+                            ' ' +
+                            description.historicalFiatRate!.toStringAsFixed(2))
+                            : item.formattedFiatAmount);
 
                         return Observer(
                             builder: (_) => TransactionRow(
@@ -56,10 +70,7 @@ class TransactionsPage extends StatelessWidget {
                                 direction: transaction.direction,
                                 formattedDate: DateFormat('HH:mm').format(transaction.date),
                                 formattedAmount: item.formattedCryptoAmount,
-                                formattedFiatAmount:
-                                    dashboardViewModel.balanceViewModel.isFiatDisabled
-                                        ? ''
-                                        : item.formattedFiatAmount,
+                                formattedFiatAmount: formattedFiatAmount,
                                 isPending: transaction.isPending,
                                 title: item.formattedTitle + item.formattedStatus));
                       }

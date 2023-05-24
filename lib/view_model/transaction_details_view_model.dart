@@ -19,6 +19,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 
+import 'dashboard/dashboard_view_model.dart';
+
 part 'transaction_details_view_model.g.dart';
 
 class TransactionDetailsViewModel = TransactionDetailsViewModelBase
@@ -28,6 +30,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionDetailsViewModelBase(
       {required this.transactionInfo,
       required this.transactionDescriptionBox,
+      required this.dashboardViewModel,
       required this.wallet,
       required this.settingsStore})
       : items = ObservableList<TransactionDetailsListItem>(),
@@ -130,9 +133,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           } catch (e) {}
         }));
 
-    final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.id,
-        orElse: () => TransactionDescription(id: transactionInfo.id));
+    final description = dashboardViewModel.getTransactionDescription(transactionInfo);
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
@@ -149,7 +150,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     if (settingsStore.showHistoricalFiatAmount &&
         description.historicalFiatRate != null &&
-        description.historicalFiatRate! > 0) {
+        description.historicalFiatRate! > 0 && settingsStore.fiatApiMode != FiatApiMode.disabled) {
       final index =
           items.indexWhere((element) => element.title == S.current.transaction_details_fee);
 
@@ -165,6 +166,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   final TransactionInfo transactionInfo;
   final Box<TransactionDescription> transactionDescriptionBox;
+  final DashboardViewModel dashboardViewModel;
   final SettingsStore settingsStore;
   final WalletBase wallet;
 

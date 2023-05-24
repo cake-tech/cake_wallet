@@ -754,6 +754,7 @@ Future setup({
     return TransactionDetailsViewModel(
         transactionInfo: transactionInfo,
         transactionDescriptionBox: _transactionDescriptionBox,
+        dashboardViewModel: getIt.get<DashboardViewModel>(),
         wallet: wallet,
         settingsStore: getIt.get<SettingsStore>());
   });
