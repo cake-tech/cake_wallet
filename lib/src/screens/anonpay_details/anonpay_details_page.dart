@@ -29,19 +29,14 @@ class AnonpayDetailsPageBody extends StatefulWidget {
   final AnonpayDetailsViewModel anonpayDetailsViewModel;
 
   @override
-  State<AnonpayDetailsPageBody> createState() =>
-      _AnonpayDetailsPageBodyState(anonpayDetailsViewModel);
+  State<AnonpayDetailsPageBody> createState() => _AnonpayDetailsPageBodyState();
 }
 
 class _AnonpayDetailsPageBodyState extends State<AnonpayDetailsPageBody> {
-  _AnonpayDetailsPageBodyState(this.anonpayDetailsViewModel);
-
-  final AnonpayDetailsViewModel anonpayDetailsViewModel;
-
   @override
   void dispose() {
     super.dispose();
-    anonpayDetailsViewModel.timer?.cancel();
+    widget.anonpayDetailsViewModel.timer?.cancel();
   }
 
   @override
