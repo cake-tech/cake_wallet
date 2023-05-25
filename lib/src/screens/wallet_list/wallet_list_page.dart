@@ -156,6 +156,7 @@ class WalletListBodyState extends State<WalletListBody> {
                               child: Container(
                                 height: 40,
                                 width: 44,
+                                padding: EdgeInsets.only(right: 20),
                                 child: Center(
                                   child: Image.asset('assets/images/trash.png',
                                       height: 16,
