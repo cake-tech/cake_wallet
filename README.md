@@ -114,6 +114,8 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - Bulgarian
 - Czech
 - Indonesian
+- Hausa
+- Yoruba
 
 ## Add a new language
 
