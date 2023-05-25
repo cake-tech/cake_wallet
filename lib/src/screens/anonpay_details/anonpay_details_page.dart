@@ -20,13 +20,33 @@ class AnonpayDetailsPage extends BasePage {
   final AnonpayDetailsViewModel anonpayDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) {
+  Widget body(BuildContext context) => AnonpayDetailsPageBody(anonpayDetailsViewModel);
+}
+
+class AnonpayDetailsPageBody extends StatefulWidget {
+  AnonpayDetailsPageBody(this.anonpayDetailsViewModel);
+
+  final AnonpayDetailsViewModel anonpayDetailsViewModel;
+
+  @override
+  State<AnonpayDetailsPageBody> createState() => _AnonpayDetailsPageBodyState();
+}
+
+class _AnonpayDetailsPageBodyState extends State<AnonpayDetailsPageBody> {
+  @override
+  void dispose() {
+    super.dispose();
+    widget.anonpayDetailsViewModel.timer?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SectionStandardList(
         context: context,
         sectionCount: 1,
-        itemCounter: (int _) => anonpayDetailsViewModel.items.length,
+        itemCounter: (int _) => widget.anonpayDetailsViewModel.items.length,
         itemBuilder: (_, __, index) {
-          final item = anonpayDetailsViewModel.items[index];
+          final item = widget.anonpayDetailsViewModel.items[index];
 
           if (item is DetailsListStatusItem) {
             return StandardListStatusRow(title: item.title, value: item.value);
@@ -37,20 +57,18 @@ class AnonpayDetailsPage extends BasePage {
               id: item.id,
               create: item.createdAt,
               pair: item.pair,
-              currentTheme: anonpayDetailsViewModel.settingsStore.currentTheme.type,
+              currentTheme: widget.anonpayDetailsViewModel.settingsStore.currentTheme.type,
               onTap: item.onTap,
             );
           }
 
-            return GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: item.value));
-                showBar<void>(context, S.of(context).transaction_details_copied(item.title));
-              },
-              child: ListRow(title: '${item.title}:', value: item.value),
-            );
-          
-
+          return GestureDetector(
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: item.value));
+              showBar<void>(context, S.of(context).transaction_details_copied(item.title));
+            },
+            child: ListRow(title: '${item.title}:', value: item.value),
+          );
         });
   }
 }

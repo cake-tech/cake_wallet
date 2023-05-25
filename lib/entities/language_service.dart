@@ -27,7 +27,8 @@ class LanguageService {
     'cs': 'čeština (Czech)',
     'ur': 'اردو (Urdu)',
     'id': 'Bahasa Indonesia (Indonesian)',
-    'yo': 'Yorùbá (Yoruba)'
+    'yo': 'Yorùbá (Yoruba)',
+    'ha': 'Hausa Najeriya (Nigeria)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -54,7 +55,8 @@ class LanguageService {
     'cs': 'czk',
     'ur': 'pak',
     'id': 'idn',
-    'yo': 'yor'
+    'yo': 'yor',
+    'ha': 'hau'
   };
 
   static final list = <String, String> {};

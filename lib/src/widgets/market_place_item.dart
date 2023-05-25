@@ -26,7 +26,7 @@ class MarketPlaceItem extends StatelessWidget {
             padding: EdgeInsets.all(20),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Theme.of(context).textTheme!.headline6!.backgroundColor!,
+              color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Colors.white.withOpacity(0.20),
@@ -41,7 +41,7 @@ class MarketPlaceItem extends StatelessWidget {
                       style: TextStyle(
                         color: Theme.of(context)
                             .accentTextTheme!
-                            .headline2!
+                            .displayMedium!
                             .backgroundColor!,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
@@ -53,7 +53,7 @@ class MarketPlaceItem extends StatelessWidget {
                       style: TextStyle(
                           color:  Theme.of(context)
                             .accentTextTheme!
-                            .headline2!
+                            .displayMedium!
                             .backgroundColor!,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Lato'),

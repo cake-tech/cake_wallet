@@ -77,8 +77,8 @@ class BaseTextFormField extends StatelessWidget {
       style: textStyle ??
           TextStyle(
               fontSize: 16.0,
-              color:
-                  textColor ?? Theme.of(context).primaryTextTheme.headline6!.color!),
+              color: textColor ??
+                  Theme.of(context).primaryTextTheme!.titleLarge!.color!),
       decoration: InputDecoration(
           prefix: prefix,
           prefixIcon: prefixIcon,
@@ -92,17 +92,26 @@ class BaseTextFormField extends StatelessWidget {
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme.headline6!.backgroundColor!,
+                      Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .backgroundColor!,
                   width: borderWidth)),
           disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme.headline6!.backgroundColor!,
+                      Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .backgroundColor!,
                   width: borderWidth)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme.headline6!.backgroundColor!,
+                      Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .backgroundColor!,
                   width: borderWidth))),
       validator: validator,
     );

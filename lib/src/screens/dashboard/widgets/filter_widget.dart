@@ -23,7 +23,7 @@ class FilterWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(24)),
             child: Container(
-              color: Theme.of(context).textTheme!.bodyText1!.decorationColor!,
+              color: Theme.of(context).textTheme!.bodyLarge!.decorationColor!,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -33,8 +33,8 @@ class FilterWidget extends StatelessWidget {
                         S.of(context).filter_by,
                         style: TextStyle(
                           color: Theme.of(context)
-                              .primaryTextTheme
-                              .overline!
+                              .primaryTextTheme!
+                              .labelSmall!
                               .color!,
                           fontSize: 16,
                           fontFamily: 'Lato',
@@ -65,7 +65,7 @@ class FilterWidget extends StatelessWidget {
                                 style: TextStyle(
                                     color: Theme.of(context)
                                         .primaryTextTheme!
-                                        .headline6!
+                                        .titleLarge!
                                         .color!,
                                     fontSize: 16,
                                     fontFamily: 'Lato',

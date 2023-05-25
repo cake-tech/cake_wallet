@@ -33,7 +33,7 @@ class IoniaGiftCardDetailPage extends BasePage {
 
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).primaryTextTheme.headline6!.color!,
+      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
       size: 16,
     );
     return Padding(
@@ -59,8 +59,11 @@ class IoniaGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       viewModel.giftCard.legalName,
-      style:
-          textMediumSemiBold(color: Theme.of(context).accentTextTheme.headline1!.backgroundColor!),
+      style: textMediumSemiBold(
+          color: Theme.of(context)
+              .accentTextTheme!
+              .displayLarge!
+              .backgroundColor!),
     );
   }
 
@@ -142,8 +145,8 @@ class IoniaGiftCardDetailPage extends BasePage {
                         viewModel.refeshCard();
                     },
                     text: S.of(context).more_options,
-                    color: Theme.of(context).accentTextTheme.caption!.color!,
-                    textColor: Theme.of(context).primaryTextTheme.headline6!.color!,
+                    color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                    textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                   ),
                   SizedBox(height: 12),
                   LoadingPrimaryButton(
@@ -155,7 +158,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                       },
                     ),
                     text: S.of(context).mark_as_redeemed,
-                    color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                     textColor: Colors.white,
                   ),
                 ],
@@ -198,13 +201,13 @@ class IoniaGiftCardDetailPage extends BasePage {
                             child: Text(
                               instruction.header,
                               style: textLargeSemiBold(
-                                color: Theme.of(context).textTheme.headline3!.color!,
+                                color: Theme.of(context).textTheme!.displaySmall!.color!,
                               ),
                             )),
                         Text(
                           instruction.body,
                           style: textMedium(
-                            color: Theme.of(context).textTheme.headline3!.color!,
+                            color: Theme.of(context).textTheme!.displaySmall!.color!,
                           ),
                         )
                       ];

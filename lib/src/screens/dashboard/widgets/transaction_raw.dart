@@ -35,7 +35,7 @@ class TransactionRow extends StatelessWidget {
                 width: 36,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).textTheme!.overline!.decorationColor!
+                    color: Theme.of(context).textTheme!.labelSmall!.decorationColor!
                 ),
                 child: Image.asset(
                     direction == TransactionDirection.incoming
@@ -55,13 +55,13 @@ class TransactionRow extends StatelessWidget {
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                     color: Theme.of(context).accentTextTheme!
-                                        .headline2!.backgroundColor!)),
+                                        .displayMedium!.backgroundColor!)),
                             Text(formattedAmount,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                     color: Theme.of(context).accentTextTheme!
-                                        .headline2!.backgroundColor!))
+                                        .displayMedium!.backgroundColor!))
                           ]),
                       SizedBox(height: 5),
                       Row(
@@ -72,14 +72,14 @@ class TransactionRow extends StatelessWidget {
                                     fontSize: 14,
                                     color: Theme.of(context)
                                         .textTheme!
-                                        .overline!
+                                        .labelSmall!
                                         .backgroundColor!)),
                             Text(formattedFiatAmount,
                                 style: TextStyle(
                                     fontSize: 14,
                                     color: Theme.of(context)
                                         .textTheme!
-                                        .overline!
+                                        .labelSmall!
                                         .backgroundColor!))
                           ])
                     ],

@@ -25,13 +25,13 @@ class FAQItemState extends State<FAQItem> {
 
   @override
   Widget build(BuildContext context) {
-    final addIcon =
-        Icon(Icons.add, color: Theme.of(context).primaryTextTheme!.headline6!.color!);
+    final addIcon = Icon(Icons.add,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
     final removeIcon = Icon(Icons.remove, color: Palette.blueCraiola);
     final icon = isActive ? removeIcon : addIcon;
     final color = isActive
         ? Palette.blueCraiola
-        : Theme.of(context).primaryTextTheme!.headline6!.color!;
+        : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
 
     return ListTileTheme(
       contentPadding: EdgeInsets.fromLTRB(0, 6, 24, 6),
@@ -53,7 +53,8 @@ class FAQItemState extends State<FAQItem> {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                    color:
+                        Theme.of(context).primaryTextTheme!.titleLarge!.color!),
               ),
             ))
           ])
