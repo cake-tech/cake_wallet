@@ -46,9 +46,7 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore})
   : isOutdatedElectrumWallet = false,
     hasSellAction = false,
-    isEnabledSellAction = false,
     hasBuyAction = false,
-    isEnabledBuyAction = false,
     hasExchangeAction = false,
     isShowFirstYatIntroduction = false,
     isShowSecondYatIntroduction = false,
@@ -287,14 +285,19 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool hasExchangeAction;
 
-  @observable
-  bool isEnabledBuyAction;
+  @computed
+  bool get isEnabledBuyAction =>
+      !settingsStore.disableBuy && wallet.type != WalletType.haven;
 
   @observable
   bool hasBuyAction;
 
-  @observable
-  bool isEnabledSellAction;
+  @computed
+  bool get isEnabledSellAction =>
+      !settingsStore.disableSell &&
+      wallet.type != WalletType.haven &&
+      wallet.type != WalletType.monero &&
+      wallet.type != WalletType.litecoin;
 
   @observable
   bool hasSellAction;
@@ -398,11 +401,7 @@ abstract class DashboardViewModelBase with Store {
 
   void updateActions() {
     hasExchangeAction = !isHaven;
-    isEnabledBuyAction = wallet.type != WalletType.haven;
     hasBuyAction = !isHaven;
-    isEnabledSellAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero
-      && wallet.type != WalletType.litecoin;
     hasSellAction = !isHaven;
   }
 }

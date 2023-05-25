@@ -22,7 +22,10 @@ class FullscreenQRPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .displayMedium!
+          .backgroundColor!,
       size: 16,
     );
 
@@ -48,7 +51,7 @@ class FullscreenQRPage extends BasePage {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ],
@@ -70,7 +73,12 @@ class FullscreenQRPage extends BasePage {
             child: Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  border: Border.all(width: 3, color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
+                  border: Border.all(
+                      width: 3,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .displayMedium!
+                          .backgroundColor!)),
               child: Container(
                   decoration: BoxDecoration(
                       border: Border.all(width: 3, color: Colors.white)),

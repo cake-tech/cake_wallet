@@ -22,12 +22,12 @@ class TextIconButton extends StatelessWidget {
             Text(
               label,
               style: textMediumSemiBold(
-                color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
               ),
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+              color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
             ),
           ],
         ),

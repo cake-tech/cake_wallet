@@ -31,7 +31,10 @@ class AlertWithOneAction extends BaseAlertDialog {
       width: 300,
       height: 52,
       padding: EdgeInsets.only(left: 12, right: 12),
-      color: Theme.of(context).accentTextTheme!.bodyText2!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .bodyMedium!
+          .backgroundColor!,
       child: ButtonTheme(
         minWidth: double.infinity,
         child: TextButton(
@@ -45,7 +48,9 @@ class AlertWithOneAction extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).primaryTextTheme!.bodyText2!
+                color: Theme.of(context)
+                    .primaryTextTheme!
+                    .bodyMedium!
                     .backgroundColor!,
                 decoration: TextDecoration.none,
               ),

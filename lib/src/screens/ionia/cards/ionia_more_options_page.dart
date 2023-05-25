@@ -15,7 +15,10 @@ class IoniaMoreOptionsPage extends BasePage {
     return Text(
       S.current.more_options,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -34,7 +37,7 @@ class IoniaMoreOptionsPage extends BasePage {
             child: Text(
               S.of(context).choose_from_available_options,
               style: textMedium(
-                color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
               ),
             ),
           ),
@@ -78,7 +81,7 @@ class _GradiantContainer extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

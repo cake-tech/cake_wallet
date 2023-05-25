@@ -20,7 +20,7 @@ class IoniaFilterModal extends StatelessWidget {
       padding: EdgeInsets.all(10),
       child: Image.asset(
         'assets/images/mini_search_icon.png',
-        color: Theme.of(context).textTheme.subtitle2!.color!,
+        color: Theme.of(context).textTheme!.titleSmall!.color!,
       ),
     );
     return Scaffold(
@@ -34,7 +34,7 @@ class IoniaFilterModal extends StatelessWidget {
               padding: EdgeInsets.only(top: 24, bottom: 20),
               margin: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).backgroundColor,
+                color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Column(
@@ -46,14 +46,14 @@ class IoniaFilterModal extends StatelessWidget {
                       child: TextField(
                         onChanged: ioniaGiftCardsListViewModel.onSearchFilter,
                         style: textMedium(
-                          color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                         ),
                         decoration: InputDecoration(
                           filled: true,
                           prefixIcon: searchIcon,
                           hintText: S.of(context).search_category,
                           contentPadding: EdgeInsets.only(bottom: 5),
-                          fillColor: Theme.of(context).primaryTextTheme!.caption!.decorationColor!.withOpacity(0.5),
+                          fillColor: Theme.of(context).primaryTextTheme!.bodySmall!.decorationColor!.withOpacity(0.5),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(8),
@@ -84,12 +84,12 @@ class IoniaFilterModal extends StatelessWidget {
                                   children: [
                                     Image.asset(
                                       category.iconPath,
-                                      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                     ),
                                     SizedBox(width: 10),
                                     Text(category.title,
                                         style: textSmall(
-                                          color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                         ).copyWith(fontWeight: FontWeight.w500)),
                                   ],
                                 ),

@@ -198,11 +198,11 @@ class SendPage extends BasePage {
                                       dotHeight: 6.0,
                                       dotColor: Theme.of(context)
                                           .primaryTextTheme
-                                          .headline3!
+                                          !.displaySmall!
                                           .backgroundColor!,
                                       activeDotColor: Theme.of(context)
                                           .primaryTextTheme
-                                          .headline2!
+                                          !.displayMedium!
                                           .backgroundColor!),
                                 )
                               : Offstage();
@@ -321,7 +321,7 @@ class SendPage extends BasePage {
                             color: Colors.transparent,
                             textColor: Theme.of(context)
                                 .accentTextTheme
-                                .headline3!
+                                !.displaySmall!
                                 .decorationColor!,
                           ))),
                 if (sendViewModel.hasMultiRecipient)
@@ -339,12 +339,12 @@ class SendPage extends BasePage {
                         color: Colors.transparent,
                         textColor: Theme.of(context)
                             .accentTextTheme
-                            .headline3!
+                            !.displaySmall!
                             .decorationColor!,
                         isDottedBorder: true,
                         borderColor: Theme.of(context)
                             .primaryTextTheme
-                            .headline3!
+                            !.displaySmall!
                             .decorationColor!,
                       )),
                 Observer(
@@ -375,7 +375,7 @@ class SendPage extends BasePage {
                       },
                       text: S.of(context).send,
                       color:
-                          Theme.of(context).accentTextTheme.bodyText1!.color!,
+                          Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                       textColor: Colors.white,
                       isLoading: sendViewModel.state is IsExecutingState ||
                           sendViewModel.state is TransactionCommitting,
