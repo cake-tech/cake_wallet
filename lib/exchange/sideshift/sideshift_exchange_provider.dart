@@ -39,20 +39,17 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   ];
 
   static List<ExchangePair> _supportedPairs() {
-    final supportedCurrencies = CryptoCurrency.all
-        .where((element) => !_notSupported.contains(element))
-        .toList();
+    final supportedCurrencies =
+        CryptoCurrency.all.where((element) => !_notSupported.contains(element)).toList();
 
     return supportedCurrencies
-        .map((i) => supportedCurrencies
-            .map((k) => ExchangePair(from: i, to: k, reverse: true)))
+        .map((i) => supportedCurrencies.map((k) => ExchangePair(from: i, to: k, reverse: true)))
         .expand((i) => i)
         .toList();
   }
 
   @override
-  ExchangeProviderDescription get description =>
-      ExchangeProviderDescription.sideShift;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.sideShift;
 
   @override
   Future<double> fetchRate(
@@ -67,8 +64,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       }
       final fromCurrency = _normalizeCryptoCurrency(from);
       final toCurrency = _normalizeCryptoCurrency(to);
-      final url =
-          apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
+      final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
       final uri = Uri.parse(url);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -107,14 +103,14 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade(
-      {required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
+    final type = isFixedRateMode ? 'fixed' : 'variable';
     final quoteId = await _createQuote(_request);
     final url = apiBaseUrl + orderPath;
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'type': 'fixed',
+      'type': type,
       'quoteId': quoteId,
       'affiliateId': affiliateId,
       'settleAddress': _request.settleAddress,
@@ -227,8 +223,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
-      throw TradeNotFoundException(id,
-          provider: description, description: error);
+      throw TradeNotFoundException(id, provider: description, description: error);
     }
 
     if (response.statusCode != 200) {
@@ -264,7 +259,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       amount: expectedSendAmount,
       state: state,
       expiredAt: expiredAt,
-      payoutAddress: settleAddress
+      payoutAddress: settleAddress,
     );
   }
 
