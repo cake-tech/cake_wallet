@@ -12,7 +12,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:mobx/mobx.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
@@ -33,13 +32,11 @@ class TransactionListItem extends ActionListItem with Keyable {
   @override
   dynamic get keyIndex => transaction.id;
 
-  @computed
   String get formattedCryptoAmount {
     return displayMode == BalanceDisplayMode.hiddenBalance
         ? '---'
         : transaction.amountFormatted();
   }
-
   String get formattedTitle {
     if (transaction.direction == TransactionDirection.incoming) {
       return S.current.received;
@@ -59,37 +56,33 @@ class TransactionListItem extends ActionListItem with Keyable {
     if (transaction.direction == TransactionDirection.incoming) {
       if (balanceViewModel.wallet.type == WalletType.monero ||
           balanceViewModel.wallet.type == WalletType.haven) {
-        return formattedPendingStatus;
+          return formattedPendingStatus;
+        }
       }
-    }
     return transaction.isPending ? S.current.pending : '';
-  }
+    }
 
-  @computed
   String get formattedFiatAmount {
     var amount = '';
 
-    switch (balanceViewModel.wallet.type) {
+    switch(balanceViewModel.wallet.type) {
       case WalletType.monero:
         amount = calculateFiatAmountRaw(
-            cryptoAmount: monero!
-                .formatterMoneroAmountToDouble(amount: transaction.amount),
-            price: price);
+          cryptoAmount: monero!.formatterMoneroAmountToDouble(amount: transaction.amount),
+          price: price);
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
         amount = calculateFiatAmountRaw(
-            cryptoAmount: bitcoin!
-                .formatterBitcoinAmountToDouble(amount: transaction.amount),
-            price: price);
+          cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
+          price: price);
         break;
       case WalletType.haven:
         final asset = haven!.assetOfTransaction(transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-            cryptoAmount: haven!
-                .formatterMoneroAmountToDouble(amount: transaction.amount),
-            price: price);
+          cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
+          price: price);
         break;
       default:
         break;
