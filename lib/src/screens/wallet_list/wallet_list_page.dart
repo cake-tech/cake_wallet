@@ -149,31 +149,25 @@ class WalletListBodyState extends State<WalletListBody> {
 
                     return wallet.isCurrent
                         ? row
-                        : InkWell(
-                            key: Key('${wallet.key}'),
-                            // startActionPane: _actionPane(wallet),
-                            // endActionPane: _actionPane(wallet),
-                            child: Row(children: [
-                              Expanded(child: row),
-                              GestureDetector(
-                                onTap: () => _removeWallet(wallet),
-                                child: Container(
-                                  height: 40,
-                                  width: 44,
-                                  child: Center(
-                                    child: Image.asset(
-                                        'assets/images/trash.png',
-                                        height: 16,
-                                        width: 16,
-                                        color: Theme.of(context)
-                                            .primaryTextTheme
-                                            .headline6!
-                                            .color),
-                                  ),
+                        : Row(children: [
+                            Expanded(child: row),
+                            GestureDetector(
+                              onTap: () => _removeWallet(wallet),
+                              child: Container(
+                                height: 40,
+                                width: 44,
+                                child: Center(
+                                  child: Image.asset('assets/images/trash.png',
+                                      height: 16,
+                                      width: 16,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .titleLarge!
+                                          .color),
                                 ),
-                              )
-                            ]),
-                          );
+                              ),
+                            )
+                          ]);
                   }),
             ),
           ),
@@ -296,18 +290,4 @@ class WalletListBodyState extends State<WalletListBody> {
       _progressBar = null;
     });
   }
-
-  ActionPane _actionPane(WalletListItem wallet) => ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.3,
-        children: [
-          SlidableAction(
-            onPressed: (_) => _removeWallet(wallet),
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
-          ),
-        ],
-      );
 }
