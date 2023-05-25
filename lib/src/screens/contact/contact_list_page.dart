@@ -29,12 +29,15 @@ class ContactListPage extends BasePage {
         height: 32.0,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context).accentTextTheme.caption!.color!),
+            color: Theme.of(context)
+                .accentTextTheme!
+                .bodySmall!
+                .color!),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
             Icon(Icons.add,
-                color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 size: 22.0),
             ButtonTheme(
               minWidth: 32.0,
@@ -64,9 +67,9 @@ class ContactListPage extends BasePage {
           return CollapsibleSectionList(
               context: context,
               sectionCount: 2,
-              themeColor: Theme.of(context).primaryTextTheme.headline6!.color!,
+              themeColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
               dividerThemeColor:
-              Theme.of(context).primaryTextTheme.caption!.decorationColor!,
+              Theme.of(context).primaryTextTheme!.bodySmall!.decorationColor!,
               sectionTitleBuilder: (_, int sectionIndex) {
                 var title = S.current.contact_list_contacts;
 
@@ -140,7 +143,7 @@ class ContactListPage extends BasePage {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).primaryTextTheme.headline6!.color!),
+                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
                 ),
               )
             )

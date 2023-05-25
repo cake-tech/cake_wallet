@@ -110,11 +110,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   Widget body(BuildContext context) {
     final deleteIconImage = Image.asset(
       'assets/images/delete_icon.png',
-      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
     );
     final faceImage = Image.asset(
       'assets/images/face.png',
-      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
     );
 
     return RawKeyboardListener(
@@ -133,7 +133,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
         }
       },
       child: Container(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
         child: Column(
           children: <Widget>[
@@ -142,7 +142,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).primaryTextTheme!.headline6!.color!)),
+                    color:
+                        Theme.of(context).primaryTextTheme!.titleLarge!.color!)),
             Spacer(flex: 3),
             Container(
               width: 180,
@@ -158,10 +159,13 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isFilled
-                            ? Theme.of(context).primaryTextTheme!.headline6!.color!
+                            ? Theme.of(context)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!
                             : Theme.of(context)
                                 .accentTextTheme!
-                                .bodyText2!
+                                .bodyMedium!
                                 .color!
                                 .withOpacity(0.25),
                       ));
@@ -181,7 +185,10 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                   style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).accentTextTheme!.bodyText2!.decorationColor!),
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .bodyMedium!
+                          .decorationColor!),
                 ),
               )
             ],
@@ -225,7 +232,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         child: TextButton(
                                           onPressed: () => _pop(),
                                           style: TextButton.styleFrom(
-                                            backgroundColor: Theme.of(context).backgroundColor,
+                                            backgroundColor: Theme.of(context).colorScheme.background,
                                             shape: CircleBorder(),
                                           ),
                                           child: deleteIconImage,
@@ -242,7 +249,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   child: TextButton(
                                     onPressed: () => _push(index),
                                     style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).backgroundColor,
+                                      backgroundColor: Theme.of(context).colorScheme.background,
                                       shape: CircleBorder(),
                                     ),
                                     child: Text('$index',
@@ -251,7 +258,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                             fontWeight: FontWeight.w600,
                                             color: Theme.of(context)
                                                 .primaryTextTheme!
-                                                .headline6!
+                                                .titleLarge!
                                                 .color!)),
                                   ),
                                 );

@@ -45,7 +45,11 @@ class ActionButton extends StatelessWidget {
               title,
               style: TextStyle(
                   fontSize: 10,
-                  color: textColor ?? Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
+                  color: textColor ??
+                      Theme.of(context)
+                          .accentTextTheme!
+                          .displayMedium!
+                          .backgroundColor!),
             )
           ],
         ),

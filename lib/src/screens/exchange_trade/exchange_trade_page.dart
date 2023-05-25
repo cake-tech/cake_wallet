@@ -51,7 +51,7 @@ class ExchangeTradePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme!.headline6!.color!);
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
 
     return SizedBox(
       height: 20.0,
@@ -111,7 +111,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme!.overline!.color!);
+        color: Theme.of(context).primaryTextTheme!.labelSmall!.color!);
 
     _setEffects();
 
@@ -135,14 +135,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context)
                                       .primaryTextTheme!
-                                      .overline!
+                                      .labelSmall!
                                       .color!),
                             ),
                             if (trade.expiredAt != null)
                               TimerWidget(trade.expiredAt!,
                                   color: Theme.of(context)
                                       .primaryTextTheme!
-                                      .headline6!
+                                      .titleLarge!
                                       .color!)
                           ])
                     : Offstage(),
@@ -162,7 +162,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                           width: 3,
                                           color: Theme.of(context)
                                               .accentTextTheme!
-                                              .subtitle2!
+                                              .titleSmall!
                                               .color!
                                       )
                                   ),
@@ -181,7 +181,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       height: 1,
                       color: Theme.of(context)
                           .accentTextTheme!
-                          .subtitle2!
+                          .titleSmall!
                           .backgroundColor!,
                     ),
                     itemBuilder: (context, index) {
@@ -228,7 +228,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
                     text: S.of(context).confirm,
-                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .bodyLarge!
+                        .color!,
                     textColor: Colors.white)
                 : Offstage();
           })),
@@ -340,7 +343,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           fontWeight: FontWeight.bold,
                           color: Theme.of(popupContext)
                               .primaryTextTheme!
-                              .headline6!
+                              .titleLarge!
                               .color,
                           decoration: TextDecoration.none,
                         ),
@@ -359,7 +362,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           text: S.of(popupContext).send_got_it,
                           color: Theme.of(popupContext)
                               .accentTextTheme!
-                              .bodyText1!
+                              .bodyLarge!
                               .color!,
                           textColor: Colors.white))
                 ],
@@ -392,7 +395,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(popupContext).primaryTextTheme!.headline6!.color!,
+                            color: Theme.of(popupContext)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!,
                             decoration: TextDecoration.none,
                           ),
                         ),
