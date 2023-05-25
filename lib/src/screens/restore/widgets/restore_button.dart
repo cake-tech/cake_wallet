@@ -23,8 +23,11 @@ class RestoreButton extends StatelessWidget {
         padding: EdgeInsets.all(24),
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            color: Theme.of(context).accentTextTheme!.caption!.color!,
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          color: Theme.of(context)
+              .accentTextTheme!
+              .bodySmall!
+              .color!,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -45,8 +48,10 @@ class RestoreButton extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).primaryTextTheme!.headline6!.color!
-                      ),
+                          color: Theme.of(context)
+                              .primaryTextTheme!
+                              .titleLarge!
+                              .color!),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 5),
@@ -55,8 +60,10 @@ class RestoreButton extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: Theme.of(context).primaryTextTheme!.overline!.color!
-                        ),
+                            color: Theme.of(context)
+                                .primaryTextTheme!
+                                .labelSmall!
+                                .color!),
                       ),
                     )
                   ],

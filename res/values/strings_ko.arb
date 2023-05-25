@@ -557,7 +557,7 @@
   "purchase_gift_card": "기프트 카드 구매",
   "verification": "검증",
   "fill_code": "이메일에 제공된 인증 코드를 입력하세요.",
-  "dont_get_code": "코드를 받지 못하셨습니까?",
+  "didnt_get_code": "코드를 받지 못하셨습니까?",
   "resend_code": "다시 보내주세요",
   "debit_card": "직불 카드",
   "cakepay_prepaid_card": "CakePay 선불 직불 카드",

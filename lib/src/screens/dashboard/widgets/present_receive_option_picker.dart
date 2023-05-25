@@ -18,7 +18,10 @@ class PresentReceiveOptionPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textIconTheme = hasWhiteBackground
-        ? Theme.of(context).accentTextTheme.headline2!.backgroundColor!
+        ? Theme.of(context)
+            .accentTextTheme!
+            .displayMedium!
+            .backgroundColor!
         : Colors.white;
     final arrowBottom = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
@@ -83,7 +86,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                 margin: EdgeInsets.symmetric(horizontal: 24),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).backgroundColor,
+                  color: Theme.of(context).colorScheme.background,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 24, bottom: 24),
@@ -110,7 +113,10 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                                 Text(option.toString(),
                                     textAlign: TextAlign.left,
                                     style: textSmall(
-                                      color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme!
+                                          .titleLarge!
+                                          .color!,
                                     ).copyWith(
                                       fontWeight:
                                           value == option ? FontWeight.w800 : FontWeight.w500,

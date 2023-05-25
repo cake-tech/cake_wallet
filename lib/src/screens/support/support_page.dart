@@ -19,7 +19,10 @@ class SupportPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final iconColor = Theme.of(context).accentTextTheme!.headline1!.backgroundColor!;
+    final iconColor = Theme.of(context)
+        .accentTextTheme!
+        .displayLarge!
+        .backgroundColor!;
     // FIX-ME: Added `context` it was not used here before, maby bug ?
     return Center(
       child: ConstrainedBox(

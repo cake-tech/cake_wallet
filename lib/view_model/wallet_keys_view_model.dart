@@ -1,4 +1,6 @@
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -19,12 +21,26 @@ abstract class WalletKeysViewModelBase with Store {
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
+        _restoreHeightByTransactions = 0,
         items = ObservableList<StandartListItem>() {
     _populateItems();
 
     reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
       _populateItems();
     });
+
+    if (_appStore.wallet!.type == WalletType.monero || _appStore.wallet!.type == WalletType.haven) {
+      final accountTransactions = _getWalletTransactions(_appStore.wallet!);
+      if (accountTransactions.isNotEmpty) {
+        final incomingAccountTransactions =
+            accountTransactions.where((tx) => tx.direction == TransactionDirection.incoming);
+        if (incomingAccountTransactions.isNotEmpty) {
+          incomingAccountTransactions.toList().sort((a, b) => a.date.compareTo(b.date));
+          _restoreHeightByTransactions = _getRestoreHeightByTransactions(
+              _appStore.wallet!.type, incomingAccountTransactions.first.date);
+        }
+      }
+    }
   }
 
   final ObservableList<StandartListItem> items;
@@ -34,6 +50,8 @@ abstract class WalletKeysViewModelBase with Store {
   final AppStore _appStore;
 
   final int _restoreHeight;
+
+  int _restoreHeightByTransactions;
 
   void _populateItems() {
     items.clear();
@@ -78,7 +96,7 @@ abstract class WalletKeysViewModelBase with Store {
     }
   }
 
-  Future<int?> currentHeight() async {
+  Future<int?> _currentHeight() async {
     if (_appStore.wallet!.type == WalletType.haven) {
       return await haven!.getCurrentHeight();
     }
@@ -87,7 +105,6 @@ abstract class WalletKeysViewModelBase with Store {
     }
     return null;
   }
-
 
   String get _scheme {
     switch (_appStore.wallet!.type) {
@@ -105,14 +122,14 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   Future<String?> get restoreHeight async {
-    if (_restoreHeight != 0) {
-      return _restoreHeight.toString();
-    }
-    final _currentHeight = await currentHeight();
-    if (_currentHeight == null) {
-      return null;
-    }
-    return ((_currentHeight / 1000).floor() * 1000).toString();
+    if (_restoreHeightByTransactions != 0)
+      return getRoundedRestoreHeight(_restoreHeightByTransactions);
+    if (_restoreHeight != 0) return _restoreHeight.toString();
+
+    final currentHeight = await _currentHeight();
+    if (currentHeight == null) return null;
+
+    return getRoundedRestoreHeight(currentHeight);
   }
 
   Future<Map<String, String>> get _queryParams async {
@@ -123,10 +140,28 @@ abstract class WalletKeysViewModelBase with Store {
     };
   }
 
-  Future<Uri> get url async {
-    return Uri(
-      scheme: _scheme,
-      queryParameters: await _queryParams,
-    );
+  Future<Uri> get url async => Uri(
+        scheme: _scheme,
+        queryParameters: await _queryParams,
+      );
+
+  List<TransactionInfo> _getWalletTransactions(WalletBase wallet) {
+    if (wallet.type == WalletType.monero) {
+      return monero!.getTransactionHistory(wallet).transactions.values.toList();
+    } else if (wallet.type == WalletType.haven) {
+      return haven!.getTransactionHistory(wallet).transactions.values.toList();
+    }
+    return [];
   }
+
+  int _getRestoreHeightByTransactions(WalletType type, DateTime date) {
+    if (type == WalletType.monero) {
+      return monero!.getHeigthByDate(date: date);
+    } else if (type == WalletType.haven) {
+      return haven!.getHeightByDate(date: date);
+    }
+    return 0;
+  }
+
+  String getRoundedRestoreHeight(int height) => ((height / 1000).floor() * 1000).toString();
 }

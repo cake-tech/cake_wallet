@@ -544,7 +544,7 @@
   "purchase_gift_card": "Beli Kartu Hadiah",
   "verification": "Verifikasi",
   "fill_code": "Silakan isi kode verifikasi yang diterima di email Anda",
-  "dont_get_code": "Tidak mendapatkan kode?",
+  "didnt_get_code": "Tidak mendapatkan kode?",
   "resend_code": "Silakan kirim ulang",
   "debit_card": "Kartu Debit",
   "cakepay_prepaid_card": "Kartu Debit Prabayar CakePay",

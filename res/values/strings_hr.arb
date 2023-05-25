@@ -557,7 +557,7 @@
   "purchase_gift_card": "Kupnja darovne kartice",
   "verification": "Potvrda",
   "fill_code": "Molimo vas da ispunite kontrolni kod koji ste dobili na svojoj e-pošti",
-  "dont_get_code": "Ne dobivate kod?",
+  "didnt_get_code": "Ne dobivate kod?",
   "resend_code": "Molimo da ga ponovno pošaljete",
   "debit_card": "Debitna kartica",
   "cakepay_prepaid_card": "CakePay unaprijed plaćena debitna kartica",

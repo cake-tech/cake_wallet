@@ -122,6 +122,8 @@ int getMoneroHeigthByDate({required DateTime date}) {
 }
 
 const havenDates = {
+  "2023-05": 1352995,
+  "2023-04": 1331460,
   "2023-03": 1309180,
   "2023-01": 1266810,
   "2022-12": 1244510,
