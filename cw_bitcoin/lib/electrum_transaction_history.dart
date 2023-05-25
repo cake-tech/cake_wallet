@@ -98,4 +98,7 @@ abstract class ElectrumTransactionHistoryBase
       originalTx?.direction = transaction.direction;
     }
   }
+
+  @override
+  void clear() => this.transactions.clear();
 }
