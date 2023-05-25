@@ -141,7 +141,7 @@ class AuthPageState extends State<AuthPage> {
                       ),
                     ))
                 : Container(),
-            backgroundColor: Theme.of(context).backgroundColor,
+            backgroundColor: Theme.of(context).colorScheme.background,
             border: null),
         resizeToAvoidBottomInset: false,
         body: PinCode((pin, _) => widget.authViewModel.auth(password: pin),

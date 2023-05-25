@@ -59,7 +59,7 @@ class PreSeedPage extends BasePage {
                             fontWeight: FontWeight.normal,
                             color: Theme.of(context)
                                 .primaryTextTheme!
-                                .caption!
+                                .bodySmall!
                                 .color!),
                       ),
                     ),
@@ -68,8 +68,11 @@ class PreSeedPage extends BasePage {
                             .popAndPushNamed(Routes.seed, arguments: true),
                         text: S.of(context).pre_seed_button_text,
                         color: Theme.of(context)
-                            .accentTextTheme!
-                            .bodyText1!
+                            
+                                .accentTextTheme!
+                            
+                                .bodyLarge!
+                                
                             .color!,
                         textColor: Colors.white)
                   ],

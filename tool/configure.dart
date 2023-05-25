@@ -158,9 +158,10 @@ import 'package:cw_monero/pending_monero_transaction.dart';
   const moneroCwPart = "part 'cw_monero.dart';";
   const moneroContent = """
 class Account {
-  Account({required this.id, required this.label});
+  Account({required this.id, required this.label, this.balance});
   final int id;
   final String label;
+  final String? balance;
 }
 
 class Subaddress {
@@ -246,7 +247,7 @@ abstract class Monero {
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
-  void setCurrentAccount(Object wallet, int id, String label);
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource);

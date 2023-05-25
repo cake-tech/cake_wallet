@@ -22,7 +22,7 @@ class MarketPlacePage extends StatelessWidget {
       child: RawScrollbar(
         thumbColor: Colors.white.withOpacity(0.15),
         radius: Radius.circular(20),
-        isAlwaysShown: true,
+        thumbVisibility: true,
         thickness: 2,
         controller: _scrollController,
         child: Padding(
@@ -36,7 +36,10 @@ class MarketPlacePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .displayMedium!
+                      .backgroundColor!,
                 ),
               ),
               Expanded(

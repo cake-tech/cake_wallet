@@ -49,7 +49,10 @@ class PresentProviderPicker extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 10.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).textTheme.headline5!.color!)))
+                                color: Theme.of(context)
+                                    .textTheme!
+                                    .headlineSmall!
+                                    .color!)))
               ],
             ),
             SizedBox(width: 5),

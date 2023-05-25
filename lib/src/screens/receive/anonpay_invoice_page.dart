@@ -73,7 +73,10 @@ class AnonPayInvoicePage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
+          keyboardBarColor: Theme.of(context)
+              .accentTextTheme!
+              .bodyLarge!
+              .backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -82,7 +85,7 @@ class AnonPayInvoicePage extends BasePage {
             ),
           ]),
       child: Container(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
@@ -91,8 +94,8 @@ class AnonPayInvoicePage extends BasePage {
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).primaryTextTheme.subtitle2!.color!,
-                  Theme.of(context).primaryTextTheme.subtitle2!.decorationColor!,
+                  Theme.of(context).primaryTextTheme!.titleSmall!.color!,
+                  Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -130,7 +133,10 @@ class AnonPayInvoicePage extends BasePage {
                           : S.of(context).anonpay_description("a donation link", "donate"),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.headline1!.decorationColor!,
+                          color: Theme.of(context)
+                              .primaryTextTheme!
+                              .displayLarge!
+                              .decorationColor!,
                           fontWeight: FontWeight.w500,
                           fontSize: 12),
                     ),
@@ -157,7 +163,10 @@ class AnonPayInvoicePage extends BasePage {
                       anonInvoicePageViewModel.generateDonationLink();
                     }
                   },
-                  color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                   isLoading: anonInvoicePageViewModel.state is IsExecutingState,
                 ),

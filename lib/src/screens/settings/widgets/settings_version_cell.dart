@@ -18,8 +18,7 @@ class SettingsVersionCell extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
-                color: Theme.of(context).primaryTextTheme!.overline!.color!
-            ),
+                color: Theme.of(context).primaryTextTheme!.labelSmall!.color!),
           )
         ],
       ),

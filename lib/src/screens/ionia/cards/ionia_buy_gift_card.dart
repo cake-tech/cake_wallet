@@ -50,7 +50,10 @@ class IoniaBuyGiftCardPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+          keyboardBarColor: Theme.of(context)
+              .accentTextTheme!
+              .bodyLarge!
+              .backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -59,7 +62,7 @@ class IoniaBuyGiftCardPage extends BasePage {
             ),
           ]),
       child: Container(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.zero,
           content: Column(
@@ -72,8 +75,11 @@ class IoniaBuyGiftCardPage extends BasePage {
                     bottomRight: Radius.circular(24),
                   ),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme!.subtitle1!.color!,
-                    Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
+                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+                    Theme.of(context)
+                        .primaryTextTheme!
+                        .titleMedium!
+                        .decorationColor!,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -95,7 +101,10 @@ class IoniaBuyGiftCardPage extends BasePage {
                         ],
                         hintText: '1000',
                         placeholderTextStyle: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                          color: Theme.of(context)
+                              .primaryTextTheme!
+                              .headlineSmall!
+                              .color!,
                           fontWeight: FontWeight.w600,
                           fontSize: 36,
                         ),
@@ -115,7 +124,10 @@ class IoniaBuyGiftCardPage extends BasePage {
                       ),
                     ),
                     Divider(
-                      color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                      color: Theme.of(context)
+                          .primaryTextTheme!
+                          .headlineSmall!
+                          .color!,
                       height: 1,
                     ),
                     SizedBox(height: 8),
@@ -126,13 +138,19 @@ class IoniaBuyGiftCardPage extends BasePage {
                         Text(
                           S.of(context).min_amount(merchant.minimumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme!.headline5!.color!,
+                            color: Theme.of(context)
+                                .primaryTextTheme!
+                                .headlineSmall!
+                                .color!,
                           ),
                         ),
                         Text(
                           S.of(context).max_amount(merchant.maximumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme!.headline5!.color!,
+                            color: Theme.of(context)
+                                .primaryTextTheme!
+                                .headlineSmall!
+                                .color!,
                           ),
                         ),
                       ],
@@ -147,11 +165,14 @@ class IoniaBuyGiftCardPage extends BasePage {
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context)
                       .accentTextTheme!
-                      .headline1!
+                      .displayLarge!
                       .backgroundColor!
                       .withOpacity(0.1),
                   discount: merchant.discount,
-                  titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+                  titleColor: Theme.of(context)
+                      .accentTextTheme!
+                      .displayLarge!
+                      .backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.avaibilityStatus,
                   logoUrl: merchant.logoUrl,
@@ -174,7 +195,10 @@ class IoniaBuyGiftCardPage extends BasePage {
                     ),
                     text: S.of(context).continue_text,
                     isDisabled: !ioniaBuyCardViewModel.isEnablePurchase,
-                    color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .bodyLarge!
+                        .color!,
                     textColor: Colors.white,
                   ),
                 );

@@ -65,7 +65,7 @@ class MoneroAccountListPage extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(14)),
                           child: Container(
                             height: 296,
-                            color: Theme.of(context).textTheme!.headline1!.decorationColor!,
+                            color: Theme.of(context).textTheme!.displayLarge!.decorationColor!,
                             child: Column(
                               children: <Widget>[
                                 Expanded(
@@ -88,13 +88,16 @@ class MoneroAccountListPage extends StatelessWidget {
                                                 itemBuilder: (context, index) {
                                                   final account = accounts[index];
 
-                                                  return AccountTile(
-                                                      isCurrent: account.isSelected,
-                                                      accountName: account.label,
-                                                      onTap: () {
-                                                        if (account.isSelected) {
-                                                          return;
-                                                        }
+                                            return AccountTile(
+                                                isCurrent: account.isSelected,
+                                                accountName: account.label,
+                                                accountBalance: account.balance ?? '0.00',
+                                                currency: accountListViewModel
+                                                    .currency.toString(),
+                                                onTap: () {
+                                                  if (account.isSelected) {
+                                                    return;
+                                                  }
 
                                                         accountListViewModel
                                                             .select(account);

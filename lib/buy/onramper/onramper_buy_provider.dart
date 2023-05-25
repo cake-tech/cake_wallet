@@ -1,6 +1,7 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 
 class OnRamperBuyProvider {
@@ -13,7 +14,16 @@ class OnRamperBuyProvider {
 
   static const _baseUrl = 'buy.onramper.com';
 
-  static String get _apiKey => secrets.onramperApiKey;
+  String get _apiKey => secrets.onramperApiKey;
+
+  String get _normalizeCryptoCurrency {
+    switch (_wallet.currency) {
+      case CryptoCurrency.ltc:
+        return "LTC_LITECOIN";
+      default:
+        return _wallet.currency.title;
+    }
+  }
 
   Uri requestUrl() {
     String primaryColor,
@@ -53,7 +63,7 @@ class OnRamperBuyProvider {
 
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
-      'defaultCrypto': _wallet.currency.title,
+      'defaultCrypto': _normalizeCryptoCurrency,
       'defaultFiat': _settingsStore.fiatCurrency.title,
       'wallets': '${_wallet.currency.title}:${_wallet.walletAddresses.address}',
       'supportSell': "false",
