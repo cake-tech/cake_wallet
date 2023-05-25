@@ -32,7 +32,8 @@ class AnonpayCurrencyInputField extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
-                      color: Theme.of(context).primaryTextTheme.bodyText1!.color!,
+                      color:
+                          Theme.of(context).primaryTextTheme!.bodyLarge!.color!,
                       width: 1)),
             ),
             child: Padding(
@@ -64,7 +65,10 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                           child: Container(
                             height: 32,
                             decoration: BoxDecoration(
-                                color: Theme.of(context).primaryTextTheme.headline4!.color!,
+                                color: Theme.of(context)
+                                    .primaryTextTheme!
+                                    .headlineMedium!
+                                    .color!,
                                 borderRadius: BorderRadius.all(Radius.circular(6))),
                             child: Center(
                               child: Padding(
@@ -75,8 +79,8 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headline4!
+                                        .primaryTextTheme!
+                                        .headlineMedium!
                                         .decorationColor!,
                                   ),
                                 ),
@@ -115,7 +119,10 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                             placeholderTextStyle: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Theme.of(context).accentTextTheme.headline1!.decorationColor!,
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .displayLarge!
+                                  .decorationColor!,
                             ),
                             validator: null,
                           ),
@@ -136,14 +143,20 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 10,
                     height: 1.2,
-                    color: Theme.of(context).accentTextTheme.headline1!.decorationColor!),
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .displayLarge!
+                        .decorationColor!),
               ),
               SizedBox(width: 10),
               Text(S.of(context).max_value(maxAmount, selectedCurrency.toString()),
                   style: TextStyle(
                       fontSize: 10,
                       height: 1.2,
-                      color: Theme.of(context).accentTextTheme.headline1!.decorationColor!)),
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .displayLarge!
+                          .decorationColor!)),
             ],
           ),
         )

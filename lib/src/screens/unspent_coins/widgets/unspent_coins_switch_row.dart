@@ -17,7 +17,7 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Theme.of(context).backgroundColor,
+      color: Theme.of(context).colorScheme.background,
       child: Padding(
         padding:
         const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
@@ -29,7 +29,9 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context)
-                          .primaryTextTheme!.overline!.color!),
+                          .primaryTextTheme!
+                          .labelSmall!
+                          .color!),
                   textAlign: TextAlign.left),
               Padding(
                 padding: EdgeInsets.only(top: 12),

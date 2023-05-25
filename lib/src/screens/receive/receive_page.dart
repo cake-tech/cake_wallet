@@ -64,7 +64,10 @@ class ReceivePage extends BasePage {
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
+          color: Theme.of(context)
+              .accentTextTheme!
+              .displayMedium!
+              .backgroundColor!),
     );
   }
 
@@ -73,7 +76,7 @@ class ReceivePage extends BasePage {
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
@@ -100,7 +103,10 @@ class ReceivePage extends BasePage {
             icon: Icon(
               Icons.share,
               size: 20,
-              color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .displayMedium!
+                  .backgroundColor!,
             ),
           ),
         ));
@@ -113,7 +119,10 @@ class ReceivePage extends BasePage {
         ? KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-                keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+                keyboardBarColor: Theme.of(context)
+                    .accentTextTheme!
+                    .bodyLarge!
+                    .backgroundColor!,
                 nextFocus: false,
                 actions: [
                   KeyboardActionsItem(
@@ -154,7 +163,10 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.arrow_forward_ios,
                                     size: 14,
-                                    color: Theme.of(context).textTheme!.headline4!.color!,
+                                    color: Theme.of(context)
+                                        .textTheme!
+                                        .headlineMedium!
+                                        .color!,
                                   ));
                             }
 
@@ -166,7 +178,10 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.add,
                                     size: 20,
-                                    color: Theme.of(context).textTheme!.headline4!.color!,
+                                    color: Theme.of(context)
+                                        .textTheme!
+                                        .headlineMedium!
+                                        .color!,
                                   ));
                             }
 
@@ -175,11 +190,23 @@ class ReceivePage extends BasePage {
                                 final isCurrent =
                                     item.address == addressListViewModel.address.address;
                                 final backgroundColor = isCurrent
-                                    ? Theme.of(context).textTheme!.headline2!.decorationColor!
-                                    : Theme.of(context).textTheme!.headline3!.decorationColor!;
+                                    ? Theme.of(context)
+                                        .textTheme!
+                                        .displayMedium!
+                                        .decorationColor!
+                                    : Theme.of(context)
+                                        .textTheme!
+                                        .displaySmall!
+                                        .decorationColor!;
                                 final textColor = isCurrent
-                                    ? Theme.of(context).textTheme!.headline2!.color!
-                                    : Theme.of(context).textTheme!.headline3!.color!;
+                                    ? Theme.of(context)
+                                        .textTheme!
+                                        .displayMedium!
+                                        .color!
+                                    : Theme.of(context)
+                                        .textTheme!
+                                        .displaySmall!
+                                        .color!;
 
                                 return AddressCell.fromItem(item,
                                     isCurrent: isCurrent,
@@ -225,7 +252,10 @@ class ReceivePage extends BasePage {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context).accentTextTheme!.headline3!.backgroundColor!)),
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .displaySmall!
+                            .backgroundColor!)),
               ],
             ),
           );

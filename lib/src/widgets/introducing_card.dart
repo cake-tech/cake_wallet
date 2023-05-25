@@ -27,7 +27,7 @@ class IntroducingCard extends StatelessWidget {
               color: borderColor,
               width: 1,
             ),
-            color: Theme.of(context).textTheme!.headline6!.backgroundColor!),
+            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +47,7 @@ class IntroducingCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context)
                                   .accentTextTheme!
-                                  .headline2!
+                                  .displayMedium!
                                   .backgroundColor!,
                               height: 1),
                           maxLines: 1,
@@ -60,7 +60,7 @@ class IntroducingCard extends StatelessWidget {
                               fontFamily: 'Lato',
                               color: Theme.of(context)
                                   .accentTextTheme!
-                                  .headline2!
+                                  .displayMedium!
                                   .backgroundColor!,
                               height: 1)),
                     ],

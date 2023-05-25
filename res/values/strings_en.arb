@@ -557,7 +557,7 @@
   "purchase_gift_card": "Purchase Gift Card",
   "verification": "Verification",
   "fill_code": "Please fill in the verification code provided to your email",
-  "dont_get_code": "Don't get code?",
+  "didnt_get_code": "Didn't get code?",
   "resend_code": "Please resend it",
   "debit_card": "Debit Card",
   "cakepay_prepaid_card": "CakePay Prepaid Debit Card",

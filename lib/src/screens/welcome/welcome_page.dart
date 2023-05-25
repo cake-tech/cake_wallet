@@ -39,7 +39,7 @@ class WelcomePage extends BasePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         resizeToAvoidBottomInset: false,
         body: body(context));
   }
@@ -51,9 +51,14 @@ class WelcomePage extends BasePage {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).accentTextTheme!.headline5!.decorationColor!);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .headlineSmall!
+            .decorationColor!);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).primaryTextTheme!.headline6!.color!);
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -85,7 +90,10 @@ class WelcomePage extends BasePage {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
-                                      color: Theme.of(context).accentTextTheme!.headline2!.color!,
+                                      color: Theme.of(context)
+                                          .accentTextTheme!
+                                          .displayMedium!
+                                          .color,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -97,7 +105,10 @@ class WelcomePage extends BasePage {
                                     style: TextStyle(
                                       fontSize: 36,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme!
+                                          .titleLarge!
+                                          .color!,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -109,7 +120,10 @@ class WelcomePage extends BasePage {
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: Theme.of(context).accentTextTheme!.headline2!.color!,
+                                      color: Theme.of(context)
+                                          .accentTextTheme!
+                                          .displayMedium!
+                                          .color,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -123,7 +137,10 @@ class WelcomePage extends BasePage {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.normal,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.color!,
+                                    color: Theme.of(context)
+                                        .accentTextTheme!
+                                        .displayMedium!
+                                        .color,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -136,11 +153,11 @@ class WelcomePage extends BasePage {
                                     text: S.of(context).create_new,
                                     color: Theme.of(context)
                                         .accentTextTheme!
-                                        .subtitle2!
+                                        .titleSmall!
                                         .decorationColor!,
                                     textColor: Theme.of(context)
                                         .accentTextTheme!
-                                        .headline5!
+                                        .headlineSmall!
                                         .decorationColor!,
                                   ),
                                 ),
@@ -153,9 +170,14 @@ class WelcomePage extends BasePage {
                                       },
                                       image: restoreWalletImage,
                                       text: S.of(context).restore_wallet,
-                                      color: Theme.of(context).accentTextTheme!.caption!.color!,
-                                      textColor:
-                                          Theme.of(context).primaryTextTheme!.headline6!.color!),
+                                      color: Theme.of(context)
+                                          .accentTextTheme!
+                                          .bodySmall!
+                                          .color!,
+                                      textColor: Theme.of(context)
+                                          .primaryTextTheme!
+                                          .titleLarge!
+                                          .color!),
                                 )
                               ],
                             )

@@ -28,7 +28,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       ioniaPurchaseViewModel.ioniaMerchant.legalName,
-      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!),
+      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!),
     );
   }
 
@@ -96,8 +96,8 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryTextTheme!.subtitle1!.color!,
-                      Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
+                      Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+                      Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -163,7 +163,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                     Text(
                       S.of(context).tip,
                       style: TextStyle(
-                        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -202,7 +202,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                       ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
                   onPressed: () => purchaseCard(context),
                   text: S.of(context).purchase_gift_card,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                   textColor: Colors.white,
                 );
               }),
@@ -212,7 +212,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
               onTap: () => _showTermsAndCondition(context),
               child: Text(S.of(context).settings_terms_and_conditions,
                   style: textMediumSemiBold(
-                    color: Theme.of(context).primaryTextTheme!.bodyText2!.color!,
+                    color: Theme.of(context).primaryTextTheme.bodyMedium!.color!,
                   ).copyWith(fontSize: 12)),
             ),
             SizedBox(height: 16)
@@ -232,7 +232,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             child: Text(
               ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
               style: textMedium(
-                color: Theme.of(context).textTheme!.headline3!.color!,
+                color: Theme.of(context).textTheme!.displaySmall!.color!,
               ),
             ),
           ),
@@ -270,13 +270,13 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                             child: Text(
                               instruction.header,
                               style: textLargeSemiBold(
-                                color: Theme.of(context).textTheme!.headline3!.color!,
+                                color: Theme.of(context).textTheme!.displaySmall!.color!,
                               ),
                             )),
                         Text(
                           instruction.body,
                           style: textMedium(
-                            color: Theme.of(context).textTheme!.headline3!.color!,
+                            color: Theme.of(context).textTheme!.displaySmall!.color!,
                           ),
                         )
                       ];
@@ -323,7 +323,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             alertLeftActionButtonTextColor: Colors.white,
             alertRightActionButtonTextColor: Colors.white,
             alertLeftActionButtonColor: Palette.brightOrange,
-            alertRightActionButtonColor: Theme.of(context).textTheme!.subtitle2!.color,
+            alertRightActionButtonColor: Theme.of(context).textTheme!.titleSmall!.color,
             actionRightButton: () async {
               Navigator.of(context).pop();
               await ioniaPurchaseViewModel.commitPaymentInvoice();
@@ -399,34 +399,34 @@ class TipButton extends StatelessWidget {
 
   Color captionTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme!.headline6!.color!;
+      return Theme.of(context).primaryTextTheme!.titleLarge!.color!;
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme!.headline6!.color!
-      : Theme.of(context).primaryTextTheme!.headline6!.color!;
+      ? Theme.of(context).accentTextTheme!.titleLarge!.color!
+      : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
   }
 
   Color subTitleTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme!.headline6!.color!;
+      return Theme.of(context).primaryTextTheme!.titleLarge!.color!;
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme!.headline6!.color!
-      : Theme.of(context).primaryTextTheme!.overline!.color!;
+      ? Theme.of(context).accentTextTheme!.titleLarge!.color!
+      : Theme.of(context).primaryTextTheme!.labelSmall!.color!;
   }
 
   Color? backgroundColor(BuildContext context) {
     if (isDark(context)) {
       return isSelected
         ? null
-        : Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.01);
+        : Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!.withOpacity(0.01);
     }
 
     return isSelected
         ? null
-        : Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1);
+        : Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!.withOpacity(0.1);
   }
 
   @override
@@ -459,8 +459,8 @@ class TipButton extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    Theme.of(context).primaryTextTheme!.subtitle1!.color!,
-                    Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
+                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+                    Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

@@ -26,14 +26,14 @@ class IoniaTile extends StatelessWidget {
             Text(
               title,
               style: textXSmall(
-                color: Theme.of(context).primaryTextTheme!.overline!.color!,
+                color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
               ),
             ),
             SizedBox(height: 8),
             Text(
               subTitle,
               style: textMediumBold(
-                color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
               ),
             ),
           ],

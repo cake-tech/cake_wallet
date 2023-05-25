@@ -559,7 +559,7 @@
   "purchase_gift_card" : "گفٹ کارڈ خریدیں۔",
   "verification" : "تصدیق",
   "fill_code" : "براہ کرم اپنے ای میل پر فراہم کردہ تصدیقی کوڈ کو پُر کریں۔",
-  "dont_get_code" : "کوڈ نہیں ملتا؟",
+  "didnt_get_code" : "کوڈ نہیں ملتا؟",
   "resend_code" : "براہ کرم اسے دوبارہ بھیجیں۔",
   "debit_card" : "ڈیبٹ کارڈ",
   "cakepay_prepaid_card" : "Cake پے پری پیڈ ڈیبٹ کارڈ",

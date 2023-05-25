@@ -558,7 +558,7 @@
   "purchase_gift_card": "Katin Kyautar Sayi",
   "verification": "tabbatar",
   "fill_code": "Da fatan za a cika lambar tabbatarwa da aka bayar zuwa imel ɗin ku",
-  "dont_get_code": "Ba a samun code?",
+  "didnt_get_code": "Ba a samun code?",
   "resend_code": "Da fatan za a sake aika shi",
   "debit_card": "Katin Zare kudi",
   "cakepay_prepaid_card": "Katin zare kudi na CakePay",

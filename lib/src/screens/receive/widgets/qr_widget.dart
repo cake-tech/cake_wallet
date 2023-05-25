@@ -35,7 +35,7 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).textTheme.subtitle1!.decorationColor!);
+        color: Theme.of(context).textTheme!.titleMedium!.decorationColor!);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -51,7 +51,10 @@ class QRWidget extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .displayMedium!
+                        .backgroundColor!),
               ),
             ),
             Row(
@@ -82,8 +85,10 @@ class QRWidget extends StatelessWidget {
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 3,
-                                  color:
-                                      Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                                  color: Theme.of(context)
+                                      .accentTextTheme!
+                                      .displayMedium!
+                                      .backgroundColor!,
                                 ),
                               ),
                               child: Container(
@@ -147,7 +152,10 @@ class QRWidget extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
+                            color: Theme.of(context)
+                                .accentTextTheme!
+                                .displayMedium!
+                                .backgroundColor!),
                       ),
                     ),
                     Padding(

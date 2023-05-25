@@ -49,7 +49,7 @@ abstract class BasePage extends StatelessWidget {
     }
 
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor ?? Theme.of(context).primaryTextTheme.headline6!.color!,
+      color: titleColor ?? Theme.of(context).primaryTextTheme!.titleLarge!.color!,
       size: 16,);
 
     return MergeSemantics(
@@ -84,7 +84,7 @@ abstract class BasePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
                 color: titleColor ??
-                    Theme.of(context).primaryTextTheme!.headline6!.color!),
+                    Theme.of(context).primaryTextTheme!.titleLarge!.color!),
           );
   }
 

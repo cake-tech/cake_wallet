@@ -35,7 +35,10 @@ class AnonPayReceivePage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .displayMedium!
+          .backgroundColor!,
       size: 16,
     );
 
@@ -62,7 +65,10 @@ class AnonPayReceivePage extends BasePage {
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
               fontFamily: 'Lato',
-              color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .displayMedium!
+                  .backgroundColor!),
         ),
         Text(
           invoiceInfo is AnonpayInvoiceInfo
@@ -71,7 +77,7 @@ class AnonPayReceivePage extends BasePage {
           style: TextStyle(
               fontSize: 10.0,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).textTheme.headline5!.color!),
+              color: Theme.of(context).textTheme!.headlineSmall!.color!),
         )
       ],
     );
@@ -93,7 +99,10 @@ class AnonPayReceivePage extends BasePage {
         ),
         icon: Icon(
           Icons.edit,
-          color: Theme.of(context).accentTextTheme.caption!.color!,
+          color: Theme.of(context)
+              .accentTextTheme!
+              .bodySmall!
+              .color!,
           size: 22.0,
         ),
       ),
@@ -105,7 +114,7 @@ class AnonPayReceivePage extends BasePage {
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
@@ -151,7 +160,10 @@ class AnonPayReceivePage extends BasePage {
                         decoration: BoxDecoration(
                           border: Border.all(
                             width: 3,
-                            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                            color: Theme.of(context)
+                                .accentTextTheme!
+                                .displayMedium!
+                                .backgroundColor!,
                           ),
                         ),
                         child: QrImage(

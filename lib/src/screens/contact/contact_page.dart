@@ -47,7 +47,8 @@ class ContactPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final downArrow = Image.asset('assets/images/arrow_bottom_purple_icon.png',
-        color: Theme.of(context).primaryTextTheme!.overline!.color!, height: 8);
+        color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
+        height: 8);
 
     reaction((_) => contactViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
@@ -98,12 +99,14 @@ class ContactPage extends BasePage {
                         AddressTextFieldOption.paste,
                         AddressTextFieldOption.qrCode,
                       ],
-                      buttonColor:
-                          Theme.of(context).accentTextTheme!.headline3!.color!,
+                      buttonColor: Theme.of(context)
+                          .accentTextTheme!
+                          .displaySmall!
+                          .color!,
                       iconColor: PaletteDark.gray,
                       borderColor: Theme.of(context)
                           .primaryTextTheme!
-                          .headline6!
+                          .titleLarge!
                           .backgroundColor!,
                       validator:
                           AddressValidator(type: contactViewModel.currency!),
@@ -142,7 +145,7 @@ class ContactPage extends BasePage {
                           text: S.of(context).save,
                           color: Theme.of(context)
                               .accentTextTheme!
-                              .bodyText1!
+                              .bodyLarge!
                               .color!,
                           textColor: Colors.white,
                           isDisabled: !contactViewModel.isReady)))

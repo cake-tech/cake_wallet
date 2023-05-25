@@ -117,25 +117,31 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             style: TextStyle(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                                color: Theme.of(context)
+                                    .primaryTextTheme!
+                                    .titleLarge!
+                                    .color!),
                             decoration: InputDecoration(
                               hintStyle: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                                  color: Theme.of(context)
+                                      .accentTextTheme!
+                                      .displayMedium!
+                                      .color),
                               hintText: S.of(context).wallet_name,
                               focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
                                       color: Theme.of(context)
                                           .accentTextTheme!
-                                          .headline2!
+                                          .displayMedium!
                                           .decorationColor!,
                                       width: 1.0)),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Theme.of(context)
                                         .accentTextTheme!
-                                        .headline2!
+                                        .displayMedium!
                                         .decorationColor!,
                                     width: 1.0),
                               ),
@@ -165,7 +171,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                       'assets/images/refresh_icon.png',
                                       color: Theme.of(context)
                                           .primaryTextTheme!
-                                          .headline4!
+                                          .headlineMedium!
                                           .decorationColor!,
                                     ),
                                   ),
@@ -187,7 +193,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                            color: Theme.of(context)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!),
                       ),
                     ),
                     Padding(

@@ -556,7 +556,7 @@
   "purchase_gift_card": "购买礼品卡",
   "verification": "验证",
   "fill_code": "请填写提供给您邮箱的验证码",
-  "dont_get_code": "没有获取代码？",
+  "didnt_get_code": "没有获取代码？",
   "resend_code": "请重新发送",
   "debit_card": "借记卡",
   "cakepay_prepaid_card": "CakePay 预付借记卡",

@@ -67,7 +67,10 @@ class WalletSeedPage extends BasePage {
               margin: EdgeInsets.only(left: 10),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(16)),
-                  color: Theme.of(context).accentTextTheme!.caption!.color!),
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodySmall!
+                      .color!),
               child: Text(
                 S.of(context).seed_language_next,
                 style: TextStyle(
@@ -115,7 +118,7 @@ class WalletSeedPage extends BasePage {
                                     fontWeight: FontWeight.w600,
                                     color: Theme.of(context)
                                         .primaryTextTheme!
-                                        .headline6!
+                                        .titleLarge!
                                         .color!),
                               ),
                               Padding(
@@ -129,7 +132,7 @@ class WalletSeedPage extends BasePage {
                                       fontWeight: FontWeight.normal,
                                       color: Theme.of(context)
                                           .primaryTextTheme!
-                                          .caption!
+                                          .bodySmall!
                                           .color!),
                                 ),
                               )
@@ -151,7 +154,7 @@ class WalletSeedPage extends BasePage {
                                         fontWeight: FontWeight.normal,
                                         color: Theme.of(context)
                                             .primaryTextTheme!
-                                            .overline!
+                                            .labelSmall!
                                             .color!),
                                   ),
                                 )
@@ -187,7 +190,7 @@ class WalletSeedPage extends BasePage {
                                         text: S.of(context).copy,
                                         color: Theme.of(context)
                                             .accentTextTheme!
-                                            .bodyText2!
+                                            .bodyMedium!
                                             .color!,
                                         textColor: Colors.white)),
                               ))
