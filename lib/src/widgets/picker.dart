@@ -143,7 +143,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context).accentTextTheme.headline6!.color!,
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .titleLarge!
+                  .color!,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,
@@ -159,8 +162,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           controller: searchController,
                           style: TextStyle(
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .headline6!
+                                  .primaryTextTheme!
+                                  .titleLarge!
                                   .color!),
                           decoration: InputDecoration(
                             hintText: widget.hintText,
@@ -168,8 +171,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                 Image.asset("assets/images/search_icon.png"),
                             filled: true,
                             fillColor: Theme.of(context)
-                                .accentTextTheme
-                                .headline3!
+                                .accentTextTheme!
+                                .displaySmall!
                                 .color!,
                             alignLabelWithHint: false,
                             contentPadding: const EdgeInsets.symmetric(
@@ -189,8 +192,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                       ),
                     Divider(
                       color: Theme.of(context)
-                          .accentTextTheme
-                          .headline6!
+                          .accentTextTheme!
+                          .titleLarge!
                           .backgroundColor!,
                       height: 1,
                     ),
@@ -220,8 +223,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                       fontFamily: 'Lato',
                                       decoration: TextDecoration.none,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline6!
+                                          .primaryTextTheme!
+                                          .titleLarge!
                                           .color!,
                                     ),
                                   ),
@@ -242,7 +245,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .titleLarge!
+          .backgroundColor!,
       child: widget.isGridView
           ? GridView.builder(
               padding: EdgeInsets.zero,
@@ -263,8 +269,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
               separatorBuilder: (context, index) => widget.isSeparated
                   ? Divider(
                       color: Theme.of(context)
-                          .accentTextTheme
-                          .headline6!
+                          .accentTextTheme!
+                          .titleLarge!
                           .backgroundColor!,
                       height: 1,
                     )
@@ -296,7 +302,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).accentTextTheme.headline6!.color!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .titleLarge!
+            .color!,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -318,8 +327,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context)
-                              .primaryTextTheme
-                              .headline6!
+                              .primaryTextTheme!
+                              .titleLarge!
                               .color!,
                           decoration: TextDecoration.none,
                         ),
@@ -338,8 +347,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
                                   color: Theme.of(context)
-                                      .textTheme
-                                      .bodyText2!
+                                      .textTheme!
+                                      .bodyMedium!
                                       .color!),
                             ),
                           ),
@@ -347,8 +356,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
                             color: Theme.of(context)
-                                .textTheme
-                                .bodyText2!
+                                .textTheme!
+                                .bodyMedium!
                                 .decorationColor!,
                           ),
                         ),
@@ -383,7 +392,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).accentTextTheme.headline6!.color!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .titleLarge!
+            .color!,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -405,8 +417,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w700,
                           color: Theme.of(context)
-                              .primaryTextTheme
-                              .headline6!
+                              .primaryTextTheme!
+                              .titleLarge!
                               .color!,
                           decoration: TextDecoration.none,
                         ),
@@ -425,8 +437,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
                                   color: Theme.of(context)
-                                      .textTheme
-                                      .bodyText2!
+                                      .textTheme!
+                                      .bodyMedium!
                                       .color!),
                             ),
                           ),
@@ -434,8 +446,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
                             color: Theme.of(context)
-                                .textTheme
-                                .bodyText2!
+                                .textTheme!
+                                .bodyMedium!
                                 .decorationColor!,
                           ),
                         ),
@@ -445,7 +457,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
               ),
             ),
             Icon(Icons.check_circle,
-                color: Theme.of(context).accentTextTheme.bodyText1!.color!),
+                color: Theme.of(context)
+                    .accentTextTheme!
+                    .bodyLarge!
+                    .color!),
           ],
         ),
       ),

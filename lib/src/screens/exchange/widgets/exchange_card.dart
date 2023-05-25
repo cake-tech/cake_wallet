@@ -160,7 +160,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme.headline3!.color!);
+        color: Theme.of(context).primaryTextTheme!.displaySmall!.color!);
 
     return Container(
       width: double.infinity,
@@ -175,7 +175,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme.headline5!.color!),
+                  color: Theme.of(context).textTheme!.headlineSmall!.color!),
             )
           ],
         ),
@@ -210,7 +210,11 @@ class ExchangeCardState extends State<ExchangeCard> {
                   child: Container(
                     height: 32,
                     decoration: BoxDecoration(
-                        color: widget.addressButtonsColor ?? Theme.of(context).primaryTextTheme.headline4!.color!,
+                        color: widget.addressButtonsColor ??
+                            Theme.of(context)
+                                .primaryTextTheme!
+                                .headlineMedium!
+                                .color!,
                         borderRadius:
                         BorderRadius.all(Radius.circular(6))),
                     child: Center(
@@ -221,7 +225,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context)
-                                    .primaryTextTheme.headline4!
+                                    .primaryTextTheme!
+                                    .headlineMedium!
                                     .decorationColor!)),
                       ),
                     ),
@@ -264,7 +269,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: Theme.of(context)
-                                      .accentTextTheme.headline1!
+                                      .accentTextTheme!
+                                      .displayLarge!
                                       .decorationColor!),
                               validator: _isAmountEditable
                                   ? widget.currencyValueValidator
@@ -277,7 +283,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                           width: 32,
                           decoration: BoxDecoration(
                               color: Theme.of(context)
-                                  .primaryTextTheme.headline4!
+                                  .primaryTextTheme!
+                                  .headlineMedium!
                                   .color!,
                               borderRadius:
                               BorderRadius.all(Radius.circular(6))),
@@ -290,7 +297,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context)
-                                          .primaryTextTheme.headline4!
+                                          .primaryTextTheme!
+                                          .headlineMedium!
                                           .decorationColor!)),
                             ),
                           ),
@@ -300,9 +308,12 @@ class ExchangeCardState extends State<ExchangeCard> {
                 ),
               ],
             )),
-        Divider(height: 1,color: Theme.of(context)
-            .primaryTextTheme.headline5!
-            .decorationColor!),
+        Divider(
+            height: 1,
+            color: Theme.of(context)
+                .primaryTextTheme!
+                .headlineSmall!
+                .decorationColor!),
         Padding(
           padding: EdgeInsets.only(top: 5),
           child: Container(
@@ -319,7 +330,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                 fontSize: 10,
                                 height: 1.2,
                                 color: Theme.of(context)
-                                    .accentTextTheme.headline1!
+                                    .accentTextTheme!
+                                    .displayLarge!
                                     .decorationColor!),
                           )
                         : Offstage(),
@@ -333,7 +345,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                 fontSize: 10,
                                 height: 1.2,
                                 color: Theme.of(context)
-                                    .accentTextTheme.headline1!
+                                    .accentTextTheme!
+                                    .displayLarge!
                                     .decorationColor!))
                         : Offstage(),
                   ])),
@@ -347,7 +360,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context)
-                          .accentTextTheme.headline1!
+                          .accentTextTheme!
+                          .displayLarge!
                           .decorationColor!),
                 ))
             : Offstage(),
@@ -387,7 +401,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context)
-                              .accentTextTheme.headline1!
+                              .accentTextTheme!
+                              .displayLarge!
                               .decorationColor!),
                       buttonColor: widget.addressButtonsColor,
                       validator: widget.addressTextFieldValidator,
@@ -458,7 +473,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                                   child: Image.asset(
                                                     'assets/images/open_book.png',
                                                     color: Theme.of(context)
-                                                        .primaryTextTheme.headline4!
+                                                        .primaryTextTheme!
+                                                        .headlineMedium!
                                                         .decorationColor!,
                                                   )),
                                             )),
