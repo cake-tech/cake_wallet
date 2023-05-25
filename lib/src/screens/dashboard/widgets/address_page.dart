@@ -211,8 +211,7 @@ class AddressPage extends BasePage {
                               borderRadius: BorderRadius.all(Radius.circular(25)),
                               border: Border.all(
                                   color: Theme.of(context).textTheme.subtitle1!.color!, width: 1),
-                              color:
-                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                              color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
