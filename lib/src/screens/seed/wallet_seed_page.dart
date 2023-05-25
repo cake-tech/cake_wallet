@@ -102,41 +102,41 @@ class WalletSeedPage extends BasePage {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      AspectRatio(
-                          aspectRatio: 1,
-                          child: image),
-                      Observer(builder: (_) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              walletSeedViewModel.name,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .titleLarge!
-                                      .color!),
-                            ),
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(top: 20, left: 16, right: 16),
-                              child: Text(
-                                walletSeedViewModel.seed,
-                                textAlign: TextAlign.center,
+                      Column(children: [
+                        AspectRatio(aspectRatio: 1, child: image),
+                        Observer(builder: (_) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                walletSeedViewModel.name,
                                 style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
                                     color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .bodySmall!
+                                        .primaryTextTheme
+                                        .titleLarge!
                                         .color!),
                               ),
-                            )
-                          ],
-                        );
-                      }),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: 20, left: 16, right: 16),
+                                child: Text(
+                                  walletSeedViewModel.seed,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .bodySmall!
+                                          .color!),
+                                ),
+                              )
+                            ],
+                          );
+                        }),
+                      ]),
                       Column(
                         children: <Widget>[
                           isNewWalletCreated

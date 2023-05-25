@@ -44,24 +44,26 @@ class PreSeedPage extends BasePage {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    AspectRatio(
-                        aspectRatio: 1,
-                        child: FittedBox(child: image, fit: BoxFit.contain)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: Text(
-                        S
-                            .of(context)
-                            .pre_seed_description(wordsCount.toString()),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .bodySmall!
-                                .color!),
-                      ),
+                    Column(
+                      children: [
+                        AspectRatio(aspectRatio: 1, child: image),
+                        Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Text(
+                            S
+                                .of(context)
+                                .pre_seed_description(wordsCount.toString()),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .bodySmall!
+                                    .color!),
+                          ),
+                        ),
+                      ],
                     ),
                     PrimaryButton(
                         onPressed: () => Navigator.of(context)
