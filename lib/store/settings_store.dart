@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -6,6 +8,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -21,7 +24,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-import 'dart:io' show Platform;
 
 part 'settings_store.g.dart';
 
@@ -36,14 +38,20 @@ abstract class SettingsStoreBase with Store {
       required bool initialSaveRecipientAddress,
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
       required bool initialAppSecure,
+      required bool initialDisableBuy,
+      required bool initialDisableSell,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required String initialTotpSecretKey,
+      required bool initialUseTOTP2FA,
+      required int initialFailedTokenTrial,
       required ExchangeApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
       // required String initialCurrentLocale,
       required this.appVersion,
+      required this.deviceName,
       required Map<WalletType, Node> nodes,
       required this.shouldShowYatPopup,
       required this.isBitcoinBuyEnabled,
@@ -53,16 +61,20 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
       TransactionPriority? initialLitecoinTransactionPriority})
-  : nodes = ObservableMap<WalletType, Node>.of(nodes),
-    _sharedPreferences = sharedPreferences,
-    fiatCurrency = initialFiatCurrency,
-    balanceDisplayMode = initialBalanceDisplayMode,
-    shouldSaveRecipientAddress = initialSaveRecipientAddress,
-            autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
-
+      : nodes = ObservableMap<WalletType, Node>.of(nodes),
+        _sharedPreferences = sharedPreferences,
+        fiatCurrency = initialFiatCurrency,
+        balanceDisplayMode = initialBalanceDisplayMode,
+        shouldSaveRecipientAddress = initialSaveRecipientAddress,
+        autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
+        fiatApiMode = initialFiatMode,
+        allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+        totpSecretKey = initialTotpSecretKey,
+        useTOTP2FA = initialUseTOTP2FA,
+        numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
-    fiatApiMode = initialFiatMode,
-    allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+        disableBuy = initialDisableBuy,
+        disableSell = initialDisableSell,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -126,16 +138,20 @@ abstract class SettingsStoreBase with Store {
         (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
 
+    setIsAppSecureNative(isAppSecure);
+
     reaction((_) => isAppSecure, (bool isAppSecure) {
       sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
-      if (Platform.isAndroid) {
-        setIsAppSecureNative(isAppSecure);
-      }
+      setIsAppSecureNative(isAppSecure);
     });
 
-    if (Platform.isAndroid) {
-      setIsAppSecureNative(isAppSecure);
-    }
+    reaction((_) => disableBuy,
+        (bool disableBuy) => sharedPreferences.setBool(PreferencesKey.disableBuyKey, disableBuy));
+
+    reaction(
+        (_) => disableSell,
+        (bool disableSell) =>
+            sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -154,6 +170,17 @@ abstract class SettingsStoreBase with Store {
         (_) => allowBiometricalAuthentication,
         (bool biometricalAuthentication) => sharedPreferences.setBool(
             PreferencesKey.allowBiometricalAuthenticationKey, biometricalAuthentication));
+
+    reaction(
+        (_) => useTOTP2FA, (bool use) => sharedPreferences.setBool(PreferencesKey.useTOTP2FA, use));
+
+    reaction(
+        (_) => numberOfFailedTokenTrials,
+        (int failedTokenTrail) =>
+            sharedPreferences.setInt(PreferencesKey.failedTotpTokenTrials, failedTokenTrail));
+
+    reaction((_) => totpSecretKey,
+        (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
 
     reaction(
         (_) => shouldShowMarketPlaceInDashboard,
@@ -223,7 +250,27 @@ abstract class SettingsStoreBase with Store {
   bool isAppSecure;
 
   @observable
+  bool disableBuy;
+
+  @observable
+  bool disableSell;
+
+  @observable
   bool allowBiometricalAuthentication;
+
+  @observable
+  String totpSecretKey;
+
+  @computed
+  String get totpVersionOneLink {
+    return 'otpauth://totp/Cake%20Wallet:$deviceName?secret=$totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
+  }
+
+  @observable
+  bool useTOTP2FA;
+
+  @observable
+  int numberOfFailedTokenTrials;
 
   @observable
   ExchangeApiMode exchangeStatus;
@@ -247,6 +294,8 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, TransactionPriority> priority;
 
   String appVersion;
+
+  String deviceName;
 
   SharedPreferences _sharedPreferences;
 
@@ -308,13 +357,17 @@ abstract class SettingsStoreBase with Store {
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
-    final isAppSecure =
-        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
+    final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
+    final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
+    final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
     final allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
+    final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
+    final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
+    final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final exchangeStatus = ExchangeApiMode.deserialize(
@@ -353,13 +406,14 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
+    final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
-    final generateSubaddresses = sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
-    
+    final generateSubaddresses =
+        sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
+
     final autoGenerateSubaddressStatus = generateSubaddresses != null
         ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
         : defaultAutoGenerateSubaddressStatus;
-
     final nodes = <WalletType, Node>{};
 
     if (moneroNode != null) {
@@ -383,14 +437,20 @@ abstract class SettingsStoreBase with Store {
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
         appVersion: packageInfo.version,
+        deviceName: deviceName,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
         initialAppSecure: isAppSecure,
+        initialDisableBuy: disableBuy,
+        initialDisableSell: disableSell,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialTotpSecretKey: totpSecretKey,
+        initialUseTOTP2FA: useTOTP2FA,
+        initialFailedTokenTrial: tokenTrialNumber,
         initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
@@ -431,12 +491,20 @@ abstract class SettingsStoreBase with Store {
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =
-        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
-    isAppSecure =
-        sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
-    allowBiometricalAuthentication = sharedPreferences
-        .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
-        allowBiometricalAuthentication;
+        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
+            shouldSaveRecipientAddress;
+    totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
+    useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
+    numberOfFailedTokenTrials =
+        sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
+    sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
+        shouldSaveRecipientAddress;
+    isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
+    disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
+    disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
+    allowBiometricalAuthentication =
+        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+            allowBiometricalAuthentication;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
@@ -511,5 +579,30 @@ abstract class SettingsStoreBase with Store {
     }
 
     nodes[walletType] = node;
+  }
+
+  static Future<String?> _getDeviceName() async {
+    String? deviceName = '';
+    final deviceInfoPlugin = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfoPlugin.androidInfo;
+      deviceName = '${androidInfo.brand}%20${androidInfo.manufacturer}%20${androidInfo.model}';
+      print(deviceName);
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfoPlugin.iosInfo;
+      deviceName = iosInfo.model;
+    } else if (Platform.isLinux) {
+      final linuxInfo = await deviceInfoPlugin.linuxInfo;
+      deviceName = linuxInfo.prettyName;
+    } else if (Platform.isMacOS) {
+      final macInfo = await deviceInfoPlugin.macOsInfo;
+      deviceName = macInfo.computerName;
+    } else if (Platform.isWindows) {
+      final windowsInfo = await deviceInfoPlugin.windowsInfo;
+      deviceName = windowsInfo.productName;
+    }
+
+    return deviceName;
   }
 }

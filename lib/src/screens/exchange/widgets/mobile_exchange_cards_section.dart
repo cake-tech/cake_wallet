@@ -21,8 +21,8 @@ class MobileExchangeCardsSection extends StatelessWidget {
         ),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryTextTheme.bodyText2!.color!,
-            Theme.of(context).primaryTextTheme.bodyText2!.decorationColor!,
+            Theme.of(context).primaryTextTheme!.bodyMedium!.color!,
+            Theme.of(context).primaryTextTheme!.bodyMedium!.decorationColor!,
           ],
           stops: [0.35, 1.0],
           begin: Alignment.topLeft,
@@ -37,8 +37,11 @@ class MobileExchangeCardsSection extends StatelessWidget {
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).primaryTextTheme.subtitle2!.color!,
-                  Theme.of(context).primaryTextTheme.subtitle2!.decorationColor!,
+                  Theme.of(context).primaryTextTheme!.titleSmall!.color!,
+                  Theme.of(context)
+                      .primaryTextTheme!
+                      .titleSmall!
+                      .decorationColor!,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

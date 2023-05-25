@@ -18,7 +18,7 @@ class AnonInvoiceStatusSection extends StatelessWidget {
       width: 200,
       padding: EdgeInsets.all(19),
       decoration: BoxDecoration(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Column(
@@ -31,13 +31,19 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryTextTheme.headline1!.decorationColor!,
+                  color: Theme.of(context)
+                      .primaryTextTheme!
+                      .displayLarge!
+                      .decorationColor!,
                 ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).accentTextTheme.headline3!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .displaySmall!
+                      .color!,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -52,7 +58,10 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                     Text(
                       invoiceInfo.status ?? '',
                       style: textSmallSemiBold(
-                        color: Theme.of(context).primaryTextTheme.headline6!.color,
+                        color: Theme.of(context)
+                            .primaryTextTheme!
+                            .titleLarge!
+                            .color,
                       ),
                     )
                   ],
@@ -69,13 +78,16 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryTextTheme.headline1!.decorationColor!,
+                  color: Theme.of(context)
+                      .primaryTextTheme!
+                      .displayLarge!
+                      .decorationColor!,
                 ),
               ),
               Text(
                 invoiceInfo.invoiceId ?? '',
                 style: textSmallSemiBold(
-                  color: Theme.of(context).primaryTextTheme.headline6!.color,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color,
                 ),
               ),
             ],

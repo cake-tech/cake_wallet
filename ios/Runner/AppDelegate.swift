@@ -15,6 +15,8 @@ import UnstoppableDomainsResolution
         if #available(iOS 10.0, *) {
           UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
         }
+
+        makeSecure()
         
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
         let legacyMigrationChannel = FlutterMethodChannel(
@@ -96,22 +98,39 @@ import UnstoppableDomainsResolution
                     
                     result(address)
                 }
-
+            case "setIsAppSecure":
+                guard let args = call.arguments as? Dictionary<String, Bool>,
+                    let isAppSecure = args["isAppSecure"] else {
+                    result(nil)
+                    return
+                }
+                
+                if isAppSecure {
+                     self?.textField.isSecureTextEntry = true
+                } else {
+                    self?.textField.isSecureTextEntry = false
+                }
+                
+                result(nil)
             default:
                 result(FlutterMethodNotImplemented)
             }
         })
-        
+                
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
+    
+    private var textField = UITextField()
+    
+    private func makeSecure() {
+        if (!self.window.subviews.contains(textField)) {
+            self.window.addSubview(textField)
+            textField.centerYAnchor.constraint(equalTo: self.window.centerYAnchor).isActive = true
+            textField.centerXAnchor.constraint(equalTo: self.window.centerXAnchor).isActive = true
+            self.window.layer.superlayer?.addSublayer(textField.layer)
+            textField.layer.sublayers?.first?.addSublayer(self.window.layer)
+        }
+    }
 
-    override func applicationWillResignActive(_: UIApplication ) {
-        self.window?.rootViewController?.view.endEditing(true)
-        self.window?.isHidden = true;
-      }
-
-      override func applicationDidBecomeActive(_: UIApplication) {
-        self.window?.isHidden = false;
-      }
 }

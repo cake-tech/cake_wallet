@@ -20,7 +20,10 @@ class PickerItemWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Theme.of(context).accentTextTheme!.headline6!.color!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .titleLarge!
+            .color!,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
           child: Row(
@@ -39,7 +42,12 @@ class PickerItemWidget extends StatelessWidget {
                     Text(
                       title.toUpperCase(),
                       style: TextStyle(
-                        color: isSelected ? Palette.blueCraiola : Theme.of(context).primaryTextTheme!.headline6!.color!,
+                        color: isSelected
+                            ? Palette.blueCraiola
+                            : Theme.of(context)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!,
                         fontSize: isSelected ? 16 : 14.0,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
@@ -55,20 +63,33 @@ class PickerItemWidget extends StatelessWidget {
                             child: Text(
                               tag!,
                               style: TextStyle(
-                                  fontSize: 7.0, fontFamily: 'Lato', color: Theme.of(context).textTheme!.bodyText2!.color!),
+                                  fontSize: 7.0,
+                                  fontFamily: 'Lato',
+                                  color: Theme.of(context)
+                                      .textTheme!
+                                      .bodyMedium!
+                                      .color!),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context).textTheme!.bodyText2!.decorationColor!,
+                            color: Theme.of(context)
+                                .textTheme!
+                                .bodyMedium!
+                                .decorationColor!,
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-              if (isSelected) Icon(Icons.check_circle, color: Theme.of(context).accentTextTheme!.bodyText1!.color!)
+              if (isSelected)
+                Icon(Icons.check_circle,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .bodyLarge!
+                        .color!)
             ],
           ),
         ),

@@ -30,7 +30,7 @@ class DesktopActionButton extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15.0),
-            color: Theme.of(context).textTheme.headline6!.backgroundColor!,
+            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
           ),
           child: Center(
             child: Row(
@@ -41,8 +41,14 @@ class DesktopActionButton extends StatelessWidget {
                   height: 30,
                   width: 30,
                   color: isEnabled
-                      ? Theme.of(context).accentTextTheme.headline2!.backgroundColor!
-                      : Theme.of(context).accentTextTheme.headline3!.backgroundColor!,
+                      ? Theme.of(context)
+                          .accentTextTheme!
+                          .displayMedium!
+                          .backgroundColor!
+                      : Theme.of(context)
+                          .accentTextTheme!
+                          .displaySmall!
+                          .backgroundColor!,
                 ),
                 const SizedBox(width: 10),
                 AutoSizeText(
@@ -52,7 +58,10 @@ class DesktopActionButton extends StatelessWidget {
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.bold,
                     color: isEnabled
-                        ? Theme.of(context).accentTextTheme.headline2!.backgroundColor!
+                        ? Theme.of(context)
+                            .accentTextTheme!
+                            .displayMedium!
+                            .backgroundColor!
                         : null,
                     height: 1,
                   ),

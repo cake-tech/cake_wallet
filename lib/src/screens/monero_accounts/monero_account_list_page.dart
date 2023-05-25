@@ -67,7 +67,7 @@ class MoneroAccountListPage extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(14)),
                           child: Container(
                             height: 296,
-                            color: Theme.of(context).textTheme!.headline1!.decorationColor!,
+                            color: Theme.of(context).textTheme!.displayLarge!.decorationColor!,
                             child: Column(
                               children: <Widget>[
                                 Expanded(

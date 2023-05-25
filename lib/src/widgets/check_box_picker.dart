@@ -53,7 +53,10 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context).accentTextTheme.headline6!.color!,
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .titleLarge!
+                  .color!,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.65,
@@ -87,7 +90,10 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .titleLarge!
+          .backgroundColor!,
       child: ListView.separated(
         padding: EdgeInsets.zero,
         controller: controller,
@@ -95,8 +101,8 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
         separatorBuilder: (context, index) => widget.isSeparated
             ? Divider(
                 color: Theme.of(context)
-                    .accentTextTheme
-                    .headline6!
+                    .accentTextTheme!
+                    .titleLarge!
                     .backgroundColor!,
                 height: 1,
               )
@@ -116,13 +122,19 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).accentTextTheme.headline6!.color!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .titleLarge!
+            .color!,
         padding: EdgeInsets.only(left: 24, right: 24),
         child: CheckboxListTile(
           value: item.value,
           activeColor: item.value
               ? Palette.blueCraiola
-              : Theme.of(context).accentTextTheme.subtitle1!.decorationColor!,
+              : Theme.of(context)
+                  .accentTextTheme!
+                  .titleMedium!
+                  .decorationColor!,
           checkColor: Colors.white,
           title: widget.displayItem?.call(item) ??
               Text(
@@ -133,7 +145,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                   fontWeight: FontWeight.w600,
                   color: item.isDisabled
                       ? Colors.grey.withOpacity(0.5)
-                      : Theme.of(context).primaryTextTheme.headline6!.color!,
+                      : Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                   decoration: TextDecoration.none,
                 ),
               ),

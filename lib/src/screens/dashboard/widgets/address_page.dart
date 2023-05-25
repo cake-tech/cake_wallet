@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -24,22 +23,21 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/di.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
     required this.addressListViewModel,
     required this.dashboardViewModel,
     required this.receiveOptionViewModel,
-  }) : _cryptoAmountFocus = FocusNode(),
-      _formKey = GlobalKey<FormState>(),
-      _amountController = TextEditingController(){
-      _amountController.addListener(() {
-        if (_formKey.currentState!.validate()) {
-          addressListViewModel.changeAmount(
-            _amountController.text,
-          );
-        }
+  })  : _cryptoAmountFocus = FocusNode(),
+        _formKey = GlobalKey<FormState>(),
+        _amountController = TextEditingController() {
+    _amountController.addListener(() {
+      if (_formKey.currentState!.validate()) {
+        addressListViewModel.changeAmount(
+          _amountController.text,
+        );
+      }
     });
   }
 
@@ -67,12 +65,11 @@ class AddressPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+      color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
       size: 16,
     );
-    final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme
-        : closeButtonImage;
+    final _closeButton =
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
 
@@ -86,8 +83,7 @@ class AddressPage extends BasePage {
             label: !isMobileView ? 'Close' : 'Back',
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith(
-                    (states) => Colors.transparent),
+                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -99,8 +95,7 @@ class AddressPage extends BasePage {
   }
 
   @override
-  Widget middle(BuildContext context) =>
-      PresentReceiveOptionPicker(
+  Widget middle(BuildContext context) => PresentReceiveOptionPicker(
         receiveOptionViewModel: receiveOptionViewModel,
         hasWhiteBackground: currentTheme.type == ThemeType.light,
       );
@@ -110,7 +105,7 @@ class AddressPage extends BasePage {
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
@@ -120,26 +115,27 @@ class AddressPage extends BasePage {
   Widget? trailing(BuildContext context) {
     return !addressListViewModel.hasAddressList
         ? Material(
-      color: Colors.transparent,
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        constraints: BoxConstraints(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        iconSize: 25,
-        onPressed: () {
-          ShareUtil.share(
-            text: addressListViewModel.uri.toString(),
-            context: context,
-          );
-        },
-        icon: Icon(
-          Icons.share,
-          size: 20,
-          color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
-        ),
-      ),
-    ) : null;
+            color: Colors.transparent,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              iconSize: 25,
+              onPressed: () {
+                ShareUtil.share(
+                  text: addressListViewModel.uri.toString(),
+                  context: context,
+                );
+              },
+              icon: Icon(
+                Icons.share,
+                size: 20,
+                color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+              ),
+            ),
+          )
+        : null;
   }
 
   @override
@@ -177,7 +173,7 @@ class AddressPage extends BasePage {
         tapOutsideToDismiss: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -212,10 +208,12 @@ class AddressPage extends BasePage {
                             padding: EdgeInsets.only(left: 24, right: 12),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(25)),
-                                border: Border.all(
-                                    color: Theme.of(context).textTheme.subtitle1!.color!, width: 1),
-                                color: Theme.of(context).buttonColor),
+                              borderRadius: BorderRadius.all(Radius.circular(25)),
+                              border: Border.all(
+                                  color: Theme.of(context).textTheme.subtitle1!.color!, width: 1),
+                              color:
+                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -234,20 +232,23 @@ class AddressPage extends BasePage {
                                     return Text(
                                       label,
                                       style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context)
-                                              .accentTextTheme
-                                              .headline2!
-                                              .backgroundColor!),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context)
+                                            .accentTextTheme
+                                            .displayMedium!
+                                            .backgroundColor!,
+                                      ),
                                     );
                                   },
                                 ),
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   size: 14,
-                                  color:
-                                      Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                                  color: Theme.of(context)
+                                      .accentTextTheme
+                                      .displayMedium!
+                                      .backgroundColor!,
                                 )
                               ],
                             ),
@@ -269,7 +270,8 @@ class AddressPage extends BasePage {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 15,
-                            color: Theme.of(context).accentTextTheme.headline3!.backgroundColor!));
+                            color:
+                                Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!));
               })
             ],
           ),
