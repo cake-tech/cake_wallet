@@ -19,7 +19,7 @@ class ListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Theme.of(context).backgroundColor,
+      color: Theme.of(context).colorScheme.background,
       child: Padding(
         padding:
         const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
@@ -30,8 +30,10 @@ class ListRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
-                      color:
-                      Theme.of(context).primaryTextTheme!.overline!.color!),
+                      color: Theme.of(context)
+                          .primaryTextTheme!
+                          .labelSmall!
+                          .color!),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),
@@ -47,7 +49,7 @@ class ListRow extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context)
                                   .primaryTextTheme!
-                                  .headline6!
+                                  .titleLarge!
                                   .color!)),
                     ),
                     image != null

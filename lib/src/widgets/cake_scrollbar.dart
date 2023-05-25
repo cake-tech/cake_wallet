@@ -27,7 +27,8 @@ class CakeScrollbar extends StatelessWidget {
           height: backgroundHeight,
           width: width,
           decoration: BoxDecoration(
-              color: backgroundColor ?? Theme.of(context).textTheme!.bodyText2!.decorationColor!,
+              color: backgroundColor ??
+                  Theme.of(context).textTheme!.bodyMedium!.decorationColor!,
               borderRadius: BorderRadius.all(Radius.circular(3))),
           child: Stack(
             children: <Widget>[
@@ -38,7 +39,8 @@ class CakeScrollbar extends StatelessWidget {
                   height: thumbHeight,
                   width: width,
                   decoration: BoxDecoration(
-                      color: thumbColor ?? Theme.of(context).textTheme!.bodyText2!.color!,
+                      color: thumbColor ??
+                          Theme.of(context).textTheme!.bodyMedium!.color!,
                       borderRadius: BorderRadius.all(Radius.circular(3))),
                 ),
               )

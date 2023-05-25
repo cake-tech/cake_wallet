@@ -111,7 +111,10 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                 Navigator.pop(context);
               },
               text: S.of(context).continue_text,
-              color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .bodyLarge!
+                  .color!,
               textColor: Colors.white,
             ),
             const SizedBox(height: 25),
@@ -121,7 +124,10 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                 S.of(context).settings_can_be_changed_later,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Theme.of(context).accentTextTheme.headline2?.color,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .displayMedium!
+                      .color,
                 ),
               ),
             ),

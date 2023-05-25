@@ -69,14 +69,17 @@ class AnonInvoiceForm extends StatelessWidget {
             BaseTextFormField(
               controller: nameController,
               focusNode: _nameFocusNode,
-              borderColor: Theme.of(context).primaryTextTheme.bodyText1!.color!,
+              borderColor: Theme.of(context).primaryTextTheme!.bodyLarge!.color!,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_name,
               textInputAction: TextInputAction.next,
               placeholderTextStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).accentTextTheme.headline1!.decorationColor!,
+                color: Theme.of(context)
+                    .accentTextTheme!
+                    .displayLarge!
+                    .decorationColor!,
               ),
               textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
               validator: null,
@@ -88,13 +91,16 @@ class AnonInvoiceForm extends StatelessWidget {
               controller: descriptionController,
               focusNode: _descriptionFocusNode,
               textInputAction: TextInputAction.next,
-              borderColor: Theme.of(context).primaryTextTheme.bodyText1!.color!,
+              borderColor: Theme.of(context).primaryTextTheme!.bodyLarge!.color!,
               suffixIcon: SizedBox(width: 36),
               hintText: S.of(context).optional_description,
               placeholderTextStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).accentTextTheme.headline1!.decorationColor!,
+                color: Theme.of(context)
+                    .accentTextTheme!
+                    .displayLarge!
+                    .decorationColor!,
               ),
               textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
               validator: null,
@@ -104,14 +110,17 @@ class AnonInvoiceForm extends StatelessWidget {
               controller: emailController,
               textInputAction: TextInputAction.next,
               focusNode: _emailFocusNode,
-              borderColor: Theme.of(context).primaryTextTheme.bodyText1!.color!,
+              borderColor: Theme.of(context).primaryTextTheme!.bodyLarge!.color!,
               suffixIcon: SizedBox(width: 36),
               keyboardType: TextInputType.emailAddress,
               hintText: S.of(context).optional_email_hint,
               placeholderTextStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).accentTextTheme.headline1!.decorationColor!,
+                color: Theme.of(context)
+                    .accentTextTheme!
+                    .displayLarge!
+                    .decorationColor!,
               ),
               textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
               validator: EmailValidator(),

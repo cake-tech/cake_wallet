@@ -192,10 +192,10 @@ class SendPage extends BasePage {
                                     dotWidth: 6.0,
                                     dotHeight: 6.0,
                                     dotColor: Theme.of(context)
-                                        .primaryTextTheme.headline3!
+                                        .primaryTextTheme!.displaySmall!
                                         .backgroundColor!,
                                     activeDotColor: Theme.of(context)
-                                        .primaryTextTheme.headline2!
+                                        .primaryTextTheme!.displayMedium!
                                         .backgroundColor!),
                               )
                             : Offstage();
@@ -294,7 +294,7 @@ class SendPage extends BasePage {
                       text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                       color: Colors.transparent,
                       textColor: Theme.of(context)
-                          .accentTextTheme.headline3!
+                          .accentTextTheme!.displaySmall!
                           .decorationColor!,
                     )
                   )
@@ -312,11 +312,11 @@ class SendPage extends BasePage {
                       text: S.of(context).add_receiver,
                       color: Colors.transparent,
                       textColor: Theme.of(context)
-                          .accentTextTheme.headline3!
+                          .accentTextTheme!.displaySmall!
                           .decorationColor!,
                       isDottedBorder: true,
                       borderColor: Theme.of(context)
-                          .primaryTextTheme.headline3!
+                          .primaryTextTheme!.displaySmall!
                           .decorationColor!,
                     )),
               Observer(
@@ -345,7 +345,7 @@ class SendPage extends BasePage {
 
                     },
                     text: S.of(context).send,
-                    color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                     textColor: Colors.white,
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,
