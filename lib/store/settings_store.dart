@@ -404,15 +404,12 @@ abstract class SettingsStoreBase with Store {
     final havenNode = nodeSource.get(havenNodeId);
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
-    final packageInfo = await PackageInfo.fromPlatform();
     var appVersion = '';
 
     try {
+      final packageInfo = await PackageInfo.fromPlatform();
       appVersion = packageInfo.version;
     } catch(_) {}
-
-    final shouldShowYatPopup =
-        sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
 
     final nodes = <WalletType, Node>{};
 
