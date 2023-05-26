@@ -4,6 +4,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';

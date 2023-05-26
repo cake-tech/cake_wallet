@@ -15,8 +15,8 @@ if [ -n "$1" ]; then
 fi
 
 CAKEWALLET_NAME="Cake Wallet"
-CAKEWALLET_VERSION="1.0.4"
-CAKEWALLET_BUILD_NUMBER=22
+CAKEWALLET_VERSION="1.0.5"
+CAKEWALLET_BUILD_NUMBER=24
 CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_MACOS_TYPE} " ]]; then
