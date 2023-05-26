@@ -73,4 +73,6 @@ abstract class WalletBase<
   Future<void> changePassword(String password);
 
   String get password;
+
+  Future<void>? updateBalance();
 }

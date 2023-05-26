@@ -128,7 +128,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                       'assets/images/refresh_icon.png',
                       color: Theme.of(context)
                           .primaryTextTheme!
-                          .headline4!
+                          .headlineMedium!
                           .decorationColor!,
                     ),
                   ),

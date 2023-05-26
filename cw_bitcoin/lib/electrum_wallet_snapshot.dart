@@ -37,7 +37,7 @@ class ElectrumWallletSnapshot {
         .map((addr) => BitcoinAddressRecord.fromJSON(addr))
         .toList();
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
-        ElectrumBalance(confirmed: 0, unconfirmed: 0);
+        ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     var regularAddressIndex = 0;
     var changeAddressIndex = 0;
 

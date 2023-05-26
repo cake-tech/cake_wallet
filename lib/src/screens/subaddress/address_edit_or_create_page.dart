@@ -1,5 +1,4 @@
 import 'package:mobx/mobx.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -23,18 +22,14 @@ class AddressEditOrCreatePage extends BasePage {
   final GlobalKey<FormState> _formKey;
   final TextEditingController _labelController;
 
+  bool _isEffectsInstalled = false;
+
   @override
   String get title => S.current.new_subaddress_title;
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => addressEditOrCreateViewModel.state,
-        (AddressEditOrCreateState state) {
-      if (state is AddressSavedSuccessfully) {
-        WidgetsBinding.instance
-            .addPostFrameCallback((_) => Navigator.of(context).pop());
-      }
-    });
+    _setEffects(context);
 
     return Form(
         key: _formKey,
@@ -58,7 +53,10 @@ class AddressEditOrCreatePage extends BasePage {
                   text: addressEditOrCreateViewModel.isEdit
                       ? S.of(context).rename
                       : S.of(context).new_subaddress_create,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                   isLoading:
                       addressEditOrCreateViewModel.state is AddressIsSaving,
@@ -69,5 +67,20 @@ class AddressEditOrCreatePage extends BasePage {
             ],
           ),
         ));
+  }
+
+  void _setEffects(BuildContext context) {
+    if (_isEffectsInstalled) {
+      return;
+    }
+    reaction((_) => addressEditOrCreateViewModel.state,
+            (AddressEditOrCreateState state) {
+          if (state is AddressSavedSuccessfully) {
+            WidgetsBinding.instance
+                .addPostFrameCallback((_) => Navigator.of(context).pop());
+          }
+        });
+
+    _isEffectsInstalled = true;
   }
 }

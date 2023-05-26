@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -22,8 +24,12 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
@@ -71,7 +77,7 @@ class _DashboardPageView extends BasePage {
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
@@ -93,7 +99,10 @@ class _DashboardPageView extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset('assets/images/menu.png',
-        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayMedium!
+            .backgroundColor);
 
     return Container(
         alignment: Alignment.centerRight,
@@ -117,7 +126,7 @@ class _DashboardPageView extends BasePage {
   @override
   Widget body(BuildContext context) {
     final controller = PageController(initialPage: initialPage);
-    
+
     reaction((_) => dashboardViewModel.shouldShowMarketPlaceInDashboard, (bool value) {
       if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
         controller.jumpToPage(0);
@@ -131,7 +140,7 @@ class _DashboardPageView extends BasePage {
       } else {
         controller.jumpToPage(0);
       }
-    }); 
+    });
     _setEffects(context);
 
     return SafeArea(
@@ -161,7 +170,7 @@ class _DashboardPageView extends BasePage {
                           dotColor: Theme.of(context).indicatorColor,
                           activeDotColor: Theme.of(context)
                               .accentTextTheme!
-                              .headline4!
+                              .headlineMedium!
                               .backgroundColor!),
                     ),
                   );
@@ -180,7 +189,10 @@ class _DashboardPageView extends BasePage {
                             : Colors.transparent,
                         width: 1,
                       ),
-                      color: Theme.of(context).textTheme.headline6!.backgroundColor!,
+                      color: Theme.of(context)
+                          .textTheme!
+                          .titleLarge!
+                          .backgroundColor!,
                     ),
                     child: Container(
                       padding: EdgeInsets.only(left: 32, right: 32),
@@ -201,12 +213,12 @@ class _DashboardPageView extends BasePage {
                                                     dashboardViewModel) ??
                                                 true
                                             ? Theme.of(context)
-                                                .accentTextTheme
-                                                .headline2!
+                                                .accentTextTheme!
+                                                .displayMedium!
                                                 .backgroundColor!
                                             : Theme.of(context)
-                                                .accentTextTheme
-                                                .headline3!
+                                                .accentTextTheme!
+                                                .displaySmall!
                                                 .backgroundColor!),
                                     title: action.name(context),
                                     onClick: () async => await action.onTap(
@@ -216,8 +228,8 @@ class _DashboardPageView extends BasePage {
                                             true
                                         ? null
                                         : Theme.of(context)
-                                            .accentTextTheme
-                                            .headline3!
+                                            .accentTextTheme!
+                                            .displaySmall!
                                             .backgroundColor!,
                                   ),
                                 ))
@@ -265,6 +277,25 @@ class _DashboardPageView extends BasePage {
           });
       }
     });
+
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final currentAppVersion =
+        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+      await Future<void>.delayed(Duration(seconds: 1));
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return ReleaseNotesScreen(
+                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
+          });
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    } else if (isNewInstall!) {
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
 
     var needToPresentYat = false;
     var isInactive = false;

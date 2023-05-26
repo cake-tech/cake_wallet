@@ -66,12 +66,15 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                             }
                           },
                           image: item.image,
-                          title: item.name,
+                          title: item.name.call(context),
                         );
                       },
                       separatorBuilder: (_, index) => Container(
                         height: 1,
-                        color: Theme.of(context).primaryTextTheme.caption!.decorationColor!,
+                        color: Theme.of(context)
+                            .primaryTextTheme!
+                            .bodySmall!
+                            .decorationColor!,
                       ),
                       itemCount: itemCount,
                     ),

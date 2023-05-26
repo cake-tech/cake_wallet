@@ -126,7 +126,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                         'assets/images/refresh_icon.png',
                         color: Theme.of(context)
                             .primaryTextTheme!
-                            .headline4!
+                            .headlineMedium!
                             .decorationColor!,
                       ),
                     ),

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -20,18 +21,24 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
-  WalletListPage({required this.walletListViewModel});
+  WalletListPage({required this.walletListViewModel, required this.authService});
 
   final WalletListViewModel walletListViewModel;
+  final AuthService authService;
 
   @override
-  Widget body(BuildContext context) => WalletListBody(walletListViewModel: walletListViewModel);
+  String get title => S.current.wallets;
+
+  @override
+  Widget body(BuildContext context) =>
+      WalletListBody(walletListViewModel: walletListViewModel, authService: authService);
 }
 
 class WalletListBody extends StatefulWidget {
-  WalletListBody({required this.walletListViewModel});
+  WalletListBody({required this.walletListViewModel, required this.authService});
 
   final WalletListViewModel walletListViewModel;
+  final AuthService authService;
 
   @override
   WalletListBodyState createState() => WalletListBodyState();
@@ -52,7 +59,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage =
         Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).primaryTextTheme.headline6!.color!);
+        height: 12, width: 12, color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
 
     return Container(
       padding: EdgeInsets.only(top: 16),
@@ -64,13 +71,13 @@ class WalletListBodyState extends State<WalletListBody> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   separatorBuilder: (_, index) =>
-                      Divider(color: Theme.of(context).backgroundColor, height: 32),
+                      Divider(color: Theme.of(context).colorScheme.background, height: 32),
                   itemCount: widget.walletListViewModel.wallets.length,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
-                        ? Theme.of(context).accentTextTheme.subtitle2!.decorationColor!
-                        : Theme.of(context).backgroundColor;
+                        ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
+                        : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
                         onTap: () async {
                           if (wallet.isCurrent || !wallet.isEnabled) {
@@ -115,7 +122,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 child: Container(
                                   height: tileHeight,
                                   padding: EdgeInsets.only(left: 20, right: 20),
-                                  color: Theme.of(context).backgroundColor,
+                                  color: Theme.of(context).colorScheme.background,
                                   alignment: Alignment.centerLeft,
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -130,7 +137,8 @@ class WalletListBodyState extends State<WalletListBody> {
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
-                                                .primaryTextTheme.headline6!
+                                                .primaryTextTheme
+                                                .titleLarge!
                                                 .color!),
                                       )
                                     ],
@@ -165,23 +173,18 @@ class WalletListBodyState extends State<WalletListBody> {
               },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+              color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
               textColor: Colors.white,
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () {
-                  if (isSingleCoin) {
-                    Navigator.of(context).pushNamed(Routes.restoreWallet,
-                        arguments: widget.walletListViewModel.currentWalletType);
-                  } else {
-                    Navigator.of(context).pushNamed(Routes.restoreWalletType);
-                  }
+                  Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).accentTextTheme.caption!.color!,
-                textColor: Theme.of(context).primaryTextTheme.headline6!.color!)
+                color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!)
           ])),
     );
   }
@@ -202,61 +205,40 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    if (await widget.walletListViewModel.checkIfAuthRequired()) {
-      await Navigator.of(context).pushNamed(Routes.auth,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
+    await widget.authService.authenticateAction(context,
+        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+      if (!isAuthenticatedSuccessfully) {
+        return;
+      }
 
-        try {
-          auth.changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-          await widget.walletListViewModel.loadWallet(wallet);
-          auth.hideProgressText();
-          auth.close();
-          // only pop the wallets route in mobile as it will go back to dashboard page
-          // in desktop platforms the navigation tree is different
-          if (DeviceInfo.instance.isMobile) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop();
-            });
-          }
-        } catch (e) {
-          auth.changeProcessText(
-              S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
-        }
-      });
-    } else {
       try {
         changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
-        hideProgressText();
+        await hideProgressText();
         // only pop the wallets route in mobile as it will go back to dashboard page
         // in desktop platforms the navigation tree is different
         if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pop();
+          });
         }
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
-    }
+    });
   }
 
   Future<void> _removeWallet(WalletListItem wallet) async {
-    if (widget.walletListViewModel.checkIfAuthRequired()) {
-      await Navigator.of(context).pushNamed(Routes.auth,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
-        _onSuccessfulAuth(wallet, auth);
-      });
-    } else {
-      _onSuccessfulAuth(wallet, null);
-    }
+    widget.authService.authenticateAction(context,
+        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+      if (!isAuthenticatedSuccessfully) {
+        return;
+      }
+      _onSuccessfulAuth(wallet);
+    });
   }
 
-  void _onSuccessfulAuth(WalletListItem wallet, AuthPageState? auth) async {
+  void _onSuccessfulAuth(WalletListItem wallet) async {
     bool confirmed = false;
     await showPopUp<void>(
         context: context,
@@ -276,31 +258,23 @@ class WalletListBodyState extends State<WalletListBody> {
 
     if (confirmed) {
       try {
-        auth != null
-            ? auth.changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name))
-            : changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
+        changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
         await widget.walletListViewModel.remove(wallet);
         hideProgressText();
       } catch (e) {
-        auth != null
-            ? auth.changeProcessText(
-                S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
-              )
-            : changeProcessText(
-                S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
-              );
+        changeProcessText(
+          S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
+        );
       }
     }
-
-    auth?.close();
   }
 
   void changeProcessText(String text) {
     _progressBar = createBar<void>(text, duration: null)..show(context);
   }
 
-  void hideProgressText() {
-    Future.delayed(Duration(milliseconds: 50), () {
+  Future<void> hideProgressText() async {
+    await Future.delayed(Duration(milliseconds: 50), () {
       _progressBar?.dismiss();
       _progressBar = null;
     });

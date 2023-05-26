@@ -285,6 +285,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'ERC20';
       case 'TRX':
         return 'TRC20';
+      case 'LN':
+        return 'Lightning';
       default:
         return tag.toLowerCase();
     }

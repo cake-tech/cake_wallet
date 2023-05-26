@@ -48,6 +48,24 @@ class PrivacyPage extends BasePage {
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
                 }),
+            SettingsSwitcherCell(
+                title: S.current.prevent_screenshots,
+                value: _privacySettingsViewModel.isAppSecure,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setIsAppSecure(value);
+                }),
+            SettingsSwitcherCell(
+                title: S.current.disable_buy,
+                value: _privacySettingsViewModel.disableBuy,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setDisableBuy(value);
+                }),
+            SettingsSwitcherCell(
+                title: S.current.disable_sell,
+                value: _privacySettingsViewModel.disableSell,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setDisableSell(value);
+                }),
           ],
         );
       }),

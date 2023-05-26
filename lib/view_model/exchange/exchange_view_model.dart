@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
@@ -198,6 +197,9 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isFixedRateMode;
 
+  @observable
+  Limits limits;
+
   @computed
   SyncStatus get status => wallet.syncStatus;
 
@@ -241,9 +243,7 @@ abstract class ExchangeViewModelBase with Store {
 
   List<CryptoCurrency> depositCurrencies;
 
-  Limits limits;
-
-  NumberFormat _cryptoNumberFormat;
+  final NumberFormat _cryptoNumberFormat;
 
   final SettingsStore _settingsStore;
 
@@ -320,6 +320,22 @@ abstract class ExchangeViewModelBase with Store {
         .replaceAll(RegExp('\\,'), '');
   }
 
+  bool checkIfInputMeetsMinOrMaxCondition(String input) {
+    final _enteredAmount = double.tryParse(input.replaceAll(',', '.')) ?? 0;
+    double minLimit = limits.min ?? 0;
+    double? maxLimit = limits.max;
+
+    if (_enteredAmount < minLimit) {
+      return false;
+    }
+
+    if (maxLimit != null && _enteredAmount > maxLimit) {
+      return false;
+    }
+
+    return true;
+  }
+
   Future<void> _calculateBestRate() async {
     final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
 
@@ -371,27 +387,36 @@ abstract class ExchangeViewModelBase with Store {
     double? lowestMin = double.maxFinite;
     double? highestMax = 0.0;
 
-    for (var provider in selectedProviders) {
-      /// if this provider is not valid for the current pair, skip it
-      if (!providersForCurrentPair().contains(provider)) {
-        continue;
-      }
-
-      try {
-        final tempLimits = await provider.fetchLimits(
-            from: from,
-            to: to,
-            isFixedRateMode: isFixedRateMode);
-
-        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) {
-          lowestMin = tempLimits.min;
+    try {
+      for (var provider in selectedProviders) {
+        /// if this provider is not valid for the current pair, skip it
+        if (!providersForCurrentPair().contains(provider)) {
+          continue;
         }
-        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax) {
-          highestMax = tempLimits.max;
+
+        try {
+          final tempLimits = await provider.fetchLimits(
+              from: from,
+              to: to,
+              isFixedRateMode: isFixedRateMode);
+
+          if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) {
+            lowestMin = tempLimits.min;
+          }
+          if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax) {
+            highestMax = tempLimits.max;
+          }
+        } catch (e) {
+          continue;
         }
-      } catch (e) {
-        continue;
       }
+    } on ConcurrentModificationError {
+      /// if user changed the selected providers while fetching limits
+      /// then delay the fetching limits a bit and try again
+      ///
+      /// this is because the limitation of collections that
+      /// you can't modify it while iterating through it
+      Future.delayed(Duration(milliseconds: 200), loadLimits);
     }
 
     if (lowestMin != double.maxFinite) {
@@ -517,7 +542,7 @@ abstract class ExchangeViewModelBase with Store {
       ///
       /// this is because the limitation of the SplayTreeMap that
       /// you can't modify it while iterating through it
-      Future.delayed(Duration(milliseconds: 500), createTrade);
+      Future.delayed(Duration(milliseconds: 200), createTrade);
     }
   }
 
@@ -561,14 +586,18 @@ abstract class ExchangeViewModelBase with Store {
           required String receiveCurrency,
           required String provider,
           required String depositAddress,
-          required String receiveAddress}) =>
+          required String receiveAddress,
+          required String depositCurrencyTitle,
+          required String receiveCurrencyTitle}) =>
       _exchangeTemplateStore.addTemplate(
           amount: amount,
           depositCurrency: depositCurrency,
           receiveCurrency: receiveCurrency,
           provider: provider,
           depositAddress: depositAddress,
-          receiveAddress: receiveAddress);
+          receiveAddress: receiveAddress,
+          depositCurrencyTitle: depositCurrencyTitle,
+          receiveCurrencyTitle: receiveCurrencyTitle);
 
   void removeTemplate({required ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);

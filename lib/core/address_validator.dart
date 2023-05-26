@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -7,6 +7,9 @@ class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
+            useAdditionalValidation: type == CryptoCurrency.btc
+                ? bitcoin.Address.validateAddress
+                : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -18,8 +21,7 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return '^1[0-9a-zA-Z]{32}\$|^1[0-9a-zA-Z]{33}\$|^3[0-9a-zA-Z]{32}\$'
-            '|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{39}\$|^bc1[0-9a-zA-Z]{59}\$';
+        return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:
@@ -59,11 +61,12 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
-      case CryptoCurrency.ltc:
       case CryptoCurrency.bch:
       case CryptoCurrency.bnb:
         return '[0-9a-zA-Z]';
-      case  CryptoCurrency.hbar:
+      case CryptoCurrency.ltc:
+        return '^(?!(ltc|LTC)1)[0-9a-zA-Z]*\$|(^LTC1[A-Z0-9]*\$)|(^ltc1[a-z0-9]*\$)';
+      case CryptoCurrency.hbar:
         return '[0-9a-zA-Z.]';
       case CryptoCurrency.zaddr:
         return '^zs[0-9a-zA-Z]{75}';
@@ -85,6 +88,8 @@ class AddressValidator extends TextValidator {
         return 'R[0-9a-zA-Z]{33}';
       case CryptoCurrency.pivx:
         return 'D([1-9a-km-zA-HJ-NP-Z]){33}';
+      case CryptoCurrency.btcln:
+        return '^(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       default:
         return '[0-9a-zA-Z]';
     }
@@ -115,7 +120,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.eth:
         return [42];
       case CryptoCurrency.ltc:
-        return [34, 43];
+        return [34, 43, 63];
       case CryptoCurrency.nano:
         return [64, 65];
       case CryptoCurrency.sc:
@@ -163,9 +168,9 @@ class AddressValidator extends TextValidator {
         return [34];
       case CryptoCurrency.hbar:
         return [4, 5, 6, 7, 8, 9, 10, 11];
-      case  CryptoCurrency.xvg:
+      case CryptoCurrency.xvg:
         return [34];
-      case  CryptoCurrency.zen:
+      case CryptoCurrency.zen:
         return [35];
       case CryptoCurrency.zaddr:
         return null;
@@ -194,6 +199,8 @@ class AddressValidator extends TextValidator {
         return [45];
       case CryptoCurrency.near:
         return [64];
+      case CryptoCurrency.btcln:
+        return null;
       default:
         return [];
     }

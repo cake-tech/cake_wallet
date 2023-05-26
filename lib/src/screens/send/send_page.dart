@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -53,7 +54,37 @@ class SendPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
-  bool get canUseCloseIcon => true;
+  Widget? leading(BuildContext context) {
+    final _backButton = Icon(Icons.arrow_back_ios,
+      color: titleColor,
+      size: 16,
+    );
+    final _closeButton = currentTheme.type == ThemeType.dark
+        ? closeButtonImageDarkTheme : closeButtonImage;
+
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: !isMobileView ? 'Close' : 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child: !isMobileView ? _closeButton : _backButton,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
@@ -161,10 +192,10 @@ class SendPage extends BasePage {
                                     dotWidth: 6.0,
                                     dotHeight: 6.0,
                                     dotColor: Theme.of(context)
-                                        .primaryTextTheme.headline3!
+                                        .primaryTextTheme!.displaySmall!
                                         .backgroundColor!,
                                     activeDotColor: Theme.of(context)
-                                        .primaryTextTheme.headline2!
+                                        .primaryTextTheme!.displayMedium!
                                         .backgroundColor!),
                               )
                             : Offstage();
@@ -263,7 +294,7 @@ class SendPage extends BasePage {
                       text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                       color: Colors.transparent,
                       textColor: Theme.of(context)
-                          .accentTextTheme.headline3!
+                          .accentTextTheme!.displaySmall!
                           .decorationColor!,
                     )
                   )
@@ -281,11 +312,11 @@ class SendPage extends BasePage {
                       text: S.of(context).add_receiver,
                       color: Colors.transparent,
                       textColor: Theme.of(context)
-                          .accentTextTheme.headline3!
+                          .accentTextTheme!.displaySmall!
                           .decorationColor!,
                       isDottedBorder: true,
                       borderColor: Theme.of(context)
-                          .primaryTextTheme.headline3!
+                          .primaryTextTheme!.displaySmall!
                           .decorationColor!,
                     )),
               Observer(
@@ -314,7 +345,7 @@ class SendPage extends BasePage {
 
                     },
                     text: S.of(context).send,
-                    color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                     textColor: Colors.white,
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,

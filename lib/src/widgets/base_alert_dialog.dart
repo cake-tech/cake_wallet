@@ -25,7 +25,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
         decoration: TextDecoration.none,
       ),
     );
@@ -39,7 +39,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
         fontFamily: 'Lato',
-        color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
         decoration: TextDecoration.none,
       ),
     );
@@ -59,7 +59,7 @@ class BaseAlertDialog extends StatelessWidget {
                       backgroundColor: leftActionButtonColor ??
                           Theme.of(context)
                               .accentTextTheme!
-                              .bodyText1!
+                              .bodyLarge!
                               .decorationColor!,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.zero))),
@@ -71,8 +71,10 @@ class BaseAlertDialog extends StatelessWidget {
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
                       color: leftActionButtonTextColor ??
-                          Theme.of(context).primaryTextTheme!
-                              .bodyText1!.backgroundColor!,
+                          Theme.of(context)
+                              .primaryTextTheme!
+                              .bodyLarge!
+                              .backgroundColor!,
                       decoration: TextDecoration.none,
                     ),
                   )),
@@ -83,8 +85,10 @@ class BaseAlertDialog extends StatelessWidget {
                   onPressed: actionRight,
                   style: TextButton.styleFrom(
                       backgroundColor: rightActionButtonColor ??
-                          Theme.of(context).accentTextTheme!
-                              .bodyText2!.backgroundColor!,
+                          Theme.of(context)
+                              .accentTextTheme!
+                              .bodyMedium!
+                              .backgroundColor!,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.zero))),
                   child: Text(
@@ -97,7 +101,7 @@ class BaseAlertDialog extends StatelessWidget {
                       color: rightActionButtonTextColor ??
                           Theme.of(context)
                               .primaryTextTheme!
-                              .bodyText2!
+                              .bodyMedium!
                               .backgroundColor!,
                       decoration: TextDecoration.none,
                     ),
@@ -124,7 +128,10 @@ class BaseAlertDialog extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
                     width: 300,
-                    color: Theme.of(context).accentTextTheme!.headline6!.decorationColor!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .titleLarge!
+                        .decorationColor!,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[

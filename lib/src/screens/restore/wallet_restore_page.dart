@@ -21,6 +21,7 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
@@ -96,7 +97,8 @@ class WalletRestorePage extends BasePage {
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
-                color: titleColor ?? Theme.of(context).primaryTextTheme.headline6!.color!),
+                color: titleColor ??
+                    Theme.of(context).primaryTextTheme!.titleLarge!.color!),
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
@@ -145,7 +147,10 @@ class WalletRestorePage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-        keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
+        keyboardBarColor: Theme.of(context)
+            .accentTextTheme!
+            .bodyLarge!
+            .backgroundColor!,
         nextFocus: false,
         actions: [
           KeyboardActionsItem(
@@ -156,7 +161,7 @@ class WalletRestorePage extends BasePage {
       ),
       child: Container(
         height: 0,
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
@@ -197,8 +202,14 @@ class WalletRestorePage extends BasePage {
                       return LoadingPrimaryButton(
                         onPressed: _confirmForm,
                         text: S.of(context).restore_recover,
-                        color: Theme.of(context).accentTextTheme.subtitle2!.decorationColor!,
-                        textColor: Theme.of(context).accentTextTheme.headline5!.decorationColor!,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .titleSmall!
+                            .decorationColor!,
+                        textColor: Theme.of(context)
+                            .accentTextTheme!
+                            .headlineSmall!
+                            .decorationColor!,
                         isLoading: walletRestoreViewModel.state is IsExecutingState,
                         isDisabled: !walletRestoreViewModel.isButtonEnabled,
                       );

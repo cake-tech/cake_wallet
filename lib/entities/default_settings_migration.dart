@@ -42,6 +42,13 @@ Future defaultSettingsMigration(
   // check current nodes for nullability regardless of the version
   await checkCurrentNodes(nodes, sharedPreferences);
 
+  final isNewInstall = sharedPreferences
+      .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
+
+  await sharedPreferences.setBool(
+      PreferencesKey.isNewInstall, isNewInstall);
+
+
   final currentVersion = sharedPreferences
           .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ??
       0;

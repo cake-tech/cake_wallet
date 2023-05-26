@@ -142,10 +142,8 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
     required this.feeValue,
     required this.feeFiatAmount,
     required this.outputs})
-      : itemCount = 0,
-        recipientTitle = '' {
-    itemCount = outputs.length;
-    recipientTitle = itemCount > 1
+      : recipientTitle = '' {
+    recipientTitle = outputs.length > 1
         ? S.current.transaction_details_recipient_address
         : S.current.recipient_address;
   }
@@ -165,7 +163,6 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
   ScrollController controller = ScrollController();
   double fromTop = 0;
   String recipientTitle;
-  int itemCount;
   bool showScrollbar = false;
 
   @override
@@ -209,7 +206,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
                                 color: Theme.of(context).primaryTextTheme!
-                                    .headline6!.color!,
+                                    .titleLarge!.color!,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -223,7 +220,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
                                     color: Theme.of(context).primaryTextTheme!
-                                        .headline6!.color!,
+                                        .titleLarge!.color!,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -245,7 +242,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                             fontFamily: 'Lato',
                             color: Theme.of(context)
                                 .primaryTextTheme!
-                                .headline6!
+                                .titleLarge!
                                 .color!,
                             decoration: TextDecoration.none,
                           ),
@@ -261,7 +258,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontFamily: 'Lato',
                                 color: Theme.of(context)
                                     .primaryTextTheme!
-                                    .headline6!
+                                    .titleLarge!
                                     .color,
                                 decoration: TextDecoration.none,
                               ),
@@ -293,7 +290,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -306,7 +303,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                    color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -337,17 +334,17 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               fontFamily: 'Lato',
                               color: Theme.of(context)
                                   .primaryTextTheme!
-                                  .headline6!
+                                  .titleLarge!
                                   .color!,
                               decoration: TextDecoration.none,
                             ),
                           ),
-                          itemCount > 1
+                          outputs.length > 1
                               ? ListView.builder(
                               padding: EdgeInsets.only(top: 0),
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              itemCount: itemCount,
+                              itemCount: outputs.length,
                               itemBuilder: (context, index) {
                                 final item = outputs[index];
                                 final _address = item.isParsedAddress

@@ -1,11 +1,16 @@
+import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+
+import '../src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class AuthService with Store {
   AuthService({
@@ -13,6 +18,14 @@ class AuthService with Store {
     required this.sharedPreferences,
     required this.settingsStore,
   });
+
+  static const List<String> _alwaysAuthenticateRoutes = [
+    Routes.showKeys,
+    Routes.backup,
+    Routes.setupPin,
+    Routes.setup_2faPage,
+    Routes.modify2FAPage,
+  ];
 
   final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
@@ -65,5 +78,61 @@ class AuthService with Store {
     Duration timeDifference = now.difference(before);
 
     return timeDifference.inMinutes;
+  }
+
+  Future<void> authenticateAction(BuildContext context,
+      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
+    assert(route != null || onAuthSuccess != null,
+        'Either route or onAuthSuccess param must be passed.');
+
+    if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+      if (onAuthSuccess != null) {
+        onAuthSuccess(true);
+      } else {
+        Navigator.of(context).pushNamed(
+          route ?? '',
+          arguments: arguments,
+        );
+      }
+      return;
+    }
+
+
+    Navigator.of(context).pushNamed(Routes.auth,
+        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+      if (!isAuthenticatedSuccessfully) {
+        onAuthSuccess?.call(false);
+        return;
+      } else {
+        if (settingsStore.useTOTP2FA) {
+          auth.close(
+            route: Routes.totpAuthCodePage,
+            arguments: TotpAuthArgumentsModel(
+              isForSetup: !settingsStore.useTOTP2FA,
+              onTotpAuthenticationFinished:
+                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
+                if (!isAuthenticatedSuccessfully) {
+                  onAuthSuccess?.call(false);
+                  return;
+                }
+                if (onAuthSuccess != null) {
+                  totpAuth.close().then((value) => onAuthSuccess.call(true));
+                } else {
+                  totpAuth.close(route: route, arguments: arguments);
+                }
+              },
+            ),
+          );
+        } else {
+          if (onAuthSuccess != null) {
+            auth.close().then((value) => onAuthSuccess.call(true));
+          } else {
+            auth.close(route: route, arguments: arguments);
+          }
+        }
+      }
+
+      });
+
   }
 }
