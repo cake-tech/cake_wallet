@@ -146,7 +146,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                       ),
                     ))
              : Container(),
-            backgroundColor: Theme.of(context).backgroundColor,
+            backgroundColor: Theme.of(context).colorScheme.background,
             border: null),
         resizeToAvoidBottomInset: false,
         body: Center(
@@ -165,7 +165,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).primaryTextTheme.headline6!.color!)),
+                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!)),
             				SizedBox(height: 24),
             				Form(
                     	child: TextFormField(
@@ -176,25 +176,25 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                       style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
                       decoration: InputDecoration(
                         hintStyle: TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                            color: Theme.of(context).accentTextTheme.displayMedium!.color!),
                         hintText: S.of(context).enter_wallet_password,
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                                 color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .headline2!
+                                    .accentTextTheme
+                                    .displayMedium!
                                     .decorationColor!,
                                 width: 1.0)),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Theme.of(context)
-                                  .accentTextTheme!
-                                  .headline2!
+                                  .accentTextTheme
+                                  .displayMedium!
                                   .decorationColor!,
                               width: 1.0),
                         )
