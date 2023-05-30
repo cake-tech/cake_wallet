@@ -69,9 +69,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final rate = double.parse(responseJSON['rate'] as String);
-      final max = double.parse(responseJSON['max'] as String);
-
-      if (amount > max) return 0.00;
 
       return rate;
     } catch (_) {
