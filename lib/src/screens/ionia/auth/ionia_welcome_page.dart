@@ -17,7 +17,10 @@ class IoniaWelcomePage extends BasePage {
     return Text(
       S.current.welcome_to_cakepay,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -45,7 +48,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
               SizedBox(height: 20),
@@ -55,7 +58,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
             ],
@@ -66,7 +69,10 @@ class IoniaWelcomePage extends BasePage {
               PrimaryButton(
                 text: S.of(context).create_account,
                 onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaCreateAccountPage),
-                color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                color: Theme.of(context)
+                    .accentTextTheme!
+                    .bodyLarge!
+                    .color!,
                 textColor: Colors.white,
               ),
               SizedBox(
@@ -78,7 +84,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
               SizedBox(height: 8),

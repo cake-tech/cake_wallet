@@ -51,7 +51,10 @@ class ReleaseNotesScreen extends StatelessWidget {
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Lato',
-                              color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .displayMedium!
+                                  .backgroundColor!,
                             ),
                             child: Text(title),
                           ),
@@ -118,7 +121,10 @@ class ReleaseNotesScreen extends StatelessWidget {
               decoration: TextDecoration.none,
               fontSize: 16.0,
               fontFamily: 'Lato',
-              color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .displayMedium!
+                  .backgroundColor!,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

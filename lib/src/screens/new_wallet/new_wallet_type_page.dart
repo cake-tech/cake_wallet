@@ -81,7 +81,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme.headline6!.color!),
+                      color: Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .color!),
                 ),
               ),
               ...types.map((type) => Padding(
@@ -100,7 +103,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       bottomSection: PrimaryButton(
         onPressed: () => onTypeSelected(),
         text: S.of(context).seed_language_next,
-        color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .bodyLarge!
+            .color!,
         textColor: Colors.white,
         isDisabled: selected == null,
       ),

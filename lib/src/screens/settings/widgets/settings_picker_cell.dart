@@ -55,7 +55,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
       style: TextStyle(
         fontSize: 14.0,
         fontWeight: FontWeight.w500,
-        color: Theme.of(context).primaryTextTheme.overline?.color,
+        color: Theme.of(context).primaryTextTheme!.labelSmall?.color,
       ),
     );
   }

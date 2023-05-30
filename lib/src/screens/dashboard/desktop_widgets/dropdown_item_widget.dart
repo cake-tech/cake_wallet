@@ -23,7 +23,7 @@ class DropDownItemWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,

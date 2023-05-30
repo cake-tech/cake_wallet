@@ -36,7 +36,10 @@ class ExchangeConfirmPage extends BasePage {
                   style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                      color: Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .color!),
                 ),
               )),
               Container(
@@ -45,8 +48,14 @@ class ExchangeConfirmPage extends BasePage {
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     border: Border.all(
                         width: 1,
-                        color: Theme.of(context).accentTextTheme!.caption!.color!),
-                    color: Theme.of(context).accentTextTheme!.headline6!.color!),
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .bodySmall!
+                            .color!),
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .titleLarge!
+                        .color!),
                 child: Column(
                   children: <Widget>[
                     Expanded(
@@ -63,7 +72,7 @@ class ExchangeConfirmPage extends BasePage {
                                 fontWeight: FontWeight.w500,
                                 color: Theme.of(context)
                                     .primaryTextTheme!
-                                    .overline!
+                                    .labelSmall!
                                     .color!),
                           ),
                           Text(
@@ -75,7 +84,7 @@ class ExchangeConfirmPage extends BasePage {
                                 fontWeight: FontWeight.w600,
                                 color: Theme.of(context)
                                     .primaryTextTheme!
-                                    .headline6!
+                                    .titleLarge!
                                     .color!),
                           ),
                         ],
@@ -93,10 +102,12 @@ class ExchangeConfirmPage extends BasePage {
                             text: S.of(context).copy_id,
                             color: Theme.of(context)
                                 .accentTextTheme!
-                                .caption!
+                                .bodySmall!
                                 .backgroundColor!,
-                            textColor:
-                                Theme.of(context).primaryTextTheme!.headline6!.color!),
+                            textColor: Theme.of(context)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!),
                       ),
                     )
                   ],
@@ -125,7 +136,10 @@ class ExchangeConfirmPage extends BasePage {
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
-              color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .bodyLarge!
+                  .color!,
               textColor: Colors.white)
         ],
       ),

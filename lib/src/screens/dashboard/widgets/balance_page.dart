@@ -35,7 +35,10 @@ class BalancePage extends StatelessWidget {
                         fontSize: 24,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .displayMedium!
+                            .backgroundColor!,
                         height: 1),
                     maxLines: 1,
                     textAlign: TextAlign.center);
@@ -98,7 +101,7 @@ class BalancePage extends StatelessWidget {
                 : Colors.transparent,
             width: 1,
           ),
-          color: Theme.of(context).textTheme!.headline6!.backgroundColor!),
+          color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!),
       child: Container(
           margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -111,7 +114,10 @@ class BalancePage extends StatelessWidget {
                     fontSize: 12,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
-                    color: Theme.of(context).accentTextTheme!.headline3!.backgroundColor!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .displaySmall!
+                        .backgroundColor!,
                     height: 1)),
             SizedBox(height: 5),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -120,7 +126,10 @@ class BalancePage extends StatelessWidget {
                       fontSize: 24,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w900,
-                      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .displayMedium!
+                          .backgroundColor!,
                       height: 1),
                   maxLines: 1,
                   textAlign: TextAlign.center),
@@ -129,7 +138,10 @@ class BalancePage extends StatelessWidget {
                       fontSize: 28,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w800,
-                      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .displayMedium!
+                          .backgroundColor!,
                       height: 1)),
             ]),
             SizedBox(
@@ -141,7 +153,10 @@ class BalancePage extends StatelessWidget {
                     fontSize: 16,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .displayMedium!
+                        .backgroundColor!,
                     height: 1)),
             SizedBox(height: 26),
             if (frozenBalance.isNotEmpty)
@@ -152,7 +167,10 @@ class BalancePage extends StatelessWidget {
                         fontSize: 12,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).accentTextTheme!.headline3!.backgroundColor!,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .displaySmall!
+                            .backgroundColor!,
                         height: 1)),
                 SizedBox(height: 8),
                 AutoSizeText(frozenBalance,
@@ -160,7 +178,10 @@ class BalancePage extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .displayMedium!
+                            .backgroundColor!,
                         height: 1),
                     maxLines: 1,
                     textAlign: TextAlign.center),
@@ -172,7 +193,10 @@ class BalancePage extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .displayMedium!
+                          .backgroundColor!,
                       height: 1),
                 ),
                 SizedBox(height: 24)
@@ -183,7 +207,10 @@ class BalancePage extends StatelessWidget {
                     fontSize: 12,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
-                    color: Theme.of(context).accentTextTheme!.headline3!.backgroundColor!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .displaySmall!
+                        .backgroundColor!,
                     height: 1)),
             SizedBox(height: 8),
             AutoSizeText(additionalBalance,
@@ -191,7 +218,10 @@ class BalancePage extends StatelessWidget {
                     fontSize: 20,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
-                    color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .displayMedium!
+                        .backgroundColor!,
                     height: 1),
                 maxLines: 1,
                 textAlign: TextAlign.center),
@@ -205,7 +235,10 @@ class BalancePage extends StatelessWidget {
                   fontSize: 12,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
-                  color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .displayMedium!
+                      .backgroundColor!,
                   height: 1),
             )
           ])),

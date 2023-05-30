@@ -19,7 +19,10 @@ class IoniaAccountPage extends BasePage {
     return Text(
       S.current.account,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -133,7 +136,10 @@ class IoniaAccountPage extends BasePage {
       bottomSection: Column(
         children: [
           PrimaryButton(
-            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+            color: Theme.of(context)
+                .accentTextTheme!
+                .bodyLarge!
+                .color!,
             textColor: Colors.white,
             text: S.of(context).logout,
             onPressed: () {
@@ -164,11 +170,8 @@ class _GradiantContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context)
-              .primaryTextTheme!
-              .subtitle1!
-              .decorationColor!,
-            Theme.of(context).primaryTextTheme!.subtitle1!.color!,           
+            Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+            Theme.of(context).primaryTextTheme!.titleMedium!.color!,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
