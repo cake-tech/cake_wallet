@@ -8,6 +8,12 @@ import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 
 class EthereumClient {
+  static const Map<CryptoCurrency, String> _erc20Currencies = {
+    CryptoCurrency.usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    CryptoCurrency.usdterc20: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    CryptoCurrency.shib: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+  };
+
   Web3Client? _client;
 
   bool connect(Node node) {
@@ -154,6 +160,7 @@ I/flutter ( 4474): Gas Used: 53000
         final balance = await _client!.call(
           contract: contract,
           function: balanceFunction,
+          // test address: 0x1715a3E4A142d8b698131108995174F37aEBA10D
           params: [userAddress],
         );
 
@@ -177,10 +184,32 @@ I/flutter ( 4474): Gas Used: 53000
 
     return erc20Balances;
   }
-}
 
-Map<CryptoCurrency, String> _erc20Currencies = {
-  CryptoCurrency.usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-  CryptoCurrency.usdterc20: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-  CryptoCurrency.shib: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
-};
+  Future<bool> sendERC20Token(
+      EthereumAddress to, CryptoCurrency erc20Currency, BigInt amount) async {
+    if (_erc20Currencies[erc20Currency] == null) {
+      throw "Unsupported ERC20 token";
+    }
+
+    try {
+      final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
+      final contractAbi = ContractAbi.fromJson(abi, "ERC20");
+
+      final contract = DeployedContract(
+        contractAbi,
+        EthereumAddress.fromHex(_erc20Currencies[erc20Currency]!),
+      );
+
+      final transferFunction = contract.function('transfer');
+      final success = await _client!.call(
+        contract: contract,
+        function: transferFunction,
+        params: [to, amount],
+      );
+
+      return success.first as bool;
+    } catch (e) {
+      return false;
+    }
+  }
+}
