@@ -215,6 +215,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
+    print('findTradeById: $id');
     final url = apiBaseUrl + orderPath + '/' + id;
     final uri = Uri.parse(url);
     final response = await get(uri);
@@ -250,7 +251,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     if (deposits?.isNotEmpty ?? false) {
       status = deposits![0]['status'] as String?;
     }
-    state = TradeState.deserialize(raw: status ?? 'created');
+    state = TradeState.deserialize(raw: status ?? 'waiting');
 
     final expiredAtRaw = responseJSON['expiresAtISO'] as String;
     final expiredAt = DateTime.tryParse(expiredAtRaw)?.toLocal();

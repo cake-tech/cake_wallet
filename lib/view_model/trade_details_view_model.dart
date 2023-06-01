@@ -33,7 +33,8 @@ abstract class TradeDetailsViewModelBase with Store {
     required this.trades,
     required this.settingsStore,
   })  : items = ObservableList<StandartListItem>(),
-        trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ?? tradeForDetails {
+        trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
+            tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider();
@@ -88,7 +89,6 @@ abstract class TradeDetailsViewModelBase with Store {
       if (foundElement != null) {
         trades.get(foundElement.key)?.stateRaw = updatedTrade.stateRaw;
       }
-
 
       trade = updatedTrade;
 
