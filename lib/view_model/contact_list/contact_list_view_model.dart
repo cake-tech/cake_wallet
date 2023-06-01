@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -48,10 +49,16 @@ abstract class ContactListViewModelBase with Store {
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 
   @computed
-  List<ContactRecord> get contactsToShow =>
-      contacts.where((element) => _currency == null || element.type == _currency).toList();
+  List<ContactRecord> get contactsToShow => contacts
+      .where((element) => _isValidForCurrency(element))
+      .toList();
 
   @computed
-  List<WalletContact> get walletContactsToShow =>
-      walletContacts.where((element) => _currency == null || element.type == _currency).toList();
+  List<WalletContact> get walletContactsToShow => walletContacts
+      .where((element) => _isValidForCurrency(element))
+      .toList();
+
+  bool _isValidForCurrency(ContactBase element) {
+    return _currency == null || element.type == _currency || element.type.title == _currency!.tag;
+  }
 }
