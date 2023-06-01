@@ -5,6 +5,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
@@ -42,12 +43,13 @@ class DesktopDashboardPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 400,
+            width: ResponsiveLayoutUtil.instance.isIpad(context) ? 300 : 400,
             child: balancePage,
           ),
           Flexible(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 500),
+              constraints: BoxConstraints(
+                  maxWidth: ResponsiveLayoutUtil.instance.isIpad(context) ? 400 : 500),
               child: Navigator(
                 key: desktopKey,
                 initialRoute: Routes.desktop_actions,

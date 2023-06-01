@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class ResponsiveLayoutUtil {
-  static const double _kMobileThreshold = 900;
+  static const double _kMobileThreshold = 768;
   static const double kDesktopMaxWidthConstraint = 400;
   static const double kPopupWidth = 400;
   static const double kPopupSpaceHeight = 100;
-
+  static const _kIpadMaxWidth = 1024;
 
   const ResponsiveLayoutUtil._();
 
@@ -14,6 +14,12 @@ class ResponsiveLayoutUtil {
   bool isMobile(BuildContext context) {
     final MediaQueryData mediaQueryData = MediaQuery.of(context);
     return mediaQueryData.size.width < _kMobileThreshold;
+  }
+
+  bool isIpad(BuildContext context) {
+    final MediaQueryData mediaQueryData = MediaQuery.of(context);
+    return mediaQueryData.size.width >= _kMobileThreshold &&
+        !(mediaQueryData.size.width > _kIpadMaxWidth);
   }
 
   /// Returns dynamic size.
