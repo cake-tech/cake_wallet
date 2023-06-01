@@ -169,7 +169,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
             fullscreenDialog: true);
       } else if (isSingleCoin) {
         return MaterialPageRoute<void>(
-            fullscreenDialog: true,
             builder: (_) => getIt.get<WalletRestorePage>(
                 param1: availableWalletTypes.first
             ));
@@ -189,7 +188,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<WalletRestorePage>(
               param1: settings.arguments as WalletType));
 
