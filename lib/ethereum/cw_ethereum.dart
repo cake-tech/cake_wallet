@@ -41,8 +41,12 @@ class CWEthereum extends Ethereum {
     return ethereumWallet.feeRate(priority);
   }
 
-  Object createEthereumTransactionCredentials(List<Output> outputs,
-          {required TransactionPriority priority, int? feeRate}) =>
+  Object createEthereumTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  }) =>
       EthereumTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
@@ -56,17 +60,29 @@ class CWEthereum extends Ethereum {
                 formattedCryptoAmount: out.formattedCryptoAmount))
             .toList(),
         priority: priority as EthereumTransactionPriority,
+        currency: currency,
         feeRate: feeRate,
       );
 
-  Object createEthereumTransactionCredentialsRaw(List<OutputInfo> outputs,
-          {TransactionPriority? priority, required int feeRate}) =>
+  Object createEthereumTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  }) =>
       EthereumTransactionCredentials(
         outputs,
-        priority: priority as EthereumTransactionPriority,
+        priority: priority as EthereumTransactionPriority?,
+        currency: currency,
         feeRate: feeRate,
       );
 
   @override
   int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
+
+  @override
+  List<CryptoCurrency> getERC20Currencies(Object wallet) {
+    final ethereumWallet = wallet as EthereumWallet;
+    return ethereumWallet.erc20Currencies;
+  }
 }

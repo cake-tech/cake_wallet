@@ -36,6 +36,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.oxt:
       case CryptoCurrency.paxg:
       case CryptoCurrency.uni:
+      case CryptoCurrency.shib:
         return '0x[0-9a-zA-Z]';
       case CryptoCurrency.xrp:
         return '^[0-9a-zA-Z]{34}\$|^X[0-9a-zA-Z]{46}\$';
@@ -118,6 +119,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.eos:
         return [42];
       case CryptoCurrency.eth:
+      case CryptoCurrency.shib:
         return [42];
       case CryptoCurrency.ltc:
         return [34, 43, 63];

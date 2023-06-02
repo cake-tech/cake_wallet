@@ -123,7 +123,7 @@ abstract class EthereumWalletBase
     final _credentials = credentials as EthereumTransactionCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final balance = await _client.getBalance(_privateKey.address);
+    final _erc20Balance = balance[_credentials.currency]!;
     int totalAmount = 0;
 
     if (hasMultiDestination) {
@@ -133,27 +133,28 @@ abstract class EthereumWalletBase
 
       totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      if (balance.getInWei < EtherAmount.inWei(totalAmount as BigInt).getInWei) {
+      if (_erc20Balance.balance < EtherAmount.inWei(totalAmount as BigInt).getInWei) {
         throw EthereumTransactionCreationException();
       }
     } else {
       final output = outputs.first;
-      final int allAmount = balance.getInWei.toInt() - feeRate(_credentials.priority!);
+      final int allAmount = _erc20Balance.balance.toInt() - feeRate(_credentials.priority!);
       totalAmount = output.sendAll ? allAmount : output.formattedCryptoAmount ?? 0;
 
       if ((output.sendAll &&
-              balance.getInWei < EtherAmount.inWei(totalAmount as BigInt).getInWei) ||
-          (!output.sendAll && balance.getInWei.toInt() <= 0)) {
+              _erc20Balance.balance < EtherAmount.inWei(totalAmount as BigInt).getInWei) ||
+          (!output.sendAll && _erc20Balance.balance.toInt() <= 0)) {
         throw EthereumTransactionCreationException();
       }
     }
 
     final pendingEthereumTransaction = await _client.signTransaction(
-      _privateKey,
-      _credentials.outputs.first.address,
-      totalAmount.toString(),
-      _priorityFees[_credentials.priority!.raw],
-      _credentials.priority!,
+      privateKey: _privateKey,
+      toAddress: _credentials.outputs.first.address,
+      amount: totalAmount.toString(),
+      gas: _priorityFees[_credentials.priority!.raw],
+      priority: _credentials.priority!,
+      currency: _credentials.currency,
     );
 
     return pendingEthereumTransaction;
@@ -233,8 +234,7 @@ abstract class EthereumWalletBase
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
-    final balance =
-        ERC20Balance.fromJSON(data['balance'] as String) ?? ERC20Balance(BigInt.zero);
+    final balance = ERC20Balance.fromJSON(data['balance'] as String) ?? ERC20Balance(BigInt.zero);
 
     return EthereumWallet(
       walletInfo: walletInfo,
@@ -268,4 +268,6 @@ abstract class EthereumWalletBase
   }
 
   Future<void>? updateBalance() => null;
+
+  List<CryptoCurrency> get erc20Currencies => _client.erc20Currencies.keys.toList();
 }

@@ -14,6 +14,8 @@ class EthereumClient {
     CryptoCurrency.shib: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
   };
 
+  Map<CryptoCurrency, String> get erc20Currencies => _erc20Currencies;
+
   Web3Client? _client;
 
   bool connect(Node node) {
@@ -47,13 +49,14 @@ class EthereumClient {
     return result.map((e) => e.toInt()).toList();
   }
 
-  Future<PendingEthereumTransaction> signTransaction(
-    EthPrivateKey privateKey,
-    String toAddress,
-    String amount,
-    int gas,
-    EthereumTransactionPriority priority,
-  ) async {
+  Future<PendingEthereumTransaction> signTransaction({
+    required EthPrivateKey privateKey,
+    required String toAddress,
+    required String amount,
+    required int gas,
+    required EthereumTransactionPriority priority,
+    required CryptoCurrency currency,
+  }) async {
     final estimatedGas = await _client!.estimateGas(
       maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
       maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 100),
@@ -64,13 +67,36 @@ class EthereumClient {
 
     final price = await _client!.getGasPrice();
 
-    final transaction = Transaction(
-      from: privateKey.address,
-      to: EthereumAddress.fromHex(toAddress),
-      maxGas: gas,
-      gasPrice: price,
-      value: EtherAmount.inWei(BigInt.parse(amount)),
-    );
+    final Transaction transaction;
+
+    if (erc20Currencies.containsKey(currency)) {
+      final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
+      final contractAbi = ContractAbi.fromJson(abi, "ERC20");
+
+      final contract = DeployedContract(
+        contractAbi,
+        EthereumAddress.fromHex(_erc20Currencies[currency]!),
+      );
+
+      final transferFunction = contract.function('transfer');
+      transaction = Transaction.callContract(
+        contract: contract,
+        function: transferFunction,
+        parameters: [EthereumAddress.fromHex(toAddress), BigInt.parse(amount)],
+        from: privateKey.address,
+        maxGas: gas,
+        gasPrice: price,
+        value: EtherAmount.inWei(BigInt.parse(amount)),
+      );
+    } else {
+      transaction = Transaction(
+        from: privateKey.address,
+        to: EthereumAddress.fromHex(toAddress),
+        maxGas: gas,
+        gasPrice: price,
+        value: EtherAmount.inWei(BigInt.parse(amount)),
+      );
+    }
 
     final signedTransaction = await _client!.signTransaction(privateKey, transaction);
 

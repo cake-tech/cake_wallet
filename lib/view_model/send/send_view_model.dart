@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -43,6 +42,7 @@ abstract class SendViewModelBase with Store {
       : state = InitialExecutionState(),
         currencies = _wallet.balance.keys.toList(),
         selectedCryptoCurrency = _wallet.currency,
+        hasMultipleTokens = _wallet.type == WalletType.ethereum,
         outputs = ObservableList<Output>(),
         fiatFromSettings = _settingsStore.fiatCurrency {
     final priority = _settingsStore.priority[_wallet.type];
@@ -51,7 +51,7 @@ abstract class SendViewModelBase with Store {
     if (!priorityForWalletType(_wallet.type).contains(priority)) {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
-    
+
     outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
@@ -127,14 +127,14 @@ abstract class SendViewModelBase with Store {
 
   CryptoCurrency get currency => _wallet.currency;
 
-  Validator get amountValidator =>
+  Validator<String> get amountValidator =>
       AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
-  Validator get allAmountValidator => AllAmountValidator();
+  Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator get addressValidator => AddressValidator(type: selectedCryptoCurrency);
+  Validator<String> get addressValidator => AddressValidator(type: selectedCryptoCurrency);
 
-  Validator get textValidator => TextValidator();
+  Validator<String> get textValidator => TextValidator();
 
   final FiatCurrency fiatFromSettings;
 
@@ -142,7 +142,7 @@ abstract class SendViewModelBase with Store {
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => balanceViewModel.availableBalance;
+  String get balance => _wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
@@ -196,6 +196,7 @@ abstract class SendViewModelBase with Store {
   final BalanceViewModel balanceViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
+  final bool hasMultipleTokens;
 
   @action
   Future<void> createTransaction() async {
@@ -285,7 +286,7 @@ abstract class SendViewModelBase with Store {
         if (priority == null) {
           throw Exception('Priority is null for wallet type: ${_wallet.type}');
         }
-        
+
         return haven!.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
       case WalletType.ethereum:
@@ -295,7 +296,8 @@ abstract class SendViewModelBase with Store {
           throw Exception('Priority is null for wallet type: ${_wallet.type}');
         }
 
-        return ethereum!.createEthereumTransactionCredentials(outputs, priority: priority);
+        return ethereum!.createEthereumTransactionCredentials(
+            outputs, priority: priority, currency: selectedCryptoCurrency);
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type}');
     }
@@ -313,7 +315,7 @@ abstract class SendViewModelBase with Store {
     return priority.toString();
   }
 
-  bool _isEqualCurrency(String currency) => 
+  bool _isEqualCurrency(String currency) =>
       currency.toLowerCase() == _wallet.currency.title.toLowerCase();
 
   @action

@@ -508,10 +508,22 @@ abstract class Ethereum {
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
   int getEstimatedFee(Object wallet, TransactionPriority priority);
 
-  Object createEthereumTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
-  Object createEthereumTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
+  Object createEthereumTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createEthereumTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
 
   int formatterEthereumParseAmount(String amount);
+  List<CryptoCurrency> getERC20Currencies(Object wallet);
 }
   """;
 

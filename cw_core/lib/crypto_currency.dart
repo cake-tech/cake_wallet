@@ -67,6 +67,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.uni,
     CryptoCurrency.stx,
     CryptoCurrency.btcln,
+    CryptoCurrency.shib,
   ];
 
   static const havenCurrencies = [
@@ -152,7 +153,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const uni = CryptoCurrency(title: 'UNI', tag: 'ETH', fullName: 'Uniswap', raw: 60, name: 'uni', iconPath: 'assets/images/uni_icon.png');
   static const stx = CryptoCurrency(title: 'STX', fullName: 'Stacks', raw: 61, name: 'stx', iconPath: 'assets/images/stx_icon.png');
   static const btcln = CryptoCurrency(title: 'BTC', tag: 'LN', fullName: 'Bitcoin Lightning Network', raw: 62, name: 'btcln', iconPath: 'assets/images/btc.png');
-  static const shib = CryptoCurrency(title: 'SHIB', tag: 'ETH', fullName: 'SHIBA INU', raw: 63, name: 'shib', iconPath: 'assets/images/shib.png'); // TODO: add image
+  static const shib = CryptoCurrency(title: 'SHIB', tag: 'ETH', fullName: 'SHIBA INU', raw: 63, name: 'shib', iconPath: 'assets/images/shib_icon.png');
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
