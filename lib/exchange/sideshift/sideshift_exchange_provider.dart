@@ -18,6 +18,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider() : super(pairList: _supportedPairs());
 
   static const affiliateId = secrets.sideShiftAffiliateId;
+  static const sideShiftApiKey = secrets.sideShiftApiKey;
   static const apiBaseUrl = 'https://sideshift.ai/api';
   static const rangePath = '/v2/pair';
   static const orderPath = '/v2/shifts';
@@ -102,6 +103,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
     String url = '';
+    final depositCoin = _normalizeCryptoCurrency(request.depositMethod);
+    final settleCoin = _normalizeCryptoCurrency(request.settleMethod);
     final body = {
       'affiliateId': affiliateId,
       'settleAddress': _request.settleAddress,
@@ -115,6 +118,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       url = apiBaseUrl + orderPath + '/fixed';
     } else {
       url = apiBaseUrl + orderPath + '/variable';
+      body["depositCoin"] = depositCoin;
+      body["settleCoin"] = settleCoin;
     }
     final headers = {'Content-Type': 'application/json'};
 
@@ -189,7 +194,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode}) async {
     final fromCurrency = _normalizeCryptoCurrency(from);
     final toCurrency = _normalizeCryptoCurrency(to);
-    final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
+    final pairPath =
+        isFixedRateMode ? toCurrency + '/' + fromCurrency : fromCurrency + '/' + toCurrency;
+    final url = apiBaseUrl + rangePath + '/' + pairPath;
     final uri = Uri.parse(url);
     final response = await get(uri);
 
