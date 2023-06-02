@@ -19,10 +19,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
   static const affiliateId = secrets.sideShiftAffiliateId;
   static const apiBaseUrl = 'https://sideshift.ai/api';
-  static const rangePath = '/v1/pairs';
-  static const orderPath = '/v1/orders';
-  static const quotePath = '/v1/quotes';
-  static const permissionPath = '/v1/permissions';
+  static const rangePath = '/v2/pair';
+  static const orderPath = '/v2/shifts';
+  static const quotePath = '/v2/quotes';
+  static const permissionPath = '/v2/permissions';
 
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.xhv,
@@ -39,20 +39,17 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   ];
 
   static List<ExchangePair> _supportedPairs() {
-    final supportedCurrencies = CryptoCurrency.all
-        .where((element) => !_notSupported.contains(element))
-        .toList();
+    final supportedCurrencies =
+        CryptoCurrency.all.where((element) => !_notSupported.contains(element)).toList();
 
     return supportedCurrencies
-        .map((i) => supportedCurrencies
-            .map((k) => ExchangePair(from: i, to: k, reverse: true)))
+        .map((i) => supportedCurrencies.map((k) => ExchangePair(from: i, to: k, reverse: true)))
         .expand((i) => i)
         .toList();
   }
 
   @override
-  ExchangeProviderDescription get description =>
-      ExchangeProviderDescription.sideShift;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.sideShift;
 
   @override
   Future<double> fetchRate(
@@ -67,15 +64,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       }
       final fromCurrency = _normalizeCryptoCurrency(from);
       final toCurrency = _normalizeCryptoCurrency(to);
-      final url =
-          apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
+      final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
       final uri = Uri.parse(url);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final rate = double.parse(responseJSON['rate'] as String);
-      final max = double.parse(responseJSON['max'] as String);
-
-      if (amount > max) return 0.00;
 
       return rate;
     } catch (_) {
@@ -101,25 +94,30 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final canCreateOrder = responseJSON['createOrder'] as bool;
-    final canCreateQuote = responseJSON['createQuote'] as bool;
-    return canCreateOrder && canCreateQuote;
+    final cancreateShift = responseJSON['createShift'] as bool;
+    return cancreateShift;
   }
 
   @override
-  Future<Trade> createTrade(
-      {required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
-    final quoteId = await _createQuote(_request);
-    final url = apiBaseUrl + orderPath;
-    final headers = {'Content-Type': 'application/json'};
+    String url = '';
     final body = {
-      'type': 'fixed',
-      'quoteId': quoteId,
       'affiliateId': affiliateId,
       'settleAddress': _request.settleAddress,
-      'refundAddress': _request.refundAddress
+      'refundAddress': _request.refundAddress,
     };
+
+    if (isFixedRateMode) {
+      final quoteId = await _createQuote(_request);
+      body['quoteId'] = quoteId;
+
+      url = apiBaseUrl + orderPath + '/fixed';
+    } else {
+      url = apiBaseUrl + orderPath + '/variable';
+    }
+    final headers = {'Content-Type': 'application/json'};
+
     final uri = Uri.parse(url);
     final response = await post(uri, headers: headers, body: json.encode(body));
 
@@ -136,8 +134,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
-    final inputAddress = responseJSON['depositAddress']['address'] as String;
-    final settleAddress = responseJSON['settleAddress']['address'] as String;
+    final inputAddress = responseJSON['depositAddress'] as String;
+    final settleAddress = responseJSON['settleAddress'] as String;
 
     return Trade(
       id: id,
@@ -159,8 +157,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final depositMethod = _normalizeCryptoCurrency(request.depositMethod);
     final settleMethod = _normalizeCryptoCurrency(request.settleMethod);
     final body = {
-      'depositMethod': depositMethod,
-      'settleMethod': settleMethod,
+      'depositCoin': depositMethod,
+      'settleCoin': settleMethod,
       'affiliateId': affiliateId,
       'depositAmount': request.depositAmount,
     };
@@ -227,8 +225,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
-      throw TradeNotFoundException(id,
-          provider: description, description: error);
+      throw TradeNotFoundException(id, provider: description, description: error);
     }
 
     if (response.statusCode != 200) {
@@ -236,36 +233,31 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final fromCurrency = responseJSON['depositMethodId'] as String;
+    final fromCurrency = responseJSON['depositCoin'] as String;
     final from = CryptoCurrency.fromString(fromCurrency);
-    final toCurrency = responseJSON['settleMethodId'] as String;
+    final toCurrency = responseJSON['settleCoin'] as String;
     final to = CryptoCurrency.fromString(toCurrency);
-    final inputAddress = responseJSON['depositAddress']['address'] as String;
+    final inputAddress = responseJSON['depositAddress'] as String;
     final expectedSendAmount = responseJSON['depositAmount'].toString();
-    final deposits = responseJSON['deposits'] as List?;
-    final settleAddress = responseJSON['settleAddress']['address'] as String;
+    final status = responseJSON['status'] as String?;
+    final settleAddress = responseJSON['settleAddress'] as String;
     TradeState? state;
-    String? status;
 
-    if (deposits?.isNotEmpty ?? false) {
-      status = deposits![0]['status'] as String?;
-    }
     state = TradeState.deserialize(raw: status ?? 'created');
 
-    final expiredAtRaw = responseJSON['expiresAtISO'] as String;
+    final expiredAtRaw = responseJSON['expiresAt'] as String;
     final expiredAt = DateTime.tryParse(expiredAtRaw)?.toLocal();
 
     return Trade(
-      id: id,
-      from: from,
-      to: to,
-      provider: description,
-      inputAddress: inputAddress,
-      amount: expectedSendAmount,
-      state: state,
-      expiredAt: expiredAt,
-      payoutAddress: settleAddress
-    );
+        id: id,
+        from: from,
+        to: to,
+        provider: description,
+        inputAddress: inputAddress,
+        amount: expectedSendAmount,
+        state: state,
+        expiredAt: expiredAt,
+        payoutAddress: settleAddress);
   }
 
   @override
