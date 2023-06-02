@@ -65,6 +65,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       }
       final fromCurrency = _normalizeCryptoCurrency(from);
       final toCurrency = _normalizeCryptoCurrency(to);
+
       final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
       final uri = Uri.parse(url);
       final response = await get(uri);
@@ -118,8 +119,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       url = apiBaseUrl + orderPath + '/fixed';
     } else {
       url = apiBaseUrl + orderPath + '/variable';
+      final depositNetwork = _networkFor(request.depositMethod);
+      final settleNetwork = _networkFor(request.settleMethod);
       body["depositCoin"] = depositCoin;
       body["settleCoin"] = settleCoin;
+      body["settleNetwork"] = settleNetwork;
+      body["depositNetwork"] = depositNetwork;
     }
     final headers = {'Content-Type': 'application/json'};
 
@@ -161,11 +166,15 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final headers = {'Content-Type': 'application/json'};
     final depositMethod = _normalizeCryptoCurrency(request.depositMethod);
     final settleMethod = _normalizeCryptoCurrency(request.settleMethod);
+    final depositNetwork = _networkFor(request.depositMethod);
+    final settleNetwork = _networkFor(request.settleMethod);
     final body = {
       'depositCoin': depositMethod,
       'settleCoin': settleMethod,
       'affiliateId': affiliateId,
-      'depositAmount': request.depositAmount,
+      'settleAmount': request.depositAmount,
+      'settleNetwork': settleNetwork,
+      'depositNetwork': depositNetwork,
     };
     final uri = Uri.parse(url);
     final response = await post(uri, headers: headers, body: json.encode(body));
@@ -192,11 +201,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-    final fromCurrency = _normalizeCryptoCurrency(from);
-    final toCurrency = _normalizeCryptoCurrency(to);
-    final pairPath =
-        isFixedRateMode ? toCurrency + '/' + fromCurrency : fromCurrency + '/' + toCurrency;
-    final url = apiBaseUrl + rangePath + '/' + pairPath;
+    final fromCurrency = _normalizeCryptoCurrency(isFixedRateMode ? to : from);
+    final toCurrency = _normalizeCryptoCurrency(isFixedRateMode ? from : to);
+
+    final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
     final uri = Uri.parse(url);
     final response = await get(uri);
 
@@ -214,6 +222,20 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final min = double.tryParse(responseJSON['min'] as String? ?? '');
     final max = double.tryParse(responseJSON['max'] as String? ?? '');
+
+    if (isFixedRateMode) {
+      final currentRate = await fetchRate(
+        from: to,
+        to: from,
+        amount: 1,
+        isFixedRateMode: isFixedRateMode,
+        isReceiveAmount: false,
+      );
+      return Limits(
+        min: min != null ? (min * currentRate) : null,
+        max: max != null ? (max * currentRate) : null,
+      );
+    }
 
     return Limits(min: min, max: max);
   }
@@ -245,15 +267,16 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final toCurrency = responseJSON['settleCoin'] as String;
     final to = CryptoCurrency.fromString(toCurrency);
     final inputAddress = responseJSON['depositAddress'] as String;
-    final expectedSendAmount = responseJSON['depositAmount'].toString();
+    final expectedSendAmount = responseJSON['depositAmount'] as String?;
     final status = responseJSON['status'] as String?;
     final settleAddress = responseJSON['settleAddress'] as String;
     TradeState? state;
 
     state = TradeState.deserialize(raw: status ?? 'created');
+    final isVariable = (responseJSON['type'] as String) == 'variable';
 
     final expiredAtRaw = responseJSON['expiresAt'] as String;
-    final expiredAt = DateTime.tryParse(expiredAtRaw)?.toLocal();
+    final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
 
     return Trade(
         id: id,
@@ -261,7 +284,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         to: to,
         provider: description,
         inputAddress: inputAddress,
-        amount: expectedSendAmount,
+        amount: expectedSendAmount ?? '',
         state: state,
         expiredAt: expiredAt,
         payoutAddress: settleAddress);
@@ -301,6 +324,42 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'ln';
       default:
         return currency.title.toLowerCase();
+    }
+  }
+
+  String _networkFor(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.eth:
+        return 'etherum';
+      case CryptoCurrency.maticpoly:
+      case CryptoCurrency.zec:
+        return 'mainnet';
+      case CryptoCurrency.usdcpoly:
+        return 'polygon';
+      case CryptoCurrency.sol:
+      case CryptoCurrency.usdcsol:
+        return 'solana';
+      case CryptoCurrency.ltc:
+        return 'litecoin';
+      case CryptoCurrency.btc:
+        return 'bitcoin';
+      case CryptoCurrency.xmr:
+        return 'monero';
+      default:
+        return currency.tag != null ? _normalizeTag(currency.tag!) : 'mainnet';
+    }
+  }
+
+  String _normalizeTag(String tag) {
+    switch (tag) {
+      case 'ETH':
+        return 'etherum';
+      case 'TRX':
+        return 'tron';
+      case 'LN':
+        return 'lightning';
+      default:
+        return tag.toLowerCase();
     }
   }
 }
