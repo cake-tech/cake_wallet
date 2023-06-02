@@ -37,6 +37,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     CryptoCurrency.scrt,
     CryptoCurrency.stx,
     CryptoCurrency.bttc,
+    CryptoCurrency.usdt,
+    CryptoCurrency.eos,
   ];
 
   static List<ExchangePair> _supportedPairs() {
@@ -63,10 +65,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       if (amount == 0) {
         return 0.0;
       }
-      final fromCurrency = _normalizeCryptoCurrency(from);
-      final toCurrency = _normalizeCryptoCurrency(to);
+      final fromCurrency = request.from.title.toLowerCase();
+      final toCurrency = request.to.title.toLowerCase();
+      final depositNetwork = _networkFor(request.depositMethod);
+      final settleNetwork = _networkFor(request.settleMethod);
 
-      final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
+      final url = apiBaseUrl + rangePath + '/' + fromCurrency + '-' + depositNetwork + '/' + toCurrency + '-' + settleNetwork + '?affiliateId=' + affiliateId + '&amount=' + amount;
       final uri = Uri.parse(url);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -104,8 +108,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
     String url = '';
-    final depositCoin = _normalizeCryptoCurrency(request.depositMethod);
-    final settleCoin = _normalizeCryptoCurrency(request.settleMethod);
+    final depositCoin = request.from.title.toLowerCase();
+    final settleCoin = request.to.title.toLowerCase();
     final body = {
       'affiliateId': affiliateId,
       'settleAddress': _request.settleAddress,
@@ -164,8 +168,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<String> _createQuote(SideShiftRequest request) async {
     final url = apiBaseUrl + quotePath;
     final headers = {'Content-Type': 'application/json'};
-    final depositMethod = _normalizeCryptoCurrency(request.depositMethod);
-    final settleMethod = _normalizeCryptoCurrency(request.settleMethod);
+    final depositMethod = request.from.title.toLowerCase();
+    final settleMethod = request.to.title.toLowerCase();
     final depositNetwork = _networkFor(request.depositMethod);
     final settleNetwork = _networkFor(request.settleMethod);
     final body = {
@@ -302,49 +306,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   String get title => 'SideShift';
 
-  static String _normalizeCryptoCurrency(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.zaddr:
-        return 'zaddr';
-      case CryptoCurrency.zec:
-        return 'zec';
-      case CryptoCurrency.bnb:
-        return currency.tag!.toLowerCase();
-      case CryptoCurrency.usdterc20:
-        return 'usdtErc20';
-      case CryptoCurrency.usdttrc20:
-        return 'usdtTrc20';
-      case CryptoCurrency.usdcpoly:
-        return 'usdcpolygon';
-      case CryptoCurrency.usdcsol:
-        return 'usdcsol';
-      case CryptoCurrency.maticpoly:
-        return 'polygon';
-      case CryptoCurrency.btcln:
-        return 'ln';
-      default:
-        return currency.title.toLowerCase();
-    }
-  }
-
   String _networkFor(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.eth:
-        return 'etherum';
-      case CryptoCurrency.maticpoly:
-      case CryptoCurrency.zec:
-        return 'mainnet';
-      case CryptoCurrency.usdcpoly:
-        return 'polygon';
-      case CryptoCurrency.sol:
-      case CryptoCurrency.usdcsol:
-        return 'solana';
-      case CryptoCurrency.ltc:
-        return 'litecoin';
-      case CryptoCurrency.btc:
-        return 'bitcoin';
-      case CryptoCurrency.xmr:
-        return 'monero';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'mainnet';
     }
@@ -353,11 +316,17 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   String _normalizeTag(String tag) {
     switch (tag) {
       case 'ETH':
-        return 'etherum';
+        return 'ethereum';
       case 'TRX':
         return 'tron';
       case 'LN':
         return 'lightning';
+      case 'POLY':
+        return 'polygon';
+      case 'ZEC':
+        return 'zcash';
+      case 'AVAXC':
+        return 'avax';
       default:
         return tag.toLowerCase();
     }
