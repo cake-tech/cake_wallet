@@ -65,12 +65,25 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       if (amount == 0) {
         return 0.0;
       }
-      final fromCurrency = request.from.title.toLowerCase();
-      final toCurrency = request.to.title.toLowerCase();
-      final depositNetwork = _networkFor(request.depositMethod);
-      final settleNetwork = _networkFor(request.settleMethod);
+      final fromCurrency = from.title.toLowerCase();
+      final toCurrency = to.title.toLowerCase();
+      final depositNetwork = _networkFor(from);
+      final settleNetwork = _networkFor(to);
 
-      final url = apiBaseUrl + rangePath + '/' + fromCurrency + '-' + depositNetwork + '/' + toCurrency + '-' + settleNetwork + '?affiliateId=' + affiliateId + '&amount=' + amount;
+      final url = apiBaseUrl +
+          rangePath +
+          '/' +
+          fromCurrency +
+          '-' +
+          depositNetwork +
+          '/' +
+          toCurrency +
+          '-' +
+          settleNetwork +
+          '?affiliateId=' +
+          affiliateId +
+          '&amount=' +
+          amount.toString();
       final uri = Uri.parse(url);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -108,8 +121,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
     String url = '';
-    final depositCoin = request.from.title.toLowerCase();
-    final settleCoin = request.to.title.toLowerCase();
+    final depositCoin = request.depositMethod.title.toLowerCase();
+    final settleCoin = request.settleMethod.title.toLowerCase();
     final body = {
       'affiliateId': affiliateId,
       'settleAddress': _request.settleAddress,
@@ -168,8 +181,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<String> _createQuote(SideShiftRequest request) async {
     final url = apiBaseUrl + quotePath;
     final headers = {'Content-Type': 'application/json'};
-    final depositMethod = request.from.title.toLowerCase();
-    final settleMethod = request.to.title.toLowerCase();
+    final depositMethod = request.depositMethod.title.toLowerCase();
+    final settleMethod = request.settleMethod.title.toLowerCase();
     final depositNetwork = _networkFor(request.depositMethod);
     final settleNetwork = _networkFor(request.settleMethod);
     final body = {
@@ -205,10 +218,15 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-    final fromCurrency = _normalizeCryptoCurrency(isFixedRateMode ? to : from);
-    final toCurrency = _normalizeCryptoCurrency(isFixedRateMode ? from : to);
+    final fromCurrency = isFixedRateMode ? to : from;
+    final toCurrency = isFixedRateMode ? from : to;
 
-    final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
+    final url = apiBaseUrl +
+        rangePath +
+        '/' +
+        fromCurrency.title.toLowerCase() +
+        '/' +
+        toCurrency.title.toLowerCase();
     final uri = Uri.parse(url);
     final response = await get(uri);
 
