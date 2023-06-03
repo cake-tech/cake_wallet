@@ -80,7 +80,8 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                  color:
+                      Theme.of(context).primaryTextTheme!.titleLarge!.color!),
             ),
           ),
           Row(

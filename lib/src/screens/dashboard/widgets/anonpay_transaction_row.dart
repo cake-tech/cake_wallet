@@ -37,19 +37,19 @@ class AnonpayTransactionRow extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!)),
+                            color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!)),
                     Text(amount + ' ' + currency,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!))
+                            color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!))
                   ]),
                   SizedBox(height: 5),
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                     Text(createdAt,
                         style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context).textTheme.overline!.backgroundColor!))
+                            color: Theme.of(context).textTheme!.labelSmall!.backgroundColor!))
                   ])
                 ],
               ))

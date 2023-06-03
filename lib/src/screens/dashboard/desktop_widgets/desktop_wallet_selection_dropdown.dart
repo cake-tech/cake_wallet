@@ -36,14 +36,14 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme.headline6!.color!,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
       );
 
   Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme.headline6!.color!,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
       );
 
   Flushbar<void>? _progressBar;
@@ -93,8 +93,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         onChanged: (item) {
           item?.onSelected();
         },
-        dropdownColor: themeData.textTheme.bodyText1?.decorationColor,
-        style: TextStyle(color: themeData.primaryTextTheme.headline6?.color),
+        dropdownColor: themeData.textTheme!.bodyLarge?.decorationColor,
+        style: TextStyle(color: themeData.primaryTextTheme!.titleLarge?.color),
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
         value: dropDownItems.firstWhere((element) => element.isSelected),
         underline: const SizedBox(),

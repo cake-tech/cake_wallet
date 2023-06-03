@@ -28,7 +28,7 @@ class TransactionsPage extends StatelessWidget {
     return Container(
       color: ResponsiveLayoutUtil.instance.isMobile(context)
           ? null
-          : Theme.of(context).backgroundColor,
+          : Theme.of(context).colorScheme.background,
       padding: EdgeInsets.only(top: 24, bottom: 24),
       child: Column(
         children: <Widget>[
@@ -121,7 +121,7 @@ class TransactionsPage extends StatelessWidget {
                       S.of(context).placeholder_transactions,
                       style: TextStyle(
                           fontSize: 14,
-                          color: Theme.of(context).primaryTextTheme.overline!.decorationColor!),
+                          color: Theme.of(context).primaryTextTheme!.labelSmall!.decorationColor!),
                     ),
                   );
           }))

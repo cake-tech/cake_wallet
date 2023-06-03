@@ -3,7 +3,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/hausa_intl.dart';
+import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:flutter/foundation.dart';
@@ -13,7 +13,6 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -283,14 +282,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: settingsStore.theme,
-            localizationsDelegates: [
-              S.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              HaMaterialLocalizations.delegate,
-              HaCupertinoLocalizations.delegate,
-            ],
+            localizationsDelegates: localizationDelegates,
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
