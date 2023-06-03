@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_ethereum/ethereum_balance.dart';
 import 'package:cw_ethereum/pending_ethereum_transaction.dart';
@@ -57,19 +59,27 @@ class EthereumClient {
     required EthereumTransactionPriority priority,
     required CryptoCurrency currency,
   }) async {
-    final estimatedGas = await _client!.estimateGas(
-      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
-      maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 100),
-      value: EtherAmount.inWei(BigInt.parse(amount)),
-      sender: privateKey.address,
-      to: EthereumAddress.fromHex(toAddress),
-    );
+    bool _isEthereum = currency == CryptoCurrency.eth;
+    print("!!!!!!!!!!!!!!!!!!!");
+    final estimatedGas = BigInt.from(_isEthereum ? 21000 : 50000);
+    print("@@@@@@@@@@@@@@@");
+    print(estimatedGas);
 
     final price = await _client!.getGasPrice();
+    print("################");
+    print(price);
 
     final Transaction transaction;
 
-    if (erc20Currencies.containsKey(currency)) {
+    if (_isEthereum) {
+      transaction = Transaction(
+        from: privateKey.address,
+        to: EthereumAddress.fromHex(toAddress),
+        maxGas: gas,
+        gasPrice: price,
+        value: EtherAmount.inWei(BigInt.parse(amount)),
+      );
+    } else { /// ERC-20 currency
       final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
       final contractAbi = ContractAbi.fromJson(abi, "ERC20");
 
@@ -78,24 +88,44 @@ class EthereumClient {
         EthereumAddress.fromHex(_erc20Currencies[currency]!),
       );
 
+      final originalAmount = BigInt.parse(amount) / BigInt.from(pow(10, 18));
+      print("@@@@@@@@@@@@@");
+      print("originalAmount: $originalAmount");
+
+      final decimalsFunction = contract.function('decimals');
+      final decimals = await _client!.call(
+        contract: contract,
+        function: decimalsFunction,
+        params: [],
+      );
+
+      int exponent = int.parse(decimals.first.toString());
+
       final transferFunction = contract.function('transfer');
+
+      final _amount = BigInt.from(originalAmount * pow(10, exponent));
+
       transaction = Transaction.callContract(
         contract: contract,
         function: transferFunction,
-        parameters: [EthereumAddress.fromHex(toAddress), BigInt.parse(amount)],
+        parameters: [EthereumAddress.fromHex(toAddress), _amount],
         from: privateKey.address,
         maxGas: gas,
         gasPrice: price,
-        value: EtherAmount.inWei(BigInt.parse(amount)),
+        value: EtherAmount.inWei(_amount),
       );
-    } else {
-      transaction = Transaction(
-        from: privateKey.address,
-        to: EthereumAddress.fromHex(toAddress),
-        maxGas: gas,
-        gasPrice: price,
-        value: EtherAmount.inWei(BigInt.parse(amount)),
-      );
+      print("^^^^^^^^^^^^^^^^^^");
+      print(transaction);
+      print(transaction.maxGas);
+      print(transaction.gasPrice);
+      print(transaction.value);
+      print("^^^^^^^^^^^^^^^^^^");
+      print(exponent);
+      print(originalAmount * pow(10, exponent));
+      print(_amount);
+      print((BigInt.from(transaction.maxGas!) * transaction.gasPrice!.getInWei) + transaction.value!.getInWei);
+
+      sendERC20Token(EthereumAddress.fromHex(toAddress), currency, BigInt.parse(amount));
     }
 
     final signedTransaction = await _client!.signTransaction(privateKey, transaction);
@@ -197,6 +227,7 @@ I/flutter ( 4474): Gas Used: 53000
           params: [],
         );
 
+        // 10.270282
         BigInt tokenBalance = BigInt.parse(balance.first.toString());
         int exponent = int.parse(decimals.first.toString());
 
