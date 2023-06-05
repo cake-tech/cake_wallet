@@ -62,7 +62,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       bool? isReceiveAmount}) async {
     try {
-
       final fromCurrency = from.title.toLowerCase();
       final toCurrency = to.title.toLowerCase();
       final depositNetwork = _networkFor(from);
@@ -159,6 +158,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['depositAddress'] as String;
     final settleAddress = responseJSON['settleAddress'] as String;
+    final depositAmount = responseJSON['depositAmount'] as String?;
 
     return Trade(
       id: id,
@@ -168,7 +168,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       inputAddress: inputAddress,
       refundAddress: settleAddress,
       state: TradeState.created,
-      amount: _request.depositAmount,
+      amount: depositAmount ?? _request.depositAmount,
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
     );
