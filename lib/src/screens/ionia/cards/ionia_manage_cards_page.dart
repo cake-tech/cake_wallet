@@ -69,7 +69,7 @@ class IoniaManageCardsPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+      color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
       size: 16,
     );
 
@@ -83,7 +83,7 @@ class IoniaManageCardsPage extends BasePage {
             //highlightColor: Colors.transparent,
             //splashColor: Colors.transparent,
             //padding: EdgeInsets.all(0),
-            onPressed: () => Navigator.popUntil(context, ModalRoute.withName(Routes.dashboard)),
+            onPressed: () => Navigator.pop(context),
             child: _backButton),
       ),
     );
@@ -94,7 +94,7 @@ class IoniaManageCardsPage extends BasePage {
     return Text(
       S.of(context).gift_cards,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
       ),
     );
   }
@@ -118,7 +118,7 @@ class IoniaManageCardsPage extends BasePage {
           width: 32,
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).textTheme!.headline6!.backgroundColor!,
+            color: Theme.of(context).textTheme.headline6!.backgroundColor!,
             border: Border.all(
               color: Colors.white.withOpacity(0.2),
             ),
@@ -126,7 +126,7 @@ class IoniaManageCardsPage extends BasePage {
           ),
           child: Image.asset(
             'assets/images/filter.png',
-            color: Theme.of(context).textTheme!.caption!.decorationColor!,
+            color: Theme.of(context).textTheme.caption!.decorationColor!,
           ),
         )
     );
@@ -225,9 +225,9 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               },
               title: merchant.legalName,
               subTitle: merchant.avaibilityStatus,
-              backgroundColor: Theme.of(context).textTheme!.headline6!.backgroundColor!,
-              titleColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-              subtitleColor: Theme.of(context).accentTextTheme!.headline3!.backgroundColor!,
+              backgroundColor: Theme.of(context).textTheme.headline6!.backgroundColor!,
+              titleColor: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+              subtitleColor: Theme.of(context).accentTextTheme.headline3!.backgroundColor!,
               discount: merchant.discount,
             );
           },
@@ -238,8 +238,8 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
                 thumbHeight: thumbHeight,
                 rightOffset: 1,
                 width: 3,
-                backgroundColor: Theme.of(context).textTheme!.caption!.decorationColor!.withOpacity(0.05),
-                thumbColor: Theme.of(context).textTheme!.caption!.decorationColor!.withOpacity(0.5),
+                backgroundColor: Theme.of(context).textTheme.caption!.decorationColor!.withOpacity(0.05),
+                thumbColor: Theme.of(context).textTheme.caption!.decorationColor!.withOpacity(0.5),
                 fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
               )
             : Offstage()
@@ -247,8 +247,8 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
          } 
          return Center(
           child: CircularProgressIndicator(
-            backgroundColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme!.bodyText2!.color!),
+            backgroundColor: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme.bodyText2!.color!),
           ),
         );
       }
@@ -269,12 +269,12 @@ class _SearchWidget extends StatelessWidget {
       padding: EdgeInsets.all(8),
       child: Image.asset(
         'assets/images/mini_search_icon.png',
-        color: Theme.of(context).textTheme!.caption!.decorationColor!,
+        color: Theme.of(context).textTheme.caption!.decorationColor!,
       ),
     );
 
     return TextField(
-      style: TextStyle(color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
+      style: TextStyle(color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!),
       controller: controller,
       decoration: InputDecoration(
           filled: true,
@@ -282,10 +282,10 @@ class _SearchWidget extends StatelessWidget {
             top: 10,
             left: 10,
           ),
-          fillColor: Theme.of(context).textTheme!.headline6!.backgroundColor!,
+          fillColor: Theme.of(context).textTheme.headline6!.backgroundColor!,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
-            color: Theme.of(context).accentTextTheme!.headline3!.backgroundColor!,
+            color: Theme.of(context).accentTextTheme.headline3!.backgroundColor!,
           ),
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -329,7 +329,7 @@ class _TrailingIcon extends StatelessWidget {
         onPressed: onPressed,
         icon: Image.asset(
           asset,
-          color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+          color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
         ),
       ),
     );
