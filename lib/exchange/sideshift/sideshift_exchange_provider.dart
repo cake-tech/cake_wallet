@@ -221,12 +221,19 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final fromCurrency = isFixedRateMode ? to : from;
     final toCurrency = isFixedRateMode ? from : to;
 
+    final fromNetwork = _networkFor(fromCurrency);
+    final toNetwork = _networkFor(toCurrency);
+
     final url = apiBaseUrl +
         rangePath +
         '/' +
         fromCurrency.title.toLowerCase() +
+        '-' +
+        fromNetwork +
         '/' +
-        toCurrency.title.toLowerCase();
+        toCurrency.title.toLowerCase() +
+        '-' +
+        toNetwork;
     final uri = Uri.parse(url);
     final response = await get(uri);
 
