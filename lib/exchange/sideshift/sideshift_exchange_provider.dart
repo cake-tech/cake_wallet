@@ -58,13 +58,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
-      required double amount,
+      double? amount,
       required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+      bool? isReceiveAmount}) async {
     try {
-      if (amount == 0) {
-        return 0.0;
-      }
+
       final fromCurrency = from.title.toLowerCase();
       final toCurrency = to.title.toLowerCase();
       final depositNetwork = _networkFor(from);
@@ -81,9 +79,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
           '-' +
           settleNetwork +
           '?affiliateId=' +
-          affiliateId +
-          '&amount=' +
-          amount.toString();
+          affiliateId;
       final uri = Uri.parse(url);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -256,9 +252,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final currentRate = await fetchRate(
         from: to,
         to: from,
-        amount: 1,
         isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: false,
       );
       return Limits(
         min: min != null ? (min * currentRate) : null,
