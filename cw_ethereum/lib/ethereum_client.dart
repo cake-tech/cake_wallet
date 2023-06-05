@@ -60,14 +60,9 @@ class EthereumClient {
     required CryptoCurrency currency,
   }) async {
     bool _isEthereum = currency == CryptoCurrency.eth;
-    print("!!!!!!!!!!!!!!!!!!!");
     final estimatedGas = BigInt.from(_isEthereum ? 21000 : 50000);
-    print("@@@@@@@@@@@@@@@");
-    print(estimatedGas);
 
     final price = await _client!.getGasPrice();
-    print("################");
-    print(price);
 
     final Transaction transaction;
 
@@ -79,7 +74,8 @@ class EthereumClient {
         gasPrice: price,
         value: EtherAmount.inWei(BigInt.parse(amount)),
       );
-    } else { /// ERC-20 currency
+    } else {
+      /// ERC-20 currency
       final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
       final contractAbi = ContractAbi.fromJson(abi, "ERC20");
 
@@ -89,31 +85,33 @@ class EthereumClient {
       );
 
       final originalAmount = BigInt.parse(amount) / BigInt.from(pow(10, 18));
-      print("@@@@@@@@@@@@@");
-      print("originalAmount: $originalAmount");
 
-      final decimalsFunction = contract.function('decimals');
-      final decimals = await _client!.call(
-        contract: contract,
-        function: decimalsFunction,
-        params: [],
-      );
-
-      int exponent = int.parse(decimals.first.toString());
-
-      final transferFunction = contract.function('transfer');
+      int exponent = await _getDecimalPlacesForContract(contract);
 
       final _amount = BigInt.from(originalAmount * pow(10, exponent));
 
-      transaction = Transaction.callContract(
-        contract: contract,
-        function: transferFunction,
-        parameters: [EthereumAddress.fromHex(toAddress), _amount],
+      final transferFunction = contract.function('transfer');
+      final transferData =
+          transferFunction.encodeCall([EthereumAddress.fromHex(toAddress), _amount]);
+
+      transaction = Transaction(
         from: privateKey.address,
+        to: contract.address,
         maxGas: gas,
         gasPrice: price,
-        value: EtherAmount.inWei(_amount),
+        value: EtherAmount.zero(),
+        data: transferData,
       );
+
+      // transaction = Transaction.callContract(
+      //   contract: contract,
+      //   function: transferFunction,
+      //   parameters: [EthereumAddress.fromHex(toAddress), _amount],
+      //   from: privateKey.address,
+      //   maxGas: gas,
+      //   gasPrice: price,
+      //   value: EtherAmount.inWei(_amount),
+      // );
       print("^^^^^^^^^^^^^^^^^^");
       print(transaction);
       print(transaction.maxGas);
@@ -123,7 +121,8 @@ class EthereumClient {
       print(exponent);
       print(originalAmount * pow(10, exponent));
       print(_amount);
-      print((BigInt.from(transaction.maxGas!) * transaction.gasPrice!.getInWei) + transaction.value!.getInWei);
+      print((BigInt.from(transaction.maxGas!) * transaction.gasPrice!.getInWei) +
+          transaction.value!.getInWei);
 
       sendERC20Token(EthereumAddress.fromHex(toAddress), currency, BigInt.parse(amount));
     }
@@ -220,16 +219,8 @@ I/flutter ( 4474): Gas Used: 53000
           params: [userAddress],
         );
 
-        final decimalsFunction = contract.function('decimals');
-        final decimals = await _client!.call(
-          contract: contract,
-          function: decimalsFunction,
-          params: [],
-        );
-
-        // 10.270282
         BigInt tokenBalance = BigInt.parse(balance.first.toString());
-        int exponent = int.parse(decimals.first.toString());
+        int exponent = await _getDecimalPlacesForContract(contract);
 
         erc20Balances[currency] = ERC20Balance(tokenBalance, exponent: exponent);
       } catch (e, s) {
@@ -268,5 +259,17 @@ I/flutter ( 4474): Gas Used: 53000
     } catch (e) {
       return false;
     }
+  }
+
+  Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
+    final decimalsFunction = contract.function('decimals');
+    final decimals = await _client!.call(
+      contract: contract,
+      function: decimalsFunction,
+      params: [],
+    );
+
+    int exponent = int.parse(decimals.first.toString());
+    return exponent;
   }
 }
