@@ -6,6 +6,7 @@ import 'package:cw_ethereum/pending_ethereum_transaction.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:web3dart/contracts/erc20.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 
@@ -64,76 +65,44 @@ class EthereumClient {
 
     final price = await _client!.getGasPrice();
 
-    final Transaction transaction;
+    final Transaction transaction = Transaction(
+      from: privateKey.address,
+      to: EthereumAddress.fromHex(toAddress),
+      maxGas: gas,
+      gasPrice: price,
+      value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+    );
+
+    final signedTransaction = await _client!.signTransaction(privateKey, transaction);
+
+    final Function _sendTransaction;
 
     if (_isEthereum) {
-      transaction = Transaction(
-        from: privateKey.address,
-        to: EthereumAddress.fromHex(toAddress),
-        maxGas: gas,
-        gasPrice: price,
-        value: EtherAmount.inWei(BigInt.parse(amount)),
-      );
+      _sendTransaction = () async => await sendTransaction(signedTransaction);
     } else {
-      /// ERC-20 currency
-      final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
-      final contractAbi = ContractAbi.fromJson(abi, "ERC20");
-
-      final contract = DeployedContract(
-        contractAbi,
-        EthereumAddress.fromHex(_erc20Currencies[currency]!),
+      final erc20 = Erc20(
+        client: _client!,
+        address: EthereumAddress.fromHex(_erc20Currencies[currency]!),
       );
 
       final originalAmount = BigInt.parse(amount) / BigInt.from(pow(10, 18));
-
-      int exponent = await _getDecimalPlacesForContract(contract);
-
+      final int exponent = (await erc20.decimals()).toInt();
       final _amount = BigInt.from(originalAmount * pow(10, exponent));
 
-      final transferFunction = contract.function('transfer');
-      final transferData =
-          transferFunction.encodeCall([EthereumAddress.fromHex(toAddress), _amount]);
-
-      transaction = Transaction(
-        from: privateKey.address,
-        to: contract.address,
-        maxGas: gas,
-        gasPrice: price,
-        value: EtherAmount.zero(),
-        data: transferData,
-      );
-
-      // transaction = Transaction.callContract(
-      //   contract: contract,
-      //   function: transferFunction,
-      //   parameters: [EthereumAddress.fromHex(toAddress), _amount],
-      //   from: privateKey.address,
-      //   maxGas: gas,
-      //   gasPrice: price,
-      //   value: EtherAmount.inWei(_amount),
-      // );
-      print("^^^^^^^^^^^^^^^^^^");
-      print(transaction);
-      print(transaction.maxGas);
-      print(transaction.gasPrice);
-      print(transaction.value);
-      print("^^^^^^^^^^^^^^^^^^");
-      print(exponent);
-      print(originalAmount * pow(10, exponent));
-      print(_amount);
-      print((BigInt.from(transaction.maxGas!) * transaction.gasPrice!.getInWei) +
-          transaction.value!.getInWei);
-
-      sendERC20Token(EthereumAddress.fromHex(toAddress), currency, BigInt.parse(amount));
+      _sendTransaction = () async {
+        await erc20.transfer(
+          EthereumAddress.fromHex(toAddress),
+          _amount,
+          credentials: privateKey,
+        );
+      };
     }
-
-    final signedTransaction = await _client!.signTransaction(privateKey, transaction);
 
     return PendingEthereumTransaction(
       signedTransaction: signedTransaction,
       amount: amount,
       fee: estimatedGas * price.getInWei,
-      sendTransaction: () => sendTransaction(signedTransaction),
+      sendTransaction: _sendTransaction,
     );
   }
 
@@ -197,35 +166,19 @@ I/flutter ( 4474): Gas Used: 53000
 // }
 
   Future<Map<CryptoCurrency, ERC20Balance>> fetchERC20Balances(EthereumAddress userAddress) async {
-    final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
-    final contractAbi = ContractAbi.fromJson(abi, "ERC20");
-
     final Map<CryptoCurrency, ERC20Balance> erc20Balances = {};
 
     for (var currency in _erc20Currencies.keys) {
       final contractAddress = _erc20Currencies[currency]!;
 
       try {
-        final contract = DeployedContract(
-          contractAbi,
-          EthereumAddress.fromHex(contractAddress),
-        );
+        final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+        final balance = await erc20.balanceOf(userAddress);
 
-        final balanceFunction = contract.function('balanceOf');
-        final balance = await _client!.call(
-          contract: contract,
-          function: balanceFunction,
-          // test address: 0x1715a3E4A142d8b698131108995174F37aEBA10D
-          params: [userAddress],
-        );
+        int exponent = (await erc20.decimals()).toInt();
 
-        BigInt tokenBalance = BigInt.parse(balance.first.toString());
-        int exponent = await _getDecimalPlacesForContract(contract);
-
-        erc20Balances[currency] = ERC20Balance(tokenBalance, exponent: exponent);
-      } catch (e, s) {
-        print(e);
-        print(s);
+        erc20Balances[currency] = ERC20Balance(balance, exponent: exponent);
+      } catch (e) {
         continue;
       }
     }
@@ -233,43 +186,43 @@ I/flutter ( 4474): Gas Used: 53000
     return erc20Balances;
   }
 
-  Future<bool> sendERC20Token(
-      EthereumAddress to, CryptoCurrency erc20Currency, BigInt amount) async {
-    if (_erc20Currencies[erc20Currency] == null) {
-      throw "Unsupported ERC20 token";
-    }
-
-    try {
-      final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
-      final contractAbi = ContractAbi.fromJson(abi, "ERC20");
-
-      final contract = DeployedContract(
-        contractAbi,
-        EthereumAddress.fromHex(_erc20Currencies[erc20Currency]!),
-      );
-
-      final transferFunction = contract.function('transfer');
-      final success = await _client!.call(
-        contract: contract,
-        function: transferFunction,
-        params: [to, amount],
-      );
-
-      return success.first as bool;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
-    final decimalsFunction = contract.function('decimals');
-    final decimals = await _client!.call(
-      contract: contract,
-      function: decimalsFunction,
-      params: [],
-    );
-
-    int exponent = int.parse(decimals.first.toString());
-    return exponent;
-  }
+// Future<bool> sendERC20Token(
+//     EthereumAddress to, CryptoCurrency erc20Currency, BigInt amount) async {
+//   if (_erc20Currencies[erc20Currency] == null) {
+//     throw "Unsupported ERC20 token";
+//   }
+//
+//   try {
+//     final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
+//     final contractAbi = ContractAbi.fromJson(abi, "ERC20");
+//
+//     final contract = DeployedContract(
+//       contractAbi,
+//       EthereumAddress.fromHex(_erc20Currencies[erc20Currency]!),
+//     );
+//
+//     final transferFunction = contract.function('transfer');
+//     final success = await _client!.call(
+//       contract: contract,
+//       function: transferFunction,
+//       params: [to, amount],
+//     );
+//
+//     return success.first as bool;
+//   } catch (e) {
+//     return false;
+//   }
+// }
+//
+// Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
+//   final decimalsFunction = contract.function('decimals');
+//   final decimals = await _client!.call(
+//     contract: contract,
+//     function: decimalsFunction,
+//     params: [],
+//   );
+//
+//   int exponent = int.parse(decimals.first.toString());
+//   return exponent;
+// }
 }

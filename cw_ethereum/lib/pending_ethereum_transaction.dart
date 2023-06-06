@@ -22,7 +22,7 @@ class PendingEthereumTransaction with PendingTransaction {
       EtherAmount.inWei(BigInt.parse(amount)).getValueInUnit(EtherUnit.ether).toString();
 
   @override
-  Future<void> commit() async => sendTransaction();
+  Future<void> commit() async => await sendTransaction();
 
   @override
   String get feeFormatted => EtherAmount.inWei(fee).getValueInUnit(EtherUnit.ether).toString();
