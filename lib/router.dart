@@ -444,8 +444,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.ioniaManageCardsPage:
       return CupertinoPageRoute<void>(
-        settings: settings,
-        fullscreenDialog: true,
         builder: (_) => getIt.get<IoniaManageCardsPage>());
 
     case Routes.ioniaBuyGiftCardPage:
