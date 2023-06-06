@@ -43,13 +43,13 @@ class DesktopDashboardPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: ResponsiveLayoutUtil.instance.isIpad(context) ? 300 : 400,
+            width: ResponsiveLayoutUtil.instance.isIpad ? 300 : 400,
             child: balancePage,
           ),
           Flexible(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                  maxWidth: ResponsiveLayoutUtil.instance.isIpad(context) ? 400 : 500),
+                  maxWidth: ResponsiveLayoutUtil.instance.isIpad ? 400 : 500),
               child: Navigator(
                 key: desktopKey,
                 initialRoute: Routes.desktop_actions,

@@ -26,7 +26,7 @@ class TransactionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: ResponsiveLayoutUtil.instance.isMobile(context)
+      color: ResponsiveLayoutUtil.instance.isMobile
           ? null
           : Theme.of(context).colorScheme.background,
       padding: EdgeInsets.only(top: 24, bottom: 24),

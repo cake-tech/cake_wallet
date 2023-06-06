@@ -73,7 +73,7 @@ class AddressPage extends BasePage {
         ? closeButtonImageDarkTheme
         : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
       child: SizedBox(
