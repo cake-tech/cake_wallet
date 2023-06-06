@@ -15,7 +15,9 @@ abstract class EthereumTransactionHistoryBase
   }
 
   @override
-  Future<void> save() async {}
+  Future<void> save() async {
+    // TODO: implement
+  }
 
   @override
   void addOne(EthereumTransactionInfo transaction) =>

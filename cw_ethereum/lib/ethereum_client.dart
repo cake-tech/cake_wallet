@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
@@ -20,6 +21,7 @@ class EthereumClient {
   Map<CryptoCurrency, String> get erc20Currencies => _erc20Currencies;
 
   Web3Client? _client;
+  StreamSubscription<Transfer>? subscription;
 
   bool connect(Node node) {
     try {
@@ -29,6 +31,47 @@ class EthereumClient {
     } catch (e) {
       return false;
     }
+  }
+
+  void setListeners(EthereumAddress userAddress, Function(FilterEvent) onNewTransaction) async {
+    // final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
+    // final contractAbi = ContractAbi.fromJson(abi, "ERC20");
+    //
+    // final contract = DeployedContract(
+    //   contractAbi,
+    //   EthereumAddress.fromHex("0xf451659CF5688e31a31fC3316efbcC2339A490Fb"),
+    // );
+    //
+    // final transferEvent = contract.event('Transfer');
+    // // listen for the Transfer event when it's emitted by the contract above
+    // final subscription = _client!
+    //     .events(FilterOptions.events(contract: contract, event: transferEvent))
+    //     .take(1)
+    //     .listen((event) {
+    //   final decoded = transferEvent.decodeResults(event.topics ?? [], event.data ?? '');
+    //
+    //   final from = decoded[0] as EthereumAddress;
+    //   final to = decoded[1] as EthereumAddress;
+    //   final value = decoded[2] as BigInt;
+    //
+    //   print('$from sent $value MetaCoins to $to');
+    // });
+
+    // final eventFilter = FilterOptions(address: userAddress);
+    //
+    // _client!.events(eventFilter).listen((event) {
+    //     print("!!!!!!!!!!!!!!!!!!");
+    //     print('Address ${event.address} data ${event.data} tx hash ${event.transactionHash}!');
+    //     onNewTransaction(event);
+    // });
+
+    // final erc20 = Erc20(client: _client!, address: userAddress);
+    //
+    // subscription = erc20.transferEvents().take(1).listen((event) {
+    //   print("!!!!!!!!!!!!!!!!!!");
+    //   print('${event.from} sent ${event.value} MetaCoins to ${event.to}!');
+    //   onNewTransaction(event);
+    // });
   }
 
   Future<EtherAmount> getBalance(EthereumAddress address) async =>
@@ -184,6 +227,11 @@ I/flutter ( 4474): Gas Used: 53000
     }
 
     return erc20Balances;
+  }
+
+  void stop() {
+    subscription?.cancel();
+    _client?.dispose();
   }
 
 // Future<bool> sendERC20Token(

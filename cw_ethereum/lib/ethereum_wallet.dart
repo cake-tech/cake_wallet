@@ -96,7 +96,9 @@ abstract class EthereumWalletBase
   }
 
   @override
-  void close() {}
+  void close() {
+    _client.stop();
+  }
 
   @action
   @override
@@ -110,6 +112,7 @@ abstract class EthereumWalletBase
         throw Exception("Ethereum Node connection failed");
       }
 
+      _client.setListeners(_privateKey.address, _onNewTransaction);
       _updateBalance();
 
       syncStatus = ConnectedSyncStatus();
@@ -199,9 +202,7 @@ abstract class EthereumWalletBase
           (timer) async => _priorityFees = await _client.getEstimatedGasForPriorities());
 
       syncStatus = SyncedSyncStatus();
-    } catch (e, stacktrace) {
-      print(stacktrace);
-      print(e.toString());
+    } catch (e) {
       syncStatus = FailedSyncStatus();
     }
   }
@@ -270,4 +271,9 @@ abstract class EthereumWalletBase
   Future<void>? updateBalance() => null;
 
   List<CryptoCurrency> get erc20Currencies => _client.erc20Currencies.keys.toList();
+
+  void _onNewTransaction(FilterEvent event) {
+    _updateBalance();
+    // TODO: Add in transaction history
+  }
 }
