@@ -143,9 +143,12 @@ class AnonPayInvoicePage extends BasePage {
                             : S.of(context).anonpay_description("a donation link", "donate"),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline1!.decorationColor!,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12),
+                            color: Theme.of(context)
+                              .primaryTextTheme!
+                              .displayLarge!
+                              .decorationColor!,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12),
                       ),
                     ),
                   ),
@@ -171,7 +174,10 @@ class AnonPayInvoicePage extends BasePage {
                         anonInvoicePageViewModel.generateDonationLink();
                       }
                     },
-                    color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                     color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                     textColor: Colors.white,
                     isLoading: anonInvoicePageViewModel.state is IsExecutingState,
                   ),

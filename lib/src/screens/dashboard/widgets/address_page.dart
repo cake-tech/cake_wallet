@@ -63,7 +63,10 @@ class AddressPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .displayMedium!
+          .backgroundColor!,
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark
@@ -106,7 +109,7 @@ class AddressPage extends BasePage {
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
@@ -131,7 +134,10 @@ class AddressPage extends BasePage {
         icon: Icon(
           Icons.share,
           size: 20,
-          color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+          color: Theme.of(context)
+              .accentTextTheme!
+              .displayMedium!
+              .backgroundColor!,
         ),
       ),
     );
@@ -172,7 +178,10 @@ class AddressPage extends BasePage {
         tapOutsideToDismiss: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
+            keyboardBarColor: Theme.of(context)
+                .accentTextTheme!
+                .bodyLarge!
+                .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -204,8 +213,15 @@ class AddressPage extends BasePage {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(Radius.circular(25)),
                               border: Border.all(
-                                  color: Theme.of(context).textTheme.subtitle1!.color!, width: 1),
-                              color: Theme.of(context).buttonColor),
+                                  color: Theme.of(context)
+                                      .textTheme!
+                                      .titleMedium!
+                                      .color!,
+                                  width: 1),
+                              color: Theme.of(context)
+                                  .textTheme!
+                                  .titleLarge!
+                                  .backgroundColor!),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -219,15 +235,17 @@ class AddressPage extends BasePage {
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
-                                                .accentTextTheme
-                                                .headline2!
+                                                .accentTextTheme!
+                                                .displayMedium!
                                                 .backgroundColor!),
                                       )),
                               Icon(
                                 Icons.arrow_forward_ios,
                                 size: 14,
-                                color:
-                                    Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                                color: Theme.of(context)
+                                    .accentTextTheme!
+                                    .displayMedium!
+                                    .backgroundColor!,
                               )
                             ],
                           ),
@@ -237,7 +255,10 @@ class AddressPage extends BasePage {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 15,
-                            color: Theme.of(context).accentTextTheme.headline3!.backgroundColor!));
+                            color: Theme.of(context)
+                                .accentTextTheme!
+                                .displaySmall!
+                                .backgroundColor!));
               })
             ],
           ),

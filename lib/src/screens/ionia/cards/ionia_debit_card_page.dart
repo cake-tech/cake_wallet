@@ -23,7 +23,10 @@ class IoniaDebitCardPage extends BasePage {
     return Text(
       S.current.debit_card,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -51,7 +54,11 @@ class IoniaDebitCardPage extends BasePage {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Text(
                     S.of(context).billing_address_info,
-                    style: textSmall(color: Theme.of(context).textTheme!.headline4!.color!),
+                    style: textSmall(
+                        color: Theme.of(context)
+                            .textTheme!
+                            .headlineMedium!
+                            .color!),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -60,13 +67,16 @@ class IoniaDebitCardPage extends BasePage {
                   text: S.of(context).order_physical_card,
                   onPressed: () {},
                   color: Color(0xffE9F2FC),
-                  textColor: Theme.of(context).textTheme!.headline3!.color!,
+                  textColor: Theme.of(context).textTheme!.displaySmall!.color!,
                 ),
                 SizedBox(height: 8),
                 PrimaryButton(
                   text: S.of(context).add_value,
                   onPressed: () {},
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                 ),
                 SizedBox(height: 16)
@@ -112,11 +122,17 @@ class IoniaDebitCardPage extends BasePage {
                   child: RichText(
                       text: TextSpan(
                     text: S.of(context).get_a,
-                    style: textMedium(color: Theme.of(context).textTheme!.headline3!.color!),
+                    style: textMedium(
+                        color:
+                            Theme.of(context).textTheme!.displaySmall!.color!),
                     children: [
                       TextSpan(
                         text: S.of(context).digital_and_physical_card,
-                        style: textMediumBold(color: Theme.of(context).textTheme!.headline3!.color!),
+                        style: textMediumBold(
+                            color: Theme.of(context)
+                                .textTheme!
+                                .displaySmall!
+                                .color!),
                       ),
                       TextSpan(
                         text: S.of(context).get_card_note,
@@ -134,7 +150,10 @@ class IoniaDebitCardPage extends BasePage {
           bottomSection: PrimaryButton(
             text: S.of(context).activate,
             onPressed: () => _showHowToUseCard(context, activate: true),
-            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+            color: Theme.of(context)
+                .accentTextTheme!
+                .bodyLarge!
+                .color!,
             textColor: Colors.white,
           ),
         );
@@ -157,7 +176,7 @@ class IoniaDebitCardPage extends BasePage {
                     padding: EdgeInsets.only(top: 24, left: 24, right: 24),
                     margin: EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).backgroundColor,
+                      color: Theme.of(context).colorScheme.background,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Column(
@@ -165,7 +184,8 @@ class IoniaDebitCardPage extends BasePage {
                         Text(
                           S.of(context).how_to_use_card,
                           style: textLargeSemiBold(
-                            color: Theme.of(context).textTheme!.bodyText2!.color!,
+                            color:
+                                Theme.of(context).textTheme!.bodyMedium!.color!,
                           ),
                         ),
                         SizedBox(height: 24),
@@ -174,7 +194,10 @@ class IoniaDebitCardPage extends BasePage {
                           child: Text(
                             S.of(context).signup_for_card_accept_terms,
                             style: textSmallSemiBold(
-                              color: Theme.of(context).textTheme!.headline3!.color!,
+                              color: Theme.of(context)
+                                  .textTheme!
+                                  .displaySmall!
+                                  .color!,
                             ),
                           ),
                         ),
@@ -195,7 +218,8 @@ class IoniaDebitCardPage extends BasePage {
                               : Navigator.pop(context),
                           text: S.of(context).send_got_it,
                           color: Color.fromRGBO(233, 242, 252, 1),
-                          textColor: Theme.of(context).textTheme!.headline3!.color!,
+                          textColor:
+                              Theme.of(context).textTheme!.displaySmall!.color!,
                         ),
                         SizedBox(height: 21),
                       ],
@@ -259,8 +283,8 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryTextTheme!.subtitle1!.color!,
-            Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
+            Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+            Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -368,12 +392,14 @@ class _TitleSubtitleTile extends StatelessWidget {
       children: [
         Text(
           title,
-          style: textSmallSemiBold(color: Theme.of(context).textTheme!.headline3!.color!),
+          style: textSmallSemiBold(
+              color: Theme.of(context).textTheme!.displaySmall!.color!),
         ),
         SizedBox(height: 4),
         Text(
           subtitle,
-          style: textSmall(color: Theme.of(context).textTheme!.headline3!.color!),
+          style: textSmall(
+              color: Theme.of(context).textTheme!.displaySmall!.color!),
         ),
       ],
     );

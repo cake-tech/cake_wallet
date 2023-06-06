@@ -73,8 +73,10 @@ class ExchangeTemplatePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor:
-                Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
+            keyboardBarColor: Theme.of(context)
+                .accentTextTheme!
+                .bodyLarge!
+                .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -85,7 +87,7 @@ class ExchangeTemplatePage extends BasePage {
                   toolbarButtons: [(_) => KeyboardDoneButton()])
             ]),
         child: Container(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: Form(
             key: _formKey,
             child: ScrollableWithBottomSection(
@@ -99,8 +101,8 @@ class ExchangeTemplatePage extends BasePage {
                   ),
                   gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).primaryTextTheme.bodyText2!.color!,
-                        Theme.of(context).primaryTextTheme.bodyText2!.decorationColor!,
+                        Theme.of(context).primaryTextTheme!.bodyMedium!.color!,
+                        Theme.of(context).primaryTextTheme!.bodyMedium!.decorationColor!,
                       ],
                       stops: [0.35, 1.0],
                       begin: Alignment.topLeft,
@@ -119,10 +121,10 @@ class ExchangeTemplatePage extends BasePage {
                           gradient: LinearGradient(
                               colors: [
                                 Theme.of(context)
-                                    .primaryTextTheme.subtitle2!
+                                    .primaryTextTheme!.titleSmall!
                                     .color!,
                                 Theme.of(context)
-                                    .primaryTextTheme.subtitle2!
+                                    .primaryTextTheme!.titleSmall!
                                     .decorationColor!,
                               ],
                               begin: Alignment.topLeft,
@@ -157,7 +159,7 @@ class ExchangeTemplatePage extends BasePage {
                             addressButtonsColor:
                             Theme.of(context).focusColor,
                             borderColor: Theme.of(context)
-                                .primaryTextTheme.bodyText1!
+                                .primaryTextTheme!.bodyLarge!
                                 .color!,
                             currencyValueValidator: AmountValidator(
                                 currency: exchangeViewModel.depositCurrency),
@@ -197,7 +199,7 @@ class ExchangeTemplatePage extends BasePage {
                               addressButtonsColor:
                               Theme.of(context).focusColor,
                               borderColor: Theme.of(context)
-                                  .primaryTextTheme.bodyText1!
+                                  .primaryTextTheme!.bodyLarge!
                                   .decorationColor!,
                               currencyValueValidator: AmountValidator(
                                   currency: exchangeViewModel.receiveCurrency),
@@ -225,7 +227,7 @@ class ExchangeTemplatePage extends BasePage {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Theme.of(context)
-                                .primaryTextTheme.headline1!
+                                .primaryTextTheme!.displayLarge!
                                 .decorationColor!,
                             fontWeight: FontWeight.w500,
                             fontSize: 12),

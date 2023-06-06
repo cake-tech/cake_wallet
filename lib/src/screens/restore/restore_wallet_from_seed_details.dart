@@ -134,7 +134,10 @@ class _RestoreFromSeedDetailsFormState
             isLoading:
                 widget.walletRestorationFromSeedVM.state is IsExecutingState,
             text: S.of(context).restore_recover,
-            color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+            color: Theme.of(context)
+                .accentTextTheme!
+                .bodyLarge!
+                .color!,
             textColor: Colors.white,
             isDisabled: _nameController.text.isNotEmpty,
           );

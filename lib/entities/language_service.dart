@@ -26,7 +26,9 @@ class LanguageService {
     'bg': 'Български (Bulgarian)',
     'cs': 'čeština (Czech)',
     'ur': 'اردو (Urdu)',
-    'id': 'Bahasa Indonesia (Indonesian)'
+    'id': 'Bahasa Indonesia (Indonesian)',
+    'yo': 'Yorùbá (Yoruba)',
+    'ha': 'Hausa Najeriya (Nigeria)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -52,10 +54,12 @@ class LanguageService {
     'bg': 'bgr',
     'cs': 'czk',
     'ur': 'pak',
-    'id': 'idn'
+    'id': 'idn',
+    'yo': 'nga',
+    'ha': 'hau'
   };
 
-  static final list = <String, String> {};
+  static final list = <String, String>{};
 
   static void loadLocaleList() {
     supportedLocales.forEach((key, value) {

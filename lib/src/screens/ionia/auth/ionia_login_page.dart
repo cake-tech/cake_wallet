@@ -33,7 +33,10 @@ class IoniaLoginPage extends BasePage {
     return Text(
       S.current.login,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -71,7 +74,10 @@ class IoniaLoginPage extends BasePage {
                   text: S.of(context).login,
                   onPressed: _login,
                   isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                 ),
               ),

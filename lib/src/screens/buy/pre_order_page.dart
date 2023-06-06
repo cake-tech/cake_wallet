@@ -80,7 +80,9 @@ class PreOrderPage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!
+            keyboardBarColor: Theme.of(context)
+                .accentTextTheme!
+                .bodyLarge!
                 .backgroundColor!,
             nextFocus: false,
             actions: [
@@ -91,7 +93,7 @@ class PreOrderPage extends BasePage {
             ]),
       child: Container(
           height: 0,
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.background,
           child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 24),
             content: Observer(builder: (_) => Column(
@@ -102,9 +104,9 @@ class PreOrderPage extends BasePage {
                           bottomLeft: Radius.circular(24),
                           bottomRight: Radius.circular(24)),
                       gradient: LinearGradient(colors: [
-                        Theme.of(context).primaryTextTheme.subtitle1!.color!,
+                        Theme.of(context).primaryTextTheme!.titleMedium!.color!,
                         Theme.of(context)
-                            .primaryTextTheme.subtitle1!
+                            .primaryTextTheme!.titleMedium!
                             .decorationColor!,
                       ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     ),
@@ -160,11 +162,11 @@ class PreOrderPage extends BasePage {
                             ),
                           ),
                           hintText: '0.00',
-                          borderColor: Theme.of(context).primaryTextTheme.bodyText1!.decorationColor!,
+                          borderColor: Theme.of(context).primaryTextTheme!.bodyLarge!.decorationColor!,
                           borderWidth: 0.5,
                           textStyle: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.white),
                           placeholderTextStyle: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline5!.decorationColor!,
+                            color: Theme.of(context).primaryTextTheme!.headlineSmall!.decorationColor!,
                             fontWeight: FontWeight.w500,
                             fontSize: 36,
                           ),
@@ -179,7 +181,7 @@ class PreOrderPage extends BasePage {
                       S.of(context).buy_with + ':',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
                           fontSize: 18,
                           fontWeight: FontWeight.bold
                       ),
@@ -246,7 +248,7 @@ class PreOrderPage extends BasePage {
                           ? S.of(context).buy
                           : S.of(context).buy_with +
                             ' ${buyViewModel.selectedProvider!.description.title}',
-                    color: Theme.of(context).accentTextTheme.bodyText1!.color!,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                     textColor: Colors.white,
                     isLoading: buyViewModel.isRunning,
                     isDisabled: (buyViewModel.selectedProvider == null) ||

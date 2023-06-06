@@ -151,7 +151,7 @@ class ExchangePage extends BasePage {
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor:
-                Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+                Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -162,7 +162,7 @@ class ExchangePage extends BasePage {
                   toolbarButtons: [(_) => KeyboardDoneButton()])
             ]),
         child: Container(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.background,
           child: Form(
               key: _formKey,
               child: ScrollableWithBottomSection(
@@ -209,7 +209,7 @@ class ExchangePage extends BasePage {
                           style: TextStyle(
                               color: Theme.of(context)
                                   .primaryTextTheme!
-                                  .headline1!
+                                  .displayLarge!
                                   .decorationColor!,
                               fontWeight: FontWeight.w500,
                               fontSize: 12),
@@ -243,7 +243,7 @@ class ExchangePage extends BasePage {
                               }
                             }
                           },
-                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                          color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                           textColor: Colors.white,
                           isDisabled: exchangeViewModel.selectedProviders.isEmpty,
                           isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
@@ -654,7 +654,7 @@ class ExchangePage extends BasePage {
       imageArrow: arrowBottomPurple,
       currencyButtonColor: Colors.transparent,
       addressButtonsColor: Theme.of(context).focusColor!,
-      borderColor: Theme.of(context).primaryTextTheme!.bodyText1!.color!,
+      borderColor: Theme.of(context).primaryTextTheme!.bodyLarge!.color!,
       currencyValueValidator: (value) {
         return !exchangeViewModel.isFixedRateMode
             ? AmountValidator(
@@ -704,7 +704,7 @@ class ExchangePage extends BasePage {
       currencyButtonColor: Colors.transparent,
       addressButtonsColor: Theme.of(context).focusColor!,
       borderColor:
-      Theme.of(context).primaryTextTheme!.bodyText1!.decorationColor!,
+      Theme.of(context).primaryTextTheme!.bodyLarge!.decorationColor!,
       currencyValueValidator: (value) {
         return exchangeViewModel.isFixedRateMode
             ? AmountValidator(

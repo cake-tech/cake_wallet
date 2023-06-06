@@ -206,7 +206,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
                                 color: Theme.of(context).primaryTextTheme!
-                                    .headline6!.color!,
+                                    .titleLarge!.color!,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -220,7 +220,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
                                     color: Theme.of(context).primaryTextTheme!
-                                        .headline6!.color!,
+                                        .titleLarge!.color!,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -242,7 +242,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                             fontFamily: 'Lato',
                             color: Theme.of(context)
                                 .primaryTextTheme!
-                                .headline6!
+                                .titleLarge!
                                 .color!,
                             decoration: TextDecoration.none,
                           ),
@@ -258,7 +258,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontFamily: 'Lato',
                                 color: Theme.of(context)
                                     .primaryTextTheme!
-                                    .headline6!
+                                    .titleLarge!
                                     .color,
                                 decoration: TextDecoration.none,
                               ),
@@ -290,7 +290,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -303,7 +303,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                                    color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -334,7 +334,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               fontFamily: 'Lato',
                               color: Theme.of(context)
                                   .primaryTextTheme!
-                                  .headline6!
+                                  .titleLarge!
                                   .color!,
                               decoration: TextDecoration.none,
                             ),

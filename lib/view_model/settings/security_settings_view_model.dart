@@ -22,6 +22,9 @@ abstract class SecuritySettingsViewModelBase with Store {
   bool get allowBiometricalAuthentication => _settingsStore.allowBiometricalAuthentication;
 
   @computed
+  bool get useTotp2FA => _settingsStore.useTOTP2FA;
+
+  @computed
   PinCodeRequiredDuration get pinCodeRequiredDuration => _settingsStore.pinTimeOutDuration;
 
   @action
