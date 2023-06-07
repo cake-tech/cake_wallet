@@ -103,8 +103,8 @@ class AnonPayInvoicePage extends BasePage {
                           bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                       gradient: LinearGradient(
                         colors: [
-                          Theme.of(context).primaryTextTheme.subtitle2!.color!,
-                          Theme.of(context).primaryTextTheme.subtitle2!.decorationColor!,
+                          Theme.of(context).primaryTextTheme!.titleSmall!.color!,
+                          Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
