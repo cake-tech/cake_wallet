@@ -104,7 +104,6 @@ class EthereumClient {
     required CryptoCurrency currency,
   }) async {
     bool _isEthereum = currency == CryptoCurrency.eth;
-    final estimatedGas = BigInt.from(_isEthereum ? 21000 : 50000);
 
     final price = await _client!.getGasPrice();
 
@@ -118,11 +117,15 @@ class EthereumClient {
 
     final signedTransaction = await _client!.signTransaction(privateKey, transaction);
 
+    final estimatedGas;
     final Function _sendTransaction;
 
     if (_isEthereum) {
+      estimatedGas = BigInt.from(21000);
       _sendTransaction = () async => await sendTransaction(signedTransaction);
     } else {
+      estimatedGas = BigInt.from(50000);
+
       final erc20 = Erc20(
         client: _client!,
         address: EthereumAddress.fromHex(_erc20Currencies[currency]!),
