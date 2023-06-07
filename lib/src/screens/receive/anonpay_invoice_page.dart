@@ -84,7 +84,10 @@ class AnonPayInvoicePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyText1!.backgroundColor!,
+            keyboardBarColor: Theme.of(context)
+              .accentTextTheme!
+              .bodyLarge!
+              .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
