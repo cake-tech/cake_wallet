@@ -4,9 +4,9 @@ PODS:
     - MTBBarcodeScanner
     - SwiftProtobuf
   - BigInt (5.2.0)
-  - connectivity (0.0.1):
+  - connectivity_plus (0.0.1):
     - Flutter
-    - Reachability
+    - ReachabilitySwift
   - CryptoSwift (1.6.0)
   - cw_haven (0.0.1):
     - cw_haven/Boost (= 0.0.1)
@@ -126,11 +126,11 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - permission_handler_apple (9.0.4):
+  - permission_handler_apple (9.1.0):
     - Flutter
   - platform_device_id (0.0.1):
     - Flutter
-  - Reachability (3.2)
+  - ReachabilitySwift (5.0.0)
   - SDWebImage (5.15.5):
     - SDWebImage/Core (= 5.15.5)
   - SDWebImage/Core (5.15.5)
@@ -153,7 +153,7 @@ PODS:
 
 DEPENDENCIES:
   - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
-  - connectivity (from `.symlinks/plugins/connectivity/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
   - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
@@ -188,7 +188,7 @@ SPEC REPOS:
     - DKPhotoGallery
     - MTBBarcodeScanner
     - OrderedSet
-    - Reachability
+    - ReachabilitySwift
     - SDWebImage
     - SwiftProtobuf
     - SwiftyGif
@@ -197,8 +197,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   barcode_scan2:
     :path: ".symlinks/plugins/barcode_scan2/ios"
-  connectivity:
-    :path: ".symlinks/plugins/connectivity/ios"
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
   cw_haven:
     :path: ".symlinks/plugins/cw_haven/ios"
   cw_monero:
@@ -249,7 +249,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
+  connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
   CryptoSwift: 562f8eceb40e80796fffc668b0cad9313284cfa6
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
@@ -271,9 +271,9 @@ SPEC CHECKSUMS:
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
-  permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
+  permission_handler_apple: 8f116445eff3c0e7c65ad60f5fef5490aa94b4e4
   platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
-  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SDWebImage: fd7e1a22f00303e058058278639bf6196ee431fe
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
