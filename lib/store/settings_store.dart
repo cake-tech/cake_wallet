@@ -580,7 +580,6 @@ abstract class SettingsStoreBase with Store {
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfoPlugin.androidInfo;
       deviceName = '${androidInfo.brand}%20${androidInfo.manufacturer}%20${androidInfo.model}';
-      print(deviceName);
     } else if (Platform.isIOS) {
       final iosInfo = await deviceInfoPlugin.iosInfo;
       deviceName = iosInfo.model;
