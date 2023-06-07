@@ -97,6 +97,8 @@ import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 
+import 'buy/moonpay/moonpay_buy_provider.dart';
+
 late RouteSettings currentRouteSettings;
 
 Route<dynamic> createRoute(RouteSettings settings) {
@@ -519,7 +521,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
         param2: commitedInfo));
 
     case Routes.onramperPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
+      final sellUri = settings.arguments as Uri?;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>(param1: sellUri));
 
     case Routes.payfuraPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<PayFuraPage>());

@@ -118,14 +118,22 @@ class MainActions {
 
       switch (walletType) {
         case WalletType.bitcoin:
+        case WalletType.litecoin:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
             final uri = await moonPaySellProvider.requestUrl(
               currency: viewModel.wallet.currency,
               refundWalletAddress: viewModel.wallet.walletAddresses.address,
+              settingsStore: viewModel.settingsStore,
             );
-            await launchUrl(uri);
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context).pushNamed(Routes.onramperPage,
+                  arguments: uri);
+            } else {
+              await launchUrl(uri);
+            }
           }
+
           break;
         default:
           await showPopUp<void>(

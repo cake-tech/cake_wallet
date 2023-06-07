@@ -1,6 +1,7 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
@@ -675,7 +676,7 @@ Future setup({
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
-  getIt.registerFactory(() => OnRamperPage(getIt.get<OnRamperBuyProvider>()));
+  getIt.registerFactoryParam<OnRamperPage, Uri?, void>((uri,_) => OnRamperPage(getIt.get<OnRamperBuyProvider>(), uri));
 
   getIt.registerFactory<PayfuraBuyProvider>(() => PayfuraBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
