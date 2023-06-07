@@ -39,6 +39,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
@@ -873,6 +874,8 @@ Future setup({
 
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
+  getIt.registerFactory(()=> MarketPlaceViewModel(getIt.get<IoniaService>()));
+
   getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactoryParam<IoniaMerchPurchaseViewModel, double, IoniaMerchant>(
@@ -902,7 +905,7 @@ Future setup({
     return IoniaVerifyIoniaOtp(getIt.get<IoniaAuthViewModel>(), email, isSignIn);
   });
 
-  getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaGiftCardsListViewModel>()));
+  getIt.registerFactory(() => IoniaWelcomePage());
 
   getIt.registerFactoryParam<IoniaBuyGiftCardPage, List, void>((List args, _) {
     final merchant = args.first as IoniaMerchant;
