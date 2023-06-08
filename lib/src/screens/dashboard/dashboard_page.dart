@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
+import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -248,7 +249,12 @@ class _DashboardPageView extends BasePage {
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(Semantics(
           label: 'Marketplace Page',
-          child: MarketPlacePage(dashboardViewModel: dashboardViewModel)));
+          child: MarketPlacePage(
+            dashboardViewModel: dashboardViewModel, 
+            marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
+          ),
+        ),
+      );
     }
     pages.add(Semantics(label: 'Balance Page', child: balancePage));
     pages.add(Semantics(

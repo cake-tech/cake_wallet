@@ -16,12 +16,10 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
         ioniaCategories = IoniaCategory.allCategories,
         selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
         scrollOffsetFromTop = 0.0,
-        isLoggedIn = false,
         merchantState = InitialIoniaMerchantLoadingState(),
         createCardState = IoniaCreateCardState(),
         searchString = '',
         ioniaMerchantList = <IoniaMerchant>[] {
-        _getAuthStatus().then((value) => isLoggedIn = value);
   }
 
   final IoniaService ioniaService;
@@ -46,23 +44,16 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   List<IoniaMerchant> ioniaMerchants;
 
   @observable
-  bool isLoggedIn;
-
-  @observable
   List<IoniaCategory> ioniaCategories;
 
   @observable
   ObservableList<IoniaCategory> selectedIndices;
 
-  Future<bool> _getAuthStatus() async {
-    return await ioniaService.isLogined();
-  }
-
   @action
   Future<void> createCard() async {
     try {
       createCardState = IoniaCreateCardLoading();
-      final card = await ioniaService.createCard();
+      await ioniaService.createCard();
       createCardState = IoniaCreateCardSuccess();
     } catch (e) {
       createCardState = IoniaCreateCardFailure(error: e.toString());
