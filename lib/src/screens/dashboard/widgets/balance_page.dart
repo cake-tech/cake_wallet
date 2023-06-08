@@ -123,7 +123,7 @@ class BalancePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Expanded(
-                child: AutoSizeText('293430432923023233223.23000023823',
+                child: AutoSizeText(availableBalance,
                     style: TextStyle(
                         fontSize: 24,
                         fontFamily: 'Lato',
