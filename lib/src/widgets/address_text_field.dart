@@ -1,4 +1,5 @@
 
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -135,7 +136,7 @@ class AddressTextField extends StatelessWidget {
                               )),
                         )),
                   ],
-                  if (this.options.contains(AddressTextFieldOption.qrCode) && ResponsiveLayoutUtil.instance.isMobile) 
+                  if (this.options.contains(AddressTextFieldOption.qrCode) && DeviceInfo.instance.isMobile) 
                   ...[
                     Container(
                         width: prefixIconWidth,

@@ -2,7 +2,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
@@ -188,7 +188,7 @@ class QRWidget extends StatelessWidget {
 
   Future<void> changeBrightnessForRoute(Future<void> Function() navigation) async {
     // if not mobile, just navigate
-    if (!ResponsiveLayoutUtil.instance.isMobile) {
+    if (!DeviceInfo.instance.isMobile) {
       navigation();
       return;
     }
