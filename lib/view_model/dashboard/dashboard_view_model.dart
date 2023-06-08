@@ -138,6 +138,15 @@ abstract class DashboardViewModelBase with Store {
         });
 
 
+     reaction((_) => settingsStore.showHistoricalFiatAmount,
+            (bool showHistoricalFiatAmount) {
+      if (showHistoricalFiatAmount) {
+        _wallet.transactionHistory.transactions.values.forEach((tx) {
+          _getHistoricalFiatRate(tx);
+        });
+      }
+        });
+
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
 
@@ -182,13 +191,11 @@ abstract class DashboardViewModelBase with Store {
             settingsStore: appStore.settingsStore),
         filter: (TransactionInfo? transaction) {
 
-          _wallet.transactionHistory.transactions.values.forEach((tx) {
-            _getHistoricalFiatRate(tx);
-          });
-
           if (transaction == null) {
             return false;
           }
+
+          _getHistoricalFiatRate(transaction);
 
           final wallet = _wallet;
           if (wallet.type == WalletType.monero) {
@@ -366,11 +373,6 @@ abstract class DashboardViewModelBase with Store {
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
     updateActions();
 
-    wallet.transactionHistory.transactions.values.forEach((tx) {
-      _getHistoricalFiatRate(tx);
-    });
-
-
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
 
@@ -448,8 +450,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> _getHistoricalFiatRate(TransactionInfo transactionInfo) async {
-    if (FiatApiMode.disabled == settingsStore.fiatApiMode) return;
+    if (FiatApiMode.disabled == settingsStore.fiatApiMode
+    || !settingsStore.showHistoricalFiatAmount) return;
     final description = getTransactionDescription(transactionInfo);
+
 
     if (description.historicalFiat != settingsStore.fiatCurrency.toString()
         || description.historicalFiatRate == null) {
