@@ -557,7 +557,7 @@
   "purchase_gift_card": "ギフトカードを購入",
   "verification" : "検証",
   "fill_code": "メールアドレスに記載されている確認コードを入力してください",
-  "dont_get_code": "コードを取得しませんか？",
+  "didnt_get_code": "コードを取得しませんか？",
   "resend_code": "再送してください",
   "debit_card": "デビットカード",
   "cakepay_prepaid_card": "CakePayプリペイドデビットカード",

@@ -20,7 +20,10 @@ class IoniaAccountCardsPage extends BasePage {
     return Text(
       S.of(context).cards,
       style: textLargeSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -69,23 +72,34 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
             width: 230,
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .displayLarge!
+                  .backgroundColor!
+                  .withOpacity(0.1),
               borderRadius: BorderRadius.circular(
                 25.0,
               ),
             ),
             child: Theme(
-              data: ThemeData(primaryTextTheme: TextTheme(bodyText1: TextStyle(backgroundColor: Colors.transparent))),
+              data: ThemeData(primaryTextTheme: TextTheme(bodyLarge: TextStyle(backgroundColor: Colors.transparent))),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
                   borderRadius: BorderRadius.circular(
                     25.0,
                   ),
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                 ),
-                labelColor: Theme.of(context).primaryTextTheme!.headline1!.backgroundColor!,
-                unselectedLabelColor: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                labelColor: Theme.of(context)
+                    .primaryTextTheme!
+                    .displayLarge!
+                    .backgroundColor!,
+                unselectedLabelColor:
+                    Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 tabs: [
                   Tab(
                     text: S.of(context).active,
@@ -154,9 +168,13 @@ class _IoniaCardListView extends StatelessWidget {
   Widget build(BuildContext context) {
     if(isLoading){
       return Center(
-          child: CircularProgressIndicator(
-          backgroundColor: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
-          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme!.bodyText2!.color!),
+        child: CircularProgressIndicator(
+          backgroundColor: Theme.of(context)
+              .accentTextTheme!
+              .displayMedium!
+              .backgroundColor!,
+          valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).primaryTextTheme!.bodyMedium!.color!),
         ),
       );
     }
@@ -166,7 +184,7 @@ class _IoniaCardListView extends StatelessWidget {
               emptyText,
               textAlign: TextAlign.center,
               style: textSmall(
-                color: Theme.of(context).primaryTextTheme!.overline!.color!,
+                color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
               ),
             ),
           )
@@ -179,11 +197,18 @@ class _IoniaCardListView extends StatelessWidget {
                 child: CardItem(
                   onTap: () => onTap?.call(merchant),
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
+                  backgroundColor: Theme.of(context)
+                      .accentTextTheme!
+                      .displayLarge!
+                      .backgroundColor!
+                      .withOpacity(0.1),
                   discount: 0,
                   hideBorder: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+                  titleColor: Theme.of(context)
+                      .accentTextTheme!
+                      .displayLarge!
+                      .backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: '',
                   logoUrl: merchant.logoUrl,

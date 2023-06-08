@@ -50,8 +50,10 @@ class SendTemplatePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor:
-                Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+            keyboardBarColor: Theme.of(context)
+                .accentTextTheme!
+                .bodyLarge!
+                .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -65,7 +67,7 @@ class SendTemplatePage extends BasePage {
             ]),
         child: Container(
           height: 0,
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.background,
           child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 24),
             content: Container(
@@ -75,8 +77,11 @@ class SendTemplatePage extends BasePage {
                   bottomRight: Radius.circular(24),
                 ),
                 gradient: LinearGradient(colors: [
-                  Theme.of(context).primaryTextTheme!.subtitle1!.color!,
-                  Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
+                  Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+                  Theme.of(context)
+                      .primaryTextTheme!
+                      .titleMedium!
+                      .decorationColor!,
                 ], begin: Alignment.topLeft, end: Alignment.bottomRight),
               ),
               child: Form(
@@ -92,7 +97,7 @@ class SendTemplatePage extends BasePage {
                             hintText: S.of(context).send_name,
                             borderColor: Theme.of(context)
                                 .primaryTextTheme!
-                                .headline5!
+                                .headlineSmall!
                                 .color!,
                             textStyle: TextStyle(
                                 fontSize: 14,
@@ -101,7 +106,7 @@ class SendTemplatePage extends BasePage {
                             placeholderTextStyle: TextStyle(
                                 color: Theme.of(context)
                                     .primaryTextTheme!
-                                    .headline5!
+                                    .headlineSmall!
                                     .decorationColor!,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14),
@@ -123,11 +128,11 @@ class SendTemplatePage extends BasePage {
                               ],
                               buttonColor: Theme.of(context)
                                   .primaryTextTheme!
-                                  .headline4!
+                                  .headlineMedium!
                                   .color!,
                               borderColor: Theme.of(context)
                                   .primaryTextTheme!
-                                  .headline5!
+                                  .headlineSmall!
                                   .color!,
                               textStyle: TextStyle(
                                   fontSize: 14,
@@ -138,7 +143,7 @@ class SendTemplatePage extends BasePage {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context)
                                       .primaryTextTheme!
-                                      .headline5!
+                                      .headlineSmall!
                                       .decorationColor!),
                             ),
                           ),
@@ -170,7 +175,7 @@ class SendTemplatePage extends BasePage {
                                   hintText: '0.0000',
                                   borderColor: Theme.of(context)
                                       .primaryTextTheme!
-                                      .headline5!
+                                      .headlineSmall!
                                       .color!,
                                   textStyle: TextStyle(
                                       fontSize: 14,
@@ -179,7 +184,7 @@ class SendTemplatePage extends BasePage {
                                   placeholderTextStyle: TextStyle(
                                       color: Theme.of(context)
                                           .primaryTextTheme!
-                                          .headline5!
+                                          .headlineSmall!
                                           .decorationColor!,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14),
@@ -212,7 +217,7 @@ class SendTemplatePage extends BasePage {
                                 hintText: '0.00',
                                 borderColor: Theme.of(context)
                                     .primaryTextTheme!
-                                    .headline5!
+                                    .headlineSmall!
                                     .color!,
                                 textStyle: TextStyle(
                                     fontSize: 14,
@@ -221,7 +226,7 @@ class SendTemplatePage extends BasePage {
                                 placeholderTextStyle: TextStyle(
                                     color: Theme.of(context)
                                         .primaryTextTheme!
-                                        .headline5!
+                                        .headlineSmall!
                                         .decorationColor!,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 14),

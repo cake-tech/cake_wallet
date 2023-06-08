@@ -557,7 +557,7 @@
    "purchase_gift_card":"شراء بطاقة هدايا",
    "verification":"تَحَقّق",
    "fill_code":"يرجى ملء رمز التحقق المرسل إلى بريدك الإلكتروني",
-   "dont_get_code":"لم تحصل على رمز؟",
+   "didnt_get_code":"لم تحصل على رمز؟",
    "resend_code":"الرجاء إعادة إرسالها",
    "debit_card":"بطاقة ائتمان",
    "cakepay_prepaid_card":"بطاقة ائتمان CakePay مسبقة الدفع",

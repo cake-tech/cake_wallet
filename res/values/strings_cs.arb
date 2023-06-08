@@ -557,7 +557,7 @@
   "purchase_gift_card": "Objednat dárkovou kartu",
   "verification": "Ověření",
   "fill_code": "Prosím vyplňte ověřovací kód zaslaný na Váš e-mail",
-  "dont_get_code": "Nepřišel Vám kód?",
+  "didnt_get_code": "Nepřišel Vám kód?",
   "resend_code": "Prosím poslat znovu",
   "debit_card": "Debetní karta",
   "cakepay_prepaid_card": "CakePay předplacená debetní karta",

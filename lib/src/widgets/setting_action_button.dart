@@ -29,10 +29,10 @@ class SettingActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color? color = isSelected
-        ? Theme.of(context).textTheme.headline3!.color
+        ? Theme.of(context).textTheme!.displaySmall!.color
         : selectionActive
             ? Palette.darkBlue
-            : Theme.of(context).textTheme.headline3!.color;
+            : Theme.of(context).textTheme!.displaySmall!.color;
     return InkWell(
       onTap: onTap,
       hoverColor: Colors.transparent,

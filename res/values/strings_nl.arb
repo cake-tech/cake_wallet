@@ -557,7 +557,7 @@
   "purchase_gift_card": "Cadeaubon kopen",
   "verification": "Verificatie",
   "fill_code": "Vul de verificatiecode in die u in uw e-mail hebt ontvangen",
-  "dont_get_code": "Geen code?",
+  "didnt_get_code": "Geen code?",
   "resend_code": "Stuur het alstublieft opnieuw",
   "debit_card": "Debetkaart",
   "cakepay_prepaid_card": "CakePay Prepaid Debetkaart",

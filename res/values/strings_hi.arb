@@ -557,7 +557,7 @@
   "purchase_gift_card": "गिफ्ट कार्ड खरीदें",
   "verification": "सत्यापन",
   "fill_code": "कृपया अपने ईमेल पर प्रदान किया गया सत्यापन कोड भरें",
-  "dont_get_code": "कोड नहीं मिला?",
+  "didnt_get_code": "कोड नहीं मिला?",
   "resend_code": "कृपया इसे फिर से भेजें",
   "debit_card": "डेबिट कार्ड",
   "cakepay_prepaid_card": "केकपे प्रीपेड डेबिट कार्ड",

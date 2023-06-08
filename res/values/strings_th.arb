@@ -555,7 +555,7 @@
   "purchase_gift_card": "ซื้อบัตรของขวัญ",
   "verification": "การตรวจสอบ",
   "fill_code": "โปรดกรอกรหัสยืนยันที่ส่งไปยังอีเมลของคุณ",
-  "dont_get_code": "ไม่ได้รับรหัส?",
+  "didnt_get_code": "ไม่ได้รับรหัส?",
   "resend_code": "โปรดส่งอีกครั้ง",
   "debit_card": "บัตรเดบิต",
   "cakepay_prepaid_card": "บัตรเดบิตเติมเงินของ CakePay",

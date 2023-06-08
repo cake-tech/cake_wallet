@@ -14,7 +14,10 @@ class CopyLinkItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayMedium!
+            .backgroundColor!);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -22,7 +25,10 @@ class CopyLinkItem extends StatelessWidget {
         Text(
           title,
           style: textMedium(
-            color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+            color: Theme.of(context)
+                .accentTextTheme!
+                .displayMedium!
+                .backgroundColor!,
           ),
         ),
         SizedBox(width: 50),
@@ -45,7 +51,10 @@ class CopyLinkItem extends StatelessWidget {
               onPressed: () => Share.share(url),
               icon: Icon(
                 Icons.share,
-                color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                color: Theme.of(context)
+                    .accentTextTheme!
+                    .displayMedium!
+                    .backgroundColor!,
               ),
             )
           ],

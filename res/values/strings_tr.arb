@@ -557,7 +557,7 @@
   "purchase_gift_card": "Hediye Kartı Satın Al",
   "verification": "Doğrulama",
   "fill_code": "Lütfen e-postanıza gelen doğrulama kodunu girin",
-  "dont_get_code": "Kod gelmedi mi?",
+  "didnt_get_code": "Kod gelmedi mi?",
   "resend_code": "Lütfen tekrar gönder",
   "debit_card": "Ön ödemeli Kart",
   "cakepay_prepaid_card": "CakePay Ön Ödemeli Kart",

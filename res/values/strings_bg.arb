@@ -557,7 +557,7 @@
   "purchase_gift_card": "Купуване на Gift Card",
   "verification": "Потвърждаване",
   "fill_code": "Моля, въведето кода за потвърждаване, изпратен на Вашия имейл",
-  "dont_get_code": "Не получихте код?",
+  "didnt_get_code": "Не получихте код?",
   "resend_code": "Повторно изпращане",
   "debit_card": "Дебитна карта",
   "cakepay_prepaid_card": "CakePay предплатена дебитна карта",

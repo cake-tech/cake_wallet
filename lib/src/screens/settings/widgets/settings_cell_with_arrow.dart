@@ -8,5 +8,5 @@ class SettingsCellWithArrow extends StandardListRow {
   @override
   Widget buildTrailing(BuildContext context) =>
       Image.asset('assets/images/select_arrow.png',
-          color: Theme.of(context).primaryTextTheme!.overline!.color!);
+          color: Theme.of(context).primaryTextTheme!.labelSmall!.color!);
 }

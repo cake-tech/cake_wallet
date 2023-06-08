@@ -22,7 +22,10 @@ class CurrencyInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrowBottomPurple = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
-      color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .displayMedium!
+          .backgroundColor!,
       height: 8,
     );
     final _width = MediaQuery.of(context).size.width;
@@ -40,13 +43,13 @@ class CurrencyInputField extends StatelessWidget {
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,8}'))],
               hintText: '0.000',
               placeholderTextStyle: isLight ? null : TextStyle(
-                color: Theme.of(context).primaryTextTheme.headline5!.color!,
+                color: Theme.of(context).primaryTextTheme!.headlineSmall!.color!,
                 fontWeight: FontWeight.w600,
               ),
-              borderColor: Theme.of(context).accentTextTheme.headline6!.backgroundColor!,
-              textColor: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+              borderColor: Theme.of(context).accentTextTheme!.titleLarge!.backgroundColor!,
+              textColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
               textStyle: TextStyle(
-                color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
               ),
               prefixIcon: Padding(
                 padding: EdgeInsets.only(
@@ -69,7 +72,7 @@ class CurrencyInputField extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
-                              color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                              color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
                             ),
                           ),
                           if (selectedCurrency.tag != null)
@@ -77,7 +80,7 @@ class CurrencyInputField extends StatelessWidget {
                               padding: const EdgeInsets.only(right: 3.0),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryTextTheme.headline4!.color!,
+                                  color: Theme.of(context).primaryTextTheme!.headlineMedium!.color!,
                                   borderRadius: BorderRadius.all(
                                     Radius.circular(6),
                                   ),
@@ -89,8 +92,8 @@ class CurrencyInputField extends StatelessWidget {
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline4!
+                                          .primaryTextTheme!
+                                          .headlineMedium!
                                           .decorationColor!,
                                     ),
                                   ),
@@ -105,7 +108,7 @@ class CurrencyInputField extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 fontSize: 20,
                                 color:
-                                    Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                                    Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
                               ),
                             ),
                           ),
