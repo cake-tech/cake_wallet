@@ -181,6 +181,60 @@ extern "C"
         }
     };
 
+    struct CoinsInfo{
+        uint64_t blockHeight;
+        char hash;
+        uint64_t internalOutputIndex;
+        uint64_t globalOutputIndex;
+        bool spent;
+        bool frozen;
+        uint64_t spentHeight;
+        uint64_t amount;
+        char displayAmount;
+        bool rct;
+        bool keyImageKnown;
+        uint64_t pkIndex;
+        uint32_t subaddrIndex;
+        uint32_t subaddrAccount;
+        char address;
+        char addressLabel;
+        char keyImage;
+        uint64_t unlockTime;
+        bool unlocked;
+        char pubKey;
+        bool coinbase;
+        char description;
+
+        CoinsInfo(Monero::CoinsInfo *coinsInfo){
+            blockHeight = coinsInfo->blockHeight();
+            hash = coinsInfo->hash();
+            internalOutputIndex = coinsInfo->internalOutputIndex();
+            globalOutputIndex = coinsInfo->globalOutputIndex();
+            spent = coinsInfo->spent();
+            frozen = coinsInfo->frozen();
+            spentHeight = coinsInfo->spentHeight();
+            amount = coinsInfo->amount();
+            displayAmount = coinsInfo->displayAmount();
+            rct = coinsInfo->rct();
+            keyImageKnown = coinsInfo->keyImageKnown();
+            pkIndex = coinsInfo->pkIndex();
+            subaddrIndex = coinsInfo->subaddrIndex();
+            subaddrAccount = coinsInfo->subaddrAccount();
+            address = coinsInfo->address();
+            addressLabel = coinsInfo->addressLabel();
+            keyImage = coinsInfo->keyImage();
+            unlockTime = coinsInfo->unlockTime();
+            unlocked = coinsInfo->unlocked();
+            pubKey = coinsInfo->pubKey();
+            coinbase = coinsInfo->coinbase();
+            description = coinsInfo->description();
+        }
+
+        void setUnlocked(bool unlocked);
+    
+    }
+
+
     Monero::Wallet *m_wallet;
     Monero::TransactionHistory *m_transaction_history;
     MoneroWalletListener *m_listener;
