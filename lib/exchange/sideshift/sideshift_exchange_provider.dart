@@ -70,7 +70,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final depositNetwork = _networkFor(from);
       final settleNetwork = _networkFor(to);
 
-      final url = "$apiBaseUrl $rangePath/$fromCurrency-$depositNetwork/$toCurrency-$settleNetwork";
+      final url =
+          "$apiBaseUrl$rangePath/$fromCurrency-$depositNetwork/$toCurrency-$settleNetwork?affiliateId=$affiliateId";
 
       final uri = Uri.parse(url);
       final response = await get(uri);
@@ -214,7 +215,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final toNetwork = _networkFor(toCurrency);
 
     final url =
-        "$apiBaseUrl $rangePath / ${fromCurrency.title.toLowerCase()} - $fromNetwork / ${toCurrency.title.toLowerCase()} - $toNetwork";
+        "$apiBaseUrl$rangePath/${fromCurrency.title.toLowerCase()}-$fromNetwork/${toCurrency.title.toLowerCase()}-$toNetwork";
 
     final uri = Uri.parse(url);
     final response = await get(uri);
