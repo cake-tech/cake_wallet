@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:hive/hive.dart';
@@ -22,7 +27,7 @@ part 'wallet_creation_vm.g.dart';
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
+  WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService, this._fiatConversationStore,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
         name = '';
@@ -33,11 +38,17 @@ abstract class WalletCreationVMBase with Store {
   @observable
   ExecutionState state;
 
+  @observable
+  PendingTransaction? pendingTransaction;
+
   WalletType type;
   final bool isRecovery;
   final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
+   final FiatConversionStore _fiatConversationStore;
+
+   Completer<void> syncCompleter = Completer<void>();
 
   bool nameExists(String name) => walletCreationService.exists(name);
 
@@ -64,8 +75,10 @@ abstract class WalletCreationVMBase with Store {
       //! Switch to the restoredWallet in order to activate the node connection
       _appStore.changeCurrentWallet(restoredWallet);
 
+      await restoredWallet.startSync();
+      
       //! Sweep all funds from restoredWallet to newWallet
-      await sweepAllFundsToNewWallet(type, newWalletAddress, restoreWallet?.txId ?? '');
+      await sweepAllFundsToNewWallet(restoredWallet, type, newWalletAddress, restoreWallet?.txId ?? '');
 
       //! Switch back to new wallet
       _appStore.changeCurrentWallet(newWallet);
@@ -117,15 +130,78 @@ abstract class WalletCreationVMBase with Store {
         ? await processFromRestoredWallet(credentials, restoreWallet)
         : await process(credentials);
     walletInfo.address = wallet.walletAddresses.address;
+    
    
     return wallet;
   }
 
-  Future<Map<String, dynamic>> sweepAllFundsToNewWallet(
-      WalletType type, String address, String paymentId) async {
-    final currentNode = _appStore.settingsStore.getCurrentNode(type);
-    final result = await walletCreationService.sweepAllFunds(currentNode, address, paymentId);
-    return result;
+  Future<void> sweepAllFundsToNewWallet(WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+      WalletType type, String newWalletAddress, String paymentId) async {
+          final output = Output(wallet, _appStore.settingsStore, _fiatConversationStore, () => wallet.currency);
+          output.address = newWalletAddress;
+          output.sendAll = true;
+          output.note = 'testing the sweep all function';
+        final credentials = _credentials(type, wallet.currency.title, output);
+        print('About to enter create function');
+        await createTransaction(wallet, credentials);
+    // final currentNode = _appStore.settingsStore.getCurrentNode(type);
+    // final result = await walletCreationService.sweepAllFunds(currentNode, newWalletAddress, paymentId);
+    
+  }
+
+
+  Object _credentials(WalletType type,String cryptoCurrencyTitle,Output output ) {
+    switch (type) {
+      case WalletType.bitcoin:
+        final priority = _appStore.settingsStore.priority[type];
+
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${type}');
+        }
+
+        return bitcoin!.createBitcoinTransactionCredentials([output], priority: priority);
+      case WalletType.litecoin:
+        final priority = _appStore.settingsStore.priority[type];
+
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${type}');
+        }
+
+        return bitcoin!.createBitcoinTransactionCredentials([output], priority: priority);
+      case WalletType.monero:
+        final priority = _appStore.settingsStore.priority[type];
+
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${type}');
+        }
+
+        return monero!.createMoneroTransactionCreationCredentials(
+            outputs:[output], priority: priority);
+      case WalletType.haven:
+        final priority = _appStore.settingsStore.priority[type];
+
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${type}');
+        }
+        
+        return haven!.createHavenTransactionCreationCredentials(
+            outputs: [output], priority: priority, assetType: cryptoCurrencyTitle);
+      default:
+        throw Exception('Unexpected wallet type: ${type}');
+    }
+  }
+
+  @action
+  Future<void> createTransaction(WalletBase wallet, Object credentials) async {
+    try {
+        print('in here');
+      state = IsExecutingState();
+      print('about to enter wallet create transaction function');
+      pendingTransaction = await wallet.createTransaction(credentials);
+      state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
   }
 
   WalletCredentials getCredentials(dynamic options) {

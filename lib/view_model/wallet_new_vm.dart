@@ -11,16 +11,18 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 
+import '../store/dashboard/fiat_conversion_store.dart';
+
 part 'wallet_new_vm.g.dart';
 
 class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
 
 abstract class WalletNewVMBase extends WalletCreationVM with Store {
-  WalletNewVMBase(AppStore appStore, WalletCreationService walletCreationService,
+  WalletNewVMBase(AppStore appStore, WalletCreationService walletCreationService,FiatConversionStore fiatConversationStore,
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
       : selectedMnemonicLanguage = '',
-        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: false);
+        super(appStore, walletInfoSource, walletCreationService,fiatConversationStore, type: type, isRecovery: false);
 
   @observable
   String selectedMnemonicLanguage;

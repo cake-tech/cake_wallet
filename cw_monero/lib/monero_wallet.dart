@@ -175,9 +175,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     PendingTransactionDescription pendingTransactionDescription;
 
-    if (!(syncStatus is SyncedSyncStatus)) {
-      throw MoneroTransactionCreationException('The wallet is not synced.');
-    }
+    // if (!(syncStatus is SyncedSyncStatus)) {
+    //   throw MoneroTransactionCreationException('The wallet is not synced.');
+    // }
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll

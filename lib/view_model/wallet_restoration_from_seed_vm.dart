@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -21,10 +22,10 @@ class WalletRestorationFromSeedVM = WalletRestorationFromSeedVMBase
 abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
     with Store {
   WalletRestorationFromSeedVMBase(AppStore appStore,
-      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
+      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,FiatConversionStore fiatConversationStore,
       {required WalletType type, required this.language, this.seed = ''})
       : height = 0,
-        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService ,fiatConversationStore, type: type, isRecovery: true);
 
   @observable
   String seed;
