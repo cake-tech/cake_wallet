@@ -18,7 +18,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider() : super(pairList: _supportedPairs());
 
   static const affiliateId = secrets.sideShiftAffiliateId;
-  static const sideShiftApiKey = secrets.sideShiftApiKey;
   static const apiBaseUrl = 'https://sideshift.ai/api';
   static const rangePath = '/v2/pair';
   static const orderPath = '/v2/shifts';
@@ -58,27 +57,21 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<double> fetchRate(
       {required CryptoCurrency from,
       required CryptoCurrency to,
-      double? amount,
+      required double amount,
       required bool isFixedRateMode,
-      bool? isReceiveAmount}) async {
+      required bool isReceiveAmount}) async {
     try {
+      if (amount == 0) {
+        return 0.0;
+      }
+
       final fromCurrency = from.title.toLowerCase();
       final toCurrency = to.title.toLowerCase();
       final depositNetwork = _networkFor(from);
       final settleNetwork = _networkFor(to);
 
-      final url = apiBaseUrl +
-          rangePath +
-          '/' +
-          fromCurrency +
-          '-' +
-          depositNetwork +
-          '/' +
-          toCurrency +
-          '-' +
-          settleNetwork +
-          '?affiliateId=' +
-          affiliateId;
+      final url = "$apiBaseUrl $rangePath/$fromCurrency-$depositNetwork/$toCurrency-$settleNetwork";
+
       final uri = Uri.parse(url);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -220,16 +213,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final fromNetwork = _networkFor(fromCurrency);
     final toNetwork = _networkFor(toCurrency);
 
-    final url = apiBaseUrl +
-        rangePath +
-        '/' +
-        fromCurrency.title.toLowerCase() +
-        '-' +
-        fromNetwork +
-        '/' +
-        toCurrency.title.toLowerCase() +
-        '-' +
-        toNetwork;
+    final url =
+        "$apiBaseUrl $rangePath / ${fromCurrency.title.toLowerCase()} - $fromNetwork / ${toCurrency.title.toLowerCase()} - $toNetwork";
+
     final uri = Uri.parse(url);
     final response = await get(uri);
 
@@ -249,11 +235,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
     if (isFixedRateMode) {
-      final currentRate = await fetchRate(
-        from: to,
-        to: from,
-        isFixedRateMode: isFixedRateMode,
-      );
+      final currentRate = double.parse(responseJSON['rate'] as String);
       return Limits(
         min: min != null ? (min * currentRate) : null,
         max: max != null ? (max * currentRate) : null,
@@ -325,12 +307,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   String get title => 'SideShift';
 
-  String _networkFor(CryptoCurrency currency) {
-    switch (currency) {
-      default:
-        return currency.tag != null ? _normalizeTag(currency.tag!) : 'mainnet';
-    }
-  }
+  String _networkFor(CryptoCurrency currency) =>
+      currency.tag != null ? _normalizeTag(currency.tag!) : 'mainnet';
 
   String _normalizeTag(String tag) {
     switch (tag) {

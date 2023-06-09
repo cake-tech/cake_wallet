@@ -106,7 +106,6 @@ jobs:
           echo "const moonPayApiKey = '${{ secrets.MOON_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const moonPaySecretKey = '${{ secrets.MOON_PAY_SECRET_KEY }}';" >> lib/.secrets.g.dart
           echo "const sideShiftAffiliateId = '${{ secrets.SIDE_SHIFT_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
-          echo "const sideShiftApiKey = '${{ secrets.SIDE_SHIFT_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const simpleSwapApiKey = '${{ secrets.SIMPLE_SWAP_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const simpleSwapApiKeyDesktop = '${{ secrets.SIMPLE_SWAP_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
           echo "const onramperApiKey = '${{ secrets.ONRAMPER_API_KEY }}';" >> lib/.secrets.g.dart
