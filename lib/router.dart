@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
@@ -520,9 +520,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
         param1: paymentInfo,
         param2: commitedInfo));
 
-    case Routes.onramperPage:
-      final sellUri = settings.arguments as Uri?;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>(param1: sellUri));
+    case Routes.webViewPage:
+      final args = settings.arguments as List;
+      final title = args.first as String;
+      final url = args[1] as Uri;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<WebViewPage>(
+          param1: title,
+          param2: url));
 
     case Routes.payfuraPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<PayFuraPage>());

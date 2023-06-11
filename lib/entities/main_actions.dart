@@ -48,10 +48,11 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
           if (viewModel.isEnabledBuyAction) {
+            final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
             if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.onramperPage);
+              Navigator.of(context)
+                  .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
             } else {
-              final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
               await launchUrl(uri);
             }
           }
@@ -127,8 +128,8 @@ class MainActions {
               settingsStore: viewModel.settingsStore,
             );
             if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.onramperPage,
-                  arguments: uri);
+              Navigator.of(context).pushNamed(Routes.webViewPage,
+                  arguments: [S.of(context).sell, uri]);
             } else {
               await launchUrl(uri);
             }

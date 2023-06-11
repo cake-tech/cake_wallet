@@ -13,7 +13,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
-import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
@@ -677,7 +677,7 @@ Future setup({
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
-  getIt.registerFactoryParam<OnRamperPage, Uri?, void>((uri,_) => OnRamperPage(getIt.get<OnRamperBuyProvider>(), uri));
+  getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
 
   getIt.registerFactory<PayfuraBuyProvider>(() => PayfuraBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
