@@ -177,7 +177,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
             fullscreenDialog: true);
       } else if (isSingleCoin) {
         return MaterialPageRoute<void>(
-            fullscreenDialog: true,
             builder: (_) => getIt.get<WalletRestorePage>(
                 param1: availableWalletTypes.first
             ));
@@ -198,7 +197,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<WalletRestorePage>(
               param1: settings.arguments as WalletType));
 
@@ -208,6 +206,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
+          settings: settings,
           builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
@@ -470,7 +469,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaCreateAccountPage>());
 
     case Routes.ioniaManageCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<IoniaManageCardsPage>());
 
     case Routes.ioniaBuyGiftCardPage:
       final args = settings.arguments as List;
@@ -539,7 +539,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
 
     case Routes.anonPayReceivePage:
