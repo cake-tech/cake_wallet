@@ -14,6 +14,7 @@ List<Image> flagImages = [
   Image.asset('assets/images/spain.png'),
   Image.asset('assets/images/france.png'),
   Image.asset('assets/images/italy.png'),
+  Image.asset('assets/images/esperanto.png'),
 ];
 
 const List<String> languageCodes = [
@@ -27,6 +28,7 @@ const List<String> languageCodes = [
   'Esp',
   'Fre',
   'Ita',
+  'Epo',
 ];
 
 const defaultSeedLanguage = 'English';
@@ -42,6 +44,7 @@ const List<String> seedLanguages = [
   'Spanish',
   'French',
   'Italian',
+  'Esperanto',
 ];
 
 enum Places { topLeft, topRight, bottomLeft, bottomRight, inside }
