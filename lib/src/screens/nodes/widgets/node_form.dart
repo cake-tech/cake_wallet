@@ -17,7 +17,8 @@ class NodeForm extends StatelessWidget {
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
         _portController = TextEditingController(text: editingNode?.uri.port.toString()),
         _loginController = TextEditingController(text: editingNode?.login),
-        _passwordController = TextEditingController(text: editingNode?.password) {
+        _passwordController = TextEditingController(text: editingNode?.password),
+        _socksAddressController = TextEditingController(text: editingNode?.socksProxyAddress){
     if (editingNode != null) {
       nodeViewModel
         ..setAddress((editingNode!.uri.host.toString()))
@@ -25,7 +26,9 @@ class NodeForm extends StatelessWidget {
         ..setPassword((editingNode!.password ?? ''))
         ..setLogin((editingNode!.login ?? ''))
         ..setSSL((editingNode!.isSSL))
-        ..setTrusted((editingNode!.trusted));
+        ..setTrusted((editingNode!.trusted))
+        ..setSocksProxy((editingNode!.useSocksProxy))
+        ..setSocksProxyAddress((editingNode!.socksProxyAddress ?? ''));
     }
     if (nodeViewModel.hasAuthCredentials) {
       reaction((_) => nodeViewModel.login, (String login) {
@@ -45,6 +48,7 @@ class NodeForm extends StatelessWidget {
     _portController.addListener(() => nodeViewModel.port = _portController.text);
     _loginController.addListener(() => nodeViewModel.login = _loginController.text);
     _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
+    _socksAddressController.addListener(() => nodeViewModel.socksProxyAddress = _socksAddressController.text);
   }
 
   final NodeCreateOrEditViewModel nodeViewModel;
@@ -55,6 +59,7 @@ class NodeForm extends StatelessWidget {
   final TextEditingController _portController;
   final TextEditingController _loginController;
   final TextEditingController _passwordController;
+  final TextEditingController _socksAddressController;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +143,39 @@ class NodeForm extends StatelessWidget {
                 ],
               ),
             ),
+            Observer(
+                builder: (_) => Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                         StandardCheckbox(
+                              value: nodeViewModel.useSocksProxy,
+                              onChanged: (value) => nodeViewModel.useSocksProxy = value,
+                              caption: 'SOCKS Proxy',
+                            ),
+                        ],
+                      ),
+                    ),
+                    if (nodeViewModel.useSocksProxy) ...[
+                      SizedBox(height: 10.0),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                              child: BaseTextFormField(
+                                controller: _socksAddressController,
+                                hintText: '[<ip>:]<port>',
+                                keyboardType:
+                                TextInputType.numberWithOptions(signed: false, decimal: false),
+                              ))
+                        ],
+                      ),
+                    ]
+                  ],
+                )),
           ]
         ],
       ),
