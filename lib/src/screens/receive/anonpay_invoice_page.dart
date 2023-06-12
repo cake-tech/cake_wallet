@@ -27,8 +27,7 @@ class AnonPayInvoicePage extends BasePage {
   AnonPayInvoicePage(
     this.anonInvoicePageViewModel,
     this.receiveOptionViewModel,
-  ) : _amountFocusNode = FocusNode() {
-  }
+  ) : _amountFocusNode = FocusNode() {}
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -54,6 +53,11 @@ class AnonPayInvoicePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
+  void onClose(BuildContext context) {
+    Navigator.popUntil(context, ModalRoute.withName(Routes.dashboard));
+  }
+
+  @override
   Widget middle(BuildContext context) =>
       PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
 
@@ -65,114 +69,125 @@ class AnonPayInvoicePage extends BasePage {
         anonInvoicePageViewModel.reset();
       });
 
+  Future<bool> _onNavigateBack(BuildContext context) async {
+    onClose(context);
+    return false;
+  }
+
   @override
   Widget body(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context));
 
-    return KeyboardActions(
-      disableScroll: true,
-      config: KeyboardActionsConfig(
-          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context)
+    return WillPopScope(
+      onWillPop: () => _onNavigateBack(context),
+      child: KeyboardActions(
+        disableScroll: true,
+        config: KeyboardActionsConfig(
+            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+            keyboardBarColor: Theme.of(context)
               .accentTextTheme!
               .bodyLarge!
               .backgroundColor!,
-          nextFocus: false,
-          actions: [
-            KeyboardActionsItem(
-              focusNode: _amountFocusNode,
-              toolbarButtons: [(_) => KeyboardDoneButton()],
-            ),
-          ]),
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 24),
-          content: Container(
-            decoration: DeviceInfo.instance.isMobile ? BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).primaryTextTheme!.titleSmall!.color!,
-                  Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _amountFocusNode,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
               ),
-            ) : null,
-            child: Observer(builder: (_) {
-              return Padding(
-                padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
-                child: AnonInvoiceForm(
-                  nameController: _nameController,
-                  descriptionController: _descriptionController,
-                  amountController: _amountController,
-                  emailController: _emailController,
-                  depositAmountFocus: _amountFocusNode,
-                  formKey: _formKey,
-                  isInvoice: receiveOptionViewModel.selectedReceiveOption ==
-                      ReceivePageOption.anonPayInvoice,
-                  anonInvoicePageViewModel: anonInvoicePageViewModel,
-                ),
-              );
-            }),
-          ),
-          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          bottomSection: Observer(builder: (_) {
-            final isInvoice =
-                receiveOptionViewModel.selectedReceiveOption == ReceivePageOption.anonPayInvoice;
-            return Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 15),
-                  child: Center(
-                    child: Text(
-                      isInvoice
-                          ? S.of(context).anonpay_description("an invoice", "pay")
-                          : S.of(context).anonpay_description("a donation link", "donate"),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Theme.of(context)
+            ]),
+        child: Container(
+          color: Theme.of(context).colorScheme.background,
+          child: ScrollableWithBottomSection(
+            contentPadding: EdgeInsets.only(bottom: 24),
+            content: Container(
+              decoration: DeviceInfo.instance.isMobile
+                  ? BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).primaryTextTheme!.titleSmall!.color!,
+                          Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    )
+                  : null,
+              child: Observer(builder: (_) {
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
+                  child: AnonInvoiceForm(
+                    nameController: _nameController,
+                    descriptionController: _descriptionController,
+                    amountController: _amountController,
+                    emailController: _emailController,
+                    depositAmountFocus: _amountFocusNode,
+                    formKey: _formKey,
+                    isInvoice: receiveOptionViewModel.selectedReceiveOption ==
+                        ReceivePageOption.anonPayInvoice,
+                    anonInvoicePageViewModel: anonInvoicePageViewModel,
+                  ),
+                );
+              }),
+            ),
+            bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+            bottomSection: Observer(builder: (_) {
+              final isInvoice =
+                  receiveOptionViewModel.selectedReceiveOption == ReceivePageOption.anonPayInvoice;
+              return Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 15),
+                    child: Center(
+                      child: Text(
+                        isInvoice
+                            ? S.of(context).anonpay_description("an invoice", "pay")
+                            : S.of(context).anonpay_description("a donation link", "donate"),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Theme.of(context)
                               .primaryTextTheme!
                               .displayLarge!
                               .decorationColor!,
                           fontWeight: FontWeight.w500,
                           fontSize: 12),
+                      ),
                     ),
                   ),
-                ),
-                LoadingPrimaryButton(
-                  text:
-                      isInvoice ? S.of(context).create_invoice : S.of(context).create_donation_link,
-                  onPressed: () {
-                    anonInvoicePageViewModel.setRequestParams(
-                      inputAmount: _amountController.text,
-                      inputName: _nameController.text,
-                      inputEmail: _emailController.text,
-                      inputDescription: _descriptionController.text,
-                    );
-                    if (anonInvoicePageViewModel.receipientEmail.isNotEmpty &&
-                        _formKey.currentState != null &&
-                        !_formKey.currentState!.validate()) {
-                      return;
-                    }
-                    if (isInvoice) {
-                      anonInvoicePageViewModel.createInvoice();
-                    } else {
-                      anonInvoicePageViewModel.generateDonationLink();
-                    }
-                  },
-                  color: Theme.of(context)
+                  LoadingPrimaryButton(
+                    text: isInvoice
+                        ? S.of(context).create_invoice
+                        : S.of(context).create_donation_link,
+                    onPressed: () {
+                      anonInvoicePageViewModel.setRequestParams(
+                        inputAmount: _amountController.text,
+                        inputName: _nameController.text,
+                        inputEmail: _emailController.text,
+                        inputDescription: _descriptionController.text,
+                      );
+                      if (anonInvoicePageViewModel.receipientEmail.isNotEmpty &&
+                          _formKey.currentState != null &&
+                          !_formKey.currentState!.validate()) {
+                        return;
+                      }
+                      if (isInvoice) {
+                        anonInvoicePageViewModel.createInvoice();
+                      } else {
+                        anonInvoicePageViewModel.generateDonationLink();
+                      }
+                    },
+                     color: Theme.of(context)
                       .accentTextTheme!
                       .bodyLarge!
                       .color!,
-                  textColor: Colors.white,
-                  isLoading: anonInvoicePageViewModel.state is IsExecutingState,
-                ),
-              ],
-            );
-          }),
+                    textColor: Colors.white,
+                    isLoading: anonInvoicePageViewModel.state is IsExecutingState,
+                  ),
+                ],
+              );
+            }),
+          ),
         ),
       ),
     );
