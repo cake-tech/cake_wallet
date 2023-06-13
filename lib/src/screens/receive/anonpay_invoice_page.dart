@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart'
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:flutter/material.dart';
@@ -88,32 +89,30 @@ class AnonPayInvoicePage extends BasePage {
               .accentTextTheme!
               .bodyLarge!
               .backgroundColor!,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _amountFocusNode,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
+          nextFocus: false,
+          actions: [
+            KeyboardActionsItem(
+              focusNode: _amountFocusNode,
+              toolbarButtons: [(_) => KeyboardDoneButton()],
+            ),
+          ]),
+      child: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.only(bottom: 24),
+          content: Container(
+            decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).primaryTextTheme!.titleSmall!.color!,
+                  Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ]),
-        child: Container(
-          color: Theme.of(context).colorScheme.background,
-          child: ScrollableWithBottomSection(
-            contentPadding: EdgeInsets.only(bottom: 24),
-            content: Container(
-              decoration: DeviceInfo.instance.isMobile
-                  ? BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).primaryTextTheme!.titleSmall!.color!,
-                          Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    )
-                  : null,
+              ) : null,
               child: Observer(builder: (_) {
                 return Padding(
                   padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
