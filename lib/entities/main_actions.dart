@@ -49,10 +49,11 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
           if (viewModel.isEnabledBuyAction) {
+            final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
             if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.onramperPage);
+              Navigator.of(context)
+                  .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
             } else {
-              final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
               await launchUrl(uri);
             }
           }
@@ -119,14 +120,22 @@ class MainActions {
 
       switch (walletType) {
         case WalletType.bitcoin:
+        case WalletType.litecoin:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
             final uri = await moonPaySellProvider.requestUrl(
               currency: viewModel.wallet.currency,
               refundWalletAddress: viewModel.wallet.walletAddresses.address,
+              settingsStore: viewModel.settingsStore,
             );
-            await launchUrl(uri);
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context).pushNamed(Routes.webViewPage,
+                  arguments: [S.of(context).sell, uri]);
+            } else {
+              await launchUrl(uri);
+            }
           }
+
           break;
         default:
           await showPopUp<void>(
