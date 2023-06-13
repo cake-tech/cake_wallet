@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/node_address_validator.dart';
 import 'package:cake_wallet/core/node_port_validator.dart';
+import 'package:cake_wallet/core/socks_proxy_node_address_validator.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -154,7 +155,12 @@ class NodeForm extends StatelessWidget {
                         children: [
                          StandardCheckbox(
                               value: nodeViewModel.useSocksProxy,
-                              onChanged: (value) => nodeViewModel.useSocksProxy = value,
+                              onChanged: (value) {
+                                if (!value) {
+                                  _socksAddressController.text = '';
+                                }
+                                nodeViewModel.useSocksProxy = value;
+                              },
                               caption: 'SOCKS Proxy',
                             ),
                         ],
@@ -168,8 +174,7 @@ class NodeForm extends StatelessWidget {
                               child: BaseTextFormField(
                                 controller: _socksAddressController,
                                 hintText: '[<ip>:]<port>',
-                                keyboardType:
-                                TextInputType.numberWithOptions(signed: false, decimal: false),
+                                validator: SocksProxyNodeAddressValidator(),
                               ))
                         ],
                       ),
