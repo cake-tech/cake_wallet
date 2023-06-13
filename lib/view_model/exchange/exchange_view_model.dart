@@ -443,7 +443,9 @@ abstract class ExchangeViewModelBase with Store {
           request = SideShiftRequest(
             depositMethod: depositCurrency,
             settleMethod: receiveCurrency,
-            depositAmount: depositAmount.replaceAll(',', '.'),
+            depositAmount: isFixedRateMode
+                ? receiveAmount.replaceAll(',', '.')
+                : depositAmount.replaceAll(',', '.'),            
             settleAddress: receiveAddress,
             refundAddress: depositAddress,
           );

@@ -56,8 +56,8 @@ dependencies:
   # password: ^1.0.0
   basic_utils: ^4.3.0
   get_it: ^7.2.0
-  connectivity: ^3.0.3
-  # connectivity_plus: ^2.3.5
+  # connectivity: ^3.0.3
+  connectivity_plus: ^2.3.5
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
   archive: ^3.3.0

@@ -5,7 +5,7 @@ import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -27,8 +27,6 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -251,7 +249,12 @@ class _DashboardPageView extends BasePage {
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(Semantics(
           label: 'Marketplace Page',
-          child: MarketPlacePage(dashboardViewModel: dashboardViewModel)));
+          child: MarketPlacePage(
+            dashboardViewModel: dashboardViewModel, 
+            marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
+          ),
+        ),
+      );
     }
     pages.add(Semantics(label: 'Balance Page', child: balancePage));
     pages.add(Semantics(
