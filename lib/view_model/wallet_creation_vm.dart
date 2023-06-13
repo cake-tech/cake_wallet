@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/balance.dart';
@@ -27,7 +28,8 @@ part 'wallet_creation_vm.g.dart';
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService, this._fiatConversationStore,
+  WalletCreationVMBase(this._appStore, this._walletInfoSource,
+      this.walletCreationService, this._fiatConversationStore,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
         name = '';
@@ -46,9 +48,9 @@ abstract class WalletCreationVMBase with Store {
   final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
-   final FiatConversionStore _fiatConversationStore;
+  final FiatConversionStore _fiatConversationStore;
 
-   Completer<void> syncCompleter = Completer<void>();
+  Completer<void> syncCompleter = Completer<void>();
 
   bool nameExists(String name) => walletCreationService.exists(name);
 
@@ -58,13 +60,16 @@ abstract class WalletCreationVMBase with Store {
     final type = restoreWallet?.type ?? this.type;
     try {
       //! Create a restoredWallet from the scanned wallet parameters
-      final restoredWallet =
-          await createNewWalletWithoutSwitching(options: options, restoreWallet: restoreWallet);
-      print('Restored Wallet Address ' + restoredWallet.walletAddresses.address);
+      final restoredWallet = await createNewWalletWithoutSwitching(
+          options: options, restoreWallet: restoreWallet);
+      print(
+          'Restored Wallet Address ' + restoredWallet.walletAddresses.address);
 
       //TODO Get transactions details to verify 10 confirmations
 
-      //! Create the newWallet that will received the funds
+      // if (restoreWallet != null &&
+      //     restoreWallet.restoreMode == WalletRestoreMode.txids) {
+      //* Create the newWallet that will received the funds
       final newWallet = await createNewWalletWithoutSwitching(
         options: options,
         regenerateName: true,
@@ -72,31 +77,36 @@ abstract class WalletCreationVMBase with Store {
       final newWalletAddress = newWallet.walletAddresses.address;
       print('New Wallet Address ' + newWalletAddress);
 
-      //! Switch to the restoredWallet in order to activate the node connection
+      //* Switch to the restoredWallet in order to activate the node connection
       _appStore.changeCurrentWallet(restoredWallet);
 
       await restoredWallet.startSync();
-      
-      //! Sweep all funds from restoredWallet to newWallet
-      await sweepAllFundsToNewWallet(restoredWallet, type, newWalletAddress, restoreWallet?.txId ?? '');
 
-      //! Switch back to new wallet
-      _appStore.changeCurrentWallet(newWallet);
-
-      //! Add the new Wallet info to the walletInfoSource
-      await _walletInfoSource.add(newWallet.walletInfo);
-
-      //! Approve authentication as successful
-      _appStore.authenticationStore.allowed();
-      state = ExecutedSuccessfullyState();
+      //* Sweep all funds from restoredWallet to newWallet
+      await sweepAllFundsToNewWallet(
+        restoredWallet,
+        type,
+        newWalletAddress,
+        restoreWallet?.txId ?? '',
+      );
+      // } else {
+      //   await _walletInfoSource.add(restoredWallet.walletInfo);
+      //   _appStore.changeCurrentWallet(restoredWallet);
+      //   _appStore.authenticationStore.allowed();
+      //   state = ExecutedSuccessfullyState();
+      // }
     } catch (e) {
+      print('Errorrrrr');
       state = FailureState(e.toString());
     }
   }
 
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      createNewWalletWithoutSwitching(
-          {dynamic options, RestoredWallet? restoreWallet, bool regenerateName = false}) async {
+  Future<
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+          TransactionInfo>> createNewWalletWithoutSwitching(
+      {dynamic options,
+      RestoredWallet? restoreWallet,
+      bool regenerateName = false}) async {
     state = IsExecutingState();
     if (name.isEmpty) {
       name = await generateName();
@@ -122,35 +132,55 @@ abstract class WalletCreationVMBase with Store {
         path: path,
         dirPath: dirPath,
         address: '',
-        showIntroCakePayCard:
-            (!walletCreationService.typeExists(type)) && type != WalletType.haven);
+        showIntroCakePayCard: (!walletCreationService.typeExists(type)) &&
+            type != WalletType.haven);
     credentials.walletInfo = walletInfo;
 
     final wallet = restoreWallet != null
         ? await processFromRestoredWallet(credentials, restoreWallet)
         : await process(credentials);
     walletInfo.address = wallet.walletAddresses.address;
-    
-   
+
     return wallet;
   }
 
-  Future<void> sweepAllFundsToNewWallet(WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
-      WalletType type, String newWalletAddress, String paymentId) async {
-          final output = Output(wallet, _appStore.settingsStore, _fiatConversationStore, () => wallet.currency);
-          output.address = newWalletAddress;
-          output.sendAll = true;
-          output.note = 'testing the sweep all function';
-        final credentials = _credentials(type, wallet.currency.title, output);
-        print('About to enter create function');
-        await createTransaction(wallet, credentials);
-    // final currentNode = _appStore.settingsStore.getCurrentNode(type);
+  Future<void> sweepAllFundsToNewWallet(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>
+          wallet,
+      WalletType type,
+      String newWalletAddress,
+      String paymentId) async {
+    final output = Output(wallet, _appStore.settingsStore,
+        _fiatConversationStore, () => wallet.currency);
+    output.address = newWalletAddress;
+    output.sendAll = true;
+    output.note = 'testing the sweep all function';
+    final credentials = _credentials(type, wallet.currency.title, output);
+    print('About to enter create function');
+    try {
+      await createTransaction(wallet, credentials);
+      // final currentNode = _appStore.settingsStore.getCurrentNode(type);
     // final result = await walletCreationService.sweepAllFunds(currentNode, newWalletAddress, paymentId);
+
+      //* Switch back to new wallet
+      _appStore.changeCurrentWallet(wallet);
+
+      //* Add the new Wallet info to the walletInfoSource
+      await _walletInfoSource.add(wallet.walletInfo);
+
+      //* Approve authentication as successful
+      _appStore.authenticationStore.allowed();
+      print('Successfully done inisde sweep all');
+      state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
     
   }
 
-
-  Object _credentials(WalletType type,String cryptoCurrencyTitle,Output output ) {
+  Object _credentials(
+      WalletType type, String cryptoCurrencyTitle, Output output) {
     switch (type) {
       case WalletType.bitcoin:
         final priority = _appStore.settingsStore.priority[type];
@@ -159,7 +189,8 @@ abstract class WalletCreationVMBase with Store {
           throw Exception('Priority is null for wallet type: ${type}');
         }
 
-        return bitcoin!.createBitcoinTransactionCredentials([output], priority: priority);
+        return bitcoin!
+            .createBitcoinTransactionCredentials([output], priority: priority);
       case WalletType.litecoin:
         final priority = _appStore.settingsStore.priority[type];
 
@@ -167,7 +198,8 @@ abstract class WalletCreationVMBase with Store {
           throw Exception('Priority is null for wallet type: ${type}');
         }
 
-        return bitcoin!.createBitcoinTransactionCredentials([output], priority: priority);
+        return bitcoin!
+            .createBitcoinTransactionCredentials([output], priority: priority);
       case WalletType.monero:
         final priority = _appStore.settingsStore.priority[type];
 
@@ -176,16 +208,18 @@ abstract class WalletCreationVMBase with Store {
         }
 
         return monero!.createMoneroTransactionCreationCredentials(
-            outputs:[output], priority: priority);
+            outputs: [output], priority: priority);
       case WalletType.haven:
         final priority = _appStore.settingsStore.priority[type];
 
         if (priority == null) {
           throw Exception('Priority is null for wallet type: ${type}');
         }
-        
+
         return haven!.createHavenTransactionCreationCredentials(
-            outputs: [output], priority: priority, assetType: cryptoCurrencyTitle);
+            outputs: [output],
+            priority: priority,
+            assetType: cryptoCurrencyTitle);
       default:
         throw Exception('Unexpected wallet type: ${type}');
     }
@@ -194,7 +228,7 @@ abstract class WalletCreationVMBase with Store {
   @action
   Future<void> createTransaction(WalletBase wallet, Object credentials) async {
     try {
-        print('in here');
+      print('in here');
       state = IsExecutingState();
       print('about to enter wallet create transaction function');
       pendingTransaction = await wallet.createTransaction(credentials);
@@ -207,15 +241,15 @@ abstract class WalletCreationVMBase with Store {
   WalletCredentials getCredentials(dynamic options) {
     switch (type) {
       case WalletType.monero:
-        return monero!
-            .createMoneroNewWalletCredentials(name: name, language: options as String? ?? '');
+        return monero!.createMoneroNewWalletCredentials(
+            name: name, language: options as String? ?? '');
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.haven:
-        return haven!
-            .createHavenNewWalletCredentials(name: name, language: options as String? ?? '');
+        return haven!.createHavenNewWalletCredentials(
+            name: name, language: options as String? ?? '');
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }
