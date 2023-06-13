@@ -48,9 +48,82 @@ abstract class Setup2FAViewModelBase with Store {
   @computed
   bool get useTOTP2FA => _settingsStore.useTOTP2FA;
 
+  @computed
+  bool get shouldRequireTOTP2FAForAccessingWallet =>
+      _settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+
+  @computed
+  bool get shouldRequireTOTP2FAForSendsToContact =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToContact;
+
+  @computed
+  bool get shouldRequireTOTP2FAForSendsToNonContact =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToNonContact;
+
+  @computed
+  bool get shouldRequireTOTP2FAForSendsToInternalWallets =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
+
+  @computed
+  bool get shouldRequireTOTP2FAForExchangesToInternalWallets =>
+      _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets;
+
+  @computed
+  bool get shouldRequireTOTP2FAForAddingContacts =>
+      _settingsStore.shouldRequireTOTP2FAForAddingContacts;
+
+  @computed
+  bool get shouldRequireTOTP2FAForCreatingNewWallets =>
+      _settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
+
+  @computed
+  bool get shouldRequireTOTP2FAForAllSecurityAndBackupSettings =>
+      _settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings;
+
   void _getRandomBase32SecretKey() {
     final randomBase32Key = Utils.generateRandomBase32SecretKey(16);
     _setBase32SecretKey(randomBase32Key);
+  }
+
+
+  @action
+  void switchShouldRequireTOTP2FAForAccessingWallet(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForAccessingWallet = value;
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForSendsToContact(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForSendsToContact = value;
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForSendsToNonContact(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForSendsToNonContact = value;
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForSendsToInternalWallets(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets = value;
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForExchangesToInternalWallets(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets = value;
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForAddingContacts(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForAddingContacts = value;
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForCreatingNewWallet(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForCreatingNewWallets = value;
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings = value;
   }
 
   @action
