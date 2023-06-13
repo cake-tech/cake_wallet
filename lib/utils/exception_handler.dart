@@ -130,17 +130,16 @@ class ExceptionHandler {
       _ignoredErrors.any((element) => error.contains(element));
 
   static const List<String> _ignoredErrors = const [
-    "errno = 9", // SocketException: Bad file descriptor
-    "errno = 28", // OS Error: No space left on device
-    "errno = 32", // SocketException: Write failed (OS Error: Broken pipe)
-    "errno = 49", // SocketException: Can't assign requested address
-    "errno = 54", // SocketException: Connection reset by peer
-    "errno = 57", // SocketException: Read failed (OS Error: Socket is not connected)
-    "errno = 60", // SocketException: Operation timed out
-    "errno = 65", // SocketException: No route to host
-    "errno = 103", // SocketException: Software caused connection abort
-    "errno = 104", // SocketException: Connection reset by peer
-    "errno = 110", // SocketException: Connection timed out
+    "Bad file descriptor",
+    "No space left on device",
+    "Write failed (OS Error: Broken pipe)",
+    "Can't assign requested address",
+    "Read failed (OS Error: Socket is not connected)",
+    "Operation timed out",
+    "No route to host",
+    "Software caused connection abort",
+    "Connection reset by peer",
+    "Connection timed out",
     "Connection reset by peer",
     "Connection closed before full header was received",
     "Connection terminated during handshake",
