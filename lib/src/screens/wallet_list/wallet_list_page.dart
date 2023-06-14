@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -149,12 +149,26 @@ class WalletListBodyState extends State<WalletListBody> {
 
                     return wallet.isCurrent
                         ? row
-                        : Slidable(
-                            key: Key('${wallet.key}'),
-                            startActionPane: _actionPane(wallet),
-                            endActionPane: _actionPane(wallet),
-                            child: row,
-                          );
+                        : Row(children: [
+                            Expanded(child: row),
+                            GestureDetector(
+                              onTap: () => _removeWallet(wallet),
+                              child: Container(
+                                height: 40,
+                                width: 44,
+                                padding: EdgeInsets.only(right: 20),
+                                child: Center(
+                                  child: Image.asset('assets/images/trash.png',
+                                      height: 16,
+                                      width: 16,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .titleLarge!
+                                          .color),
+                                ),
+                              ),
+                            )
+                          ]);
                   }),
             ),
           ),
@@ -215,7 +229,7 @@ class WalletListBodyState extends State<WalletListBody> {
         await hideProgressText();
         // only pop the wallets route in mobile as it will go back to dashboard page
         // in desktop platforms the navigation tree is different
-        if (DeviceInfo.instance.isMobile) {
+        if (ResponsiveLayoutUtil.instance.isMobile) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pop();
           });
@@ -277,18 +291,4 @@ class WalletListBodyState extends State<WalletListBody> {
       _progressBar = null;
     });
   }
-
-  ActionPane _actionPane(WalletListItem wallet) => ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.3,
-        children: [
-          SlidableAction(
-            onPressed: (_) => _removeWallet(wallet),
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
-          ),
-        ],
-      );
 }
