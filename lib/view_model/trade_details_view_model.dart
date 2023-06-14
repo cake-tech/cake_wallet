@@ -87,7 +87,9 @@ abstract class TradeDetailsViewModelBase with Store {
       }
       Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
       if (foundElement != null) {
-        trades.get(foundElement.key)?.stateRaw = updatedTrade.stateRaw;
+        final editedTrade = trades.get(foundElement.key);
+        editedTrade?.stateRaw = updatedTrade.stateRaw;
+        editedTrade?.save();
       }
 
       trade = updatedTrade;
