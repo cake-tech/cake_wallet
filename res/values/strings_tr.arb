@@ -486,7 +486,7 @@
   "submit_request" : "talep gönder",
 
   "buy_alert_content" : "Şu anda yalnızca Bitcoin, Litecoin ve Monero satın alımını destekliyoruz. Lütfen Bitcoin, Litecoin veya Monero cüzdanınızı oluşturun veya cüzdanınıza geçiş yapın.",
-  "sell_alert_content": "Şu anda sadece Bitcoin satışını destekliyoruz. Bitcoin satmak için lütfen Bitcoin cüzdanınızı oluşturun veya Bitcoin cüzdanınıza geçiş yapın.",
+  "sell_alert_content": "Şu anda yalnızca Bitcoin ve Litecoin satışını destekliyoruz. Lütfen Bitcoin veya Litecoin cüzdanınızı oluşturun veya cüzdanınıza geçiş yapın.",
 
   "outdated_electrum_wallet_description" : "Cake'te oluşturulan yeni Bitcoin cüzdanları artık 24 kelimelik bir tohuma sahip. Yeni bir Bitcoin cüzdanı oluşturmanız ve tüm paranızı 24 kelimelik yeni cüzdana aktarmanız ve 12 kelimelik tohuma sahip cüzdanları kullanmayı bırakmanız zorunludur. Lütfen paranızı güvence altına almak için bunu hemen yapın.",
   "understand" : "Anladım",

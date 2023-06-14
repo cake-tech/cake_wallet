@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -194,7 +195,9 @@ class App extends StatefulWidget {
 class AppState extends State<App> with SingleTickerProviderStateMixin {
   AppState() : yatStore = getIt.get<YatStore>() {
     SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      ResponsiveLayoutUtil.instance.isIpad ? 
+      [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight] :
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 
   YatStore yatStore;
