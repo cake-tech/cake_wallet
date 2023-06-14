@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -15,9 +16,10 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
-  ContactListPage(this.contactListViewModel);
+  ContactListPage(this.contactListViewModel, this.authService);
 
   final ContactListViewModel contactListViewModel;
+  final AuthService authService;
 
   @override
   String get title => S.current.address_book;
@@ -46,8 +48,12 @@ class ContactListPage extends BasePage {
                   // FIX-ME: Style
                   //shape: CircleBorder(),
                   onPressed: () async {
-                    await Navigator.of(context)
-                        .pushNamed(Routes.addressBookAddContact);
+                    authService.authenticateAction(
+                      context,
+                      route: Routes.addressBookAddContact,
+                      conditionToDetermineIfToUse2FA: contactListViewModel
+                          .shouldRequireTOTP2FAForAddingContacts,
+                    ); 
                   },
                   child: Offstage()),
             )

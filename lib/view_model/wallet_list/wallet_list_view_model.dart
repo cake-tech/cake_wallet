@@ -28,6 +28,14 @@ abstract class WalletListViewModelBase with Store {
   @observable
   ObservableList<WalletListItem> wallets;
 
+  @computed
+  bool get shouldRequireTOTP2FAForAccessingWallet =>
+      _appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+
+  @computed
+  bool get shouldRequireTOTP2FAForCreatingNewWallets =>
+      _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
+
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final WalletLoadingService _walletLoadingService;
@@ -37,7 +45,8 @@ abstract class WalletListViewModelBase with Store {
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
-    final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
+    final wallet =
+        await _walletLoadingService.load(walletItem.type, walletItem.name);
     _appStore.changeCurrentWallet(wallet);
     _updateList();
   }
@@ -58,7 +67,8 @@ abstract class WalletListViewModelBase with Store {
           name: info.name,
           type: info.type,
           key: info.key,
-          isCurrent: info.name == _appStore.wallet!.name && info.type == _appStore.wallet!.type,
+          isCurrent: info.name == _appStore.wallet!.name &&
+              info.type == _appStore.wallet!.type,
           isEnabled: availableWalletTypes.contains(info.type),
         ),
       ),

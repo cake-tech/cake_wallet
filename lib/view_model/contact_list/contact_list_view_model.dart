@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -11,10 +12,12 @@ import 'package:cw_core/crypto_currency.dart';
 
 part 'contact_list_view_model.g.dart';
 
-class ContactListViewModel = ContactListViewModelBase with _$ContactListViewModel;
+class ContactListViewModel = ContactListViewModelBase
+    with _$ContactListViewModel;
 
 abstract class ContactListViewModelBase with Store {
-  ContactListViewModelBase(this.contactSource, this.walletInfoSource, this._currency)
+  ContactListViewModelBase(this.contactSource, this.walletInfoSource,
+      this._currency, this.settingsStore)
       : contacts = ObservableList<ContactRecord>(),
         walletContacts = [] {
     walletInfoSource.values.forEach((info) {
@@ -42,16 +45,23 @@ abstract class ContactListViewModelBase with Store {
   final List<WalletContact> walletContacts;
   final CryptoCurrency? _currency;
   StreamSubscription<BoxEvent>? _subscription;
+  final SettingsStore settingsStore;
 
   bool get isEditable => _currency == null;
+
+  @computed
+  bool get shouldRequireTOTP2FAForAddingContacts =>
+      settingsStore.shouldRequireTOTP2FAForAddingContacts;
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 
   @computed
-  List<ContactRecord> get contactsToShow =>
-      contacts.where((element) => _currency == null || element.type == _currency).toList();
+  List<ContactRecord> get contactsToShow => contacts
+      .where((element) => _currency == null || element.type == _currency)
+      .toList();
 
   @computed
-  List<WalletContact> get walletContactsToShow =>
-      walletContacts.where((element) => _currency == null || element.type == _currency).toList();
+  List<WalletContact> get walletContactsToShow => walletContacts
+      .where((element) => _currency == null || element.type == _currency)
+      .toList();
 }

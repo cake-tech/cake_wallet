@@ -177,10 +177,20 @@ class WalletListBodyState extends State<WalletListBody> {
             PrimaryImageButton(
               onPressed: () {
                 if (isSingleCoin) {
-                  Navigator.of(context).pushNamed(Routes.newWallet,
-                      arguments: widget.walletListViewModel.currentWalletType);
+                  widget.authService.authenticateAction(
+                    context,
+                    route: Routes.newWallet,
+                    arguments: widget.walletListViewModel.currentWalletType,
+                    conditionToDetermineIfToUse2FA: widget.walletListViewModel
+                        .shouldRequireTOTP2FAForCreatingNewWallets,
+                  );    
                 } else {
-                  Navigator.of(context).pushNamed(Routes.newWalletType);
+                  widget.authService.authenticateAction(
+                    context,
+                    route: Routes.newWalletType,
+                    conditionToDetermineIfToUse2FA: widget.walletListViewModel
+                        .shouldRequireTOTP2FAForCreatingNewWallets,
+                  );
                 }
               },
               image: newWalletImage,
@@ -237,7 +247,10 @@ class WalletListBodyState extends State<WalletListBody> {
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
-    });
+      },
+      conditionToDetermineIfToUse2FA:
+          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
+    );
   }
 
   Future<void> _removeWallet(WalletListItem wallet) async {
@@ -247,7 +260,10 @@ class WalletListBodyState extends State<WalletListBody> {
         return;
       }
       _onSuccessfulAuth(wallet);
-    });
+      },
+      conditionToDetermineIfToUse2FA:
+          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
+    );
   }
 
   void _onSuccessfulAuth(WalletListItem wallet) async {
