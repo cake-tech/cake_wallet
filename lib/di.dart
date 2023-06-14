@@ -737,6 +737,7 @@ Future setup({
         getIt.get<TradesStore>(),
         getIt.get<AppStore>().settingsStore,
         getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>()
       ));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
@@ -745,7 +746,8 @@ Future setup({
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>()));
+  getIt.registerFactory(() =>
+      ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(
       () => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
