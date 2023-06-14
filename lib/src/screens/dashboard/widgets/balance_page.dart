@@ -144,32 +144,34 @@ class BalancePage extends StatelessWidget {
                     height: 1)),
             SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Expanded(
-                child: AutoSizeText(availableBalance,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: AutoSizeText(
+                    availableBalance,
                     style: TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w900,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .displayMedium!
-                            .backgroundColor!,
-                        height: 1),
-                    maxLines: 1,
-                    textAlign: TextAlign.start),
-              ),
-              Text(currency,
-                  style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontFamily: 'Lato',
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!,
-                      height: 1)),
-            ]),
+                      fontWeight: FontWeight.w900,
+                      color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Text(
+                  currency,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w800,
+                    color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                    height: 1,
+                  ),
+                ),
+              ],
+            ),
             SizedBox(height: 4),
             Text(
               '${availableFiatBalance}',

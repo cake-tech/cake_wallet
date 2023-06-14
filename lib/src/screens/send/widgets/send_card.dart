@@ -120,18 +120,20 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           ),
         ),
         Container(
-          decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24)),
-            gradient: LinearGradient(colors: [
-              Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-              Theme.of(context)
-                  .primaryTextTheme!
-                  .titleMedium!
-                  .decorationColor!,
-            ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          ) : null,
+          decoration: ResponsiveLayoutUtil.instance.isMobile
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).primaryTextTheme.titleMedium!.color!,
+                      Theme.of(context).primaryTextTheme.titleMedium!.decorationColor!,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                )
+              : null,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               24,
@@ -170,9 +172,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         hintStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .primaryTextTheme.headlineSmall!
-                                .decorationColor!),
+                            color:
+                                Theme.of(context).primaryTextTheme.headlineSmall!.decorationColor!),
                         onPushPasteButton: (context) async {
                           output.resetParsedAddress();
                           await output.fetchParsedAddress(context);
@@ -191,8 +192,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           child: BaseTextFormField(
                               controller: extractedAddressController,
                               readOnly: true,
-                              borderColor:
-                                  Theme.of(context).primaryTextTheme.headlineSmall!.color!,
+                              borderColor: Theme.of(context).primaryTextTheme.headlineSmall!.color!,
                               textStyle: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                               validator: sendViewModel.addressValidator)),
@@ -248,7 +248,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                               height: 32,
                                               decoration: BoxDecoration(
                                                   color: Theme.of(context)
-                                                      .primaryTextTheme.headlineMedium!
+                                                      .primaryTextTheme
+                                                      .headlineMedium!
                                                       .color!,
                                                   borderRadius: BorderRadius.all(
                                                     Radius.circular(6),
@@ -262,7 +263,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                         fontSize: 12,
                                                         fontWeight: FontWeight.bold,
                                                         color: Theme.of(context)
-                                                            .primaryTextTheme.headlineMedium!
+                                                            .primaryTextTheme
+                                                            .headlineMedium!
                                                             .decorationColor!),
                                                   ),
                                                 ),
@@ -305,7 +307,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           color: Colors.white),
                                       placeholderTextStyle: TextStyle(
                                           color: Theme.of(context)
-                                              .primaryTextTheme.headlineSmall!
+                                              .primaryTextTheme
+                                              .headlineSmall!
                                               .decorationColor!,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 14),
@@ -325,7 +328,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 color: Theme.of(context)
-                                                    .primaryTextTheme.headlineMedium!
+                                                    .primaryTextTheme
+                                                    .headlineMedium!
                                                     .color!,
                                                 borderRadius: BorderRadius.all(
                                                   Radius.circular(6),
@@ -339,7 +343,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                     color: Theme.of(context)
-                                                        .primaryTextTheme.headlineMedium!
+                                                        .primaryTextTheme
+                                                        .headlineMedium!
                                                         .decorationColor!,
                                                   ),
                                                 ),
@@ -371,7 +376,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: Theme.of(context)
-                                        .primaryTextTheme.headlineSmall!
+                                        .primaryTextTheme
+                                        .headlineSmall!
                                         .decorationColor!),
                               ),
                             ),
@@ -381,7 +387,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Theme.of(context)
-                                      .primaryTextTheme.headlineSmall!
+                                      .primaryTextTheme
+                                      .headlineSmall!
                                       .decorationColor!),
                             )
                           ],
@@ -418,7 +425,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                           placeholderTextStyle: TextStyle(
                               color: Theme.of(context)
-                                  .primaryTextTheme.headlineSmall!
+                                  .primaryTextTheme
+                                  .headlineSmall!
                                   .decorationColor!,
                               fontWeight: FontWeight.w500,
                               fontSize: 14),
@@ -437,9 +445,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         placeholderTextStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .primaryTextTheme.headlineSmall!
-                                .decorationColor!),
+                            color:
+                                Theme.of(context).primaryTextTheme.headlineSmall!.decorationColor!),
                       ),
                     ),
                     Observer(
@@ -490,7 +497,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                     color: Theme.of(context)
-                                                        .primaryTextTheme.headlineSmall!
+                                                        .primaryTextTheme
+                                                        .headlineSmall!
                                                         .decorationColor!,
                                                   ),
                                                 ),
