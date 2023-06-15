@@ -14,22 +14,22 @@ part 'privacy_settings_view_model.g.dart';
 class PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
-  PrivacySettingsViewModelBase(this._settingsStore, this.wallet);
+  PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
 
   final SettingsStore _settingsStore;
 
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
-  bool get enableAutoGenerateSubaddresses =>
+  bool get isAutoGenerateSubaddressesEnabled =>
       _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
   @action
   void setAutoGenerateSubaddresses(bool value) {
-    wallet.enableAutoGenerate = value;
+    _wallet.isEnabledAutoGenerateSubaddress = value;
     if (value) {
       _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.enabled;
     } else {
@@ -37,8 +37,7 @@ abstract class PrivacySettingsViewModelBase with Store {
     }
   }
 
-  bool get isAutoGenerateSubaddressesVisible =>
-      wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  bool get isAutoGenerateSubaddressesVisible => _wallet.type == WalletType.monero;
 
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;

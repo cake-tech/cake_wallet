@@ -488,6 +488,13 @@ abstract class SettingsStoreBase with Store {
           priority[WalletType.litecoin]!;
     }
 
+    final generateSubaddresses =
+        sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
+
+    autoGenerateSubaddressStatus = generateSubaddresses != null
+        ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
+        : defaultAutoGenerateSubaddressStatus;
+
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =

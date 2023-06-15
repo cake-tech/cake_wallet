@@ -664,7 +664,6 @@
   "privacy": "Privacy",
   "display_settings": "Display settings",
   "other_settings": "Other settings",
-  "disable_exchange": "Disable exchange",
   "auto_generate_subaddresses": "Auto generate subaddresses",
   "require_pin_after": "Require PIN after",
   "always": "Always",

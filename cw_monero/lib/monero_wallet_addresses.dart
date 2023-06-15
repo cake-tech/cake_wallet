@@ -11,22 +11,22 @@ import 'package:mobx/mobx.dart';
 
 part 'monero_wallet_addresses.g.dart';
 
-class MoneroWalletAddresses = MoneroWalletAddressesBase
-    with _$MoneroWalletAddresses;
+class MoneroWalletAddresses = MoneroWalletAddressesBase with _$MoneroWalletAddresses;
 
 abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
-  MoneroWalletAddressesBase(WalletInfo walletInfo, MoneroTransactionHistory moneroTransactionHistory)
-    : accountList = MoneroAccountList(),
-      _moneroTransactionHistory = moneroTransactionHistory,
-      subaddressList = MoneroSubaddressList(),
-      address = '',
-      super(walletInfo);
+  MoneroWalletAddressesBase(
+      WalletInfo walletInfo, MoneroTransactionHistory moneroTransactionHistory)
+      : accountList = MoneroAccountList(),
+        _moneroTransactionHistory = moneroTransactionHistory,
+        subaddressList = MoneroSubaddressList(),
+        address = '',
+        super(walletInfo);
 
   final MoneroTransactionHistory _moneroTransactionHistory;
   @override
   @observable
   String address;
-  
+
   @observable
   Account? account;
 
@@ -57,12 +57,13 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         _subaddressList.subaddresses.forEach((subaddress) {
           addressesMap[subaddress.address] = subaddress.label;
           addressInfos[account.id] ??= [];
-          addressInfos[account.id]?.add(AddressInfo(address: subaddress.address, label: subaddress.label, accountIndex: account.id));
+          addressInfos[account.id]?.add(AddressInfo(
+              address: subaddress.address, label: subaddress.label, accountIndex: account.id));
         });
       });
-      
+
       final transactions = _moneroTransactionHistory.transactions.values.toList();
-      
+
       transactions.forEach((element) {
         final accountIndex = element.accountIndex;
         final addressIndex = element.addressIndex;
@@ -99,8 +100,12 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     address = subaddress!.address;
   }
 
-  Future<void> updateUnusedSubaddress({required int accountIndex, required String defaultLabel}) async {
-    await subaddressList.updateWithAutoGenerate(accountIndex: accountIndex, defaultLabel: defaultLabel, usedAddresses: usedAddresses.toList());
+  Future<void> updateUnusedSubaddress(
+      {required int accountIndex, required String defaultLabel}) async {
+    await subaddressList.updateWithAutoGenerate(
+        accountIndex: accountIndex,
+        defaultLabel: defaultLabel,
+        usedAddresses: usedAddresses.toList());
     subaddress = subaddressList.subaddresses.last;
     address = subaddress!.address;
   }

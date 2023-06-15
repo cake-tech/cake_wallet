@@ -236,7 +236,7 @@ abstract class DashboardViewModelBase with Store {
   double get price => balanceViewModel.price;
 
   @computed
-  bool get enableAutoGenerateSubaddresses =>
+  bool get isAutoGenerateSubaddressesEnabled =>
       settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
   @computed

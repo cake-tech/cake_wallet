@@ -50,9 +50,9 @@ abstract class WalletBase<
 
   late HistoryType transactionHistory;
 
-  set enableAutoGenerate(bool value);
+  set isEnabledAutoGenerateSubaddress(bool value);
 
-  bool get enableAutoGenerate;
+  bool get isEnabledAutoGenerateSubaddress;
 
   Future<void> connectToNode({required Node node});
 

@@ -710,5 +710,6 @@
   "show_market_place" :"Nuna dan kasuwa",
   "prevent_screenshots": "Fada lambobi da jarrabobi na kayan lambobi",
   "disable_buy": "Kashe alama",
-  "disable_sell": "Kashe karbuwa"
+  "disable_sell": "Kashe karbuwa",
+  "auto_generate_subaddresses": "Saɓaƙa subaddresses ta kai tsaye"
 }

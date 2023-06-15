@@ -52,7 +52,7 @@ class PrivacyPage extends BasePage {
             if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
               SettingsSwitcherCell(
                 title: S.current.auto_generate_subaddresses,
-                value: _privacySettingsViewModel.enableAutoGenerateSubaddresses,
+                value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setAutoGenerateSubaddresses(value);
                 },

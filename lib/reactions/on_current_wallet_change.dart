@@ -112,7 +112,7 @@ void _setAutoGenerateSubaddressStatus(
       walletHasAddresses) {
     settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
   }
-  wallet.enableAutoGenerate =
+  wallet.isEnabledAutoGenerateSubaddress =
       settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled ||
           settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized;
 }

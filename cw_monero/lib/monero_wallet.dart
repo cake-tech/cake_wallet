@@ -44,7 +44,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
-        enableAutoGenerate = false,
+        isEnabledAutoGenerateSubaddress = false,
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
@@ -63,11 +63,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             unlockedBalance:
                 monero_wallet.getUnlockedBalance(accountIndex: account.id))
         });
-      _updateSubAddress(enableAutoGenerate, account: account);
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
     });
     
-    reaction((_) => enableAutoGenerate, (bool enabled) {
-      _updateSubAddress(enableAutoGenerate, account: walletAddresses.account);
+    reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
+      _updateSubAddress(enabled, account: walletAddresses.account);
     });
   }
 
@@ -78,7 +78,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   @observable
-  bool enableAutoGenerate;
+  bool isEnabledAutoGenerateSubaddress;
 
   @override
   @observable
@@ -275,7 +275,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
     await monero_wallet.store();
-    if (enableAutoGenerate) {
+    if (isEnabledAutoGenerateSubaddress) {
       walletAddresses.updateUnusedSubaddress(accountIndex: walletAddresses.account?.id ?? 0, defaultLabel: walletAddresses.account?.label ?? '');
     }
   }

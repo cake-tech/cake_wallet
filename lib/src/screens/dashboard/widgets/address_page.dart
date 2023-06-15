@@ -198,7 +198,7 @@ class AddressPage extends BasePage {
                 return addressListViewModel.hasAddressList
                     ? Column(children: [
                         GestureDetector(
-                          onTap: () async => dashboardViewModel.enableAutoGenerateSubaddresses
+                          onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
                               ? await showPopUp<void>(
                                   context: context,
                                   builder: (_) => getIt.get<MoneroAccountListPage>())
@@ -223,7 +223,7 @@ class AddressPage extends BasePage {
                                         ? S.of(context).accounts_subaddresses
                                         : S.of(context).addresses;
 
-                                    if (dashboardViewModel.enableAutoGenerateSubaddresses) {
+                                    if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
                                       label = addressListViewModel.hasAccounts
                                           ? S.of(context).accounts
                                           : S.of(context).account;
@@ -253,7 +253,7 @@ class AddressPage extends BasePage {
                             ),
                           ),
                         ),
-                        if (dashboardViewModel.enableAutoGenerateSubaddresses) ...[
+                        if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) ...[
                           SizedBox(height: 24),
                           Text(
                             S.of(context).electrum_address_disclaimer,

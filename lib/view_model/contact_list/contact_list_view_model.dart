@@ -20,21 +20,20 @@ abstract class ContactListViewModelBase with Store {
       : contacts = ObservableList<ContactRecord>(),
         walletContacts = [] {
     walletInfoSource.values.forEach((info) {
-      if (info.addresses == null || info.addresses!.isEmpty) return;
-
       if (isAutoGenerateEnabled && info.type == WalletType.monero && info.addressInfos != null) {
         info.addressInfos!.forEach((key, value) {
           final nextUnusedAddress = value.firstWhereOrNull(
               (addressInfo) => !(info.usedAddresses?.contains(addressInfo.address) ?? false));
-          if (nextUnusedAddress == null) return;
-          final name = _createName(info.name, nextUnusedAddress.label);
-          walletContacts.add(WalletContact(
-            nextUnusedAddress.address,
-            name,
-            walletTypeToCryptoCurrency(info.type),
-          ));
+          if (nextUnusedAddress != null) {
+            final name = _createName(info.name, nextUnusedAddress.label);
+            walletContacts.add(WalletContact(
+              nextUnusedAddress.address,
+              name,
+              walletTypeToCryptoCurrency(info.type),
+            ));
+          }
         });
-      } else {
+      } else if (info.addresses == null || info.addresses!.isEmpty) {
         info.addresses!.forEach((address, label) {
           final name = _createName(info.name, label);
           walletContacts.add(WalletContact(
