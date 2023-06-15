@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -229,7 +229,7 @@ class WalletListBodyState extends State<WalletListBody> {
         await hideProgressText();
         // only pop the wallets route in mobile as it will go back to dashboard page
         // in desktop platforms the navigation tree is different
-        if (DeviceInfo.instance.isMobile) {
+        if (ResponsiveLayoutUtil.instance.isMobile) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pop();
           });

@@ -120,19 +120,22 @@ class BalancePage extends StatelessWidget {
                         .backgroundColor!,
                     height: 1)),
             SizedBox(height: 5),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              AutoSizeText(availableBalance,
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w900,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!,
-                      height: 1),
-                  maxLines: 1,
-                  textAlign: TextAlign.center),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Expanded(
+                child: AutoSizeText(availableBalance,
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .displayMedium!
+                            .backgroundColor!,
+                        height: 1),
+                    maxLines: 1,
+                    textAlign: TextAlign.start),
+              ),
               Text(currency,
                   style: TextStyle(
                       fontSize: 28,
