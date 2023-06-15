@@ -79,7 +79,7 @@ class DesktopDashboardActions extends StatelessWidget {
             ),
           ],
         );
-      },
+      }
     );
   }
 }
