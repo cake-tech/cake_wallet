@@ -32,7 +32,7 @@ class SyncIndicator extends StatelessWidget {
           child: Container(
             height: 30,
             width: syncIndicatorWidth,
-            color: Theme.of(context).textTheme!.headline6!.decorationColor!,
+            color: Theme.of(context).textTheme!.titleLarge!.decorationColor!,
             child: Stack(
               alignment: Alignment.center,
               children: <Widget>[
@@ -44,7 +44,7 @@ class SyncIndicator extends StatelessWidget {
                     child: Container(
                       width: indicatorWidth,
                       height: 30,
-                      color: Theme.of(context).textTheme!.headline6!.backgroundColor!,
+                      color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
                     )
                 )
                 : Offstage(),
@@ -66,7 +66,7 @@ class SyncIndicator extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme!.headline6!.color!
+                            color: Theme.of(context).textTheme!.titleLarge!.color!
                           ),
                         ),
                       )

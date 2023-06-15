@@ -51,7 +51,10 @@ class IoniaCustomTipPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+          keyboardBarColor: Theme.of(context)
+              .accentTextTheme!
+              .bodyLarge!
+              .backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -60,7 +63,7 @@ class IoniaCustomTipPage extends BasePage {
             ),
           ]),
       child: Container(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.zero,
           content: Column(
@@ -70,8 +73,11 @@ class IoniaCustomTipPage extends BasePage {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme!.subtitle1!.color!,
-                    Theme.of(context).primaryTextTheme!.subtitle1!.decorationColor!,
+                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+                    Theme.of(context)
+                        .primaryTextTheme!
+                        .titleMedium!
+                        .decorationColor!,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -86,11 +92,17 @@ class IoniaCustomTipPage extends BasePage {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\-|\ ]'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
-                        color: Theme.of(context).primaryTextTheme!.headline5!.color!,
+                        color: Theme.of(context)
+                            .primaryTextTheme!
+                            .headlineSmall!
+                            .color!,
                         fontWeight: FontWeight.w500,
                         fontSize: 36,
                       ),
-                      borderColor: Theme.of(context).primaryTextTheme!.headline5!.color!,
+                      borderColor: Theme.of(context)
+                          .primaryTextTheme!
+                          .headlineSmall!
+                          .color!,
                       textColor: Colors.white,
                       textStyle: TextStyle(
                         color: Colors.white,
@@ -125,7 +137,10 @@ class IoniaCustomTipPage extends BasePage {
                         text: TextSpan(
                           text: '\$${_amountController.text}',
                           style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme!.headline5!.color!,
+                            color: Theme.of(context)
+                                .primaryTextTheme!
+                                .headlineSmall!
+                                .color!,
                           ),
                           children: [
                             TextSpan(text: ' ${S.of(context).is_percentage} '),
@@ -143,9 +158,16 @@ class IoniaCustomTipPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!.withOpacity(0.1),
+                  backgroundColor: Theme.of(context)
+                      .accentTextTheme!
+                      .displayLarge!
+                      .backgroundColor!
+                      .withOpacity(0.1),
                   discount: 0.0,
-                  titleColor: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+                  titleColor: Theme.of(context)
+                      .accentTextTheme!
+                      .displayLarge!
+                      .backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
                   logoUrl: merchant.logoUrl,
@@ -162,7 +184,10 @@ class IoniaCustomTipPage extends BasePage {
                     Navigator.of(context).pop(customTipViewModel.customTip);
                   },
                   text: S.of(context).add_tip,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                 ),
               ),

@@ -486,7 +486,7 @@
   "submit_request" : "Eine Anfrage stellen",
 
   "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin, Litecoin und Monero. Bitte erstellen oder wechseln Sie zu Ihrer Bitcoin-, Litecoin- oder Monero-Wallet.",
-  "sell_alert_content": "Wir unterstützen derzeit nur den Verkauf von Bitcoin. Um Bitcoin zu verkaufen, erstellen Sie bitte Ihre Bitcoin-Wallet oder wechseln Sie zu ihr.",
+  "sell_alert_content": "Wir unterstützen derzeit nur den Verkauf von Bitcoin und Litecoin. Bitte erstellen Sie Ihr Bitcoin- oder Litecoin-Wallet oder wechseln Sie zu diesem.",
   
   "outdated_electrum_wallet_description" : "Neue Bitcoin-Wallets, die in Cake erstellt wurden, haben jetzt einen 24-Wort-Seed. Sie müssen eine neue Bitcoin-Wallet erstellen, Ihr gesamtes Geld in die neue 24-Wort-Wallet überweisen und keine Wallet mit einem 12-Wort-Seed mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
   "understand" : "Ich verstehe",
@@ -557,7 +557,7 @@
   "purchase_gift_card": "Geschenkkarte kaufen",
   "verification": "Verifizierung",
   "fill_code": "Geben Sie den Bestätigungscode ein, den Sie per E-Mail erhalten haben",
-  "dont_get_code": "Kein Code?",
+  "didnt_get_code": "Kein Code?",
   "resend_code": "Bitte erneut senden",
   "debit_card": "Debitkarte",
   "cakepay_prepaid_card": "CakePay-Prepaid-Debitkarte",

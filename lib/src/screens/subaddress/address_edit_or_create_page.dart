@@ -53,7 +53,10 @@ class AddressEditOrCreatePage extends BasePage {
                   text: addressEditOrCreateViewModel.isEdit
                       ? S.of(context).rename
                       : S.of(context).new_subaddress_create,
-                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                   isLoading:
                       addressEditOrCreateViewModel.state is AddressIsSaving,

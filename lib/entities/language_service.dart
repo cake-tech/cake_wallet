@@ -27,6 +27,7 @@ class LanguageService {
     'cs': 'čeština (Czech)',
     'ur': 'اردو (Urdu)',
     'id': 'Bahasa Indonesia (Indonesian)',
+    'yo': 'Yorùbá (Yoruba)',
     'ha': 'Hausa Najeriya (Nigeria)'
   };
 
@@ -54,10 +55,11 @@ class LanguageService {
     'cs': 'czk',
     'ur': 'pak',
     'id': 'idn',
-    'ha': 'hau',
+    'yo': 'nga',
+    'ha': 'hau'
   };
 
-  static final list = <String, String> {};
+  static final list = <String, String>{};
 
   static void loadLocaleList() {
     supportedLocales.forEach((key, value) {

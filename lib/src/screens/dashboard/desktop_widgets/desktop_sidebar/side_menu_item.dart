@@ -16,7 +16,7 @@ class SideMenuItem extends StatelessWidget {
 
   Color _setColor(BuildContext context) {
     if (isSelected) {
-      return Theme.of(context).primaryTextTheme.headline6!.color!;
+      return Theme.of(context).primaryTextTheme!.titleLarge!.color!;
     } else {
       return Theme.of(context).highlightColor;
     }

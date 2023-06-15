@@ -26,14 +26,15 @@ class SyncIndicatorIcon extends StatelessWidget {
     if (boolMode) {
       indicatorColor = isSynced
           ? PaletteDark.brightGreen
-          : Theme.of(context).textTheme!.caption!.color!;
+          : Theme.of(context).textTheme!.bodySmall!.color!;
     } else {
       switch (value.toLowerCase()) {
         case waiting:
           indicatorColor = Colors.red;
           break;
         case actionRequired:
-          indicatorColor = Theme.of(context).textTheme!.headline2!.decorationColor!;
+          indicatorColor =
+              Theme.of(context).textTheme!.displayMedium!.decorationColor!;
           break;
         case created:
           indicatorColor = PaletteDark.brightGreen;

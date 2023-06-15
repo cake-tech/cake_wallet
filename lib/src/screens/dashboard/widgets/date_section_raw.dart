@@ -36,6 +36,9 @@ class DateSectionRaw extends StatelessWidget {
         child: Text(title,
             style: TextStyle(
                 fontSize: 12,
-                color: Theme.of(context).textTheme!.overline!.backgroundColor!)));
+                color: Theme.of(context)
+                    .textTheme!
+                    .labelSmall!
+                    .backgroundColor!)));
   }
 }

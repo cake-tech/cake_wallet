@@ -486,7 +486,7 @@
    "submit_request":"تقديم طلب",
 
    "buy_alert_content":"لا ندعم حاليًا سوى شراء Bitcoin و Litecoin و Monero. يرجى إنشاء محفظة Bitcoin أو Litecoin أو Monero أو التبديل إليها.",
-   "sell_alert_content":"نحن ندعم حاليًا بيع البيتكوين فقط. لبيع Bitcoin ، يرجى إنشاء أو التبديل إلى محفظة Bitcoin الخاصة بك.",
+   "sell_alert_content":"نحن ندعم حاليًا فقط بيع Bitcoin و Litecoin. يرجى إنشاء أو التبديل إلى محفظة Bitcoin أو Litecoin الخاصة بك.",
 
    "outdated_electrum_wallet_description":"محافظ Bitcoin الجديدة التي تم إنشاؤها في Cake الآن سييد مكونة من 24 كلمة. من الضروري أن تقوم بإنشاء محفظة Bitcoin جديدة وتحويل جميع أموالك إلى المحفظة الجديدة المكونة من 24 كلمة ، والتوقف عن استخدام محافظ سييد مكونة من 12 كلمة. يرجى القيام بذلك على الفور لتأمين أموالك.",
    "understand":"لقد فهمت",
@@ -557,7 +557,7 @@
    "purchase_gift_card":"شراء بطاقة هدايا",
    "verification":"تَحَقّق",
    "fill_code":"يرجى ملء رمز التحقق المرسل إلى بريدك الإلكتروني",
-   "dont_get_code":"لم تحصل على رمز؟",
+   "didnt_get_code":"لم تحصل على رمز؟",
    "resend_code":"الرجاء إعادة إرسالها",
    "debit_card":"بطاقة ائتمان",
    "cakepay_prepaid_card":"بطاقة ائتمان CakePay مسبقة الدفع",

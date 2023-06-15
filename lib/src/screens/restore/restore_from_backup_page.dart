@@ -75,7 +75,10 @@ class RestoreFromBackupPage extends BasePage {
                           restoreFromBackupViewModel.state is IsExecutingState,
                       onPressed: () => onImportHandler(context),
                       text: S.of(context).import,
-                      color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .bodyLarge!
+                          .color!,
                       textColor: Colors.white);
                 }))
               ])),

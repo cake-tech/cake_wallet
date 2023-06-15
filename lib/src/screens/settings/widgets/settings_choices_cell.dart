@@ -9,7 +9,7 @@ class SettingsChoicesCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).backgroundColor,
+      color: Theme.of(context).colorScheme.background,
       padding: EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -22,7 +22,7 @@ class SettingsChoicesCell extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
             ],
@@ -34,7 +34,10 @@ class SettingsChoicesCell extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).accentTextTheme!.headline3!.color!,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .displaySmall!
+                      .color!,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -48,12 +51,22 @@ class SettingsChoicesCell extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: isSelected ? Theme.of(context).accentTextTheme!.bodyText1!.color! : null,
+                          color: isSelected
+                              ? Theme.of(context)
+                                  .accentTextTheme!
+                                  .bodyLarge!
+                                  .color!
+                              : null,
                         ),
                         child: Text(
                           choicesListItem.displayItem?.call(e) ?? e.toString(),
                           style: TextStyle(
-                            color: isSelected ? Colors.white : Theme.of(context).primaryTextTheme!.caption!.color!,
+                            color: isSelected
+                                ? Colors.white
+                                : Theme.of(context)
+                                    .primaryTextTheme!
+                                    .bodySmall!
+                                    .color!,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                           ),
                         ),
