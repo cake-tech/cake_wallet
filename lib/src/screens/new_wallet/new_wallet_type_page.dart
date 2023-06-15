@@ -92,13 +92,15 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         ...filteredTypes.map((type) => Padding(
-                              padding: EdgeInsets.only(top: 24),
+                              padding: EdgeInsets.only(top: 12),
                               child: SelectButton(
                                   image: Image.asset(
                                       walletTypeToCryptoCurrency(type).iconPath ?? '',
                                       height: 24,
                                       width: 24),
                                   text: walletTypeToDisplayName(type),
+                                  showTrailingIcon: false,
+                                  height: 54,
                                   isSelected: selected == type,
                                   onTap: () => setState(() => selected = type)),
                             ))
