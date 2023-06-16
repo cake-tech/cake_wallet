@@ -60,9 +60,6 @@ class WalletInfo extends HiveObject {
   @HiveField(8, defaultValue: '')
   String address;
 
-  @HiveField(9)
-  List<String>? usedAddresses;
-
   @HiveField(10)
   Map<String, String>? addresses;
 
@@ -77,6 +74,9 @@ class WalletInfo extends HiveObject {
 
   @HiveField(14)
   Map<int, List<AddressInfo>>? addressInfos;
+
+  @HiveField(15)
+  List<String>? usedAddresses;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
