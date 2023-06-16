@@ -64,39 +64,34 @@ class ConnectionSyncPage extends BasePage {
                   itemBuilder: (_, sectionIndex, index) {
                     final node = nodeListViewModel.nodes[index];
                     final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
-                    final nodeListRow = Semantics(
-                      label: 'Slidable',
-                      selected: isSelected,
-                      enabled: !isSelected,
-                      child: NodeListRow(
-                        title: node.uriRaw,
-                        isSelected: isSelected,
-                        isAlive: node.requestNode(),
-                        onTap: (_) async {
-                          if (isSelected) {
-                            return;
-                          }
+                    final nodeListRow = NodeListRow(
+                      title: node.uriRaw,
+                      node: node,
+                      isSelected: isSelected,
+                      onTap: (_) async {
+                        if (isSelected) {
+                          return;
+                        }
 
-                          await showPopUp<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertWithTwoActions(
-                                  alertTitle:
-                                      S.of(context).change_current_node_title,
-                                  alertContent: nodeListViewModel
-                                      .getAlertContent(node.uriRaw),
-                                  leftButtonText: S.of(context).cancel,
-                                  rightButtonText: S.of(context).change,
-                                  actionLeftButton: () =>
-                                      Navigator.of(context).pop(),
-                                  actionRightButton: () async {
-                                    await nodeListViewModel.setAsCurrent(node);
-                                    Navigator.of(context).pop();
-                                  },
-                                );
-                              });
-                        },
-                      ),
+                        await showPopUp<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertWithTwoActions(
+                                alertTitle:
+                                    S.of(context).change_current_node_title,
+                                alertContent: nodeListViewModel
+                                    .getAlertContent(node.uriRaw),
+                                leftButtonText: S.of(context).cancel,
+                                rightButtonText: S.of(context).change,
+                                actionLeftButton: () =>
+                                    Navigator.of(context).pop(),
+                                actionRightButton: () async {
+                                  await nodeListViewModel.setAsCurrent(node);
+                                  Navigator.of(context).pop();
+                                },
+                              );
+                            });
+                      },
                     );
 
                     final dismissibleRow = Slidable(
