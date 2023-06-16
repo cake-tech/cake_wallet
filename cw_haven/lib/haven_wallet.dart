@@ -109,14 +109,7 @@ abstract class HavenWalletBase
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
-
-  @override
-  bool get isEnabledAutoGenerateSubaddress => false;
-
-  @override
-  set isEnabledAutoGenerateSubaddress(
-      bool _) {} //This is not used in HavenWallet implementation so we just ignore it
-
+  
   @override
   Future<void> connectToNode({required Node node}) async {
     try {
