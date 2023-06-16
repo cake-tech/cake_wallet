@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'package:cw_monero/api/structs/coins_info_row.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
@@ -128,3 +129,9 @@ typedef GetSubaddressLabel = Pointer<Utf8> Function(
 typedef SetTrustedDaemon = void Function(int);
 
 typedef TrustedDaemon = int Function();
+
+typedef RefreshCoins = void Function(int);
+
+typedef CoinsCount = int Function();
+
+typedef GetCoin = Pointer<CoinsInfoRow> Function(Int32);

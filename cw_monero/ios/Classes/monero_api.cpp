@@ -5,6 +5,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <mutex>
+#include <list>
 #include "thread"
 #include "CwWalletListener.h"
 #if __APPLE__
@@ -181,59 +182,61 @@ extern "C"
         }
     };
 
-    struct CoinsInfo{
+    struct CoinsInfoRow
+    {
         uint64_t blockHeight;
-        char hash;
+        char *hash;
         uint64_t internalOutputIndex;
         uint64_t globalOutputIndex;
         bool spent;
         bool frozen;
         uint64_t spentHeight;
         uint64_t amount;
-        char displayAmount;
         bool rct;
         bool keyImageKnown;
         uint64_t pkIndex;
         uint32_t subaddrIndex;
         uint32_t subaddrAccount;
-        char address;
-        char addressLabel;
-        char keyImage;
+        char *address;
+        char *addressLabel;
+        char *keyImage;
         uint64_t unlockTime;
         bool unlocked;
-        char pubKey;
+        char *pubKey;
         bool coinbase;
-        char description;
+        char *description;
 
-        CoinsInfo(Monero::CoinsInfo *coinsInfo){
+        CoinsInfoRow(Monero::CoinsInfo *coinsInfo)
+        {
             blockHeight = coinsInfo->blockHeight();
-            hash = coinsInfo->hash();
+             std::string *hash_str = new std::string(coinsInfo->hash());
+            hash = strdup(hash_str->c_str());
             internalOutputIndex = coinsInfo->internalOutputIndex();
             globalOutputIndex = coinsInfo->globalOutputIndex();
             spent = coinsInfo->spent();
             frozen = coinsInfo->frozen();
             spentHeight = coinsInfo->spentHeight();
             amount = coinsInfo->amount();
-            displayAmount = coinsInfo->displayAmount();
             rct = coinsInfo->rct();
             keyImageKnown = coinsInfo->keyImageKnown();
             pkIndex = coinsInfo->pkIndex();
             subaddrIndex = coinsInfo->subaddrIndex();
             subaddrAccount = coinsInfo->subaddrAccount();
-            address = coinsInfo->address();
-            addressLabel = coinsInfo->addressLabel();
-            keyImage = coinsInfo->keyImage();
+            address =  strdup(coinsInfo->address().c_str()) ;
+            addressLabel = strdup(coinsInfo->addressLabel().c_str());
+            keyImage = strdup(coinsInfo->keyImage().c_str());
             unlockTime = coinsInfo->unlockTime();
             unlocked = coinsInfo->unlocked();
-            pubKey = coinsInfo->pubKey();
+            pubKey = strdup(coinsInfo->pubKey().c_str());
             coinbase = coinsInfo->coinbase();
-            description = coinsInfo->description();
+            description = strdup(coinsInfo->description().c_str());
         }
 
         void setUnlocked(bool unlocked);
     
-    }
+    };
 
+    Monero::Coins *m_coins;
 
     Monero::Wallet *m_wallet;
     Monero::TransactionHistory *m_transaction_history;
@@ -242,6 +245,7 @@ extern "C"
     Monero::SubaddressAccount *m_account;
     uint64_t m_last_known_wallet_height;
     uint64_t m_cached_syncing_blockchain_height = 0;
+    std::list<Monero::CoinsInfo*> m_coins_info;
     std::mutex store_lock;
     bool is_storing = false;
 
@@ -846,6 +850,101 @@ extern "C"
     {
         return m_wallet->trustedDaemon();
     }
+
+    int64_t createCoinsInfoRow(Monero::CoinsInfo* coinsInfo) {
+    int64_t blockHeight = coinsInfo->blockHeight();
+    int64_t internalOutputIndex = coinsInfo->internalOutputIndex();
+    int64_t globalOutputIndex = coinsInfo->globalOutputIndex();
+    bool spent = coinsInfo->spent();
+    bool frozen = coinsInfo->frozen();
+    int64_t spentHeight = coinsInfo->spentHeight();
+    int64_t amount = coinsInfo->amount();
+    bool rct = coinsInfo->rct();
+    bool keyImageKnown = coinsInfo->keyImageKnown();
+    int64_t pkIndex = coinsInfo->pkIndex();
+    int32_t subaddrIndex = coinsInfo->subaddrIndex();
+    int32_t subaddrAccount = coinsInfo->subaddrAccount();
+    const char* address = coinsInfo->address().c_str();
+    const char* addressLabel = coinsInfo->addressLabel().c_str();
+    const char* keyImage = coinsInfo->keyImage().c_str();
+    int64_t unlockTime = coinsInfo->unlockTime();
+    bool unlocked = coinsInfo->unlocked();
+    const char* pubKey = coinsInfo->pubKey().c_str();
+    bool coinbase = coinsInfo->coinbase();
+    const char* description = coinsInfo->description().c_str();
+
+    // Perform further operations or return the appropriate value based on your requirements
+    // For example, you can create a hash of relevant fields and return it as an int64_t value.
+    // Modify the logic as per your needs.
+
+    return calculateHash(address, keyImage, amount);
+}
+
+
+    void refresh_coins(uint32_t accountIndex)
+    {
+
+        {
+
+            m_coins_info.clear();
+
+            m_coins->refresh();
+            for (const auto i : m_coins->getAll()) {
+                if (i->subaddrAccount() != accountIndex) {
+                    continue;
+                }
+
+                m_coins_info.push_back(i);
+            }
+        }
+
+    }
+
+    uint64_t coins_count()
+    {
+        return m_coins_info.size();
+    }
+
+    std::vector<CoinsInfoRow*> coins_from_txid(const std::string &txid)
+    {
+        std::vector<CoinsInfoRow*> coins;
+
+        for (int i = 0; i < coins_count(); i++) {
+            CoinsInfoRow* coinInfo = coin(i);
+            if (coinInfo->hash == txid) {
+                coins.push_back(coinInfo);
+            }
+        }
+        return coins;
+    }
+
+    CoinsInfoRow* coin(int index)
+    {
+     
+    if (index >= 0 && index <  m_coins_info.size()) {
+        std::list<Monero::CoinsInfo*>::iterator it = m_coins_info.begin();
+        std::advance(it, index);
+        Monero::CoinsInfo* element = *it;
+        return new CoinsInfoRow(element);
+        std::cout << "Element at index " << index << ": " << element << std::endl;
+    } else {
+        std::cout << "Invalid index." << std::endl;
+    } 
+    }
+
+    std::vector<CoinsInfoRow*> coins_from_key_image(const std::list<std::string> &keyimages) {
+    std::vector<CoinsInfoRow*> coins;
+
+    for (int i = 0; i < m_coins_info.size(); i++) {
+        CoinsInfoRow* coinsInfoRow = coin(i);
+        if (coinsInfoRow->keyImageKnown && std::find(std::begin(keyimages), std::end(keyimages), coinsInfoRow->keyImage) != std::end(keyimages)) {
+            coins.push_back(coinsInfoRow);
+        }
+    }
+
+    return coins;
+}
+
 
 #ifdef __cplusplus
 }
