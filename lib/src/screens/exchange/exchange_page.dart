@@ -599,8 +599,8 @@ class ExchangePage extends BasePage {
               alertContent: S.of(context).low_fee_alert,
               leftButtonText: S.of(context).ignor,
               rightButtonText: S.of(context).use_suggested,
-              actionLeftButton: () => Navigator.of(context).pop(false),
-              actionRightButton: () => Navigator.of(context).pop(true));
+              actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+              actionRightButton: () => Navigator.of(dialogContext).pop(true));
         }) ?? false;
     if (confirmed) {
       exchangeViewModel.setDefaultTransactionPriority();
