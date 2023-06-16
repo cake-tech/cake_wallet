@@ -15,7 +15,6 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_no_inputs_exception.dart';
@@ -127,6 +126,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   List<int> _feeRates;
   Map<String, BehaviorSubject<Object>?> _scripthashesUpdateSubject;
   bool _isTransactionUpdating;
+
+  void Function(FlutterErrorDetails)? _onError;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -330,7 +331,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     } else {
       feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
     }
-    
+
     final changeValue = totalInputAmount - amount - feeAmount;
 
     if (changeValue > minAmount) {
@@ -649,8 +650,13 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
           await updateUnspent();
           await updateBalance();
           await updateTransactions();
-        } catch (e) {
+        } catch (e, s) {
           print(e.toString());
+          _onError?.call(FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: this.runtimeType.toString(),
+          ));
         }
       });
     });
@@ -716,4 +722,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
     return addresses[random.nextInt(addresses.length)].address;
   }
+
+  @override
+  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 }

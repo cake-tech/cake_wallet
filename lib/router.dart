@@ -8,8 +8,7 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
-import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
+import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -190,7 +189,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
             fullscreenDialog: true);
       } else if (isSingleCoin) {
         return MaterialPageRoute<void>(
-            fullscreenDialog: true,
             builder: (_) => getIt.get<WalletRestorePage>(
                 param1: availableWalletTypes.first
             ));
@@ -211,7 +209,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<WalletRestorePage>(
               param1: settings.arguments as WalletType));
 
@@ -221,6 +218,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
+          settings: settings,
           builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
@@ -506,7 +504,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaCreateAccountPage>());
 
     case Routes.ioniaManageCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<IoniaManageCardsPage>());
 
     case Routes.ioniaBuyGiftCardPage:
       final args = settings.arguments as List;
@@ -556,11 +555,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
         param1: paymentInfo,
         param2: commitedInfo));
 
-    case Routes.onramperPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
-
-    case Routes.payfuraPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<PayFuraPage>());
+    case Routes.webViewPage:
+      final args = settings.arguments as List;
+      final title = args.first as String;
+      final url = args[1] as Uri;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<WebViewPage>(
+          param1: title,
+          param2: url));
 
     case Routes.advancedPrivacySettings:
       final type = settings.arguments as WalletType;
@@ -574,7 +575,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
 
     case Routes.anonPayReceivePage:

@@ -17,7 +17,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaManageCardsPage extends BasePage {
-  IoniaManageCardsPage(this._cardsListViewModel) {
+  IoniaManageCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
     _searchController.addListener(() {
       if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
@@ -29,6 +29,7 @@ class IoniaManageCardsPage extends BasePage {
     _cardsListViewModel.getMerchants();
 
   }
+  final FocusNode searchFocusNode;
   final IoniaGiftCardsListViewModel _cardsListViewModel;
 
   final _searchDebounce = Debounce(Duration(milliseconds: 500));
@@ -86,7 +87,14 @@ class IoniaManageCardsPage extends BasePage {
             //highlightColor: Colors.transparent,
             //splashColor: Colors.transparent,
             //padding: EdgeInsets.all(0),
-            onPressed: () => Navigator.pop(context),
+            onPressed: (){
+             if (searchFocusNode.hasFocus) {
+              searchFocusNode.unfocus();
+              return;
+             }
+             
+              Navigator.of(context).pop();
+            },
             child: _backButton),
       ),
     );
@@ -149,6 +157,7 @@ class IoniaManageCardsPage extends BasePage {
                 Expanded(
                     child: _SearchWidget(
                   controller: _searchController,
+                  focusNode: searchFocusNode,
                 )),
                 SizedBox(width: 10),
                 filterButton
@@ -266,9 +275,10 @@ class _SearchWidget extends StatelessWidget {
   const _SearchWidget({
     Key? key,
     required this.controller,
+    required this.focusNode,
   }) : super(key: key);
   final TextEditingController controller;
-
+  final FocusNode focusNode;
   @override
   Widget build(BuildContext context) {
     final searchIcon = Padding(
@@ -280,6 +290,7 @@ class _SearchWidget extends StatelessWidget {
     );
 
     return TextField(
+      focusNode: focusNode,
       style: TextStyle(color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!),
       controller: controller,
       decoration: InputDecoration(

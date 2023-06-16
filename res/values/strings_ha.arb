@@ -487,7 +487,7 @@
   "submit_request": "gabatar da bukata",
 
   "buy_alert_content": "A halin yanzu muna tallafawa kawai siyan Bitcoin da Litecoin. Don siyan Bitcoin ko Litecoin, da fatan za a ƙirƙira ko canza zuwa walat ɗin ku na Bitcoin ko Litecoin.",
-  "sell_alert_content": "A halin yanzu muna tallafawa siyar da Bitcoin kawai. Don sayar da Bitcoin, da fatan za a ƙirƙira ko canza zuwa walat ɗin ku na Bitcoin.",
+  "sell_alert_content": "A halin yanzu muna tallafawa siyar da Bitcoin da Litecoin kawai. Da fatan za a ƙirƙira ko canza zuwa walat ɗin ku na Bitcoin ko Litecoin.",
 
   "outdated_electrum_wallet_description": "Sabbin walat ɗin Bitcoin da aka kirkira a cikin Cake yanzu suna da nau'in kalma 24. Ya zama dole ka ƙirƙiri sabon walat ɗin Bitcoin kuma canza duk kuɗin ku zuwa sabon walat ɗin kalmomi 24, kuma ku daina amfani da walat tare da iri mai kalma 12. Da fatan za a yi haka nan take don samun kuɗin ku.",
   "understand": "na gane",

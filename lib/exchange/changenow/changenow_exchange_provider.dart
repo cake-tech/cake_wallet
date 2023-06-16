@@ -192,11 +192,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
     final status = responseJSON['status'] as String;
     final state = TradeState.deserialize(raw: status);
-    final extraId = responseJSON['payinExtraId'] as String;
-    final outputTransaction = responseJSON['payoutHash'] as String;
-    final expiredAtRaw = responseJSON['validUntil'] as String;
+    final extraId = responseJSON['payinExtraId'] as String?;
+    final outputTransaction = responseJSON['payoutHash'] as String?;
+    final expiredAtRaw = responseJSON['validUntil'] as String?;
     final payoutAddress = responseJSON['payoutAddress'] as String;
-    final expiredAt = DateTime.tryParse(expiredAtRaw)?.toLocal();
+    final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
 
     return Trade(
         id: id,

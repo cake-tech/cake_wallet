@@ -75,4 +75,6 @@ abstract class WalletBase<
   String get password;
 
   Future<void>? updateBalance();
+
+  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 }
