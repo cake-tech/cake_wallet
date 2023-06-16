@@ -851,36 +851,6 @@ extern "C"
         return m_wallet->trustedDaemon();
     }
 
-    int64_t createCoinsInfoRow(Monero::CoinsInfo* coinsInfo) {
-    int64_t blockHeight = coinsInfo->blockHeight();
-    int64_t internalOutputIndex = coinsInfo->internalOutputIndex();
-    int64_t globalOutputIndex = coinsInfo->globalOutputIndex();
-    bool spent = coinsInfo->spent();
-    bool frozen = coinsInfo->frozen();
-    int64_t spentHeight = coinsInfo->spentHeight();
-    int64_t amount = coinsInfo->amount();
-    bool rct = coinsInfo->rct();
-    bool keyImageKnown = coinsInfo->keyImageKnown();
-    int64_t pkIndex = coinsInfo->pkIndex();
-    int32_t subaddrIndex = coinsInfo->subaddrIndex();
-    int32_t subaddrAccount = coinsInfo->subaddrAccount();
-    const char* address = coinsInfo->address().c_str();
-    const char* addressLabel = coinsInfo->addressLabel().c_str();
-    const char* keyImage = coinsInfo->keyImage().c_str();
-    int64_t unlockTime = coinsInfo->unlockTime();
-    bool unlocked = coinsInfo->unlocked();
-    const char* pubKey = coinsInfo->pubKey().c_str();
-    bool coinbase = coinsInfo->coinbase();
-    const char* description = coinsInfo->description().c_str();
-
-    // Perform further operations or return the appropriate value based on your requirements
-    // For example, you can create a hash of relevant fields and return it as an int64_t value.
-    // Modify the logic as per your needs.
-
-    return calculateHash(address, keyImage, amount);
-}
-
-
     void refresh_coins(uint32_t accountIndex)
     {
 
@@ -905,7 +875,7 @@ extern "C"
         return m_coins_info.size();
     }
 
-    std::vector<CoinsInfoRow*> coins_from_txid(const std::string &txid)
+    std::vector<int64_t*> coins_from_txid(const std::string &txid)
     {
         std::vector<CoinsInfoRow*> coins;
 
