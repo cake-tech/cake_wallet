@@ -301,8 +301,7 @@ abstract class DashboardViewModelBase with Store {
   bool get isEnabledSellAction =>
       !settingsStore.disableSell &&
       wallet.type != WalletType.haven &&
-      wallet.type != WalletType.monero &&
-      wallet.type != WalletType.litecoin;
+      wallet.type != WalletType.monero;
 
   @observable
   bool hasSellAction;

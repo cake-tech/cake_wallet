@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
@@ -38,5 +39,6 @@ abstract class AppStoreBase with Store {
           wallet) {
     this.wallet?.close();
     this.wallet = wallet;
+    this.wallet!.setExceptionHandler(ExceptionHandler.onError);
   }
 }
