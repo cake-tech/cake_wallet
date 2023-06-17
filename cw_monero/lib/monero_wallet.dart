@@ -380,9 +380,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
     final fullBalance = _getFullBalance();
-
+    print('Unlocked Balance: $unlockedBalance');
+    print('Full Balance: $fullBalance');
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance) {
+      print('Currency Balance: ${balance[currency]}');
       balance[currency] = MoneroBalance(
           fullBalance: fullBalance, unlockedBalance: unlockedBalance);
     }
@@ -398,6 +400,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       accountIndex: walletAddresses.account!.id);
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
+    print('----------------');
+    print('Blocks left: $blocksLeft');
+    print('height $height');
+    print('ptc: $ptc');
+    print('----------------');
+    _askForUpdateBalance();
     try {
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();
@@ -410,7 +418,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         _askForUpdateBalance();
         walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
-
+        //! Introduce completer
+        syncCompleter.complete();
         if (!_hasSyncAfterStartup) {
           _hasSyncAfterStartup = true;
           await save();

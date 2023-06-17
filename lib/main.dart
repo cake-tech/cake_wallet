@@ -52,7 +52,8 @@ Future<void> main() async {
     /// A callback that is invoked when an unhandled error occurs in the root
     /// isolate.
     PlatformDispatcher.instance.onError = (error, stack) {
-      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      ExceptionHandler.onError(
+          FlutterErrorDetails(exception: error, stack: stack));
 
       return true;
     };
@@ -106,25 +107,32 @@ Future<void> main() async {
     }
 
     final secureStorage = FlutterSecureStorage();
-    final transactionDescriptionsBoxKey =
-        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
+    final transactionDescriptionsBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+    final tradesBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: Trade.boxKey);
+    final ordersBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: Order.boxKey);
     final contacts = await Hive.openBox<Contact>(Contact.boxName);
     final nodes = await Hive.openBox<Node>(Node.boxName);
     final transactionDescriptions = await Hive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
-    final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+    final trades =
+        await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+    final orders =
+        await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
     final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
     final templates = await Hive.openBox<Template>(Template.boxName);
-    final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+    final exchangeTemplates =
+        await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+    final anonpayInvoiceInfo =
+        await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
 
     if (!isMoneroOnly) {
-      unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+      unspentCoinsInfoSource =
+          await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     }
 
     await initialSetup(
@@ -144,7 +152,8 @@ Future<void> main() async {
         initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
-    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    ExceptionHandler.onError(
+        FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
@@ -195,9 +204,9 @@ class App extends StatefulWidget {
 class AppState extends State<App> with SingleTickerProviderStateMixin {
   AppState() : yatStore = getIt.get<YatStore>() {
     SystemChrome.setPreferredOrientations(
-      ResponsiveLayoutUtil.instance.isIpad ? 
-      [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight] :
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+        // ResponsiveLayoutUtil.instance.isIpad ?
+        // [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight] :
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 
   YatStore yatStore;
@@ -261,14 +270,17 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
-      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.disclaimer
-          : Routes.login;
+      final initialRoute =
+          authenticationStore.state == AuthenticationState.uninitialized
+              ? Routes.disclaimer
+              : Routes.login;
       final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      final statusBarIconBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: statusBarColor,
           statusBarBrightness: statusBarBrightness,

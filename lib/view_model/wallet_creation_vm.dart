@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:hive/hive.dart';
@@ -50,8 +51,6 @@ abstract class WalletCreationVMBase with Store {
   final AppStore _appStore;
   final FiatConversionStore _fiatConversationStore;
 
-  Completer<void> syncCompleter = Completer<void>();
-
   bool nameExists(String name) => walletCreationService.exists(name);
 
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
@@ -69,7 +68,7 @@ abstract class WalletCreationVMBase with Store {
 
       // if (restoreWallet != null &&
       //     restoreWallet.restoreMode == WalletRestoreMode.txids) {
-      //* Create the newWallet that will received the funds
+      //* Create the newWallet that will receive the funds
       final newWallet = await createNewWalletWithoutSwitching(
         options: options,
         regenerateName: true,
@@ -81,6 +80,9 @@ abstract class WalletCreationVMBase with Store {
       _appStore.changeCurrentWallet(restoredWallet);
 
       await restoredWallet.startSync();
+      print('Before syncing starts');
+      await syncCompleter.future;
+      print('After syncing ends');
 
       //* Sweep all funds from restoredWallet to newWallet
       await sweepAllFundsToNewWallet(
@@ -161,7 +163,7 @@ abstract class WalletCreationVMBase with Store {
     try {
       await createTransaction(wallet, credentials);
       // final currentNode = _appStore.settingsStore.getCurrentNode(type);
-    // final result = await walletCreationService.sweepAllFunds(currentNode, newWalletAddress, paymentId);
+      // final result = await walletCreationService.sweepAllFunds(currentNode, newWalletAddress, paymentId);
 
       //* Switch back to new wallet
       _appStore.changeCurrentWallet(wallet);
@@ -176,7 +178,6 @@ abstract class WalletCreationVMBase with Store {
     } catch (e) {
       state = FailureState(e.toString());
     }
-    
   }
 
   Object _credentials(

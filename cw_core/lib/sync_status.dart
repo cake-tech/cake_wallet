@@ -1,3 +1,5 @@
+import 'dart:async';
+
 abstract class SyncStatus {
   const SyncStatus();
   double progress();
@@ -52,3 +54,5 @@ class LostConnectionSyncStatus extends SyncStatus {
   @override
   double progress() => 1.0;
 }
+
+Completer<void> syncCompleter = Completer();
