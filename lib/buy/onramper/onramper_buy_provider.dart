@@ -64,7 +64,6 @@ class OnRamperBuyProvider {
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
       'defaultCrypto': _normalizeCryptoCurrency,
-      'defaultFiat': _settingsStore.fiatCurrency.title,
       'wallets': '${_wallet.currency.title}:${_wallet.walletAddresses.address}',
       'supportSell': "false",
       'supportSwap': "false",
