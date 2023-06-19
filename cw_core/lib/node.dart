@@ -117,7 +117,7 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return requestMoneroNode();
+          return useSocksProxy ? requestNodeWithProxy(socksProxyAddress ?? '') : requestMoneroNode();
         case WalletType.bitcoin:
           return requestElectrumServer();
         case WalletType.litecoin:
@@ -167,6 +167,22 @@ class Node extends HiveObject with Keyable {
       return false;
     }
 }
+
+  Future<bool> requestNodeWithProxy(String proxy) async {
+
+    if (proxy.isEmpty || !proxy.contains(':')) {
+      return false;
+    }
+    final proxyAddress = proxy.split(':')[0];
+    final proxyPort = int.parse(proxy.split(':')[1]);
+    try {
+      final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
+      socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Future<bool> requestElectrumServer() async {
     try {
