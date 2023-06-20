@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 import '../../../routes.dart';
 
@@ -46,7 +47,8 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
 
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+        length: 3, vsync: this, initialIndex: viewModel.initialPresetTabValue);
     super.initState();
   }
 
@@ -106,10 +108,13 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                       bodyLarge:
                           TextStyle(backgroundColor: Colors.transparent))),
               child: TabBar(
+                onTap: (value) => viewModel.selectCakePreset(value),
                 controller: _tabController,
                 indicator: BoxDecoration(
                   borderRadius: BorderRadius.circular(25.0),
-                  color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                  color: !viewModel.unhighlightTabs
+                      ? Theme.of(context).accentTextTheme.bodyLarge!.color!
+                      : Colors.transparent, 
                 ),
                 labelColor: Theme.of(context)
                     .primaryTextTheme
@@ -120,18 +125,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                     .displayLarge!
                     .backgroundColor!,
                 tabs: [
-                  Tab(
-                    text: 'Narrow',
-                    height: 30,
-                  ),
-                  Tab(
-                    text: 'Normal',
-                    height: 30,
-                  ),
-                  Tab(
-                    text: 'Verbose',
-                    height: 30,
-                  ),
+                  Tab(text: 'Narrow', height: 30),
+                  Tab(text: 'Normal', height: 30),
+                  Tab(text: 'Verbose', height: 30),
                 ],
               ),
             ),
