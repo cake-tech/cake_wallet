@@ -486,7 +486,7 @@
   "submit_request" : "een verzoek indienen",
 
   "buy_alert_content" : "Momenteel ondersteunen we alleen de aankoop van Bitcoin, Litecoin en Monero. Maak of schakel over naar uw Bitcoin-, Litecoin- of Monero-portemonnee.",
-  "sell_alert_content": "We ondersteunen momenteel alleen de verkoop van Bitcoin. Om Bitcoin te verkopen, maakt u uw Bitcoin-portemonnee aan of schakelt u over naar deze.",
+  "sell_alert_content": "We ondersteunen momenteel alleen de verkoop van Bitcoin en Litecoin. Maak of schakel over naar uw Bitcoin- of Litecoin-portemonnee.",
 
   "outdated_electrum_wallet_description" : "Nieuwe Bitcoin-portefeuilles die in Cake zijn gemaakt, hebben nu een zaadje van 24 woorden. Het is verplicht dat u een nieuwe Bitcoin-portemonnee maakt en al uw geld overmaakt naar de nieuwe portemonnee van 24 woorden, en stopt met het gebruik van wallets met een seed van 12 woorden. Doe dit onmiddellijk om uw geld veilig te stellen.",
   "understand" : "Ik begrijp het",

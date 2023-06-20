@@ -122,7 +122,7 @@ class SendCardState extends State<SendCard>
               color: Colors.transparent,
             )),
         Container(
-          decoration: ResponsiveLayoutUtil.instance.isMobile(context) ? BoxDecoration(
+          decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24)),
@@ -137,9 +137,9 @@ class SendCardState extends State<SendCard>
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               24,
-              ResponsiveLayoutUtil.instance.isMobile(context) ? 100 : 55,
+              ResponsiveLayoutUtil.instance.isMobile ? 100 : 55,
               24,
-              ResponsiveLayoutUtil.instance.isMobile(context) ? 32 : 0,
+              ResponsiveLayoutUtil.instance.isMobile ? 32 : 0,
             ),
             child: SingleChildScrollView(
                 child: Observer(builder: (_) => Column(

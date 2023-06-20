@@ -1,37 +1,36 @@
-import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class PayFuraPage extends BasePage {
-  PayFuraPage(this._PayfuraBuyProvider);
+class WebViewPage extends BasePage {
+  WebViewPage(this._title, this._url);
 
-  final PayfuraBuyProvider _PayfuraBuyProvider;
+  final String _title;
+  final Uri _url;
 
   @override
-  String get title => S.current.buy;
+  String get title => _title;
 
   @override
   Widget body(BuildContext context) {
-    return PayFuraPageBody(_PayfuraBuyProvider);
+    return WebViewPageBody(_url);
   }
 }
 
-class PayFuraPageBody extends StatefulWidget {
-  PayFuraPageBody(this._PayfuraBuyProvider);
+class WebViewPageBody extends StatefulWidget {
+  WebViewPageBody(this.uri);
 
-  final PayfuraBuyProvider _PayfuraBuyProvider;
-
-  Uri get uri => _PayfuraBuyProvider.requestUrl();
+  final Uri uri;
 
   @override
-  PayFuraPageBodyState createState() => PayFuraPageBodyState();
+  WebViewPageBodyState createState() => WebViewPageBodyState();
 }
 
-class PayFuraPageBodyState extends State<PayFuraPageBody> {
-  PayFuraPageBodyState();
+class WebViewPageBodyState extends State<WebViewPageBody> {
+  WebViewPageBodyState();
 
   @override
   Widget build(BuildContext context) {
