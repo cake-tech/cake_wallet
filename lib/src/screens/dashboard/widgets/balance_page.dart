@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
@@ -47,12 +48,17 @@ class BalancePage extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       if (dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.asset(
-                            'assets/images/home_screen_settings_icon.png',
-                            color:
-                                Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, Routes.homeSettings)
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset(
+                              'assets/images/home_screen_settings_icon.png',
+                              color:
+                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                            ),
                           ),
                         ),
                     ],

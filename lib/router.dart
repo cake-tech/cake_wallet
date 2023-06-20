@@ -582,6 +582,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.modify2FAPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
 
+    case Routes.homeSettings:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<HomeSettingsPage>());
+
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

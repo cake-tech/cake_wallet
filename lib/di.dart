@@ -247,7 +247,9 @@ Future setup({
     nodeSource: _nodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
     // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
-    initialTheme: ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile ? null : ThemeList.darkTheme,
+    initialTheme: ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile
+        ? null
+        : ThemeList.darkTheme,
   );
 
   if (_isSetupFinished) {
@@ -879,7 +881,7 @@ Future setup({
 
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(()=> MarketPlaceViewModel(getIt.get<IoniaService>()));
+  getIt.registerFactory(() => MarketPlaceViewModel(getIt.get<IoniaService>()));
 
   getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
 
@@ -1012,6 +1014,9 @@ Future setup({
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+
+  getIt.registerFactory<HomeSettingsPage>(
+      () => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   _isSetupFinished = true;
 }
