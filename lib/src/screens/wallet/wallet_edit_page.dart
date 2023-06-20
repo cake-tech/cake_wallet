@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:flutter/material.dart';
@@ -61,10 +62,7 @@ class WalletEditPage extends BasePage {
                                   Navigator.of(context).pop();
                                 },
                                 text: S.of(context).delete,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .bodyLarge!
-                                    .backgroundColor!,
+                                color: Palette.red,
                                 textColor: Colors.white),
                           )),
                           Flexible(

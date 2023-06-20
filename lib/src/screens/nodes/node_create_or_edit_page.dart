@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -149,10 +150,7 @@ class NodeCreateOrEditPage extends BasePage {
                             },
                             text: S.of(context).delete,
                             isDisabled: !nodeCreateOrEditViewModel.isReady,
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .bodyLarge!
-                                .backgroundColor!,
+                            color: Palette.red,
                             textColor: Colors.white),
                       )),
                       Flexible(
