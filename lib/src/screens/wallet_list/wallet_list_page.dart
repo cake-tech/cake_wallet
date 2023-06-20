@@ -129,16 +129,21 @@ class WalletListBodyState extends State<WalletListBody> {
                                           ? _imageFor(type: wallet.type)
                                           : nonWalletTypeIcon,
                                       SizedBox(width: 10),
-                                      Text(
-                                        wallet.name,
-                                        style: TextStyle(
+                                      Flexible(
+                                        child: Text(
+                                          wallet.name,
+                                          maxLines: null,
+                                          softWrap: true,
+                                          style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
                                                 .primaryTextTheme
                                                 .titleLarge!
-                                                .color!),
-                                      )
+                                                .color!,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
