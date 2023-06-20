@@ -152,19 +152,31 @@ class WalletListBodyState extends State<WalletListBody> {
                         : Row(children: [
                             Expanded(child: row),
                             GestureDetector(
-                              onTap: () => _removeWallet(wallet),
+                              onTap: () => Navigator.of(context).pushNamed(
+                                  Routes.walletEdit,
+                                  arguments: [wallet, _removeWallet]),
                               child: Container(
-                                height: 40,
-                                width: 44,
                                 padding: EdgeInsets.only(right: 20),
                                 child: Center(
-                                  child: Image.asset('assets/images/trash.png',
-                                      height: 16,
-                                      width: 16,
+                                  child: Container(
+                                    height: 40,
+                                    width: 44,
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium!
+                                            .decorationColor!),
+                                    child: Icon(
+                                      Icons.edit,
+                                      size: 14,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .titleLarge!
-                                          .color),
+                                          .textTheme
+                                          .headlineMedium!
+                                          .color!,
+                                    ),
+                                  ),
                                 ),
                               ),
                             )

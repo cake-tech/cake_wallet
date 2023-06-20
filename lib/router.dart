@@ -46,6 +46,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,7 @@ import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
@@ -240,6 +242,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) =>
               getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
+
+    case Routes.walletEdit:
+      final args = settings.arguments as List<dynamic>;
+      final item = args.first as WalletListItem;
+      final removeWallet = args.last as Future<void> Function(WalletListItem);
+
+      return CupertinoPageRoute<void>(
+          builder: (_) =>
+              getIt.get<WalletEditPage>(param1: [item, removeWallet]));
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());

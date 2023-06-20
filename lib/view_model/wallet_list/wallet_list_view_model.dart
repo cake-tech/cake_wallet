@@ -14,19 +14,31 @@ part 'wallet_list_view_model.g.dart';
 
 class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
+abstract class WalletListViewModelState {}
+
+class WalletListViewModelInitial extends WalletListViewModelState {}
+
 abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(
     this._walletInfoSource,
     this._appStore,
     this._walletLoadingService,
     this._authService,
-  ) : wallets = ObservableList<WalletListItem>() {
+  )   : state = WalletListViewModelInitial(),
+        newName = '',
+        wallets = ObservableList<WalletListItem>() {
     _updateList();
     reaction((_) => _appStore.wallet, (_) => _updateList());
   }
 
   @observable
   ObservableList<WalletListItem> wallets;
+
+  @observable
+  WalletListViewModelState state;
+
+  @observable
+  String newName;
 
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
@@ -43,6 +55,14 @@ abstract class WalletListViewModelBase with Store {
   }
 
   @action
+  void changeName(WalletListItem walletItem) {
+    final walletInfo = _walletInfoSource.get(walletItem.key);
+    walletInfo!.name = newName;
+    _walletInfoSource.put(walletItem.key, walletInfo);
+    _updateList();
+  }
+
+  @action
   Future<void> remove(WalletListItem wallet) async {
     final walletService = getIt.get<WalletService>(param1: wallet.type);
     await walletService.remove(wallet.name);
@@ -50,6 +70,7 @@ abstract class WalletListViewModelBase with Store {
     _updateList();
   }
 
+  @action
   void _updateList() {
     wallets.clear();
     wallets.addAll(
