@@ -240,15 +240,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
 
-    case Routes.walletEdit:
-      final args = settings.arguments as List<dynamic>;
-      final item = args.first as WalletListItem;
-      final removeWallet = args.last as Future<void> Function(WalletListItem);
-
-      return CupertinoPageRoute<void>(
-          builder: (_) =>
-              getIt.get<WalletEditPage>(param1: [item, removeWallet]));
-
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
 
@@ -270,6 +261,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.walletList:
       return MaterialPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
+
+    case Routes.walletEdit:
+      return MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<WalletEditPage>(
+              param1: settings.arguments as List<dynamic>));
 
     case Routes.auth:
       return MaterialPageRoute<void>(

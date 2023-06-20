@@ -6,7 +6,6 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -15,7 +14,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
@@ -159,7 +157,7 @@ class WalletListBodyState extends State<WalletListBody> {
                             GestureDetector(
                               onTap: () => Navigator.of(context).pushNamed(
                                   Routes.walletEdit,
-                                  arguments: [wallet, _removeWallet]),
+                                  arguments: [widget.walletListViewModel, wallet]),
                               child: Container(
                                 padding: EdgeInsets.only(right: 20),
                                 child: Center(
@@ -255,47 +253,6 @@ class WalletListBodyState extends State<WalletListBody> {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
     });
-  }
-
-  Future<void> _removeWallet(WalletListItem wallet) async {
-    widget.authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
-      _onSuccessfulAuth(wallet);
-    });
-  }
-
-  void _onSuccessfulAuth(WalletListItem wallet) async {
-    bool confirmed = false;
-    await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithTwoActions(
-            alertTitle: S.of(context).delete_wallet,
-            alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
-            leftButtonText: S.of(context).cancel,
-            rightButtonText: S.of(context).delete,
-            actionLeftButton: () => Navigator.of(context).pop(),
-            actionRightButton: () {
-              confirmed = true;
-              Navigator.of(context).pop();
-            },
-          );
-        });
-
-    if (confirmed) {
-      try {
-        changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
-        await widget.walletListViewModel.remove(wallet);
-        hideProgressText();
-      } catch (e) {
-        changeProcessText(
-          S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
-        );
-      }
-    }
   }
 
   void changeProcessText(String text) {

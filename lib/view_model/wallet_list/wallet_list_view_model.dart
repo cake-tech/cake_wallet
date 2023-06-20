@@ -55,10 +55,14 @@ abstract class WalletListViewModelBase with Store {
   }
 
   @action
-  void changeName(WalletListItem walletItem) {
+  Future<void> changeName(WalletListItem walletItem) async {
     final walletInfo = _walletInfoSource.get(walletItem.key);
-    walletInfo!.name = newName;
-    _walletInfoSource.put(walletItem.key, walletInfo);
+    if (walletInfo == null) {
+      return;
+    }
+
+    walletInfo.name = newName;
+    await _walletInfoSource.put(walletItem.key, walletInfo);
     _updateList();
   }
 

@@ -518,15 +518,6 @@ Future setup({
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
-  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
-    final item = args.first as WalletListItem;
-    final removeWallet = args.last as Future<void> Function(WalletListItem);
-    return WalletEditPage(
-        walletListViewModel: getIt.get<WalletListViewModel>(param1: item),
-        editingWallet: item,
-        removeWallet: removeWallet);
-  });
-
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
       getIt.get<AppStore>().settingsStore,
@@ -576,6 +567,17 @@ Future setup({
         walletListViewModel: getIt.get<WalletListViewModel>(),
         authService: getIt.get<AuthService>(),
       ));
+
+  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>(
+      (args, _) {
+    final walletListViewModel = args.first as WalletListViewModel;
+    final editingWallet = args.last as WalletListItem;
+    return WalletEditPage(
+        walletListViewModel: walletListViewModel,
+        authService: getIt.get<AuthService>(),
+        editingWallet: editingWallet);
+  });
+
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
