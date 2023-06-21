@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_ethereum/ethereum_balance.dart';
+import 'package:cw_ethereum/models/erc20_token.dart';
 import 'package:cw_ethereum/pending_ethereum_transaction.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
@@ -102,7 +103,10 @@ class EthereumClient {
     required int gas,
     required EthereumTransactionPriority priority,
     required CryptoCurrency currency,
+    String? contractAddress,
   }) async {
+    assert(currency == CryptoCurrency.eth || contractAddress != null);
+
     bool _isEthereum = currency == CryptoCurrency.eth;
 
     final price = await _client!.getGasPrice();
@@ -128,7 +132,7 @@ class EthereumClient {
 
       final erc20 = Erc20(
         client: _client!,
-        address: EthereumAddress.fromHex(_erc20Currencies[currency]!),
+        address: EthereumAddress.fromHex(contractAddress!),
       );
 
       final originalAmount = BigInt.parse(amount) / BigInt.from(pow(10, 18));
@@ -211,25 +215,22 @@ I/flutter ( 4474): Gas Used: 53000
 //   ));
 // }
 
-  Future<Map<CryptoCurrency, ERC20Balance>> fetchERC20Balances(EthereumAddress userAddress) async {
-    final Map<CryptoCurrency, ERC20Balance> erc20Balances = {};
+  Future<ERC20Balance> fetchERC20Balances(
+      EthereumAddress userAddress, String contractAddress) async {
+    final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+    final balance = await erc20.balanceOf(userAddress);
 
-    for (var currency in _erc20Currencies.keys) {
-      final contractAddress = _erc20Currencies[currency]!;
+    int exponent = (await erc20.decimals()).toInt();
 
-      try {
-        final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
-        final balance = await erc20.balanceOf(userAddress);
+    return ERC20Balance(balance, exponent: exponent);
+  }
 
-        int exponent = (await erc20.decimals()).toInt();
+  Future<Erc20Token> addErc20Token(String contractAddress) async {
+    final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+    final name = await erc20.name();
+    final symbol = await erc20.symbol();
 
-        erc20Balances[currency] = ERC20Balance(balance, exponent: exponent);
-      } catch (e) {
-        continue;
-      }
-    }
-
-    return erc20Balances;
+    return Erc20Token(name: name, symbol: symbol, contractAddress: contractAddress);
   }
 
   void stop() {

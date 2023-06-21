@@ -19,6 +19,8 @@ import 'package:cw_ethereum/ethereum_transaction_info.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
+import 'package:cw_ethereum/models/erc20_token.dart';
+import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:web3dart/web3dart.dart';
@@ -47,10 +49,16 @@ abstract class EthereumWalletBase
             {CryptoCurrency.eth: initialBalance ?? ERC20Balance(BigInt.zero)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
+
+    if (!Hive.isAdapterRegistered(Erc20Token.typeId)) {
+      Hive.registerAdapter(Erc20TokenAdapter());
+    }
   }
 
   final String _mnemonic;
   final String _password;
+
+  late final Box<Erc20Token> erc20TokensBox;
 
   late final EthPrivateKey _privateKey;
 
@@ -71,6 +79,7 @@ abstract class EthereumWalletBase
   late ObservableMap<CryptoCurrency, ERC20Balance> balance;
 
   Future<void> init() async {
+    erc20TokensBox = await Hive.openBox<Erc20Token>(Erc20Token.boxName);
     await walletAddresses.init();
     _privateKey = await getPrivateKey(_mnemonic, _password);
     transactionHistory = EthereumTransactionHistory();
@@ -247,7 +256,15 @@ abstract class EthereumWalletBase
 
   Future<void> _updateBalance() async {
     balance[currency] = await _fetchBalances();
-    balance.addAll(await _client.fetchERC20Balances(_privateKey.address));
+
+    /// Get Erc20 Tokens balances
+    for (var token in erc20TokensBox.values) {
+      try {
+        final currency = erc20Currencies.firstWhere((element) => element.title == token.symbol);
+        balance[currency] =
+            await _client.fetchERC20Balances(_privateKey.address, token.contractAddress);
+      } catch (_) {}
+    }
     await save();
   }
 
@@ -270,7 +287,24 @@ abstract class EthereumWalletBase
 
   Future<void>? updateBalance() => null;
 
-  List<CryptoCurrency> get erc20Currencies => _client.erc20Currencies.keys.toList();
+  List<CryptoCurrency> get erc20Currencies => erc20TokensBox.values
+      .map((token) => CryptoCurrency.all.firstWhere(
+            (currency) => currency.title.toLowerCase() == token.symbol.toLowerCase(),
+            orElse: () => CryptoCurrency(
+              name: token.name,
+              title: token.symbol,
+              fullName: token.name,
+            ),
+          ))
+      .toList();
+
+  Future<CryptoCurrency> addErc20Token(String contractAddress) async {
+    final token = await _client.addErc20Token(contractAddress);
+
+    erc20TokensBox.add(token);
+
+    return CryptoCurrency(name: token.name, title: token.symbol, fullName: token.name);
+  }
 
   void _onNewTransaction(FilterEvent event) {
     _updateBalance();

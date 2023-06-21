@@ -40,6 +40,7 @@ class PreferencesKey {
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
   static const lastPopupDate = 'last_popup_date';
   static const lastAppReviewDate = 'last_app_review_date';
+  static const sortBalanceBy = 'sort_balance_by';
 
 
 

@@ -4,6 +4,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -57,6 +58,7 @@ abstract class SettingsStoreBase with Store {
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
       required this.pinTimeOutDuration,
+      required this.sortBalanceBy,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
@@ -214,6 +216,11 @@ abstract class SettingsStoreBase with Store {
         (ExchangeApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, mode.serialize()));
 
+    reaction(
+        (_) => sortBalanceBy,
+        (SortBalanceBy sortBalanceBy) =>
+            _sharedPreferences.setInt(PreferencesKey.sortBalanceBy, sortBalanceBy.index));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -292,6 +299,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   ObservableMap<WalletType, TransactionPriority> priority;
+
+  @observable
+  SortBalanceBy sortBalanceBy;
 
   String appVersion;
 
@@ -393,6 +403,8 @@ abstract class SettingsStoreBase with Store {
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
+    final sortBalanceBy =
+        SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -463,6 +475,7 @@ abstract class SettingsStoreBase with Store {
         initialPinLength: pinLength,
         pinTimeOutDuration: pinCodeTimeOutDuration,
         initialLanguageCode: savedLanguageCode,
+        sortBalanceBy: sortBalanceBy,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
@@ -541,6 +554,8 @@ abstract class SettingsStoreBase with Store {
     languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
     shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
+    sortBalanceBy = SortBalanceBy
+        .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

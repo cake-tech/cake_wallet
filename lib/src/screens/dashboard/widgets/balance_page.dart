@@ -49,9 +49,8 @@ class BalancePage extends StatelessWidget {
                       ),
                       if (dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled)
                         InkWell(
-                          onTap: () {
-                            Navigator.pushNamed(context, Routes.homeSettings)
-                          },
+                          onTap: () => Navigator.pushNamed(context, Routes.homeSettings,
+                              arguments: dashboardViewModel.balanceViewModel),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Image.asset(
