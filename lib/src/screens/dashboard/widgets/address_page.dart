@@ -73,7 +73,7 @@ class AddressPage extends BasePage {
         ? closeButtonImageDarkTheme
         : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
       child: SizedBox(
@@ -275,7 +275,7 @@ class AddressPage extends BasePage {
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
-          Navigator.pushReplacementNamed(
+          Navigator.pushNamed(
             context,
             Routes.anonPayInvoicePage,
             arguments: [addressListViewModel.address.address, option],
@@ -287,7 +287,7 @@ class AddressPage extends BasePage {
           final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
 
           if (clearnetUrl != null && onionUrl != null) {
-            Navigator.pushReplacementNamed(
+            Navigator.pushNamed(
               context,
               Routes.anonPayReceivePage,
               arguments: AnonpayDonationLinkInfo(
@@ -297,7 +297,7 @@ class AddressPage extends BasePage {
               ),
             );
           } else {
-            Navigator.pushReplacementNamed(
+            Navigator.pushNamed(
               context,
               Routes.anonPayInvoicePage,
               arguments: [addressListViewModel.address.address, option],

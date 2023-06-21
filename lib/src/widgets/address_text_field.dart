@@ -1,6 +1,6 @@
-import 'dart:io';
 
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -105,7 +105,7 @@ class AddressTextField extends StatelessWidget {
               width: prefixIconWidth * options.length +
                   (spaceBetweenPrefixIcons * options.length),
               child: Row(
-                mainAxisAlignment: DeviceInfo.instance.isMobile 
+                mainAxisAlignment: ResponsiveLayoutUtil.instance.isMobile 
                   ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
                 children: [
                   SizedBox(width: 5),
