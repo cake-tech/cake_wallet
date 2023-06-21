@@ -33,7 +33,7 @@ abstract class ContactListViewModelBase with Store {
             ));
           }
         });
-      } else if (info.addresses == null && info.addresses!.isEmpty) {
+      } else if (info.addresses != null && info.addresses!.isEmpty) {
         info.addresses!.forEach((address, label) {
           final name = _createName(info.name, label);
           walletContacts.add(WalletContact(
