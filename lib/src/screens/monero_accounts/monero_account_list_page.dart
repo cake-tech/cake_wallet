@@ -25,37 +25,35 @@ class MoneroAccountListPage extends StatelessWidget {
         title: S.of(context).choose_account,
         itemsHeight: (itemHeight * accounts.length) + buttonHeight,
         children: [
-          Expanded(child: Observer(builder: (_) {
-            return Scrollbar(
+          Expanded(
+              child: Scrollbar(
+            controller: controller,
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
               controller: controller,
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                controller: controller,
-                separatorBuilder: (context, index) => const SectionDivider(),
-                itemCount: accounts.length,
-                itemBuilder: (context, index) {
-                  final account = accounts[index];
+              separatorBuilder: (context, index) => const SectionDivider(),
+              itemCount: accounts.length,
+              itemBuilder: (context, index) {
+                final account = accounts[index];
 
-                  return AccountTile(
-                      isCurrent: account.isSelected,
-                      accountName: account.label,
-                      accountBalance: account.balance ?? '0.00',
-                      currency: accountListViewModel.currency.toString(),
-                      onTap: () {
-                        if (account.isSelected) {
-                          return;
-                        }
+                return AccountTile(
+                    isCurrent: account.isSelected,
+                    accountName: account.label,
+                    accountBalance: account.balance ?? '0.00',
+                    currency: accountListViewModel.currency.toString(),
+                    onTap: () {
+                      if (account.isSelected) {
+                        return;
+                      }
 
-                        accountListViewModel.select(account);
-                        Navigator.of(context).pop();
-                      },
-                      onEdit: () async => await Navigator.of(context).pushNamed(
-                          Routes.accountCreation,
-                          arguments: account));
-                },
-              ),
-            );
-          })),
+                      accountListViewModel.select(account);
+                      Navigator.of(context).pop();
+                    },
+                    onEdit: () async => await Navigator.of(context)
+                        .pushNamed(Routes.accountCreation, arguments: account));
+              },
+            ),
+          )),
           GestureDetector(
             onTap: () async =>
                 await Navigator.of(context).pushNamed(Routes.accountCreation),
