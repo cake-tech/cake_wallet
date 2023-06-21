@@ -3,14 +3,11 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:mobx/mobx.dart';
 
 class IoniaWelcomePage extends BasePage {
-  IoniaWelcomePage(this._cardsListViewModel);
+  IoniaWelcomePage();
 
   @override
   Widget middle(BuildContext context) {
@@ -25,15 +22,8 @@ class IoniaWelcomePage extends BasePage {
     );
   }
 
-  final IoniaGiftCardsListViewModel _cardsListViewModel;
-
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _cardsListViewModel.isLoggedIn, (bool state) {
-      if (state) {
-        Navigator.pushReplacementNamed(context, Routes.ioniaManageCardsPage);
-      }
-    });
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -41,7 +31,7 @@ class IoniaWelcomePage extends BasePage {
         children: [
           Column(
             children: [
-              SizedBox(height: 100),
+              SizedBox(height: 90),
               Text(
                 S.of(context).about_cake_pay,
                 style: TextStyle(

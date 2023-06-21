@@ -486,7 +486,7 @@
   "submit_request" : "odeslat požadavek",
 
   "buy_alert_content" : "V současné době podporujeme pouze nákup Bitcoinů, Litecoinů a Monero. Vytvořte nebo přepněte na svou peněženku Bitcoinů, Litecoinů nebo Monero.",
-  "sell_alert_content": "V současné době podporujeme pouze prodej Bitcoinu. Pro prodej Bitcoinu si prosím vytvořte Bitcoinovou peněženku, nebo se do ní přepněte.",
+  "sell_alert_content": "V současné době podporujeme pouze prodej bitcoinů a litecoinů. Vytvořte nebo přepněte na svou bitcoinovou nebo litecoinovou peněženku.",
 
   "outdated_electrum_wallet_description" : "Nové Bitcoinové peněženky vytvořené v Cake mají nyní seed se 24 slovy. Je třeba si vytvořit novou Bitcoinovou peněženku se 24 slovy, převést na ni všechny prostředky a přestat používat seed se 12 slovy. Prosím udělejte to hned pro zabezpečení svých prostředků.",
   "understand" : "Rozumím",
