@@ -33,23 +33,25 @@ class HomeSettingsPage extends BasePage {
           ),
           Row(
             children: [
-              TextFormField(
-                controller: _searchController,
-                style: TextStyle(color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
-                decoration: InputDecoration(
-                  hintText: "S.of(context).search_token",
-                  prefixIcon: Image.asset("assets/images/search_icon.png"),
-                  filled: true,
-                  fillColor: Theme.of(context).accentTextTheme.displaySmall!.color!,
-                  alignLabelWithHint: false,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Colors.transparent),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Colors.transparent),
+              Expanded(
+                child: TextFormField(
+                  controller: _searchController,
+                  style: TextStyle(color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+                  decoration: InputDecoration(
+                    hintText: "S.of(context).search_token",
+                    prefixIcon: Image.asset("assets/images/search_icon.png"),
+                    filled: true,
+                    fillColor: Theme.of(context).accentTextTheme.displaySmall!.color!,
+                    alignLabelWithHint: false,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Colors.transparent),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Colors.transparent),
+                    ),
                   ),
                 ),
               ),
