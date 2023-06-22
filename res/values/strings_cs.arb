@@ -721,5 +721,18 @@
   "setup_2fa_text": "Cake 2FA NENÍ tak bezpečný jako skladování v chladu. 2FA chrání před základními typy útoků, jako je váš přítel, který vám poskytne otisk prstu, když spíte.\n\n Cake 2FA nechrání před napadením zařízení sofistikovaným útočníkem.\n\n Pokud ztratíte přístup ke svým kódům 2FA , ZTRÁTÍTE PŘÍSTUP K TÉTO PENĚŽENCE. Budete muset obnovit svou peněženku z mnemotechnického semínka. MUSÍTE TEDY ZÁLOHOVAT SVÉ MNEMONICKÉ SEMÉNKY! Kromě toho někdo s přístupem k vašemu mnemotechnickému semenu bude moci ukrást vaše finanční prostředky a obejít Cake 2FA.\n\n Pracovníci podpory Cake vám nebudou schopni pomoci, pokud ztratíte přístup k vašemu mnemotechnickému semenu, protože Cake je nevazební peněženka.",
   "setup_totp_recommended": "Nastavit TOTP (doporučeno)",
   "disable_buy": "Zakázat akci nákupu",
-  "disable_sell": "Zakázat akci prodeje"
+  "disable_sell": "Zakázat akci prodeje",
+  "home_screen_settings": "Nastavení domovské obrazovky",
+  "sort_by": "Seřazeno podle",
+  "search_add_token": "Hledat / Přidat token",
+  "edit_token": "Upravit token",
+  "warning": "Varování",
+  "add_token_warning": "Neupravujte ani nepřidávejte tokeny podle pokynů podvodníků. Vždy potvrďte adresy tokenů s renomovanými zdroji!",
+  "add_token_disclaimer_check": "Potvrdil jsem adresu a informace smlouvy o tokenu pomocí důvěryhodného zdroje. Přidání škodlivých nebo nesprávných informací může vést ke ztrátě finančních prostředků.",
+  "token_contract_address": "Adresa tokenové smlouvy",
+  "token_name": "Název tokenu např.: Tether",
+  "token_symbol": "Symbol tokenu, např.: USDT",
+  "token_decimal": "Token v desítkové soustavě",
+  "field_required": "Toto pole je povinné",
+  "pin_at_top": "špendlík ${token} nahoře"
 }

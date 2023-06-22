@@ -681,7 +681,6 @@
     "arrive_in_this_address" : "${currency} ${tag} máa dé sí àdírẹ́sì yìí",
     "do_not_send": "Ẹ kò ránṣ",
     "error_dialog_content": "Àṣìṣe ti dé.\n\nẸ jọ̀wọ́, fi àkọsílẹ̀ àṣìṣe ránṣẹ́ sí ẹgbẹ́ ìranlọ́wọ́ wa kí áàpù wa bá túbọ̀ dára.",
-    "scan_qr_code": "Yan QR koodu",
     "cold_or_recover_wallet": "Fi owo aisan tabi yiyewo owo iwe iwe",
     "please_wait": "Jọwọ saa",
     "sweeping_wallet": "Fi owo iwe iwe wofo",
@@ -723,5 +722,18 @@
     "setup_2fa_text": "Cake 2FA kii ṣe nipasẹ aisan tabi ni akoso aisan. 2FA ti ṣe pada ninu awọn iṣẹ pataki, bi atilẹyin ti o fun iṣẹ rẹ ti o ti jẹ saanu.\n\n Cake 2FA kii ṣe pada ninu atilẹyin ti o ti ba alabara kan ti o sise gidi gan.\n\n Ti o ba pọ akosile rẹ 2FA, O YOO RI ATOJU SI IWE IWE NA. O yoo nilo lati yan pẹlu iwe iwe ni o ba ṣe iṣẹ rẹ. O ni aṣẹ iru ki o gba asise akojọ iwe iwe rẹ! Nitori a ko ni aṣẹ pẹlu ohun ti o ba ṣe iṣẹ rẹ lati yan pẹlu akojọ iwe iwe rẹ, nitori Cake ni iwe iwe ti ko se iṣẹ itumọ.",
     "setup_totp_recommended": "Sọ TOTP (Kẹṣọdọ)",
     "disable_buy": "Ko iṣọrọ ọja",
-    "disable_sell": "Ko iṣọrọ iṣọrọ"
+    "disable_sell": "Ko iṣọrọ iṣọrọ",
+    "home_screen_settings": "Awọn eto iboju ile",
+    "sort_by": "Sa pelu",
+    "search_add_token": "Wa / Fi àmi kun",
+    "edit_token": "Ṣatunkọ àmi",
+    "warning": "Ikilo",
+    "add_token_warning": "Ma ṣe ṣatunkọ tabi ṣafikun awọn ami bi a ti fun ni aṣẹ nipasẹ awọn scammers. Nigbagbogbo jẹrisi awọn adirẹsi ami pẹlu awọn orisun olokiki!",
+    "add_token_disclaimer_check": "Mo ti jẹrisi adirẹsi adehun ami ati alaye nipa lilo orisun olokiki kan. Fifi irira tabi alaye ti ko tọ le ja si isonu ti owo.",
+    "token_contract_address": "Àmi guide adirẹsi",
+    "token_name": "Orukọ àmi fun apẹẹrẹ: Tether",
+    "token_symbol": "Aami aami fun apẹẹrẹ: USDT",
+    "token_decimal": "Àmi eleemewa",
+    "field_required": "E ni lati se nkan si aye yi",
+    "pin_at_top": "pin ${tokini} ni oke"
 }

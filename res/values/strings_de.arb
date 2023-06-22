@@ -727,5 +727,18 @@
   "setup_2fa_text": "Cake 2FA ist NICHT so sicher wie eine Kühllagerung. 2FA schützt vor grundlegenden Arten von Angriffen, z. B. wenn Ihr Freund Ihren Fingerabdruck bereitstellt, während Sie schlafen.\n\n Cake 2FA schützt NICHT vor einem kompromittierten Gerät durch einen raffinierten Angreifer.\n\n Wenn Sie den Zugriff auf Ihre 2FA-Codes verlieren , VERLIEREN SIE DEN ZUGANG ZU DIESEM WALLET. Sie müssen Ihre Brieftasche aus mnemonic Seed wiederherstellen. SIE MÜSSEN DESHALB IHRE MNEMONISCHEN SEEDS SICHERN! Außerdem kann jemand mit Zugriff auf Ihre mnemonischen Seed(s) Ihr Geld stehlen und Cake 2FA umgehen.\n\n Cake-Supportmitarbeiter können Ihnen nicht helfen, wenn Sie den Zugriff auf Ihre mnemonischen Seed(s) verlieren, da Cake ein Brieftasche ohne Verwahrung.",
   "setup_totp_recommended": "TOTP einrichten (empfohlen)",
   "disable_buy": "Kaufaktion deaktivieren",
-  "disable_sell": "Verkaufsaktion deaktivieren"
+  "disable_sell": "Verkaufsaktion deaktivieren",
+  "home_screen_settings": "Einstellungen für den Startbildschirm",
+  "sort_by": "Sortiere nach",
+  "search_add_token": "Token suchen / hinzufügen",
+  "edit_token": "Token bearbeiten",
+  "warning": "Warnung",
+  "add_token_warning": "Bearbeiten oder fügen Sie Token nicht gemäß den Anweisungen von Betrügern hinzu. Bestätigen Sie Token-Adressen immer mit seriösen Quellen!",
+  "add_token_disclaimer_check": "Ich habe die Adresse und Informationen zum Token-Vertrag anhand einer seriösen Quelle bestätigt. Das Hinzufügen böswilliger oder falscher Informationen kann zu einem Verlust von Geldern führen.",
+  "token_contract_address": "Token-Vertragsadresse",
+  "token_name": "Token-Name, z. B.: Tether",
+  "token_symbol": "Token-Symbol, z. B.: USDT",
+  "token_decimal": "Token-Dezimalzahl",
+  "field_required": "Dieses Feld ist erforderlich",
+  "pin_at_top": "Stecken Sie ${token} oben fest"
 }

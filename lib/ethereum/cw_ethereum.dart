@@ -87,8 +87,14 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  Future<CryptoCurrency> addErc20Token(WalletBase wallet, String contractAddress) async {
+  Future<CryptoCurrency?> addErc20Token(WalletBase wallet, String contractAddress) async {
     final ethereumWallet = wallet as EthereumWallet;
     return await ethereumWallet.addErc20Token(contractAddress);
+  }
+
+  @override
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
+    final ethereumWallet = wallet as EthereumWallet;
+    return await ethereumWallet.getErc20Token(contractAddress);
   }
 }

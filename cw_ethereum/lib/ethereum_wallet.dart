@@ -19,7 +19,7 @@ import 'package:cw_ethereum/ethereum_transaction_info.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
-import 'package:cw_ethereum/models/erc20_token.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
@@ -298,13 +298,20 @@ abstract class EthereumWalletBase
           ))
       .toList();
 
-  Future<CryptoCurrency> addErc20Token(String contractAddress) async {
-    final token = await _client.addErc20Token(contractAddress);
+  Future<CryptoCurrency?> addErc20Token(String contractAddress) async {
+    final token = await _client.getErc20Token(contractAddress);
+
+    if (token == null) {
+      return null;
+    }
 
     erc20TokensBox.add(token);
 
     return CryptoCurrency(name: token.name, title: token.symbol, fullName: token.name);
   }
+
+  Future<Erc20Token?> getErc20Token(String contractAddress) async =>
+      await _client.getErc20Token(contractAddress);
 
   void _onNewTransaction(FilterEvent event) {
     _updateBalance();

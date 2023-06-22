@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_ethereum/ethereum_balance.dart';
-import 'package:cw_ethereum/models/erc20_token.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_ethereum/pending_ethereum_transaction.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
@@ -13,6 +13,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 
 class EthereumClient {
+  // TODO: Remove
   static const Map<CryptoCurrency, String> _erc20Currencies = {
     CryptoCurrency.usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     CryptoCurrency.usdterc20: "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -225,12 +226,22 @@ I/flutter ( 4474): Gas Used: 53000
     return ERC20Balance(balance, exponent: exponent);
   }
 
-  Future<Erc20Token> addErc20Token(String contractAddress) async {
-    final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
-    final name = await erc20.name();
-    final symbol = await erc20.symbol();
+  Future<Erc20Token?> getErc20Token(String contractAddress) async {
+    try {
+      final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+      final name = await erc20.name();
+      final symbol = await erc20.symbol();
+      final decimal = await erc20.decimals();
 
-    return Erc20Token(name: name, symbol: symbol, contractAddress: contractAddress);
+      return Erc20Token(
+        name: name,
+        symbol: symbol,
+        contractAddress: contractAddress,
+        decimal: decimal.toInt(),
+      );
+    } catch (e) {
+      return null;
+    }
   }
 
   void stop() {

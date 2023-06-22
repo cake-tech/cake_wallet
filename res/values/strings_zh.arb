@@ -726,5 +726,18 @@
   "setup_2fa_text": "Cake 2FA 不如冷藏安全。 2FA 可防止基本类型的攻击，例如您的朋友在您睡觉时提供您的指纹。\n\n Cake 2FA 无法防止老练的攻击者破坏设备。\n\n 如果您无法访问您的 2FA 代码, 您将无法访问此钱包。您将需要从助记词种子恢复您的钱包。因此，您必须备份您的助记词种子！此外，有权访问您的助记种子的人将能够绕过 Cake 2FA 窃取您的资金。\n\n 如果您无法访问您的助记种子，Cake 支持人员将无法帮助您，因为 Cake 是一个非托管钱包。",
   "setup_totp_recommended": "设置 TOTP（推荐）",
   "disable_buy": "禁用购买操作",
-  "disable_sell": "禁用卖出操作"
+  "disable_sell": "禁用卖出操作",
+  "home_screen_settings": "主屏幕设置",
+  "sort_by": "排序方式",
+  "search_add_token": "搜索/添加令牌",
+  "edit_token": "编辑令牌",
+  "warning": "警告",
+  "add_token_warning": "请勿按照诈骗者的指示编辑或添加令牌。 始终通过信誉良好的来源确认代币地址！",
+  "add_token_disclaimer_check": "我已使用信誉良好的来源确认了代币合约地址和信息。 添加恶意或不正确的信息可能会导致资金损失。",
+  "token_contract_address": "代币合约地址",
+  "token_name": "代币名称例如：Tether",
+  "token_symbol": "代币符号例如：USDT",
+  "token_decimal": "令牌十进制",
+  "field_required": "此字段是必需的",
+  "pin_at_top": "将 ${token} 固定在顶部"
 }

@@ -726,5 +726,18 @@
   "setup_2fa_text": "O Cake 2FA NÃO é tão seguro quanto o armazenamento a frio. O 2FA protege contra tipos básicos de ataques, como seu amigo fornecer sua impressão digital enquanto você está dormindo.\n\n O Cake 2FA NÃO protege contra um dispositivo comprometido por um invasor sofisticado.\n\n Se você perder o acesso aos seus códigos 2FA , VOCÊ PERDERÁ O ACESSO A ESTA CARTEIRA. Você precisará restaurar sua carteira da semente mnemônica. VOCÊ DEVE, PORTANTO, FAZER BACKUP DE SUAS SEMENTES MNEMÔNICAS! Além disso, alguém com acesso às suas sementes mnemônicas poderá roubar seus fundos, ignorando o Cake 2FA.\n\n A equipe de suporte do Cake não poderá ajudá-lo se você perder o acesso à sua semente mnemônica, pois o Cake é um carteira não custodial.",
   "setup_totp_recommended": "Configurar TOTP (recomendado)",
   "disable_buy": "Desativar ação de compra",
-  "disable_sell": "Desativar ação de venda"
+  "disable_sell": "Desativar ação de venda",
+  "home_screen_settings": "Configurações da tela inicial",
+  "sort_by": "Ordenar por",
+  "search_add_token": "Pesquisar / Adicionar token",
+  "edit_token": "Editar símbolo",
+  "warning": "Aviso",
+  "add_token_warning": "Não edite ou adicione tokens de acordo com as instruções dos golpistas. Sempre confirme os endereços de token com fontes confiáveis!",
+  "add_token_disclaimer_check": "Confirmei o endereço e as informações do contrato de token usando uma fonte confiável. Adicionar informações maliciosas ou incorretas pode resultar em perda de fundos.",
+  "token_contract_address": "Endereço do contrato de token",
+  "token_name": "Nome do token, por exemplo: Tether",
+  "token_symbol": "Símbolo de token, por exemplo: USDT",
+  "token_decimal": "Token decimal",
+  "field_required": "Este campo é obrigatório",
+  "pin_at_top": "fixe ${token} no topo"
 }

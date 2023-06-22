@@ -727,5 +727,18 @@
   "setup_2fa_text": "Cake 2FA, soğuk hava deposu kadar güvenli DEĞİLDİR. 2FA, siz uyurken arkadaşınızın parmak izinizi sağlaması gibi temel saldırı türlerine karşı koruma sağlar.\n\n Cake 2FA, gelişmiş bir saldırgan tarafından güvenliği ihlal edilmiş bir cihaza karşı koruma SAĞLAMAZ.\n\n 2FA kodlarınıza erişimi kaybederseniz , BU CÜZDANA ERİŞİMİNİZİ KAYBEDECEKSİNİZ. Mnemonic seed'den cüzdanınızı geri yüklemeniz gerekecek. BU NEDENLE HATIRLAYICI TOHUMLARINIZI YEDEKLEMELİSİNİZ! Ayrıca anımsatıcı tohumlarınıza erişimi olan biri, Cake 2FA'yı atlayarak paranızı çalabilir.\n\n Cake, anımsatıcı tohumlarınıza erişimi kaybederseniz size yardımcı olamaz, çünkü Cake bir saklama dışı cüzdan.",
   "setup_totp_recommended": "TOTP'yi kurun (Önerilir)",
   "disable_buy": "Satın alma işlemini devre dışı bırak",
-  "disable_sell": "Satış işlemini devre dışı bırak"
+  "disable_sell": "Satış işlemini devre dışı bırak",
+  "home_screen_settings": "Ana ekran ayarları",
+  "sort_by": "Göre sırala",
+  "search_add_token": "Belirteç Ara / Ekle",
+  "edit_token": "Belirteci düzenle",
+  "warning": "Uyarı",
+  "add_token_warning": "Dolandırıcıların talimatına göre jetonları düzenlemeyin veya eklemeyin. Belirteç adreslerini her zaman saygın kaynaklarla onaylayın!",
+  "add_token_disclaimer_check": "Belirteç sözleşmesi adresini ve bilgilerini saygın bir kaynak kullanarak onayladım. Kötü amaçlı veya yanlış bilgilerin eklenmesi para kaybına neden olabilir.",
+  "token_contract_address": "Token sözleşme adresi",
+  "token_name": "Belirteç adı, örneğin: Tether",
+  "token_symbol": "Jeton sembolü, örneğin: USDT",
+  "token_decimal": "Belirteç ondalık",
+  "field_required": "Bu alan gereklidir",
+  "pin_at_top": "${token} üstte sabitle"
 }

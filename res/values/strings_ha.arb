@@ -710,5 +710,18 @@
   "show_market_place" :"Nuna dan kasuwa",
   "prevent_screenshots": "Fada lambobi da jarrabobi na kayan lambobi",
   "disable_buy": "Kashe alama",
-  "disable_sell": "Kashe karbuwa"
+  "disable_sell": "Kashe karbuwa",
+  "home_screen_settings": "Saitunan allo na gida",
+  "sort_by": "Kasa",
+  "search_add_token": "Bincika / Ƙara alama",
+  "edit_token": "Gyara alamar",
+  "warning": "Gargadi",
+  "add_token_warning": "Kar a gyara ko ƙara alamu kamar yadda masu zamba suka umarta. Koyaushe tabbatar da adiresoshin alamar tare da sanannun tushe!",
+  "add_token_disclaimer_check": "Na tabbatar da adireshin kwangilar alamar da bayanin ta amfani da ingantaccen tushe. Ƙara bayanan ƙeta ko kuskure na iya haifar da asarar kuɗi.",
+  "token_contract_address": "Adireshin kwangilar Token",
+  "token_name": "Alamar sunan misali: Tether",
+  "token_symbol": "Alamar alama misali: USDT",
+  "token_decimal": "Alamar ƙima",
+  "field_required": "wannan fillin ana bukatansa",
+  "pin_at_top": "pin ${token} a sama"
 }

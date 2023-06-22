@@ -481,6 +481,7 @@ Future<void> generateEthereum(bool hasImplementation) async {
   const ethereumCWHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -525,7 +526,8 @@ abstract class Ethereum {
 
   int formatterEthereumParseAmount(String amount);
   List<CryptoCurrency> getERC20Currencies(WalletBase wallet);
-  Future<CryptoCurrency> addErc20Token(WalletBase wallet, String contractAddress);
+  Future<CryptoCurrency?> addErc20Token(WalletBase wallet, String contractAddress);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
 }
   """;
 

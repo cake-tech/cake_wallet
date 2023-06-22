@@ -1,13 +1,8 @@
-import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CheckboxWidget extends StatefulWidget {
-  CheckboxWidget({
-    required this.value,
-    required this.caption,
-    required this.onChanged});
+  CheckboxWidget({required this.value, required this.caption, required this.onChanged});
 
   final bool value;
   final String caption;
@@ -35,46 +30,44 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            height: 16,
-            width: 16,
+            height: 19,
+            width: 19,
             decoration: BoxDecoration(
+              color: value
+                  ? Palette.blueCraiola
+                  : Theme.of(context).accentTextTheme.displayMedium!.decorationColor!,
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+              border: Border.all(
                 color: value
                     ? Palette.blueCraiola
-                    : Theme.of(context)
-                        .accentTextTheme!
-                        .titleMedium!
-                        .decorationColor!,
-                borderRadius: BorderRadius.all(Radius.circular(2)),
-                border: Border.all(
-                    color: value
-                        ? Palette.blueCraiola
-                        : Theme.of(context)
-                            .accentTextTheme!
-                            .labelSmall!
-                            .color!,
-                    width: 1)),
+                    : Theme.of(context).accentTextTheme.labelSmall!.color!,
+                width: 1,
+              ),
+            ),
             child: value
                 ? Center(
-              child: Icon(
-                Icons.done,
-                color: Colors.white,
-                size: 14,
-              ),
-            )
-                : Offstage(),
+                    child: Icon(
+                      Icons.done,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  )
+                : null,
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 16),
-            child: Text(
-              caption,
-              style: TextStyle(
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
-                  fontSize: 18,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w500,
-                  decoration: TextDecoration.none
+          Expanded(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(start: 16),
+              child: Text(
+                caption,
+                style: TextStyle(
+                    color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                    fontSize: 18,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w500,
+                    decoration: TextDecoration.none),
               ),
             ),
           )

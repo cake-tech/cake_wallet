@@ -11,8 +11,18 @@ class Erc20Token extends HiveObject with Keyable {
   final String symbol;
   @HiveField(2)
   final String contractAddress;
+  @HiveField(3)
+  final int decimal;
+  @HiveField(4, defaultValue: false)
+  final bool enabled;
 
-  Erc20Token({required this.name, required this.symbol, required this.contractAddress});
+  Erc20Token({
+    required this.name,
+    required this.symbol,
+    required this.contractAddress,
+    required this.decimal,
+    this.enabled = false,
+  });
 
   static const typeId = 12;
   static const boxName = 'Erc20Tokens';
@@ -20,10 +30,13 @@ class Erc20Token extends HiveObject with Keyable {
   @override
   bool operator ==(other) =>
       other is Erc20Token &&
-      (other.name == name && other.symbol == symbol && other.contractAddress == contractAddress);
+      (other.name == name &&
+          other.symbol == symbol &&
+          other.contractAddress == contractAddress &&
+          other.decimal == decimal);
 
   @override
-  int get hashCode => name.hashCode ^ symbol.hashCode ^ contractAddress.hashCode;
+  int get hashCode => name.hashCode ^ symbol.hashCode ^ contractAddress.hashCode ^ decimal.hashCode;
 
   @override
   dynamic get keyIndex {

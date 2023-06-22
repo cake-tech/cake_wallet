@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
+import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -70,6 +71,7 @@ import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -239,9 +241,9 @@ Future setup({
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   }
 
-  final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty ?? false) &&
-      (secrets.wyreApiKey.isNotEmpty ?? false) &&
-      (secrets.wyreAccountId.isNotEmpty ?? false);
+  final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
+      (secrets.wyreApiKey.isNotEmpty) &&
+      (secrets.wyreAccountId.isNotEmpty);
 
   final settingsStore = await SettingsStoreBase.load(
     nodeSource: _nodeSource,
@@ -1018,6 +1020,13 @@ Future setup({
 
   getIt.registerFactoryParam<HomeSettingsViewModel, BalanceViewModel, void>(
       (balanceViewModel, _) => HomeSettingsViewModel(getIt.get<SettingsStore>(), balanceViewModel));
+
+  getIt.registerFactoryParam<EditTokenPage, HomeSettingsViewModel, Erc20Token?>(
+    (homeSettingsViewModel, token) => EditTokenPage(
+      homeSettingsViewModel: homeSettingsViewModel,
+      erc20token: token,
+    ),
+  );
 
   _isSetupFinished = true;
 }
