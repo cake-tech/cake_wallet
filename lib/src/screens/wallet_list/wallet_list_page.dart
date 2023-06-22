@@ -75,31 +75,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
-                        onTap: () async {
-                          if (wallet.isCurrent || !wallet.isEnabled) {
-                            return;
-                          }
-
-                          final confirmed = await showPopUp<bool>(
-                                  context: context,
-                                  builder: (dialogContext) {
-                                    return AlertWithTwoActions(
-                                        alertTitle: S.of(context).change_wallet_alert_title,
-                                        alertContent:
-                                            S.of(context).change_wallet_alert_content(wallet.name),
-                                        leftButtonText: S.of(context).cancel,
-                                        rightButtonText: S.of(context).change,
-                                        actionLeftButton: () =>
-                                            Navigator.of(dialogContext).pop(false),
-                                        actionRightButton: () =>
-                                            Navigator.of(dialogContext).pop(true));
-                                  }) ??
-                              false;
-
-                          if (confirmed) {
-                            await _loadWallet(wallet);
-                          }
-                        },
+                        onTap: () => _loadWallet(wallet),
                         child: Container(
                           height: tileHeight,
                           width: double.infinity,
