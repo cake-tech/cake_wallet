@@ -30,26 +30,20 @@ class NodeListRow extends StandardListRow {
 
   @override
   Widget buildTrailing(BuildContext context) {
-    return isSelected
-        ? Container()
-        : GestureDetector(
-            onTap: () => Navigator.of(context).pushNamed(Routes.newNode,
-                arguments: {'editingNode': node, 'isSelected': isSelected}),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context)
-                      .textTheme
-                      .headlineMedium!
-                      .decorationColor!),
-              child: Icon(
-                Icons.edit,
+    return GestureDetector(
+        onTap: () => Navigator.of(context).pushNamed(Routes.newNode,
+            arguments: {'editingNode': node, 'isSelected': isSelected}),
+        child: Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context)
+                    .textTheme
+                    .headlineMedium!
+                    .decorationColor!),
+            child: Icon(Icons.edit,
                 size: 14,
-                color: Theme.of(context).textTheme.headlineMedium!.color!,
-              ),
-            ),
-          );
+                color: Theme.of(context).textTheme.headlineMedium!.color!)));
   }
 }
 

@@ -149,7 +149,8 @@ class NodeCreateOrEditPage extends BasePage {
                               }
                             },
                             text: S.of(context).delete,
-                            isDisabled: !nodeCreateOrEditViewModel.isReady,
+                            isDisabled: !nodeCreateOrEditViewModel.isReady ||
+                                (isSelected ?? false),
                             color: Palette.red,
                             textColor: Colors.white),
                       )),
