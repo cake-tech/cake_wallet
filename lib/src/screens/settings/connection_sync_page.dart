@@ -12,7 +12,6 @@ import 'package:cake_wallet/src/screens/nodes/widgets/node_list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ConnectionSyncPage extends BasePage {
   ConnectionSyncPage(this.nodeListViewModel, this.dashboardViewModel);
@@ -94,14 +93,7 @@ class ConnectionSyncPage extends BasePage {
                       },
                     );
 
-                    final dismissibleRow = Slidable(
-                      key: Key('${node.keyIndex}'),
-                      startActionPane: _actionPane(context, node, isSelected),
-                      endActionPane: _actionPane(context, node, isSelected),
-                      child: nodeListRow,
-                    );
-
-                    return dismissibleRow;
+                    return nodeListRow;
                   },
                 ),
               );
@@ -129,44 +121,4 @@ class ConnectionSyncPage extends BasePage {
       },
     );
   }
-
-  ActionPane _actionPane(BuildContext context, Node node, bool isSelected) => ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: isSelected ? 0.3 : 0.6,
-        children: [
-          if (!isSelected)
-            SlidableAction(
-              onPressed: (context) async {
-                final confirmed = await showPopUp<bool>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertWithTwoActions(
-                              alertTitle: S.of(context).remove_node,
-                              alertContent: S.of(context).remove_node_message,
-                              rightButtonText: S.of(context).remove,
-                              leftButtonText: S.of(context).cancel,
-                              actionRightButton: () => Navigator.pop(context, true),
-                              actionLeftButton: () => Navigator.pop(context, false));
-                        }) ??
-                    false;
-
-                if (confirmed) {
-                  await nodeListViewModel.delete(node);
-                }
-              },
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              icon: CupertinoIcons.delete,
-              label: S.of(context).delete,
-            ),
-          SlidableAction(
-            onPressed: (_) => Navigator.of(context).pushNamed(Routes.newNode,
-                arguments: {'editingNode': node, 'isSelected': isSelected}),
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            icon: Icons.edit,
-            label: S.of(context).edit,
-          ),
-        ],
-      );
 }
