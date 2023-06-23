@@ -396,8 +396,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   int _getFullBalance() =>
       monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
 
-  int _getUnlockedBalance() => monero_wallet.getUnlockedBalance(
-      accountIndex: walletAddresses.account!.id);
+  int _getUnlockedBalance() {
+    final unlockedBalance = monero_wallet.getUnlockedBalance(
+        accountIndex: walletAddresses.account!.id);
+    print('Unlocked balance within the function: $unlockedBalance');
+    return unlockedBalance;
+  }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     print('----------------');
