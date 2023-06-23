@@ -740,5 +740,9 @@
   "token_symbol": "Token symbol eg: USDT",
   "token_decimal": "Token decimal",
   "field_required": "This field is required",
-  "pin_at_top": "Pin ${token} at top"
+  "pin_at_top": "Pin ${token} at top",
+  "invalid_input": "Invalid input",
+  "fiat_balance": "Fiat Balance",
+  "gross_balance": "Gross Balance",
+  "alphabetical": "Alphabetical"
 }

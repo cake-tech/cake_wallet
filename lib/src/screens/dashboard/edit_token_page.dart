@@ -235,7 +235,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                 return null;
               }
 
-              return 'S.of(context).field_required';
+              return S.of(context).field_required;
             },
             onPushPasteButton: (_) {
               _pasteText();
@@ -282,8 +282,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                 return S.of(context).field_required;
               }
               if (int.tryParse(text!) == null) {
-                // TODO: add localization
-                return 'S.of(context).invalid_input';
+                return S.of(context).invalid_input;
               }
 
               return null;

@@ -738,5 +738,9 @@
    "token_symbol": "رمز العملة ، على سبيل المثال: USDT",
    "token_decimal": "رمز عشري",
    "field_required": "هذه الخانة مطلوبه",
-   "pin_at_top": "تثبيت ${token} في الأعلى"
+   "pin_at_top": "تثبيت ${token} في الأعلى",
+   "invalid_input": "مدخل غير صالح",
+   "fiat_balance": "الرصيد فيات",
+   "gross_balance": "إجمالي الرصيد",
+   "alphabetical": "مرتب حسب الحروف الأبجدية"
 }

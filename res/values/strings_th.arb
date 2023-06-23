@@ -738,5 +738,9 @@
   "token_symbol": "สัญลักษณ์โทเค็น เช่น USDT",
   "token_decimal": "โทเค็นทศนิยม",
   "field_required": "ช่องนี้จำเป็น",
-  "pin_at_top": "ปักหมุด ${token} ที่ด้านบน"
+  "pin_at_top": "ปักหมุด ${token} ที่ด้านบน",
+  "invalid_input": "อินพุตไม่ถูกต้อง",
+  "fiat_balance": "เฟียต บาลานซ์",
+  "gross_balance": "ยอดคงเหลือ",
+  "alphabetical": "ตามตัวอักษร"
 }

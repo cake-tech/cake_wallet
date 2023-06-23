@@ -740,5 +740,9 @@
   "token_symbol": "Символ токена, например: USDT",
   "token_decimal": "Десятичный токен",
   "field_required": "Это поле обязательно к заполнению",
-  "pin_at_top": "закрепить ${token} вверху"
+  "pin_at_top": "закрепить ${token} вверху",
+  "invalid_input": "Неверный Ввод",
+  "fiat_balance": "Фиатный баланс",
+  "gross_balance": "Валовой баланс",
+  "alphabetical": "Алфавитный"
 }

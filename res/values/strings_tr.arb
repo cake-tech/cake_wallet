@@ -740,5 +740,9 @@
   "token_symbol": "Jeton sembolü, örneğin: USDT",
   "token_decimal": "Belirteç ondalık",
   "field_required": "Bu alan gereklidir",
-  "pin_at_top": "${token} üstte sabitle"
+  "pin_at_top": "${token} üstte sabitle",
+  "invalid_input": "Geçersiz Giriş",
+  "fiat_balance": "Fiat Bakiyesi",
+  "gross_balance": "Brüt Bakiye",
+  "alphabetical": "Alfabetik"
 }

@@ -735,5 +735,9 @@
   "token_symbol": "ٹوکن کی علامت جیسے: USDT",
   "token_decimal": "ٹوکن اعشاریہ",
   "field_required": "اس کو پر کرنا ضروری ہے",
-  "pin_at_top": "اوپر ${token} کو پن کریں۔"
+  "pin_at_top": "اوپر ${token} کو پن کریں۔",
+  "invalid_input": "غلط ان پٹ",
+  "fiat_balance": "فیاٹ بیلنس",
+  "gross_balance": "مجموعی بیلنس",
+  "alphabetical": "حروف تہجی کے مطابق"
 }

@@ -739,5 +739,9 @@
   "token_symbol": "Символ маркера, наприклад: USDT",
   "token_decimal": "Токен десятковий",
   "field_required": "Це поле є обов'язковим",
-  "pin_at_top": "закріпити ${token} зверху"
+  "pin_at_top": "закріпити ${token} зверху",
+  "invalid_input": "Неправильні дані",
+  "fiat_balance": "Фіат Баланс",
+  "gross_balance": "Валовий баланс",
+  "alphabetical": "Алфавітний"
 }

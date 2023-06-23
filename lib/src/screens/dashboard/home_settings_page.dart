@@ -106,7 +106,7 @@ class HomeSettingsPage extends BasePage {
                             "(${token.symbol})",
                         value: token.enabled,
                         onValueChange: (_, bool value) {
-                          token.enabled = value;
+                          _homeSettingsViewModel.changeTokenAvailability(index, value);
                         },
                         onTap: (_) {
                           Navigator.pushNamed(context, Routes.editToken, arguments: {

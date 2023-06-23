@@ -740,5 +740,9 @@
   "token_symbol": "Simbol tokena npr.: USDT",
   "token_decimal": "Token decimalni",
   "field_required": "ovo polje je obavezno",
-  "pin_at_top": "prikvači ${token} na vrh"
+  "pin_at_top": "prikvači ${token} na vrh",
+  "invalid_input": "Pogrešan unos",
+  "fiat_balance": "Fiat Bilans",
+  "gross_balance": "Bruto bilanca",
+  "alphabetical": "Abecedno"
 }

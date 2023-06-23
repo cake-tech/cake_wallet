@@ -740,5 +740,9 @@
   "token_symbol": "토큰 기호 예: USDT",
   "token_decimal": "토큰 십진수",
   "field_required": "이 필드는 필수입니다",
-  "pin_at_top": "상단에 ${token} 고정"
+  "pin_at_top": "상단에 ${token} 고정",
+  "invalid_input": "잘못된 입력",
+  "fiat_balance": "피아트 잔액",
+  "gross_balance": "총 잔액",
+  "alphabetical": "알파벳순"
 }

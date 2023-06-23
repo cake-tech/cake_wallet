@@ -734,5 +734,9 @@
   "token_symbol": "Symbol tokenu, např.: USDT",
   "token_decimal": "Token v desítkové soustavě",
   "field_required": "Toto pole je povinné",
-  "pin_at_top": "špendlík ${token} nahoře"
+  "pin_at_top": "špendlík ${token} nahoře",
+  "invalid_input": "Neplatný vstup",
+  "fiat_balance": "Fiat Balance",
+  "gross_balance": "Hrubý zůstatek",
+  "alphabetical": "Abecední"
 }

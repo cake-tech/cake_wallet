@@ -740,5 +740,9 @@
   "token_symbol": "Token-Symbol, z. B.: USDT",
   "token_decimal": "Token-Dezimalzahl",
   "field_required": "Dieses Feld ist erforderlich",
-  "pin_at_top": "Stecken Sie ${token} oben fest"
+  "pin_at_top": "Stecken Sie ${token} oben fest",
+  "invalid_input": "Ungültige Eingabe",
+  "fiat_balance": "Fiat Balance",
+  "gross_balance": "Bruttosaldo",
+  "alphabetical": "Alphabetisch"
 }

@@ -716,5 +716,9 @@
   "token_symbol": "Simbol token misalnya: USDT",
   "token_decimal": "Desimal token",
   "field_required": "Bagian ini diperlukan",
-  "pin_at_top": "sematkan ${token} di atas"
+  "pin_at_top": "sematkan ${token} di atas",
+  "invalid_input": "Masukan tidak valid",
+  "fiat_balance": "Saldo Fiat",
+  "gross_balance": "Saldo Kotor",
+  "alphabetical": "Alfabetis"
 }

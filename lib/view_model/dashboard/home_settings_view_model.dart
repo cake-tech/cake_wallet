@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -41,6 +43,7 @@ abstract class HomeSettingsViewModelBase with Store {
   Future<void> addErc20Token(Erc20Token token) async {
     await ethereum!.addErc20Token(_balanceViewModel.wallet, token);
     _updateTokensList();
+    _updateFiatPrices(token);
   }
 
   Future<void> deleteErc20Token(Erc20Token token) async {
@@ -52,4 +55,20 @@ abstract class HomeSettingsViewModelBase with Store {
       await ethereum!.getErc20Token(_balanceViewModel.wallet, contractAddress);
 
   String get nativeToken => _balanceViewModel.wallet.currency.title;
+
+  void _updateFiatPrices(Erc20Token token) async {
+    try {
+      _balanceViewModel.fiatConvertationStore.prices[token] =
+          await FiatConversionService.fetchPrice(
+              crypto: token,
+              fiat: _settingsStore.fiatCurrency,
+              torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly);
+    } catch (_) {}
+  }
+
+  void changeTokenAvailability(int index, bool value) async {
+    tokens[index].enabled = value;
+    _balanceViewModel.wallet.updateBalance();
+    _updateTokensList();
+  }
 }

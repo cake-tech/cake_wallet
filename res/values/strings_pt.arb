@@ -739,5 +739,9 @@
   "token_symbol": "Símbolo de token, por exemplo: USDT",
   "token_decimal": "Token decimal",
   "field_required": "Este campo é obrigatório",
-  "pin_at_top": "fixe ${token} no topo"
+  "pin_at_top": "fixe ${token} no topo",
+  "invalid_input": "Entrada inválida",
+  "fiat_balance": "Equilíbrio Fiat",
+  "gross_balance": "Saldo Bruto",
+  "alphabetical": "alfabética"
 }

@@ -740,5 +740,9 @@
   "token_symbol": "တိုကင်သင်္ကေတ ဥပမာ- USDT",
   "token_decimal": "တိုကင်ဒဿမ",
   "field_required": "ဤစာကွက်လပ်မှာဖြည့်ရန်လိုအပ်ပါသည်",
-  "pin_at_top": "အပေါ်တွင် ${token} ပင်ထိုးပါ။"
+  "pin_at_top": "အပေါ်တွင် ${token} ပင်ထိုးပါ။",
+  "invalid_input": "ထည့်သွင်းမှု မမှန်ကန်ပါ။",
+  "fiat_balance": "Fiat Balance",
+  "gross_balance": "စုစုပေါင်းလက်ကျန်ငွေ",
+  "alphabetical": "အက္ခရာစဉ်"
 }

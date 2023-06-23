@@ -740,5 +740,9 @@
   "token_symbol": "Symbole de jeton, par exemple : USDT",
   "token_decimal": "Décimal de jeton",
   "field_required": "Ce champ est obligatoire",
-  "pin_at_top": "épingler ${token} en haut"
+  "pin_at_top": "épingler ${token} en haut",
+  "invalid_input": "Entrée invalide",
+  "fiat_balance": "Fiat Balance",
+  "gross_balance": "Solde brut",
+  "alphabetical": "Alphabétique"
 }

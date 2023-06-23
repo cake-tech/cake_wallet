@@ -255,23 +255,30 @@ abstract class EthereumWalletBase
   }
 
   Future<void> _updateBalance() async {
-    balance[currency] = await _fetchBalances();
+    balance[currency] = await _fetchEthBalance();
 
-    /// Get Erc20 Tokens balances
-    for (var token in erc20TokensBox.values) {
-      try {
-        balance[token] = await _client.fetchERC20Balances(
-          _privateKey.address,
-          token.contractAddress,
-        );
-      } catch (_) {}
-    }
+    await _fetchErc20Balances();
     await save();
   }
 
-  Future<ERC20Balance> _fetchBalances() async {
+  Future<ERC20Balance> _fetchEthBalance() async {
     final balance = await _client.getBalance(_privateKey.address);
     return ERC20Balance(balance.getInWei);
+  }
+
+  Future<void> _fetchErc20Balances() async {
+    for (var token in erc20TokensBox.values) {
+      try {
+        if (token.enabled) {
+          balance[token] = await _client.fetchERC20Balances(
+            _privateKey.address,
+            token.contractAddress,
+          );
+        } else {
+          balance.remove(token);
+        }
+      } catch (_) {}
+    }
   }
 
   Future<EthPrivateKey> getPrivateKey(String mnemonic, String password) async {

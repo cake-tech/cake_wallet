@@ -1,11 +1,10 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/keyable.dart';
 import 'package:hive/hive.dart';
 
 part 'erc20_token.g.dart';
 
 @HiveType(typeId: Erc20Token.typeId)
-class Erc20Token extends CryptoCurrency with Keyable, HiveObjectMixin {
+class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   @HiveField(0)
   final String name;
   @HiveField(1)
@@ -16,6 +15,8 @@ class Erc20Token extends CryptoCurrency with Keyable, HiveObjectMixin {
   final int decimal;
   @HiveField(4, defaultValue: false)
   bool _enabled;
+  @HiveField(5)
+  final String? iconPath;
 
   bool get enabled => _enabled;
 
@@ -30,7 +31,7 @@ class Erc20Token extends CryptoCurrency with Keyable, HiveObjectMixin {
     required this.contractAddress,
     required this.decimal,
     bool enabled = false,
-    String? iconPath,
+    this.iconPath,
   })  : _enabled = enabled,
         super(
           name: symbol.toLowerCase(),
@@ -48,12 +49,4 @@ class Erc20Token extends CryptoCurrency with Keyable, HiveObjectMixin {
 
   @override
   int get hashCode => contractAddress.hashCode;
-
-  @override
-  dynamic get keyIndex {
-    _keyIndex ??= key;
-    return _keyIndex;
-  }
-
-  dynamic _keyIndex;
 }

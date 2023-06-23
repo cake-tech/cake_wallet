@@ -734,5 +734,9 @@
   "token_symbol": "Символ на токена, напр.: USDT",
   "token_decimal": "Токен десетичен",
   "field_required": "Това поле е задължително",
-  "pin_at_top": "закачете ${token} отгоре"
+  "pin_at_top": "закачете ${token} отгоре",
+  "invalid_input": "Невалиден вход",
+  "fiat_balance": "Фиат Баланс",
+  "gross_balance": "Брутен баланс",
+  "alphabetical": "Азбучен ред"
 }

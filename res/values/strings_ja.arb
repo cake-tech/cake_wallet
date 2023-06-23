@@ -740,5 +740,9 @@
   "token_symbol": "トークンシンボル 例: USDT",
   "token_decimal": "トークン10進数",
   "field_required": "この項目は必須です",
-  "pin_at_top": "${token} を上部に固定します"
+  "pin_at_top": "${token} を上部に固定します",
+  "invalid_input": "無効入力",
+  "fiat_balance": "フィアットバランス",
+  "gross_balance": "グロス残高",
+  "alphabetical": "アルファベット順"
 }

@@ -723,5 +723,9 @@
   "token_symbol": "Alamar alama misali: USDT",
   "token_decimal": "Alamar ƙima",
   "field_required": "wannan fillin ana bukatansa",
-  "pin_at_top": "pin ${token} a sama"
+  "pin_at_top": "pin ${token} a sama",
+  "invalid_input": "Shigar da ba daidai ba",
+  "fiat_balance": "Fiat Balance",
+  "gross_balance": "Babban Ma'auni",
+  "alphabetical": "Harafi"
 }

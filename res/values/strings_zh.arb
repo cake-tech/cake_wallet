@@ -739,5 +739,9 @@
   "token_symbol": "代币符号例如：USDT",
   "token_decimal": "令牌十进制",
   "field_required": "此字段是必需的",
-  "pin_at_top": "将 ${token} 固定在顶部"
+  "pin_at_top": "将 ${token} 固定在顶部",
+  "invalid_input": "输入无效",
+  "fiat_balance": "法币余额",
+  "gross_balance": "毛余额",
+  "alphabetical": "按字母顺序"
 }

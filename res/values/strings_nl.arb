@@ -740,5 +740,9 @@
   "token_symbol": "Tokensymbool bijv.: USDT",
   "token_decimal": "Token decimaal",
   "field_required": "dit veld is verplicht",
-  "pin_at_top": "speld ${token} bovenaan"
+  "pin_at_top": "speld ${token} bovenaan",
+  "invalid_input": "Ongeldige invoer",
+  "fiat_balance": "Fiat Balans",
+  "gross_balance": "Bruto saldo",
+  "alphabetical": "Alfabetisch"
 }

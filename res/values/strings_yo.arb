@@ -735,5 +735,9 @@
     "token_symbol": "Aami aami fun apẹẹrẹ: USDT",
     "token_decimal": "Àmi eleemewa",
     "field_required": "E ni lati se nkan si aye yi",
-    "pin_at_top": "pin ${tokini} ni oke"
+    "pin_at_top": "pin ${tokini} ni oke",
+    "invalid_input": "Iṣawọle ti ko tọ",
+    "fiat_balance": "Fiat Iwontunws.funfun",
+    "gross_balance": "Iwontunws.funfun apapọ",
+    "alphabetical": "Labidibi"
 }

@@ -740,5 +740,9 @@
   "token_symbol": "टोकन प्रतीक जैसे: यूएसडीटी",
   "token_decimal": "सांकेतिक दशमलव",
   "field_required": "यह फ़ील्ड आवश्यक है",
-  "pin_at_top": "शीर्ष पर ${token} पिन करें"
+  "pin_at_top": "शीर्ष पर ${token} पिन करें",
+  "invalid_input": "अमान्य निवेश",
+  "fiat_balance": "फिएट बैलेंस",
+  "gross_balance": "सकल संतुलन",
+  "alphabetical": "वर्णमाला"
 }
