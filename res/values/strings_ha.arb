@@ -716,7 +716,7 @@
   "search_add_token": "Bincika / Ƙara alama",
   "edit_token": "Gyara alamar",
   "warning": "Gargadi",
-  "add_token_warning": "Kar a gyara ko ƙara alamu kamar yadda masu zamba suka umarta. Koyaushe tabbatar da adiresoshin alamar tare da sanannun tushe!",
+  "add_token_warning": "Kar a gyara ko ƙara alamu kamar yadda masu zamba suka umarta.\nKoyaushe tabbatar da adiresoshin alamar tare da sanannun tushe!",
   "add_token_disclaimer_check": "Na tabbatar da adireshin kwangilar alamar da bayanin ta amfani da ingantaccen tushe. Ƙara bayanan ƙeta ko kuskure na iya haifar da asarar kuɗi.",
   "token_contract_address": "Adireshin kwangilar Token",
   "token_name": "Alamar sunan misali: Tether",

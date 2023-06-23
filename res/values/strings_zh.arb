@@ -732,7 +732,7 @@
   "search_add_token": "搜索/添加令牌",
   "edit_token": "编辑令牌",
   "warning": "警告",
-  "add_token_warning": "请勿按照诈骗者的指示编辑或添加令牌。 始终通过信誉良好的来源确认代币地址！",
+  "add_token_warning": "请勿按照诈骗者的指示编辑或添加令牌。\n始终通过信誉良好的来源确认代币地址！",
   "add_token_disclaimer_check": "我已使用信誉良好的来源确认了代币合约地址和信息。 添加恶意或不正确的信息可能会导致资金损失。",
   "token_contract_address": "代币合约地址",
   "token_name": "代币名称例如：Tether",

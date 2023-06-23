@@ -1,10 +1,11 @@
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:hive/hive.dart';
 
 part 'erc20_token.g.dart';
 
 @HiveType(typeId: Erc20Token.typeId)
-class Erc20Token extends HiveObject with Keyable {
+class Erc20Token extends CryptoCurrency with Keyable, HiveObjectMixin {
   @HiveField(0)
   final String name;
   @HiveField(1)
@@ -14,29 +15,39 @@ class Erc20Token extends HiveObject with Keyable {
   @HiveField(3)
   final int decimal;
   @HiveField(4, defaultValue: false)
-  final bool enabled;
+  bool _enabled;
+
+  bool get enabled => _enabled;
+
+  set enabled(bool value) {
+    _enabled = value;
+    this.save();
+  }
 
   Erc20Token({
     required this.name,
     required this.symbol,
     required this.contractAddress,
     required this.decimal,
-    this.enabled = false,
-  });
+    bool enabled = false,
+    String? iconPath,
+  })  : _enabled = enabled,
+        super(
+          name: symbol.toLowerCase(),
+          title: symbol.toUpperCase(),
+          fullName: name,
+          tag: "ETH",
+          iconPath: iconPath,
+        );
 
   static const typeId = 12;
   static const boxName = 'Erc20Tokens';
 
   @override
-  bool operator ==(other) =>
-      other is Erc20Token &&
-      (other.name == name &&
-          other.symbol == symbol &&
-          other.contractAddress == contractAddress &&
-          other.decimal == decimal);
+  bool operator ==(other) => other is Erc20Token && other.contractAddress == contractAddress;
 
   @override
-  int get hashCode => name.hashCode ^ symbol.hashCode ^ contractAddress.hashCode ^ decimal.hashCode;
+  int get hashCode => contractAddress.hashCode;
 
   @override
   dynamic get keyIndex {

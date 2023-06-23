@@ -52,6 +52,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  bool _showDisclaimer = false;
   bool _disclaimerChecked = false;
 
   @override
@@ -69,6 +70,13 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       if (!_contractAddressFocusNode.hasFocus) {
         _getTokenInfo(_contractAddressController.text);
       }
+
+      final contractAddress = _contractAddressController.text;
+      if (contractAddress.isNotEmpty && contractAddress != widget.erc20token?.contractAddress) {
+        setState(() {
+          _showDisclaimer = true;
+        });
+      }
     });
   }
 
@@ -83,22 +91,42 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 28),
                 decoration: BoxDecoration(
                   color: Theme.of(context).accentTextTheme.bodySmall!.color!,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Image.asset('assets/images/restore_keys.png'),
-                    const SizedBox(width: 16),
-                    Expanded(child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(S.of(context).warning),
-                        Text(S.of(context).add_token_warning),
-                      ],
-                    ))
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            S.of(context).warning,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 5),
+                            child: Text(
+                              S.of(context).add_token_warning,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color: Theme.of(context).primaryTextTheme.labelSmall!.color!,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -110,23 +138,25 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
         bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         bottomSection: Column(
           children: [
-            CheckboxWidget(
-              value: _disclaimerChecked,
-              caption: S.of(context).add_token_disclaimer_check,
-              onChanged: (value) {
-                _disclaimerChecked = value;
-              },
-            ),
+            if (_showDisclaimer) ...[
+              CheckboxWidget(
+                value: _disclaimerChecked,
+                caption: S.of(context).add_token_disclaimer_check,
+                onChanged: (value) {
+                  _disclaimerChecked = value;
+                },
+              ),
+              SizedBox(height: 20),
+            ],
             Row(
               children: <Widget>[
                 Expanded(
                   child: PrimaryButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (widget.erc20token != null) {
-                        // widget.homeSettingsViewModel.deleteErc20Token(widget.erc20token!);
-                      } else {
-                        Navigator.pop(context);
+                        await widget.homeSettingsViewModel.deleteErc20Token(widget.erc20token!);
                       }
+                      Navigator.pop(context);
                     },
                     text: widget.erc20token != null ? S.of(context).delete : S.of(context).cancel,
                     color: Colors.red,
@@ -137,8 +167,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                 Expanded(
                   child: PrimaryButton(
                     onPressed: () async {
-                      if (_formKey.currentState!.validate() && _disclaimerChecked) {
-                        widget.homeSettingsViewModel.addErc20Token(_contractAddressController.text);
+                      if (_formKey.currentState!.validate() &&
+                          (!_showDisclaimer || _disclaimerChecked)) {
+                        await widget.homeSettingsViewModel.addErc20Token(Erc20Token(
+                          name: _tokenNameController.text,
+                          symbol: _tokenSymbolController.text,
+                          contractAddress: _contractAddressController.text,
+                          decimal: int.parse(_tokenDecimalController.text),
+                        ));
+                        Navigator.pop(context);
                       }
                     },
                     text: S.of(context).save,
@@ -172,12 +209,16 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
     if (value?.text?.isNotEmpty ?? false) {
       _contractAddressController.text = value!.text!;
+
+      _getTokenInfo(_contractAddressController.text);
+      setState(() {
+        _showDisclaimer = true;
+      });
     }
-    FocusScope.of(context).unfocus();
   }
 
   Widget _tokenForm() {
-    return               Form(
+    return Form(
       key: _formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -237,11 +278,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             textInputAction: TextInputAction.done,
             hintText: S.of(context).token_decimal,
             validator: (text) {
-              if (text?.isNotEmpty ?? false) {
-                return null;
+              if (text?.isEmpty ?? true) {
+                return S.of(context).field_required;
+              }
+              if (int.tryParse(text!) == null) {
+                // TODO: add localization
+                return 'S.of(context).invalid_input';
               }
 
-              return S.of(context).field_required;
+              return null;
             },
           ),
           SizedBox(height: 24),

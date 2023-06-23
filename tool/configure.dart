@@ -525,8 +525,9 @@ abstract class Ethereum {
   });
 
   int formatterEthereumParseAmount(String amount);
-  List<CryptoCurrency> getERC20Currencies(WalletBase wallet);
-  Future<CryptoCurrency?> addErc20Token(WalletBase wallet, String contractAddress);
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
+  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
 }
   """;

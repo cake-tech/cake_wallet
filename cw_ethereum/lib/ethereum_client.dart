@@ -13,15 +13,6 @@ import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 
 class EthereumClient {
-  // TODO: Remove
-  static const Map<CryptoCurrency, String> _erc20Currencies = {
-    CryptoCurrency.usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    CryptoCurrency.usdterc20: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-    CryptoCurrency.shib: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
-  };
-
-  Map<CryptoCurrency, String> get erc20Currencies => _erc20Currencies;
-
   Web3Client? _client;
   StreamSubscription<Transfer>? subscription;
 
@@ -249,13 +240,7 @@ I/flutter ( 4474): Gas Used: 53000
     _client?.dispose();
   }
 
-// Future<bool> sendERC20Token(
-//     EthereumAddress to, CryptoCurrency erc20Currency, BigInt amount) async {
-//   if (_erc20Currencies[erc20Currency] == null) {
-//     throw "Unsupported ERC20 token";
-//   }
-//
-//   try {
+// Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
 //     final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
 //     final contractAbi = ContractAbi.fromJson(abi, "ERC20");
 //
@@ -263,29 +248,14 @@ I/flutter ( 4474): Gas Used: 53000
 //       contractAbi,
 //       EthereumAddress.fromHex(_erc20Currencies[erc20Currency]!),
 //     );
-//
-//     final transferFunction = contract.function('transfer');
-//     final success = await _client!.call(
+//     final decimalsFunction = contract.function('decimals');
+//     final decimals = await _client!.call(
 //       contract: contract,
-//       function: transferFunction,
-//       params: [to, amount],
+//       function: decimalsFunction,
+//       params: [],
 //     );
 //
-//     return success.first as bool;
-//   } catch (e) {
-//     return false;
+//     int exponent = int.parse(decimals.first.toString());
+//     return exponent;
 //   }
-// }
-//
-// Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
-//   final decimalsFunction = contract.function('decimals');
-//   final decimals = await _client!.call(
-//     contract: contract,
-//     function: decimalsFunction,
-//     params: [],
-//   );
-//
-//   int exponent = int.parse(decimals.first.toString());
-//   return exponent;
-// }
 }

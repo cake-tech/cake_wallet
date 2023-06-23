@@ -727,7 +727,7 @@
   "search_add_token": "Hledat / Přidat token",
   "edit_token": "Upravit token",
   "warning": "Varování",
-  "add_token_warning": "Neupravujte ani nepřidávejte tokeny podle pokynů podvodníků. Vždy potvrďte adresy tokenů s renomovanými zdroji!",
+  "add_token_warning": "Neupravujte ani nepřidávejte tokeny podle pokynů podvodníků.\nVždy potvrďte adresy tokenů s renomovanými zdroji!",
   "add_token_disclaimer_check": "Potvrdil jsem adresu a informace smlouvy o tokenu pomocí důvěryhodného zdroje. Přidání škodlivých nebo nesprávných informací může vést ke ztrátě finančních prostředků.",
   "token_contract_address": "Adresa tokenové smlouvy",
   "token_name": "Název tokenu např.: Tether",

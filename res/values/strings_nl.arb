@@ -733,7 +733,7 @@
   "search_add_token": "Token zoeken / toevoegen",
   "edit_token": "Token bewerken",
   "warning": "Waarschuwing",
-  "add_token_warning": "Bewerk of voeg geen tokens toe volgens de instructies van oplichters. Bevestig tokenadressen altijd met betrouwbare bronnen!",
+  "add_token_warning": "Bewerk of voeg geen tokens toe volgens de instructies van oplichters.\nBevestig tokenadressen altijd met betrouwbare bronnen!",
   "add_token_disclaimer_check": "Ik heb het adres en de informatie van het tokencontract bevestigd met behulp van een betrouwbare bron. Het toevoegen van kwaadaardige of onjuiste informatie kan leiden tot verlies van geld.",
   "token_contract_address": "Token contractadres",
   "token_name": "Tokennaam bijv.: Tether",

@@ -733,7 +733,7 @@
   "search_add_token": "Token suchen / hinzufügen",
   "edit_token": "Token bearbeiten",
   "warning": "Warnung",
-  "add_token_warning": "Bearbeiten oder fügen Sie Token nicht gemäß den Anweisungen von Betrügern hinzu. Bestätigen Sie Token-Adressen immer mit seriösen Quellen!",
+  "add_token_warning": "Bearbeiten oder fügen Sie Token nicht gemäß den Anweisungen von Betrügern hinzu.\nBestätigen Sie Token-Adressen immer mit seriösen Quellen!",
   "add_token_disclaimer_check": "Ich habe die Adresse und Informationen zum Token-Vertrag anhand einer seriösen Quelle bestätigt. Das Hinzufügen böswilliger oder falscher Informationen kann zu einem Verlust von Geldern führen.",
   "token_contract_address": "Token-Vertragsadresse",
   "token_name": "Token-Name, z. B.: Tether",

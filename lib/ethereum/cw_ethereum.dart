@@ -81,16 +81,18 @@ class CWEthereum extends Ethereum {
   int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
 
   @override
-  List<CryptoCurrency> getERC20Currencies(WalletBase wallet) {
+  List<Erc20Token> getERC20Currencies(WalletBase wallet) {
     final ethereumWallet = wallet as EthereumWallet;
     return ethereumWallet.erc20Currencies;
   }
 
   @override
-  Future<CryptoCurrency?> addErc20Token(WalletBase wallet, String contractAddress) async {
-    final ethereumWallet = wallet as EthereumWallet;
-    return await ethereumWallet.addErc20Token(contractAddress);
-  }
+  Future<void> addErc20Token(WalletBase wallet, Erc20Token token) async =>
+      await (wallet as EthereumWallet).addErc20Token(token);
+
+  @override
+  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token) async =>
+      await (wallet as EthereumWallet).deleteErc20Token(token);
 
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {

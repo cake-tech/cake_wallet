@@ -733,7 +733,7 @@
   "search_add_token": "Belirteç Ara / Ekle",
   "edit_token": "Belirteci düzenle",
   "warning": "Uyarı",
-  "add_token_warning": "Dolandırıcıların talimatına göre jetonları düzenlemeyin veya eklemeyin. Belirteç adreslerini her zaman saygın kaynaklarla onaylayın!",
+  "add_token_warning": "Dolandırıcıların talimatına göre jetonları düzenlemeyin veya eklemeyin.\nBelirteç adreslerini her zaman saygın kaynaklarla onaylayın!",
   "add_token_disclaimer_check": "Belirteç sözleşmesi adresini ve bilgilerini saygın bir kaynak kullanarak onayladım. Kötü amaçlı veya yanlış bilgilerin eklenmesi para kaybına neden olabilir.",
   "token_contract_address": "Token sözleşme adresi",
   "token_name": "Belirteç adı, örneğin: Tether",

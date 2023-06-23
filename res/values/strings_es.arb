@@ -733,7 +733,7 @@
   "search_add_token": "Buscar/Agregar token",
   "edit_token": "Editar token",
   "warning": "Advertencia",
-  "add_token_warning": "No edite ni agregue tokens según las instrucciones de los estafadores. ¡Confirme siempre las direcciones de los tokens con fuentes acreditadas!",
+  "add_token_warning": "No edite ni agregue tokens según las instrucciones de los estafadores.\n¡Confirme siempre las direcciones de los tokens con fuentes acreditadas!",
   "add_token_disclaimer_check": "He confirmado la dirección del contrato del token y la información utilizando una fuente confiable. Agregar información maliciosa o incorrecta puede resultar en una pérdida de fondos.",
   "token_contract_address": "Dirección de contrato de token",
   "token_name": "Nombre del token, por ejemplo: Tether",

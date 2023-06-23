@@ -733,7 +733,7 @@
   "search_add_token": "Search / Add token",
   "edit_token": "Edit token",
   "warning": "Warning",
-  "add_token_warning": "Do not edit or add tokens as instructed by scammers. Always confirm token addresses with reputable sources!",
+  "add_token_warning": "Do not edit or add tokens as instructed by scammers.\nAlways confirm token addresses with reputable sources!",
   "add_token_disclaimer_check": "I have confirmed the token contract address and information using a reputable source. Adding malicious or incorrect information can result in a loss of funds.",
   "token_contract_address": "Token contract address",
   "token_name": "Token name eg: Tether",

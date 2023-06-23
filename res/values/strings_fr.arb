@@ -733,7 +733,7 @@
   "search_add_token": "Rechercher / Ajouter un jeton",
   "edit_token": "Modifier le jeton",
   "warning": "Avertissement",
-  "add_token_warning": "Ne modifiez pas ou n'ajoutez pas de jetons comme indiqué par les escrocs. Confirmez toujours les adresses de jeton auprès de sources fiables !",
+  "add_token_warning": "Ne modifiez pas ou n'ajoutez pas de jetons comme indiqué par les escrocs.\nConfirmez toujours les adresses de jeton auprès de sources fiables !",
   "add_token_disclaimer_check": "J'ai confirmé l'adresse et les informations du contrat de jeton en utilisant une source fiable. L'ajout d'informations malveillantes ou incorrectes peut entraîner une perte de fonds.",
   "token_contract_address": "Adresse du contrat de jeton",
   "token_name": "Nom du jeton, par exemple : Tether",

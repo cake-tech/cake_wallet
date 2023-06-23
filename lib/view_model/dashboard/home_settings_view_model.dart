@@ -2,7 +2,6 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:mobx/mobx.dart';
 
@@ -11,10 +10,15 @@ part 'home_settings_view_model.g.dart';
 class HomeSettingsViewModel = HomeSettingsViewModelBase with _$HomeSettingsViewModel;
 
 abstract class HomeSettingsViewModelBase with Store {
-  HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel);
+  HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel)
+      : tokens = ObservableList<Erc20Token>() {
+    _updateTokensList();
+  }
 
   final SettingsStore _settingsStore;
   final BalanceViewModel _balanceViewModel;
+
+  final ObservableList<Erc20Token> tokens;
 
   @computed
   SortBalanceBy get sortBalanceBy => _settingsStore.sortBalanceBy;
@@ -28,12 +32,21 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   void setPinNativeToken(bool value) => _settingsStore.pinNativeTokenAtTop = value;
 
-  @computed
-  List<String> get tokens =>
-      _balanceViewModel.balances.keys.map((e) => e.fullName ?? e.title).toList();
+  @action
+  void _updateTokensList() {
+    tokens.clear();
+    tokens.addAll(ethereum!.getERC20Currencies(_balanceViewModel.wallet));
+  }
 
-  Future<CryptoCurrency?> addErc20Token(String contractAddress) async =>
-      await ethereum!.addErc20Token(_balanceViewModel.wallet, contractAddress);
+  Future<void> addErc20Token(Erc20Token token) async {
+    await ethereum!.addErc20Token(_balanceViewModel.wallet, token);
+    _updateTokensList();
+  }
+
+  Future<void> deleteErc20Token(Erc20Token token) async {
+    await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token);
+    _updateTokensList();
+  }
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async =>
       await ethereum!.getErc20Token(_balanceViewModel.wallet, contractAddress);

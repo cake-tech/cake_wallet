@@ -728,7 +728,7 @@
     "search_add_token": "Wa / Fi àmi kun",
     "edit_token": "Ṣatunkọ àmi",
     "warning": "Ikilo",
-    "add_token_warning": "Ma ṣe ṣatunkọ tabi ṣafikun awọn ami bi a ti fun ni aṣẹ nipasẹ awọn scammers. Nigbagbogbo jẹrisi awọn adirẹsi ami pẹlu awọn orisun olokiki!",
+    "add_token_warning": "Ma ṣe ṣatunkọ tabi ṣafikun awọn ami bi a ti fun ni aṣẹ nipasẹ awọn scammers.\nNigbagbogbo jẹrisi awọn adirẹsi ami pẹlu awọn orisun olokiki!",
     "add_token_disclaimer_check": "Mo ti jẹrisi adirẹsi adehun ami ati alaye nipa lilo orisun olokiki kan. Fifi irira tabi alaye ti ko tọ le ja si isonu ti owo.",
     "token_contract_address": "Àmi guide adirẹsi",
     "token_name": "Orukọ àmi fun apẹẹrẹ: Tether",

@@ -733,7 +733,7 @@
   "search_add_token": "Traži / Dodaj token",
   "edit_token": "Uredi token",
   "warning": "Upozorenje",
-  "add_token_warning": "Nemojte uređivati niti dodavati tokene prema uputama prevaranata. Uvijek potvrdite adrese tokena s uglednim izvorima!",
+  "add_token_warning": "Nemojte uređivati niti dodavati tokene prema uputama prevaranata.\nUvijek potvrdite adrese tokena s uglednim izvorima!",
   "add_token_disclaimer_check": "Potvrdio sam adresu i informacije o ugovoru o tokenu koristeći ugledni izvor. Dodavanje zlonamjernih ili netočnih informacija može dovesti do gubitka sredstava.",
   "token_contract_address": "Adresa ugovora tokena",
   "token_name": "Naziv tokena npr.: Tether",

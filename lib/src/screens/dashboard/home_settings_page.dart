@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -42,6 +44,7 @@ class HomeSettingsPage extends BasePage {
             ),
           ),
           Divider(color: Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -95,15 +98,50 @@ class HomeSettingsPage extends BasePage {
                 return Container(
                   margin: EdgeInsets.only(top: 16, left: 16, right: 16),
                   child: Observer(
-                    builder: (_) => SettingsSwitcherCell(
-                      title: _homeSettingsViewModel.tokens[index],
-                      value: false,
-                      onValueChange: (_, bool value) {},
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).accentTextTheme.bodySmall!.color!,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
+                    builder: (_) {
+                      final token = _homeSettingsViewModel.tokens[index];
+
+                      return SettingsSwitcherCell(
+                        title: "${token.name} "
+                            "(${token.symbol})",
+                        value: token.enabled,
+                        onValueChange: (_, bool value) {
+                          token.enabled = value;
+                        },
+                        onTap: (_) {
+                          Navigator.pushNamed(context, Routes.editToken, arguments: {
+                            'homeSettingsViewModel': _homeSettingsViewModel,
+                            'token': token,
+                          });
+                        },
+                        leading: token.iconPath != null
+                            ? Container(
+                                child: Image.asset(
+                                  token.iconPath!,
+                                  height: 30.0,
+                                  width: 30.0,
+                                ),
+                              )
+                            : Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    token.symbol.substring(0, min(token.symbol.length, 2)),
+                                    style: TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

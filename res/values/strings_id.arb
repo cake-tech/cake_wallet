@@ -709,7 +709,7 @@
   "search_add_token": "Cari / Tambahkan token",
   "edit_token": "Mengedit token",
   "warning": "Peringatan",
-  "add_token_warning": "Jangan mengedit atau menambahkan token seperti yang diinstruksikan oleh penipu. Selalu konfirmasikan alamat token dengan sumber tepercaya!",
+  "add_token_warning": "Jangan mengedit atau menambahkan token seperti yang diinstruksikan oleh penipu.\nSelalu konfirmasikan alamat token dengan sumber tepercaya!",
   "add_token_disclaimer_check": "Saya telah mengonfirmasi alamat dan informasi kontrak token menggunakan sumber yang memiliki reputasi baik. Menambahkan informasi jahat atau salah dapat mengakibatkan hilangnya dana.",
   "token_contract_address": "Alamat kontrak token",
   "token_name": "Nama token misalnya: Tether",

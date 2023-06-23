@@ -21,53 +21,45 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         value = !value;
         onChanged(value);
         setState(() {});
       },
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            height: 19,
-            width: 19,
+            height: 24.0,
+            width: 24.0,
+            margin: EdgeInsets.only(right: 10.0),
             decoration: BoxDecoration(
-              color: value
-                  ? Palette.blueCraiola
-                  : Theme.of(context).accentTextTheme.displayMedium!.decorationColor!,
-              borderRadius: BorderRadius.all(Radius.circular(2)),
               border: Border.all(
-                color: value
-                    ? Palette.blueCraiola
-                    : Theme.of(context).accentTextTheme.labelSmall!.color!,
-                width: 1,
+                color: Theme.of(context).primaryTextTheme.bodySmall!.color!,
+                width: 1.0,
               ),
+              borderRadius: BorderRadius.all(
+                Radius.circular(8.0),
+              ),
+              color: Theme.of(context).colorScheme.background,
             ),
             child: value
-                ? Center(
-                    child: Icon(
-                      Icons.done,
-                      color: Colors.white,
-                      size: 14,
-                    ),
+                ? Icon(
+                    Icons.check,
+                    color: Colors.blue,
+                    size: 20.0,
                   )
                 : null,
           ),
           Expanded(
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(start: 16),
-              child: Text(
-                caption,
-                style: TextStyle(
-                    color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
-                    fontSize: 18,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.none),
+            child: Text(
+              caption,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14.0,
+                color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
               ),
             ),
           )

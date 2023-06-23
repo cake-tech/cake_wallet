@@ -260,9 +260,10 @@ abstract class EthereumWalletBase
     /// Get Erc20 Tokens balances
     for (var token in erc20TokensBox.values) {
       try {
-        final currency = erc20Currencies.firstWhere((element) => element.title == token.symbol);
-        balance[currency] =
-            await _client.fetchERC20Balances(_privateKey.address, token.contractAddress);
+        balance[token] = await _client.fetchERC20Balances(
+          _privateKey.address,
+          token.contractAddress,
+        );
       } catch (_) {}
     }
     await save();
@@ -285,29 +286,40 @@ abstract class EthereumWalletBase
     return EthPrivateKey.fromHex(HEX.encode(addressAtIndex.privateKey as List<int>));
   }
 
-  Future<void>? updateBalance() => null;
+  Future<void>? updateBalance() async => await _updateBalance();
 
-  List<CryptoCurrency> get erc20Currencies => erc20TokensBox.values
-      .map((token) => CryptoCurrency.all.firstWhere(
-            (currency) => currency.title.toLowerCase() == token.symbol.toLowerCase(),
-            orElse: () => CryptoCurrency(
-              name: token.name,
-              title: token.symbol,
-              fullName: token.name,
-            ),
-          ))
-      .toList();
+  List<Erc20Token> get erc20Currencies => erc20TokensBox.values.toList();
 
-  Future<CryptoCurrency?> addErc20Token(String contractAddress) async {
-    final token = await _client.getErc20Token(contractAddress);
+  Future<void> addErc20Token(Erc20Token token) async {
+    String? iconPath;
+    try {
+      iconPath = CryptoCurrency.all
+          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+          .iconPath;
 
-    if (token == null) {
-      return null;
-    }
+      // (if exists) Delete already existing token with the same contract address
+      erc20TokensBox.values
+          .firstWhere((element) => element.contractAddress == token.contractAddress)
+          .delete();
+    } catch (_) {}
 
-    erc20TokensBox.add(token);
+    await erc20TokensBox.add(Erc20Token(
+      name: token.name,
+      symbol: token.symbol,
+      contractAddress: token.contractAddress,
+      decimal: token.decimal,
+      enabled: true,
+      iconPath: iconPath,
+    ));
 
-    return CryptoCurrency(name: token.name, title: token.symbol, fullName: token.name);
+    _updateBalance();
+  }
+
+  Future<void> deleteErc20Token(Erc20Token token) async {
+    await token.delete();
+
+    balance.remove(token);
+    _updateBalance();
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async =>
