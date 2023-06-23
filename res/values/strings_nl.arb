@@ -727,5 +727,17 @@
   "setup_2fa_text": "Cake 2FA is NIET zo veilig als koude opslag. 2FA beschermt tegen basistypen aanvallen, zoals uw vriend die uw vingerafdruk geeft terwijl u slaapt.\n\n Cake 2FA biedt GEEN bescherming tegen een gecompromitteerd apparaat door een geavanceerde aanvaller.\n\n Als u de toegang tot uw 2FA-codes kwijtraakt , VERLIEST U DE TOEGANG TOT DEZE PORTEFEUILLE. U moet uw portemonnee herstellen van mnemonic seed. JE MOET DAAROM EEN BACK-UP MAKEN VAN JE MNEMONISCHE ZADEN! Verder kan iemand met toegang tot je geheugensteuntje(s) je geld stelen, waarbij Cake 2FA wordt omzeild.\n\n Het ondersteunend personeel van Cake kan je niet helpen als je de toegang tot je geheugensteuntje kwijtraakt, aangezien Cake een niet-bewaarbare portemonnee.",
   "setup_totp_recommended": "TOTP instellen (aanbevolen)",
   "disable_buy": "Koopactie uitschakelen",
-  "disable_sell": "Verkoopactie uitschakelen"
+  "disable_sell": "Verkoopactie uitschakelen",
+  "cake_2fa_preset" : "Taart 2FA Voorinstelling",
+  "narrow": "Smal",
+  "normal": "Normaal",
+  "aggressive": "Overijverig",
+  "require_for_assessing_wallet": "Vereist voor toegang tot portemonnee",
+  "require_for_sends_to_non_contacts" : "Vereist voor verzendingen naar niet-contacten",
+  "require_for_sends_to_contacts" : "Vereist voor verzending naar contacten",
+  "require_for_sends_to_internal_wallets" : "Vereist voor verzendingen naar interne portefeuilles",
+  "require_for_exchanges_to_internal_wallets" : "Vereist voor uitwisselingen naar interne portefeuilles",
+  "require_for_adding_contacts" : "Vereist voor het toevoegen van contacten",
+  "require_for_creating_new_wallets" : "Vereist voor het maken van nieuwe portefeuilles",
+  "require_for_all_security_and_backup_settings" : "Vereist voor alle beveiligings- en back-upinstellingen"
 }

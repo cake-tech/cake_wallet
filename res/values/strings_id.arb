@@ -703,16 +703,17 @@
   "setup_2fa_text": "Cake 2FA TIDAK seaman cold storage. 2FA melindungi dari jenis serangan dasar, seperti teman Anda memberikan sidik jari saat Anda sedang tidur.\n\n Cake 2FA TIDAK melindungi dari perangkat yang disusupi oleh penyerang canggih.\n\n Jika Anda kehilangan akses ke kode 2FA , ANDA AKAN KEHILANGAN AKSES KE DOMPET INI. Anda perlu memulihkan dompet Anda dari benih mnemonik. OLEH KARENA ITU, ANDA HARUS MENYIMPAN BIJI MNEMONIK ANDA! Selanjutnya, seseorang yang memiliki akses ke benih mnemonik Anda akan dapat mencuri dana Anda, melewati Cake 2FA.\n\n Staf pendukung Cake tidak akan dapat membantu Anda jika Anda kehilangan akses ke benih mnemonik Anda, karena Cake adalah dompet tanpa hak asuh.",
   "setup_totp_recommended": "Siapkan TOTP (Disarankan)",
   "disable_buy": "Nonaktifkan tindakan beli",
-  "disable_sell": "Nonaktifkan aksi jual"
+  "disable_sell": "Nonaktifkan aksi jual",
+  "cake_2fa_preset" : "Preset Kue 2FA",
+  "narrow": "Sempit",
+  "normal": "Normal",
+  "aggressive": "Terlalu bersemangat",
+  "require_for_assessing_wallet": "Diperlukan untuk mengakses dompet",
+  "require_for_sends_to_non_contacts" : "Wajibkan untuk mengirim ke non-kontak",
+  "require_for_sends_to_contacts" : "Membutuhkan untuk mengirim ke kontak",
+  "require_for_sends_to_internal_wallets" : "Diperlukan untuk mengirim ke dompet internal",
+  "require_for_exchanges_to_internal_wallets" : "Diperlukan untuk pertukaran ke dompet internal",
+  "require_for_adding_contacts" : "Membutuhkan untuk menambahkan kontak",
+  "require_for_creating_new_wallets" : "Diperlukan untuk membuat dompet baru",
+  "require_for_all_security_and_backup_settings" : "Memerlukan untuk semua pengaturan keamanan dan pencadangan"
 }
-
-
-
-
-
-
-
-
-
-
-

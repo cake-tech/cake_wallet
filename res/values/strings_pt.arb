@@ -726,5 +726,17 @@
   "setup_2fa_text": "O Cake 2FA NÃO é tão seguro quanto o armazenamento a frio. O 2FA protege contra tipos básicos de ataques, como seu amigo fornecer sua impressão digital enquanto você está dormindo.\n\n O Cake 2FA NÃO protege contra um dispositivo comprometido por um invasor sofisticado.\n\n Se você perder o acesso aos seus códigos 2FA , VOCÊ PERDERÁ O ACESSO A ESTA CARTEIRA. Você precisará restaurar sua carteira da semente mnemônica. VOCÊ DEVE, PORTANTO, FAZER BACKUP DE SUAS SEMENTES MNEMÔNICAS! Além disso, alguém com acesso às suas sementes mnemônicas poderá roubar seus fundos, ignorando o Cake 2FA.\n\n A equipe de suporte do Cake não poderá ajudá-lo se você perder o acesso à sua semente mnemônica, pois o Cake é um carteira não custodial.",
   "setup_totp_recommended": "Configurar TOTP (recomendado)",
   "disable_buy": "Desativar ação de compra",
-  "disable_sell": "Desativar ação de venda"
+  "disable_sell": "Desativar ação de venda",
+  "cake_2fa_preset" : "Predefinição de bolo 2FA",
+  "narrow": "Estreito",
+  "normal": "Normal",
+  "aggressive": "excessivamente zeloso",
+  "require_for_assessing_wallet": "Requer para acessar a carteira",
+  "require_for_sends_to_non_contacts" : "Exigir para envios para não-contatos",
+  "require_for_sends_to_contacts" : "Exigir para envios para contatos",
+  "require_for_sends_to_internal_wallets" : "Exigir envios para carteiras internas",
+  "require_for_exchanges_to_internal_wallets" : "Requer trocas para carteiras internas",
+  "require_for_adding_contacts" : "Requer para adicionar contatos",
+  "require_for_creating_new_wallets" : "Requer para criar novas carteiras",
+  "require_for_all_security_and_backup_settings" : "Exigir todas as configurações de segurança e backup"
 }

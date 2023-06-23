@@ -727,5 +727,17 @@
   "setup_2fa_text": "Cake 2FA は、コールド ストレージほど安全ではありません。 2FA は、あなたが寝ているときに友人が指紋を提供するなどの基本的なタイプの攻撃から保護します。\n\n Cake 2FA は、巧妙な攻撃者による侵害されたデバイスから保護しません。\n\n 2FA コードにアクセスできなくなった場合、このウォレットにアクセスできなくなります。ニーモニック シードからウォレットを復元する必要があります。したがって、ニーモニック シードをバックアップする必要があります。さらに、あなたのニーモニック シードにアクセスできる誰かが、Cake 2FA をバイパスして、あなたの資金を盗むことができます。\n\n Cake は無印の財布。",
   "setup_totp_recommended": "TOTP を設定する (推奨)",
   "disable_buy": "購入アクションを無効にする",
-  "disable_sell": "販売アクションを無効にする"
+  "disable_sell": "販売アクションを無効にする",
+  "cake_2fa_preset" : "ケーキ 2FA プリセット",
+  "narrow": "狭い",
+  "normal": "普通",
+  "aggressive": "熱心すぎる",
+  "require_for_assessing_wallet": "ウォレットにアクセスするために必要です",
+  "require_for_sends_to_non_contacts" : "非連絡先への送信に必須",
+  "require_for_sends_to_contacts" : "連絡先に送信する場合に必須",
+  "require_for_sends_to_internal_wallets" : "内部ウォレットへの送信に必須",
+  "require_for_exchanges_to_internal_wallets" : "内部ウォレットへの交換に必要",
+  "require_for_adding_contacts" : "連絡先の追加に必要",
+  "require_for_creating_new_wallets" : "新しいウォレットを作成するために必要です",
+  "require_for_all_security_and_backup_settings" : "すべてのセキュリティおよびバックアップ設定に必須"
 }

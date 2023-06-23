@@ -727,5 +727,17 @@
   "setup_2fa_text": "Cake 2FA (Authentification à 2 Facteurs) n'est PAS aussi sûr que le stockage à froid. Cake 2FA protège contre les attaques basiques, comme un ami fournissant votre empreinte digitale pendant que vous dormez.\n\n Cake 2FA ne protège PAS contre un appareil compromis par un attaquant sophistiqué.\n\n Si vous perdez l'accès à vos codes 2FA , VOUS PERDREZ L'ACCÈS À CE PORTEFEUILLE (WALLET). Vous devrez restaurer votre portefeuille à partir de sa phrase secrète (seed). VOUS DEVEZ DONC SAUVEGARDER VOTRE PHRASE SECRÈTE ! De plus, quelqu'un ayant accès à votre phrase secrète pourra voler vos fonds, en contournant Cake 2FA.\n\n Le personnel d'assistance de Cake ne pourra pas vous aider si vous perdez l'accès à votre phrase secrète, puisque Cake est un portefeuille non dépositaire (non custodial).",
   "setup_totp_recommended": "Configurer TOTP (recommandé)",
   "disable_buy": "Désactiver l'action d'achat",
-  "disable_sell": "Désactiver l'action de vente"
+  "disable_sell": "Désactiver l'action de vente",
+  "cake_2fa_preset" : "Gâteau 2FA prédéfini",
+  "narrow": "Étroit",
+  "normal": "Normal",
+  "aggressive": "Trop zélé",
+  "require_for_assessing_wallet": "Nécessaire pour accéder au portefeuille",
+  "require_for_sends_to_non_contacts" : "Exiger pour les envois à des non-contacts",
+  "require_for_sends_to_contacts" : "Exiger pour les envois aux contacts",
+  "require_for_sends_to_internal_wallets" : "Exiger pour les envois vers des portefeuilles internes",
+  "require_for_exchanges_to_internal_wallets" : "Exiger pour les échanges vers des portefeuilles internes",
+  "require_for_adding_contacts" : "Requis pour ajouter des contacts",
+  "require_for_creating_new_wallets" : "Nécessaire pour créer de nouveaux portefeuilles",
+  "require_for_all_security_and_backup_settings" : "Exiger pour tous les paramètres de sécurité et de sauvegarde"
 }

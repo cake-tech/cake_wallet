@@ -1,16 +1,13 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 import '../../../routes.dart';
 
@@ -133,40 +130,40 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                     .displayLarge!
                     .backgroundColor!,
                 tabs: [
-                  Tab(text: 'Narrow', height: 30),
-                  Tab(text: 'Normal', height: 30),
-                  Tab(text: 'Aggressive', height: 30),
+                  Tab(text: S.current.narrow, height: 30),
+                  Tab(text: S.current.narrow, height: 30),
+                  Tab(text: S.current.aggressive, height: 30),
                 ],
               ),
             ),
           ),
           SizedBox(height: 40),
           SettingsSwitcherCell(
-              title: 'Require for accessing wallet',
+              title: S.current.require_for_assessing_wallet,
               value: viewModel.shouldRequireTOTP2FAForAccessingWallet,
               onValueChange: (context, value) async => viewModel
                   .switchShouldRequireTOTP2FAForAccessingWallet(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
-              title: 'Require for sends to non-contacts',
+              title: S.current.require_for_sends_to_non_contacts,
               value: viewModel.shouldRequireTOTP2FAForSendsToNonContact,
               onValueChange: (context, value) async => viewModel
                   .switchShouldRequireTOTP2FAForSendsToNonContact(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
-              title: 'Require for sends to contacts',
+              title: S.current.require_for_sends_to_contacts,
               value: viewModel.shouldRequireTOTP2FAForSendsToContact,
               onValueChange: (context, value) async =>
                   viewModel.switchShouldRequireTOTP2FAForSendsToContact(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
-              title: 'Require for sends to internal wallets',
+              title: S.current.require_for_sends_to_internal_wallets,
               value: viewModel.shouldRequireTOTP2FAForSendsToInternalWallets,
               onValueChange: (context, value) async => viewModel
                   .switchShouldRequireTOTP2FAForSendsToInternalWallets(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
-              title: 'Require for exchanges to internal wallets',
+              title: S.current.require_for_exchanges_to_internal_wallets,
               value:
                   viewModel.shouldRequireTOTP2FAForExchangesToInternalWallets,
               onValueChange: (context, value) async => viewModel
@@ -174,20 +171,20 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                       value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
-              title: 'Require for adding contacts',
+              title: S.current.require_for_adding_contacts,
               value: viewModel.shouldRequireTOTP2FAForAddingContacts,
               onValueChange: (context, value) async =>
                   viewModel.switchShouldRequireTOTP2FAForAddingContacts(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
-            title: 'Require for creating new wallets',
+            title: S.current.require_for_creating_new_wallets,
             value: viewModel.shouldRequireTOTP2FAForCreatingNewWallets,
             onValueChange: (context, value) async =>
                 viewModel.switchShouldRequireTOTP2FAForCreatingNewWallet(value),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
-            title: 'Require for all security and backup settings',
+            title: S.current.require_for_all_security_and_backup_settings,
             value:
                 viewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             onValueChange: (context, value) async => viewModel
