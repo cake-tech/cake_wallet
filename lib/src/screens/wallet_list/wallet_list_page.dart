@@ -187,7 +187,13 @@ class WalletListBodyState extends State<WalletListBody> {
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+                  widget.authService.authenticateAction(
+                    context,
+                    route: Routes.restoreOptions,
+                    arguments: false,
+                    conditionToDetermineIfToUse2FA: widget.walletListViewModel
+                        .shouldRequireTOTP2FAForCreatingNewWallets,
+                  );
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,

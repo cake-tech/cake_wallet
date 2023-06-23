@@ -251,7 +251,7 @@ abstract class ExchangeViewModelBase with Store {
   bool shouldDisplayTOTP() {
     final isInternalWallet = checkIfWalletIsAnInternalWallet(receiveAddress);
     if (isInternalWallet) {
-      return shouldDisplayTOTP2FAForExchangesToInternalWallet ? true : false;
+      return shouldDisplayTOTP2FAForExchangesToInternalWallet;
     }
     return false;
   }

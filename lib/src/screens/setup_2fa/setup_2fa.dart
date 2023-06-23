@@ -52,7 +52,8 @@ class Setup2FAPage extends BasePage {
           SizedBox(height: 86),
           SettingsCellWithArrow(
             title: S.current.setup_totp_recommended,
-            handler: (_) => Navigator.of(context).pushNamed(Routes.setup_2faQRPage),
+            handler: (_) => Navigator.of(context)
+                .pushReplacementNamed(Routes.setup_2faQRPage),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         ],

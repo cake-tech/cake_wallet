@@ -5,8 +5,8 @@ class Cake2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> {
       {required String super.title, required int super.raw});
 
   static const narrow = Cake2FAPresetsOptions(title: 'narrow', raw: 0);
-  static const normal = Cake2FAPresetsOptions(title: 'narrow', raw: 1);
-  static const verbose = Cake2FAPresetsOptions(title: 'narrow', raw: 2);
+  static const normal = Cake2FAPresetsOptions(title: 'normal', raw: 1);
+  static const aggressive = Cake2FAPresetsOptions(title: 'aggressive', raw: 2);
 
   static Cake2FAPresetsOptions deserialize({required int raw}) {
     switch (raw) {
@@ -15,7 +15,7 @@ class Cake2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> {
       case 1:
         return Cake2FAPresetsOptions.normal;
       case 2:
-        return Cake2FAPresetsOptions.verbose;
+        return Cake2FAPresetsOptions.aggressive;
       default:
         throw Exception(
           'Incorrect Cake 2FA Preset $raw  for Cake2FAPresetOptions deserialize',

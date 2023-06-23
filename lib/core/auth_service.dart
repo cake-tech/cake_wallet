@@ -28,6 +28,7 @@ class AuthService with Store {
     Routes.newWallet,
     Routes.newWalletType,
     Routes.addressBookAddContact,
+    Routes.restoreOptions,
   ];
 
   final FlutterSecureStorage secureStorage;

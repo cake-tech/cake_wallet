@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -92,7 +93,14 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           SizedBox(height: 40),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),
-            child: Text('Cake 2FA Preset'),
+            child: Text(
+              'Cake 2FA Preset',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+              ),
+            ),
           ),
           SizedBox(height: 8),
           Container(
@@ -127,7 +135,7 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                 tabs: [
                   Tab(text: 'Narrow', height: 30),
                   Tab(text: 'Normal', height: 30),
-                  Tab(text: 'Verbose', height: 30),
+                  Tab(text: 'Aggressive', height: 30),
                 ],
               ),
             ),

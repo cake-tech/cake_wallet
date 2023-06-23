@@ -253,11 +253,11 @@ abstract class SendViewModelBase with Store {
     final isInternalWallet = checkIfWalletIsAnInternalWallet(address);
 
     if (isContact) {
-      return shouldDisplayTOTP2FAForContact ? true : false;
+      return shouldDisplayTOTP2FAForContact;
     } else if (isInternalWallet) {
-      return shouldDisplayTOTP2FAForSendsToInternalWallet ? true : false;
+      return shouldDisplayTOTP2FAForSendsToInternalWallet;
     } else {
-      return shouldDisplayTOTP2FAForNonContact ? true : false;
+      return shouldDisplayTOTP2FAForNonContact;
     }
   }
 

@@ -29,6 +29,7 @@ abstract class Setup2FAViewModelBase with Store {
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
     _getRandomBase32SecretKey();
+    selectCakePreset(initialPresetTabValue);
     reaction((_) => state, _saveLastAuthTime);
   }
 
@@ -123,7 +124,6 @@ abstract class Setup2FAViewModelBase with Store {
     return Duration(milliseconds: unbanTimestamp - now.millisecondsSinceEpoch);
   }
 
-
   Future<Duration> ban() async {
     final multiplier = _failureCounter - maxFailedTrials;
     final timeout = (multiplier * banTimeout) * 1000;
@@ -217,7 +217,7 @@ abstract class Setup2FAViewModelBase with Store {
         activateCake2FANormalPreset();
         break;
       case 2:
-        activateCake2FAVerbosePreset();
+        activateCake2FAAggressivePreset();
         break;
       default:
         activateCake2FANormalPreset();
@@ -246,11 +246,19 @@ abstract class Setup2FAViewModelBase with Store {
     final hasSecurityAndBackup = selected2FASettings
         .contains(VerboseControlSettings.securityAndBackupSettings);
 
-    bool isOnlyNormalPresetControlsPresent = selected2FASettings.length == 3;
+    final hasSendToInternalWallet = selected2FASettings
+        .contains(VerboseControlSettings.sendsToInternalWallets);
+
+    final hasExchangesToInternalWallet = selected2FASettings
+        .contains(VerboseControlSettings.exchangesToInternalWallets);
+
+    bool isOnlyNormalPresetControlsPresent = selected2FASettings.length == 5;
 
     return (hasContacts &&
         hasNonContacts &&
         hasSecurityAndBackup &&
+        hasSendToInternalWallet &&
+        hasExchangesToInternalWallet &&
         isOnlyNormalPresetControlsPresent);
   }
 
@@ -294,6 +302,8 @@ abstract class Setup2FAViewModelBase with Store {
     setAllControlsToFalse();
     switchShouldRequireTOTP2FAForSendsToNonContact(true);
     switchShouldRequireTOTP2FAForSendsToContact(true);
+    switchShouldRequireTOTP2FAForSendsToInternalWallets(true);
+    switchShouldRequireTOTP2FAForExchangesToInternalWallets(true);
     switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(true);
   }
 
@@ -308,8 +318,8 @@ abstract class Setup2FAViewModelBase with Store {
   }
 
   @action
-  void activateCake2FAVerbosePreset() {
-    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.verbose;
+  void activateCake2FAAggressivePreset() {
+    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.aggressive;
     setAllControlsToFalse();
     switchShouldRequireTOTP2FAForAccessingWallet(true);
     switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(true);
