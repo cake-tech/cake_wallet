@@ -1,6 +1,8 @@
+import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -108,17 +110,33 @@ class BalancePage extends StatelessWidget {
             SizedBox(
               height: 4,
             ),
-            Text('${availableBalanceLabel}',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .displaySmall!
-                        .backgroundColor!,
-                    height: 1)),
+            Row(
+              children: [
+                Text('${availableBalanceLabel}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .displaySmall!
+                            .backgroundColor!,
+                        height: 1)),
+                GestureDetector(
+                    onTap: () => _showBalanceDescription(context),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Container(
+                          child: Icon(Icons.help_outline,
+                              size: 16,
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .displaySmall!
+                                  .backgroundColor!)),
+                    ))
+              ],
+            ),
             SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -246,5 +264,11 @@ class BalancePage extends StatelessWidget {
             )
           ])),
     );
+  }
+
+  void _showBalanceDescription(BuildContext context) {
+    showPopUp<void>(
+        context: context,
+        builder: (_) => InformationPage(information: S.current.available_balance_description));
   }
 }
