@@ -728,5 +728,7 @@
   "setup_totp_recommended": "Configurer TOTP (recommandé)",
   "disable_buy": "Désactiver l'action d'achat",
   "disable_sell": "Désactiver l'action de vente",
-  "available_balance_description": "Le solde disponible est le montant que vous pouvez dépenser immédiatement. Il est calculé en soustrayant le solde gelé du solde total."
+  "available_balance_description": "Le solde disponible est le montant que vous pouvez dépenser immédiatement. Il est calculé en soustrayant le solde gelé du solde total.",
+  "syncing_wallet_alert_title": "Votre portefeuille est en cours de synchronisation",
+  "syncing_wallet_alert_content": "Votre solde et votre liste de transactions peuvent ne pas être complets tant qu'il n'y a pas « SYNCHRONISÉ » en haut. Cliquez/appuyez pour en savoir plus."
 }

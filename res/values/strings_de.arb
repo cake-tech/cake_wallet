@@ -728,5 +728,8 @@
   "setup_totp_recommended": "TOTP einrichten (empfohlen)",
   "disable_buy": "Kaufaktion deaktivieren",
   "disable_sell": "Verkaufsaktion deaktivieren",
-  "available_balance_description": "Verfügbarer Saldo ist der Betrag, den Sie sofort ausgeben können. Dieser Betrag kann sich ändern, wenn Sie eine Transaktion senden oder empfangen."
+  "available_balance_description": "Verfügbarer Saldo ist der Betrag, den Sie sofort ausgeben können. Dieser Betrag kann sich ändern, wenn Sie eine Transaktion senden oder empfangen.",
+  "syncing_wallet_alert_title": "Ihr Wallet wird synchronisiert",
+  "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren."
+
 }

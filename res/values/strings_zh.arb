@@ -727,5 +727,7 @@
   "setup_totp_recommended": "设置 TOTP（推荐）",
   "disable_buy": "禁用购买操作",
   "disable_sell": "禁用卖出操作",
-  "available_balance_description": "可用余额是您可以使用的金额。冻结余额是您当前正在等待确认的金额。"
+  "available_balance_description": "可用余额是您可以使用的金额。冻结余额是您当前正在等待确认的金额。",
+  "syncing_wallet_alert_title": "您的钱包正在同步",
+  "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。"
 }
