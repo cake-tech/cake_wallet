@@ -27,7 +27,7 @@ class ResponsiveLayoutUtil {
   }
 
   bool get isIpad {
-    final width = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize.width;
+    final width = MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.width;
     return width >= _kMobileThreshold && !(width > _kIpadMaxWidth);
   }
 

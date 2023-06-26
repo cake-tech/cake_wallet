@@ -7,7 +7,7 @@ PODS:
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
-  - CryptoSwift (1.6.0)
+  - CryptoSwift (1.7.1)
   - cw_haven (0.0.1):
     - cw_haven/Boost (= 0.0.1)
     - cw_haven/Haven (= 0.0.1)
@@ -131,15 +131,15 @@ PODS:
   - platform_device_id (0.0.1):
     - Flutter
   - ReachabilitySwift (5.0.0)
-  - SDWebImage (5.15.5):
-    - SDWebImage/Core (= 5.15.5)
-  - SDWebImage/Core (5.15.5)
+  - SDWebImage (5.16.0):
+    - SDWebImage/Core (= 5.16.0)
+  - SDWebImage/Core (5.16.0)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - SwiftProtobuf (1.21.0)
+  - SwiftProtobuf (1.22.0)
   - SwiftyGif (5.4.4)
   - uni_links (0.0.1):
     - Flutter
@@ -250,7 +250,7 @@ SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
-  CryptoSwift: 562f8eceb40e80796fffc668b0cad9313284cfa6
+  CryptoSwift: d3d18dc357932f7e6d580689e065cf1f176007c1
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
@@ -274,16 +274,16 @@ SPEC CHECKSUMS:
   permission_handler_apple: 8f116445eff3c0e7c65ad60f5fef5490aa94b4e4
   platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  SDWebImage: fd7e1a22f00303e058058278639bf6196ee431fe
+  SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
-  SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
+  SwiftProtobuf: 40bd808372cb8706108f22d28f8ab4a6b9bc6989
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
 
-PODFILE CHECKSUM: ae71bdf0eb731a1ffc399c122f6aa4dea0cb5f6f
+PODFILE CHECKSUM: 09df1114e7c360f55770d35a79356bf5446e0100
 
 COCOAPODS: 1.11.3

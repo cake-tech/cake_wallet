@@ -1,6 +1,4 @@
-Opt-in to Cake 2FA for security. More info: https://guides.cakewallet.com/docs/advanced-features/authentication/#cake-2fa
-Auto generate restore height for Monero restore QR codes
-Hausa and Yoruba languages
-Additional privacy settings
-Update Monero to 0.18.2.2
-Refactoring and bug fixes
+Enable iPad/Tablet separate layout from mobile UI
+SideShift update and fixes
+Add MoonPay sell
+Bug Fixes
