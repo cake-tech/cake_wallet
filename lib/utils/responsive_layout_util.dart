@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ResponsiveLayoutUtil {
-  static const double _kMobileThreshold = 768;
+  static const double _kMobileThreshold = 550;
   static const double kDesktopMaxWidthConstraint = 400;
   static const double kPopupWidth = 400;
   static const double kPopupSpaceHeight = 100;
@@ -11,8 +11,20 @@ class ResponsiveLayoutUtil {
 
   static final instance = ResponsiveLayoutUtil._();
 
-  bool get isMobile =>
-      WidgetsBinding.instance.platformDispatcher.views.first.physicalSize.width < _kMobileThreshold;
+  bool get isMobile => MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.shortestSide <= _kMobileThreshold;
+
+  bool shouldRenderMobileUI(BuildContext context) {
+     final orientation = MediaQuery.of(context).orientation;
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    if (isMobile || orientation == Orientation.portrait && width < height) {
+      return true;
+    } else if (orientation == Orientation.landscape && width < height) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   bool get isIpad {
     final width = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize.width;
