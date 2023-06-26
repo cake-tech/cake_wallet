@@ -97,6 +97,7 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
         setup2FAViewModel: widget.setup2FAViewModel,
         isForSetup: widget.totpArguments.isForSetup ?? false,
         isClosable: widget.totpArguments.isClosable ?? true,
+        showPopup: widget.totpArguments.showPopup,
       ),
     );
   }
@@ -113,11 +114,14 @@ class TOTPEnterCode extends BasePage {
     required this.setup2FAViewModel,
     required this.isForSetup,
     required this.isClosable,
+    this.showPopup = true,
   }) : totpController = TextEditingController() {
     totpController.addListener(() {
       setup2FAViewModel.enteredOTPCode = totpController.text;
     });
   }
+
+  final bool? showPopup;
 
   @override
   String get title => isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa;
@@ -166,28 +170,38 @@ class TOTPEnterCode extends BasePage {
               return PrimaryButton(
                 isDisabled: setup2FAViewModel.enteredOTPCode.length != 8,
                 onPressed: () async {
-                  final result =
-                      await setup2FAViewModel.totp2FAAuth(totpController.text, isForSetup);
-                  final bannedState = setup2FAViewModel.state is AuthenticationBanned;
+                  final result = await setup2FAViewModel.totp2FAAuth(
+                      totpController.text, isForSetup);
+                  final bannedState =
+                      setup2FAViewModel.state is AuthenticationBanned;
 
-                  await showPopUp<void>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return PopUpCancellableAlertDialog(
-                        contentText: _textDisplayedInPopupOnResult(result, bannedState, context),
-                        actionButtonText: S.of(context).ok,
-                        buttonAction: () {
-                          result ? setup2FAViewModel.success() : null;
-                          if (isForSetup && result) {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, Routes.dashboard, (route) => false);
-                          } else {
-                            Navigator.of(context).pop(result);
-                          }
-                        },
-                      );
-                    },
-                  );
+                  bool confirmResult = false;
+
+                  if (showPopup ?? false) {
+                    await showPopUp<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return PopUpCancellableAlertDialog(
+                          contentText: _textDisplayedInPopupOnResult(
+                              result, bannedState, context),
+                          actionButtonText: S.of(context).ok,
+                          buttonAction: () {
+                            confirmResult = true;
+                          },
+                        );
+                      },
+                    );
+                  }
+
+                  if (confirmResult || showPopup == false) {
+                    result ? setup2FAViewModel.success() : null;
+                    if (isForSetup && result) {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, Routes.dashboard, (route) => false);
+                    } else {
+                      Navigator.of(context).pop(result);
+                    }
+                  }
                 },
                 text: S.of(context).continue_text,
                 color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
