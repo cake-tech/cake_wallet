@@ -575,6 +575,7 @@ Future setup({
     return WalletEditPage(
         walletListViewModel: walletListViewModel,
         authService: getIt.get<AuthService>(),
+        walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
         editingWallet: editingWallet);
   });
 

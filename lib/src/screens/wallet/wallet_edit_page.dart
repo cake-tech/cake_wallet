@@ -2,11 +2,13 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -19,6 +21,7 @@ class WalletEditPage extends BasePage {
   WalletEditPage(
       {required this.walletListViewModel,
       required this.editingWallet,
+      required this.walletNewVM,
       required this.authService})
       : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(),
@@ -35,6 +38,7 @@ class WalletEditPage extends BasePage {
   final TextEditingController _labelController;
 
   final WalletListViewModel walletListViewModel;
+  final WalletNewVM walletNewVM;
   final WalletListItem editingWallet;
   final AuthService authService;
 
@@ -46,6 +50,7 @@ class WalletEditPage extends BasePage {
       walletListViewModel: walletListViewModel,
       editingWallet: editingWallet,
       authService: authService,
+      walletNewVM: walletNewVM,
       formKey: _formKey,
       labelController: _labelController);
 }
@@ -56,6 +61,7 @@ class WalletEditBody extends StatefulWidget {
       required this.editingWallet,
       required this.authService,
       required this.formKey,
+      required this.walletNewVM,
       required this.labelController});
 
   final GlobalKey<FormState> formKey;
@@ -64,6 +70,7 @@ class WalletEditBody extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
   final AuthService authService;
   final WalletListItem editingWallet;
+  final WalletNewVM walletNewVM;
 
   @override
   WalletEditBodyState createState() => WalletEditBodyState();
@@ -105,11 +112,26 @@ class WalletEditBodyState extends State<WalletEditBody> {
                         onPressed: () async {
                           if (widget.formKey.currentState?.validate() ??
                               false) {
-                            try {
-                              await widget.walletListViewModel
-                                  .changeName(widget.editingWallet);
-                              Navigator.of(context).pop();
-                            } catch (e) {}
+                            if (widget.walletNewVM.nameExists(
+                                widget.walletListViewModel.newName)) {
+                              showPopUp<void>(
+                                  context: context,
+                                  builder: (_) {
+                                    return AlertWithOneAction(
+                                        alertTitle: '',
+                                        alertContent:
+                                            S.of(context).wallet_name_exists,
+                                        buttonText: S.of(context).ok,
+                                        buttonAction: () =>
+                                            Navigator.of(context).pop());
+                                  });
+                            } else {
+                              try {
+                                await widget.walletListViewModel
+                                    .changeName(widget.editingWallet);
+                                Navigator.of(context).pop();
+                              } catch (e) {}
+                            }
                           }
                         },
                         text: S.of(context).save,
