@@ -16,6 +16,20 @@ class WalletLoadingService {
 	final KeyService keyService;
 	final WalletService Function(WalletType type) walletServiceFactory;
 
+  Future<void> renameWallet(WalletType type, String name, String newName) async {
+		final walletService = walletServiceFactory.call(type);
+		final password = await keyService.getWalletPassword(walletName: name);
+
+    // Save the current wallet's password to the new wallet name's key
+		await keyService.saveWalletPassword(walletName: newName, password: password);
+    // Delete previous wallet name from keyService to keep only new wallet's name
+    // otherwise keeps duplicate (old and new names)
+		await keyService.deleteWalletPassword(walletName: name);
+
+    await walletService.rename(name, password, newName);
+  }
+
+
 	Future<WalletBase> load(WalletType type, String name) async {
 		final walletService = walletServiceFactory.call(type);
 		final password = await keyService.getWalletPassword(walletName: name);

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
@@ -264,6 +265,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
+    await monero_wallet.store();
+  }
+
+  Future<void> copy(String currentName, String newName) async {
+    await walletAddresses.updateAddressesInBox();
+    await copyWalletFiles(currentName, newName, WalletType.monero);
     await monero_wallet.store();
   }
 

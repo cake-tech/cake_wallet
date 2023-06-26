@@ -57,6 +57,34 @@ class BitcoinWalletService extends WalletService<
           .delete(recursive: true);
 
   @override
+  Future<void> rename(String currentName, String password, String newName) async {
+    final newPath = await pathForWallet(name: newName, type: getType());
+
+    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final newWallet = await BitcoinWalletBase.open(
+        password: password,
+        name: currentName,
+        walletInfo: currentWalletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
+
+    await newWallet.save(customPath: newPath);
+
+    final newWalletInfo = WalletInfo.external(
+        id: WalletBase.idFor(newName, getType()),
+        name: newName,
+        type: getType(),
+        isRecovery: currentWalletInfo.isRecovery,
+        restoreHeight: currentWalletInfo.restoreHeight,
+        date: currentWalletInfo.date,
+        path: currentWalletInfo.path,
+        dirPath: currentWalletInfo.dirPath,
+        address: currentWalletInfo.address,
+        showIntroCakePayCard: currentWalletInfo.showIntroCakePayCard);
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
   Future<BitcoinWallet> restoreFromKeys(
           BitcoinRestoreWalletFromWIFCredentials credentials) async =>
       throw UnimplementedError();

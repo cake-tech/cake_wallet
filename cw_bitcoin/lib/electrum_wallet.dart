@@ -424,8 +424,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   }
 
   @override
-  Future<void> save() async {
-    final path = await makePath();
+  Future<void> save({String? customPath}) async {
+    final path = customPath ?? await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
