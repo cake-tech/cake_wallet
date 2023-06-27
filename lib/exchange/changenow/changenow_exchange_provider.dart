@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/distribution_info.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
@@ -12,9 +15,11 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:flutter/services.dart';
+import 'package:package_info/package_info.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
-  ChangeNowExchangeProvider()
+  ChangeNowExchangeProvider({required this.settingsStore})
       : _lastUsedRateId = '',
         super(
             pairList: CryptoCurrency.all
@@ -51,6 +56,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   Future<bool> checkIsAvailable() async => true;
+
+  final settingsStore;
 
   String _lastUsedRateId;
 
@@ -94,6 +101,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as ChangeNowRequest;
+    final distributionPath = await DistributionInfo.instance.getDistributionPath();
     final headers = {
       apiHeaderKey: apiKey,
       'Content-Type': 'application/json'};
@@ -109,7 +117,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'address': _request.address,
       'flow': flow,
       'type': type,
-      'refundAddress': _request.refundAddress
+      'refundAddress': _request.refundAddress,
+      'app': isMoneroOnly ? 'monerocom' : 'cakewallet',
+      'device': Platform.operatingSystem,
+      'distribution': distributionPath,
+      'version': settingsStore.appVersion.toString(),
     };
 
     if (isFixedRateMode) {
