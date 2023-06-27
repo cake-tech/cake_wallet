@@ -303,14 +303,9 @@ abstract class EthereumWalletBase
       iconPath = CryptoCurrency.all
           .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
           .iconPath;
-
-      // (if exists) Delete already existing token with the same contract address
-      erc20TokensBox.values
-          .firstWhere((element) => element.contractAddress == token.contractAddress)
-          .delete();
     } catch (_) {}
 
-    await erc20TokensBox.add(Erc20Token(
+    await erc20TokensBox.put(token.contractAddress, Erc20Token(
       name: token.name,
       symbol: token.symbol,
       contractAddress: token.contractAddress,
@@ -335,5 +330,33 @@ abstract class EthereumWalletBase
   void _onNewTransaction(FilterEvent event) {
     _updateBalance();
     // TODO: Add in transaction history
+  }
+
+  void addInitialTokens() {
+    final Map<CryptoCurrency, Map<String, dynamic>> _initialErc20Currencies = {
+      CryptoCurrency.usdc: {
+        'contractAddress': "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        'decimal': 6,
+      },
+      CryptoCurrency.usdterc20: {
+        'contractAddress': "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        'decimal': 6,
+      },
+      CryptoCurrency.dai: {
+        'contractAddress': "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        'decimal': 18,
+      },
+    };
+
+    for (var currency in _initialErc20Currencies.keys) {
+      erc20TokensBox.put(_initialErc20Currencies[currency]!['contractAddress'], Erc20Token(
+        name: currency.fullName ?? currency.title,
+        symbol: currency.title,
+        contractAddress: _initialErc20Currencies[currency]!['contractAddress'],
+        decimal: _initialErc20Currencies[currency]!['decimal'],
+        enabled: true,
+        iconPath: currency.iconPath,
+      ));
+    }
   }
 }

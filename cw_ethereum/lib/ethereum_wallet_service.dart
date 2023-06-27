@@ -27,6 +27,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
     );
 
     await wallet.init();
+    wallet.addInitialTokens();
     await wallet.save();
 
     return wallet;
@@ -78,6 +79,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
     );
 
     await wallet.init();
+    wallet.addInitialTokens();
     await wallet.save();
 
     return wallet;
