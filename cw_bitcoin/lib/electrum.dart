@@ -66,9 +66,14 @@ class ElectrumClient {
     socket!.listen((Uint8List event) {
       try {
         final msg = utf8.decode(event.toList());
-        final response =
-            json.decode(msg) as Map<String, dynamic>;
-        _handleResponse(response);
+        final messagesList = msg.split("\n");
+        for (var message in messagesList) {
+          if (message.isEmpty) {
+            continue;
+          }
+          final response = json.decode(message) as Map<String, dynamic>;
+          _handleResponse(response);
+        }
       } on FormatException catch (e) {
         final msg = e.message.toLowerCase();
 
