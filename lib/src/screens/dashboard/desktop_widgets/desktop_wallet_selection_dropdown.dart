@@ -143,33 +143,10 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    if (SettingsStoreBase.walletPasswordDirectInput) {
-      Navigator.of(context).pushNamed(
-          Routes.walletUnlockLoadable,
-          arguments: WalletUnlockArguments(
-              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-                if (isAuthenticatedSuccessfully) {
-                  auth.close();
-                  setState(() {});
-                }
-              }, walletName: wallet.name,
-              walletType: wallet.type));
-      return;
-    }
-
-    widget._authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+    await widget.walletListViewModel.authWallet(context, wallet,
+        (isAuthenticatedSuccessfully) async {
       if (!isAuthenticatedSuccessfully) {
         return;
-      }
-
-      try {
-        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-        await widget.walletListViewModel.loadWallet(wallet);
-        hideProgressText();
-        setState(() {});
-      } catch (e) {
-        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
     });
   }

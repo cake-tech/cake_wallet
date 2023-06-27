@@ -2,34 +2,39 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
-
 class WalletUnlockPage extends StatefulWidget {
   WalletUnlockPage(
-  this.walletUnlockViewModel,
-  this.onAuthenticationFinished,
-  {required this.closable});
+      {required this.walletUnlockViewModel,
+      required this.appStore,
+      required this.args,
+      required this.onAuthenticationFinished,
+      bool closable = false})
+      : this.closable = closable;
 
+  final WalletUnlockArguments args;
   final WalletUnlockViewModel walletUnlockViewModel;
+  final AppStore appStore;
   final OnAuthenticationFinished onAuthenticationFinished;
   final bool closable;
 
   @override
-  State<StatefulWidget> createState()  => WalletUnlockPageState();
+  State<StatefulWidget> createState() => WalletUnlockPageState();
 }
 
 class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
-	WalletUnlockPageState()
-		: _passwordController = TextEditingController();
+  WalletUnlockPageState() : _passwordController = TextEditingController();
 
   final TextEditingController _passwordController;
   final _key = GlobalKey<ScaffoldState>();
@@ -42,8 +47,8 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
 
   @override
   void initState() {
-  	_reaction ??=
-        reaction((_) => widget.walletUnlockViewModel.state, (ExecutionState state) {
+    _reaction ??= reaction((_) => widget.walletUnlockViewModel.state,
+        (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           widget.onAuthenticationFinished(true, this);
@@ -70,22 +75,23 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
         });
       }
     });
-    
-    _passwordControllerListener = () => widget.walletUnlockViewModel.setPassword(_passwordController.text);
+
+    _passwordControllerListener = () =>
+        widget.walletUnlockViewModel.setPassword(_passwordController.text);
 
     if (_passwordControllerListener != null) {
-    	_passwordController.addListener(_passwordControllerListener!);
+      _passwordController.addListener(_passwordControllerListener!);
     }
-    
+
     super.initState();
   }
 
   @override
   void dispose() {
     _reaction?.reaction.dispose();
-    
+
     if (_passwordControllerListener != null) {
-    	_passwordController.removeListener(_passwordControllerListener!);
+      _passwordController.removeListener(_passwordControllerListener!);
     }
 
     super.dispose();
@@ -123,7 +129,8 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
     await _progressBar?.dismiss();
     await Future<void>.delayed(Duration(milliseconds: 50));
     if (route != null) {
-      Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
+      Navigator.of(_key.currentContext!)
+          .pushReplacementNamed(route, arguments: arguments);
     } else {
       Navigator.of(_key.currentContext!).pop();
     }
@@ -135,82 +142,112 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
         key: _key,
         appBar: CupertinoNavigationBar(
             leading: widget.closable
-             ? Container(
+                ? Container(
                     padding: EdgeInsets.only(top: 10),
                     child: SizedBox(
                       height: 37,
                       width: 37,
                       child: InkWell(
                         onTap: () => Navigator.of(context).pop(),
-                        child:  _backArrowImageDarkTheme,
+                        child: _backArrowImageDarkTheme,
                       ),
                     ))
-             : Container(),
+                : Container(),
             backgroundColor: Theme.of(context).colorScheme.background,
             border: null),
         resizeToAvoidBottomInset: false,
         body: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-            child: Column(
-            	mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            	crossAxisAlignment: CrossAxisAlignment.center,
-            	children: [
-            		Expanded(child: Column(
-            			mainAxisAlignment: MainAxisAlignment.center,
-            			crossAxisAlignment: CrossAxisAlignment.center,
-            			children: [
-            				Text(widget.walletUnlockViewModel.walletName,
-            					textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!)),
-            				SizedBox(height: 24),
-            				Form(
-                    	child: TextFormField(
-                      onChanged: (value) => null,
-                      controller: _passwordController,
-                      textAlign: TextAlign.center,
-                      obscureText: true,
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
-                      decoration: InputDecoration(
-                        hintStyle: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.displayMedium!.color!),
-                        hintText: S.of(context).enter_wallet_password,
-                        focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .accentTextTheme
-                                    .displayMedium!
-                                    .decorationColor!,
-                                width: 1.0)),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .displayMedium!
-                                  .decorationColor!,
-                              width: 1.0),
-                        )
-                      )))])),
-            	Padding(
-            		padding: EdgeInsets.only(bottom: 24),
-            		child: Observer(
-                  builder: (_) =>
-                    LoadingPrimaryButton(
-                      onPressed: () => widget.walletUnlockViewModel.unlock(),
-                      text: S.of(context).unlock,
-                      color: Colors.green,
-                      textColor: Colors.white,
-                      isLoading: widget.walletUnlockViewModel.state is IsExecutingState,
-                      isDisabled: widget.walletUnlockViewModel.state is IsExecutingState)))
-            ]))
-            ));
+            child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                            Text(
+                                widget.args.walletName ??
+                                    widget.walletUnlockViewModel.walletName,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .primaryTextTheme
+                                        .titleLarge!
+                                        .color!)),
+                            SizedBox(height: 24),
+                            Form(
+                                child: TextFormField(
+                                    onChanged: (value) => null,
+                                    controller: _passwordController,
+                                    textAlign: TextAlign.center,
+                                    obscureText: true,
+                                    style: TextStyle(
+                                        fontSize: 20.0,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .titleLarge!
+                                            .color!),
+                                    decoration: InputDecoration(
+                                        hintStyle: TextStyle(
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context)
+                                                .accentTextTheme
+                                                .displayMedium!
+                                                .color!),
+                                        hintText:
+                                            S.of(context).enter_wallet_password,
+                                        focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Theme.of(context)
+                                                    .accentTextTheme
+                                                    .displayMedium!
+                                                    .decorationColor!,
+                                                width: 1.0)),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Theme.of(context)
+                                                  .accentTextTheme
+                                                  .displayMedium!
+                                                  .decorationColor!,
+                                              width: 1.0),
+                                        ))))
+                          ])),
+                      Padding(
+                          padding: EdgeInsets.only(bottom: 24),
+                          child: Observer(
+                              builder: (_) => LoadingPrimaryButton(
+                                  onPressed: () => widget.walletUnlockViewModel
+                                          .unlock(
+                                              walletName:
+                                                  widget.args.walletName,
+                                              walletType:
+                                                  widget.args.walletType)
+                                          .then((wallet) {
+                                        if (wallet != null) {
+                                          if (widget.args.walletName == null) {
+                                            widget.appStore.changeCurrentWallet(
+                                                wallet as WalletBase);
+                                          }
+
+                                          widget.walletUnlockViewModel
+                                              .success();
+                                        }
+                                      }),
+                                  text: S.of(context).unlock,
+                                  color: Colors.green,
+                                  textColor: Colors.white,
+                                  isLoading: widget.walletUnlockViewModel.state
+                                      is IsExecutingState,
+                                  isDisabled: widget.walletUnlockViewModel.state
+                                      is IsExecutingState)))
+                    ]))));
   }
 }

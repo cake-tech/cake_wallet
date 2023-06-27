@@ -59,7 +59,7 @@ class SecurityBackupPage extends BasePage {
                   onValueChange: (BuildContext context, bool value) {
                     if (value) {
                       _authService.authenticateAction(context,
-                          onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                          onAuthAndTotpSuccess: (isAuthenticatedSuccessfully) async {
                         if (isAuthenticatedSuccessfully) {
                           if (await _securitySettingsViewModel.biometricAuthenticated()) {
                             _securitySettingsViewModel

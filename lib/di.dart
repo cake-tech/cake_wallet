@@ -79,9 +79,7 @@ import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_password_auth_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -393,66 +391,73 @@ Future setup({
     ),
   );
 
-  getIt.registerFactory<AuthPage>(() {
-    return AuthPage(getIt.get<AuthViewModel>(),
-        onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
-      if (!isAuthenticated) {
-        return;
+  void _onAuth(bool isAuthenticated, AuthPageState authPageState) {
+    if (!isAuthenticated) {
+      return;
+    } else {
+      final authStore = getIt.get<AuthenticationStore>();
+      final appStore = getIt.get<AppStore>();
+      final useTotp = appStore.settingsStore.useTOTP2FA;
+      if (useTotp) {
+        authPageState.close(
+          route: Routes.totpAuthCodePage,
+          arguments: TotpAuthArgumentsModel(
+            isForSetup: false,
+            isClosable: false,
+            onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
+                TotpAuthCodePageState totpAuthPageState) async {
+              if (!isAuthenticatedSuccessfully) {
+                return;
+              }
+
+              if (appStore.wallet != null) {
+                authStore.allowed();
+                return;
+              }
+
+              totpAuthPageState.changeProcessText('Loading the wallet');
+
+              if (loginError != null) {
+                totpAuthPageState
+                    .changeProcessText('ERROR: ${loginError.toString()}');
+              }
+
+              ReactionDisposer? _reaction;
+              _reaction = reaction((_) => appStore.wallet, (Object? _) {
+                _reaction?.reaction.dispose();
+                authStore.allowed();
+              });
+            },
+          ),
+        );
       } else {
-        final authStore = getIt.get<AuthenticationStore>();
-        final appStore = getIt.get<AppStore>();
-        final useTotp = appStore.settingsStore.useTOTP2FA;
-        if (useTotp) {
-          authPageState.close(
-            route: Routes.totpAuthCodePage,
-            arguments: TotpAuthArgumentsModel(
-              isForSetup: false,
-              isClosable: false,
-              onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
-                  TotpAuthCodePageState totpAuthPageState) async {
-                if (!isAuthenticatedSuccessfully) {
-                  return;
-                }
-                if (appStore.wallet != null) {
-                  authStore.allowed();
-                  return;
-                }
-
-                totpAuthPageState.changeProcessText('Loading the wallet');
-
-                if (loginError != null) {
-                  totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
-                }
-
-                ReactionDisposer? _reaction;
-                _reaction = reaction((_) => appStore.wallet, (Object? _) {
-                  _reaction?.reaction.dispose();
-                  authStore.allowed();
-                });
-              },
-            ),
-          );
-        } else {
-          if (appStore.wallet != null) {
-            authStore.allowed();
-            return;
-          }
-
-          authPageState.changeProcessText('Loading the wallet');
-
-          if (loginError != null) {
-            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
-          }
-
-          ReactionDisposer? _reaction;
-          _reaction = reaction((_) => appStore.wallet, (Object? _) {
-            _reaction?.reaction.dispose();
-            authStore.allowed();
-          });
+        if (appStore.wallet != null) {
+          authStore.allowed();
+          return;
         }
+
+        authPageState.changeProcessText('Loading the wallet');
+
+        if (loginError != null) {
+          authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+        }
+
+        ReactionDisposer? _reaction;
+        _reaction = reaction((_) => appStore.wallet, (Object? _) {
+          _reaction?.reaction.dispose();
+          authStore.allowed();
+        });
       }
-    }, closable: false);
-  }, instanceName: 'login');
+    }
+  }
+
+  getIt.registerFactory<AuthPage>(
+      () => AuthPage(getIt.get<AuthViewModel>(),
+          onAuthenticationFinished:
+              (isAuthenticated, AuthPageState authPageState) =>
+                  _onAuth(isAuthenticated, authPageState),
+          closable: false),
+      instanceName: 'login');
 
   getIt.registerFactory(() => BalancePage(
       dashboardViewModel: getIt.get<DashboardViewModel>(),
@@ -554,6 +559,22 @@ Future setup({
 
   getIt.registerFactory(
       () => SendTemplatePage(sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
+
+  getIt.registerLazySingleton(() {
+    final currentWalletName = getIt
+            .get<SharedPreferences>()
+            .getString(PreferencesKey.currentWalletName) ??
+        '';
+    final currentWalletTypeRaw = getIt
+            .get<SharedPreferences>()
+            .getInt(PreferencesKey.currentWalletType) ??
+        0;
+    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    return WalletPasswordAuthViewModel(
+        getIt.get<WalletLoadingService>(),
+        walletName: currentWalletName, walletType: currentWalletType);
+  });
 
   if (DeviceInfo.instance.isMobile) {
     getIt.registerFactory(
@@ -1029,61 +1050,25 @@ Future setup({
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
-    final currentWalletName = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName) ?? '';
-    final currentWalletTypeRaw =
-      getIt.get<SharedPreferences>()
-        .getInt(PreferencesKey.currentWalletType) ?? 0;
-    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
-
-    return WalletUnlockLoadableViewModel(
-      getIt.get<AppStore>(),
-      getIt.get<WalletLoadingService>(),
-      walletName: args.walletName ?? currentWalletName,
-      walletType: args.walletType ?? currentWalletType);
-  });
-
-  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>((args, _) {
-    final currentWalletName = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName) ?? '';
-    final currentWalletTypeRaw =
-      getIt.get<SharedPreferences>()
-        .getInt(PreferencesKey.currentWalletType) ?? 0;
-    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
-
-    return WalletUnlockVerifiableViewModel(
-      getIt.get<AppStore>(),
-      walletName: args.walletName ?? currentWalletName,
-      walletType: args.walletType ?? currentWalletType);
-  });
-
-  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>(
+      (args, closable) {
+    // Every time the unlock page is called, reset the password auth view model
+    // singleton with the new values, then WalletListViewModel will be able to
+    // access the new values
+    getIt.resetLazySingleton<WalletPasswordAuthViewModel>();
     return WalletUnlockPage(
-      getIt.get<WalletUnlockLoadableViewModel>(param1: args),
-      args.callback,
-      closable: closable);
-  }, instanceName: 'wallet_unlock_loadable');
-
-  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
-    return WalletUnlockPage(
-      getIt.get<WalletUnlockVerifiableViewModel>(param1: args),
-      args.callback,
-      closable: closable);
-  }, instanceName: 'wallet_unlock_verifiable');
+        walletUnlockViewModel: getIt.get<WalletPasswordAuthViewModel>(),
+        appStore: getIt.get<AppStore>(),
+        args: args,
+        onAuthenticationFinished: args.callback,
+        closable: closable);
+  });
 
   getIt.registerFactory<WalletUnlockPage>(
       () => getIt.get<WalletUnlockPage>(
-        param1: WalletUnlockArguments(
-          callback: (bool successful, _) {
-            if (successful) {
-              final authStore = getIt.get<AuthenticationStore>();
-              authStore.allowed();
-            }}),
-        param2: false,
-        instanceName: 'wallet_unlock_loadable'),
+          param1: WalletUnlockArguments(
+              callback: (bool successful, auth) => _onAuth(successful, auth)),
+          param2: false),
       instanceName: 'wallet_password_login');
 
   _isSetupFinished = true;

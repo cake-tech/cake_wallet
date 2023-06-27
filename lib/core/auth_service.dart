@@ -80,14 +80,62 @@ class AuthService with Store {
     return timeDifference.inMinutes;
   }
 
+  Future<void> onAuthSuccess(
+      bool isAuthenticatedSuccessfully, AuthPageState auth,
+      {Function(bool)? onAuthAndTotpSuccess,
+      String? route,
+      Object? arguments}) async {
+    if (!isAuthenticatedSuccessfully) {
+      onAuthAndTotpSuccess?.call(false);
+      return;
+    }
+
+    if (settingsStore.useTOTP2FA) {
+      auth.close(
+        route: Routes.totpAuthCodePage,
+        arguments: TotpAuthArgumentsModel(
+          isForSetup: !settingsStore.useTOTP2FA,
+          onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
+              TotpAuthCodePageState totpAuth) async {
+            if (!isAuthenticatedSuccessfully) {
+              onAuthAndTotpSuccess?.call(false);
+              return;
+            }
+
+            if (onAuthAndTotpSuccess != null) {
+              totpAuth.close().then((value) => onAuthAndTotpSuccess.call(true));
+            } else {
+              totpAuth.close(route: route, arguments: arguments);
+            }
+          },
+        ),
+      );
+
+      return;
+    }
+
+    if (onAuthAndTotpSuccess != null) {
+      auth.close().then((value) => onAuthAndTotpSuccess.call(true));
+    } else {
+      auth.close(route: route, arguments: arguments);
+    }
+  }
+
   Future<void> authenticateAction(BuildContext context,
-      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
-    assert(route != null || onAuthSuccess != null,
+      {Function(bool)? onAuthAndTotpSuccess,
+      String? authRoute,
+      Object? authArguments,
+      String? route,
+      Object? arguments,
+      bool? alwaysRequireAuth}) async {
+    assert(route != null || onAuthAndTotpSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
 
-    if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
-      if (onAuthSuccess != null) {
-        onAuthSuccess(true);
+    if (alwaysRequireAuth != true &&
+        !requireAuth() &&
+        !_alwaysAuthenticateRoutes.contains(route)) {
+      if (onAuthAndTotpSuccess != null) {
+        onAuthAndTotpSuccess(true);
       } else {
         Navigator.of(context).pushNamed(
           route ?? '',
@@ -97,42 +145,12 @@ class AuthService with Store {
       return;
     }
 
-
-    Navigator.of(context).pushNamed(Routes.auth,
-        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-      if (!isAuthenticatedSuccessfully) {
-        onAuthSuccess?.call(false);
-        return;
-      } else {
-        if (settingsStore.useTOTP2FA) {
-          auth.close(
-            route: Routes.totpAuthCodePage,
-            arguments: TotpAuthArgumentsModel(
-              isForSetup: !settingsStore.useTOTP2FA,
-              onTotpAuthenticationFinished:
-                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
-                if (!isAuthenticatedSuccessfully) {
-                  onAuthSuccess?.call(false);
-                  return;
-                }
-                if (onAuthSuccess != null) {
-                  totpAuth.close().then((value) => onAuthSuccess.call(true));
-                } else {
-                  totpAuth.close(route: route, arguments: arguments);
-                }
-              },
-            ),
-          );
-        } else {
-          if (onAuthSuccess != null) {
-            auth.close().then((value) => onAuthSuccess.call(true));
-          } else {
-            auth.close(route: route, arguments: arguments);
-          }
-        }
-      }
-
-      });
-
+    Navigator.of(context).pushNamed(authRoute ?? Routes.auth,
+        arguments: authArguments ??
+            (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
+                onAuthSuccess(isAuthenticatedSuccessfully, auth,
+                    onAuthAndTotpSuccess: onAuthAndTotpSuccess,
+                    route: route,
+                    arguments: arguments));
   }
 }

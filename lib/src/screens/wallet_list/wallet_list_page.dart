@@ -205,14 +205,15 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    await widget.authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+    widget.walletListViewModel.authWallet(context, wallet,
+        (isAuthenticatedSuccessfully) async {
       if (!isAuthenticatedSuccessfully) {
         return;
       }
 
       try {
-        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        changeProcessText(
+            S.of(context).wallet_list_loading_wallet(wallet.name));
         await widget.walletListViewModel.loadWallet(wallet);
         await hideProgressText();
         // only pop the wallets route in mobile as it will go back to dashboard page
@@ -223,14 +224,16 @@ class WalletListBodyState extends State<WalletListBody> {
           });
         }
       } catch (e) {
-        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        changeProcessText(S
+            .of(context)
+            .wallet_list_failed_to_load(wallet.name, e.toString()));
       }
     });
   }
 
   Future<void> _removeWallet(WalletListItem wallet) async {
     widget.authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+        onAuthAndTotpSuccess: (isAuthenticatedSuccessfully) async {
       if (!isAuthenticatedSuccessfully) {
         return;
       }

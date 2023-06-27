@@ -283,7 +283,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 ? getIt.get<WalletUnlockPage>(
                     param1: WalletUnlockArguments(
                       callback: settings.arguments as OnAuthenticationFinished),
-                      instanceName: 'wallet_unlock_verifiable',
                     param2: true)
                 : getIt.get<AuthPage>(
                     param1: settings.arguments as OnAuthenticationFinished,
@@ -304,7 +303,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_)
             => getIt.get<WalletUnlockPage>(
               param1: settings.arguments as WalletUnlockArguments,
-                instanceName: 'wallet_unlock_loadable',
               param2: true));
 
     case Routes.unlock:
@@ -316,8 +314,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                     child: getIt.get<WalletUnlockPage>(
                       param1: WalletUnlockArguments(
                         callback: settings.arguments as OnAuthenticationFinished),
-                      param2: false,
-                      instanceName: 'wallet_unlock_verifiable'),
+                      param2: false),
                     onWillPop: () async => false)
                 : WillPopScope(
                     child: getIt.get<AuthPage>(

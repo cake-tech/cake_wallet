@@ -97,7 +97,7 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
         setup2FAViewModel: widget.setup2FAViewModel,
         isForSetup: widget.totpArguments.isForSetup ?? false,
         isClosable: widget.totpArguments.isClosable ?? true,
-        showPopup: widget.totpArguments.showPopup,
+        showPopup: widget.totpArguments.showPopup ?? false,
       ),
     );
   }
@@ -121,7 +121,7 @@ class TOTPEnterCode extends BasePage {
     });
   }
 
-  final bool? showPopup;
+  final bool showPopup;
 
   @override
   String get title => isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa;
@@ -177,7 +177,7 @@ class TOTPEnterCode extends BasePage {
 
                   bool confirmResult = false;
 
-                  if (showPopup ?? false) {
+                  if (showPopup) {
                     await showPopUp<void>(
                       context: context,
                       builder: (BuildContext context) {
@@ -195,6 +195,9 @@ class TOTPEnterCode extends BasePage {
 
                   if (confirmResult || showPopup == false) {
                     result ? setup2FAViewModel.success() : null;
+                  }
+
+                  if (confirmResult) {
                     if (isForSetup && result) {
                       Navigator.pushNamedAndRemoveUntil(
                           context, Routes.dashboard, (route) => false);
