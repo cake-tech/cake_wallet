@@ -69,33 +69,33 @@ abstract class WalletCreationVMBase with Store {
       // if (restoreWallet != null &&
       //     restoreWallet.restoreMode == WalletRestoreMode.txids) {
       //* Create the newWallet that will receive the funds
-      final newWallet = await createNewWalletWithoutSwitching(
-        options: options,
-        regenerateName: true,
-      );
-      final newWalletAddress = newWallet.walletAddresses.address;
-      print('New Wallet Address ' + newWalletAddress);
+      // final newWallet = await createNewWalletWithoutSwitching(
+      //   options: options,
+      //   regenerateName: true,
+      // );
+      // final newWalletAddress = newWallet.walletAddresses.address;
+      // print('New Wallet Address ' + newWalletAddress);
 
-      //* Switch to the restoredWallet in order to activate the node connection
-      _appStore.changeCurrentWallet(restoredWallet);
+      // //* Switch to the restoredWallet in order to activate the node connection
+      // _appStore.changeCurrentWallet(restoredWallet);
 
-      await restoredWallet.startSync();
-      print('Before syncing starts');
-      await syncCompleter.future;
-      print('After syncing ends');
+      // await restoredWallet.startSync();
+      // print('Before syncing starts');
+      // await syncCompleter.future;
+      // print('After syncing ends');
 
       //* Sweep all funds from restoredWallet to newWallet
-      await sweepAllFundsToNewWallet(
-        restoredWallet,
-        type,
-        newWalletAddress,
-        restoreWallet?.txId ?? '',
-      );
+      // await sweepAllFundsToNewWallet(
+      //   restoredWallet,
+      //   type,
+      //   newWalletAddress,
+      //   restoreWallet?.txId ?? '',
+      // );
       // } else {
-      //   await _walletInfoSource.add(restoredWallet.walletInfo);
-      //   _appStore.changeCurrentWallet(restoredWallet);
-      //   _appStore.authenticationStore.allowed();
-      //   state = ExecutedSuccessfullyState();
+      await _walletInfoSource.add(restoredWallet.walletInfo);
+      _appStore.changeCurrentWallet(restoredWallet);
+      _appStore.authenticationStore.allowed();
+      state = ExecutedSuccessfullyState();
       // }
     } catch (e) {
       print('Errorrrrr');
