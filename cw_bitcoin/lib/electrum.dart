@@ -112,8 +112,10 @@ class ElectrumClient {
       }
     }, onError: (Object error) {
       print(error.toString());
+      unterminatedString = '';
       _setIsConnected(false);
     }, onDone: () {
+      unterminatedString = '';
       _setIsConnected(false);
     });
     keepAlive();
@@ -222,7 +224,7 @@ class ElectrumClient {
 
   Future<Map<String, dynamic>> getTransactionRaw(
           {required String hash}) async =>
-      call(method: 'blockchain.transaction.get', params: [hash, true])
+      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, true], timeout: 10000)
           .then((dynamic result) {
         if (result is Map<String, dynamic>) {
           return result;
@@ -233,7 +235,7 @@ class ElectrumClient {
 
   Future<String> getTransactionHex(
           {required String hash}) async =>
-      call(method: 'blockchain.transaction.get', params: [hash, false])
+      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, false], timeout: 10000)
           .then((dynamic result) {
         if (result is String) {
           return result;
