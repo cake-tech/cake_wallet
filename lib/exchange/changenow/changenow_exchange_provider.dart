@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
@@ -55,7 +56,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async => true;
 
-  final settingsStore;
+  final SettingsStore settingsStore;
 
   String _lastUsedRateId;
 
@@ -100,10 +101,17 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as ChangeNowRequest;
     final distributionPath = await DistributionInfo.instance.getDistributionPath();
+    final formattedAppVersion = int.tryParse(settingsStore.appVersion.replaceAll('.', '')) ?? 0;
+    final payload = {
+      'app': isMoneroOnly ? 'monerocom' : 'cakewallet',
+      'device': Platform.operatingSystem,
+      'distribution': distributionPath,
+      'version': formattedAppVersion
+    };
     final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
     final flow = getFlow(isFixedRateMode);
     final type = isFixedRateMode ? 'reverse' : 'direct';
-    final body = <String, String>{
+    final body = <String, dynamic>{
       'fromCurrency': normalizeCryptoCurrency(_request.from),
       'toCurrency': normalizeCryptoCurrency(_request.to),
       'fromNetwork': networkFor(_request.from),
@@ -114,10 +122,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'flow': flow,
       'type': type,
       'refundAddress': _request.refundAddress,
-      'app': isMoneroOnly ? 'monerocom' : 'cakewallet',
-      'device': Platform.operatingSystem,
-      'distribution': distributionPath,
-      'version': settingsStore.appVersion.toString(),
+      'payload': payload,
     };
 
     if (isFixedRateMode) {
