@@ -269,25 +269,22 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletPath = await pathForWallet(name: name, type: type);
     final currentCacheFile = File(currentWalletPath);
     final currentKeysFile = File('$currentWalletPath.keys');
     final currentAddressListFile = File('$currentWalletPath.address.txt');
 
-    final newWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final newWalletPath = await pathForWallet(name: newWalletName, type: type);
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentCacheFile.existsSync()) {
-      final newCacheFilePath = newWalletPath;
-      await currentCacheFile.copy(newCacheFilePath);
+      await currentCacheFile.copy(newWalletPath);
     }
     if (currentKeysFile.existsSync()) {
-      final newKeysFilePath = '$newWalletPath.keys';
-      await currentKeysFile.copy(newKeysFilePath);
+      await currentKeysFile.copy( '$newWalletPath.keys');
     }
     if (currentAddressListFile.existsSync()) {
-      final newAddressListFilePath = '$newWalletPath.address.txt';
-      await currentAddressListFile.copy(newAddressListFilePath);
+      await currentAddressListFile.copy('$newWalletPath.address.txt');
     }
 
     // Delete old name's dir and files

@@ -153,21 +153,13 @@ class MoneroWalletService extends WalletService<
       String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values.firstWhere(
         (info) => info.id == WalletBase.idFor(currentName, getType()));
-    final newWalletInfo = WalletInfo.external(
-        id: WalletBase.idFor(newName, getType()),
-        name: newName,
-        type: getType(),
-        isRecovery: currentWalletInfo.isRecovery,
-        restoreHeight: currentWalletInfo.restoreHeight,
-        date: currentWalletInfo.date,
-        path: currentWalletInfo.path,
-        dirPath: currentWalletInfo.dirPath,
-        address: currentWalletInfo.address,
-        showIntroCakePayCard: currentWalletInfo.showIntroCakePayCard);
+    final currentWallet = MoneroWallet(walletInfo: currentWalletInfo);
 
-    final wallet = MoneroWallet(walletInfo: newWalletInfo);
+    await currentWallet.renameWalletFiles(newName);
 
-    await wallet.copy(currentName, newName);
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
