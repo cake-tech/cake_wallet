@@ -9,7 +9,7 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 
 part 'electrum_transaction_history.g.dart';
 
-const _transactionsHistoryFileName = 'transactions.json';
+const transactionsHistoryFileName = 'transactions.json';
 
 class ElectrumTransactionHistory = ElectrumTransactionHistoryBase
     with _$ElectrumTransactionHistory;
@@ -42,7 +42,7 @@ abstract class ElectrumTransactionHistoryBase
     try {
       final dirPath =
           await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-      final path = '$dirPath/$_transactionsHistoryFileName';
+      final path = '$dirPath/$transactionsHistoryFileName';
       final data =
           json.encode({'height': _height, 'transactions': transactions});
       await writeData(path: path, password: _password, data: data);
@@ -59,7 +59,7 @@ abstract class ElectrumTransactionHistoryBase
   Future<Map<String, dynamic>> _read() async {
     final dirPath =
         await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-    final path = '$dirPath/$_transactionsHistoryFileName';
+    final path = '$dirPath/$transactionsHistoryFileName';
     final content = await read(path: path, password: _password);
     return json.decode(content) as Map<String, dynamic>;
   }

@@ -1,13 +1,13 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/api/transaction_history.dart'
     as monero_transaction_history;
@@ -268,10 +268,31 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await monero_wallet.store();
   }
 
-  Future<void> copy(String currentName, String newName) async {
-    await walletAddresses.updateAddressesInBox();
-    await copyWalletFiles(currentName, newName, WalletType.monero);
-    await monero_wallet.store();
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentCacheFile = File(currentWalletPath);
+    final currentKeysFile = File('$currentWalletPath.keys');
+    final currentAddressListFile = File('$currentWalletPath.address.txt');
+
+    final newWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+
+    // Copies current wallet files into new wallet name's dir and files
+    if (currentCacheFile.existsSync()) {
+      final newCacheFilePath = newWalletPath;
+      await currentCacheFile.copy(newCacheFilePath);
+    }
+    if (currentKeysFile.existsSync()) {
+      final newKeysFilePath = '$newWalletPath.keys';
+      await currentKeysFile.copy(newKeysFilePath);
+    }
+    if (currentAddressListFile.existsSync()) {
+      final newAddressListFilePath = '$newWalletPath.address.txt';
+      await currentAddressListFile.copy(newAddressListFilePath);
+    }
+
+    // Delete old name's dir and files
+    final oldDirPath = await pathForWalletDir(name: name, type: type);
+    await Directory(oldDirPath).delete(recursive: true);
   }
 
   @override

@@ -32,29 +32,6 @@ Future<void> backupWalletFiles(String name) async {
   }
 }
 
-Future<void> copyWalletFiles(
-    String currentName, String newName, WalletType type) async {
-  final currentPath = await pathForWallet(name: currentName, type: type);
-  final cacheFile = File(currentPath);
-  final keysFile = File('$currentPath.keys');
-  final addressListFile = File('$currentPath.address.txt');
-
-  final newPath = await pathForWallet(name: newName, type: type);
-
-  if (cacheFile.existsSync()) {
-    final newCacheFilePath = newPath;
-    await cacheFile.copy(newCacheFilePath);
-  }
-  if (keysFile.existsSync()) {
-    final newKeysFilePath = '$newPath.keys';
-    await keysFile.copy(newKeysFilePath);
-  }
-  if (addressListFile.existsSync()) {
-    final newAddressListFilePath = '$newPath.address.txt';
-    await addressListFile.copy(newAddressListFilePath);
-  }
-}
-
 Future<void> restoreWalletFiles(String name) async {
   final walletDirPath = await pathForWalletDir(name: name, type: WalletType.monero);
   final cacheFilePath = '$walletDirPath/$name';
