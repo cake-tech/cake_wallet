@@ -138,7 +138,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
               Container(
                 margin: EdgeInsets.only(bottom: 40),
                 child: InkWell(
-                  onTap: () => Navigator.pop(popUpContext),
+                  onTap: () => Navigator.pop(context),
                   child: CircleAvatar(
                     child: Icon(
                       Icons.close,
