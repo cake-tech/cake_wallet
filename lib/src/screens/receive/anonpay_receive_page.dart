@@ -49,7 +49,7 @@ class AnonPayReceivePage extends BasePage {
         minWidth: double.minPositive,
         child: TextButton(
             onPressed: () =>
-                Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false),
+                Navigator.popUntil(context, (route) => route.isFirst),
             child: _backButton),
       ),
     );
