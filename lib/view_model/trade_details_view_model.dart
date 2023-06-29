@@ -21,7 +21,6 @@ import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:collection/collection.dart';
 
 part 'trade_details_view_model.g.dart';
 
@@ -33,8 +32,7 @@ abstract class TradeDetailsViewModelBase with Store {
     required this.trades,
     required this.settingsStore,
   })  : items = ObservableList<StandartListItem>(),
-        trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
-            tradeForDetails {
+        trade = tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider();
@@ -55,6 +53,8 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = TrocadorExchangeProvider();
         break;
     }
+
+    items = ObservableList<StandartListItem>();
 
     _updateItems();
 
@@ -84,12 +84,6 @@ abstract class TradeDetailsViewModelBase with Store {
 
       if (updatedTrade.createdAt == null && trade.createdAt != null) {
         updatedTrade.createdAt = trade.createdAt;
-      }
-      Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
-      if (foundElement != null) {
-        final editedTrade = trades.get(foundElement.key);
-        editedTrade?.stateRaw = updatedTrade.stateRaw;
-        editedTrade?.save();
       }
 
       trade = updatedTrade;
@@ -160,9 +154,8 @@ abstract class TradeDetailsViewModelBase with Store {
   }
 
   void _launchUrl(String url) {
-    final uri = Uri.parse(url);
     try {
-      launchUrl(uri);
+      launch(url);
     } catch (e) {}
   }
 }

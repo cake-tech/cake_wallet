@@ -35,7 +35,7 @@ abstract class ElectrumTransactionHistoryBase
 
   @override
   void addMany(Map<String, ElectrumTransactionInfo> transactions) =>
-      transactions.forEach((_, tx) => _update(tx));
+      transactions.forEach((_, tx) => _updateOrInsert(tx));
 
   @override
   Future<void> save() async {
@@ -74,7 +74,7 @@ abstract class ElectrumTransactionHistoryBase
 
         if (val is Map<String, dynamic>) {
           final tx = ElectrumTransactionInfo.fromJson(val, walletInfo.type);
-          _update(tx);
+          _updateOrInsert(tx);
         }
       });
 
@@ -84,6 +84,18 @@ abstract class ElectrumTransactionHistoryBase
     }
   }
 
-  void _update(ElectrumTransactionInfo transaction) =>
+  void _updateOrInsert(ElectrumTransactionInfo transaction) {
+
+    if (transactions[transaction.id] == null) {
       transactions[transaction.id] = transaction;
+    } else {
+      final originalTx = transactions[transaction.id];
+      originalTx?.confirmations = transaction.confirmations;
+      originalTx?.amount = transaction.amount;
+      originalTx?.height = transaction.height;
+      originalTx?.date ??= transaction.date;
+      originalTx?.isPending = transaction.isPending;
+      originalTx?.direction = transaction.direction;
+    }
+  }
 }
