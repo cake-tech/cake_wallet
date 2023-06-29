@@ -274,6 +274,8 @@ class WalletRestorePage extends BasePage {
   }
 
   void _confirmForm() {
+    // Dismissing all visible keyboard to provide context for navigation
+    FocusManager.instance.primaryFocus?.unfocus();
     final formContext = walletRestoreViewModel.mode == WalletRestoreMode.seed
         ? walletRestoreFromSeedFormKey.currentContext
         : walletRestoreFromKeysFormKey.currentContext;
