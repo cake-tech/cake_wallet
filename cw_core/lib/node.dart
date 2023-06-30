@@ -161,13 +161,26 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
-}
+  }
 
   Future<bool> requestElectrumServer() async {
     try {
       await SecureSocket.connect(uri.host, uri.port,
           timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
       return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestEthereumServer() async {
+    try {
+      final response = await http.get(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
     } catch (_) {
       return false;
     }

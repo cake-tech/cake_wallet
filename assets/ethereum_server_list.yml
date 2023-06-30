@@ -3,8 +3,6 @@
 -
   uri: eth.llamarpc.com
 -
-  uri: rpc.ankr.com/eth
--
   uri: rpc.flashbots.net
 -
   uri: eth-mainnet.public.blastapi.io

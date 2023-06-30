@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -80,6 +81,12 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   bool get isHomeScreenSettingsEnabled => wallet.type == WalletType.ethereum;
+
+  @computed
+  SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;
+
+  @computed
+  bool get pinNativeToken => settingsStore.pinNativeTokenAtTop;
 
   @computed
   String get asset {
@@ -213,7 +220,7 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   Map<CryptoCurrency, BalanceRecord> get balances {
-    return wallet.balance.map((key, value) {
+    return _sortedBalance.map((key, value) {
       if (displayMode == BalanceDisplayMode.hiddenBalance) {
         return MapEntry(key, BalanceRecord(
           availableBalance: '---',
@@ -362,5 +369,33 @@ abstract class BalanceViewModelBase with Store {
   }
 
   String getFormattedFrozenBalance(Balance walletBalance) => walletBalance.formattedFrozenBalance;
+
+  @computed
+  Map<CryptoCurrency, Balance> get _sortedBalance {
+    final Map<CryptoCurrency, Balance> sortedMap = {};
+    if (pinNativeToken) {
+      sortedMap[wallet.currency] = wallet.balance[wallet.currency]!;
+    }
+    switch (sortBalanceBy) {
+      case SortBalanceBy.FiatBalance:
+        sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
+          ..sort((e1, e2) => double.parse(
+              _getFiatBalance(price: price, cryptoAmount: e2.value.formattedAvailableBalance))
+              .compareTo(double.parse(_getFiatBalance(
+              price: price, cryptoAmount: e1.value.formattedAvailableBalance))))));
+        break;
+      case SortBalanceBy.GrossBalance:
+        sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
+          ..sort((e1, e2) => double.parse(e2.value.formattedAvailableBalance)
+              .compareTo(double.parse(e1.value.formattedAvailableBalance)))));
+        break;
+      case SortBalanceBy.Alphabetical:
+        sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
+          ..sort((e1, e2) => e1.key.title.compareTo(e2.key.title))));
+        break;
+    }
+
+    return sortedMap;
+  }
 }
 
