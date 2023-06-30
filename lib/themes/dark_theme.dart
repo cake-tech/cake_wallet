@@ -8,16 +8,21 @@ class DarkTheme extends ThemeBase {
 
   @override
   String get title => S.current.dark_theme;
-
   @override
   ThemeType get type => ThemeType.dark;
+  @override
+  Brightness get brightness => Brightness.dark;
+  @override
+  Color get backgroundColor => PaletteDark.backgroundColor;
+  @override
+  Color get primaryColor => Palette.blueCraiola;
+  @override
+  Color get primaryTextColor => Colors.white;
+  @override
+  Color get containerColor => PaletteDark.nightBlue;
 
-  ThemeData theme = ThemeData(
-      fontFamily: 'Lato',
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor:
-          PaletteDark.backgroundColor, // second gradient color
-      primaryColor: PaletteDark.backgroundColor, // third gradient color
+  @override
+  ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
       dividerColor: PaletteDark.dividerColor,
@@ -274,12 +279,5 @@ class DarkTheme extends ThemeBase {
             backgroundColor: PaletteDark.granite // keyboard bar color
         ),
       ),
-      cardColor: PaletteDark.darkNightBlue // bottom button (action list)
       );
-
-  @override
-  ThemeData get themeData => theme.copyWith(
-      colorScheme: theme.colorScheme.copyWith(
-          background: PaletteDark.backgroundColor,
-          secondary: PaletteDark.backgroundColor));
 }

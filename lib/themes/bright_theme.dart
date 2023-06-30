@@ -1,22 +1,25 @@
+import 'package:cake_wallet/themes/light_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 
-class BrightTheme extends ThemeBase {
+class BrightTheme extends LightTheme {
   BrightTheme({required int raw}) : super(raw: raw);
 
   @override
   String get title => S.current.bright_theme;
-
   @override
   ThemeType get type => ThemeType.bright;
+  @override
+  Color get primaryColor => Palette.moderateSlateBlue;
+  @override
+  Color get primaryTextColor => Palette.darkBlueCraiola;
+  @override
+  Color get containerColor => Palette.moderateLavender;
 
-  ThemeData theme = ThemeData(
-      fontFamily: 'Lato',
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: Palette.pinkFlamingo, // second gradient color
-      primaryColor: Palette.redHat, // third gradient color
+  @override
+  ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       hoverColor: Colors.white, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
@@ -263,13 +266,6 @@ class BrightTheme extends ThemeBase {
             color: Palette.moderateSlateBlue, // primary buttons
             decorationColor: Colors.white, // alert left button,
             backgroundColor: Palette.dullGray // keyboard bar color
-        ),
-      ),
-      cardColor: Palette.moderateSlateBlue // bottom button (action list)
-      );
-
-  @override
-  ThemeData get themeData => theme.copyWith(
-      colorScheme: theme.colorScheme
-          .copyWith(background: Colors.white, secondary: Palette.blueCraiola));
+        )
+      ));
 }

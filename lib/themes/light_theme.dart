@@ -8,15 +8,21 @@ class LightTheme extends ThemeBase {
 
   @override
   String get title => S.current.light_theme;
-
   @override
   ThemeType get type => ThemeType.light;
+  @override
+  Brightness get brightness => Brightness.light;
+  @override
+  Color get backgroundColor => Colors.white;
+  @override
+  Color get primaryColor => Palette.protectiveBlue;
+  @override
+  Color get primaryTextColor => Palette.darkBlueCraiola;
+  @override
+  Color get containerColor => Palette.blueAlice;
 
-  ThemeData theme = ThemeData(
-      fontFamily: 'Lato',
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: Colors.white, // second gradient color
-      primaryColor: Colors.white, // third gradient color
+  @override
+  ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
       hoverColor: Palette.darkBlueCraiola, // amount hint text (receive page)
@@ -265,11 +271,5 @@ class LightTheme extends ThemeBase {
             backgroundColor: Palette.dullGray // keyboard bar color
         ),
       ),
-      cardColor: Palette.protectiveBlue // bottom button (action list)
       );
-
-  @override
-  ThemeData get themeData => theme.copyWith(
-      colorScheme: theme.colorScheme
-          .copyWith(background: Colors.white, secondary: Colors.white));
 }
