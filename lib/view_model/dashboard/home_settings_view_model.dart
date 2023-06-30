@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:mobx/mobx.dart';
 
@@ -26,7 +27,10 @@ abstract class HomeSettingsViewModelBase with Store {
   SortBalanceBy get sortBalanceBy => _settingsStore.sortBalanceBy;
 
   @action
-  void setSortBalanceBy(SortBalanceBy value) => _settingsStore.sortBalanceBy = value;
+  void setSortBalanceBy(SortBalanceBy value) {
+    _settingsStore.sortBalanceBy = value;
+    _sortTokens();
+  }
 
   @computed
   bool get pinNativeToken => _settingsStore.pinNativeTokenAtTop;
@@ -36,8 +40,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
   @action
   void _updateTokensList() {
-    tokens.clear();
-    tokens.addAll(ethereum!.getERC20Currencies(_balanceViewModel.wallet));
+    _sortTokens();
   }
 
   Future<void> addErc20Token(Erc20Token token) async {
@@ -70,5 +73,22 @@ abstract class HomeSettingsViewModelBase with Store {
     tokens[index].enabled = value;
     _balanceViewModel.wallet.updateBalance();
     _updateTokensList();
+  }
+
+  void _sortTokens() {
+    tokens.clear();
+
+    // Add Sorted Enabled tokens
+    for (int i = 0; i < _balanceViewModel.balances.keys.length; i++) {
+      final CryptoCurrency currency = _balanceViewModel.balances.keys.elementAt(i);
+      if (currency is Erc20Token) {
+        tokens.add(currency);
+      }
+    }
+
+    // Add disabled tokens
+    tokens.addAll(ethereum!
+        .getERC20Currencies(_balanceViewModel.wallet)
+        .where((element) => !element.enabled));
   }
 }
