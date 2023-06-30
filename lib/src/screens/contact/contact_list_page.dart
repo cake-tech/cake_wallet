@@ -65,12 +65,11 @@ class ContactListPage extends BasePage {
           final contacts = contactListViewModel.contactsToShow;
           final walletContacts = contactListViewModel.walletContactsToShow;
           return CollapsibleSectionList(
-              context: context,
               sectionCount: 2,
               themeColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
               dividerThemeColor:
               Theme.of(context).primaryTextTheme!.bodySmall!.decorationColor!,
-              sectionTitleBuilder: (_, int sectionIndex) {
+              sectionTitleBuilder: (int sectionIndex) {
                 var title = S.current.contact_list_contacts;
 
                 if (sectionIndex == 0) {
@@ -84,7 +83,7 @@ class ContactListPage extends BasePage {
               itemCounter: (int sectionIndex) => sectionIndex == 0
                   ? walletContacts.length
                   : contacts.length,
-              itemBuilder: (_, sectionIndex, index) {
+              itemBuilder: (sectionIndex, index) {
                 if (sectionIndex == 0) {
                   final walletInfo = walletContacts[index];
                   return generateRaw(context, walletInfo);

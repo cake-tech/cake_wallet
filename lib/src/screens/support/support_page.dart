@@ -28,10 +28,9 @@ class SupportPage extends BasePage {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 500),
         child: SectionStandardList(
-            context: context,
             sectionCount: 1,
             itemCounter: (int _) => supportViewModel.items.length,
-            itemBuilder: (_, __, index) {
+            itemBuilder: (__, index) {
               final item = supportViewModel.items[index];
 
               if (item is RegularListItem) {

@@ -56,12 +56,11 @@ class ConnectionSyncPage extends BasePage {
               return Flexible(
                 child: SectionStandardList(
                   sectionCount: 1,
-                  context: context,
                   dividerPadding: EdgeInsets.symmetric(horizontal: 24),
                   itemCounter: (int sectionIndex) {
                     return nodeListViewModel.nodes.length;
                   },
-                  itemBuilder: (_, sectionIndex, index) {
+                  itemBuilder: (sectionIndex, index) {
                     final node = nodeListViewModel.nodes[index];
                     final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
                     final nodeListRow = Semantics(

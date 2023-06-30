@@ -4,8 +4,7 @@ import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
-  StandardListRow(
-      {required this.title, required this.isSelected, this.onTap});
+  StandardListRow({required this.title, required this.isSelected, this.onTap});
 
   final String title;
   final bool isSelected;
@@ -39,12 +38,13 @@ class StandardListRow extends StatelessWidget {
         child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
       if (hasLeftOffset) SizedBox(width: 10),
       Expanded(
-        child: Text(title,
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: titleColor(context),
-            ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+            color: titleColor(context),
+          ),
         ),
       )
     ]));
@@ -74,7 +74,6 @@ class SectionHeaderListRow extends StatelessWidget {
 }
 
 class StandardListSeparator extends StatelessWidget {
-
   StandardListSeparator({this.padding, this.height = 1});
 
   final EdgeInsets? padding;
@@ -108,7 +107,6 @@ class StandardList extends StatelessWidget {
             StandardListSeparator(padding: EdgeInsets.only(left: 24)),
         itemCount: itemCount,
         itemBuilder: itemBuilder);
-
   }
 }
 
@@ -120,35 +118,22 @@ class SectionStandardListItem {
 }
 
 class SectionStandardList extends StatelessWidget {
-  SectionStandardList(
-      {required this.itemCounter,
-      required this.itemBuilder,
-      required this.sectionCount,
-      required BuildContext context,
-      this.dividerPadding = const EdgeInsets.only(left: 24),
-      this.themeColor,
-      this.dividerThemeColor,
-      this.sectionTitleBuilder,
-      this.hasTopSeparator = false,})
-      : totalRows = [] {
-    totalRows.addAll(transform(
-        hasTopSeparator,
-        context,
-        sectionCount,
-        itemCounter,
-        itemBuilder,
-        sectionTitleBuilder,
-        themeColor,
-        dividerThemeColor));
-  }
+  SectionStandardList({
+    required this.itemCounter,
+    required this.itemBuilder,
+    required this.sectionCount,
+    this.dividerPadding = const EdgeInsets.only(left: 24),
+    this.themeColor,
+    this.dividerThemeColor,
+    this.sectionTitleBuilder,
+    this.hasTopSeparator = false,
+  }) : totalRows = [];
 
   final int sectionCount;
   final bool hasTopSeparator;
   final int Function(int sectionIndex) itemCounter;
-  final Widget Function(BuildContext context, int sectionIndex, int itemIndex)
-      itemBuilder;
-  final Widget Function(BuildContext context, int sectionIndex)?
-      sectionTitleBuilder;
+  final Widget Function(int sectionIndex, int itemIndex) itemBuilder;
+  final Widget Function(int sectionIndex)? sectionTitleBuilder;
   final List<Widget> totalRows;
   final Color? themeColor;
   final Color? dividerThemeColor;
@@ -156,13 +141,10 @@ class SectionStandardList extends StatelessWidget {
 
   List<Widget> transform(
       bool hasTopSeparator,
-      BuildContext context,
       int sectionCount,
       int Function(int sectionIndex) itemCounter,
-      Widget Function(BuildContext context, int sectionIndex, int itemIndex)
-          itemBuilder,
-      Widget Function(BuildContext context, int sectionIndex)?
-          sectionTitleBuilder,
+      Widget Function(int sectionIndex, int itemIndex) itemBuilder,
+      Widget Function(int sectionIndex)? sectionTitleBuilder,
       Color? themeColor,
       Color? dividerThemeColor) {
     final items = <Widget>[];
@@ -173,12 +155,12 @@ class SectionStandardList extends StatelessWidget {
       }
 
       if (sectionTitleBuilder != null) {
-        items.add(buildTitle(items, sectionIndex, context));
+        items.add(buildTitle(items, sectionIndex));
       }
 
       final itemCount = itemCounter(sectionIndex);
 
-      items.addAll(buildSection(itemCount, items, sectionIndex, context));
+      items.addAll(buildSection(itemCount, items, sectionIndex));
 
       items.add(sectionIndex + 1 != sectionCount
           ? SectionHeaderListRow()
@@ -188,21 +170,20 @@ class SectionStandardList extends StatelessWidget {
     return items;
   }
 
-  Widget buildTitle(
-      List<Widget> items, int sectionIndex, BuildContext context) {
+  Widget buildTitle(List<Widget> items, int sectionIndex) {
     if (sectionTitleBuilder == null) {
       throw Exception('Cannot to build title. sectionTitleBuilder is null');
     }
 
-    return sectionTitleBuilder!.call(context, sectionIndex);
+    return sectionTitleBuilder!.call(sectionIndex);
   }
 
-  List<Widget> buildSection(int itemCount, List<Widget> items, int sectionIndex,
-      BuildContext context) {
+  List<Widget> buildSection(
+      int itemCount, List<Widget> items, int sectionIndex) {
     final List<Widget> section = [];
 
     for (var itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-      final item = itemBuilder(context, sectionIndex, itemIndex);
+      final item = itemBuilder(sectionIndex, itemIndex);
 
       section.add(item);
     }
@@ -211,6 +192,9 @@ class SectionStandardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    totalRows.addAll(transform(hasTopSeparator, sectionCount, itemCounter,
+        itemBuilder, sectionTitleBuilder, themeColor, dividerThemeColor));
+
     return ListView.separated(
         separatorBuilder: (_, index) {
           final row = totalRows[index];
@@ -219,7 +203,8 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          if (row is StandardListStatusRow || row is TradeDetailsStandardListCard) {
+          if (row is StandardListStatusRow ||
+              row is TradeDetailsStandardListCard) {
             return Container();
           }
 
