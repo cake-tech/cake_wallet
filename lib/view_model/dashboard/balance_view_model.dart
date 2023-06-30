@@ -379,10 +379,12 @@ abstract class BalanceViewModelBase with Store {
     switch (sortBalanceBy) {
       case SortBalanceBy.FiatBalance:
         sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
-          ..sort((e1, e2) => double.parse(
-              _getFiatBalance(price: price, cryptoAmount: e2.value.formattedAvailableBalance))
+          ..sort((e1, e2) => double.parse(_getFiatBalance(
+              price: fiatConvertationStore.prices[e2.key]!,
+              cryptoAmount: e2.value.formattedAvailableBalance))
               .compareTo(double.parse(_getFiatBalance(
-              price: price, cryptoAmount: e1.value.formattedAvailableBalance))))));
+              price: fiatConvertationStore.prices[e1.key]!,
+              cryptoAmount: e1.value.formattedAvailableBalance))))));
         break;
       case SortBalanceBy.GrossBalance:
         sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
