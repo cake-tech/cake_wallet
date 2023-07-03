@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -51,10 +52,7 @@ class IoniaCustomTipPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context)
-              .accentTextTheme!
-              .bodyLarge!
-              .backgroundColor!,
+          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(

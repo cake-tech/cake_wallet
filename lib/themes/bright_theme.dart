@@ -239,8 +239,5 @@ class BrightTheme extends LightTheme {
           bodyMedium: TextStyle(
             color: Palette.darkGray, // indicators (PIN code)
             decorationColor: Palette.darkGray, // switch (PIN code)
-          ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(backgroundColor: Palette.dullGray // keyboard bar color
-              )));
+          )));
 }

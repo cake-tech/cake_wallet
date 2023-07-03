@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -102,10 +103,7 @@ class SendCardState extends State<SendCard>
         KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-                keyboardBarColor: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .backgroundColor!,
+                keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
                 nextFocus: false,
                 actions: [
                   KeyboardActionsItem(

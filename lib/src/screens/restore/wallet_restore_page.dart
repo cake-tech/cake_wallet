@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -139,10 +140,7 @@ class WalletRestorePage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-        keyboardBarColor: Theme.of(context)
-            .accentTextTheme!
-            .bodyLarge!
-            .backgroundColor!,
+        keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
         nextFocus: false,
         actions: [
           KeyboardActionsItem(

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
@@ -104,10 +105,7 @@ class ReceivePage extends BasePage {
         ? KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-                keyboardBarColor: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .backgroundColor!,
+                keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
                 nextFocus: false,
                 actions: [
                   KeyboardActionsItem(

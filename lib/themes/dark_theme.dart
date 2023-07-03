@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -35,6 +36,10 @@ class DarkTheme extends ThemeBase {
       syncedBackgroundColor: PaletteDark.lightNightBlue,
       notSyncedIconColor: PaletteDark.orangeYellow,
       notSyncedBackgroundColor: PaletteDark.oceanBlue);
+
+  @override
+  KeyboardTheme get keyboardTheme =>
+      KeyboardTheme(keyboardBarColor: PaletteDark.granite);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -254,10 +259,6 @@ class DarkTheme extends ThemeBase {
             color: PaletteDark.indicatorVioletBlue, // indicators (PIN code)
             decorationColor: PaletteDark.lightPurpleBlue, // switch (PIN code)
             ),
-        // body2 -> bodyLarge
-        bodyLarge: TextStyle(
-            backgroundColor: PaletteDark.granite // keyboard bar color
-        ),
       ),
       );
 }
