@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
@@ -179,7 +180,7 @@ class IoniaDebitCardPage extends BasePage {
                           S.of(context).how_to_use_card,
                           style: textLargeSemiBold(
                             color:
-                                Theme.of(context).textTheme!.bodyMedium!.color!,
+                                Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
                           ),
                         ),
                         SizedBox(height: 24),

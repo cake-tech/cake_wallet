@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -22,6 +23,11 @@ class LightTheme extends ThemeBase {
   Color get containerColor => Palette.blueAlice;
   @override
   Color get dialogBackgroundColor => Colors.white;
+
+  @override
+  CakeScrollbarTheme get scrollbarTheme => CakeScrollbarTheme(
+      thumbColor: Palette.moderatePurpleBlue,
+      trackColor: Palette.periwinkleCraiola);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -86,24 +92,11 @@ class LightTheme extends ThemeBase {
               decorationColor:
                   Colors.white // background of tiles (account list)
               ),
-          // body -> bodyMedium
-          bodyMedium: TextStyle(
-              color: Palette.moderatePurpleBlue, // scrollbar thumb
-              decorationColor: Palette.periwinkleCraiola // scrollbar background
-              ),
           // body2 -> bodyLarge
           bodyLarge: TextStyle(
             color: Palette.moderateLavender, // menu header
             decorationColor: Colors.white, // menu background
           )
-      ),
-      scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(Palette.moderatePurpleBlue),
-        trackColor: MaterialStateProperty.all(Palette.periwinkleCraiola),
-        radius: Radius.circular(3),
-        thickness: MaterialStateProperty.all(6),
-        thumbVisibility: MaterialStateProperty.all(true),
-        crossAxisMargin: 6,
       ),
       primaryTextTheme: TextTheme(
           // title -> titleLarge
@@ -208,8 +201,6 @@ class LightTheme extends ThemeBase {
         headlineSmall: TextStyle(
             color: Palette
                 .moderateLavender, // first gradient color of wallet action buttons (wallet list page)
-            backgroundColor: Palette
-                .moderateLavender, // second gradient color of wallet action buttons (wallet list page)
             decorationColor: Colors
                 .white // restore wallet button text color (wallet list page)
             ),

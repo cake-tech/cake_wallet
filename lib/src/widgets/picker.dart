@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
@@ -340,19 +341,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
                               style: TextStyle(
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
-                                  color: Theme.of(context)
-                                      .textTheme!
-                                      .bodyMedium!
-                                      .color!),
+                                  color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context)
-                                .textTheme!
-                                .bodyMedium!
-                                .decorationColor!,
+                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
                           ),
                         ),
                       ),
@@ -427,19 +422,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
                               style: TextStyle(
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
-                                  color: Theme.of(context)
-                                      .textTheme!
-                                      .bodyMedium!
-                                      .color!),
+                                  color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context)
-                                .textTheme!
-                                .bodyMedium!
-                                .decorationColor!,
+                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
                           ),
                         ),
                       ),

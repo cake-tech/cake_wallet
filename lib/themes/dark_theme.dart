@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -22,6 +23,10 @@ class DarkTheme extends ThemeBase {
   Color get containerColor => PaletteDark.nightBlue;
   @override
   Color get dialogBackgroundColor => PaletteDark.darkNightBlue;
+
+  @override
+  CakeScrollbarTheme get scrollbarTheme => CakeScrollbarTheme(
+      thumbColor: PaletteDark.wildBlueGrey, trackColor: PaletteDark.violetBlue);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -86,24 +91,11 @@ class DarkTheme extends ThemeBase {
               decorationColor: PaletteDark
                   .darkOceanBlue // background of tiles (account list)
               ),
-          // body1 -> bodyMedium
-          bodyMedium: TextStyle(
-              color: PaletteDark.wildBlueGrey, // scrollbar thumb
-              decorationColor: PaletteDark.violetBlue // scrollbar background
-              ),
           // body2 -> bodyLarge
           bodyLarge: TextStyle(
             color: PaletteDark.deepPurpleBlue, // menu header
             decorationColor: PaletteDark.deepPurpleBlue, // menu background
           )
-      ),
-      scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(PaletteDark.wildBlueGrey),
-        trackColor: MaterialStateProperty.all(PaletteDark.violetBlue),
-        radius: Radius.circular(3),
-        thickness: MaterialStateProperty.all(6),
-        thumbVisibility: MaterialStateProperty.all(true),
-        crossAxisMargin: 6,
       ),
       primaryTextTheme: TextTheme(
           // title -> titleLarge
@@ -200,7 +192,6 @@ class DarkTheme extends ThemeBase {
         ),
         // subtitle -> titleSmall
         titleSmall: TextStyle(
-            //color: PaletteDark.lightBlueGrey, // QR code (exchange trade page)
             color: Colors.white, // QR code (exchange trade page)
             backgroundColor:
                 PaletteDark.deepVioletBlue, // divider (exchange trade page)
@@ -211,8 +202,6 @@ class DarkTheme extends ThemeBase {
         headlineSmall: TextStyle(
             color: PaletteDark
                 .distantBlue, // first gradient color of wallet action buttons (wallet list page)
-            backgroundColor: PaletteDark
-                .distantNightBlue, // second gradient color of wallet action buttons (wallet list page)
             decorationColor: Palette
                 .darkBlueCraiola // restore wallet button text color (wallet list page)
             ),

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -27,17 +28,27 @@ abstract class ThemeBase {
       seedColor: primaryColor,
       background: backgroundColor);
 
+  ThemeData get generatedThemeData => ThemeData.from(
+      colorScheme: colorScheme,
+      textTheme: TextTheme().apply(fontFamily: 'Lato'));
+
   DashboardGradientTheme get pageGradientTheme => DashboardGradientTheme(
       firstGradientColor: backgroundColor,
       secondGradientColor: backgroundColor,
       thirdGradientColor: backgroundColor);
 
-  ThemeData get themeData => ThemeData.from(
-          colorScheme: colorScheme,
-          textTheme: TextTheme().apply(fontFamily: 'Lato'))
-      .copyWith(
-          primaryColor: primaryColor,
-          cardColor: containerColor,
-          dialogBackgroundColor: dialogBackgroundColor,
-          extensions: [pageGradientTheme]);
+  CakeScrollbarTheme get scrollbarTheme;
+
+  ThemeData get themeData => generatedThemeData.copyWith(
+      primaryColor: primaryColor,
+      cardColor: containerColor,
+      dialogBackgroundColor: dialogBackgroundColor,
+      extensions: [pageGradientTheme, scrollbarTheme],
+      scrollbarTheme: ScrollbarThemeData(
+          thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),
+          trackColor: MaterialStateProperty.all(scrollbarTheme.trackColor),
+          radius: Radius.circular(3),
+          thickness: MaterialStateProperty.all(6),
+          thumbVisibility: MaterialStateProperty.all(true),
+          crossAxisMargin: 6));
 }

@@ -15,8 +15,6 @@ class BrightTheme extends LightTheme {
   @override
   Color get primaryColor => Palette.moderateSlateBlue;
   @override
-  Color get primaryTextColor => Palette.darkBlueCraiola;
-  @override
   Color get containerColor => Palette.moderateLavender;
 
   @override
@@ -84,24 +82,11 @@ class BrightTheme extends LightTheme {
               decorationColor:
                   Colors.white // background of tiles (account list)
               ),
-          // body -> bodyMedium
-          bodyMedium: TextStyle(
-              color: Palette.moderatePurpleBlue, // scrollbar thumb
-              decorationColor: Palette.periwinkleCraiola // scrollbar background
-              ),
           // body2 -> bodyLarge
           bodyLarge: TextStyle(
             color: Palette.moderateLavender, // menu header
             decorationColor: Colors.white, // menu background
           )
-      ),
-      scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(Palette.moderatePurpleBlue),
-        trackColor: MaterialStateProperty.all(Palette.periwinkleCraiola),
-        radius: Radius.circular(3),
-        thickness: MaterialStateProperty.all(6),
-        thumbVisibility: MaterialStateProperty.all(true),
-        crossAxisMargin: 6,
       ),
       primaryTextTheme: TextTheme(
           titleLarge: TextStyle(
@@ -205,8 +190,6 @@ class BrightTheme extends LightTheme {
         headlineSmall: TextStyle(
             color: Palette
                 .moderateLavender, // first gradient color of wallet action buttons (wallet list page)
-            backgroundColor: Palette
-                .moderateLavender, // second gradient color of wallet action buttons (wallet list page)
             decorationColor: Colors
                 .white // restore wallet button text color (wallet list page)
             ),
