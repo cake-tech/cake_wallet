@@ -232,7 +232,6 @@ class BrightTheme extends LightTheme {
           // display4 -> displayLarge
           displayLarge: TextStyle(
               color: Palette.darkGray, // switch background (settings page)
-              backgroundColor: Colors.black, // icon color on support page (moonpay, github)
               decorationColor: Colors.white.withOpacity(0.4) // hint text (exchange page)
               ),
           ));

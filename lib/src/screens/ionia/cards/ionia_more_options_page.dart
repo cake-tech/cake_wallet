@@ -16,10 +16,7 @@ class IoniaMoreOptionsPage extends BasePage {
     return Text(
       S.current.more_options,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
       ),
     );
   }

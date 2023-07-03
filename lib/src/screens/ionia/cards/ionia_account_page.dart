@@ -19,10 +19,7 @@ class IoniaAccountPage extends BasePage {
     return Text(
       S.current.account,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color,
       ),
     );
   }

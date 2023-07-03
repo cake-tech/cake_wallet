@@ -20,10 +20,7 @@ class IoniaAccountCardsPage extends BasePage {
     return Text(
       S.of(context).cards,
       style: textLargeSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
       ),
     );
   }
@@ -72,10 +69,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
             width: 230,
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayLarge!
-                  .backgroundColor!
+              color: Theme.of(context).primaryTextTheme.titleLarge!.color!
                   .withOpacity(0.1),
               borderRadius: BorderRadius.circular(
                 25.0,
@@ -194,18 +188,12 @@ class _IoniaCardListView extends StatelessWidget {
                 child: CardItem(
                   onTap: () => onTap?.call(merchant),
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!
+                  backgroundColor: Theme.of(context).primaryTextTheme.titleLarge!.color!
                       .withOpacity(0.1),
                   discount: 0,
                   hideBorder: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!,
+                  titleColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: '',
                   logoUrl: merchant.logoUrl,

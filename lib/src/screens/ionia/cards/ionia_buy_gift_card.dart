@@ -161,16 +161,10 @@ class IoniaBuyGiftCardPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!
+                  backgroundColor: Theme.of(context).primaryTextTheme.titleLarge!.color!
                       .withOpacity(0.1),
                   discount: merchant.discount,
-                  titleColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!,
+                  titleColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.avaibilityStatus,
                   logoUrl: merchant.logoUrl,

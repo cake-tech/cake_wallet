@@ -23,10 +23,7 @@ class IoniaPaymentStatusPage extends BasePage {
         S.of(context).generating_gift_card,
         textAlign: TextAlign.center,
         style: textMediumSemiBold(
-            color: Theme.of(context)
-                .accentTextTheme!
-                .displayLarge!
-                .backgroundColor!));
+            color: Theme.of(context).primaryTextTheme.titleLarge!.color!));
   }
 
   @override

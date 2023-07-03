@@ -148,18 +148,12 @@ class IoniaCustomRedeemPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: giftCard.legalName,
-                  backgroundColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!
+                  backgroundColor: Theme.of(context).primaryTextTheme.titleLarge!.color!
                       .withOpacity(0.1),
                   discount: giftCard.remainingAmount,
                   isAmount: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!,
+                  titleColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: S.of(context).online,
                   logoUrl: giftCard.logoUrl,

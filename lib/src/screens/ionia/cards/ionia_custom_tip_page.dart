@@ -156,16 +156,10 @@ class IoniaCustomTipPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!
+                  backgroundColor: Theme.of(context).primaryTextTheme.titleLarge!.color!
                       .withOpacity(0.1),
                   discount: 0.0,
-                  titleColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!,
+                  titleColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
                   logoUrl: merchant.logoUrl,

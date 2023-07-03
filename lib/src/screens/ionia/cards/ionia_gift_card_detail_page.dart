@@ -60,10 +60,7 @@ class IoniaGiftCardDetailPage extends BasePage {
     return Text(
       viewModel.giftCard.legalName,
       style: textMediumSemiBold(
-          color: Theme.of(context)
-              .accentTextTheme!
-              .displayLarge!
-              .backgroundColor!),
+          color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
     );
   }
 

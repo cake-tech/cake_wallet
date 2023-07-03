@@ -14,10 +14,7 @@ class IoniaWelcomePage extends BasePage {
     return Text(
       S.current.welcome_to_cakepay,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
       ),
     );
   }

@@ -28,7 +28,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       ioniaPurchaseViewModel.ioniaMerchant.legalName,
-      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!),
+      style: textMediumSemiBold(color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
     );
   }
 
@@ -421,12 +421,12 @@ class TipButton extends StatelessWidget {
     if (isDark(context)) {
       return isSelected
         ? null
-        : Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!.withOpacity(0.01);
+        : Theme.of(context).primaryTextTheme.titleLarge!.color!.withOpacity(0.01);
     }
 
     return isSelected
         ? null
-        : Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!.withOpacity(0.1);
+        : Theme.of(context).primaryTextTheme.titleLarge!.color!.withOpacity(0.1);
   }
 
   @override

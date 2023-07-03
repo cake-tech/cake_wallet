@@ -42,10 +42,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
     return Text(
       S.current.verification,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
       ),
     );
   }

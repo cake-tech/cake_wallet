@@ -24,10 +24,7 @@ class IoniaDebitCardPage extends BasePage {
     return Text(
       S.current.debit_card,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
       ),
     );
   }

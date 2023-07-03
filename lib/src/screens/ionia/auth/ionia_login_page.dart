@@ -33,10 +33,7 @@ class IoniaLoginPage extends BasePage {
     return Text(
       S.current.login,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
       ),
     );
   }

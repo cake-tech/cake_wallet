@@ -40,10 +40,7 @@ class IoniaCreateAccountPage extends BasePage {
     return Text(
       S.current.sign_up,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
       ),
     );
   }
