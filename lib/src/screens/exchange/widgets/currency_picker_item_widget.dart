@@ -20,10 +20,7 @@ class PickerItemWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
           child: Row(

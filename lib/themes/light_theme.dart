@@ -28,6 +28,10 @@ class LightTheme extends ThemeBase {
       hoverColor: Palette.darkBlueCraiola, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,
+      dialogTheme: super
+          .themeData
+          .dialogTheme
+          .copyWith(backgroundColor: Colors.white),
       textTheme: TextTheme(
           // title -> titleLarge
           titleLarge: TextStyle(
@@ -192,7 +196,6 @@ class LightTheme extends ThemeBase {
       accentTextTheme: TextTheme(
         // title -> headlititleLargene6
         titleLarge: TextStyle(
-            color: Colors.white, // picker background
             backgroundColor: Palette.periwinkleCraiola, // picker divider
             decorationColor: Colors.white // dialog background
             ),

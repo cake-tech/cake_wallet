@@ -27,6 +27,10 @@ class DarkTheme extends ThemeBase {
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
       dividerColor: PaletteDark.dividerColor,
       hintColor: PaletteDark.pigeonBlue, // menu
+      dialogTheme: super
+          .themeData
+          .dialogTheme
+          .copyWith(backgroundColor: PaletteDark.nightBlue),
       textTheme: TextTheme(
           // title -> titleLarge
           titleLarge: TextStyle(
@@ -194,7 +198,6 @@ class DarkTheme extends ThemeBase {
       accentTextTheme: TextTheme(
         // title -> titleLarge
         titleLarge: TextStyle(
-            color: PaletteDark.nightBlue, // picker background
             backgroundColor: PaletteDark.dividerColor, // picker divider
             decorationColor: PaletteDark.darkNightBlue // dialog background
             ),

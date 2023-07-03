@@ -403,7 +403,7 @@ class TipButton extends StatelessWidget {
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme!.titleLarge!.color!
+      ? Theme.of(context).dialogTheme.backgroundColor!
       : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
   }
 
@@ -413,7 +413,7 @@ class TipButton extends StatelessWidget {
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme!.titleLarge!.color!
+      ? Theme.of(context).dialogTheme.backgroundColor!
       : Theme.of(context).primaryTextTheme!.labelSmall!.color!;
   }
 

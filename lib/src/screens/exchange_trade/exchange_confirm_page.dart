@@ -52,10 +52,7 @@ class ExchangeConfirmPage extends BasePage {
                             .accentTextTheme!
                             .bodySmall!
                             .color!),
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .titleLarge!
-                        .color!),
+                    color: Theme.of(context).dialogTheme.backgroundColor),
                 child: Column(
                   children: <Widget>[
                     Expanded(

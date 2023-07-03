@@ -189,7 +189,6 @@ class BrightTheme extends LightTheme {
       accentTextTheme: TextTheme(
         // title -> titleLarge
         titleLarge: TextStyle(
-            color: Colors.white, // picker background
             backgroundColor: Palette.periwinkleCraiola, // picker divider
             decorationColor: Colors.white // dialog background
             ),

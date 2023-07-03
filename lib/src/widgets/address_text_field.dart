@@ -120,10 +120,7 @@ class AddressTextField extends StatelessWidget {
                               padding: EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                   color: buttonColor ??
-                                      Theme.of(context)
-                                          .accentTextTheme!
-                                          .titleLarge!
-                                          .color!,
+                                      Theme.of(context).dialogTheme.backgroundColor,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
@@ -148,10 +145,7 @@ class AddressTextField extends StatelessWidget {
                               padding: EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                   color: buttonColor ??
-                                      Theme.of(context)
-                                          .accentTextTheme
-                                          .titleLarge!
-                                          .color!,
+                                      Theme.of(context).dialogTheme.backgroundColor,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
@@ -176,10 +170,7 @@ class AddressTextField extends StatelessWidget {
                               padding: EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                   color: buttonColor ??
-                                      Theme.of(context)
-                                          .accentTextTheme!
-                                          .titleLarge!
-                                          .color!,
+                                      Theme.of(context).dialogTheme.backgroundColor,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(

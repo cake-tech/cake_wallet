@@ -143,10 +143,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .titleLarge!
-                  .color!,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,
@@ -302,10 +299,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -392,10 +386,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,

@@ -53,10 +53,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .titleLarge!
-                  .color!,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.65,
@@ -122,10 +119,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.only(left: 24, right: 24),
         child: CheckboxListTile(
           value: item.value,
