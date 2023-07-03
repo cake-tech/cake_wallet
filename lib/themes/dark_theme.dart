@@ -58,6 +58,7 @@ class DarkTheme extends ThemeBase {
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
       dividerColor: PaletteDark.dividerColor,
       hintColor: PaletteDark.pigeonBlue, // menu
+      disabledColor: PaletteDark.deepVioletBlue,
       dialogTheme: super
           .themeData
           .dialogTheme
@@ -258,8 +259,6 @@ class DarkTheme extends ThemeBase {
             ),
         // display4 -> displayLarge
         displayLarge: TextStyle(
-            color:
-                PaletteDark.deepVioletBlue, // switch background (settings page)
             decorationColor:
                 PaletteDark.lightBlueGrey // hint text (exchange page)
             ),

@@ -60,6 +60,7 @@ class LightTheme extends ThemeBase {
       hoverColor: Palette.darkBlueCraiola, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,
+      disabledColor: Palette.darkGray,
       dialogTheme: super
           .themeData
           .dialogTheme
@@ -255,7 +256,6 @@ class LightTheme extends ThemeBase {
             ),
         // display4 -> displayLarge
         displayLarge: TextStyle(
-            color: Palette.darkGray, // switch background (settings page)
             decorationColor:
                 Colors.white.withOpacity(0.4) // hint text (exchange page)
             ),
