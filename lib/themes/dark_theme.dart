@@ -20,6 +20,8 @@ class DarkTheme extends ThemeBase {
   Color get primaryTextColor => Colors.white;
   @override
   Color get containerColor => PaletteDark.nightBlue;
+  @override
+  Color get dialogBackgroundColor => PaletteDark.darkNightBlue;
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -83,11 +85,6 @@ class DarkTheme extends ThemeBase {
               color: Colors.white, // text color of tiles (account list)
               decorationColor: PaletteDark
                   .darkOceanBlue // background of tiles (account list)
-              ),
-          // subtitle -> titleSmall
-          titleSmall: TextStyle(
-              decorationColor: PaletteDark
-                  .darkNightBlue // background of current tile (account list)
               ),
           // body1 -> bodyMedium
           bodyMedium: TextStyle(
@@ -196,7 +193,6 @@ class DarkTheme extends ThemeBase {
         // title -> titleLarge
         titleLarge: TextStyle(
             backgroundColor: PaletteDark.dividerColor, // picker divider
-            decorationColor: PaletteDark.darkNightBlue // dialog background
             ),
         bodySmall: TextStyle(
           backgroundColor: PaletteDark.deepVioletBlue, // button background (confirm exchange)
@@ -269,11 +265,9 @@ class DarkTheme extends ThemeBase {
         bodyMedium: TextStyle(
             color: PaletteDark.indicatorVioletBlue, // indicators (PIN code)
             decorationColor: PaletteDark.lightPurpleBlue, // switch (PIN code)
-            backgroundColor: PaletteDark.darkNightBlue // alert right button
             ),
         // body2 -> bodyLarge
         bodyLarge: TextStyle(
-            decorationColor: PaletteDark.darkNightBlue, // alert left button
             backgroundColor: PaletteDark.granite // keyboard bar color
         ),
       ),

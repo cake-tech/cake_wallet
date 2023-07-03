@@ -20,7 +20,7 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).textTheme!.titleSmall!.decorationColor!
+        ? Theme.of(context).dialogBackgroundColor
         : Theme.of(context).textTheme!.displayLarge!.decorationColor!;
     final textColor = isCurrent
         ? Theme.of(context).primaryColor

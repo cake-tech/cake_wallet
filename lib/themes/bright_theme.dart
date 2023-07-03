@@ -84,11 +84,6 @@ class BrightTheme extends LightTheme {
               decorationColor:
                   Colors.white // background of tiles (account list)
               ),
-          // subtitle -> titleSmall
-          titleSmall: TextStyle(
-              decorationColor:
-                  Colors.white // background of current tile (account list)
-              ),
           // body -> bodyMedium
           bodyMedium: TextStyle(
               color: Palette.moderatePurpleBlue, // scrollbar thumb
@@ -193,7 +188,6 @@ class BrightTheme extends LightTheme {
         // title -> titleLarge
         titleLarge: TextStyle(
             backgroundColor: Palette.periwinkleCraiola, // picker divider
-            decorationColor: Colors.white // dialog background
             ),
         bodySmall: TextStyle(
           backgroundColor: Palette.moderateLavender, // button background (confirm exchange)
@@ -260,11 +254,9 @@ class BrightTheme extends LightTheme {
         bodyMedium: TextStyle(
             color: Palette.darkGray, // indicators (PIN code)
             decorationColor: Palette.darkGray, // switch (PIN code)
-            backgroundColor: Colors.white // alert right button
             ),
         // body2 -> bodyLarge
         bodyLarge: TextStyle(
-            decorationColor: Colors.white, // alert left button,
             backgroundColor: Palette.dullGray // keyboard bar color
         )
       ));

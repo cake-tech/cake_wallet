@@ -55,7 +55,7 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
                       child: Container(
                         width: 340,
                         padding: EdgeInsets.all(10),
-                        color: Theme.of(context).accentTextTheme.titleLarge!.decorationColor!,
+                        color: Theme.of(context).dialogBackgroundColor,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[

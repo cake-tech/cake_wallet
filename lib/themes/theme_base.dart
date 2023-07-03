@@ -20,6 +20,7 @@ abstract class ThemeBase {
   Color get primaryColor;
   Color get primaryTextColor;
   Color get containerColor;
+  Color get dialogBackgroundColor;
 
   ColorScheme get colorScheme => ColorScheme.fromSeed(
       brightness: brightness,
@@ -37,5 +38,6 @@ abstract class ThemeBase {
       .copyWith(
           primaryColor: primaryColor,
           cardColor: containerColor,
+          dialogBackgroundColor: dialogBackgroundColor,
           extensions: [pageGradientTheme]);
 }

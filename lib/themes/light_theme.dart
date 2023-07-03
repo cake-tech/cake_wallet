@@ -20,6 +20,8 @@ class LightTheme extends ThemeBase {
   Color get primaryTextColor => Palette.darkBlueCraiola;
   @override
   Color get containerColor => Palette.blueAlice;
+  @override
+  Color get dialogBackgroundColor => Colors.white;
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -83,11 +85,6 @@ class LightTheme extends ThemeBase {
               color: Palette.violetBlue, // text color of tiles (account list)
               decorationColor:
                   Colors.white // background of tiles (account list)
-              ),
-          // subtitle -> titleSmall
-          titleSmall: TextStyle(
-              decorationColor:
-                  Colors.white // background of current tile (account list)
               ),
           // body -> bodyMedium
           bodyMedium: TextStyle(
@@ -194,7 +191,6 @@ class LightTheme extends ThemeBase {
         // title -> headlititleLargene6
         titleLarge: TextStyle(
             backgroundColor: Palette.periwinkleCraiola, // picker divider
-            decorationColor: Colors.white // dialog background
             ),
         bodySmall: TextStyle(
           backgroundColor: Palette.blueAlice, // button background (confirm exchange)
@@ -261,11 +257,9 @@ class LightTheme extends ThemeBase {
         bodyMedium: TextStyle(
             color: Palette.darkGray, // indicators (PIN code)
             decorationColor: Palette.darkGray, // switch (PIN code)
-            backgroundColor: Colors.white // alert right button
             ),
         // body2 -> bodyLarge
         bodyLarge: TextStyle(
-            decorationColor: Colors.white, // alert left button,
             backgroundColor: Palette.dullGray // keyboard bar color
         ),
       ),
