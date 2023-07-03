@@ -40,7 +40,7 @@ abstract class ThemeBase {
       colorScheme: colorScheme,
       textTheme: TextTheme().apply(fontFamily: 'Lato'));
 
-  DashboardPageTheme get pageGradientTheme => DashboardPageTheme(
+  DashboardPageTheme get dashboardPageTheme => DashboardPageTheme(
       firstGradientBackgroundColor: backgroundColor,
       secondGradientBackgroundColor: backgroundColor,
       thirdGradientBackgroundColor: backgroundColor,
@@ -69,7 +69,7 @@ abstract class ThemeBase {
       cardColor: containerColor,
       dialogBackgroundColor: dialogBackgroundColor,
       extensions: [
-        pageGradientTheme,
+        dashboardPageTheme,
         scrollbarTheme,
         syncIndicatorStyle,
         keyboardTheme,

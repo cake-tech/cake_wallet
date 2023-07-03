@@ -1,6 +1,7 @@
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
@@ -22,11 +23,15 @@ class BrightTheme extends LightTheme {
   Color get containerColor => Palette.moderateLavender;
 
   @override
-  DashboardPageTheme get pageGradientTheme => super.pageGradientTheme.copyWith(
-      firstGradientBackgroundColor: Palette.blueCraiola,
-      secondGradientBackgroundColor: Palette.pinkFlamingo,
-      thirdGradientBackgroundColor: Palette.redHat,
-      textColor: Colors.white);
+  DashboardPageTheme get dashboardPageTheme =>
+      super.dashboardPageTheme.copyWith(
+          firstGradientBackgroundColor: Palette.blueCraiola,
+          secondGradientBackgroundColor: Palette.pinkFlamingo,
+          thirdGradientBackgroundColor: Palette.redHat,
+          textColor: Colors.white,
+          indicatorDotTheme: IndicatorDotTheme(
+              indicatorColor: Colors.white.withOpacity(0.5),
+              activeIndicatorColor: Colors.white));
 
   @override
   SyncIndicatorTheme get syncIndicatorStyle =>
@@ -147,16 +152,12 @@ class BrightTheme extends LightTheme {
           // display2 -> displaySmall
           displaySmall: TextStyle(
               color: Colors.white.withOpacity(0.5), // estimated fee (send page)
-              backgroundColor: PaletteDark.darkCyanBlue
-                  .withOpacity(0.67), // dot color for indicator on send page
               decorationColor:
                   Palette.shadowWhite // template dotted border (send page)
               ),
           // display3 -> displayMedium
           displayMedium: TextStyle(
               color: Palette.darkBlueCraiola, // template new text (send page)
-              backgroundColor: PaletteDark
-                  .darkNightBlue, // active dot color for indicator on send page
               decorationColor:
                   Palette.shadowWhite // template background color (send page)
               ),
@@ -207,7 +208,6 @@ class BrightTheme extends LightTheme {
             color: Palette.blueCraiola, // first gradient color (menu header)
             decorationColor:
                 Palette.pinkFlamingo, // second gradient color(menu header)
-            backgroundColor: Colors.white // active dot color
             ),
       ));
 }

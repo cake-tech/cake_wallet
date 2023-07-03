@@ -1,7 +1,9 @@
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
@@ -84,6 +86,13 @@ class LightTheme extends ThemeBase {
   @override
   AddressTheme get addressTheme =>
       AddressTheme(actionButtonColor: Palette.shadowWhite);
+
+  @override
+  DashboardPageTheme get dashboardPageTheme =>
+      super.dashboardPageTheme.copyWith(
+          indicatorDotTheme: IndicatorDotTheme(
+              indicatorColor: PaletteDark.darkCyanBlue.withOpacity(0.67),
+              activeIndicatorColor: PaletteDark.darkNightBlue));
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -185,16 +194,12 @@ class LightTheme extends ThemeBase {
           // display2 -> displaySmall
           displaySmall: TextStyle(
               color: Colors.white.withOpacity(0.5), // estimated fee (send page)
-              backgroundColor: PaletteDark.darkCyanBlue
-                  .withOpacity(0.67), // dot color for indicator on send page
               decorationColor:
                   Palette.moderateLavender // template dotted border (send page)
               ),
           // display3 -> displayMedium
           displayMedium: TextStyle(
               color: Palette.darkBlueCraiola, // template new text (send page)
-              backgroundColor: PaletteDark
-                  .darkNightBlue, // active dot color for indicator on send page
               decorationColor:
                   Palette.blueAlice // template background color (send page)
               ),
@@ -243,7 +248,6 @@ class LightTheme extends ThemeBase {
         headlineMedium: TextStyle(
             color: Palette.blueCraiola, // first gradient color (menu header)
             decorationColor: Palette.blueGreyCraiola, // second gradient color(menu header)
-            backgroundColor: PaletteDark.darkNightBlue // active dot color
             ),
       ),
       );

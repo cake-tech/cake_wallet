@@ -1,7 +1,9 @@
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
@@ -83,6 +85,13 @@ class DarkTheme extends ThemeBase {
   @override
   AddressTheme get addressTheme =>
       AddressTheme(actionButtonColor: PaletteDark.nightBlue);
+
+  @override
+  DashboardPageTheme get dashboardPageTheme =>
+      super.dashboardPageTheme.copyWith(
+          indicatorDotTheme: IndicatorDotTheme(
+              indicatorColor: PaletteDark.cyanBlue,
+              activeIndicatorColor: Colors.white));
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -184,16 +193,12 @@ class DarkTheme extends ThemeBase {
           // display2 -> displaySmall
           displaySmall: TextStyle(
               color: Colors.white, // estimated fee (send page)
-              backgroundColor:
-                  PaletteDark.cyanBlue, // dot color for indicator on send page
               decorationColor:
                   PaletteDark.darkCyanBlue // template dotted border (send page)
               ),
           // display3 -> displayMedium
           displayMedium: TextStyle(
               color: PaletteDark.darkCyanBlue, // template new text (send page)
-              backgroundColor:
-                  Colors.white, // active dot color for indicator on send page
               decorationColor: PaletteDark
                   .darkVioletBlue // template background color (send page)
               ),
@@ -246,7 +251,6 @@ class DarkTheme extends ThemeBase {
                 .deepPurpleBlue, // first gradient color (menu header)
             decorationColor: PaletteDark
                 .deepPurpleBlue, // second gradient color(menu header)
-            backgroundColor: Colors.white // active dot color
             ),
       ),
       );
