@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/share_util.dart';
@@ -185,10 +186,7 @@ class WalletSeedPage extends BasePage {
                                               S.of(context).copied_to_clipboard);
                                         },
                                         text: S.of(context).copy,
-                                        color: Theme.of(context)
-                                            .accentTextTheme!
-                                            .bodyMedium!
-                                            .color!,
+                                        color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
                                         textColor: Colors.white)),
                               ))
                             ],

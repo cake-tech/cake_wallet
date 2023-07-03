@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -41,6 +42,11 @@ class LightTheme extends ThemeBase {
   @override
   KeyboardTheme get keyboardTheme =>
       KeyboardTheme(keyboardBarColor: Palette.dullGray);
+
+  @override
+  PinCodeTheme get pinCodeTheme => PinCodeTheme(
+      indicatorsColor: Palette.darkGray,
+      switchColor: Palette.darkGray);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -249,11 +255,6 @@ class LightTheme extends ThemeBase {
                 Colors.black, // icon color on support page (moonpay, github)
             decorationColor:
                 Colors.white.withOpacity(0.4) // hint text (exchange page)
-            ),
-        // body -> bodyMedium
-        bodyMedium: TextStyle(
-            color: Palette.darkGray, // indicators (PIN code)
-            decorationColor: Palette.darkGray, // switch (PIN code)
             ),
       ),
       );

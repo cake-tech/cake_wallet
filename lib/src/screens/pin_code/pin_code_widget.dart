@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -163,10 +164,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 .primaryTextTheme!
                                 .titleLarge!
                                 .color!
-                            : Theme.of(context)
-                                .accentTextTheme!
-                                .bodyMedium!
-                                .color!
+                            : Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor
                                 .withOpacity(0.25),
                       ));
                 }),
@@ -185,10 +183,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                   style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .bodyMedium!
-                          .decorationColor!),
+                      color: Theme.of(context).extension<PinCodeTheme>()!.switchColor),
                 ),
               )
             ],

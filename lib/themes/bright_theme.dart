@@ -235,9 +235,5 @@ class BrightTheme extends LightTheme {
               backgroundColor: Colors.black, // icon color on support page (moonpay, github)
               decorationColor: Colors.white.withOpacity(0.4) // hint text (exchange page)
               ),
-          // body -> bodyMedium
-          bodyMedium: TextStyle(
-            color: Palette.darkGray, // indicators (PIN code)
-            decorationColor: Palette.darkGray, // switch (PIN code)
-          )));
+          ));
 }
