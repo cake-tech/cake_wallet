@@ -2,6 +2,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
 
 class StandardListStatusRow extends StatelessWidget {
   StandardListStatusRow({required this.title, required this.value});
@@ -30,7 +31,7 @@ class StandardListStatusRow extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).accentTextTheme!.displaySmall!.color!,
+                    color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: Padding(

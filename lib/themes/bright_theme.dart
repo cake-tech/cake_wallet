@@ -209,11 +209,5 @@ class BrightTheme extends LightTheme {
                 Palette.pinkFlamingo, // second gradient color(menu header)
             backgroundColor: Colors.white // active dot color
             ),
-        // display2 -> displaySmall
-        displaySmall: TextStyle(
-            color:
-                Palette.shadowWhite, // action button color (address text field)
-            decorationColor: Palette.darkGray, // hint text (seed widget)
-            ),
       ));
 }

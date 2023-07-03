@@ -5,6 +5,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
 
 class Picker<Item> extends StatefulWidget {
   Picker({
@@ -168,10 +169,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             prefixIcon:
                                 Image.asset("assets/images/search_icon.png"),
                             filled: true,
-                            fillColor: Theme.of(context)
-                                .accentTextTheme!
-                                .displaySmall!
-                                .color!,
+                            fillColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                             alignLabelWithHint: false,
                             contentPadding: const EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 16),

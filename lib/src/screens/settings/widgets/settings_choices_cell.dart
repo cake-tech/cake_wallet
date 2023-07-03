@@ -1,5 +1,6 @@
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
 
 class SettingsChoicesCell extends StatelessWidget {
   const SettingsChoicesCell(this.choicesListItem, {Key? key}) : super(key: key);
@@ -34,10 +35,7 @@ class SettingsChoicesCell extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .displaySmall!
-                      .color!,
+                  color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
