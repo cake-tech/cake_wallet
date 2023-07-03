@@ -42,11 +42,7 @@ class ReceivePage extends BasePage {
   String get title => S.current.receive;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -65,10 +61,7 @@ class ReceivePage extends BasePage {
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: Theme.of(context)
-              .accentTextTheme!
-              .displayMedium!
-              .backgroundColor!),
+          color: pageIconColor(context)),
     );
   }
 
@@ -98,10 +91,7 @@ class ReceivePage extends BasePage {
             icon: Icon(
               Icons.share,
               size: 20,
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayMedium!
-                  .backgroundColor!,
+              color: pageIconColor(context),
             ),
           ),
         ));

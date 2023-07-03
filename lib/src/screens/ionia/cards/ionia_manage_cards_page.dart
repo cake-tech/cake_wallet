@@ -38,10 +38,7 @@ class IoniaManageCardsPage extends BasePage {
   final _searchController = TextEditingController();
 
   @override
-  Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   Color get titleColor => currentTheme.type == ThemeType.bright ? Colors.white : Colors.black;

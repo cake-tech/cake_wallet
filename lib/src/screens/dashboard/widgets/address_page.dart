@@ -50,11 +50,11 @@ class AddressPage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
+  bool get gradientBackground => true;
 
   @override
-  Color get backgroundDarkColor => Colors.transparent;
+  Color? get titleColor =>
+      currentTheme.themeData.accentTextTheme.displayMedium!.backgroundColor;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -63,18 +63,6 @@ class AddressPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
-      size: 16,
-    );
-    final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme
-        : closeButtonImage;
-
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
@@ -91,7 +79,7 @@ class AddressPage extends BasePage {
                     (states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
-              child: !isMobileView ? _closeButton : _backButton,
+              child: !isMobileView ? closeButton(context) : backButton(context),
             ),
           ),
         ),
@@ -100,11 +88,9 @@ class AddressPage extends BasePage {
   }
 
   @override
-  Widget middle(BuildContext context) =>
-      PresentReceiveOptionPicker(
-        receiveOptionViewModel: receiveOptionViewModel,
-        hasWhiteBackground: currentTheme.type == ThemeType.light,
-      );
+  Widget middle(BuildContext context) => PresentReceiveOptionPicker(
+      receiveOptionViewModel: receiveOptionViewModel,
+      gradientBackground: gradientBackground);
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
@@ -127,14 +113,7 @@ class AddressPage extends BasePage {
             context: context,
           );
         },
-        icon: Icon(
-          Icons.share,
-          size: 20,
-          color: Theme.of(context)
-              .accentTextTheme!
-              .displayMedium!
-              .backgroundColor!,
-        ),
+        icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
       ),
     );
   }

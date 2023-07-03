@@ -66,11 +66,7 @@ class _DashboardPageView extends BasePage {
   final BalancePage balancePage;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>

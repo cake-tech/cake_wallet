@@ -10,14 +10,14 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class PresentReceiveOptionPicker extends StatelessWidget {
   PresentReceiveOptionPicker(
-      {required this.receiveOptionViewModel, this.hasWhiteBackground = false});
+      {required this.receiveOptionViewModel, this.gradientBackground = false});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
-  final bool hasWhiteBackground;
+  final bool gradientBackground;
 
   @override
   Widget build(BuildContext context) {
-    final textIconTheme = hasWhiteBackground
+    final textIconTheme = gradientBackground
         ? Theme.of(context)
             .accentTextTheme!
             .displayMedium!
