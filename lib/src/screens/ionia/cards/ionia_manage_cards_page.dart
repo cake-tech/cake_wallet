@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class IoniaManageCardsPage extends BasePage {
   IoniaManageCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
@@ -226,7 +227,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               subTitle: merchant.avaibilityStatus,
               backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-              subtitleColor: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
+              subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.textColor,
               discount: merchant.discount,
             );
           },
@@ -286,7 +287,7 @@ class _SearchWidget extends StatelessWidget {
           fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
-            color: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
+            color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
           ),
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,

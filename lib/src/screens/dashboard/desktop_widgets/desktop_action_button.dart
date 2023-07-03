@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
@@ -44,10 +45,7 @@ class DesktopActionButton extends StatelessWidget {
                   width: 30,
                   color: isEnabled
                       ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                      : Theme.of(context)
-                          .accentTextTheme!
-                          .displaySmall!
-                          .backgroundColor!,
+                      : Theme.of(context).extension<BalancePageTheme>()!.textColor,
                 ),
                 const SizedBox(width: 10),
                 AutoSizeText(

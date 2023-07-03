@@ -9,6 +9,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class BalancePage extends StatelessWidget {
   BalancePage({required this.dashboardViewModel, required this.settingsStore});
@@ -113,10 +114,7 @@ class BalancePage extends StatelessWidget {
                     fontSize: 12,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .displaySmall!
-                        .backgroundColor!,
+                    color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                     height: 1)),
             SizedBox(height: 5),
             Row(
@@ -160,10 +158,7 @@ class BalancePage extends StatelessWidget {
                         fontSize: 12,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .displaySmall!
-                            .backgroundColor!,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                         height: 1)),
                 SizedBox(height: 8),
                 AutoSizeText(frozenBalance,
@@ -194,10 +189,7 @@ class BalancePage extends StatelessWidget {
                     fontSize: 12,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .displaySmall!
-                        .backgroundColor!,
+                    color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                     height: 1)),
             SizedBox(height: 8),
             AutoSizeText(additionalBalance,

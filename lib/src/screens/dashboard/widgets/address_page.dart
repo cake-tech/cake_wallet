@@ -25,6 +25,7 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -220,10 +221,7 @@ class AddressPage extends BasePage {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 15,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .displaySmall!
-                                .backgroundColor!));
+                            color: Theme.of(context).extension<BalancePageTheme>()!.textColor));
               })
             ],
           ),

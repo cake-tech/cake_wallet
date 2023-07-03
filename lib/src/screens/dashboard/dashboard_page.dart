@@ -31,6 +31,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
@@ -198,10 +199,7 @@ class _DashboardPageView extends BasePage {
                                                     dashboardViewModel) ??
                                                 true
                                             ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                            : Theme.of(context)
-                                                .accentTextTheme!
-                                                .displaySmall!
-                                                .backgroundColor!),
+                                            : Theme.of(context).extension<BalancePageTheme>()!.textColor),
                                     title: action.name(context),
                                     onClick: () async => await action.onTap(
                                         context, dashboardViewModel),
@@ -209,10 +207,7 @@ class _DashboardPageView extends BasePage {
                                                 ?.call(dashboardViewModel) ??
                                             true
                                         ? null
-                                        : Theme.of(context)
-                                            .accentTextTheme!
-                                            .displaySmall!
-                                            .backgroundColor!,
+                                        : Theme.of(context).extension<BalancePageTheme>()!.textColor,
                                   ),
                                 ))
                             .toList(),

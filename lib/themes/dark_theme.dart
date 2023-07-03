@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
@@ -73,6 +74,10 @@ class DarkTheme extends ThemeBase {
   NewWalletTheme get newWalletTheme => NewWalletTheme(
       hintTextColor: PaletteDark.cyanBlue,
       underlineColor: PaletteDark.darkGrey);
+
+  @override
+  BalancePageTheme get balancePageTheme =>
+      BalancePageTheme(textColor: PaletteDark.cyanBlue);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -244,7 +249,6 @@ class DarkTheme extends ThemeBase {
                 .nightBlue, // action button color (address text field)
             decorationColor:
                 PaletteDark.darkCyanBlue, // hint text (seed widget)
-            backgroundColor: PaletteDark.cyanBlue // text on balance page
             ),
       ),
       );

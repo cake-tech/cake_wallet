@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -58,6 +59,8 @@ abstract class ThemeBase {
 
   NewWalletTheme get newWalletTheme;
 
+  BalancePageTheme get balancePageTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -71,6 +74,7 @@ abstract class ThemeBase {
         supportPageTheme,
         exchangePageTheme,
         newWalletTheme,
+        balancePageTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),

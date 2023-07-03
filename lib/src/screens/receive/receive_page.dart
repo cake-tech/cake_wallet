@@ -21,6 +21,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class ReceivePage extends BasePage {
   ReceivePage({required this.addressListViewModel})
@@ -235,10 +236,7 @@ class ReceivePage extends BasePage {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .displaySmall!
-                            .backgroundColor!)),
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor)),
               ],
             ),
           );
