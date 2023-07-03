@@ -299,11 +299,12 @@ abstract class BalanceViewModelBase with Store {
           return 1;
         }
 
-        if (b.asset == wallet.currency && pinNativeToken) {
-          return 1;
-        }
-
         return 0;
+      }
+
+      if (pinNativeToken) {
+        if (b.asset == wallet.currency) return 1;
+        if (a.asset == wallet.currency) return -1;
       }
 
       switch (sortBalanceBy) {
