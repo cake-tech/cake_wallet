@@ -175,7 +175,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                         Routes.ioniaGiftCardDetailPage,
                         arguments: [widget.viewModel.giftCard]),
                     text: S.of(context).open_gift_card,
-                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white);
                 }
 

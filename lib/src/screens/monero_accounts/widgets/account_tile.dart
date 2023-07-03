@@ -23,7 +23,7 @@ class AccountTile extends StatelessWidget {
         ? Theme.of(context).textTheme!.titleSmall!.decorationColor!
         : Theme.of(context).textTheme!.displayLarge!.decorationColor!;
     final textColor = isCurrent
-        ? Theme.of(context).textTheme!.titleSmall!.color!
+        ? Theme.of(context).primaryColor
         : Theme.of(context).textTheme!.displayLarge!.color!;
 
     final Widget cell = GestureDetector(

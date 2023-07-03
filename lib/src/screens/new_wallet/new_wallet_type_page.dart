@@ -102,10 +102,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       bottomSection: PrimaryButton(
         onPressed: () => onTypeSelected(),
         text: S.of(context).seed_language_next,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .bodyLarge!
-            .color!,
+        color: Theme.of(context).primaryColor,
         textColor: Colors.white,
         isDisabled: selected == null,
       ),

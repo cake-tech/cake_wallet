@@ -228,10 +228,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
                     text: S.of(context).confirm,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodyLarge!
-                        .color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white)
                 : Offstage();
           })),
@@ -360,10 +357,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             RequestReviewHandler.requestReview();
                           },  
                           text: S.of(popupContext).send_got_it,
-                          color: Theme.of(popupContext)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(popupContext).primaryColor,
                           textColor: Colors.white))
                 ],
               );

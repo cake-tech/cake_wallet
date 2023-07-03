@@ -171,7 +171,7 @@ class WalletListBodyState extends State<WalletListBody> {
               },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),
             SizedBox(height: 10.0),

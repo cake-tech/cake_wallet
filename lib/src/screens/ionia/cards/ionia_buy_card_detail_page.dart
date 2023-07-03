@@ -202,7 +202,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                       ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
                   onPressed: () => purchaseCard(context),
                   text: S.of(context).purchase_gift_card,
-                  color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 );
               }),
@@ -323,7 +323,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             alertLeftActionButtonTextColor: Colors.white,
             alertRightActionButtonTextColor: Colors.white,
             alertLeftActionButtonColor: Palette.brightOrange,
-            alertRightActionButtonColor: Theme.of(context).textTheme!.titleSmall!.color,
+            alertRightActionButtonColor: Theme.of(context).primaryColor,
             actionRightButton: () async {
               Navigator.of(context).pop();
               await ioniaPurchaseViewModel.commitPaymentInvoice();

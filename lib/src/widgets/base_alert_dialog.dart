@@ -99,10 +99,7 @@ class BaseAlertDialog extends StatelessWidget {
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
                       color: rightActionButtonTextColor ??
-                          Theme.of(context)
-                              .primaryTextTheme!
-                              .bodyMedium!
-                              .backgroundColor!,
+                          Theme.of(context).primaryColor,
                       decoration: TextDecoration.none,
                     ),
                   )),

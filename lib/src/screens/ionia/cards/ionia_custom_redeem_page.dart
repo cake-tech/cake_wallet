@@ -178,10 +178,7 @@ class IoniaCustomRedeemPage extends BasePage {
                     isLoading: ioniaCustomRedeemViewModel.redeemState is IsExecutingState,
                     isDisabled: ioniaCustomRedeemViewModel.disableRedeem,
                     text: S.of(context).add_custom_redemption,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodyLarge!
-                        .color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     onPressed: () => ioniaCustomRedeemViewModel.addCustomRedeem().then((value) {
                       Navigator.of(context).pop(ioniaCustomRedeemViewModel.remaining.toString());

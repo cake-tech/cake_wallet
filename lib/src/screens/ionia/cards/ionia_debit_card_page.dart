@@ -73,10 +73,7 @@ class IoniaDebitCardPage extends BasePage {
                 PrimaryButton(
                   text: S.of(context).add_value,
                   onPressed: () {},
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
                 SizedBox(height: 16)
@@ -150,10 +147,7 @@ class IoniaDebitCardPage extends BasePage {
           bottomSection: PrimaryButton(
             text: S.of(context).activate,
             onPressed: () => _showHowToUseCard(context, activate: true),
-            color: Theme.of(context)
-                .accentTextTheme!
-                .bodyLarge!
-                .color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),
         );

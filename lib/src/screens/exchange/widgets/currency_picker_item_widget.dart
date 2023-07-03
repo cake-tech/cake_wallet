@@ -83,10 +83,7 @@ class PickerItemWidget extends StatelessWidget {
               ),
               if (isSelected)
                 Icon(Icons.check_circle,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodyLarge!
-                        .color!)
+                    color: Theme.of(context).primaryColor)
             ],
           ),
         ),

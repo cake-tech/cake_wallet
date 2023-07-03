@@ -89,10 +89,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   borderRadius: BorderRadius.circular(
                     25.0,
                   ),
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                 ),
                 labelColor: Theme.of(context)
                     .primaryTextTheme!

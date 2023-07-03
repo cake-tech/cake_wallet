@@ -243,7 +243,7 @@ class ExchangePage extends BasePage {
                               }
                             }
                           },
-                          color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                          color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: exchangeViewModel.selectedProviders.isEmpty,
                           isLoading: exchangeViewModel.tradeState is TradeIsCreating)),

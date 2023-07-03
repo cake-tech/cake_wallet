@@ -74,10 +74,7 @@ class IoniaLoginPage extends BasePage {
                   text: S.of(context).login,
                   onPressed: _login,
                   isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ),

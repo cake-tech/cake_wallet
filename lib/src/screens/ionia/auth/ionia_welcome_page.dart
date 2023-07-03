@@ -59,10 +59,7 @@ class IoniaWelcomePage extends BasePage {
               PrimaryButton(
                 text: S.of(context).create_account,
                 onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaCreateAccountPage),
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .color!,
+                color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
               ),
               SizedBox(

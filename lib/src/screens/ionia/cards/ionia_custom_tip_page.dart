@@ -184,10 +184,7 @@ class IoniaCustomTipPage extends BasePage {
                     Navigator.of(context).pop(customTipViewModel.customTip);
                   },
                   text: S.of(context).add_tip,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ),

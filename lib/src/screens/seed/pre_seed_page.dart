@@ -70,10 +70,7 @@ class PreSeedPage extends BasePage {
                             onPressed: () => Navigator.of(context)
                                 .popAndPushNamed(Routes.seed, arguments: true),
                             text: S.of(context).pre_seed_button_text,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .bodyLarge!
-                                .color!,
+                            color: Theme.of(context).primaryColor,
                             textColor: Colors.white)
                       ],
                     ))

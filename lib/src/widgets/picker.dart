@@ -448,10 +448,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               ),
             ),
             Icon(Icons.check_circle,
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .color!),
+                color: Theme.of(context).primaryColor),
           ],
         ),
       ),

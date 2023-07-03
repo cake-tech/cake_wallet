@@ -158,7 +158,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                       },
                     ),
                     text: S.of(context).mark_as_redeemed,
-                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                   ),
                 ],

@@ -176,10 +176,7 @@ class AnonPayInvoicePage extends BasePage {
                         anonInvoicePageViewModel.generateDonationLink();
                       }
                     },
-                     color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: anonInvoicePageViewModel.state is IsExecutingState,
                   ),

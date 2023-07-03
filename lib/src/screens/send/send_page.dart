@@ -375,7 +375,7 @@ class SendPage extends BasePage {
                       },
                       text: S.of(context).send,
                       color:
-                          Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                          Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       isLoading: sendViewModel.state is IsExecutingState ||
                           sendViewModel.state is TransactionCommitting,

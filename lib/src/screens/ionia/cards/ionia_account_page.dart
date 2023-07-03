@@ -136,10 +136,7 @@ class IoniaAccountPage extends BasePage {
       bottomSection: Column(
         children: [
           PrimaryButton(
-            color: Theme.of(context)
-                .accentTextTheme!
-                .bodyLarge!
-                .color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
             text: S.of(context).logout,
             onPressed: () {

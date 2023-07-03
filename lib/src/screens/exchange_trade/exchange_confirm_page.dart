@@ -133,10 +133,7 @@ class ExchangeConfirmPage extends BasePage {
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .bodyLarge!
-                  .color!,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white)
         ],
       ),

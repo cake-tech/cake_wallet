@@ -79,10 +79,7 @@ class IoniaActivateDebitCardPage extends BasePage {
         },
         isLoading: _cardsListViewModel.createCardState is IoniaCreateCardLoading,
         text: S.of(context).agree_and_continue,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .bodyLarge!
-            .color!,
+        color: Theme.of(context).primaryColor,
         textColor: Colors.white,
       ),
     );

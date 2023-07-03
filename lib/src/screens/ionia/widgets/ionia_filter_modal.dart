@@ -20,7 +20,7 @@ class IoniaFilterModal extends StatelessWidget {
       padding: EdgeInsets.all(10),
       child: Image.asset(
         'assets/images/mini_search_icon.png',
-        color: Theme.of(context).textTheme!.titleSmall!.color!,
+        color: Theme.of(context).primaryColor,
       ),
     );
     return Scaffold(

@@ -86,8 +86,6 @@ class LightTheme extends ThemeBase {
               ),
           // subtitle -> titleSmall
           titleSmall: TextStyle(
-              color: Palette
-                  .protectiveBlue, // text color of current tile (account list)
               decorationColor:
                   Colors.white // background of current tile (account list)
               ),
@@ -181,7 +179,6 @@ class LightTheme extends ThemeBase {
                   0.7), // first gradient color bottom panel (exchange page)
               decorationColor: Palette.blueGreyCraiola.withOpacity(
                   0.7), // second gradient color bottom panel (exchange page)
-              backgroundColor: Palette.protectiveBlue // alert right button text
               ),
           // body2 -> bodyLarge
           bodyLarge: TextStyle(
@@ -269,7 +266,6 @@ class LightTheme extends ThemeBase {
             ),
         // body2 -> bodyLarge
         bodyLarge: TextStyle(
-            color: Palette.protectiveBlue, // primary buttons
             decorationColor: Colors.white, // alert left button,
             backgroundColor: Palette.dullGray // keyboard bar color
         ),

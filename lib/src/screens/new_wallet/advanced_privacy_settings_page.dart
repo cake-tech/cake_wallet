@@ -111,10 +111,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                 Navigator.pop(context);
               },
               text: S.of(context).continue_text,
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .bodyLarge!
-                  .color!,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),
             const SizedBox(height: 25),

@@ -248,7 +248,7 @@ class PreOrderPage extends BasePage {
                           ? S.of(context).buy
                           : S.of(context).buy_with +
                             ' ${buyViewModel.selectedProvider!.description.title}',
-                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: buyViewModel.isRunning,
                     isDisabled: (buyViewModel.selectedProvider == null) ||

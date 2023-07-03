@@ -52,10 +52,7 @@ class SettingsChoicesCell extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
                           color: isSelected
-                              ? Theme.of(context)
-                                  .accentTextTheme!
-                                  .bodyLarge!
-                                  .color!
+                              ? Theme.of(context).primaryColor
                               : null,
                         ),
                         child: Text(

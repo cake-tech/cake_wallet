@@ -84,10 +84,7 @@ class IoniaCreateAccountPage extends BasePage {
                   onPressed: _createAccount,
                   isLoading:
                       _authViewModel.createUserState is IoniaCreateStateLoading,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ),
@@ -107,10 +104,7 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                       text: S.of(context).settings_terms_and_conditions,
                       style: TextStyle(
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .bodyLarge!
-                            .color!,
+                        color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.w700,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -122,10 +116,7 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                         text: S.of(context).privacy_policy,
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w700,
                         ),
                         recognizer: TapGestureRecognizer()

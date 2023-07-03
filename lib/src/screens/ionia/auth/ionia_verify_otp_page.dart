@@ -126,10 +126,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
                       onPressed: _verify,
                       isDisabled: _authViewModel.otpState is IoniaOtpSendDisabled,
                       isLoading: _authViewModel.otpState is IoniaOtpValidating,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .bodyLarge!
-                          .color!,
+                      color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                     ),
                   ),

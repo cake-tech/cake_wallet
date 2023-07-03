@@ -24,10 +24,7 @@ class StandardSwitchState extends State<StandardSwitch> {
         height: 28,
         decoration: BoxDecoration(
             color: widget.value
-                ? Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .color!
+                ? Theme.of(context).primaryColor
                 : Theme.of(context)
                     .accentTextTheme!
                     .displayLarge!

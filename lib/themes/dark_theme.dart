@@ -86,8 +86,6 @@ class DarkTheme extends ThemeBase {
               ),
           // subtitle -> titleSmall
           titleSmall: TextStyle(
-              color: Palette
-                  .blueCraiola, // text color of current tile (account list)
               decorationColor: PaletteDark
                   .darkNightBlue // background of current tile (account list)
               ),
@@ -183,7 +181,6 @@ class DarkTheme extends ThemeBase {
                   .darkNightBlue, // first gradient color bottom panel (exchange page)
               decorationColor: PaletteDark
                   .darkNightBlue, // second gradient color bottom panel (exchange page)
-              backgroundColor: Palette.blueCraiola // alert right button text
               ),
           // body2 -> bodyLarge
           bodyLarge: TextStyle(
@@ -277,7 +274,6 @@ class DarkTheme extends ThemeBase {
             ),
         // body2 -> bodyLarge
         bodyLarge: TextStyle(
-            color: Palette.blueCraiola, // primary buttons
             decorationColor: PaletteDark.darkNightBlue, // alert left button
             backgroundColor: PaletteDark.granite // keyboard bar color
         ),

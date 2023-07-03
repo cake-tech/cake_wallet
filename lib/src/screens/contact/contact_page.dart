@@ -143,10 +143,7 @@ class ContactPage extends BasePage {
                             await contactViewModel.save();
                           },
                           text: S.of(context).save,
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: !contactViewModel.isReady)))
             ],

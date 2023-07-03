@@ -48,10 +48,7 @@ class AlertWithOneAction extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context)
-                    .primaryTextTheme!
-                    .bodyMedium!
-                    .backgroundColor!,
+                color: Theme.of(context).primaryColor,
                 decoration: TextDecoration.none,
               ),
             )),
