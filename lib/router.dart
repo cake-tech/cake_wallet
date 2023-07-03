@@ -590,7 +590,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
         settings: RouteSettings(name: Routes.editToken),
         builder: (_) => getIt.get<EditTokenPage>(
           param1: args['homeSettingsViewModel'],
-          param2: args['token'],
+          param2: {
+            'token': args['token'],
+            'contractAddress': args['contractAddress'],
+          },
         ),
       );
 

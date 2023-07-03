@@ -1021,10 +1021,11 @@ Future setup({
   getIt.registerFactoryParam<HomeSettingsViewModel, BalanceViewModel, void>(
       (balanceViewModel, _) => HomeSettingsViewModel(getIt.get<SettingsStore>(), balanceViewModel));
 
-  getIt.registerFactoryParam<EditTokenPage, HomeSettingsViewModel, Erc20Token?>(
-    (homeSettingsViewModel, token) => EditTokenPage(
+  getIt.registerFactoryParam<EditTokenPage, HomeSettingsViewModel, Map<String, dynamic>>(
+    (homeSettingsViewModel, arguments) => EditTokenPage(
       homeSettingsViewModel: homeSettingsViewModel,
-      erc20token: token,
+      erc20token: arguments['token'] as Erc20Token?,
+      initialContractAddress: arguments['contractAddress'] as String?,
     ),
   );
 

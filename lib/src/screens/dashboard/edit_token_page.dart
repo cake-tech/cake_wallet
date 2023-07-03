@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
@@ -11,10 +12,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class EditTokenPage extends BasePage {
-  EditTokenPage({Key? key, required this.homeSettingsViewModel, this.erc20token});
+  EditTokenPage({
+    Key? key,
+    required this.homeSettingsViewModel,
+    this.erc20token,
+    this.initialContractAddress,
+  }) : assert(erc20token == null || initialContractAddress == null);
 
   final HomeSettingsViewModel homeSettingsViewModel;
   final Erc20Token? erc20token;
+  final String? initialContractAddress;
 
   @override
   String? get title => S.current.edit_token;
@@ -29,11 +36,16 @@ class EditTokenPage extends BasePage {
 }
 
 class EditTokenPageBody extends StatefulWidget {
-  const EditTokenPageBody({Key? key, required this.homeSettingsViewModel, this.erc20token})
-      : super(key: key);
+  const EditTokenPageBody({
+    Key? key,
+    required this.homeSettingsViewModel,
+    this.erc20token,
+    this.initialContractAddress,
+  }) : super(key: key);
 
   final HomeSettingsViewModel homeSettingsViewModel;
   final Erc20Token? erc20token;
+  final String? initialContractAddress;
 
   @override
   State<EditTokenPageBody> createState() => _EditTokenPageBodyState();
@@ -66,9 +78,14 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       _tokenDecimalController.text = widget.erc20token!.decimal.toString();
     }
 
+    if (widget.initialContractAddress != null) {
+      _contractAddressController.text = widget.initialContractAddress!;
+      _getTokenInfo();
+    }
+
     _contractAddressFocusNode.addListener(() {
       if (!_contractAddressFocusNode.hasFocus) {
-        _getTokenInfo(_contractAddressController.text);
+        _getTokenInfo();
       }
 
       final contractAddress = _contractAddressController.text;
@@ -191,9 +208,10 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     );
   }
 
-  void _getTokenInfo(String? address) async {
-    if (address?.isNotEmpty ?? false) {
-      final token = await widget.homeSettingsViewModel.getErc20Token(address!);
+  void _getTokenInfo() async {
+    if (_contractAddressController.text.isNotEmpty) {
+      final token =
+          await widget.homeSettingsViewModel.getErc20Token(_contractAddressController.text);
 
       if (token != null) {
         if (_tokenNameController.text.isEmpty) _tokenNameController.text = token.name;
@@ -210,7 +228,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     if (value?.text?.isNotEmpty ?? false) {
       _contractAddressController.text = value!.text!;
 
-      _getTokenInfo(_contractAddressController.text);
+      _getTokenInfo();
       setState(() {
         _showDisclaimer = true;
       });
@@ -230,13 +248,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
             buttonColor: Theme.of(context).hintColor,
-            validator: (text) {
-              if (text?.isNotEmpty ?? false) {
-                return null;
-              }
-
-              return S.of(context).field_required;
-            },
+            validator: AddressValidator(type: widget.homeSettingsViewModel.nativeToken),
             onPushPasteButton: (_) {
               _pasteText();
             },

@@ -220,7 +220,7 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   Map<CryptoCurrency, BalanceRecord> get balances {
-    return _sortedBalance.map((key, value) {
+    return wallet.balance.map((key, value) {
       if (displayMode == BalanceDisplayMode.hiddenBalance) {
         return MapEntry(key, BalanceRecord(
           availableBalance: '---',
@@ -278,27 +278,44 @@ abstract class BalanceViewModelBase with Store {
     final balance = balances.values.toList();
 
     balance.sort((BalanceRecord a, BalanceRecord b) {
-      if (b.asset == CryptoCurrency.xhv) {
-        return 1;
-      }
-
-      if (b.asset == CryptoCurrency.xusd) {
-        if (a.asset == CryptoCurrency.xhv) {
-          return -1;
+      if (wallet.currency == CryptoCurrency.xhv) {
+        if (b.asset == CryptoCurrency.xhv) {
+          return 1;
         }
 
-        return 1;
+        if (b.asset == CryptoCurrency.xusd) {
+          if (a.asset == CryptoCurrency.xhv) {
+            return -1;
+          }
+
+          return 1;
+        }
+
+        if (b.asset == CryptoCurrency.xbtc) {
+          return 1;
+        }
+
+        if (b.asset == CryptoCurrency.xeur) {
+          return 1;
+        }
+
+        if (b.asset == wallet.currency && pinNativeToken) {
+          return 1;
+        }
+
+        return 0;
       }
 
-      if (b.asset == CryptoCurrency.xbtc) {
-        return 1;
+      switch (sortBalanceBy) {
+        case SortBalanceBy.FiatBalance:
+          return double.parse(b.fiatAvailableBalance)
+              .compareTo(double.parse(a.fiatAvailableBalance));
+        case SortBalanceBy.GrossBalance:
+          return double.parse(b.availableBalance)
+              .compareTo(double.parse(a.availableBalance));
+        case SortBalanceBy.Alphabetical:
+          return a.asset.title.compareTo(b.asset.title);
       }
-
-      if (b.asset == CryptoCurrency.xeur) {
-        return 1;
-      }
-
-      return 0;
     });
 
     return balance;
@@ -369,35 +386,5 @@ abstract class BalanceViewModelBase with Store {
   }
 
   String getFormattedFrozenBalance(Balance walletBalance) => walletBalance.formattedFrozenBalance;
-
-  @computed
-  Map<CryptoCurrency, Balance> get _sortedBalance {
-    final Map<CryptoCurrency, Balance> sortedMap = {};
-    if (pinNativeToken) {
-      sortedMap[wallet.currency] = wallet.balance[wallet.currency]!;
-    }
-    switch (sortBalanceBy) {
-      case SortBalanceBy.FiatBalance:
-        sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
-          ..sort((e1, e2) => double.parse(_getFiatBalance(
-              price: fiatConvertationStore.prices[e2.key]!,
-              cryptoAmount: e2.value.formattedAvailableBalance))
-              .compareTo(double.parse(_getFiatBalance(
-              price: fiatConvertationStore.prices[e1.key]!,
-              cryptoAmount: e1.value.formattedAvailableBalance))))));
-        break;
-      case SortBalanceBy.GrossBalance:
-        sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
-          ..sort((e1, e2) => double.parse(e2.value.formattedAvailableBalance)
-              .compareTo(double.parse(e1.value.formattedAvailableBalance)))));
-        break;
-      case SortBalanceBy.Alphabetical:
-        sortedMap.addAll(Map.fromEntries(wallet.balance.entries.toList()
-          ..sort((e1, e2) => e1.key.title.compareTo(e2.key.title))));
-        break;
-    }
-
-    return sortedMap;
-  }
 }
 

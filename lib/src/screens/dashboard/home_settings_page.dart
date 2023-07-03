@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -36,7 +37,7 @@ class HomeSettingsPage extends BasePage {
           Divider(color: Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!),
           Observer(
             builder: (_) => SettingsSwitcherCell(
-              title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken),
+              title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
               value: _homeSettingsViewModel.pinNativeToken,
               onValueChange: (_, bool value) {
                 _homeSettingsViewModel.setPinNativeToken(value);
@@ -74,8 +75,12 @@ class HomeSettingsPage extends BasePage {
               ),
               RawMaterialButton(
                 onPressed: () async {
-                  Navigator.pushNamed(context, Routes.editToken,
-                      arguments: {'homeSettingsViewModel': _homeSettingsViewModel});
+                  Navigator.pushNamed(context, Routes.editToken, arguments: {
+                    'homeSettingsViewModel': _homeSettingsViewModel,
+                    if (AddressValidator(type: _homeSettingsViewModel.nativeToken)
+                        .isValid(_searchController.text))
+                      'contractAddress': _searchController.text,
+                  });
                 },
                 elevation: 0,
                 fillColor: Theme.of(context).accentTextTheme.bodySmall!.color!,

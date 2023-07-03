@@ -57,7 +57,7 @@ abstract class HomeSettingsViewModelBase with Store {
   Future<Erc20Token?> getErc20Token(String contractAddress) async =>
       await ethereum!.getErc20Token(_balanceViewModel.wallet, contractAddress);
 
-  String get nativeToken => _balanceViewModel.wallet.currency.title;
+  CryptoCurrency get nativeToken => _balanceViewModel.wallet.currency;
 
   void _updateFiatPrices(Erc20Token token) async {
     try {
