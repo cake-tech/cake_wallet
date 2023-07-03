@@ -5,6 +5,7 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -94,11 +95,20 @@ class DarkTheme extends ThemeBase {
               activeIndicatorColor: Colors.white));
 
   @override
+  CakeMenuTheme get menuTheme => CakeMenuTheme(
+      headerFirstGradientColor: PaletteDark.deepPurpleBlue,
+      headerSecondGradientColor: PaletteDark.deepPurpleBlue,
+      backgroundColor: PaletteDark.deepPurpleBlue,
+      subnameTextColor: PaletteDark.darkCyanBlue,
+      dividerColor: PaletteDark.darkOceanBlue,
+      iconColor: PaletteDark.pigeonBlue);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
       dividerColor: PaletteDark.dividerColor,
-      hintColor: PaletteDark.pigeonBlue, // menu
+      hintColor: PaletteDark.pigeonBlue,
       disabledColor: PaletteDark.deepVioletBlue,
       dialogTheme: super
           .themeData
@@ -148,11 +158,6 @@ class DarkTheme extends ThemeBase {
               decorationColor: PaletteDark
                   .darkOceanBlue // background of tiles (account list)
               ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(
-            color: PaletteDark.deepPurpleBlue, // menu header
-            decorationColor: PaletteDark.deepPurpleBlue, // menu background
-          )
       ),
       primaryTextTheme: TextTheme(
           // title -> titleLarge
@@ -162,7 +167,6 @@ class DarkTheme extends ThemeBase {
               ),
           bodySmall: TextStyle(
               color: PaletteDark.darkCyanBlue, // secondary text
-              decorationColor: PaletteDark.darkOceanBlue // menu divider
               ),
           labelSmall: TextStyle(
             color:
@@ -243,15 +247,7 @@ class DarkTheme extends ThemeBase {
             ),
         labelSmall: TextStyle(
           color: PaletteDark.wildVioletBlue, // checkbox bounds (filter widget)
-          decorationColor: PaletteDark.darkCyanBlue, // menu subname
         ),
-        // display1 -> headlineMedium
-        headlineMedium: TextStyle(
-            color: PaletteDark
-                .deepPurpleBlue, // first gradient color (menu header)
-            decorationColor: PaletteDark
-                .deepPurpleBlue, // second gradient color(menu header)
-            ),
       ),
       );
 }

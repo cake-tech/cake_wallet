@@ -5,6 +5,7 @@ import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 class InformationPage extends StatelessWidget {
   InformationPage({required this.information});
@@ -22,7 +23,7 @@ class InformationPage extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(30)),
-            color: Theme.of(context).textTheme!.bodyLarge!.decorationColor!
+            color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

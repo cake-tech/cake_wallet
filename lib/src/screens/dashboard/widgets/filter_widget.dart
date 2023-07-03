@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
@@ -23,7 +24,7 @@ class FilterWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(24)),
             child: Container(
-              color: Theme.of(context).textTheme!.bodyLarge!.decorationColor!,
+              color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

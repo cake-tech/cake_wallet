@@ -2,6 +2,7 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
@@ -55,6 +56,11 @@ class BrightTheme extends LightTheme {
   @override
   BalancePageTheme get balancePageTheme =>
       BalancePageTheme(textColor: Colors.white.withOpacity(0.5));
+
+  @override
+  CakeMenuTheme get menuTheme => super.menuTheme.copyWith(
+      headerSecondGradientColor: Palette.pinkFlamingo,
+      iconColor: PaletteDark.pigeonBlue);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -111,11 +117,7 @@ class BrightTheme extends LightTheme {
               decorationColor:
                   Colors.white // background of tiles (account list)
               ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(
-            color: Palette.moderateLavender, // menu header
-            decorationColor: Colors.white, // menu background
-          )),
+          ),
       primaryTextTheme: TextTheme(
           titleLarge: TextStyle(
               color: Palette.darkBlueCraiola, // title color
@@ -123,7 +125,6 @@ class BrightTheme extends LightTheme {
               ),
           bodySmall: TextStyle(
               color: PaletteDark.pigeonBlue, // secondary text
-              decorationColor: Palette.wildLavender // menu divider
               ),
           labelSmall: TextStyle(
             color: Palette.darkGray, // transaction/trade details titles
@@ -201,13 +202,6 @@ class BrightTheme extends LightTheme {
             ),
         labelSmall: TextStyle(
           color: Palette.wildPeriwinkle, // checkbox bounds (filter widget)
-          decorationColor: Colors.white, // menu subname
         ),
-        // display1 -> headlineMedium
-        headlineMedium: TextStyle(
-            color: Palette.blueCraiola, // first gradient color (menu header)
-            decorationColor:
-                Palette.pinkFlamingo, // second gradient color(menu header)
-            ),
       ));
 }

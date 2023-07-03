@@ -6,6 +6,7 @@ import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.da
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 class IoniaFilterModal extends StatelessWidget {
   IoniaFilterModal({required this.ioniaGiftCardsListViewModel}){
@@ -53,7 +54,7 @@ class IoniaFilterModal extends StatelessWidget {
                           prefixIcon: searchIcon,
                           hintText: S.of(context).search_category,
                           contentPadding: EdgeInsets.only(bottom: 5),
-                          fillColor: Theme.of(context).primaryTextTheme!.bodySmall!.decorationColor!.withOpacity(0.5),
+                          fillColor: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor.withOpacity(0.5),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(8),

@@ -5,6 +5,7 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -95,6 +96,15 @@ class LightTheme extends ThemeBase {
               activeIndicatorColor: PaletteDark.darkNightBlue));
 
   @override
+  CakeMenuTheme get menuTheme => CakeMenuTheme(
+      headerFirstGradientColor: Palette.blueCraiola,
+      headerSecondGradientColor: Palette.blueGreyCraiola,
+      backgroundColor: Colors.white,
+      subnameTextColor: Colors.white,
+      dividerColor: Palette.wildLavender,
+      iconColor: Palette.gray);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
@@ -151,11 +161,6 @@ class LightTheme extends ThemeBase {
               decorationColor:
                   Colors.white // background of tiles (account list)
               ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(
-            color: Palette.moderateLavender, // menu header
-            decorationColor: Colors.white, // menu background
-          )
       ),
       primaryTextTheme: TextTheme(
           // title -> titleLarge
@@ -165,7 +170,6 @@ class LightTheme extends ThemeBase {
               ),
           bodySmall: TextStyle(
               color: PaletteDark.pigeonBlue, // secondary text
-              decorationColor: Palette.wildLavender // menu divider
               ),
           labelSmall: TextStyle(
             color: Palette.darkGray, // transaction/trade details titles
@@ -242,13 +246,7 @@ class LightTheme extends ThemeBase {
             ),
         labelSmall: TextStyle(
           color: Palette.wildPeriwinkle, // checkbox bounds (filter widget)
-          decorationColor: Colors.white, // menu subname
         ),
-        // display1 -> headlineMedium
-        headlineMedium: TextStyle(
-            color: Palette.blueCraiola, // first gradient color (menu header)
-            decorationColor: Palette.blueGreyCraiola, // second gradient color(menu header)
-            ),
       ),
       );
 }
