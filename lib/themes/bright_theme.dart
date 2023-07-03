@@ -1,6 +1,7 @@
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
@@ -63,17 +64,19 @@ class BrightTheme extends LightTheme {
       iconColor: PaletteDark.pigeonBlue);
 
   @override
+  FilterTheme get filterTheme => super.filterTheme.copyWith(
+      checkboxBackgroundColor: Colors.white,
+      buttonColor: Colors.white.withOpacity(0.2),
+      iconColor: Colors.white);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       hoverColor: Colors.white, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,
       textTheme: TextTheme(
-          bodySmall: TextStyle(
-            decorationColor: Colors.white, // filter icon
-          ),
           labelSmall: TextStyle(
-              color: Colors.white.withOpacity(0.2), // filter button
               backgroundColor:
                   Colors.white.withOpacity(0.5), // date section row
               decorationColor: Colors.white
@@ -193,15 +196,5 @@ class BrightTheme extends LightTheme {
             decorationColor: Colors
                 .white // restore wallet button text color (wallet list page)
             ),
-        // subhead -> titleMedium
-        titleMedium: TextStyle(
-            color: Palette.darkGray, // titles color (filter widget)
-            backgroundColor:
-                Palette.periwinkle, // divider color (filter widget)
-            decorationColor: Colors.white // checkbox background (filter widget)
-            ),
-        labelSmall: TextStyle(
-          color: Palette.wildPeriwinkle, // checkbox bounds (filter widget)
-        ),
       ));
 }

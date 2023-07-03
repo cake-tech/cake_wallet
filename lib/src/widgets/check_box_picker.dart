@@ -2,6 +2,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
 class CheckBoxPicker extends StatefulWidget {
   CheckBoxPicker({
@@ -125,10 +126,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
           value: item.value,
           activeColor: item.value
               ? Palette.blueCraiola
-              : Theme.of(context)
-                  .accentTextTheme!
-                  .titleMedium!
-                  .decorationColor!,
+              : Theme.of(context).extension<FilterTheme>()!.checkboxBackgroundColor,
           checkColor: Colors.white,
           title: widget.displayItem?.call(item) ??
               Text(

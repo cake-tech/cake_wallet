@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:flutter/material.dart';
 
 class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
@@ -6,21 +7,22 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
   final Color thirdGradientBackgroundColor;
   final Color textColor;
 
+  final IndicatorDotTheme? indicatorDotTheme;
+
   DashboardPageTheme(
       {required this.firstGradientBackgroundColor,
       required this.secondGradientBackgroundColor,
       required this.thirdGradientBackgroundColor,
-      required this.textColor});
-
-  @override
-  Object get type => DashboardPageTheme;
+      required this.textColor,
+      this.indicatorDotTheme});
 
   @override
   DashboardPageTheme copyWith(
           {Color? firstGradientBackgroundColor,
           Color? secondGradientBackgroundColor,
           Color? thirdGradientBackgroundColor,
-          Color? textColor}) =>
+          Color? textColor,
+          IndicatorDotTheme? indicatorDotTheme}) =>
       DashboardPageTheme(
           firstGradientBackgroundColor:
               firstGradientBackgroundColor ?? this.firstGradientBackgroundColor,
@@ -28,7 +30,8 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
               this.secondGradientBackgroundColor,
           thirdGradientBackgroundColor:
               thirdGradientBackgroundColor ?? this.thirdGradientBackgroundColor,
-          textColor: textColor ?? this.textColor);
+          textColor: textColor ?? this.textColor,
+          indicatorDotTheme: indicatorDotTheme ?? this.indicatorDotTheme);
 
   @override
   DashboardPageTheme lerp(ThemeExtension<DashboardPageTheme>? other, double t) {
@@ -46,6 +49,7 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
         thirdGradientBackgroundColor: Color.lerp(thirdGradientBackgroundColor,
                 other.thirdGradientBackgroundColor, t) ??
             thirdGradientBackgroundColor,
-        textColor: Color.lerp(textColor, other.textColor, t) ?? textColor);
+        textColor: Color.lerp(textColor, other.textColor, t) ?? textColor,
+        indicatorDotTheme: indicatorDotTheme?.lerp(other.indicatorDotTheme, t));
   }
 }

@@ -3,6 +3,7 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -105,6 +106,14 @@ class LightTheme extends ThemeBase {
       iconColor: Palette.gray);
 
   @override
+  FilterTheme get filterTheme => FilterTheme(
+      checkboxBoundsColor: Palette.wildPeriwinkle,
+      checkboxBackgroundColor: Colors.white,
+      titlesColor: Palette.darkGray,
+      buttonColor: Palette.blueAlice,
+      iconColor: PaletteDark.wildBlue);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
@@ -117,11 +126,7 @@ class LightTheme extends ThemeBase {
           .dialogTheme
           .copyWith(backgroundColor: Colors.white),
       textTheme: TextTheme(
-          bodySmall: TextStyle(
-            decorationColor: PaletteDark.wildBlue, // filter icon
-          ),
           labelSmall: TextStyle(
-              color: Palette.blueAlice, // filter button
               backgroundColor: PaletteDark.darkCyanBlue, // date section row
               decorationColor:
                   Palette.blueAlice // icons (transaction and trade rows)
@@ -238,15 +243,6 @@ class LightTheme extends ThemeBase {
             decorationColor: Colors
                 .white // restore wallet button text color (wallet list page)
             ),
-        // subhead -> titleMedium
-        titleMedium: TextStyle(
-            color: Palette.darkGray, // titles color (filter widget)
-            backgroundColor: Palette.periwinkle, // divider color (filter widget)
-            decorationColor: Colors.white // checkbox background (filter widget)
-            ),
-        labelSmall: TextStyle(
-          color: Palette.wildPeriwinkle, // checkbox bounds (filter widget)
-        ),
       ),
       );
 }

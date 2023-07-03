@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
 class SelectButton extends StatelessWidget {
   SelectButton({
@@ -29,10 +30,7 @@ class SelectButton extends StatelessWidget {
             .accentTextTheme!
             .headlineSmall!
             .decorationColor!
-        : Theme.of(context)
-            .accentTextTheme!
-            .titleMedium!
-            .color!;
+        : Theme.of(context).extension<FilterTheme>()!.titlesColor;
 
     final selectArrowImage = Image.asset('assets/images/select_arrow.png',
           color: arrowColor);

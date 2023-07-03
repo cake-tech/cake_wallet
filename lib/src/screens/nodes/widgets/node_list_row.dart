@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
 class NodeListRow extends StandardListRow {
   NodeListRow(
@@ -36,7 +37,7 @@ class NodeHeaderListRow extends StandardListRow {
     return SizedBox(
       width: 20,
       child: Icon(Icons.add,
-          color: Theme.of(context).accentTextTheme!.titleMedium!.color,size: 24.0),
+          color: Theme.of(context).extension<FilterTheme>()!.titlesColor,size: 24.0),
     );
   }
 }

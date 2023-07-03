@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
 class CheckboxWidget extends StatefulWidget {
   CheckboxWidget({
@@ -42,18 +43,12 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
             decoration: BoxDecoration(
                 color: value
                     ? Palette.blueCraiola
-                    : Theme.of(context)
-                        .accentTextTheme!
-                        .titleMedium!
-                        .decorationColor!,
+                    : Theme.of(context).extension<FilterTheme>()!.checkboxBackgroundColor,
                 borderRadius: BorderRadius.all(Radius.circular(2)),
                 border: Border.all(
                     color: value
                         ? Palette.blueCraiola
-                        : Theme.of(context)
-                            .accentTextTheme!
-                            .labelSmall!
-                            .color!,
+                        : Theme.of(context).extension<FilterTheme>()!.checkboxBoundsColor,
                     width: 1)),
             child: value
                 ? Center(

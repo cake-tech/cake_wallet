@@ -20,6 +20,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
 class IoniaManageCardsPage extends BasePage {
   IoniaManageCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
@@ -125,7 +126,7 @@ class IoniaManageCardsPage extends BasePage {
           ),
           child: Image.asset(
             'assets/images/filter.png',
-            color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+            color: Theme.of(context).extension<FilterTheme>()!.iconColor,
           ),
         )
     );
@@ -238,8 +239,8 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
                 thumbHeight: thumbHeight,
                 rightOffset: 1,
                 width: 3,
-                backgroundColor: Theme.of(context).textTheme!.bodySmall!.decorationColor!.withOpacity(0.05),
-                thumbColor: Theme.of(context).textTheme!.bodySmall!.decorationColor!.withOpacity(0.5),
+                backgroundColor: Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.05),
+                thumbColor: Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.5),
                 fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
               )
             : Offstage()
@@ -270,7 +271,7 @@ class _SearchWidget extends StatelessWidget {
       padding: EdgeInsets.all(8),
       child: Image.asset(
         'assets/images/mini_search_icon.png',
-        color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+        color: Theme.of(context).extension<FilterTheme>()!.iconColor,
       ),
     );
 

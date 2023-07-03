@@ -3,6 +3,7 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -104,6 +105,14 @@ class DarkTheme extends ThemeBase {
       iconColor: PaletteDark.pigeonBlue);
 
   @override
+  FilterTheme get filterTheme => FilterTheme(
+      checkboxBoundsColor: PaletteDark.wildVioletBlue,
+      checkboxBackgroundColor: PaletteDark.wildVioletBlue.withOpacity(0.3),
+      titlesColor: Colors.white,
+      buttonColor: PaletteDark.oceanBlue,
+      iconColor: PaletteDark.wildBlue);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
@@ -115,11 +124,7 @@ class DarkTheme extends ThemeBase {
           .dialogTheme
           .copyWith(backgroundColor: PaletteDark.nightBlue),
       textTheme: TextTheme(
-          bodySmall: TextStyle(
-            decorationColor: PaletteDark.wildBlue, // filter icon
-          ),
           labelSmall: TextStyle(
-              color: PaletteDark.oceanBlue, // filter button
               backgroundColor: PaletteDark.darkCyanBlue, // date section row
               decorationColor: PaletteDark
                   .wildNightBlue // icons (transaction and trade rows)
@@ -237,17 +242,6 @@ class DarkTheme extends ThemeBase {
             decorationColor: Palette
                 .darkBlueCraiola // restore wallet button text color (wallet list page)
             ),
-        // subhead -> titleMedium
-        titleMedium: TextStyle(
-            color: Colors.white, // titles color (filter widget)
-            backgroundColor:
-                PaletteDark.darkOceanBlue, // divider color (filter widget)
-            decorationColor: PaletteDark.wildVioletBlue
-                .withOpacity(0.3) // checkbox background (filter widget)
-            ),
-        labelSmall: TextStyle(
-          color: PaletteDark.wildVioletBlue, // checkbox bounds (filter widget)
-        ),
       ),
       );
 }
