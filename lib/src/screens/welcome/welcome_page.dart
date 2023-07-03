@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
@@ -90,10 +91,7 @@ class WelcomePage extends BasePage {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .displayMedium!
-                                          .color,
+                                      color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -120,10 +118,7 @@ class WelcomePage extends BasePage {
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .displayMedium!
-                                          .color,
+                                      color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -137,10 +132,7 @@ class WelcomePage extends BasePage {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.normal,
-                                    color: Theme.of(context)
-                                        .accentTextTheme!
-                                        .displayMedium!
-                                        .color,
+                                    color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),

@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
@@ -121,10 +122,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                 S.of(context).settings_can_be_changed_later,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .displayMedium!
-                      .color,
+                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                 ),
               ),
             ),

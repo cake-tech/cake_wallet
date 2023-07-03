@@ -1,6 +1,7 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -67,6 +68,11 @@ class DarkTheme extends ThemeBase {
       secondGradientTopPanelColor: PaletteDark.wildVioletBlue,
       firstGradientTopPanelColor: PaletteDark.wildVioletBlue,
       receiveAmountColor: PaletteDark.darkCyanBlue);
+
+  @override
+  NewWalletTheme get newWalletTheme => NewWalletTheme(
+      hintTextColor: PaletteDark.cyanBlue,
+      underlineColor: PaletteDark.darkGrey);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -239,12 +245,6 @@ class DarkTheme extends ThemeBase {
             decorationColor:
                 PaletteDark.darkCyanBlue, // hint text (seed widget)
             backgroundColor: PaletteDark.cyanBlue // text on balance page
-            ),
-        // display3 -> displayMedium
-        displayMedium: TextStyle(
-            color: PaletteDark.cyanBlue, // hint text (new wallet page)
-            decorationColor:
-                PaletteDark.darkGrey, // underline (new wallet page)
             ),
       ),
       );

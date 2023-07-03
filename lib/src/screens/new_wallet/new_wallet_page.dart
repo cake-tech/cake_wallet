@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_pick
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM);
@@ -125,24 +126,15 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               hintStyle: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displayMedium!
-                                      .color),
+                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
                               hintText: S.of(context).wallet_name,
                               focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .displayMedium!
-                                          .decorationColor!,
+                                      color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
                                       width: 1.0)),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context)
-                                        .accentTextTheme!
-                                        .displayMedium!
-                                        .decorationColor!,
+                                    color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
                                     width: 1.0),
                               ),
                               suffixIcon: Semantics(
