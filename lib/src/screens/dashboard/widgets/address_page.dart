@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
@@ -213,10 +214,7 @@ class AddressPage extends BasePage {
                                       .titleMedium!
                                       .color!,
                                   width: 1),
-                              color: Theme.of(context)
-                                  .textTheme!
-                                  .titleLarge!
-                                  .backgroundColor!),
+                              color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

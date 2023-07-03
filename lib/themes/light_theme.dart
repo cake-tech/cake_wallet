@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -30,6 +31,13 @@ class LightTheme extends ThemeBase {
       trackColor: Palette.periwinkleCraiola);
 
   @override
+  SyncIndicatorTheme get syncIndicatorStyle => SyncIndicatorTheme(
+      textColor: Palette.darkBlueCraiola,
+      syncedBackgroundColor: Palette.blueAlice,
+      notSyncedIconColor: Palette.shineOrange,
+      notSyncedBackgroundColor: Palette.blueAlice.withOpacity(0.75));
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
@@ -41,14 +49,7 @@ class LightTheme extends ThemeBase {
           .dialogTheme
           .copyWith(backgroundColor: Colors.white),
       textTheme: TextTheme(
-          // title -> titleLarge
-          titleLarge: TextStyle(
-            color: Palette.darkBlueCraiola, // sync_indicator text
-            backgroundColor: Palette.blueAlice, // synced sync_indicator
-            decorationColor: Palette.blueAlice.withOpacity(0.75), // not synced sync_indicator
-          ),
           bodySmall: TextStyle(
-            color: Palette.shineOrange, // not synced light
             decorationColor: PaletteDark.wildBlue, // filter icon
           ),
           labelSmall: TextStyle(

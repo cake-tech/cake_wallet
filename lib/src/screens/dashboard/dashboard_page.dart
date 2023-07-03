@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -182,10 +183,7 @@ class _DashboardPageView extends BasePage {
                             : Colors.transparent,
                         width: 1,
                       ),
-                      color: Theme.of(context)
-                          .textTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     ),
                     child: Container(
                       padding: EdgeInsets.only(left: 32, right: 32),

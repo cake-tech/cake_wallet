@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/yat/widgets/yat_close_button.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -39,7 +40,7 @@ class YatEmojiId extends StatelessWidget {
               child: Container(
                   height: 420,
                   color:
-                      Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+                      Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                   padding: EdgeInsets.fromLTRB(24, 15, 24, 24),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,

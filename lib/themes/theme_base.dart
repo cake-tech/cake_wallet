@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 
 enum ThemeType { light, bright, dark }
@@ -39,11 +40,17 @@ abstract class ThemeBase {
 
   CakeScrollbarTheme get scrollbarTheme;
 
+  SyncIndicatorTheme get syncIndicatorStyle;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
       dialogBackgroundColor: dialogBackgroundColor,
-      extensions: [pageGradientTheme, scrollbarTheme],
+      extensions: [
+        pageGradientTheme,
+        scrollbarTheme,
+        syncIndicatorStyle
+      ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),
           trackColor: MaterialStateProperty.all(scrollbarTheme.trackColor),

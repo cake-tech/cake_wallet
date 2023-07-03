@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -29,6 +30,13 @@ class DarkTheme extends ThemeBase {
       thumbColor: PaletteDark.wildBlueGrey, trackColor: PaletteDark.violetBlue);
 
   @override
+  SyncIndicatorTheme get syncIndicatorStyle => SyncIndicatorTheme(
+      textColor: PaletteDark.wildBlue,
+      syncedBackgroundColor: PaletteDark.lightNightBlue,
+      notSyncedIconColor: PaletteDark.orangeYellow,
+      notSyncedBackgroundColor: PaletteDark.oceanBlue);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
@@ -39,16 +47,7 @@ class DarkTheme extends ThemeBase {
           .dialogTheme
           .copyWith(backgroundColor: PaletteDark.nightBlue),
       textTheme: TextTheme(
-          // title -> titleLarge
-          titleLarge: TextStyle(
-              color: PaletteDark.wildBlue, // sync_indicator text
-              backgroundColor:
-                  PaletteDark.lightNightBlue, // synced sync_indicator
-              decorationColor:
-                  PaletteDark.oceanBlue // not synced sync_indicator
-              ),
           bodySmall: TextStyle(
-            color: PaletteDark.orangeYellow, // not synced light
             decorationColor: PaletteDark.wildBlue, // filter icon
           ),
           labelSmall: TextStyle(

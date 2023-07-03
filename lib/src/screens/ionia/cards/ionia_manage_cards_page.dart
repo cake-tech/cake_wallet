@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_filter_modal.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/typography.dart';
@@ -122,7 +123,7 @@ class IoniaManageCardsPage extends BasePage {
           width: 32,
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
             border: Border.all(
               color: Colors.white.withOpacity(0.2),
             ),
@@ -230,7 +231,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               },
               title: merchant.legalName,
               subTitle: merchant.avaibilityStatus,
-              backgroundColor: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+              backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               titleColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
               subtitleColor: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
               discount: merchant.discount,
@@ -289,7 +290,7 @@ class _SearchWidget extends StatelessWidget {
             top: 10,
             left: 10,
           ),
-          fillColor: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+          fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
             color: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,

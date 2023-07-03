@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -26,7 +27,7 @@ class IntroducingCard extends StatelessWidget {
               color: borderColor,
               width: 1,
             ),
-            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!),
+            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
