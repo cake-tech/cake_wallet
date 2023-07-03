@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -274,14 +275,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               .popAndPushNamed(Routes.welcome)
                           : null,
                       text: 'Accept',
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleSmall!
-                          .decorationColor!,
-                      textColor: Theme.of(context)
-                          .accentTextTheme!
-                          .headlineSmall!
-                          .decorationColor!),
+                      color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
+                      textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor),
                 ),
               ],
             ],

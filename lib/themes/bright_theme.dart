@@ -6,6 +6,7 @@ import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -68,6 +69,10 @@ class BrightTheme extends LightTheme {
       checkboxBackgroundColor: Colors.white,
       buttonColor: Colors.white.withOpacity(0.2),
       iconColor: Colors.white);
+
+  @override
+  WalletListTheme get walletListTheme => super.walletListTheme.copyWith(
+      createNewWalletButtonBackgroundColor: Palette.moderateSlateBlue);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -183,18 +188,5 @@ class BrightTheme extends LightTheme {
           decorationColor:
               Palette.darkBlueCraiola, // text color (information page)
         ),
-        // subtitle -> titleSmall
-        titleSmall: TextStyle(
-            //decorationColor: Palette.blueCraiola // crete new wallet button background (wallet list page)
-            decorationColor: Palette
-                .moderateSlateBlue // crete new wallet button background (wallet list page)
-            ),
-        // headline -> headlineSmall
-        headlineSmall: TextStyle(
-            color: Palette
-                .moderateLavender, // first gradient color of wallet action buttons (wallet list page)
-            decorationColor: Colors
-                .white // restore wallet button text color (wallet list page)
-            ),
       ));
 }

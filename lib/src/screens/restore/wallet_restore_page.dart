@@ -23,6 +23,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
@@ -192,14 +193,8 @@ class WalletRestorePage extends BasePage {
                       return LoadingPrimaryButton(
                         onPressed: _confirmForm,
                         text: S.of(context).restore_recover,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .titleSmall!
-                            .decorationColor!,
-                        textColor: Theme.of(context)
-                            .accentTextTheme!
-                            .headlineSmall!
-                            .decorationColor!,
+                        color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
+                        textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
                         isLoading: walletRestoreViewModel.state is IsExecutingState,
                         isDisabled: !walletRestoreViewModel.isButtonEnabled,
                       );

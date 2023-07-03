@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class WalletListPage extends BasePage {
   WalletListPage({required this.walletListViewModel, required this.authService});
@@ -74,7 +75,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
-                        ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
+                        ? Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
                         onTap: () async {

@@ -11,6 +11,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -111,6 +112,11 @@ class DarkTheme extends ThemeBase {
       titlesColor: Colors.white,
       buttonColor: PaletteDark.oceanBlue,
       iconColor: PaletteDark.wildBlue);
+
+  @override
+  WalletListTheme get walletListTheme => WalletListTheme(
+      restoreWalletButtonTextColor: Palette.darkBlueCraiola,
+      createNewWalletButtonBackgroundColor: Colors.white);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -230,18 +236,6 @@ class DarkTheme extends ThemeBase {
         bodySmall: TextStyle(
           decorationColor: Palette.darkLavender, // text color (information page)
         ),
-        // subtitle -> titleSmall
-        titleSmall: TextStyle(
-            decorationColor: Colors
-                .white // crete new wallet button background (wallet list page)
-            ),
-        // headline -> headlineSmall
-        headlineSmall: TextStyle(
-            color: PaletteDark
-                .distantBlue, // first gradient color of wallet action buttons (wallet list page)
-            decorationColor: Palette
-                .darkBlueCraiola // restore wallet button text color (wallet list page)
-            ),
       ),
       );
 }

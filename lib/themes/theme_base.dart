@@ -10,6 +10,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:flutter/material.dart';
 
 enum ThemeType { light, bright, dark }
@@ -70,6 +71,8 @@ abstract class ThemeBase {
 
   FilterTheme get filterTheme;
 
+  WalletListTheme get walletListTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -87,6 +90,7 @@ abstract class ThemeBase {
         addressTheme,
         menuTheme,
         filterTheme,
+        walletListTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),

@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
@@ -52,10 +53,7 @@ class WelcomePage extends BasePage {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .headlineSmall!
-            .decorationColor!);
+        color: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
@@ -143,14 +141,8 @@ class WelcomePage extends BasePage {
                                         Navigator.pushNamed(context, Routes.newWalletFromWelcome),
                                     image: newWalletImage,
                                     text: S.of(context).create_new,
-                                    color: Theme.of(context)
-                                        .accentTextTheme!
-                                        .titleSmall!
-                                        .decorationColor!,
-                                    textColor: Theme.of(context)
-                                        .accentTextTheme!
-                                        .headlineSmall!
-                                        .decorationColor!,
+                                    color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
+                                    textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
                                   ),
                                 ),
                                 Padding(
