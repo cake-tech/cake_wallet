@@ -4,6 +4,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:flutter/material.dart';
@@ -165,7 +166,7 @@ class _IoniaCardListView extends StatelessWidget {
               .displayMedium!
               .backgroundColor!,
           valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).primaryTextTheme!.bodyMedium!.color!),
+              Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
         ),
       );
     }

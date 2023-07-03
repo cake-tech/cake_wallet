@@ -1,5 +1,6 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -94,10 +95,7 @@ class ExchangeConfirmPage extends BasePage {
                                   context, S.of(context).copied_to_clipboard);
                             },
                             text: S.of(context).copy_id,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .bodySmall!
-                                .backgroundColor!,
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
                             textColor: Theme.of(context)
                                 .primaryTextTheme!
                                 .titleLarge!

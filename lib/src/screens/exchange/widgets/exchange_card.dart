@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -268,10 +269,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                               placeholderTextStyle: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displayLarge!
-                                      .decorationColor!),
+                                  color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                               validator: _isAmountEditable
                                   ? widget.currencyValueValidator
                                   : null),
@@ -329,10 +327,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                             style: TextStyle(
                                 fontSize: 10,
                                 height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displayLarge!
-                                    .decorationColor!),
+                                color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                           )
                         : Offstage(),
                     _min != null ? SizedBox(width: 10) : Offstage(),
@@ -344,10 +339,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                             style: TextStyle(
                                 fontSize: 10,
                                 height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displayLarge!
-                                    .decorationColor!))
+                                color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor))
                         : Offstage(),
                   ])),
         ),
@@ -359,10 +351,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayLarge!
-                          .decorationColor!),
+                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                 ))
             : Offstage(),
         _isAddressEditable
@@ -400,10 +389,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                       hintStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .displayLarge!
-                              .decorationColor!),
+                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                       buttonColor: widget.addressButtonsColor,
                       validator: widget.addressTextFieldValidator,
                       onPushPasteButton: widget.onPushPasteButton,

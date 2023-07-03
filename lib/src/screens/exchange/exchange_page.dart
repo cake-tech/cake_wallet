@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
@@ -208,10 +209,7 @@ class ExchangePage extends BasePage {
                           description,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .displayLarge!
-                                  .decorationColor!,
+                              color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
                               fontWeight: FontWeight.w500,
                               fontSize: 12),
                         ),
@@ -654,8 +652,8 @@ class ExchangePage extends BasePage {
       },
       imageArrow: arrowBottomPurple,
       currencyButtonColor: Colors.transparent,
-      addressButtonsColor: Theme.of(context).focusColor!,
-      borderColor: Theme.of(context).primaryTextTheme!.bodyLarge!.color!,
+      addressButtonsColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldButtonColor!,
+      borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
       currencyValueValidator: (value) {
         return !exchangeViewModel.isFixedRateMode
             ? AmountValidator(
@@ -703,9 +701,9 @@ class ExchangePage extends BasePage {
           exchangeViewModel.changeReceiveCurrency(currency: currency),
       imageArrow: arrowBottomCakeGreen,
       currencyButtonColor: Colors.transparent,
-      addressButtonsColor: Theme.of(context).focusColor!,
+      addressButtonsColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldButtonColor!,
       borderColor:
-      Theme.of(context).primaryTextTheme!.bodyLarge!.decorationColor!,
+      Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
       currencyValueValidator: (value) {
         return exchangeViewModel.isFixedRateMode
             ? AmountValidator(

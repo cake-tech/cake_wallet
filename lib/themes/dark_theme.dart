@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -51,6 +52,21 @@ class DarkTheme extends ThemeBase {
   @override
   SupportPageTheme get supportPageTheme =>
       SupportPageTheme(iconColor: Colors.white);
+
+  @override
+  ExchangePageTheme get exchangePageTheme => ExchangePageTheme(
+      hintTextColor: PaletteDark.lightBlueGrey,
+      dividerCodeColor: PaletteDark.deepVioletBlue,
+      qrCodeColor: primaryTextColor,
+      buttonBackgroundColor: PaletteDark.deepVioletBlue,
+      textFieldButtonColor: PaletteDark.moderateBlue,
+      textFieldBorderBottomPanelColor: PaletteDark.moderateVioletBlue,
+      textFieldBorderTopPanelColor: PaletteDark.blueGrey,
+      secondGradientBottomPanelColor: PaletteDark.darkNightBlue,
+      firstGradientBottomPanelColor: PaletteDark.darkNightBlue,
+      secondGradientTopPanelColor: PaletteDark.wildVioletBlue,
+      firstGradientTopPanelColor: PaletteDark.wildVioletBlue,
+      receiveAmountColor: PaletteDark.darkCyanBlue);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -170,47 +186,22 @@ class DarkTheme extends ThemeBase {
               color: PaletteDark.cyanBlue, // template title (send page)
               backgroundColor:
                   Colors.white, // icon color on order row (moonpay)
-              decorationColor: PaletteDark
-                  .darkCyanBlue // receive amount text (exchange page)
-              ),
-          // subtitle -> titleSmall
-          titleSmall: TextStyle(
-              color: PaletteDark
-                  .wildVioletBlue, // first gradient color top panel (exchange page)
-              decorationColor: PaletteDark
-                  .wildVioletBlue // second gradient color top panel (exchange page)
-              ),
-          // body1 -> bodyMedium
-          bodyMedium: TextStyle(
-              color: PaletteDark
-                  .darkNightBlue, // first gradient color bottom panel (exchange page)
-              decorationColor: PaletteDark
-                  .darkNightBlue, // second gradient color bottom panel (exchange page)
               ),
           // body2 -> bodyLarge
           bodyLarge: TextStyle(
-              color: PaletteDark
-                  .blueGrey, // text field border on top panel (exchange page)
-              decorationColor: PaletteDark
-                  .moderateVioletBlue, // text field border on bottom panel (exchange page)
               backgroundColor: Palette.alizarinRed // alert left button text
           )
       ),
-      focusColor: PaletteDark.moderateBlue, // text field button (exchange page)
       accentTextTheme: TextTheme(
         // title -> titleLarge
         titleLarge: TextStyle(
             backgroundColor: PaletteDark.dividerColor, // picker divider
             ),
         bodySmall: TextStyle(
-          backgroundColor: PaletteDark.deepVioletBlue, // button background (confirm exchange)
           decorationColor: Palette.darkLavender, // text color (information page)
         ),
         // subtitle -> titleSmall
         titleSmall: TextStyle(
-            color: Colors.white, // QR code (exchange trade page)
-            backgroundColor:
-                PaletteDark.deepVioletBlue, // divider (exchange trade page)
             decorationColor: Colors
                 .white // crete new wallet button background (wallet list page)
             ),
@@ -256,11 +247,6 @@ class DarkTheme extends ThemeBase {
                 PaletteDark.darkGrey, // underline (new wallet page)
             backgroundColor:
                 Colors.white // menu, icons, balance (dashboard page)
-            ),
-        // display4 -> displayLarge
-        displayLarge: TextStyle(
-            decorationColor:
-                PaletteDark.lightBlueGrey // hint text (exchange page)
             ),
       ),
       );

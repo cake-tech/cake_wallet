@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_filter_modal.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
@@ -251,7 +252,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
          return Center(
           child: CircularProgressIndicator(
             backgroundColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme!.bodyMedium!.color!),
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
           ),
         );
       }

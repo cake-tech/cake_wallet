@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -104,8 +105,8 @@ class AnonPayInvoicePage extends BasePage {
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).primaryTextTheme!.titleSmall!.color!,
-                  Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
+                  Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
+                  Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -143,10 +144,7 @@ class AnonPayInvoicePage extends BasePage {
                             : S.of(context).anonpay_description("a donation link", "donate"),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Theme.of(context)
-                              .primaryTextTheme!
-                              .displayLarge!
-                              .decorationColor!,
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
                           fontWeight: FontWeight.w500,
                           fontSize: 12),
                       ),

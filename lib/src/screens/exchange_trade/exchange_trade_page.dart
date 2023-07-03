@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -160,10 +161,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           width: 3,
-                                          color: Theme.of(context)
-                                              .accentTextTheme!
-                                              .titleSmall!
-                                              .color!
+                                          color: Theme.of(context).extension<ExchangePageTheme>()!.qrCodeColor
                                       )
                                   ),
                                   child: QrImage(data: trade.inputAddress ?? fetchingLabel),
@@ -179,10 +177,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     itemCount: widget.exchangeTradeViewModel.items.length,
                     separatorBuilder: (context, index) => Container(
                       height: 1,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleSmall!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<ExchangePageTheme>()!.dividerCodeColor,
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];

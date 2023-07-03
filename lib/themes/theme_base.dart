@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -51,6 +52,8 @@ abstract class ThemeBase {
 
   SupportPageTheme get supportPageTheme;
 
+  ExchangePageTheme get exchangePageTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -62,6 +65,7 @@ abstract class ThemeBase {
         keyboardTheme,
         pinCodeTheme,
         supportPageTheme,
+        exchangePageTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),

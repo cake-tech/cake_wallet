@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -52,6 +53,21 @@ class LightTheme extends ThemeBase {
   @override
   SupportPageTheme get supportPageTheme =>
       SupportPageTheme(iconColor: Colors.black);
+
+  @override
+  ExchangePageTheme get exchangePageTheme => ExchangePageTheme(
+      hintTextColor: Colors.white.withOpacity(0.4),
+      dividerCodeColor: Palette.wildPeriwinkle,
+      qrCodeColor: primaryTextColor,
+      buttonBackgroundColor: containerColor,
+      textFieldButtonColor: Colors.white.withOpacity(0.2),
+      textFieldBorderBottomPanelColor: Colors.white.withOpacity(0.5),
+      textFieldBorderTopPanelColor: Colors.white.withOpacity(0.5),
+      secondGradientBottomPanelColor: Palette.blueGreyCraiola.withOpacity(0.7),
+      firstGradientBottomPanelColor: Palette.blueCraiola.withOpacity(0.7),
+      secondGradientTopPanelColor: Palette.blueGreyCraiola,
+      firstGradientTopPanelColor: Palette.blueCraiola,
+      receiveAmountColor: Palette.niagara);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -171,47 +187,22 @@ class LightTheme extends ThemeBase {
               color: Palette.darkBlueCraiola, // template title (send page)
               backgroundColor:
                   Colors.black, // icon color on order row (moonpay)
-              decorationColor:
-                  Palette.niagara // receive amount text (exchange page)
-              ),
-          // subtitle -> titleSmall
-          titleSmall: TextStyle(
-              color: Palette
-                  .blueCraiola, // first gradient color top panel (exchange page)
-              decorationColor: Palette
-                  .blueGreyCraiola // second gradient color top panel (exchange page)
-              ),
-          // body -> bodyMedium
-          bodyMedium: TextStyle(
-              color: Palette.blueCraiola.withOpacity(
-                  0.7), // first gradient color bottom panel (exchange page)
-              decorationColor: Palette.blueGreyCraiola.withOpacity(
-                  0.7), // second gradient color bottom panel (exchange page)
               ),
           // body2 -> bodyLarge
           bodyLarge: TextStyle(
-              color: Colors.white.withOpacity(
-                  0.5), // text field border on top panel (exchange page)
-              decorationColor: Colors.white.withOpacity(
-                  0.5), // text field border on bottom panel (exchange page)
               backgroundColor: Palette.brightOrange // alert left button text
           )
       ),
-      focusColor: Colors.white.withOpacity(0.2), // text field button (exchange page)
       accentTextTheme: TextTheme(
         // title -> headlititleLargene6
         titleLarge: TextStyle(
             backgroundColor: Palette.periwinkleCraiola, // picker divider
             ),
         bodySmall: TextStyle(
-          backgroundColor: Palette.blueAlice, // button background (confirm exchange)
           decorationColor: Palette.darkBlueCraiola, // text color (information page)
         ),
         // subtitle -> titleSmall
         titleSmall: TextStyle(
-            color: Palette.darkBlueCraiola, // QR code (exchange trade page)
-            backgroundColor:
-                Palette.wildPeriwinkle, // divider (exchange trade page)
             decorationColor: Palette
                 .protectiveBlue // crete new wallet button background (wallet list page)
             ),
@@ -253,11 +244,6 @@ class LightTheme extends ThemeBase {
                 Palette.periwinkleCraiola, // underline (new wallet page)
             backgroundColor:
                 Palette.darkBlueCraiola // menu, icons, balance (dashboard page)
-            ),
-        // display4 -> displayLarge
-        displayLarge: TextStyle(
-            decorationColor:
-                Colors.white.withOpacity(0.4) // hint text (exchange page)
             ),
       ),
       );
