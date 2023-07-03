@@ -83,7 +83,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                                 padding: EdgeInsets.zero,
                                                 controller: controller,
                                                 separatorBuilder: (context, index) =>
-                                                const SectionDivider(),
+                                                const HorizontalSectionDivider(),
                                                 itemCount: accounts.length ?? 0,
                                                 itemBuilder: (context, index) {
                                                   final account = accounts[index];

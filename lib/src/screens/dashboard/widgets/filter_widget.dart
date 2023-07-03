@@ -15,7 +15,7 @@ class FilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const sectionDivider = const SectionDivider();
+    const sectionDivider = const HorizontalSectionDivider();
     return PickerWrapperWidget(
       children: [
         Padding(

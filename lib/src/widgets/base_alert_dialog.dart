@@ -76,7 +76,7 @@ class BaseAlertDialog extends StatelessWidget {
                     ),
                   )),
             ),
-            const SectionDivider(),
+            const VerticalSectionDivider(),
             Expanded(
               child: TextButton(
                   onPressed: actionRight,
@@ -133,7 +133,7 @@ class BaseAlertDialog extends StatelessWidget {
                             isDividerExists
                                 ? Padding(
                                     padding: EdgeInsets.only(top: 16, bottom: 8),
-                                    child: const SectionDivider(),
+                                    child: const HorizontalSectionDivider(),
                                   )
                                 : Offstage(),
                             Padding(
@@ -142,7 +142,7 @@ class BaseAlertDialog extends StatelessWidget {
                             )
                           ],
                         ),
-                        const SectionDivider(),
+                        const HorizontalSectionDivider(),
                         actionButtons(context)
                       ],
                     ),

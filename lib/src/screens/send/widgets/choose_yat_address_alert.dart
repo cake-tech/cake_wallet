@@ -71,7 +71,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
                 controller: controller,
                 padding: EdgeInsets.all(0),
                 itemCount: itemCount,
-                separatorBuilder: (_, __) => const SectionDivider(),
+                separatorBuilder: (_, __) => const HorizontalSectionDivider(),
                 itemBuilder: (context, index) {
                   final address = addresses[index];
 
