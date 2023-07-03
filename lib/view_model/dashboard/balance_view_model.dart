@@ -308,8 +308,12 @@ abstract class BalanceViewModelBase with Store {
 
       switch (sortBalanceBy) {
         case SortBalanceBy.FiatBalance:
-          return double.parse(b.fiatAvailableBalance)
-              .compareTo(double.parse(a.fiatAvailableBalance));
+          return double.parse(_getFiatBalance(
+              price: fiatConvertationStore.prices[b.asset]!,
+              cryptoAmount: b.availableBalance))
+              .compareTo(double.parse(_getFiatBalance(
+              price: fiatConvertationStore.prices[a.asset]!,
+              cryptoAmount: a.availableBalance)));
         case SortBalanceBy.GrossBalance:
           return double.parse(b.availableBalance)
               .compareTo(double.parse(a.availableBalance));

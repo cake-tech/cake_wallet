@@ -13,7 +13,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   final String contractAddress;
   @HiveField(3)
   final int decimal;
-  @HiveField(4, defaultValue: false)
+  @HiveField(4, defaultValue: true)
   bool _enabled;
   @HiveField(5)
   final String? iconPath;
@@ -30,7 +30,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
     required this.symbol,
     required this.contractAddress,
     required this.decimal,
-    bool enabled = false,
+    bool enabled = true,
     this.iconPath,
   })  : _enabled = enabled,
         super(

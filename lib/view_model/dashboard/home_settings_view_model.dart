@@ -13,24 +13,19 @@ part 'home_settings_view_model.g.dart';
 class HomeSettingsViewModel = HomeSettingsViewModelBase with _$HomeSettingsViewModel;
 
 abstract class HomeSettingsViewModelBase with Store {
-  HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel)
-      : tokens = ObservableList<Erc20Token>() {
-    _updateTokensList();
-  }
+  HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel);
 
   final SettingsStore _settingsStore;
   final BalanceViewModel _balanceViewModel;
 
-  final ObservableList<Erc20Token> tokens;
+  @observable
+  String searchText = '';
 
   @computed
   SortBalanceBy get sortBalanceBy => _settingsStore.sortBalanceBy;
 
   @action
-  void setSortBalanceBy(SortBalanceBy value) {
-    _settingsStore.sortBalanceBy = value;
-    _sortTokens();
-  }
+  void setSortBalanceBy(SortBalanceBy value) => _settingsStore.sortBalanceBy = value;
 
   @computed
   bool get pinNativeToken => _settingsStore.pinNativeTokenAtTop;
@@ -38,20 +33,13 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   void setPinNativeToken(bool value) => _settingsStore.pinNativeTokenAtTop = value;
 
-  @action
-  void _updateTokensList() {
-    _sortTokens();
-  }
-
   Future<void> addErc20Token(Erc20Token token) async {
     await ethereum!.addErc20Token(_balanceViewModel.wallet, token);
-    _updateTokensList();
     _updateFiatPrices(token);
   }
 
   Future<void> deleteErc20Token(Erc20Token token) async {
     await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token);
-    _updateTokensList();
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async =>
@@ -70,25 +58,34 @@ abstract class HomeSettingsViewModelBase with Store {
   }
 
   void changeTokenAvailability(int index, bool value) async {
-    tokens[index].enabled = value;
+    tokens.elementAt(index).enabled = value;
     _balanceViewModel.wallet.updateBalance();
-    _updateTokensList();
   }
 
-  void _sortTokens() {
-    tokens.clear();
+  @computed
+  Set<Erc20Token> get tokens {
+    final Set<Erc20Token> tokens = {};
 
-    // Add Sorted Enabled tokens
-    for (int i = 0; i < _balanceViewModel.balances.keys.length; i++) {
-      final CryptoCurrency currency = _balanceViewModel.balances.keys.elementAt(i);
-      if (currency is Erc20Token) {
-        tokens.add(currency);
+    _balanceViewModel.formattedBalances.forEach((e) {
+      if (e.asset is Erc20Token && _matchesSearchText(e.asset as Erc20Token)) {
+        tokens.add(e.asset as Erc20Token);
       }
-    }
+    });
 
-    // Add disabled tokens
     tokens.addAll(ethereum!
         .getERC20Currencies(_balanceViewModel.wallet)
-        .where((element) => !element.enabled));
+        .where((element) => _matchesSearchText(element)));
+
+    return tokens;
+  }
+
+  @action
+  void changeSearchText(String text) => searchText = text;
+
+  bool _matchesSearchText(Erc20Token asset) {
+    return searchText.isEmpty ||
+        asset.fullName!.toLowerCase().contains(searchText.toLowerCase()) ||
+        asset.title.toLowerCase().contains(searchText.toLowerCase()) ||
+        asset.contractAddress == searchText;
   }
 }

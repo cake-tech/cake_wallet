@@ -310,7 +310,7 @@ abstract class EthereumWalletBase
       symbol: token.symbol,
       contractAddress: token.contractAddress,
       decimal: token.decimal,
-      enabled: true,
+      enabled: token.enabled,
       iconPath: iconPath,
     ));
 

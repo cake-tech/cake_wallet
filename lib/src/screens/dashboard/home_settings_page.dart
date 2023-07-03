@@ -70,6 +70,7 @@ class HomeSettingsPage extends BasePage {
                         borderSide: const BorderSide(color: Colors.transparent),
                       ),
                     ),
+                    onChanged: (String text) => _homeSettingsViewModel.changeSearchText(text),
                   ),
                 ),
               ),
@@ -104,7 +105,7 @@ class HomeSettingsPage extends BasePage {
                   margin: EdgeInsets.only(top: 16, left: 16, right: 16),
                   child: Observer(
                     builder: (_) {
-                      final token = _homeSettingsViewModel.tokens[index];
+                      final token = _homeSettingsViewModel.tokens.elementAt(index);
 
                       return SettingsSwitcherCell(
                         title: "${token.name} "

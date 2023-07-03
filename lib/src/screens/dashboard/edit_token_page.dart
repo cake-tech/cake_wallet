@@ -31,6 +31,7 @@ class EditTokenPage extends BasePage {
     return EditTokenPageBody(
       homeSettingsViewModel: homeSettingsViewModel,
       erc20token: erc20token,
+      initialContractAddress: initialContractAddress,
     );
   }
 }
