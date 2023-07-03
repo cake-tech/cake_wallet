@@ -10,6 +10,7 @@ import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class IoniaAccountCardsPage extends BasePage {
   IoniaAccountCardsPage(this.ioniaAccountViewModel);
@@ -161,10 +162,7 @@ class _IoniaCardListView extends StatelessWidget {
     if(isLoading){
       return Center(
         child: CircularProgressIndicator(
-          backgroundColor: Theme.of(context)
-              .accentTextTheme!
-              .displayMedium!
-              .backgroundColor!,
+          backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
           valueColor: AlwaysStoppedAnimation<Color>(
               Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
         ),

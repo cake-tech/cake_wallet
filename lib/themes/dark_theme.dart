@@ -245,8 +245,6 @@ class DarkTheme extends ThemeBase {
             color: PaletteDark.cyanBlue, // hint text (new wallet page)
             decorationColor:
                 PaletteDark.darkGrey, // underline (new wallet page)
-            backgroundColor:
-                Colors.white // menu, icons, balance (dashboard page)
             ),
       ),
       );

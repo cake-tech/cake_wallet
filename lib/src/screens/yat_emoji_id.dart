@@ -13,6 +13,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class YatEmojiId extends StatelessWidget {
   YatEmojiId(this.emojiId);
@@ -90,7 +91,7 @@ class YatEmojiId extends StatelessWidget {
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Lato',
-                                      color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                                       decoration: TextDecoration.none,
                                     )
                                 ),

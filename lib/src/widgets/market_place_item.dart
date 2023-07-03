@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class MarketPlaceItem extends StatelessWidget {
 
@@ -40,10 +41,7 @@ class MarketPlaceItem extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .displayMedium!
-                            .backgroundColor!,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
@@ -52,10 +50,7 @@ class MarketPlaceItem extends StatelessWidget {
                     Text(
                       subTitle,
                       style: TextStyle(
-                          color:  Theme.of(context)
-                            .accentTextTheme!
-                            .displayMedium!
-                            .backgroundColor!,
+                          color:  Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Lato'),
                     )

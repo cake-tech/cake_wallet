@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class PresentReceiveOptionPicker extends StatelessWidget {
   PresentReceiveOptionPicker(
@@ -18,10 +19,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textIconTheme = gradientBackground
-        ? Theme.of(context)
-            .accentTextTheme!
-            .displayMedium!
-            .backgroundColor!
+        ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
         : Colors.white;
     final arrowBottom = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',

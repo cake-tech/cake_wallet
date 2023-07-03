@@ -242,8 +242,6 @@ class LightTheme extends ThemeBase {
             color: Palette.darkGray, // hint text (new wallet page)
             decorationColor:
                 Palette.periwinkleCraiola, // underline (new wallet page)
-            backgroundColor:
-                Palette.darkBlueCraiola // menu, icons, balance (dashboard page)
             ),
       ),
       );

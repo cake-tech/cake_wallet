@@ -18,6 +18,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class IoniaManageCardsPage extends BasePage {
   IoniaManageCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
@@ -59,10 +60,7 @@ class IoniaManageCardsPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       size: 16,
     );
 
@@ -94,10 +92,7 @@ class IoniaManageCardsPage extends BasePage {
     return Text(
       S.of(context).gift_cards,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayMedium!
-            .backgroundColor!,
+        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       ),
     );
   }
@@ -230,7 +225,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               title: merchant.legalName,
               subTitle: merchant.avaibilityStatus,
               backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-              titleColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+              titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               subtitleColor: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
               discount: merchant.discount,
             );
@@ -251,7 +246,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
          } 
          return Center(
           child: CircularProgressIndicator(
-            backgroundColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+            backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
             valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
           ),
         );
@@ -280,7 +275,7 @@ class _SearchWidget extends StatelessWidget {
 
     return TextField(
       focusNode: focusNode,
-      style: TextStyle(color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!),
+      style: TextStyle(color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
       controller: controller,
       decoration: InputDecoration(
           filled: true,
@@ -335,7 +330,7 @@ class _TrailingIcon extends StatelessWidget {
         onPressed: onPressed,
         icon: Image.asset(
           asset,
-          color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
         ),
       ),
     );

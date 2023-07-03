@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class FullscreenQRPage extends BasePage {
   FullscreenQRPage({required this.qrViewData});
@@ -19,10 +20,7 @@ class FullscreenQRPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       size: 16,
     );
 
@@ -62,10 +60,7 @@ class FullscreenQRPage extends BasePage {
               decoration: BoxDecoration(
                   border: Border.all(
                       width: 3,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!)),
+                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
               child: Container(
                   decoration: BoxDecoration(
                       border: Border.all(width: 3, color: Colors.white)),

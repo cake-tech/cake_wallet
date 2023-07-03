@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/copy_link_item.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class AnonPayReceivePage extends BasePage {
   final AnonpayInfoBase invoiceInfo;
@@ -31,10 +32,7 @@ class AnonPayReceivePage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       size: 16,
     );
 
@@ -61,10 +59,7 @@ class AnonPayReceivePage extends BasePage {
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
               fontFamily: 'Lato',
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayMedium!
-                  .backgroundColor!),
+              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
         ),
         Text(
           invoiceInfo is AnonpayInvoiceInfo
@@ -147,10 +142,7 @@ class AnonPayReceivePage extends BasePage {
                         decoration: BoxDecoration(
                           border: Border.all(
                             width: 3,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .displayMedium!
-                                .backgroundColor!,
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                           ),
                         ),
                         child: QrImage(

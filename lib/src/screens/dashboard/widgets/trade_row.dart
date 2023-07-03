@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class TradeRow extends StatelessWidget {
   TradeRow({
@@ -43,14 +44,14 @@ class TradeRow extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!)),
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
                     formattedAmount != null
                         ? Text(formattedAmount! + ' ' + amountCrypto,
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 color:
-                                    Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!))
+                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor))
                         : Container()
                   ]),
                   SizedBox(height: 5),

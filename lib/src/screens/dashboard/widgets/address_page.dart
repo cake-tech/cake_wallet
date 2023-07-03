@@ -24,6 +24,7 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -55,7 +56,7 @@ class AddressPage extends BasePage {
 
   @override
   Color? get titleColor =>
-      currentTheme.themeData.accentTextTheme.displayMedium!.backgroundColor;
+      currentTheme.themeData.extension<DashboardPageTheme>()!.textColor;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -204,18 +205,12 @@ class AddressPage extends BasePage {
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
-                                            color: Theme.of(context)
-                                                .accentTextTheme!
-                                                .displayMedium!
-                                                .backgroundColor!),
+                                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                                       )),
                               Icon(
                                 Icons.arrow_forward_ios,
                                 size: 14,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displayMedium!
-                                    .backgroundColor!,
+                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                               )
                             ],
                           ),

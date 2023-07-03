@@ -3,6 +3,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class HeaderRow extends StatelessWidget {
   HeaderRow({required this.dashboardViewModel});
@@ -27,10 +28,7 @@ class HeaderRow extends StatelessWidget {
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .displayMedium!
-                    .backgroundColor!),
+                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
           ),
           GestureDetector(
             onTap: () {

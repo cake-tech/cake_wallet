@@ -1,5 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
@@ -37,10 +37,11 @@ abstract class ThemeBase {
       colorScheme: colorScheme,
       textTheme: TextTheme().apply(fontFamily: 'Lato'));
 
-  DashboardGradientTheme get pageGradientTheme => DashboardGradientTheme(
-      firstGradientColor: backgroundColor,
-      secondGradientColor: backgroundColor,
-      thirdGradientColor: backgroundColor);
+  DashboardPageTheme get pageGradientTheme => DashboardPageTheme(
+      firstGradientBackgroundColor: backgroundColor,
+      secondGradientBackgroundColor: backgroundColor,
+      thirdGradientBackgroundColor: backgroundColor,
+      textColor: primaryTextColor);
 
   CakeScrollbarTheme get scrollbarTheme;
 

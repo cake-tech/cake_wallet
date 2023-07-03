@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -42,10 +43,7 @@ class DesktopActionButton extends StatelessWidget {
                   height: 30,
                   width: 30,
                   color: isEnabled
-                      ? Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!
+                      ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
                       : Theme.of(context)
                           .accentTextTheme!
                           .displaySmall!
@@ -59,10 +57,7 @@ class DesktopActionButton extends StatelessWidget {
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.bold,
                     color: isEnabled
-                        ? Theme.of(context)
-                            .accentTextTheme!
-                            .displayMedium!
-                            .backgroundColor!
+                        ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
                         : null,
                     height: 1,
                   ),

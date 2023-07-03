@@ -1,4 +1,4 @@
-import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
@@ -20,10 +20,11 @@ class BrightTheme extends LightTheme {
   Color get containerColor => Palette.moderateLavender;
 
   @override
-  DashboardGradientTheme get pageGradientTheme => DashboardGradientTheme(
-      firstGradientColor: Palette.blueCraiola,
-      secondGradientColor: Palette.pinkFlamingo,
-      thirdGradientColor: Palette.redHat);
+  DashboardPageTheme get pageGradientTheme => super.pageGradientTheme.copyWith(
+      firstGradientBackgroundColor: Palette.blueCraiola,
+      secondGradientBackgroundColor: Palette.pinkFlamingo,
+      thirdGradientBackgroundColor: Palette.redHat,
+      textColor: Colors.white);
 
   @override
   SyncIndicatorTheme get syncIndicatorStyle =>
@@ -210,8 +211,6 @@ class BrightTheme extends LightTheme {
             color: Palette.darkGray, // hint text (new wallet page)
             decorationColor:
                 Palette.periwinkleCraiola, // underline (new wallet page)
-            backgroundColor:
-                Colors.white // menu, icons, balance (dashboard page)
             ),
       ));
 }
