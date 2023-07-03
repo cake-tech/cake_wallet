@@ -54,50 +54,49 @@ class ContactListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
     return Container(
-        padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-        child: Observer(
-        builder: (_) {
+        padding: EdgeInsets.all(24),
+        child: Observer(builder: (_) {
           final contacts = contactListViewModel.contactsToShow;
           final walletContacts = contactListViewModel.walletContactsToShow;
           return CollapsibleSectionList(
-              sectionCount: 2,
-              themeColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
-              dividerThemeColor:
-              Theme.of(context).primaryTextTheme!.bodySmall!.decorationColor!,
-              sectionTitleBuilder: (int sectionIndex) {
-                var title = S.current.contact_list_contacts;
+            sectionCount: 2,
+            sectionTitleBuilder: (int sectionIndex) {
+              var title = S.current.contact_list_contacts;
 
-                if (sectionIndex == 0) {
-                  title = S.current.contact_list_wallets;
-                }
+              if (sectionIndex == 0) {
+                title = S.current.contact_list_wallets;
+              }
 
-                return Container(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: Text(title, style: TextStyle(fontSize: 36)));
-              },
-              itemCounter: (int sectionIndex) => sectionIndex == 0
-                  ? walletContacts.length
-                  : contacts.length,
-              itemBuilder: (sectionIndex, index) {
-                if (sectionIndex == 0) {
-                  final walletInfo = walletContacts[index];
-                  return generateRaw(context, walletInfo);
-                }
+              return Container(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text(title, style: TextStyle(
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .titleLarge!
+                              .color!,
+                          fontSize: 36)));
+            },
+            itemCounter: (int sectionIndex) =>
+                sectionIndex == 0 ? walletContacts.length : contacts.length,
+            itemBuilder: (sectionIndex, index) {
+              if (sectionIndex == 0) {
+                final walletInfo = walletContacts[index];
+                return generateRaw(context, walletInfo);
+              }
 
-                final contact = contacts[index];
-                final content = generateRaw(context, contact);
-                return contactListViewModel.isEditable
-                    ? Slidable(
-                        key: Key('${contact.key}'),
-                        endActionPane: _actionPane(context, contact),
-                        child: content,
-                      )
-                    : content;
-              },
-            );})
-       );
+              final contact = contacts[index];
+              final content = generateRaw(context, contact);
+              return contactListViewModel.isEditable
+                  ? Slidable(
+                      key: Key('${contact.key}'),
+                      endActionPane: _actionPane(context, contact),
+                      child: content,
+                    )
+                  : content;
+            },
+          );
+        }));
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {

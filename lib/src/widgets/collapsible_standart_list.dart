@@ -6,8 +6,6 @@ class CollapsibleSectionList extends SectionStandardList {
       {required int sectionCount,
       required int Function(int sectionIndex) itemCounter,
       required Widget Function(int sectionIndex, int itemIndex) itemBuilder,
-      Color? themeColor,
-      Color? dividerThemeColor,
       Widget Function(int sectionIndex)? sectionTitleBuilder,
       bool hasTopSeparator = false})
       : super(
@@ -15,9 +13,7 @@ class CollapsibleSectionList extends SectionStandardList {
             sectionCount: sectionCount,
             itemCounter: itemCounter,
             itemBuilder: itemBuilder,
-            sectionTitleBuilder: sectionTitleBuilder,
-            themeColor: themeColor,
-            dividerThemeColor: dividerThemeColor);
+            sectionTitleBuilder: sectionTitleBuilder);
 
   @override
   Widget buildTitle(List<Widget> items, int sectionIndex) {

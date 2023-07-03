@@ -18,7 +18,7 @@ class StandardListRow extends StatelessWidget {
     return InkWell(
         onTap: () => onTap?.call(context),
         child: Container(
-            color: _backgroundColor(context),
+            color: Theme.of(context).colorScheme.background,
             height: 56,
             padding: EdgeInsets.only(left: 24, right: 24),
             child: Row(
@@ -54,11 +54,7 @@ class StandardListRow extends StatelessWidget {
 
   Color titleColor(BuildContext context) => isSelected
       ? Palette.blueCraiola
-      : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
-
-  Color _backgroundColor(BuildContext context) {
-    return Theme.of(context).colorScheme.background;
-  }
+      : Theme.of(context).primaryTextTheme.titleLarge!.color!;
 }
 
 class SectionHeaderListRow extends StatelessWidget {
@@ -123,8 +119,6 @@ class SectionStandardList extends StatelessWidget {
     required this.itemBuilder,
     required this.sectionCount,
     this.dividerPadding = const EdgeInsets.only(left: 24),
-    this.themeColor,
-    this.dividerThemeColor,
     this.sectionTitleBuilder,
     this.hasTopSeparator = false,
   }) : totalRows = [];
@@ -135,8 +129,6 @@ class SectionStandardList extends StatelessWidget {
   final Widget Function(int sectionIndex, int itemIndex) itemBuilder;
   final Widget Function(int sectionIndex)? sectionTitleBuilder;
   final List<Widget> totalRows;
-  final Color? themeColor;
-  final Color? dividerThemeColor;
   final EdgeInsets dividerPadding;
 
   List<Widget> transform(
@@ -144,9 +136,7 @@ class SectionStandardList extends StatelessWidget {
       int sectionCount,
       int Function(int sectionIndex) itemCounter,
       Widget Function(int sectionIndex, int itemIndex) itemBuilder,
-      Widget Function(int sectionIndex)? sectionTitleBuilder,
-      Color? themeColor,
-      Color? dividerThemeColor) {
+      Widget Function(int sectionIndex)? sectionTitleBuilder) {
     final items = <Widget>[];
 
     for (var sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
@@ -193,7 +183,7 @@ class SectionStandardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     totalRows.addAll(transform(hasTopSeparator, sectionCount, itemCounter,
-        itemBuilder, sectionTitleBuilder, themeColor, dividerThemeColor));
+        itemBuilder, sectionTitleBuilder));
 
     return ListView.separated(
         separatorBuilder: (_, index) {
