@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
 import 'package:flutter/material.dart';
 
 enum ThemeType { light, bright, dark }
@@ -25,10 +26,16 @@ abstract class ThemeBase {
       seedColor: primaryColor,
       background: backgroundColor);
 
+  DashboardGradientTheme get pageGradientTheme => DashboardGradientTheme(
+      firstGradientColor: backgroundColor,
+      secondGradientColor: backgroundColor,
+      thirdGradientColor: backgroundColor);
+
   ThemeData get themeData => ThemeData.from(
           colorScheme: colorScheme,
           textTheme: TextTheme().apply(fontFamily: 'Lato'))
       .copyWith(
           primaryColor: primaryColor,
-          cardColor: containerColor);
+          cardColor: containerColor,
+          extensions: [pageGradientTheme]);
 }

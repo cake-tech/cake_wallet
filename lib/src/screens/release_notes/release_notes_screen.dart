@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,8 +34,8 @@ class ReleaseNotesScreen extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).colorScheme.secondary,
-                    Theme.of(context).scaffoldBackgroundColor,
+                    Theme.of(context).extension<DashboardGradientTheme>()!.firstGradientColor,
+                    Theme.of(context).extension<DashboardGradientTheme>()!.secondGradientColor,
                   ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),

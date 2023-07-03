@@ -2,6 +2,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
@@ -80,8 +81,8 @@ class _GradiantContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).colorScheme.secondary,
+            Theme.of(context).extension<DashboardGradientTheme>()!.secondGradientColor,
+            Theme.of(context).extension<DashboardGradientTheme>()!.firstGradientColor,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

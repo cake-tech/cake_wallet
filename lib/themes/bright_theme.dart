@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/dashboard_gradient_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -17,6 +18,12 @@ class BrightTheme extends LightTheme {
   Color get primaryTextColor => Palette.darkBlueCraiola;
   @override
   Color get containerColor => Palette.moderateLavender;
+
+  @override
+  DashboardGradientTheme get pageGradientTheme => DashboardGradientTheme(
+      firstGradientColor: Palette.blueCraiola,
+      secondGradientColor: Palette.pinkFlamingo,
+      thirdGradientColor: Palette.redHat);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
