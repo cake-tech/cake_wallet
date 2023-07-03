@@ -281,6 +281,17 @@ extern "C"
         {
             m_subaddress = nullptr;
         }
+
+        m_coins_info = std::list<Monero::CoinsInfo*>();
+
+        if (wallet != nullptr)
+        {
+            m_coins = wallet->coins();
+        }
+        else
+        {
+            m_coins = nullptr;
+        }
     }
 
     Monero::Wallet *get_current_wallet()
@@ -851,10 +862,22 @@ extern "C"
         return m_wallet->trustedDaemon();
     }
 
+    CoinsInfoRow* coin(int index)
+    {
+      if (index >= 0 && index < m_coins_info.size()) {
+        std::list<Monero::CoinsInfo*>::iterator it = m_coins_info.begin();
+        std::advance(it, index);
+        Monero::CoinsInfo* element = *it;
+        std::cout << "Element at index " << index << ": " << element << std::endl;
+        return new CoinsInfoRow(element);
+    } else {
+        std::cout << "Invalid index." << std::endl;
+        return nullptr; // Return a default value (nullptr) for invalid index
+    }
+    }
+
     void refresh_coins(uint32_t accountIndex)
     {
-
-        {
 
             m_coins_info.clear();
 
@@ -866,7 +889,6 @@ extern "C"
 
                 m_coins_info.push_back(i);
             }
-        }
 
     }
 
@@ -875,44 +897,39 @@ extern "C"
         return m_coins_info.size();
     }
 
-    std::vector<int64_t*> coins_from_txid(const std::string &txid)
-    {
-        std::vector<CoinsInfoRow*> coins;
+    CoinsInfoRow** coins_from_txid(const char* txid, size_t* count) {
+        std::vector<CoinsInfoRow*> matchingCoins;
 
         for (int i = 0; i < coins_count(); i++) {
             CoinsInfoRow* coinInfo = coin(i);
-            if (coinInfo->hash == txid) {
-                coins.push_back(coinInfo);
+            if (std::string(coinInfo->hash) == txid) {
+                matchingCoins.push_back(coinInfo);
             }
         }
-        return coins;
+
+        *count = matchingCoins.size();
+        CoinsInfoRow** result = new CoinsInfoRow*[*count];
+        std::copy(matchingCoins.begin(), matchingCoins.end(), result);
+        return result;
     }
 
-    CoinsInfoRow* coin(int index)
-    {
-     
-    if (index >= 0 && index <  m_coins_info.size()) {
-        std::list<Monero::CoinsInfo*>::iterator it = m_coins_info.begin();
-        std::advance(it, index);
-        Monero::CoinsInfo* element = *it;
-        return new CoinsInfoRow(element);
-        std::cout << "Element at index " << index << ": " << element << std::endl;
-    } else {
-        std::cout << "Invalid index." << std::endl;
-    } 
-    }
+    CoinsInfoRow** coins_from_key_image(const char** keyimages, size_t keyimageCount, size_t* count) {
+    std::vector<CoinsInfoRow*> matchingCoins;
 
-    std::vector<CoinsInfoRow*> coins_from_key_image(const std::list<std::string> &keyimages) {
-    std::vector<CoinsInfoRow*> coins;
-
-    for (int i = 0; i < m_coins_info.size(); i++) {
+    for (int i = 0; i < coins_count(); i++) {
         CoinsInfoRow* coinsInfoRow = coin(i);
-        if (coinsInfoRow->keyImageKnown && std::find(std::begin(keyimages), std::end(keyimages), coinsInfoRow->keyImage) != std::end(keyimages)) {
-            coins.push_back(coinsInfoRow);
+        for (size_t j = 0; j < keyimageCount; j++) {
+            if (coinsInfoRow->keyImageKnown && std::string(coinsInfoRow->keyImage) == keyimages[j]) {
+                matchingCoins.push_back(coinsInfoRow);
+                break;
+            }
         }
     }
 
-    return coins;
+    *count = matchingCoins.size();
+    CoinsInfoRow** result = new CoinsInfoRow*[*count];
+    std::copy(matchingCoins.begin(), matchingCoins.end(), result);
+    return result;
 }
 
 
