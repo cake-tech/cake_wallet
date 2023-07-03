@@ -181,7 +181,7 @@ class WalletListBodyState extends State<WalletListBody> {
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                color: Theme.of(context).cardColor,
                 textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!)
           ])),
     );

@@ -199,7 +199,6 @@ class DarkTheme extends ThemeBase {
             decorationColor: PaletteDark.darkNightBlue // dialog background
             ),
         bodySmall: TextStyle(
-          color: PaletteDark.nightBlue, // container (confirm exchange)
           backgroundColor: PaletteDark.deepVioletBlue, // button background (confirm exchange)
           decorationColor: Palette.darkLavender, // text color (information page)
         ),

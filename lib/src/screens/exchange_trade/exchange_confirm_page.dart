@@ -48,10 +48,7 @@ class ExchangeConfirmPage extends BasePage {
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     border: Border.all(
                         width: 1,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .bodySmall!
-                            .color!),
+                        color: Theme.of(context).cardColor),
                     color: Theme.of(context).dialogTheme.backgroundColor),
                 child: Column(
                   children: <Widget>[

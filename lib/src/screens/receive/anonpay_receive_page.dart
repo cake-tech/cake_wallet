@@ -100,10 +100,7 @@ class AnonPayReceivePage extends BasePage {
         ),
         icon: Icon(
           Icons.edit,
-          color: Theme.of(context)
-              .accentTextTheme!
-              .bodySmall!
-              .color!,
+          color: Theme.of(context).cardColor,
           size: 22.0,
         ),
       ),

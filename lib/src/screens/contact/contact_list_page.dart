@@ -29,10 +29,7 @@ class ContactListPage extends BasePage {
         height: 32.0,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context)
-                .accentTextTheme!
-                .bodySmall!
-                .color!),
+            color: Theme.of(context).cardColor),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[

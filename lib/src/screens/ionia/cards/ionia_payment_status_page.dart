@@ -182,7 +182,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                 return PrimaryButton(
                   onPressed: () => Navigator.of(context).pushNamed(Routes.support),
                   text: S.of(context).contact_support,
-                  color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                  color: Theme.of(context).cardColor,
                   textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
                 })
             ])

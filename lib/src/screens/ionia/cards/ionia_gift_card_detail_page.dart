@@ -145,7 +145,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                         viewModel.refeshCard();
                     },
                     text: S.of(context).more_options,
-                    color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                    color: Theme.of(context).cardColor,
                     textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                   ),
                   SizedBox(height: 12),

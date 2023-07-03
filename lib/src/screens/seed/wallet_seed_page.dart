@@ -67,10 +67,7 @@ class WalletSeedPage extends BasePage {
               margin: EdgeInsets.only(left: 10),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(16)),
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodySmall!
-                      .color!),
+                  color: Theme.of(context).cardColor),
               child: Text(
                 S.of(context).seed_language_next,
                 style: TextStyle(

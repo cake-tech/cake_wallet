@@ -56,7 +56,7 @@ class WalletKeysPage extends BasePage {
                 width: double.infinity,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12.0),
-                  color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                  color: Theme.of(context).cardColor,
                 ),
                 child: Center(
                   child: Padding(

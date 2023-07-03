@@ -17,10 +17,7 @@ class SelectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isSelected
         ? Colors.green
-        : Theme.of(context)
-            .accentTextTheme!
-            .bodySmall!
-            .color!;
+        : Theme.of(context).cardColor;
     final textColor = isSelected
         ? Theme.of(context)
             .accentTextTheme!

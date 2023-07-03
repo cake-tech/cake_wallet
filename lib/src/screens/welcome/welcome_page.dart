@@ -170,10 +170,7 @@ class WelcomePage extends BasePage {
                                       },
                                       image: restoreWalletImage,
                                       text: S.of(context).restore_wallet,
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .bodySmall!
-                                          .color!,
+                                      color: Theme.of(context).cardColor,
                                       textColor: Theme.of(context)
                                           .primaryTextTheme!
                                           .titleLarge!

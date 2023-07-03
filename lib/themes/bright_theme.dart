@@ -196,7 +196,6 @@ class BrightTheme extends LightTheme {
             decorationColor: Colors.white // dialog background
             ),
         bodySmall: TextStyle(
-          color: Palette.moderateLavender, // container (confirm exchange)
           backgroundColor: Palette.moderateLavender, // button background (confirm exchange)
           decorationColor: Palette.darkBlueCraiola, // text color (information page)
         ),

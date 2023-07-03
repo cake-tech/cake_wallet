@@ -197,7 +197,6 @@ class LightTheme extends ThemeBase {
             decorationColor: Colors.white // dialog background
             ),
         bodySmall: TextStyle(
-          color: Palette.blueAlice, // container (confirm exchange)
           backgroundColor: Palette.blueAlice, // button background (confirm exchange)
           decorationColor: Palette.darkBlueCraiola, // text color (information page)
         ),

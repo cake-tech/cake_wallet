@@ -56,10 +56,7 @@ class IoniaAlertModal extends StatelessWidget {
                   PrimaryButton(
                     onPressed: () => Navigator.pop(context),
                     text: actionTitle,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodySmall!
-                        .color!,
+                    color: Theme.of(context).cardColor,
                     textColor:
                         Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                   ),
