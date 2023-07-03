@@ -193,7 +193,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               gradient: LinearGradient(
                                 colors: [
                                   Theme.of(context)
-                                      .backgroundColor
+                                      .colorScheme
+                                      .background
                                       .withOpacity(0.0),
                                   Theme.of(context).colorScheme.background,
                                 ],

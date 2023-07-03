@@ -321,7 +321,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               return Stack(
                 children: <Widget>[
                   Container(
-                    color: Theme.of(popupContext).backgroundColor,
+                    color: Theme.of(popupContext).colorScheme.background,
                     child: Center(
                       child: Image.asset(
                           'assets/images/birthday_cake.png'),
@@ -372,7 +372,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             return Stack(
               children: <Widget>[
                 Container(
-                  color: Theme.of(popupContext).backgroundColor,
+                  color: Theme.of(popupContext).colorScheme.background,
                   child: Center(
                     child: Image.asset(
                         'assets/images/birthday_cake.png'),
@@ -384,7 +384,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   child: Container(
                     decoration: BoxDecoration(
                         color: Theme.of(popupContext)
-                            .backgroundColor
+                            .colorScheme
+                            .background
                             .withOpacity(0.25)),
                     child: Center(
                       child: Padding(
