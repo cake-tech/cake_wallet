@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -68,32 +70,36 @@ abstract class WalletCreationVMBase with Store {
 
       // if (restoreWallet != null &&
       //     restoreWallet.restoreMode == WalletRestoreMode.txids) {
-      //* Create the newWallet that will receive the funds
-      // final newWallet = await createNewWalletWithoutSwitching(
-      //   options: options,
-      //   regenerateName: true,
-      // );
-      // final newWalletAddress = newWallet.walletAddresses.address;
-      // print('New Wallet Address ' + newWalletAddress);
+    
 
-      // //* Switch to the restoredWallet in order to activate the node connection
-      // _appStore.changeCurrentWallet(restoredWallet);
-
-      // await restoredWallet.startSync();
-      // print('Before syncing starts');
-      // await syncCompleter.future;
-      // print('After syncing ends');
-
-      //* Sweep all funds from restoredWallet to newWallet
-      // await sweepAllFundsToNewWallet(
-      //   restoredWallet,
-      //   type,
-      //   newWalletAddress,
-      //   restoreWallet?.txId ?? '',
-      // );
-      // } else {
+      //* Switch to the restoredWallet in order to activate the node connection
       await _walletInfoSource.add(restoredWallet.walletInfo);
+      await connectToNode(restoredWallet);
       _appStore.changeCurrentWallet(restoredWallet);
+      await loadCurrentWallet();
+      await restoredWallet.startSync();
+      print('Before syncing starts');
+      await syncCompleter.future;
+      print('After syncing ends');
+
+      // * Create the newWallet that will receive the funds
+      final newWallet = await createNewWalletWithoutSwitching(
+        options: options,
+        regenerateName: true,
+      );
+      final newWalletAddress = newWallet.walletAddresses.address;
+      print('New Wallet Address ' + newWalletAddress);
+
+      // * Sweep all funds from restoredWallet to newWallet
+      await sweepAllFundsToNewWallet(
+        restoredWallet,
+        type,
+        newWalletAddress,
+        restoreWallet?.txId ?? '',
+      );
+      // } else {
+      // await _walletInfoSource.add(restoredWallet.walletInfo);
+      // _appStore.changeCurrentWallet(restoredWallet);
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
       // }
@@ -101,6 +107,14 @@ abstract class WalletCreationVMBase with Store {
       print('Errorrrrr');
       state = FailureState(e.toString());
     }
+  }
+
+  Future<void> connectToNode(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>
+          wallet) async {
+    final node = _appStore.settingsStore.getCurrentNode(wallet.type);
+    await wallet.connectToNode(node: node);
   }
 
   Future<
@@ -269,3 +283,149 @@ abstract class WalletCreationVMBase with Store {
           WalletCredentials credentials, RestoredWallet restoreWallet) =>
       throw UnimplementedError();
 }
+
+// class SweepAllService {
+//   final AppStore _appStore;
+//   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+//       TransactionInfo> restoredWallet;
+//   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+//       TransactionInfo> newWallet;
+//   final FiatConversionStore _fiatConversationStore;
+//   final Box<WalletInfo> _walletInfoSource;
+//   final String? txId;
+
+//   SweepAllService(
+//     this._appStore,
+//     this.restoredWallet,
+//     this._fiatConversationStore,
+//     this._walletInfoSource,
+//     this.newWallet,
+//     this.txId,
+//   );
+
+//   Future<void> create() async {
+//     try {
+//       //* Connect to the Node first
+//       await connectToNode(restoredWallet);
+
+//       //* Switch wallet to that of the restoredWallet
+//       _appStore.changeCurrentWallet(restoredWallet);
+
+//       //* Load the restore wallet to imitate actual loading
+//       await loadCurrentWallet();
+
+//       //* Start the sync
+//       await restoredWallet.startSync();
+//       print('Before syncing starts');
+//       await syncCompleter.future;
+//       print('After syncing ends');
+
+//       // * Sweep all funds from restoredWallet to newWallet
+//       await sweepAllFundsToNewWallet(
+//         restoredWallet,
+//         restoredWallet.type,
+//         newWallet.walletAddresses.address,
+//         txId ?? '',
+//       );
+
+//       //* Switch back to new wallet
+//       _appStore.changeCurrentWallet(newWallet);
+
+//       //* Add the new Wallet info to the walletInfoSource
+//       await _walletInfoSource.add(newWallet.walletInfo);
+
+//       //* Approve authentication as successful
+//       _appStore.authenticationStore.allowed();
+//     } catch (e) {
+//       print('Errorrrrr');
+//     }
+//   }
+
+//   Future<void> connectToNode(
+//       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+//               TransactionInfo>
+//           wallet) async {
+//     final node = _appStore.settingsStore.getCurrentNode(wallet.type);
+//     await wallet.connectToNode(node: node);
+//   }
+
+//   Future<void> sweepAllFundsToNewWallet(
+//       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+//               TransactionInfo>
+//           wallet,
+//       WalletType type,
+//       String newWalletAddress,
+//       String paymentId) async {
+//     final output = Output(wallet, _appStore.settingsStore,
+//         _fiatConversationStore, () => wallet.currency);
+//     output.address = newWalletAddress;
+//     output.sendAll = true;
+//     output.note = 'testing the sweep all function';
+//     final credentials = _credentials(type, wallet.currency.title, output);
+//     print('About to enter create function');
+//     try {
+//       await createTransaction(wallet, credentials);
+//       // final currentNode = _appStore.settingsStore.getCurrentNode(type);
+//       // final result = await walletCreationService.sweepAllFunds(currentNode, newWalletAddress, paymentId);
+//     } catch (e) {
+//       log(e.toString());
+//     }
+//   }
+
+//   @action
+//   Future<void> createTransaction(WalletBase wallet, Object credentials) async {
+//     try {
+//       print('about to enter wallet create transaction function');
+//       final pendingTransaction = await wallet.createTransaction(credentials);
+//       print(pendingTransaction);
+//     } catch (e) {
+//       log(e.toString());
+//     }
+//   }
+
+//   Object _credentials(
+//       WalletType type, String cryptoCurrencyTitle, Output output) {
+//     switch (type) {
+//       case WalletType.bitcoin:
+//         final priority = _appStore.settingsStore.priority[type];
+
+//         if (priority == null) {
+//           throw Exception('Priority is null for wallet type: ${type}');
+//         }
+
+//         return bitcoin!
+//             .createBitcoinTransactionCredentials([output], priority: priority);
+//       case WalletType.litecoin:
+//         final priority = _appStore.settingsStore.priority[type];
+
+//         if (priority == null) {
+//           throw Exception('Priority is null for wallet type: ${type}');
+//         }
+
+//         return bitcoin!
+//             .createBitcoinTransactionCredentials([output], priority: priority);
+//       case WalletType.monero:
+//         final priority = _appStore.settingsStore.priority[type];
+
+//         if (priority == null) {
+//           throw Exception('Priority is null for wallet type: ${type}');
+//         }
+
+//         return monero!.createMoneroTransactionCreationCredentials(
+//             outputs: [output], priority: priority);
+//       case WalletType.haven:
+//         final priority = _appStore.settingsStore.priority[type];
+
+//         if (priority == null) {
+//           throw Exception('Priority is null for wallet type: ${type}');
+//         }
+
+//         return haven!.createHavenTransactionCreationCredentials(
+//             outputs: [output],
+//             priority: priority,
+//             assetType: cryptoCurrencyTitle);
+//       default:
+//         throw Exception('Unexpected wallet type: ${type}');
+//     }
+//   }
+// }
