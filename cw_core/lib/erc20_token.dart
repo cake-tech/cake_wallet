@@ -20,10 +20,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
 
   bool get enabled => _enabled;
 
-  set enabled(bool value) {
-    _enabled = value;
-    this.save();
-  }
+  set enabled(bool value) => _enabled = value;
 
   Erc20Token({
     required this.name,

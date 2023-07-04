@@ -305,16 +305,25 @@ abstract class EthereumWalletBase
           .iconPath;
     } catch (_) {}
 
-    await erc20TokensBox.put(token.contractAddress, Erc20Token(
-      name: token.name,
-      symbol: token.symbol,
-      contractAddress: token.contractAddress,
-      decimal: token.decimal,
-      enabled: token.enabled,
-      iconPath: iconPath,
-    ));
+    await erc20TokensBox.put(
+        token.contractAddress,
+        Erc20Token(
+          name: token.name,
+          symbol: token.symbol,
+          contractAddress: token.contractAddress,
+          decimal: token.decimal,
+          enabled: token.enabled,
+          iconPath: iconPath,
+        ));
 
-    _updateBalance();
+    if (token.enabled) {
+      balance[token] = await _client.fetchERC20Balances(
+        _privateKey.address,
+        token.contractAddress,
+      );
+    } else {
+      balance.remove(token);
+    }
   }
 
   Future<void> deleteErc20Token(Erc20Token token) async {
@@ -349,14 +358,16 @@ abstract class EthereumWalletBase
     };
 
     for (var currency in _initialErc20Currencies.keys) {
-      erc20TokensBox.put(_initialErc20Currencies[currency]!['contractAddress'], Erc20Token(
-        name: currency.fullName ?? currency.title,
-        symbol: currency.title,
-        contractAddress: _initialErc20Currencies[currency]!['contractAddress'],
-        decimal: _initialErc20Currencies[currency]!['decimal'],
-        enabled: true,
-        iconPath: currency.iconPath,
-      ));
+      erc20TokensBox.put(
+          _initialErc20Currencies[currency]!['contractAddress'],
+          Erc20Token(
+            name: currency.fullName ?? currency.title,
+            symbol: currency.title,
+            contractAddress: _initialErc20Currencies[currency]!['contractAddress'],
+            decimal: _initialErc20Currencies[currency]!['decimal'],
+            enabled: true,
+            iconPath: currency.iconPath,
+          ));
     }
   }
 }

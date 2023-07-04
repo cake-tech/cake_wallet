@@ -13,10 +13,15 @@ part 'home_settings_view_model.g.dart';
 class HomeSettingsViewModel = HomeSettingsViewModelBase with _$HomeSettingsViewModel;
 
 abstract class HomeSettingsViewModelBase with Store {
-  HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel);
+  HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel)
+      : tokens = ObservableSet<Erc20Token>() {
+    _updateTokensList();
+  }
 
   final SettingsStore _settingsStore;
   final BalanceViewModel _balanceViewModel;
+
+  final ObservableSet<Erc20Token> tokens;
 
   @observable
   String searchText = '';
@@ -57,14 +62,15 @@ abstract class HomeSettingsViewModelBase with Store {
     } catch (_) {}
   }
 
-  void changeTokenAvailability(int index, bool value) async {
-    tokens.elementAt(index).enabled = value;
-    _balanceViewModel.wallet.updateBalance();
+  void changeTokenAvailability(Erc20Token token, bool value) async {
+    token.enabled = value;
+    ethereum!.addErc20Token(_balanceViewModel.wallet, token);
+    _refreshTokensList();
   }
 
-  @computed
-  Set<Erc20Token> get tokens {
-    final Set<Erc20Token> tokens = {};
+  @action
+  void _updateTokensList() {
+    tokens.clear();
 
     _balanceViewModel.formattedBalances.forEach((e) {
       if (e.asset is Erc20Token && _matchesSearchText(e.asset as Erc20Token)) {
@@ -75,8 +81,13 @@ abstract class HomeSettingsViewModelBase with Store {
     tokens.addAll(ethereum!
         .getERC20Currencies(_balanceViewModel.wallet)
         .where((element) => _matchesSearchText(element)));
+  }
 
-    return tokens;
+  @action
+  void _refreshTokensList() {
+    final _tokens = Set.of(tokens);
+    tokens.clear();
+    tokens.addAll(_tokens);
   }
 
   @action
