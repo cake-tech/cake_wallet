@@ -305,24 +305,24 @@ abstract class EthereumWalletBase
           .iconPath;
     } catch (_) {}
 
-    await erc20TokensBox.put(
-        token.contractAddress,
-        Erc20Token(
-          name: token.name,
-          symbol: token.symbol,
-          contractAddress: token.contractAddress,
-          decimal: token.decimal,
-          enabled: token.enabled,
-          iconPath: iconPath,
-        ));
+    final _token = Erc20Token(
+      name: token.name,
+      symbol: token.symbol,
+      contractAddress: token.contractAddress,
+      decimal: token.decimal,
+      enabled: token.enabled,
+      iconPath: iconPath,
+    );
 
-    if (token.enabled) {
-      balance[token] = await _client.fetchERC20Balances(
+    await erc20TokensBox.put(_token.contractAddress, _token);
+
+    if (_token.enabled) {
+      balance[_token] = await _client.fetchERC20Balances(
         _privateKey.address,
-        token.contractAddress,
+        _token.contractAddress,
       );
     } else {
-      balance.remove(token);
+      balance.remove(_token);
     }
   }
 

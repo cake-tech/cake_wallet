@@ -30,7 +30,10 @@ abstract class HomeSettingsViewModelBase with Store {
   SortBalanceBy get sortBalanceBy => _settingsStore.sortBalanceBy;
 
   @action
-  void setSortBalanceBy(SortBalanceBy value) => _settingsStore.sortBalanceBy = value;
+  void setSortBalanceBy(SortBalanceBy value) {
+    _settingsStore.sortBalanceBy = value;
+    _updateTokensList();
+  }
 
   @computed
   bool get pinNativeToken => _settingsStore.pinNativeTokenAtTop;
@@ -40,11 +43,13 @@ abstract class HomeSettingsViewModelBase with Store {
 
   Future<void> addErc20Token(Erc20Token token) async {
     await ethereum!.addErc20Token(_balanceViewModel.wallet, token);
+    _updateTokensList();
     _updateFiatPrices(token);
   }
 
   Future<void> deleteErc20Token(Erc20Token token) async {
     await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token);
+    _updateTokensList();
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async =>
@@ -70,17 +75,20 @@ abstract class HomeSettingsViewModelBase with Store {
 
   @action
   void _updateTokensList() {
-    tokens.clear();
+    int _sortFunc(e1, e2) {
+      int index1 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e1);
+      int index2 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e2);
 
-    _balanceViewModel.formattedBalances.forEach((e) {
-      if (e.asset is Erc20Token && _matchesSearchText(e.asset as Erc20Token)) {
-        tokens.add(e.asset as Erc20Token);
-      }
-    });
+      return index1.compareTo(index2);
+    }
+
+    tokens.clear();
 
     tokens.addAll(ethereum!
         .getERC20Currencies(_balanceViewModel.wallet)
-        .where((element) => _matchesSearchText(element)));
+        .where((element) => _matchesSearchText(element))
+        .toList()
+      ..sort(_sortFunc));
   }
 
   @action
