@@ -84,10 +84,7 @@ class StandardListSeparator extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         child: Container(
             height: height,
-            color: Theme.of(context)
-                .primaryTextTheme!
-                .titleLarge
-                ?.backgroundColor));
+            color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor));
   }
 }
 

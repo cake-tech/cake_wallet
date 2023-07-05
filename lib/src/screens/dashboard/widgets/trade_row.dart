@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -60,7 +61,7 @@ class TradeRow extends StatelessWidget {
                       Text(createdAtFormattedDate!,
                           style: TextStyle(
                               fontSize: 14,
-                              color: Theme.of(context).textTheme!.labelSmall!.backgroundColor!))
+                              color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
                   ])
                 ],
               ))

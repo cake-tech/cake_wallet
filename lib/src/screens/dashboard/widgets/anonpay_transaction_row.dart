@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class AnonpayTransactionRow extends StatelessWidget {
@@ -50,7 +51,7 @@ class AnonpayTransactionRow extends StatelessWidget {
                     Text(createdAt,
                         style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context).textTheme!.labelSmall!.backgroundColor!))
+                            color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
                   ])
                 ],
               ))

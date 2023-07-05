@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -14,6 +15,8 @@ import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -22,7 +25,7 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, bright, dark }
+enum ThemeType { bright, light, dark }
 
 abstract class ThemeBase {
   ThemeBase({required this.raw});

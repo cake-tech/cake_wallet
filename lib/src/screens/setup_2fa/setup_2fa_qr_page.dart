@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -51,7 +52,7 @@ class Setup2FAQRPage extends BasePage {
               decoration: BoxDecoration(
                 border: Border.all(
                   width: 3,
-                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                 ),
               ),
               child: Container(

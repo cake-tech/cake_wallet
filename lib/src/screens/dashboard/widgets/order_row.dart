@@ -1,4 +1,5 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/buy/get_buy_provider_icon.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:flutter/material.dart';
@@ -68,10 +69,7 @@ class OrderRow extends StatelessWidget {
                             Text(createdAtFormattedDate,
                                 style: TextStyle(
                                     fontSize: 14,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .labelSmall!
-                                        .backgroundColor!))
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
                           ])
                     ],
                   )

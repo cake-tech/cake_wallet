@@ -157,7 +157,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 changenowUrl,
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
-                                    color: Palette.blueCraiola,
+                                    color: Theme.of(context).primaryColor,
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.normal,
                                     decoration: TextDecoration.underline),

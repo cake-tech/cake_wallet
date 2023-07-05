@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -15,6 +16,8 @@ import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -64,8 +67,7 @@ class LightTheme extends ThemeBase {
 
   @override
   PinCodeTheme get pinCodeTheme => PinCodeTheme(
-      indicatorsColor: Palette.darkGray,
-      switchColor: Palette.darkGray);
+      indicatorsColor: Palette.darkGray, switchColor: Palette.darkGray);
 
   @override
   SupportPageTheme get supportPageTheme =>
@@ -154,7 +156,8 @@ class LightTheme extends ThemeBase {
       textFieldHintColor: Colors.white.withOpacity(0.5),
       textFieldBorderColor: Colors.white.withOpacity(0.5),
       secondGradientColor: Palette.blueGreyCraiola,
-      firstGradientColor: Palette.blueCraiola);
+      firstGradientColor: Palette.blueCraiola,
+      indicatorDotColor: PaletteDark.darkCyanBlue.withOpacity(0.67));
 
   @override
   SeedWidgetTheme get seedWidgetTheme =>
@@ -166,19 +169,19 @@ class LightTheme extends ThemeBase {
 
   @override
   TransactionTradeTheme get transactionTradeTheme => TransactionTradeTheme(
-      detailsTitlesColor: Palette.darkGray,
-      rowsColor: Palette.blueAlice);
+      detailsTitlesColor: Palette.darkGray, rowsColor: Palette.blueAlice);
 
   @override
   CakeTextTheme get cakeTextTheme => CakeTextTheme(
       secondaryTextColor: PaletteDark.pigeonBlue,
       textfieldUnderlineColor: Palette.wildPeriwinkle,
-      titleColor: Palette.violetBlue);
+      titleColor: Palette.violetBlue,
+      addressButtonBorderColor: Palette.blueAlice,
+      dateSectionRowColor: PaletteDark.darkCyanBlue);
 
   @override
   AccountListTheme get accountListTheme => AccountListTheme(
-      tilesBackgroundColor: Colors.white,
-      tilesTextColor: Palette.violetBlue);
+      tilesBackgroundColor: Colors.white, tilesTextColor: Palette.violetBlue);
 
   @override
   ReceivePageTheme get receivePageTheme => ReceivePageTheme(
@@ -203,18 +206,6 @@ class LightTheme extends ThemeBase {
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,
       disabledColor: Palette.darkGray,
-      dialogTheme: super
-          .themeData
-          .dialogTheme
-          .copyWith(backgroundColor: Colors.white),
-      textTheme: TextTheme(
-          labelSmall: TextStyle(
-              backgroundColor: PaletteDark.darkCyanBlue, // date section row
-              ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-            color: Palette.blueAlice, // address button border
-          ),
-      ),
-      );
+      dialogTheme:
+          super.themeData.dialogTheme.copyWith(backgroundColor: Colors.white));
 }

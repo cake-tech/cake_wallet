@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
@@ -7,6 +8,8 @@ import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
@@ -84,7 +87,7 @@ class BrightTheme extends LightTheme {
   @override
   SendPageTheme get sendPageTheme => super.sendPageTheme.copyWith(
       templateBackgroundColor: Palette.shadowWhite,
-      templateDotterBorderColor: Palette.shadowWhite,
+      templateDottedBorderColor: Palette.shadowWhite,
       secondGradientColor: Palette.pinkFlamingo);
 
   @override
@@ -111,21 +114,13 @@ class BrightTheme extends LightTheme {
       .copyWith(qrWidgetCopyButtonColor: Colors.white.withOpacity(0.4));
 
   @override
+  CakeTextTheme get cakeTextTheme => super.cakeTextTheme.copyWith(
+      addressButtonBorderColor: Colors.white.withOpacity(0.4),
+      dateSectionRowColor: Colors.white.withOpacity(0.5));
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       dividerColor: Palette.paleBlue,
-      hintColor: Palette.gray,
-      textTheme: TextTheme(
-          labelSmall: TextStyle(
-              backgroundColor:
-                  Colors.white.withOpacity(0.5), // date section row
-              ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-            color: Colors.white.withOpacity(0.2), // address button border
-            decorationColor:
-                Colors.white.withOpacity(0.4), // copy button (qr widget)
-          ),
-          ),
-      );
+      hintColor: Palette.gray);
 }

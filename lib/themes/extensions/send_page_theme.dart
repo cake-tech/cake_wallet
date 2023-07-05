@@ -12,6 +12,7 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
   final Color textFieldBorderColor;
   final Color firstGradientColor;
   final Color secondGradientColor;
+  final Color indicatorDotColor;
 
   SendPageTheme(
       {required this.templateTitleColor,
@@ -24,21 +25,23 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
       required this.textFieldHintColor,
       required this.textFieldBorderColor,
       required this.firstGradientColor,
-      required this.secondGradientColor});
+      required this.secondGradientColor,
+      required this.indicatorDotColor});
 
   @override
   SendPageTheme copyWith(
           {Color? templateTitleColor,
           Color? templateBackgroundColor,
           Color? templateNewTextColor,
-          Color? templateDotterBorderColor,
+          Color? templateDottedBorderColor,
           Color? estimatedFeeColor,
           Color? textFieldButtonIconColor,
           Color? textFieldButtonColor,
           Color? textFieldHintColor,
           Color? textFieldBorderColor,
           Color? firstGradientColor,
-          Color? secondGradientColor}) =>
+          Color? secondGradientColor,
+          Color? indicatorDotColor}) =>
       SendPageTheme(
           templateTitleColor: templateTitleColor ?? this.templateTitleColor,
           templateBackgroundColor:
@@ -46,7 +49,7 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
           templateNewTextColor:
               templateNewTextColor ?? this.templateNewTextColor,
           templateDottedBorderColor:
-              templateDotterBorderColor ?? this.templateDottedBorderColor,
+              templateDottedBorderColor ?? this.templateDottedBorderColor,
           estimatedFeeColor: estimatedFeeColor ?? this.estimatedFeeColor,
           textFieldButtonIconColor:
               textFieldButtonIconColor ?? this.textFieldButtonIconColor,
@@ -56,7 +59,8 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
           textFieldBorderColor:
               textFieldBorderColor ?? this.textFieldBorderColor,
           firstGradientColor: firstGradientColor ?? this.firstGradientColor,
-          secondGradientColor: secondGradientColor ?? this.secondGradientColor);
+          secondGradientColor: secondGradientColor ?? this.secondGradientColor,
+          indicatorDotColor: indicatorDotColor ?? this.indicatorDotColor);
 
   @override
   SendPageTheme lerp(ThemeExtension<SendPageTheme>? other, double t) {
@@ -65,16 +69,14 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
     }
 
     return SendPageTheme(
-        templateTitleColor: Color.lerp(
-            templateTitleColor, other.templateTitleColor, t)!,
+        templateTitleColor:
+            Color.lerp(templateTitleColor, other.templateTitleColor, t)!,
         templateBackgroundColor: Color.lerp(
             templateBackgroundColor, other.templateBackgroundColor, t)!,
         templateNewTextColor:
             Color.lerp(templateNewTextColor, other.templateNewTextColor, t)!,
         templateDottedBorderColor: Color.lerp(
-            templateDottedBorderColor,
-            other.templateDottedBorderColor,
-            t)!,
+            templateDottedBorderColor, other.templateDottedBorderColor, t)!,
         estimatedFeeColor:
             Color.lerp(estimatedFeeColor, other.estimatedFeeColor, t)!,
         textFieldButtonIconColor: Color.lerp(
@@ -88,6 +90,8 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
         firstGradientColor:
             Color.lerp(firstGradientColor, other.firstGradientColor, t)!,
         secondGradientColor:
-            Color.lerp(secondGradientColor, other.secondGradientColor, t)!);
+            Color.lerp(secondGradientColor, other.secondGradientColor, t)!,
+        indicatorDotColor:
+            Color.lerp(indicatorDotColor, other.indicatorDotColor, t)!);
   }
 }

@@ -4,22 +4,31 @@ class CakeTextTheme extends ThemeExtension<CakeTextTheme> {
   final Color secondaryTextColor;
   final Color textfieldUnderlineColor;
   final Color titleColor;
+  final Color addressButtonBorderColor;
+  final Color dateSectionRowColor;
 
   CakeTextTheme(
       {required this.secondaryTextColor,
       required this.textfieldUnderlineColor,
-      required this.titleColor});
+      required this.titleColor,
+      required this.addressButtonBorderColor,
+      required this.dateSectionRowColor});
 
   @override
   CakeTextTheme copyWith(
           {Color? secondaryTextColor,
           Color? textfieldUnderlineColor,
-          Color? titleColor}) =>
+          Color? titleColor,
+          Color? addressButtonBorderColor,
+          Color? dateSectionRowColor}) =>
       CakeTextTheme(
           secondaryTextColor: secondaryTextColor ?? this.secondaryTextColor,
           textfieldUnderlineColor:
               textfieldUnderlineColor ?? this.textfieldUnderlineColor,
-          titleColor: titleColor ?? this.titleColor);
+          titleColor: titleColor ?? this.titleColor,
+          addressButtonBorderColor:
+              addressButtonBorderColor ?? this.addressButtonBorderColor,
+          dateSectionRowColor: dateSectionRowColor ?? this.dateSectionRowColor);
 
   @override
   CakeTextTheme lerp(ThemeExtension<CakeTextTheme>? other, double t) {
@@ -32,6 +41,10 @@ class CakeTextTheme extends ThemeExtension<CakeTextTheme> {
             Color.lerp(secondaryTextColor, other.secondaryTextColor, t)!,
         textfieldUnderlineColor: Color.lerp(
             textfieldUnderlineColor, other.textfieldUnderlineColor, t)!,
-        titleColor: Color.lerp(titleColor, other.titleColor, t)!);
+        titleColor: Color.lerp(titleColor, other.titleColor, t)!,
+        addressButtonBorderColor: Color.lerp(
+            addressButtonBorderColor, other.addressButtonBorderColor, t)!,
+        dateSectionRowColor:
+            Color.lerp(dateSectionRowColor, other.dateSectionRowColor, t)!);
   }
 }

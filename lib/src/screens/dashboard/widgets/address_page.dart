@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -188,10 +189,7 @@ class AddressPage extends BasePage {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(Radius.circular(25)),
                               border: Border.all(
-                                  color: Theme.of(context)
-                                      .textTheme!
-                                      .titleMedium!
-                                      .color!,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.addressButtonBorderColor,
                                   width: 1),
                               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor),
                           child: Row(

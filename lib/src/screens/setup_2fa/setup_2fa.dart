@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cake_wallet/routes.dart';
@@ -33,7 +34,7 @@ class Setup2FAPage extends BasePage {
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                     height: 1.571,
-                    color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                 ),
                 SizedBox(height: 16),
@@ -43,7 +44,7 @@ class Setup2FAPage extends BasePage {
                     fontWeight: FontWeight.w400,
                     fontSize: 14,
                     height: 1.571,
-                    color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                 ),
               ],

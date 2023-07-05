@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -15,6 +16,8 @@ import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -153,7 +156,8 @@ class DarkTheme extends ThemeBase {
       textFieldHintColor: PaletteDark.darkCyanBlue,
       textFieldBorderColor: PaletteDark.lightVioletBlue,
       secondGradientColor: PaletteDark.darkNightBlue,
-      firstGradientColor: PaletteDark.darkNightBlue);
+      firstGradientColor: PaletteDark.darkNightBlue,
+      indicatorDotColor: PaletteDark.cyanBlue);
 
   @override
   SeedWidgetTheme get seedWidgetTheme =>
@@ -171,7 +175,9 @@ class DarkTheme extends ThemeBase {
   CakeTextTheme get cakeTextTheme => CakeTextTheme(
       secondaryTextColor: PaletteDark.darkCyanBlue,
       textfieldUnderlineColor: PaletteDark.darkOceanBlue,
-      titleColor: Colors.white);
+      titleColor: Colors.white,
+      addressButtonBorderColor: PaletteDark.nightBlue,
+      dateSectionRowColor: PaletteDark.darkCyanBlue);
 
   @override
   AccountListTheme get accountListTheme => AccountListTheme(
@@ -196,22 +202,12 @@ class DarkTheme extends ThemeBase {
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
-      indicatorColor: PaletteDark.cyanBlue, // page indicator
+      indicatorColor: PaletteDark.cyanBlue,
       dividerColor: PaletteDark.dividerColor,
       hintColor: PaletteDark.pigeonBlue,
       disabledColor: PaletteDark.deepVioletBlue,
       dialogTheme: super
           .themeData
           .dialogTheme
-          .copyWith(backgroundColor: PaletteDark.nightBlue),
-      textTheme: TextTheme(
-          labelSmall: TextStyle(
-              backgroundColor: PaletteDark.darkCyanBlue, // date section row
-              ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-            color: PaletteDark.nightBlue, // address button border
-          ),
-      ),
-      );
+          .copyWith(backgroundColor: PaletteDark.nightBlue));
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -70,17 +71,11 @@ class TransactionRow extends StatelessWidget {
                             Text(formattedDate,
                                 style: TextStyle(
                                     fontSize: 14,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .labelSmall!
-                                        .backgroundColor!)),
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor)),
                             Text(formattedFiatAmount,
                                 style: TextStyle(
                                     fontSize: 14,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .labelSmall!
-                                        .backgroundColor!))
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
                           ])
                     ],
                   )
