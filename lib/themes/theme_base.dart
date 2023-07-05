@@ -8,6 +8,7 @@ import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -76,6 +77,8 @@ abstract class ThemeBase {
 
   InfoTheme get infoTheme;
 
+  PickerTheme get pickerTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -95,6 +98,7 @@ abstract class ThemeBase {
         filterTheme,
         walletListTheme,
         infoTheme,
+        pickerTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),

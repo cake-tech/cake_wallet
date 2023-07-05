@@ -179,10 +179,5 @@ class BrightTheme extends LightTheme {
           bodyLarge: TextStyle(
               backgroundColor: Palette.brightOrange // alert left button text
               )),
-      accentTextTheme: TextTheme(
-        // title -> titleLarge
-        titleLarge: TextStyle(
-          backgroundColor: Palette.periwinkleCraiola, // picker divider
-        ),
-      ));
+      );
 }

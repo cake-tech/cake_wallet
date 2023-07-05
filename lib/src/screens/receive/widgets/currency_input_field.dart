@@ -4,6 +4,7 @@ import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class CurrencyInputField extends StatelessWidget {
   const CurrencyInputField({
@@ -50,7 +51,7 @@ class CurrencyInputField extends StatelessWidget {
                       color: Theme.of(context).primaryTextTheme!.headlineSmall!.color!,
                       fontWeight: FontWeight.w600,
                     ),
-              borderColor: Theme.of(context).accentTextTheme!.titleLarge!.backgroundColor!,
+              borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
               textColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               textStyle: TextStyle(
                 color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,

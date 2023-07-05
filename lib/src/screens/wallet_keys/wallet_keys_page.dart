@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class WalletKeysPage extends BasePage {
   WalletKeysPage(this.walletKeysViewModel);
@@ -84,7 +85,7 @@ class WalletKeysPage extends BasePage {
                 separatorBuilder: (context, index) => Container(
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
-                      color: Theme.of(context).accentTextTheme!.titleLarge!.backgroundColor!,
+                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       child: const HorizontalSectionDivider(),
                     ),
                 itemCount: walletKeysViewModel.items.length,

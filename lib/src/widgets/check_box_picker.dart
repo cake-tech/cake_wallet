@@ -3,6 +3,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class CheckBoxPicker extends StatefulWidget {
   CheckBoxPicker({
@@ -88,20 +89,14 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context)
-          .accentTextTheme!
-          .titleLarge!
-          .backgroundColor!,
+      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: ListView.separated(
         padding: EdgeInsets.zero,
         controller: controller,
         shrinkWrap: true,
         separatorBuilder: (context, index) => widget.isSeparated
             ? Divider(
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .titleLarge!
-                    .backgroundColor!,
+                color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                 height: 1,
               )
             : const SizedBox(),

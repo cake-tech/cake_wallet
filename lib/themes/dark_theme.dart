@@ -9,6 +9,7 @@ import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -123,6 +124,10 @@ class DarkTheme extends ThemeBase {
   InfoTheme get infoTheme => InfoTheme(textColor: Palette.darkLavender);
 
   @override
+  PickerTheme get pickerTheme =>
+      PickerTheme(dividerColor: PaletteDark.dividerColor);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
@@ -231,12 +236,6 @@ class DarkTheme extends ThemeBase {
           bodyLarge: TextStyle(
               backgroundColor: Palette.alizarinRed // alert left button text
           )
-      ),
-      accentTextTheme: TextTheme(
-        // title -> titleLarge
-        titleLarge: TextStyle(
-            backgroundColor: PaletteDark.dividerColor, // picker divider
-            ),
       ),
       );
 }

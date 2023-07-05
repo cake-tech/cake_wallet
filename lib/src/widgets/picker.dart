@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class Picker<Item> extends StatefulWidget {
   Picker({
@@ -187,10 +188,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                         ),
                       ),
                     Divider(
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       height: 1,
                     ),
                     if (widget.selectedAtIndex != -1)
@@ -241,10 +239,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context)
-          .accentTextTheme!
-          .titleLarge!
-          .backgroundColor!,
+      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: widget.isGridView
           ? GridView.builder(
               padding: EdgeInsets.zero,
@@ -264,10 +259,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               shrinkWrap: true,
               separatorBuilder: (context, index) => widget.isSeparated
                   ? Divider(
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       height: 1,
                     )
                   : const SizedBox(),
