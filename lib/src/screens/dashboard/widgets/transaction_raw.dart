@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class TransactionRow extends StatelessWidget {
   TransactionRow(
@@ -36,7 +37,7 @@ class TransactionRow extends StatelessWidget {
                 width: 36,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).textTheme!.labelSmall!.decorationColor!
+                    color: Theme.of(context).extension<TransactionTradeTheme>()!.rowsColor
                 ),
                 child: Image.asset(
                     direction == TransactionDirection.incoming

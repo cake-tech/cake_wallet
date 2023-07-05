@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 //import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class FilterWidget extends StatelessWidget {
   FilterWidget({required this.dashboardViewModel});
@@ -33,10 +34,7 @@ class FilterWidget extends StatelessWidget {
                       child: Text(
                         S.of(context).filter_by,
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .primaryTextTheme!
-                              .labelSmall!
-                              .color!,
+                          color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
                           fontSize: 16,
                           fontFamily: 'Lato',
                           decoration: TextDecoration.none,

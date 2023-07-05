@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class RestoreButton extends StatelessWidget {
   const RestoreButton({
@@ -57,10 +58,7 @@ class RestoreButton extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .labelSmall!
-                                .color!),
+                            color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                       ),
                     )
                   ],

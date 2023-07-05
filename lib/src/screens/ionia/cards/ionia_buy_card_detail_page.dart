@@ -20,6 +20,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class IoniaBuyGiftCardDetailPage extends BasePage {
   IoniaBuyGiftCardDetailPage(this.ioniaPurchaseViewModel);
@@ -416,7 +417,7 @@ class TipButton extends StatelessWidget {
 
     return isSelected
       ? Theme.of(context).dialogTheme.backgroundColor!
-      : Theme.of(context).primaryTextTheme!.labelSmall!.color!;
+      : Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor;
   }
 
   Color? backgroundColor(BuildContext context) {

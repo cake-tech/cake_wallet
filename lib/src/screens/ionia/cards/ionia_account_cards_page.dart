@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class IoniaAccountCardsPage extends BasePage {
   IoniaAccountCardsPage(this.ioniaAccountViewModel);
@@ -172,7 +173,7 @@ class _IoniaCardListView extends StatelessWidget {
               emptyText,
               textAlign: TextAlign.center,
               style: textSmall(
-                color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
+                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
               ),
             ),
           )

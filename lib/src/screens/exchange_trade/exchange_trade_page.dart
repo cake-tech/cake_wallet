@@ -21,6 +21,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 void showInformation(
     ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
@@ -112,7 +113,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme!.labelSmall!.color!);
+        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor);
 
     _setEffects();
 
@@ -134,10 +135,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                               style: TextStyle(
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .labelSmall!
-                                      .color!),
+                                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                             ),
                             if (trade.expiredAt != null)
                               TimerWidget(trade.expiredAt!,

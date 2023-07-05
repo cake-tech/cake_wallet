@@ -9,6 +9,7 @@ import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -91,6 +92,11 @@ class BrightTheme extends LightTheme {
       PlaceholderTheme(color: Colors.white.withOpacity(0.5));
 
   @override
+  TransactionTradeTheme get transactionTradeTheme => super
+      .transactionTradeTheme
+      .copyWith(rowsColor: Colors.white.withOpacity(0.2));
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       hoverColor: Colors.white, // amount hint text (receive page)
@@ -100,8 +106,6 @@ class BrightTheme extends LightTheme {
           labelSmall: TextStyle(
               backgroundColor:
                   Colors.white.withOpacity(0.5), // date section row
-              decorationColor: Colors.white
-                  .withOpacity(0.2) // icons (transaction and trade rows)
               ),
           // subhead -> titleMedium
           titleMedium: TextStyle(
@@ -150,9 +154,6 @@ class BrightTheme extends LightTheme {
           bodySmall: TextStyle(
               color: PaletteDark.pigeonBlue, // secondary text
               ),
-          labelSmall: TextStyle(
-            color: Palette.darkGray, // transaction/trade details titles
-          ),
         ),
       );
 }

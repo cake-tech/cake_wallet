@@ -11,6 +11,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class IoniaPaymentStatusPage extends BasePage {
   IoniaPaymentStatusPage(this.viewModel);
@@ -196,7 +197,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
           Text(
             title,
             style: textXSmall(
-              color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
+              color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
             ),
           ),
           SizedBox(height: 8),

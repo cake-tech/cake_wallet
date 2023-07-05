@@ -13,6 +13,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -150,10 +151,7 @@ class WalletSeedPage extends BasePage {
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.normal,
-                                        color: Theme.of(context)
-                                            .primaryTextTheme!
-                                            .labelSmall!
-                                            .color!),
+                                        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                                   ),
                                 )
                               : Offstage(),

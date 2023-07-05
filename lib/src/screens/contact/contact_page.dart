@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class ContactPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final downArrow = Image.asset('assets/images/arrow_bottom_purple_icon.png',
-        color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
+        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
         height: 8);
 
     reaction((_) => contactViewModel.state, (ExecutionState state) {

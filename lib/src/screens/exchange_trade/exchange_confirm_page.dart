@@ -10,6 +10,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class ExchangeConfirmPage extends BasePage {
   ExchangeConfirmPage({required this.tradesStore}) : trade = tradesStore.trade!;
@@ -65,10 +66,7 @@ class ExchangeConfirmPage extends BasePage {
                             style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .labelSmall!
-                                    .color!),
+                                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                           ),
                           Text(
                             trade.id,

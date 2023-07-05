@@ -17,6 +17,7 @@ import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -94,6 +95,8 @@ abstract class ThemeBase {
 
   PlaceholderTheme get placeholderTheme;
 
+  TransactionTradeTheme get transactionTradeTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -119,6 +122,7 @@ abstract class ThemeBase {
         sendPageTheme,
         seedWidgetTheme,
         placeholderTheme,
+        transactionTradeTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),

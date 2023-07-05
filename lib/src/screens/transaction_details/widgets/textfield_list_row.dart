@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class TextFieldListRow extends StatelessWidget {
   TextFieldListRow(
@@ -34,10 +35,7 @@ class TextFieldListRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .labelSmall!
-                          .color!),
+                      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                   textAlign: TextAlign.left),
               TextField(
                 controller: _textController,
@@ -57,10 +55,7 @@ class TextFieldListRow extends StatelessWidget {
                     hintStyle: TextStyle(
                         fontSize: valueFontSize,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .primaryTextTheme!
-                            .labelSmall!
-                            .color!),
+                        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                     border: InputBorder.none),
                 onSubmitted: (value) => onSubmitted?.call(value),
               )
