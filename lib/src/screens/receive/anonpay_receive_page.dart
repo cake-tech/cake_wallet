@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/anonpay_status_section.d
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/copy_link_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
@@ -48,8 +49,13 @@ class AnonPayReceivePage extends BasePage {
       child: ButtonTheme(
         minWidth: double.minPositive,
         child: TextButton(
-            onPressed: () =>
-                Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false),
+            onPressed: () {
+              if (DeviceInfo.instance.isDesktop) {
+                Navigator.popUntil(context, (route) => route.isFirst);
+              } else {
+                Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
+              }
+            },
             child: _backButton),
       ),
     );
