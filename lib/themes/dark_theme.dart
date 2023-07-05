@@ -174,6 +174,11 @@ class DarkTheme extends ThemeBase {
       titleColor: Colors.white);
 
   @override
+  AccountListTheme get accountListTheme => AccountListTheme(
+      tilesBackgroundColor: PaletteDark.darkOceanBlue,
+      tilesTextColor: Colors.white);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
@@ -215,12 +220,6 @@ class DarkTheme extends ThemeBase {
                   .blueCraiola, // text color of current tile (receive page)
               decorationColor: PaletteDark
                   .lightOceanBlue // background of current tile (receive page)
-              ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-              color: Colors.white, // text color of tiles (account list)
-              decorationColor: PaletteDark
-                  .darkOceanBlue // background of tiles (account list)
               ),
       ),
       );

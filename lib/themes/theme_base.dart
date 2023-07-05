@@ -100,6 +100,8 @@ abstract class ThemeBase {
 
   CakeTextTheme get cakeTextTheme;
 
+  AccountListTheme get accountListTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -127,6 +129,7 @@ abstract class ThemeBase {
         placeholderTheme,
         transactionTradeTheme,
         cakeTextTheme,
+        accountListTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),

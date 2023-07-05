@@ -173,7 +173,12 @@ class LightTheme extends ThemeBase {
   CakeTextTheme get cakeTextTheme => CakeTextTheme(
       secondaryTextColor: PaletteDark.pigeonBlue,
       textfieldUnderlineColor: Palette.wildPeriwinkle,
-      titleColor: Palette.darkBlueCraiola);
+      titleColor: Palette.violetBlue);
+
+  @override
+  AccountListTheme get accountListTheme => AccountListTheme(
+      tilesBackgroundColor: Colors.white,
+      tilesTextColor: Palette.violetBlue);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -219,12 +224,6 @@ class LightTheme extends ThemeBase {
               //decorationColor: Palette.blueCraiola // background of current tile (receive page)
               decorationColor: Palette
                   .blueCraiola // background of current tile (receive page)
-              ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-              color: Palette.violetBlue, // text color of tiles (account list)
-              decorationColor:
-                  Colors.white // background of tiles (account list)
               ),
       ),
       );

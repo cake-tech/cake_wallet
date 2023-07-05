@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -65,7 +66,7 @@ class MoneroAccountListPage extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(14)),
                           child: Container(
                             height: 296,
-                            color: Theme.of(context).textTheme!.displayLarge!.decorationColor!,
+                            color: Theme.of(context).extension<AccountListTheme>()!.tilesBackgroundColor,
                             child: Column(
                               children: <Widget>[
                                 Expanded(

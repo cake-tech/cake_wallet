@@ -139,12 +139,6 @@ class BrightTheme extends LightTheme {
               decorationColor: Palette
                   .moderateSlateBlue // background of current tile (receive page)
               ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-              color: Palette.violetBlue, // text color of tiles (account list)
-              decorationColor:
-                  Colors.white // background of tiles (account list)
-              ),
           ),
       );
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:flutter/material.dart';
 
 class AccountTile extends StatelessWidget {
@@ -21,10 +22,10 @@ class AccountTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isCurrent
         ? Theme.of(context).dialogBackgroundColor
-        : Theme.of(context).textTheme!.displayLarge!.decorationColor!;
+        : Theme.of(context).extension<AccountListTheme>()!.tilesBackgroundColor;
     final textColor = isCurrent
         ? Theme.of(context).primaryColor
-        : Theme.of(context).textTheme!.displayLarge!.color!;
+        : Theme.of(context).extension<AccountListTheme>()!.tilesTextColor;
 
     final Widget cell = GestureDetector(
       onTap: onTap,
