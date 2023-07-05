@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
@@ -42,10 +43,7 @@ class PickerItemWidget extends StatelessWidget {
                       style: TextStyle(
                         color: isSelected
                             ? Palette.blueCraiola
-                            : Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!,
+                            : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         fontSize: isSelected ? 16 : 14.0,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,

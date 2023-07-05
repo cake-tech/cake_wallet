@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/extensions/alert_theme.dart';
@@ -26,7 +27,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
         decoration: TextDecoration.none,
       ),
     );
@@ -40,7 +41,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
         fontFamily: 'Lato',
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
         decoration: TextDecoration.none,
       ),
     );

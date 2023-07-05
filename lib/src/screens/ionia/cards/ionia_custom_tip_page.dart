@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -145,10 +146,10 @@ class IoniaCustomTipPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).primaryTextTheme.titleLarge!.color!
+                  backgroundColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                       .withOpacity(0.1),
                   discount: 0.0,
-                  titleColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                  titleColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
                   logoUrl: merchant.logoUrl,

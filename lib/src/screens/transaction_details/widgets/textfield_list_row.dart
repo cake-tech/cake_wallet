@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
@@ -47,7 +48,7 @@ class TextFieldListRow extends StatelessWidget {
                     fontSize: valueFontSize,
                     fontWeight: FontWeight.w500,
                     color:
-                        Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                 decoration: InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.only(top: 12, bottom: 0),

@@ -19,6 +19,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 class ContactPage extends BasePage {
   ContactPage(this.contactViewModel)
@@ -103,10 +104,7 @@ class ContactPage extends BasePage {
                       ],
                       buttonColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                       iconColor: PaletteDark.gray,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      borderColor: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
                       validator:
                           AddressValidator(type: contactViewModel.currency!),
                     ),

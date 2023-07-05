@@ -1,4 +1,5 @@
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
@@ -80,10 +81,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .color!),
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                 ),
               ),
               ...types.map((type) => Padding(

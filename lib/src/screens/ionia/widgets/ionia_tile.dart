@@ -1,4 +1,5 @@
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
@@ -34,7 +35,7 @@ class IoniaTile extends StatelessWidget {
             Text(
               subTitle,
               style: textMediumBold(
-                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               ),
             ),
           ],

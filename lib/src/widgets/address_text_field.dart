@@ -1,4 +1,5 @@
 
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
@@ -69,7 +70,7 @@ class AddressTextField extends StatelessWidget {
           style: textStyle ??
               TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           decoration: InputDecoration(
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length +

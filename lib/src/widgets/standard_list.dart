@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
@@ -54,7 +55,7 @@ class StandardListRow extends StatelessWidget {
 
   Color titleColor(BuildContext context) => isSelected
       ? Palette.blueCraiola
-      : Theme.of(context).primaryTextTheme.titleLarge!.color!;
+      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
 }
 
 class SectionHeaderListRow extends StatelessWidget {

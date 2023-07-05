@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -119,10 +120,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             style: TextStyle(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .titleLarge!
-                                    .color!),
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                             decoration: InputDecoration(
                               hintStyle: TextStyle(
                                   fontSize: 18.0,
@@ -183,10 +181,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!),
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                       ),
                     ),
                     Padding(

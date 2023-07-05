@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 class ContactListPage extends BasePage {
   ContactListPage(this.contactListViewModel);
@@ -34,7 +35,7 @@ class ContactListPage extends BasePage {
           alignment: Alignment.center,
           children: <Widget>[
             Icon(Icons.add,
-                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 size: 22.0),
             ButtonTheme(
               minWidth: 32.0,
@@ -71,10 +72,7 @@ class ContactListPage extends BasePage {
               return Container(
                   padding: EdgeInsets.only(bottom: 10),
                   child: Text(title, style: TextStyle(
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .titleLarge!
-                              .color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontSize: 36)));
             },
             itemCounter: (int sectionIndex) =>
@@ -138,7 +136,7 @@ class ContactListPage extends BasePage {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                 ),
               )
             )

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -47,7 +48,7 @@ class IoniaFilterModal extends StatelessWidget {
                       child: TextField(
                         onChanged: ioniaGiftCardsListViewModel.onSearchFilter,
                         style: textMedium(
-                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         ),
                         decoration: InputDecoration(
                           filled: true,
@@ -85,12 +86,12 @@ class IoniaFilterModal extends StatelessWidget {
                                   children: [
                                     Image.asset(
                                       category.iconPath,
-                                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ),
                                     SizedBox(width: 10),
                                     Text(category.title,
                                         style: textSmall(
-                                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                         ).copyWith(fontWeight: FontWeight.w500)),
                                   ],
                                 ),

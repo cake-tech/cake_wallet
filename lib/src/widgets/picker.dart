@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
@@ -161,10 +162,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                         child: TextFormField(
                           controller: searchController,
                           style: TextStyle(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .titleLarge!
-                                  .color!),
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                           decoration: InputDecoration(
                             hintText: widget.hintText,
                             prefixIcon:
@@ -216,10 +214,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                       fontWeight: FontWeight.w500,
                                       fontFamily: 'Lato',
                                       decoration: TextDecoration.none,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .titleLarge!
-                                          .color!,
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ),
                                   ),
                                 )
@@ -311,10 +306,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontSize: 14,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .primaryTextTheme!
-                              .titleLarge!
-                              .color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -392,10 +384,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontSize: 16,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w700,
-                          color: Theme.of(context)
-                              .primaryTextTheme!
-                              .titleLarge!
-                              .color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),

@@ -146,14 +146,5 @@ class BrightTheme extends LightTheme {
                   Colors.white // background of tiles (account list)
               ),
           ),
-      primaryTextTheme: TextTheme(
-          titleLarge: TextStyle(
-              color: Palette.darkBlueCraiola, // title color
-              backgroundColor: Palette.wildPeriwinkle // textfield underline
-              ),
-          bodySmall: TextStyle(
-              color: PaletteDark.pigeonBlue, // secondary text
-              ),
-        ),
       );
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -20,7 +21,7 @@ class IoniaAccountPage extends BasePage {
     return Text(
       S.current.account,
       style: textMediumSemiBold(
-        color: Theme.of(context).primaryTextTheme.titleLarge!.color,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }

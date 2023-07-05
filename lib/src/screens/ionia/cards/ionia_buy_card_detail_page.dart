@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
@@ -31,7 +32,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       ioniaPurchaseViewModel.ioniaMerchant.legalName,
-      style: textMediumSemiBold(color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+      style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
     );
   }
 
@@ -166,7 +167,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                     Text(
                       S.of(context).tip,
                       style: TextStyle(
-                        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -402,17 +403,17 @@ class TipButton extends StatelessWidget {
 
   Color captionTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      return Theme.of(context).extension<CakeTextTheme>()!.titleColor;
     }
 
     return isSelected
       ? Theme.of(context).dialogTheme.backgroundColor!
-      : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
   }
 
   Color subTitleTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      return Theme.of(context).extension<CakeTextTheme>()!.titleColor;
     }
 
     return isSelected
@@ -424,12 +425,12 @@ class TipButton extends StatelessWidget {
     if (isDark(context)) {
       return isSelected
         ? null
-        : Theme.of(context).primaryTextTheme.titleLarge!.color!.withOpacity(0.01);
+        : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.01);
     }
 
     return isSelected
         ? null
-        : Theme.of(context).primaryTextTheme.titleLarge!.color!.withOpacity(0.1);
+        : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.1);
   }
 
   @override

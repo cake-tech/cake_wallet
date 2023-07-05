@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
@@ -23,7 +24,7 @@ class SettingsChoicesCell extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
             ],
@@ -58,10 +59,7 @@ class SettingsChoicesCell extends StatelessWidget {
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : Theme.of(context)
-                                    .primaryTextTheme!
-                                    .bodySmall!
-                                    .color!,
+                                : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                           ),
                         ),

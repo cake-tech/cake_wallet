@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -115,10 +116,7 @@ class WalletSeedPage extends BasePage {
                                 style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .titleLarge!
-                                        .color!),
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ),
                               Padding(
                                 padding:
@@ -129,10 +127,7 @@ class WalletSeedPage extends BasePage {
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.normal,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .bodySmall!
-                                          .color!),
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                                 ),
                               )
                             ],

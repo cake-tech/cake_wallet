@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 class EditBackupPasswordPage extends BasePage {
   EditBackupPasswordPage(this.editBackupPasswordViewModel)
@@ -39,10 +40,7 @@ class EditBackupPasswordPage extends BasePage {
                         controller: textEditingController,
                         style: TextStyle(
                             fontSize: 26,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!)))),
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)))),
             Positioned(
                 child: Observer(
                     builder: (_) => PrimaryButton(

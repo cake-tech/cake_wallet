@@ -2,6 +2,7 @@ import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
@@ -169,6 +170,12 @@ class LightTheme extends ThemeBase {
       rowsColor: Palette.blueAlice);
 
   @override
+  CakeTextTheme get cakeTextTheme => CakeTextTheme(
+      secondaryTextColor: PaletteDark.pigeonBlue,
+      textfieldUnderlineColor: Palette.wildPeriwinkle,
+      titleColor: Palette.darkBlueCraiola);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
@@ -218,16 +225,6 @@ class LightTheme extends ThemeBase {
               color: Palette.violetBlue, // text color of tiles (account list)
               decorationColor:
                   Colors.white // background of tiles (account list)
-              ),
-      ),
-      primaryTextTheme: TextTheme(
-          // title -> titleLarge
-          titleLarge: TextStyle(
-              color: Palette.darkBlueCraiola, // title color
-              backgroundColor: Palette.wildPeriwinkle // textfield underline
-              ),
-          bodySmall: TextStyle(
-              color: PaletteDark.pigeonBlue, // secondary text
               ),
       ),
       );

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -58,7 +59,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage =
         Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+        height: 12, width: 12, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
 
     return Container(
       padding: EdgeInsets.only(top: 16),
@@ -135,10 +136,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .titleLarge!
-                                                .color!),
+                                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                       )
                                     ],
                                   ),
@@ -183,7 +181,7 @@ class WalletListBodyState extends State<WalletListBody> {
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).cardColor,
-                textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!)
+                textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
           ])),
     );
   }

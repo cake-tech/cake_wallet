@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_background.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/typography.dart';
@@ -59,7 +60,7 @@ class IoniaAlertModal extends StatelessWidget {
                     text: actionTitle,
                     color: Theme.of(context).cardColor,
                     textColor:
-                        Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                        Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                   SizedBox(height: 21),
                 ],

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
@@ -90,10 +91,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   cursorColor: Colors.blue,
                   backgroundCursorColor: Colors.blue,
                   validStyle: TextStyle(
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .color!,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       backgroundColor: Colors.transparent,
                       fontWeight: FontWeight.normal,
                       fontSize: 16),
@@ -106,10 +104,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   controller: controller,
                   words: words,
                   textStyle: TextStyle(
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .color!,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       backgroundColor: Colors.transparent,
                       fontWeight: FontWeight.normal,
                       fontSize: 16),
@@ -135,10 +130,7 @@ class SeedWidgetState extends State<SeedWidget> {
           Container(
               margin: EdgeInsets.only(top: 15),
               height: 1.0,
-              color: Theme.of(context)
-                  .primaryTextTheme!
-                  .titleLarge!
-                  .backgroundColor!),
+              color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor),
         ]));
   }
 

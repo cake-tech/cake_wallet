@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
@@ -88,10 +89,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .titleLarge!
-                                        .color!),
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ),
                             )
                           ],
@@ -108,10 +106,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .titleLarge!
-                                        .color!),
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ),
                             )
                           ],
@@ -127,10 +122,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               style: TextStyle(
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.normal,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .titleLarge!
-                                      .color!),
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                             ))
                           ],
                         ),
@@ -147,10 +139,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .titleLarge!
-                                        .color!),
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ),
                             )
                           ],
@@ -234,10 +223,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   ),
                                   decoration: BoxDecoration(
                                       border: Border.all(
-                                          color: Theme.of(context)
-                                              .primaryTextTheme!
-                                              .bodySmall!
-                                              .color!,
+                                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                                           width: 1.0),
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(8.0)),
@@ -255,10 +241,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14.0,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .titleLarge!
-                                          .color!),
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                 )
                               ],
                             ),

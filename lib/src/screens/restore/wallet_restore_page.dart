@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -94,7 +95,7 @@ class WalletRestorePage extends BasePage {
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
                 color: titleColor ??
-                    Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                    Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;

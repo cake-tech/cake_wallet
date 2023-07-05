@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class WelcomePage extends BasePage {
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -101,10 +102,7 @@ class WelcomePage extends BasePage {
                                     style: TextStyle(
                                       fontSize: 36,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .titleLarge!
-                                          .color!,
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -155,10 +153,7 @@ class WelcomePage extends BasePage {
                                       image: restoreWalletImage,
                                       text: S.of(context).restore_wallet,
                                       color: Theme.of(context).cardColor,
-                                      textColor: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .titleLarge!
-                                          .color!),
+                                      textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                 )
                               ],
                             )

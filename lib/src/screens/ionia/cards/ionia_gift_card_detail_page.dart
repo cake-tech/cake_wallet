@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -33,7 +34,7 @@ class IoniaGiftCardDetailPage extends BasePage {
 
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       size: 16,
     );
     return Padding(
@@ -60,7 +61,7 @@ class IoniaGiftCardDetailPage extends BasePage {
     return Text(
       viewModel.giftCard.legalName,
       style: textMediumSemiBold(
-          color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
     );
   }
 
@@ -143,7 +144,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                     },
                     text: S.of(context).more_options,
                     color: Theme.of(context).cardColor,
-                    textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                    textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                   SizedBox(height: 12),
                   LoadingPrimaryButton(

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -137,12 +138,12 @@ class IoniaCustomRedeemPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: giftCard.legalName,
-                  backgroundColor: Theme.of(context).primaryTextTheme.titleLarge!.color!
+                  backgroundColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                       .withOpacity(0.1),
                   discount: giftCard.remainingAmount,
                   isAmount: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                  titleColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: S.of(context).online,
                   logoUrl: giftCard.logoUrl,

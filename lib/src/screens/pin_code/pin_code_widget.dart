@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -111,11 +112,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   Widget body(BuildContext context) {
     final deleteIconImage = Image.asset(
       'assets/images/delete_icon.png',
-      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
     );
     final faceImage = Image.asset(
       'assets/images/face.png',
-      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
     );
 
     return RawKeyboardListener(
@@ -144,7 +145,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                     color:
-                        Theme.of(context).primaryTextTheme!.titleLarge!.color!)),
+                        Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
             Spacer(flex: 3),
             Container(
               width: 180,
@@ -160,10 +161,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isFilled
-                            ? Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!
+                            ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
                             : Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor
                                 .withOpacity(0.25),
                       ));
@@ -251,10 +249,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         style: TextStyle(
                                             fontSize: 30.0,
                                             fontWeight: FontWeight.w600,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme!
-                                                .titleLarge!
-                                                .color!)),
+                                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
                                   ),
                                 );
                               }),

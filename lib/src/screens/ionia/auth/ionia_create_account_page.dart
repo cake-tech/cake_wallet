@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/email_validator.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/routes.dart';
@@ -40,7 +41,7 @@ class IoniaCreateAccountPage extends BasePage {
     return Text(
       S.current.sign_up,
       style: textMediumSemiBold(
-        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }

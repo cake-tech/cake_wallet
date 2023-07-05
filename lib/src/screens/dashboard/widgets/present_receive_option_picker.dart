@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -111,10 +112,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                                 Text(option.toString(),
                                     textAlign: TextAlign.left,
                                     style: textSmall(
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .titleLarge!
-                                          .color!,
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ).copyWith(
                                       fontWeight:
                                           value == option ? FontWeight.w800 : FontWeight.w500,

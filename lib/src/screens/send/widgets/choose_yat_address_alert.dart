@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +96,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     decoration: TextDecoration.none,
                                   ),
                                 )

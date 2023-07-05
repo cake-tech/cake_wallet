@@ -1,4 +1,5 @@
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -24,7 +25,7 @@ class IoniaPaymentStatusPage extends BasePage {
         S.of(context).generating_gift_card,
         textAlign: TextAlign.center,
         style: textMediumSemiBold(
-            color: Theme.of(context).primaryTextTheme.titleLarge!.color!));
+            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor));
   }
 
   @override
@@ -91,7 +92,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
             Text(
               S.of(context).awaiting_payment_confirmation,
               style: textLargeSemiBold(
-                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!))
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor))
             ]),
           SizedBox(height: 40),
           Row(children: [
@@ -130,7 +131,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                   Text(
                     S.of(context).gift_card_is_generated,
                     style: textLargeSemiBold(
-                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!))
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor))
                   ]));
             }
 
@@ -148,7 +149,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
               Text(
                 S.of(context).generating_gift_card,
                 style: textLargeSemiBold(
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!))]);
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor))]);
           }),
         ],
       ),
@@ -161,7 +162,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                 widget.viewModel.payingByBitcoin ? S.of(context).bitcoin_payments_require_1_confirmation
                     : S.of(context).proceed_after_one_minute,
                 style: textMedium(
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ).copyWith(fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               )),
@@ -181,7 +182,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                   onPressed: () => Navigator.of(context).pushNamed(Routes.support),
                   text: S.of(context).contact_support,
                   color: Theme.of(context).cardColor,
-                  textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+                  textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
                 })
             ])
       ),
@@ -204,7 +205,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
           Text(
             subtitle,
             style: textMedium(
-              color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
             ),
           ),
         ],

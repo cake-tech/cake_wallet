@@ -1,4 +1,5 @@
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
@@ -54,10 +55,7 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                     Text(
                       invoiceInfo.status ?? '',
                       style: textSmallSemiBold(
-                        color: Theme.of(context)
-                            .primaryTextTheme!
-                            .titleLarge!
-                            .color,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     )
                   ],
@@ -80,7 +78,7 @@ class AnonInvoiceStatusSection extends StatelessWidget {
               Text(
                 invoiceInfo.invoiceId ?? '',
                 style: textSmallSemiBold(
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
             ],

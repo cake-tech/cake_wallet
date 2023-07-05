@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -38,10 +39,7 @@ class ExchangeConfirmPage extends BasePage {
                   style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .color!),
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                 ),
               )),
               Container(
@@ -75,10 +73,7 @@ class ExchangeConfirmPage extends BasePage {
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .titleLarge!
-                                    .color!),
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                           ),
                         ],
                       ),
@@ -94,10 +89,7 @@ class ExchangeConfirmPage extends BasePage {
                             },
                             text: S.of(context).copy_id,
                             color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
-                            textColor: Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!),
+                            textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                       ),
                     )
                   ],

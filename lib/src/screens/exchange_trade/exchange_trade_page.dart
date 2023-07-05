@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
@@ -53,7 +54,7 @@ class ExchangeTradePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
 
     return SizedBox(
       height: 20.0,
@@ -139,10 +140,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             ),
                             if (trade.expiredAt != null)
                               TimerWidget(trade.expiredAt!,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .titleLarge!
-                                      .color!)
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
                           ])
                     : Offstage(),
                 Padding(
@@ -331,10 +329,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(popupContext)
-                              .primaryTextTheme!
-                              .titleLarge!
-                              .color,
+                          color: Theme.of(popupContext).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -383,10 +378,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(popupContext)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!,
+                            color: Theme.of(popupContext).extension<CakeTextTheme>()!.titleColor,
                             decoration: TextDecoration.none,
                           ),
                         ),

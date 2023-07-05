@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
@@ -179,7 +180,7 @@ class PreOrderPage extends BasePage {
                       S.of(context).buy_with + ':',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold
                       ),

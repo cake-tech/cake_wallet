@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
@@ -132,7 +133,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                   fontWeight: FontWeight.w600,
                   color: item.isDisabled
                       ? Colors.grey.withOpacity(0.5)
-                      : Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                      : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   decoration: TextDecoration.none,
                 ),
               ),

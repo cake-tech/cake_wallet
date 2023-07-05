@@ -1,4 +1,5 @@
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -16,7 +17,7 @@ class IoniaMoreOptionsPage extends BasePage {
     return Text(
       S.current.more_options,
       style: textMediumSemiBold(
-        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -35,7 +36,7 @@ class IoniaMoreOptionsPage extends BasePage {
             child: Text(
               S.of(context).choose_from_available_options,
               style: textMedium(
-                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               ),
             ),
           ),

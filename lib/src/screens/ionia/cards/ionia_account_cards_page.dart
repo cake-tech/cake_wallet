@@ -1,4 +1,5 @@
 
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/routes.dart';
@@ -24,7 +25,7 @@ class IoniaAccountCardsPage extends BasePage {
     return Text(
       S.of(context).cards,
       style: textLargeSemiBold(
-        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -73,7 +74,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
             width: 230,
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryTextTheme.titleLarge!.color!
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                   .withOpacity(0.1),
               borderRadius: BorderRadius.circular(
                 25.0,
@@ -91,7 +92,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                 ),
                 labelColor: Theme.of(context).extension<OrderTheme>()!.iconColor,
                 unselectedLabelColor:
-                    Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                    Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 tabs: [
                   Tab(
                     text: S.of(context).active,
@@ -186,12 +187,12 @@ class _IoniaCardListView extends StatelessWidget {
                 child: CardItem(
                   onTap: () => onTap?.call(merchant),
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).primaryTextTheme.titleLarge!.color!
+                  backgroundColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                       .withOpacity(0.1),
                   discount: 0,
                   hideBorder: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                  titleColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: '',
                   logoUrl: merchant.logoUrl,

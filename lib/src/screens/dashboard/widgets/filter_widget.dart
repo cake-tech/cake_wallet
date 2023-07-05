@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -62,10 +63,7 @@ class FilterWidget extends StatelessWidget {
                               child: Text(
                                 title,
                                 style: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .titleLarge!
-                                        .color!,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     fontSize: 16,
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.bold,

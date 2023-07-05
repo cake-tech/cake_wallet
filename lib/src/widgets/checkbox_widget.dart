@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,7 +66,7 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
             child: Text(
               caption,
               style: TextStyle(
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   fontSize: 18,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w500,

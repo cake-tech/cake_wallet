@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -48,7 +49,7 @@ class InformationPage extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(),
                   text: S.of(context).send_got_it,
                   color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
-                  textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!
+                  textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                 ),
               )
             ],
