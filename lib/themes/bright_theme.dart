@@ -5,6 +5,7 @@ import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
@@ -73,6 +74,9 @@ class BrightTheme extends LightTheme {
   @override
   WalletListTheme get walletListTheme => super.walletListTheme.copyWith(
       createNewWalletButtonBackgroundColor: Palette.moderateSlateBlue);
+
+  @override
+  OrderTheme get orderTheme => OrderTheme(iconColor: Colors.white);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -173,7 +177,6 @@ class BrightTheme extends LightTheme {
           // display4 -> displayLarge
           displayLarge: TextStyle(
             color: Palette.darkBlueCraiola, // template title (send page)
-            backgroundColor: Colors.white, // icon color on order row (moonpay)
           ),
         ),
       );

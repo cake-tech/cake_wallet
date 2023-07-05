@@ -1,5 +1,6 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/get_buy_provider_icon.dart';
+import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
@@ -21,7 +22,7 @@ class OrderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor =
-        Theme.of(context).primaryTextTheme!.displayLarge!.backgroundColor!;
+        Theme.of(context).extension<OrderTheme>()!.iconColor;
 
     final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
 

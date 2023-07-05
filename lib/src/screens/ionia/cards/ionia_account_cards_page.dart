@@ -5,6 +5,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:flutter/material.dart';
@@ -87,10 +88,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   ),
                   color: Theme.of(context).primaryColor,
                 ),
-                labelColor: Theme.of(context)
-                    .primaryTextTheme!
-                    .displayLarge!
-                    .backgroundColor!,
+                labelColor: Theme.of(context).extension<OrderTheme>()!.iconColor,
                 unselectedLabelColor:
                     Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 tabs: [
