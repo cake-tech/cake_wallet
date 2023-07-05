@@ -99,7 +99,10 @@ abstract class HomeSettingsViewModelBase with Store {
   }
 
   @action
-  void changeSearchText(String text) => searchText = text;
+  void changeSearchText(String text) {
+    searchText = text;
+    _updateTokensList();
+  }
 
   bool _matchesSearchText(Erc20Token asset) {
     return searchText.isEmpty ||
