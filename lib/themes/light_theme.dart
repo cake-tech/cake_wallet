@@ -181,10 +181,20 @@ class LightTheme extends ThemeBase {
       tilesTextColor: Palette.violetBlue);
 
   @override
+  ReceivePageTheme get receivePageTheme => ReceivePageTheme(
+      currentTileBackgroundColor: Palette.blueCraiola,
+      currentTileTextColor: Colors.white,
+      tilesBackgroundColor: Palette.blueAlice,
+      tilesTextColor: Palette.darkBlueCraiola,
+      iconsBackgroundColor: Palette.moderateLavender,
+      iconsColor: PaletteDark.lightBlueGrey,
+      amountBottomBorderColor: Palette.darkBlueCraiola,
+      amountHintTextColor: Palette.darkBlueCraiola);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
-      hoverColor: Palette.darkBlueCraiola, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,
       disabledColor: Palette.darkGray,
@@ -204,27 +214,7 @@ class LightTheme extends ThemeBase {
           // headline -> headlineSmall
           headlineSmall: TextStyle(
             color: Colors.white, // qr code
-            decorationColor: Palette.darkBlueCraiola, // bottom border of amount (receive page)
           ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-            color: PaletteDark.lightBlueGrey, // icons color (receive page)
-            decorationColor: Palette.moderateLavender, // icons background (receive page)
-          ),
-          // display2 -> headldisplaySmalline3
-          displaySmall: TextStyle(
-              color:
-                  Palette.darkBlueCraiola, // text color of tiles (receive page)
-              decorationColor:
-                  Palette.blueAlice // background of tiles (receive page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: Colors.white, // text color of current tile (receive page),
-              //decorationColor: Palette.blueCraiola // background of current tile (receive page)
-              decorationColor: Palette
-                  .blueCraiola // background of current tile (receive page)
-              ),
       ),
       );
 }

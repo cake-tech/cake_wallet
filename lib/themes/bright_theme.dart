@@ -97,9 +97,17 @@ class BrightTheme extends LightTheme {
       .copyWith(rowsColor: Colors.white.withOpacity(0.2));
 
   @override
+  ReceivePageTheme get receivePageTheme => super.receivePageTheme.copyWith(
+        currentTileBackgroundColor: Palette.moderateSlateBlue,
+        tilesBackgroundColor: Colors.white,
+        iconsBackgroundColor: Palette.lavender,
+        amountBottomBorderColor: Colors.white.withOpacity(0.5),
+        amountHintTextColor: Colors.white,
+      );
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
-      hoverColor: Colors.white, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,
       textTheme: TextTheme(
@@ -116,29 +124,7 @@ class BrightTheme extends LightTheme {
           // headline -> headlineSmall
           headlineSmall: TextStyle(
             color: Colors.white, // qr code
-            decorationColor: Colors.white
-                .withOpacity(0.5), // bottom border of amount (receive page)
           ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-            color: PaletteDark.lightBlueGrey, // icons color (receive page)
-            decorationColor:
-                Palette.lavender, // icons background (receive page)
-          ),
-          // display2 -> displaySmall
-          displaySmall: TextStyle(
-              color:
-                  Palette.darkBlueCraiola, // text color of tiles (receive page)
-              decorationColor:
-                  Colors.white // background of tiles (receive page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: Colors.white, // text color of current tile (receive page),
-              //decorationColor: Palette.blueCraiola // background of current tile (receive page)
-              decorationColor: Palette
-                  .moderateSlateBlue // background of current tile (receive page)
-              ),
           ),
       );
 }

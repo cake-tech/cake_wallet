@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class AccountTile extends StatelessWidget {
@@ -58,7 +59,7 @@ class AccountTile extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).textTheme!.headlineMedium!.color!,
+                  color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
                   decoration: TextDecoration.none,
                 ),
                          ),

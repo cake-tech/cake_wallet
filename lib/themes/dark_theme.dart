@@ -179,9 +179,19 @@ class DarkTheme extends ThemeBase {
       tilesTextColor: Colors.white);
 
   @override
+  ReceivePageTheme get receivePageTheme => ReceivePageTheme(
+      currentTileBackgroundColor: PaletteDark.lightOceanBlue,
+      currentTileTextColor: Palette.blueCraiola,
+      tilesBackgroundColor: PaletteDark.nightBlue,
+      tilesTextColor: Colors.white,
+      iconsBackgroundColor: PaletteDark.distantNightBlue,
+      iconsColor: Colors.white,
+      amountBottomBorderColor: PaletteDark.darkGrey,
+      amountHintTextColor: PaletteDark.cyanBlue);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
-      hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
       dividerColor: PaletteDark.dividerColor,
       hintColor: PaletteDark.pigeonBlue,
       disabledColor: PaletteDark.deepVioletBlue,
@@ -201,26 +211,7 @@ class DarkTheme extends ThemeBase {
           // headline -> headlineSmall
           headlineSmall: TextStyle(
             color: PaletteDark.lightBlueGrey, // qr code
-            decorationColor: PaletteDark.darkGrey, // bottom border of amount (receive page)
           ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-            color: Colors.white, // icons color (receive page)
-            decorationColor: PaletteDark.distantNightBlue, // icons background (receive page)
-          ),
-          // display2 -> displaySmall
-          displaySmall: TextStyle(
-              color: Colors.white, // text color of tiles (receive page)
-              decorationColor:
-                  PaletteDark.nightBlue // background of tiles (receive page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: Palette
-                  .blueCraiola, // text color of current tile (receive page)
-              decorationColor: PaletteDark
-                  .lightOceanBlue // background of current tile (receive page)
-              ),
       ),
       );
 }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
@@ -236,7 +237,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             child: Text(
               ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
               style: textMedium(
-                color: Theme.of(context).textTheme!.displaySmall!.color!,
+                color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
               ),
             ),
           ),
@@ -274,13 +275,13 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                             child: Text(
                               instruction.header,
                               style: textLargeSemiBold(
-                                color: Theme.of(context).textTheme!.displaySmall!.color!,
+                                color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                               ),
                             )),
                         Text(
                           instruction.body,
                           style: textMedium(
-                            color: Theme.of(context).textTheme!.displaySmall!.color!,
+                            color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                           ),
                         )
                       ];

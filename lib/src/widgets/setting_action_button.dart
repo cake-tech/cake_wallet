@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class SettingActionButton extends StatelessWidget {
@@ -29,10 +30,10 @@ class SettingActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color? color = isSelected
-        ? Theme.of(context).textTheme!.displaySmall!.color
+        ? Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor
         : selectionActive
             ? Palette.darkBlue
-            : Theme.of(context).textTheme!.displaySmall!.color;
+            : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
     return InkWell(
       onTap: onTap,
       hoverColor: Colors.transparent,

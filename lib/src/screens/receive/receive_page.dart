@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
@@ -147,10 +148,7 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.arrow_forward_ios,
                                     size: 14,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .headlineMedium!
-                                        .color!,
+                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
                                   ));
                             }
 
@@ -162,10 +160,7 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.add,
                                     size: 20,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .headlineMedium!
-                                        .color!,
+                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
                                   ));
                             }
 
@@ -174,23 +169,11 @@ class ReceivePage extends BasePage {
                                 final isCurrent =
                                     item.address == addressListViewModel.address.address;
                                 final backgroundColor = isCurrent
-                                    ? Theme.of(context)
-                                        .textTheme!
-                                        .displayMedium!
-                                        .decorationColor!
-                                    : Theme.of(context)
-                                        .textTheme!
-                                        .displaySmall!
-                                        .decorationColor!;
+                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
+                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor;
                                 final textColor = isCurrent
-                                    ? Theme.of(context)
-                                        .textTheme!
-                                        .displayMedium!
-                                        .color!
-                                    : Theme.of(context)
-                                        .textTheme!
-                                        .displaySmall!
-                                        .color!;
+                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileTextColor
+                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
 
                                 return AddressCell.fromItem(item,
                                     isCurrent: isCurrent,
