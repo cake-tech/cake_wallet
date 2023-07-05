@@ -6,6 +6,7 @@ import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
+import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
@@ -86,6 +87,10 @@ class BrightTheme extends LightTheme {
       secondGradientColor: Palette.pinkFlamingo);
 
   @override
+  PlaceholderTheme get placeholderTheme =>
+      PlaceholderTheme(color: Colors.white.withOpacity(0.5));
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       hoverColor: Colors.white, // amount hint text (receive page)
@@ -147,7 +152,6 @@ class BrightTheme extends LightTheme {
               ),
           labelSmall: TextStyle(
             color: Palette.darkGray, // transaction/trade details titles
-            decorationColor: Colors.white.withOpacity(0.5), // placeholder
           ),
         ),
       );

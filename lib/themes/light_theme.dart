@@ -13,6 +13,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -158,6 +159,10 @@ class LightTheme extends ThemeBase {
       SeedWidgetTheme(hintTextColor: Palette.darkGray);
 
   @override
+  PlaceholderTheme get placeholderTheme =>
+      PlaceholderTheme(color: PaletteDark.darkCyanBlue);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
@@ -222,7 +227,6 @@ class LightTheme extends ThemeBase {
               ),
           labelSmall: TextStyle(
             color: Palette.darkGray, // transaction/trade details titles
-            decorationColor: PaletteDark.darkCyanBlue, // placeholder
           ),
       ),
       );

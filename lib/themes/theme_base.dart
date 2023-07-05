@@ -12,6 +12,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
@@ -91,6 +92,8 @@ abstract class ThemeBase {
 
   SeedWidgetTheme get seedWidgetTheme;
 
+  PlaceholderTheme get placeholderTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -115,6 +118,7 @@ abstract class ThemeBase {
         orderTheme,
         sendPageTheme,
         seedWidgetTheme,
+        placeholderTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),
