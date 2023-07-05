@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -128,6 +129,10 @@ class DarkTheme extends ThemeBase {
       PickerTheme(dividerColor: PaletteDark.dividerColor);
 
   @override
+  AlertTheme get alertTheme =>
+      AlertTheme(leftButtonTextColor: Palette.alizarinRed);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
@@ -232,10 +237,6 @@ class DarkTheme extends ThemeBase {
               backgroundColor:
                   Colors.white, // icon color on order row (moonpay)
               ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(
-              backgroundColor: Palette.alizarinRed // alert left button text
-          )
       ),
       );
 }

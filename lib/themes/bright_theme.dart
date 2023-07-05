@@ -175,9 +175,6 @@ class BrightTheme extends LightTheme {
             color: Palette.darkBlueCraiola, // template title (send page)
             backgroundColor: Colors.white, // icon color on order row (moonpay)
           ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(
-              backgroundColor: Palette.brightOrange // alert left button text
-              )),
+        ),
       );
 }

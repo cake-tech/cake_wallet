@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -68,10 +69,7 @@ class BaseAlertDialog extends StatelessWidget {
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
                       color: leftActionButtonTextColor ??
-                          Theme.of(context)
-                              .primaryTextTheme!
-                              .bodyLarge!
-                              .backgroundColor!,
+                          Theme.of(context).extension<AlertTheme>()!.leftButtonTextColor,
                       decoration: TextDecoration.none,
                     ),
                   )),
