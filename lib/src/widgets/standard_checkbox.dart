@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class StandardCheckbox extends StatelessWidget {
   StandardCheckbox(
@@ -21,8 +22,8 @@ class StandardCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-      Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+      Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+      Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(

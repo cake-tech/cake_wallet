@@ -4,6 +4,7 @@ import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class AnonpayCurrencyInputField extends StatelessWidget {
   const AnonpayCurrencyInputField(
@@ -66,10 +67,7 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                           child: Container(
                             height: 32,
                             decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headlineMedium!
-                                    .color!,
+                                color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                                 borderRadius: BorderRadius.all(Radius.circular(6))),
                             child: Center(
                               child: Padding(
@@ -79,10 +77,7 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headlineMedium!
-                                        .decorationColor!,
+                                    color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                   ),
                                 ),
                               ),

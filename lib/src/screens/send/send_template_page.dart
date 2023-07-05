@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/send/widgets/prefix_currency_icon_widget.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class SendTemplatePage extends BasePage {
   SendTemplatePage({required this.sendTemplateViewModel}) {
@@ -75,11 +76,8 @@ class SendTemplatePage extends BasePage {
                   bottomRight: Radius.circular(24),
                 ),
                 gradient: LinearGradient(colors: [
-                  Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                  Theme.of(context)
-                      .primaryTextTheme!
-                      .titleMedium!
-                      .decorationColor!,
+                  Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                  Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                 ], begin: Alignment.topLeft, end: Alignment.bottomRight),
               ),
               child: Form(
@@ -93,19 +91,13 @@ class SendTemplatePage extends BasePage {
                           BaseTextFormField(
                             controller: _nameController,
                             hintText: S.of(context).send_name,
-                            borderColor: Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineSmall!
-                                .color!,
+                            borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                             textStyle: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white),
                             placeholderTextStyle: TextStyle(
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headlineSmall!
-                                    .decorationColor!,
+                                color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14),
                             validator: sendTemplateViewModel.templateValidator,
@@ -124,14 +116,8 @@ class SendTemplatePage extends BasePage {
                                 AddressTextFieldOption.qrCode,
                                 AddressTextFieldOption.addressBook
                               ],
-                              buttonColor: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineMedium!
-                                  .color!,
-                              borderColor: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineSmall!
-                                  .color!,
+                              buttonColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                              borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                               textStyle: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -139,10 +125,7 @@ class SendTemplatePage extends BasePage {
                               hintStyle: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .headlineSmall!
-                                      .decorationColor!),
+                                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                             ),
                           ),
                           Padding(
@@ -171,19 +154,13 @@ class SendTemplatePage extends BasePage {
                                             .isCurrencySelected,
                                       )),
                                   hintText: '0.0000',
-                                  borderColor: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .headlineSmall!
-                                      .color!,
+                                  borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                                   textStyle: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.white),
                                   placeholderTextStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineSmall!
-                                          .decorationColor!,
+                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14),
                                   validator:
@@ -213,19 +190,13 @@ class SendTemplatePage extends BasePage {
                                           .isFiatSelected,
                                     )),
                                 hintText: '0.00',
-                                borderColor: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headlineSmall!
-                                    .color!,
+                                borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                                 textStyle: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.white),
                                 placeholderTextStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headlineSmall!
-                                        .decorationColor!,
+                                    color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 14),
                               ))),

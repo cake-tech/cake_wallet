@@ -19,6 +19,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaBuyGiftCardDetailPage extends BasePage {
   IoniaBuyGiftCardDetailPage(this.ioniaPurchaseViewModel);
@@ -97,8 +98,8 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                      Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+                      Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                      Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -460,8 +461,8 @@ class TipButton extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                    Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

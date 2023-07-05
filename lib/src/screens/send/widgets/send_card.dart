@@ -18,6 +18,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -125,11 +126,8 @@ class SendCardState extends State<SendCard>
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24)),
             gradient: LinearGradient(colors: [
-              Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-              Theme.of(context)
-                  .primaryTextTheme!
-                  .titleMedium!
-                  .decorationColor!,
+              Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+              Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
             ], begin: Alignment.topLeft, end: Alignment.bottomRight),
           ) : null,
           child: Padding(
@@ -162,14 +160,8 @@ class SendCardState extends State<SendCard>
                           AddressTextFieldOption.qrCode,
                           AddressTextFieldOption.addressBook
                         ],
-                        buttonColor: Theme.of(context)
-                            .primaryTextTheme!
-                            .headlineMedium!
-                            .color!,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme!
-                            .headlineSmall!
-                            .color!,
+                        buttonColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                        borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         textStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -177,10 +169,7 @@ class SendCardState extends State<SendCard>
                         hintStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineSmall!
-                                .decorationColor!),
+                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                         onPushPasteButton: (context) async {
                           output.resetParsedAddress();
                           await output.fetchParsedAddress(context);
@@ -198,10 +187,7 @@ class SendCardState extends State<SendCard>
                       child: BaseTextFormField(
                         controller: extractedAddressController,
                         readOnly: true,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme!
-                            .headlineSmall!
-                            .color!,
+                        borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         textStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -230,10 +216,7 @@ class SendCardState extends State<SendCard>
                                         child: Container(
                                           height: 32,
                                           decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .primaryTextTheme!
-                                                  .headlineMedium!
-                                                  .color!,
+                                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                                               borderRadius:
                                               BorderRadius.all(Radius.circular(6))),
                                           child: Center(
@@ -243,10 +226,7 @@ class SendCardState extends State<SendCard>
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight: FontWeight.bold,
-                                                      color: Theme.of(context)
-                                                          .primaryTextTheme!
-                                                          .headlineMedium!
-                                                          .decorationColor!)),
+                                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
                                             ),
                                           ),
                                         ),
@@ -284,10 +264,7 @@ class SendCardState extends State<SendCard>
                                                 fontWeight: FontWeight.w500,
                                                 color: Colors.white),
                                             placeholderTextStyle: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryTextTheme!
-                                                    .headlineSmall!
-                                                    .decorationColor!,
+                                                color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                                                 fontWeight: FontWeight.w500,
                                                 fontSize: 14),
                                             validator: output.sendAll
@@ -305,10 +282,7 @@ class SendCardState extends State<SendCard>
                                                         output.setSendAll(),
                                                     child: Container(
                                                       decoration: BoxDecoration(
-                                                          color: Theme.of(context)
-                                                              .primaryTextTheme!
-                                                              .headlineMedium!
-                                                              .color!,
+                                                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                                                           borderRadius:
                                                           BorderRadius.all(
                                                               Radius.circular(6))),
@@ -322,19 +296,13 @@ class SendCardState extends State<SendCard>
                                                                   fontWeight:
                                                                   FontWeight.bold,
                                                                   color:
-                                                                  Theme.of(context)
-                                                                      .primaryTextTheme!
-                                                                      .headlineMedium!
-                                                                      .decorationColor!))),
+                                                                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor))),
                                                     ))))]),
                                 ),
                               ],
                             )
                         )),
-                    Divider(height: 1,color: Theme.of(context)
-                        .primaryTextTheme!
-                        .headlineSmall!
-                        .decorationColor!),
+                    Divider(height: 1,color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                     Observer(
                         builder: (_) => Padding(
                           padding: EdgeInsets.only(top: 10),
@@ -350,20 +318,14 @@ class SendCardState extends State<SendCard>
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: Theme.of(context)
-                                            .primaryTextTheme!
-                                            .headlineSmall!
-                                            .decorationColor!),
+                                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                                   )),
                               Text(
                                 sendViewModel.balance,
                                 style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headlineSmall!
-                                        .decorationColor!),
+                                    color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                               )
                             ],
                           ),
@@ -391,17 +353,13 @@ class SendCardState extends State<SendCard>
                                 )),
                           ),
                           hintText: '0.00',
-                          borderColor: Theme.of(context)
-                              .primaryTextTheme!
-                              .headlineSmall!
-                              .color!,
+                          borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           textStyle: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: Colors.white),
                           placeholderTextStyle: TextStyle(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!.headlineSmall!.decorationColor!,
+                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                               fontWeight: FontWeight.w500,
                               fontSize: 14),
                         )),
@@ -411,10 +369,7 @@ class SendCardState extends State<SendCard>
                         controller: noteController,
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme!
-                            .headlineSmall!
-                            .color!,
+                        borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         textStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -423,10 +378,7 @@ class SendCardState extends State<SendCard>
                         placeholderTextStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineSmall!
-                                .decorationColor!),
+                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                       ),
                     ),
                     Observer(
@@ -448,7 +400,7 @@ class SendCardState extends State<SendCard>
                                         fontSize: 12,
                                         fontWeight:
                                         FontWeight.w500,
-                                        //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
+                                        //color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor,
                                         color: Colors.white)),
                                 Container(
                                   child: Row(
@@ -469,7 +421,7 @@ class SendCardState extends State<SendCard>
                                                   fontSize: 12,
                                                   fontWeight:
                                                   FontWeight.w600,
-                                                  //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
+                                                  //color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor,
                                                   color:
                                                   Colors.white)),
                                           Padding(
@@ -487,10 +439,7 @@ class SendCardState extends State<SendCard>
                                                       fontWeight:
                                                       FontWeight.w600,
                                                       color: Theme
-                                                          .of(context)
-                                                          .primaryTextTheme!
-                                                          .headlineSmall!
-                                                          .decorationColor!))
+                                                          .of(context).extension<SendPageTheme>()!.textFieldHintColor))
                                           ),
                                         ],
                                       ),

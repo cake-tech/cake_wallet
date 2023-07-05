@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/widgets.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class SeedWidget extends StatefulWidget {
   SeedWidget({
@@ -128,10 +129,7 @@ class SeedWidgetState extends State<SeedWidget> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/paste_ios.png',
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineMedium!
-                                  .decorationColor!)),
+                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
                     )))
           ]),
           Container(

@@ -13,6 +13,7 @@ import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.da
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaDebitCardPage extends BasePage {
   final IoniaGiftCardsListViewModel _cardsListViewModel;
@@ -275,8 +276,8 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-            Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+            Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+            Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

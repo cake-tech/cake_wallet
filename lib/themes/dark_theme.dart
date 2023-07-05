@@ -13,6 +13,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
@@ -137,6 +138,20 @@ class DarkTheme extends ThemeBase {
   OrderTheme get orderTheme => OrderTheme(iconColor: Colors.white);
 
   @override
+  SendPageTheme get sendPageTheme => SendPageTheme(
+      templateTitleColor: PaletteDark.cyanBlue,
+      templateBackgroundColor: PaletteDark.darkVioletBlue,
+      templateNewTextColor: PaletteDark.darkCyanBlue,
+      templateDottedBorderColor: PaletteDark.darkCyanBlue,
+      estimatedFeeColor: Colors.white,
+      textFieldButtonIconColor: PaletteDark.gray,
+      textFieldButtonColor: PaletteDark.buttonNightBlue,
+      textFieldHintColor: PaletteDark.darkCyanBlue,
+      textFieldBorderColor: PaletteDark.lightVioletBlue,
+      secondGradientColor: PaletteDark.darkNightBlue,
+      firstGradientColor: PaletteDark.darkNightBlue);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       hoverColor: PaletteDark.cyanBlue, // amount hint text (receive page)
@@ -202,43 +217,6 @@ class DarkTheme extends ThemeBase {
                 PaletteDark.lightBlueGrey, // transaction/trade details titles
             decorationColor: Colors.grey, // placeholder
           ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-              color:
-                  PaletteDark.darkNightBlue, // first gradient color (send page)
-              decorationColor:
-                  PaletteDark.darkNightBlue // second gradient color (send page)
-              ),
-          // headline -> headlineSmall
-          headlineSmall: TextStyle(
-            color: PaletteDark
-                .lightVioletBlue, // text field border color (send page)
-            decorationColor:
-                PaletteDark.darkCyanBlue, // text field hint color (send page)
-          ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-              color: PaletteDark
-                  .buttonNightBlue, // text field button color (send page)
-              decorationColor:
-                  PaletteDark.gray // text field button icon color (send page)
-              ),
-          // display2 -> displaySmall
-          displaySmall: TextStyle(
-              color: Colors.white, // estimated fee (send page)
-              decorationColor:
-                  PaletteDark.darkCyanBlue // template dotted border (send page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: PaletteDark.darkCyanBlue, // template new text (send page)
-              decorationColor: PaletteDark
-                  .darkVioletBlue // template background color (send page)
-              ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-              color: PaletteDark.cyanBlue, // template title (send page)
-              ),
       ),
       );
 }

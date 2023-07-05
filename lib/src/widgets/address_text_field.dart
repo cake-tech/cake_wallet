@@ -8,6 +8,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook }
 
@@ -126,10 +127,7 @@ class AddressTextField extends StatelessWidget {
                               child: Image.asset(
                                 'assets/images/paste_ios.png',
                                 color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headlineMedium!
-                                        .decorationColor!,
+                                    Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                               )),
                         )),
                   ],
@@ -151,9 +149,7 @@ class AddressTextField extends StatelessWidget {
                               child: Image.asset(
                                 'assets/images/qr_code_icon.png',
                                 color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme!.headlineMedium!
-                                        .decorationColor!,
+                                    Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                               )),
                         ))
                   ] else SizedBox(width: 5),
@@ -176,10 +172,7 @@ class AddressTextField extends StatelessWidget {
                               child: Image.asset(
                                 'assets/images/open_book.png',
                                 color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headlineMedium!
-                                        .decorationColor!,
+                                    Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                               )),
                         ))
                   ]

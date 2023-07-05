@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaCustomRedeemPage extends BasePage {
   IoniaCustomRedeemPage(
@@ -71,11 +72,8 @@ class IoniaCustomRedeemPage extends BasePage {
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                    Theme.of(context)
-                        .primaryTextTheme!
-                        .titleMedium!
-                        .decorationColor!,
+                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -90,17 +88,11 @@ class IoniaCustomRedeemPage extends BasePage {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\-|\ ]'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
-                        color: Theme.of(context)
-                            .primaryTextTheme!
-                            .headlineSmall!
-                            .color!,
+                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         fontWeight: FontWeight.w500,
                         fontSize: 36,
                       ),
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme!
-                          .headlineSmall!
-                          .color!,
+                      borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                       textColor: Colors.white,
                       textStyle: TextStyle(
                         color: Colors.white,
@@ -131,10 +123,7 @@ class IoniaCustomRedeemPage extends BasePage {
                               child: Text(
                                 '\$${giftCard.remainingAmount} - \$${ioniaCustomRedeemViewModel.amount} = \$${ioniaCustomRedeemViewModel.formattedRemaining} ${S.of(context).remaining}',
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .headlineSmall!
-                                      .color!,
+                                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                                 ),
                               ),
                             )

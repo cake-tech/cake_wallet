@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class CurrencyInputField extends StatelessWidget {
   const CurrencyInputField({
@@ -48,7 +49,7 @@ class CurrencyInputField extends StatelessWidget {
               placeholderTextStyle: isLight
                   ? null
                   : TextStyle(
-                      color: Theme.of(context).primaryTextTheme!.headlineSmall!.color!,
+                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                       fontWeight: FontWeight.w600,
                     ),
               borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
@@ -85,7 +86,7 @@ class CurrencyInputField extends StatelessWidget {
                               padding: const EdgeInsets.only(right: 3.0),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryTextTheme!.headlineMedium!.color!,
+                                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                                   borderRadius: BorderRadius.all(
                                     Radius.circular(6),
                                   ),
@@ -96,10 +97,7 @@ class CurrencyInputField extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                     ),
                                   ),
                                 ),

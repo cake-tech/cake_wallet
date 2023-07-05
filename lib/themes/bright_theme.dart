@@ -6,6 +6,7 @@ import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
@@ -79,6 +80,12 @@ class BrightTheme extends LightTheme {
   OrderTheme get orderTheme => OrderTheme(iconColor: Colors.white);
 
   @override
+  SendPageTheme get sendPageTheme => super.sendPageTheme.copyWith(
+      templateBackgroundColor: Palette.shadowWhite,
+      templateDotterBorderColor: Palette.shadowWhite,
+      secondGradientColor: Palette.pinkFlamingo);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       hoverColor: Colors.white, // amount hint text (receive page)
@@ -141,42 +148,6 @@ class BrightTheme extends LightTheme {
           labelSmall: TextStyle(
             color: Palette.darkGray, // transaction/trade details titles
             decorationColor: Colors.white.withOpacity(0.5), // placeholder
-          ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-              color: Palette.blueCraiola, // first gradient color (send page)
-              decorationColor:
-                  Palette.pinkFlamingo // second gradient color (send page)
-              ),
-          // headline -> headlineSmall
-          headlineSmall: TextStyle(
-            color: Colors.white
-                .withOpacity(0.5), // text field border color (send page)
-            decorationColor: Colors.white
-                .withOpacity(0.5), // text field hint color (send page)
-          ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.2), // text field button color (send page)
-              decorationColor:
-                  Colors.white // text field button icon color (send page)
-              ),
-          // display2 -> displaySmall
-          displaySmall: TextStyle(
-              color: Colors.white.withOpacity(0.5), // estimated fee (send page)
-              decorationColor:
-                  Palette.shadowWhite // template dotted border (send page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: Palette.darkBlueCraiola, // template new text (send page)
-              decorationColor:
-                  Palette.shadowWhite // template background color (send page)
-              ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-            color: Palette.darkBlueCraiola, // template title (send page)
           ),
         ),
       );

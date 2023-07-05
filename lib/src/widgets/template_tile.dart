@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class TemplateTile extends StatefulWidget {
   TemplateTile({
@@ -105,7 +106,7 @@ class TemplateTileState extends State<TemplateTile> {
             child: Container(
               height: 40,
               padding: EdgeInsets.only(left: 24, right: 24),
-              color: Theme.of(context).primaryTextTheme!.displayMedium!.decorationColor!,
+              color: Theme.of(context).extension<SendPageTheme>()!.templateBackgroundColor,
               child: content,
             ),
           ),

@@ -13,6 +13,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
@@ -138,6 +139,20 @@ class LightTheme extends ThemeBase {
   OrderTheme get orderTheme => OrderTheme(iconColor: Colors.black);
 
   @override
+  SendPageTheme get sendPageTheme => SendPageTheme(
+      templateTitleColor: Palette.darkBlueCraiola,
+      templateBackgroundColor: Palette.blueAlice,
+      templateNewTextColor: Palette.darkBlueCraiola,
+      templateDottedBorderColor: Palette.moderateLavender,
+      estimatedFeeColor: Colors.white.withOpacity(0.5),
+      textFieldButtonIconColor: Colors.white,
+      textFieldButtonColor: Colors.white.withOpacity(0.2),
+      textFieldHintColor: Colors.white.withOpacity(0.5),
+      textFieldBorderColor: Colors.white.withOpacity(0.5),
+      secondGradientColor: Palette.blueGreyCraiola,
+      firstGradientColor: Palette.blueCraiola);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor:
           PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
@@ -204,42 +219,6 @@ class LightTheme extends ThemeBase {
             color: Palette.darkGray, // transaction/trade details titles
             decorationColor: PaletteDark.darkCyanBlue, // placeholder
           ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-              color: Palette.blueCraiola, // first gradient color (send page)
-              decorationColor:
-                  Palette.blueGreyCraiola // second gradient color (send page)
-              ),
-          // headline -> headlineSmall
-          headlineSmall: TextStyle(
-            color: Colors.white
-                .withOpacity(0.5), // text field border color (send page)
-            decorationColor: Colors.white
-                .withOpacity(0.5), // text field hint color (send page)
-          ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.2), // text field button color (send page)
-              decorationColor:
-                  Colors.white // text field button icon color (send page)
-              ),
-          // display2 -> displaySmall
-          displaySmall: TextStyle(
-              color: Colors.white.withOpacity(0.5), // estimated fee (send page)
-              decorationColor:
-                  Palette.moderateLavender // template dotted border (send page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: Palette.darkBlueCraiola, // template new text (send page)
-              decorationColor:
-                  Palette.blueAlice // template background color (send page)
-              ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-              color: Palette.darkBlueCraiola, // template title (send page)
-              ),
       ),
       );
 }

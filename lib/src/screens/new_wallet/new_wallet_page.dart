@@ -18,6 +18,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM);
@@ -161,10 +162,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     height: 34,
                                     child: Image.asset(
                                       'assets/images/refresh_icon.png',
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                     ),
                                   ),
                                 ),

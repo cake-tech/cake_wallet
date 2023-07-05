@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaBuyGiftCardPage extends BasePage {
   IoniaBuyGiftCardPage(
@@ -73,11 +74,8 @@ class IoniaBuyGiftCardPage extends BasePage {
                     bottomRight: Radius.circular(24),
                   ),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                    Theme.of(context)
-                        .primaryTextTheme!
-                        .titleMedium!
-                        .decorationColor!,
+                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -99,10 +97,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                         ],
                         hintText: '1000',
                         placeholderTextStyle: TextStyle(
-                          color: Theme.of(context)
-                              .primaryTextTheme!
-                              .headlineSmall!
-                              .color!,
+                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           fontWeight: FontWeight.w600,
                           fontSize: 36,
                         ),
@@ -122,10 +117,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                       ),
                     ),
                     Divider(
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .headlineSmall!
-                          .color!,
+                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                       height: 1,
                     ),
                     SizedBox(height: 8),
@@ -136,19 +128,13 @@ class IoniaBuyGiftCardPage extends BasePage {
                         Text(
                           S.of(context).min_amount(merchant.minimumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineSmall!
-                                .color!,
+                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           ),
                         ),
                         Text(
                           S.of(context).max_amount(merchant.maximumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineSmall!
-                                .color!,
+                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           ),
                         ),
                       ],

@@ -13,6 +13,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class ExchangeCard extends StatefulWidget {
   ExchangeCard(
@@ -161,7 +162,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme!.displaySmall!.color!);
+        color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor);
 
     return Container(
       width: double.infinity,
@@ -212,10 +213,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                     height: 32,
                     decoration: BoxDecoration(
                         color: widget.addressButtonsColor ??
-                            Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineMedium!
-                                .color!,
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                         borderRadius:
                         BorderRadius.all(Radius.circular(6))),
                     child: Center(
@@ -225,10 +223,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headlineMedium!
-                                    .decorationColor!)),
+                                color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
                       ),
                     ),
                   ),
@@ -280,10 +275,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                           height: 32,
                           width: 32,
                           decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineMedium!
-                                  .color!,
+                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                               borderRadius:
                               BorderRadius.all(Radius.circular(6))),
                           child: InkWell(
@@ -294,10 +286,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineMedium!
-                                          .decorationColor!)),
+                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
                             ),
                           ),
                         )
@@ -308,10 +297,7 @@ class ExchangeCardState extends State<ExchangeCard> {
             )),
         Divider(
             height: 1,
-            color: Theme.of(context)
-                .primaryTextTheme!
-                .headlineSmall!
-                .decorationColor!),
+            color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
         Padding(
           padding: EdgeInsets.only(top: 5),
           child: Container(
@@ -458,10 +444,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                                                   6))),
                                                   child: Image.asset(
                                                     'assets/images/open_book.png',
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme!
-                                                        .headlineMedium!
-                                                        .decorationColor!,
+                                                    color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                                   )),
                                             )),
                                       ),

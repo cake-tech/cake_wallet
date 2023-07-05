@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -103,10 +104,8 @@ class PreOrderPage extends BasePage {
                           bottomLeft: Radius.circular(24),
                           bottomRight: Radius.circular(24)),
                       gradient: LinearGradient(colors: [
-                        Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                        Theme.of(context)
-                            .primaryTextTheme!.titleMedium!
-                            .decorationColor!,
+                        Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                        Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                       ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     ),
                   child: Padding(
@@ -165,7 +164,7 @@ class PreOrderPage extends BasePage {
                           borderWidth: 0.5,
                           textStyle: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.white),
                           placeholderTextStyle: TextStyle(
-                            color: Theme.of(context).primaryTextTheme!.headlineSmall!.decorationColor!,
+                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                             fontWeight: FontWeight.w500,
                             fontSize: 36,
                           ),
