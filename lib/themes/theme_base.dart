@@ -104,6 +104,8 @@ abstract class ThemeBase {
 
   ReceivePageTheme get receivePageTheme;
 
+  QRCodeTheme get qrCodeTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -133,6 +135,7 @@ abstract class ThemeBase {
         cakeTextTheme,
         accountListTheme,
         receivePageTheme,
+        qrCodeTheme,
       ],
       scrollbarTheme: ScrollbarThemeData(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),

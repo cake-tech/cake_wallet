@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_status_section.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/copy_link_item.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
@@ -68,7 +69,7 @@ class AnonPayReceivePage extends BasePage {
           style: TextStyle(
               fontSize: 10.0,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).textTheme!.headlineSmall!.color!),
+              color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor),
         )
       ],
     );

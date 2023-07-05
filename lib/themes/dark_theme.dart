@@ -190,6 +190,11 @@ class DarkTheme extends ThemeBase {
       amountHintTextColor: PaletteDark.cyanBlue);
 
   @override
+  QRCodeTheme get qrCodeTheme => QRCodeTheme(
+      qrCodeColor: PaletteDark.lightBlueGrey,
+      qrWidgetCopyButtonColor: PaletteDark.lightBlueGrey);
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: PaletteDark.cyanBlue, // page indicator
       dividerColor: PaletteDark.dividerColor,
@@ -206,11 +211,6 @@ class DarkTheme extends ThemeBase {
           // subhead -> titleMedium
           titleMedium: TextStyle(
             color: PaletteDark.nightBlue, // address button border
-            decorationColor: PaletteDark.lightBlueGrey, // copy button (qr widget)
-          ),
-          // headline -> headlineSmall
-          headlineSmall: TextStyle(
-            color: PaletteDark.lightBlueGrey, // qr code
           ),
       ),
       );

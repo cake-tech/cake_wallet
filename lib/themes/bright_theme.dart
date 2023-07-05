@@ -106,6 +106,11 @@ class BrightTheme extends LightTheme {
       );
 
   @override
+  QRCodeTheme get qrCodeTheme => super
+      .qrCodeTheme
+      .copyWith(qrWidgetCopyButtonColor: Colors.white.withOpacity(0.4));
+
+  @override
   ThemeData get themeData => super.themeData.copyWith(
       indicatorColor: Colors.white.withOpacity(0.5), // page indicator
       dividerColor: Palette.paleBlue,
@@ -120,10 +125,6 @@ class BrightTheme extends LightTheme {
             color: Colors.white.withOpacity(0.2), // address button border
             decorationColor:
                 Colors.white.withOpacity(0.4), // copy button (qr widget)
-          ),
-          // headline -> headlineSmall
-          headlineSmall: TextStyle(
-            color: Colors.white, // qr code
           ),
           ),
       );

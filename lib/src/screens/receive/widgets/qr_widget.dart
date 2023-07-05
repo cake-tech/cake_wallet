@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
@@ -36,7 +37,7 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).textTheme!.titleMedium!.decorationColor!);
+        color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

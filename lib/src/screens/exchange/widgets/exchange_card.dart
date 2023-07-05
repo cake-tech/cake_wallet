@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -177,7 +178,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme!.headlineSmall!.color!),
+                  color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor),
             )
           ],
         ),
