@@ -184,9 +184,5 @@ class BrightTheme extends LightTheme {
         titleLarge: TextStyle(
           backgroundColor: Palette.periwinkleCraiola, // picker divider
         ),
-        bodySmall: TextStyle(
-          decorationColor:
-              Palette.darkBlueCraiola, // text color (information page)
-        ),
       ));
 }

@@ -5,6 +5,7 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
+import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
@@ -117,6 +118,9 @@ class DarkTheme extends ThemeBase {
   WalletListTheme get walletListTheme => WalletListTheme(
       restoreWalletButtonTextColor: Palette.darkBlueCraiola,
       createNewWalletButtonBackgroundColor: Colors.white);
+
+  @override
+  InfoTheme get infoTheme => InfoTheme(textColor: Palette.darkLavender);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
@@ -233,9 +237,6 @@ class DarkTheme extends ThemeBase {
         titleLarge: TextStyle(
             backgroundColor: PaletteDark.dividerColor, // picker divider
             ),
-        bodySmall: TextStyle(
-          decorationColor: Palette.darkLavender, // text color (information page)
-        ),
       ),
       );
 }
