@@ -13,6 +13,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -151,6 +152,10 @@ class LightTheme extends ThemeBase {
       textFieldBorderColor: Colors.white.withOpacity(0.5),
       secondGradientColor: Palette.blueGreyCraiola,
       firstGradientColor: Palette.blueCraiola);
+
+  @override
+  SeedWidgetTheme get seedWidgetTheme =>
+      SeedWidgetTheme(hintTextColor: Palette.darkGray);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(

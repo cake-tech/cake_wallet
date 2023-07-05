@@ -5,6 +5,8 @@ import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
@@ -319,10 +321,7 @@ class SendPage extends BasePage {
                             text:
                                 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                             color: Colors.transparent,
-                            textColor: Theme.of(context)
-                                .accentTextTheme
-                                !.displaySmall!
-                                .decorationColor!,
+                            textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                           ))),
                 if (sendViewModel.hasMultiRecipient)
                   Padding(
@@ -337,15 +336,9 @@ class SendPage extends BasePage {
                         },
                         text: S.of(context).add_receiver,
                         color: Colors.transparent,
-                        textColor: Theme.of(context)
-                            .accentTextTheme
-                            !.displaySmall!
-                            .decorationColor!,
+                        textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                         isDottedBorder: true,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme
-                            !.displaySmall!
-                            .decorationColor!,
+                        borderColor: Theme.of(context).extension<SendPageTheme>()!.templateDottedBorderColor,
                       )),
                 Observer(
                   builder: (_) {
