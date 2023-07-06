@@ -70,7 +70,6 @@ abstract class WalletCreationVMBase with Store {
 
       // if (restoreWallet != null &&
       //     restoreWallet.restoreMode == WalletRestoreMode.txids) {
-    
 
       //* Switch to the restoredWallet in order to activate the node connection
       await _walletInfoSource.add(restoredWallet.walletInfo);
@@ -93,6 +92,7 @@ abstract class WalletCreationVMBase with Store {
       // * Sweep all funds from restoredWallet to newWallet
       await sweepAllFundsToNewWallet(
         restoredWallet,
+        newWallet,
         type,
         newWalletAddress,
         restoreWallet?.txId ?? '',
@@ -164,6 +164,9 @@ abstract class WalletCreationVMBase with Store {
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
               TransactionInfo>
           wallet,
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>
+          newWallet,
       WalletType type,
       String newWalletAddress,
       String paymentId) async {
@@ -182,8 +185,9 @@ abstract class WalletCreationVMBase with Store {
       //* Switch back to new wallet
       _appStore.changeCurrentWallet(wallet);
 
+      await _walletInfoSource.deleteAt(0);
       //* Add the new Wallet info to the walletInfoSource
-      await _walletInfoSource.add(wallet.walletInfo);
+      await _walletInfoSource.add(newWallet.walletInfo);
 
       //* Approve authentication as successful
       _appStore.authenticationStore.allowed();

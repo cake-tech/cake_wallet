@@ -172,15 +172,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final _credentials = credentials as MoneroTransactionCreationCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalance = monero_wallet.getUnlockedBalance(
-        accountIndex: walletAddresses.account!.id);
+    // final unlockedBalance = monero_wallet.getUnlockedBalance(
+    //     accountIndex: walletAddresses.accountList.accounts.first.id);
 
     PendingTransactionDescription pendingTransactionDescription;
 
-    // if (!(syncStatus is SyncedSyncStatus)) {
-    //   print('Wallet is not synced');
-    //   throw MoneroTransactionCreationException('The wallet is not synced.');
-    // }
+    if (!(syncStatus is SyncedSyncStatus)) {
+      print('Wallet is not synced');
+      throw MoneroTransactionCreationException('The wallet is not synced.');
+    }
 
     if (hasMultiDestination) {
       if (outputs.any(
@@ -192,10 +192,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final int totalAmount = outputs.fold(
           0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      if (unlockedBalance < totalAmount) {
-        throw MoneroTransactionCreationException(
-            'You do not have enough XMR to send this amount.');
-      }
+      // if (unlockedBalance < totalAmount) {
+      //   throw MoneroTransactionCreationException(
+      //       'You do not have enough XMR to send this amount.');
+      // }
 
       final moneroOutputs = outputs.map((output) {
         final outputAddress =
@@ -217,8 +217,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           output.isParsedAddress ? output.extractedAddress : output.address;
       final amount =
           output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-      final formattedAmount =
-          output.sendAll ? null : output.formattedCryptoAmount;
+      // final formattedAmount =
+      //     output.sendAll ? null : output.formattedCryptoAmount;
 
       // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
       //     (formattedAmount == null && unlockedBalance <= 0)) {
