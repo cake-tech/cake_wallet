@@ -38,6 +38,21 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           iconPath: iconPath,
         );
 
+  Erc20Token.copyWith(Erc20Token other, String? icon)
+      : this.name = other.name,
+        this.symbol = other.symbol,
+        this.contractAddress = other.contractAddress,
+        this.decimal = other.decimal,
+        this._enabled = other.enabled,
+        this.iconPath = icon,
+        super(
+          name: other.name,
+          title: other.symbol.toUpperCase(),
+          fullName: other.name,
+          tag: "ETH",
+          iconPath: icon,
+        );
+
   static const typeId = 12;
   static const boxName = 'Erc20Tokens';
 

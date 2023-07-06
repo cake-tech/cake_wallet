@@ -75,9 +75,17 @@ abstract class HomeSettingsViewModelBase with Store {
 
   @action
   void _updateTokensList() {
-    int _sortFunc(e1, e2) {
+    int _sortFunc(Erc20Token e1, Erc20Token e2) {
       int index1 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e1);
       int index2 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e2);
+
+      if (e1.enabled && !e2.enabled) {
+        return -1;
+      } else if (e2.enabled && !e1.enabled) {
+        return 1;
+      } else if (!e1.enabled && !e2.enabled) { // if both are disabled then sort alphabetically
+        return e1.name.compareTo(e2.name);
+      }
 
       return index1.compareTo(index2);
     }
