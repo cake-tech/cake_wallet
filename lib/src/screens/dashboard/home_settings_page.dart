@@ -96,61 +96,65 @@ class HomeSettingsPage extends BasePage {
               ),
             ],
           ),
-          Observer(
-            builder: (_) => ListView.builder(
-              itemCount: _homeSettingsViewModel.tokens.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Container(
-                  margin: EdgeInsets.only(top: 16, left: 16, right: 16),
-                  child: Observer(
-                    builder: (_) {
-                      final token = _homeSettingsViewModel.tokens.elementAt(index);
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+            child: Observer(
+              builder: (_) => ListView.builder(
+                itemCount: _homeSettingsViewModel.tokens.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: EdgeInsets.only(top: 16),
+                    child: Observer(
+                      builder: (_) {
+                        final token = _homeSettingsViewModel.tokens.elementAt(index);
 
-                      return SettingsSwitcherCell(
-                        title: "${token.name} "
-                            "(${token.symbol})",
-                        value: token.enabled,
-                        onValueChange: (_, bool value) {
-                          _homeSettingsViewModel.changeTokenAvailability(token, value);
-                        },
-                        onTap: (_) {
-                          Navigator.pushNamed(context, Routes.editToken, arguments: {
-                            'homeSettingsViewModel': _homeSettingsViewModel,
-                            'token': token,
-                          });
-                        },
-                        leading: token.iconPath != null
-                            ? Container(
-                                child: Image.asset(
-                                  token.iconPath!,
+                        return SettingsSwitcherCell(
+                          title: "${token.name} "
+                              "(${token.symbol})",
+                          value: token.enabled,
+                          onValueChange: (_, bool value) {
+                            _homeSettingsViewModel.changeTokenAvailability(token, value);
+                          },
+                          onTap: (_) {
+                            Navigator.pushNamed(context, Routes.editToken, arguments: {
+                              'homeSettingsViewModel': _homeSettingsViewModel,
+                              'token': token,
+                            });
+                          },
+                          leading: token.iconPath != null
+                              ? Container(
+                                  child: Image.asset(
+                                    token.iconPath!,
+                                    height: 30.0,
+                                    width: 30.0,
+                                  ),
+                                )
+                              : Container(
                                   height: 30.0,
                                   width: 30.0,
-                                ),
-                              )
-                            : Container(
-                                height: 30.0,
-                                width: 30.0,
-                                child: Center(
-                                  child: Text(
-                                    token.symbol.substring(0, min(token.symbol.length, 2)),
-                                    style: TextStyle(fontSize: 11),
+                                  child: Center(
+                                    child: Text(
+                                      token.symbol.substring(0, min(token.symbol.length, 2)),
+                                      style: TextStyle(fontSize: 11),
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey.shade400,
                                   ),
                                 ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).accentTextTheme.bodySmall!.color!,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],
