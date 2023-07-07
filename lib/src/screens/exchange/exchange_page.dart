@@ -78,7 +78,10 @@ class ExchangePage extends BasePage {
   String get title => S.current.exchange;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get gradientBackground => true;
+
+  @override
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -113,7 +116,7 @@ class ExchangePage extends BasePage {
   @override
   Widget? leading(BuildContext context) {
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor,
+      color: titleColor(context),
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark

@@ -25,9 +25,6 @@ class BuyWebViewPage extends BasePage {
   Color get backgroundDarkColor => Colors.white;
 
   @override
-  Color get titleColor => Palette.darkBlueCraiola;
-
-  @override
   Widget body(BuildContext context) =>
       BuyWebViewPageBody(buyViewModel, ordersStore: ordersStore, url: url);
 }

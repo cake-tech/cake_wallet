@@ -105,7 +105,7 @@ class YatEmojiId extends StatelessWidget {
                                           fontSize: 18,
                                           fontWeight: FontWeight.normal,
                                           fontFamily: 'Lato',
-                                          color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                                           decoration: TextDecoration.none,
                                         )
                                     )

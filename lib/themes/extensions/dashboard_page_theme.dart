@@ -6,15 +6,21 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
   final Color secondGradientBackgroundColor;
   final Color thirdGradientBackgroundColor;
   final Color textColor;
+  final Color pageTitleTextColor;
+  final Color mainActionsIconColor;
 
-  final IndicatorDotTheme? indicatorDotTheme;
+  final IndicatorDotTheme indicatorDotTheme;
 
   DashboardPageTheme(
       {required this.firstGradientBackgroundColor,
       required this.secondGradientBackgroundColor,
       required this.thirdGradientBackgroundColor,
       required this.textColor,
-      this.indicatorDotTheme});
+      required this.indicatorDotTheme,
+      Color? mainActionsIconColor,
+      Color? pageTitleTextColor})
+      : pageTitleTextColor = pageTitleTextColor ?? textColor,
+        mainActionsIconColor = mainActionsIconColor ?? textColor;
 
   @override
   DashboardPageTheme copyWith(
@@ -22,7 +28,9 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
           Color? secondGradientBackgroundColor,
           Color? thirdGradientBackgroundColor,
           Color? textColor,
-          IndicatorDotTheme? indicatorDotTheme}) =>
+          IndicatorDotTheme? indicatorDotTheme,
+          Color? pageTitleTextColor,
+          Color? mainActionsIconColor}) =>
       DashboardPageTheme(
           firstGradientBackgroundColor:
               firstGradientBackgroundColor ?? this.firstGradientBackgroundColor,
@@ -31,7 +39,10 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
           thirdGradientBackgroundColor:
               thirdGradientBackgroundColor ?? this.thirdGradientBackgroundColor,
           textColor: textColor ?? this.textColor,
-          indicatorDotTheme: indicatorDotTheme ?? this.indicatorDotTheme);
+          indicatorDotTheme: indicatorDotTheme ?? this.indicatorDotTheme,
+          pageTitleTextColor: pageTitleTextColor ?? this.pageTitleTextColor,
+          mainActionsIconColor:
+              mainActionsIconColor ?? this.mainActionsIconColor);
 
   @override
   DashboardPageTheme lerp(ThemeExtension<DashboardPageTheme>? other, double t) {
@@ -50,6 +61,12 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
                 other.thirdGradientBackgroundColor, t) ??
             thirdGradientBackgroundColor,
         textColor: Color.lerp(textColor, other.textColor, t) ?? textColor,
-        indicatorDotTheme: indicatorDotTheme?.lerp(other.indicatorDotTheme, t));
+        indicatorDotTheme: indicatorDotTheme.lerp(other.indicatorDotTheme, t),
+        pageTitleTextColor:
+            Color.lerp(pageTitleTextColor, other.pageTitleTextColor, t) ??
+                pageTitleTextColor,
+        mainActionsIconColor:
+            Color.lerp(mainActionsIconColor, other.mainActionsIconColor, t) ??
+                mainActionsIconColor);
   }
 }

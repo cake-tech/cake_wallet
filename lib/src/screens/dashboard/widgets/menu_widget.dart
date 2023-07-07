@@ -85,9 +85,9 @@ class MenuWidgetState extends State<MenuWidget> {
     final itemCount = SettingActions.all.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
-        color: Theme.of(context).extension<CakeMenuTheme>()!.subnameTextColor);
+        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
-        color: Theme.of(context).extension<CakeMenuTheme>()!.subnameTextColor);
+        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
     litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
     havenIcon = Image.asset('assets/images/haven_menu.png');
 

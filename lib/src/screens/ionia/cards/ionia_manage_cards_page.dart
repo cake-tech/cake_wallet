@@ -45,9 +45,6 @@ class IoniaManageCardsPage extends BasePage {
   bool get gradientBackground => true;
 
   @override
-  Color get titleColor => currentTheme.type == ThemeType.bright ? Colors.white : Colors.black;
-
-  @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
       (BuildContext context, Widget scaffold) =>
           GradientBackground(scaffold: scaffold);
@@ -228,7 +225,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               subTitle: merchant.avaibilityStatus,
               backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-              subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+              subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
               discount: merchant.discount,
             );
           },
@@ -288,7 +285,7 @@ class _SearchWidget extends StatelessWidget {
           fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
-            color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
           ),
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,

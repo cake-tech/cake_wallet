@@ -38,6 +38,8 @@ class BrightTheme extends LightTheme {
           firstGradientBackgroundColor: Palette.blueCraiola,
           secondGradientBackgroundColor: Palette.pinkFlamingo,
           thirdGradientBackgroundColor: Palette.redHat,
+          pageTitleTextColor: Colors.white,
+          mainActionsIconColor: Colors.white,
           textColor: Colors.white,
           indicatorDotTheme: IndicatorDotTheme(
               indicatorColor: Colors.white.withOpacity(0.5),
@@ -58,24 +60,24 @@ class BrightTheme extends LightTheme {
       firstGradientTopPanelColor: Palette.blueCraiola);
 
   @override
-  NewWalletTheme get newWalletTheme => NewWalletTheme(
+  NewWalletTheme get newWalletTheme => super.newWalletTheme.copyWith(
       hintTextColor: Palette.darkGray,
       underlineColor: Palette.periwinkleCraiola);
 
   @override
-  BalancePageTheme get balancePageTheme =>
-      BalancePageTheme(textColor: Colors.white.withOpacity(0.5));
+  BalancePageTheme get balancePageTheme => super
+      .balancePageTheme
+      .copyWith(labelTextColor: Colors.white.withOpacity(0.5));
 
   @override
-  CakeMenuTheme get menuTheme => super.menuTheme.copyWith(
-      headerSecondGradientColor: Palette.pinkFlamingo,
-      iconColor: PaletteDark.pigeonBlue);
+  CakeMenuTheme get menuTheme =>
+      super.menuTheme.copyWith(headerSecondGradientColor: Palette.pinkFlamingo);
 
   @override
   FilterTheme get filterTheme => super.filterTheme.copyWith(
+      checkboxSecondGradientColor: Palette.pinkFlamingo,
       checkboxBackgroundColor: Colors.white,
-      buttonColor: Colors.white.withOpacity(0.2),
-      iconColor: Colors.white);
+      buttonColor: Colors.white.withOpacity(0.2));
 
   @override
   WalletListTheme get walletListTheme => super.walletListTheme.copyWith(
@@ -117,10 +119,4 @@ class BrightTheme extends LightTheme {
   CakeTextTheme get cakeTextTheme => super.cakeTextTheme.copyWith(
       addressButtonBorderColor: Colors.white.withOpacity(0.4),
       dateSectionRowColor: Colors.white.withOpacity(0.5));
-
-  @override
-  ThemeData get themeData => super.themeData.copyWith(
-      indicatorColor: Colors.white.withOpacity(0.5), // page indicator
-      dividerColor: Palette.paleBlue,
-      hintColor: Palette.gray);
 }

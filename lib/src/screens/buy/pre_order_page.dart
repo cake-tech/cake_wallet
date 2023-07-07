@@ -63,9 +63,6 @@ class PreOrderPage extends BasePage {
   String get title => S.current.buy + ' ' + walletTypeToString(buyViewModel.wallet.type);
 
   @override
-  Color get titleColor => Colors.white;
-
-  @override
   bool get resizeToAvoidBottomInset => false;
 
   @override

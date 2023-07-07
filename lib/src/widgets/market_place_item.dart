@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -31,7 +32,7 @@ class MarketPlaceItem extends StatelessWidget {
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withOpacity(0.20),
+                color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
               ),
             ),
             child:

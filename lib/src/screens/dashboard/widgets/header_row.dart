@@ -29,7 +29,7 @@ class HeaderRow extends StatelessWidget {
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor),
           ),
           GestureDetector(
             onTap: () {

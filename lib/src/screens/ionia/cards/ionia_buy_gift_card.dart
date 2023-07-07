@@ -33,9 +33,6 @@ class IoniaBuyGiftCardPage extends BasePage {
   String get title => S.current.enter_amount;
 
   @override
-  Color get titleColor => Colors.white;
-
-  @override
   bool get extendBodyBehindAppBar => true;
 
   @override

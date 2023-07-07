@@ -37,9 +37,6 @@ class SendTemplatePage extends BasePage {
   String get title => S.current.exchange_new_template;
 
   @override
-  Color get titleColor => Colors.white;
-
-  @override
   bool get extendBodyBehindAppBar => true;
 
   @override

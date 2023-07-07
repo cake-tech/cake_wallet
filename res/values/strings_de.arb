@@ -727,5 +727,11 @@
   "setup_2fa_text": "Cake 2FA ist NICHT so sicher wie eine Kühllagerung. 2FA schützt vor grundlegenden Arten von Angriffen, z. B. wenn Ihr Freund Ihren Fingerabdruck bereitstellt, während Sie schlafen.\n\n Cake 2FA schützt NICHT vor einem kompromittierten Gerät durch einen raffinierten Angreifer.\n\n Wenn Sie den Zugriff auf Ihre 2FA-Codes verlieren , VERLIEREN SIE DEN ZUGANG ZU DIESEM WALLET. Sie müssen Ihre Brieftasche aus mnemonic Seed wiederherstellen. SIE MÜSSEN DESHALB IHRE MNEMONISCHEN SEEDS SICHERN! Außerdem kann jemand mit Zugriff auf Ihre mnemonischen Seed(s) Ihr Geld stehlen und Cake 2FA umgehen.\n\n Cake-Supportmitarbeiter können Ihnen nicht helfen, wenn Sie den Zugriff auf Ihre mnemonischen Seed(s) verlieren, da Cake ein Brieftasche ohne Verwahrung.",
   "setup_totp_recommended": "TOTP einrichten (empfohlen)",
   "disable_buy": "Kaufaktion deaktivieren",
-  "disable_sell": "Verkaufsaktion deaktivieren"
+  "disable_sell": "Verkaufsaktion deaktivieren",
+  "monero_dark_theme": "Dunkles Monero-Thema",
+  "bitcoin_dark_theme": "Dunkles Bitcoin-Thema",
+  "bitcoin_light_theme": "Bitcoin Light-Thema",
+  "high_contrast_theme": "Kontrastreiches Thema",
+  "matrix_green_dark_theme": "Matrix Green Dark Theme",
+  "monero_light_theme": "Monero Light-Thema"
 }

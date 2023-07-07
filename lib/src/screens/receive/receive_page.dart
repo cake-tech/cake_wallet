@@ -53,10 +53,6 @@ class ReceivePage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Color? get titleColor =>
-      currentTheme.type == ThemeType.bright ? Colors.white : null;
-
-  @override
   Widget middle(BuildContext context) {
     return Text(
       title,
@@ -219,7 +215,7 @@ class ReceivePage extends BasePage {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor)),
+                        color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
               ],
             ),
           );

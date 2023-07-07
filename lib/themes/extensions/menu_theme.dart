@@ -7,6 +7,7 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
   final Color dividerColor;
   final Color backgroundColor;
   final Color iconColor;
+  final Color settingActionsIconColor;
 
   CakeMenuTheme(
       {required this.headerFirstGradientColor,
@@ -14,7 +15,8 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
       required this.backgroundColor,
       required this.subnameTextColor,
       required this.dividerColor,
-      required this.iconColor});
+      required this.iconColor,
+      required this.settingActionsIconColor});
 
   @override
   CakeMenuTheme copyWith(
@@ -23,7 +25,8 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
           Color? backgroundColor,
           Color? subnameTextColor,
           Color? dividerColor,
-          Color? iconColor}) =>
+          Color? iconColor,
+          Color? settingActionsIconColor}) =>
       CakeMenuTheme(
           headerFirstGradientColor:
               headerFirstGradientColor ?? this.headerFirstGradientColor,
@@ -32,7 +35,9 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
           backgroundColor: backgroundColor ?? this.backgroundColor,
           subnameTextColor: subnameTextColor ?? this.subnameTextColor,
           dividerColor: dividerColor ?? this.dividerColor,
-          iconColor: iconColor ?? this.iconColor);
+          iconColor: iconColor ?? this.iconColor,
+          settingActionsIconColor:
+              settingActionsIconColor ?? this.settingActionsIconColor);
 
   @override
   CakeMenuTheme lerp(ThemeExtension<CakeMenuTheme>? other, double t) {
@@ -55,6 +60,9 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
                 subnameTextColor,
         dividerColor:
             Color.lerp(dividerColor, other.dividerColor, t) ?? dividerColor,
-        iconColor: Color.lerp(iconColor, other.iconColor, t) ?? iconColor);
+        iconColor: Color.lerp(iconColor, other.iconColor, t) ?? iconColor,
+        settingActionsIconColor: Color.lerp(
+                settingActionsIconColor, other.settingActionsIconColor, t) ??
+            settingActionsIconColor);
   }
 }

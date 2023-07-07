@@ -43,8 +43,6 @@ class AnonPayInvoicePage extends BasePage {
   final _formKey = GlobalKey<FormState>();
 
   bool effectsInstalled = false;
-  @override
-  Color get titleColor => Colors.white;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -61,8 +59,9 @@ class AnonPayInvoicePage extends BasePage {
   }
 
   @override
-  Widget middle(BuildContext context) =>
-      PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
+  Widget middle(BuildContext context) => PresentReceiveOptionPicker(
+      receiveOptionViewModel: receiveOptionViewModel,
+      color: titleColor(context));
 
   @override
   Widget trailing(BuildContext context) => TrailButton(

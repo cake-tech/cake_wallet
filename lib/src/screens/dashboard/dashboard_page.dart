@@ -91,7 +91,7 @@ class _DashboardPageView extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset('assets/images/menu.png',
-        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor);
+        color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor);
 
     return Container(
         alignment: Alignment.centerRight,
@@ -156,8 +156,8 @@ class _DashboardPageView extends BasePage {
                           radius: 6.0,
                           dotWidth: 6.0,
                           dotHeight: 6.0,
-                          dotColor: Theme.of(context).extension<DashboardPageTheme>()!.indicatorDotTheme!.indicatorColor,
-                          activeDotColor: Theme.of(context).extension<DashboardPageTheme>()!.indicatorDotTheme!.activeIndicatorColor),
+                          dotColor: Theme.of(context).extension<DashboardPageTheme>()!.indicatorDotTheme.indicatorColor,
+                          activeDotColor: Theme.of(context).extension<DashboardPageTheme>()!.indicatorDotTheme.activeIndicatorColor),
                     ),
                   );
                 }
@@ -170,9 +170,7 @@ class _DashboardPageView extends BasePage {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(50.0),
                       border: Border.all(
-                        color: currentTheme.type == ThemeType.bright
-                            ? Color.fromRGBO(255, 255, 255, 0.2)
-                            : Colors.transparent,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                         width: 1,
                       ),
                       color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
@@ -195,8 +193,8 @@ class _DashboardPageView extends BasePage {
                                         color: action.isEnabled?.call(
                                                     dashboardViewModel) ??
                                                 true
-                                            ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                            : Theme.of(context).extension<BalancePageTheme>()!.textColor),
+                                            ? Theme.of(context).extension<DashboardPageTheme>()!.mainActionsIconColor
+                                            : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor),
                                     title: action.name(context),
                                     onClick: () async => await action.onTap(
                                         context, dashboardViewModel),
@@ -204,7 +202,7 @@ class _DashboardPageView extends BasePage {
                                                 ?.call(dashboardViewModel) ??
                                             true
                                         ? null
-                                        : Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                        : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                                   ),
                                 ))
                             .toList(),

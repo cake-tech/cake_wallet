@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +21,9 @@ abstract class BasePage extends StatelessWidget {
 
   Color? get backgroundDarkColor => null;
 
-  Color? get titleColor => null;
-
   bool get gradientBackground => false;
+
+  bool get gradientAll => false;
 
   bool get resizeToAvoidBottomInset => true;
 
@@ -50,11 +49,13 @@ abstract class BasePage extends StatelessWidget {
           ? Colors.transparent
           : Theme.of(context).colorScheme.background);
 
-  Color? pageIconColor(BuildContext context) =>
-      titleColor ??
-      (gradientBackground
-          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-          : Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+  Color titleColor(BuildContext context) =>
+      (gradientBackground && currentTheme.type == ThemeType.bright) ||
+              (gradientAll && currentTheme.brightness == Brightness.light)
+          ? Colors.white
+          : Theme.of(context).appBarTheme.titleTextStyle!.color!;
+
+  Color? pageIconColor(BuildContext context) => titleColor(context);
 
   Widget closeButton(BuildContext context) => Image.asset(
         currentTheme.type == ThemeType.dark
@@ -106,8 +107,7 @@ abstract class BasePage extends StatelessWidget {
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
-                color: titleColor ??
-                    Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                color: titleColor(context)),
           );
   }
 

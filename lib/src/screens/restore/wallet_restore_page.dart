@@ -94,8 +94,7 @@ class WalletRestorePage extends BasePage {
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
-                color: titleColor ??
-                    Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                color: titleColor(context)),
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;

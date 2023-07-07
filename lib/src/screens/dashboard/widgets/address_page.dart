@@ -57,10 +57,6 @@ class AddressPage extends BasePage {
   bool get gradientBackground => true;
 
   @override
-  Color? get titleColor =>
-      currentTheme.themeData.extension<DashboardPageTheme>()!.textColor;
-
-  @override
   bool get resizeToAvoidBottomInset => false;
 
   bool effectsInstalled = false;
@@ -93,8 +89,8 @@ class AddressPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(
-      receiveOptionViewModel: receiveOptionViewModel,
-      gradientBackground: gradientBackground);
+      color: titleColor(context),
+      receiveOptionViewModel: receiveOptionViewModel);
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
@@ -219,7 +215,7 @@ class AddressPage extends BasePage {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 15,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.textColor));
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor));
               })
             ],
           ),

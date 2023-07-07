@@ -45,7 +45,7 @@ class DesktopActionButton extends StatelessWidget {
                   width: 30,
                   color: isEnabled
                       ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                      : Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                      : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                 ),
                 const SizedBox(width: 10),
                 AutoSizeText(

@@ -32,9 +32,6 @@ class IoniaCustomRedeemPage extends BasePage {
   String get title => S.current.custom_redeem_amount;
 
   @override
-  Color get titleColor => Colors.white;
-
-  @override
   bool get extendBodyBehindAppBar => true;
 
   @override

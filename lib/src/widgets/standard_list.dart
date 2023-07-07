@@ -54,7 +54,7 @@ class StandardListRow extends StatelessWidget {
   Widget? buildTrailing(BuildContext context) => null;
 
   Color titleColor(BuildContext context) => isSelected
-      ? Palette.blueCraiola
+      ? Theme.of(context).primaryColor
       : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
 }
 

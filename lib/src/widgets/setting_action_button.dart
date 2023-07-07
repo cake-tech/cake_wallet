@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +56,7 @@ class SettingActionButton extends StatelessWidget {
               image,
               height: 16,
               width: 16,
-              color: Palette.darkBlue,
+              color: Theme.of(context).extension<CakeMenuTheme>()!.settingActionsIconColor,
             ),
             SizedBox(width: 16),
             Expanded(

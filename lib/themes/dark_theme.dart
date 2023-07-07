@@ -94,10 +94,6 @@ class DarkTheme extends ThemeBase {
       underlineColor: PaletteDark.darkGrey);
 
   @override
-  BalancePageTheme get balancePageTheme =>
-      BalancePageTheme(textColor: PaletteDark.cyanBlue);
-
-  @override
   AddressTheme get addressTheme =>
       AddressTheme(actionButtonColor: PaletteDark.nightBlue);
 
@@ -109,16 +105,24 @@ class DarkTheme extends ThemeBase {
               activeIndicatorColor: Colors.white));
 
   @override
+  BalancePageTheme get balancePageTheme => BalancePageTheme(
+      textColor: dashboardPageTheme.textColor,
+      labelTextColor: PaletteDark.cyanBlue);
+
+  @override
   CakeMenuTheme get menuTheme => CakeMenuTheme(
       headerFirstGradientColor: PaletteDark.deepPurpleBlue,
       headerSecondGradientColor: PaletteDark.deepPurpleBlue,
       backgroundColor: PaletteDark.deepPurpleBlue,
       subnameTextColor: PaletteDark.darkCyanBlue,
       dividerColor: PaletteDark.darkOceanBlue,
-      iconColor: PaletteDark.pigeonBlue);
+      settingActionsIconColor: PaletteDark.pigeonBlue,
+      iconColor: PaletteDark.darkCyanBlue);
 
   @override
   FilterTheme get filterTheme => FilterTheme(
+      checkboxFirstGradientColor: PaletteDark.darkNightBlue,
+      checkboxSecondGradientColor: PaletteDark.darkNightBlue,
       checkboxBoundsColor: PaletteDark.wildVioletBlue,
       checkboxBackgroundColor: PaletteDark.wildVioletBlue.withOpacity(0.3),
       titlesColor: Colors.white,
@@ -202,7 +206,6 @@ class DarkTheme extends ThemeBase {
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
-      indicatorColor: PaletteDark.cyanBlue,
       dividerColor: PaletteDark.dividerColor,
       hintColor: PaletteDark.pigeonBlue,
       disabledColor: PaletteDark.deepVioletBlue,

@@ -8,23 +8,19 @@ import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class PresentReceiveOptionPicker extends StatelessWidget {
   PresentReceiveOptionPicker(
-      {required this.receiveOptionViewModel, this.gradientBackground = false});
+      {required this.receiveOptionViewModel, required this.color});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
-  final bool gradientBackground;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final textIconTheme = gradientBackground
-        ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-        : Colors.white;
     final arrowBottom = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
-      color: textIconTheme,
+      color: color,
       height: 6,
     );
 
@@ -50,14 +46,14 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
-                    color: textIconTheme),
+                    color: color),
               ),
               Observer(
                   builder: (_) => Text(receiveOptionViewModel.selectedReceiveOption.toString(),
                       style: TextStyle(
                           fontSize: 10.0,
                           fontWeight: FontWeight.w500,
-                          color: textIconTheme)))
+                          color: color)))
             ],
           ),
           SizedBox(width: 5),

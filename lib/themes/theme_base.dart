@@ -7,6 +7,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -59,7 +60,9 @@ abstract class ThemeBase {
       firstGradientBackgroundColor: backgroundColor,
       secondGradientBackgroundColor: backgroundColor,
       thirdGradientBackgroundColor: backgroundColor,
-      textColor: primaryTextColor);
+      textColor: primaryTextColor,
+      indicatorDotTheme: IndicatorDotTheme(
+          indicatorColor: primaryColor, activeIndicatorColor: backgroundColor));
 
   CakeScrollbarTheme get scrollbarTheme;
 
@@ -140,11 +143,13 @@ abstract class ThemeBase {
         receivePageTheme,
         qrCodeTheme,
       ],
-      scrollbarTheme: ScrollbarThemeData(
+      scrollbarTheme: generatedThemeData.scrollbarTheme.copyWith(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),
           trackColor: MaterialStateProperty.all(scrollbarTheme.trackColor),
           radius: Radius.circular(3),
           thickness: MaterialStateProperty.all(6),
           thumbVisibility: MaterialStateProperty.all(true),
-          crossAxisMargin: 6));
+          crossAxisMargin: 6),
+      appBarTheme: generatedThemeData.appBarTheme.copyWith(
+          titleTextStyle: TextStyle(color: cakeTextTheme.titleColor)));
 }
