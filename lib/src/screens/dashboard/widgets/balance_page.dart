@@ -118,16 +118,13 @@ class BalancePage extends StatelessWidget {
                                   fontSize: 12,
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w400,
-                                  color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor
+                                  color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                                   height: 1)),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: Icon(Icons.help_outline,
                                 size: 16,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displaySmall!
-                                    .backgroundColor!),
+                                color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor),
                           )
                         ],
                       ),SizedBox(
