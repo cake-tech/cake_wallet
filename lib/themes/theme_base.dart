@@ -29,7 +29,12 @@ import 'package:flutter/material.dart';
 enum ThemeType { bright, light, dark }
 
 abstract class ThemeBase {
-  ThemeBase({required this.raw});
+  ThemeBase({required this.raw}) {
+    colorScheme = ColorScheme.fromSeed(
+        brightness: brightness,
+        seedColor: primaryColor,
+        background: backgroundColor);
+  }
 
   final int raw;
   String get title;
@@ -47,10 +52,7 @@ abstract class ThemeBase {
   Color get containerColor;
   Color get dialogBackgroundColor;
 
-  ColorScheme get colorScheme => ColorScheme.fromSeed(
-      brightness: brightness,
-      seedColor: primaryColor,
-      background: backgroundColor);
+  ColorScheme colorScheme = ColorScheme.light();
 
   ThemeData get generatedThemeData => ThemeData.from(
       colorScheme: colorScheme,
