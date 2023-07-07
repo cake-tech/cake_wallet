@@ -219,7 +219,7 @@
   "send_amount" : "金额:",
   "send_fee" : "手续费:",
   "send_name" : "名称",
-  "send_got_it" : "明白",
+  "got_it": "明白",
   "send_sending" : "正在发送...",
   "send_success" : "您的${crypto}已成功发送",
 
@@ -727,6 +727,9 @@
   "setup_totp_recommended": "设置 TOTP（推荐）",
   "disable_buy": "禁用购买操作",
   "disable_sell": "禁用卖出操作",
+  "available_balance_description": "可用余额是您可以使用的金额。冻结余额是您当前正在等待确认的金额。",
+  "syncing_wallet_alert_title": "您的钱包正在同步",
+  "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。",
   "monero_dark_theme": "门罗币深色主题",
   "bitcoin_dark_theme": "比特币黑暗主题",
   "bitcoin_light_theme": "比特币浅色主题",

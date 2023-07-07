@@ -219,7 +219,7 @@
   "send_amount" : "Částka:",
   "send_fee" : "Poplatek:",
   "send_name" : "Název",
-  "send_got_it" : "Rozumím",
+  "got_it": "Rozumím",
   "send_sending" : "Odesílání...",
   "send_success" : "Vaše ${crypto} bylo úspěšně odesláno",
 
@@ -722,6 +722,9 @@
   "setup_totp_recommended": "Nastavit TOTP (doporučeno)",
   "disable_buy": "Zakázat akci nákupu",
   "disable_sell": "Zakázat akci prodeje",
+  "available_balance_description": "Dostupná částka je částka, kterou můžete okamžitě utratit. Zmrazená částka je částka, která ještě není k dispozici, protože ještě nebyla potvrzena síťovým protokolem.",
+  "syncing_wallet_alert_title": "Vaše peněženka se synchronizuje",
+  "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více.",
   "monero_dark_theme": "Tmavé téma Monero",
   "bitcoin_dark_theme": "Tmavé téma bitcoinů",
   "bitcoin_light_theme": "Světlé téma bitcoinů",

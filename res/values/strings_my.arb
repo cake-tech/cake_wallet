@@ -219,7 +219,7 @@
   "send_amount" : "ပမာဏ-",
   "send_fee" : "အခကြေးငွေ-",
   "send_name" : "နာမည်",
-  "send_got_it" : "ရပြီ",
+  "got_it": "ရပြီ",
   "send_sending" : "ပို့နေသည်...",
   "send_success" : "သင်၏ ${crypto} ကို အောင်မြင်စွာ ပို့လိုက်ပါပြီ။",
 
@@ -728,6 +728,9 @@
   "setup_totp_recommended": "TOTP ကို ​​စနစ်ထည့်သွင်းပါ (အကြံပြုထားသည်)",
   "disable_buy": "ဝယ်ယူမှု လုပ်ဆောင်ချက်ကို ပိတ်ပါ။",
   "disable_sell": "ရောင်းချခြင်းလုပ်ဆောင်ချက်ကို ပိတ်ပါ။",
+  "available_balance_description": "သင့်ရဲ့ အကောင့်တွင် ရရှိနိုင်သော ငွေကျန်ငွေကို ပြန်လည်ပေးသွင်းပါ။",
+  "syncing_wallet_alert_title": "သင့်ပိုက်ဆံအိတ်ကို စင့်ခ်လုပ်နေပါသည်။",
+  "syncing_wallet_alert_content": "သင်၏လက်ကျန်နှင့် ငွေပေးငွေယူစာရင်းသည် ထိပ်တွင် \"Synchronizeed\" ဟုပြောသည်အထိ မပြီးမြောက်နိုင်ပါ။ ပိုမိုလေ့လာရန် နှိပ်/နှိပ်ပါ။",
   "monero_dark_theme": "Monero Dark အပြင်အဆင်",
   "bitcoin_dark_theme": "Bitcoin Dark Theme",
   "bitcoin_light_theme": "Bitcoin Light အပြင်အဆင်",

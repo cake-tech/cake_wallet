@@ -219,7 +219,7 @@
   "send_amount" : "Montant :",
   "send_fee" : "Frais :",
   "send_name" : "Nom",
-  "send_got_it" : "Compris",
+  "got_it": "Compris",
   "send_sending" : "Envoi...",
   "send_success" : "Vos ${crypto} ont été envoyés avec succès",
 
@@ -733,5 +733,8 @@
   "bitcoin_light_theme": "Thème léger Bitcoin",
   "high_contrast_theme": "Thème à contraste élevé",
   "matrix_green_dark_theme": "Thème Matrix Green Dark",
-  "monero_light_theme": "Thème de lumière Monero"
+  "monero_light_theme": "Thème de lumière Monero",
+  "available_balance_description": "Le solde disponible est le montant que vous pouvez dépenser immédiatement. Il est calculé en soustrayant le solde gelé du solde total.",
+  "syncing_wallet_alert_title": "Votre portefeuille est en cours de synchronisation",
+  "syncing_wallet_alert_content": "Votre solde et votre liste de transactions peuvent ne pas être complets tant qu'il n'y a pas « SYNCHRONISÉ » en haut. Cliquez/appuyez pour en savoir plus."
 }

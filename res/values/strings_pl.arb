@@ -219,7 +219,7 @@
   "send_amount" : "Ilość:",
   "send_fee" : "Opłata:",
   "send_name" : "Imię",
-  "send_got_it" : "Wysłano",
+  "got_it": "Wysłano",
   "send_sending" : "Wysyłanie...",
   "send_success" : "Twoje ${crypto} zostało pomyślnie wysłane",
 
@@ -728,6 +728,9 @@
   "setup_totp_recommended": "Skonfiguruj TOTP (zalecane)",
   "disable_buy": "Wyłącz akcję kupna",
   "disable_sell": "Wyłącz akcję sprzedaży",
+  "available_balance_description": "Dostępne saldo jest równoważne z saldem portfela minus zamrożone saldo.",
+  "syncing_wallet_alert_title": "Twój portfel się synchronizuje",
+  "syncing_wallet_alert_content": "Twoje saldo i lista transakcji mogą nie być kompletne, dopóki u góry nie pojawi się napis „SYNCHRONIZOWANY”. Kliknij/stuknij, aby dowiedzieć się więcej.",
   "monero_dark_theme": "Ciemny motyw Monero",
   "bitcoin_dark_theme": "Ciemny motyw Bitcoina",
   "bitcoin_light_theme": "Lekki motyw Bitcoin",

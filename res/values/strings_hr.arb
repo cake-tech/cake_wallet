@@ -219,7 +219,7 @@
   "send_amount" : "Iznos:",
   "send_fee" : "Naknada:",
   "send_name" : "Ime",
-  "send_got_it" : "U redu",
+  "got_it": "U redu",
   "send_sending" : "Slanje...",
   "send_success" : "Vaš ${crypto} je uspješno poslan",
 
@@ -733,7 +733,10 @@
   "bitcoin_light_theme": "Bitcoin Light Theme",
   "high_contrast_theme": "Tema visokog kontrasta",
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
-  "monero_light_theme": "Monero lagana tema"
+  "monero_light_theme": "Monero lagana tema",
+  "available_balance_description": "Dostupno stanje je iznos koji možete potrošiti. To je vaš saldo minus bilo kakve transakcije koje su još uvijek u tijeku.",
+  "syncing_wallet_alert_title": "Vaš novčanik se sinkronizira",
+  "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više."
 }
 
 

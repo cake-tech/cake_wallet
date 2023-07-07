@@ -219,7 +219,7 @@
   "send_amount" : "量：",
   "send_fee" : "費用：",
   "send_name" : "名前",
-  "send_got_it" : "とった",
+  "got_it": "とった",
   "send_sending" : "送信...",
   "send_success" : "${crypto}が送信されました",
 
@@ -728,6 +728,9 @@
   "setup_totp_recommended": "TOTP を設定する (推奨)",
   "disable_buy": "購入アクションを無効にする",
   "disable_sell": "販売アクションを無効にする",
+  "available_balance_description": "利用可能な残高は、ウォレットの残高から冷凍残高を差し引いたものです。",
+  "syncing_wallet_alert_title": "ウォレットは同期中です",
+  "syncing_wallet_alert_content": "上部に「同期済み」と表示されるまで、残高と取引リストが完了していない可能性があります。詳細については、クリック/タップしてください。",
   "monero_dark_theme": "モネロダークテーマ",
   "bitcoin_dark_theme": "ビットコインダークテーマ",
   "bitcoin_light_theme": "ビットコインライトテーマ",

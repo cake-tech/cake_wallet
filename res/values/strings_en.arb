@@ -219,7 +219,7 @@
   "send_amount" : "Amount:",
   "send_fee" : "Fee:",
   "send_name" : "Name",
-  "send_got_it" : "Got it",
+  "got_it": "Got it",
   "send_sending" : "Sending...",
   "send_success" : "Your ${crypto} was successfully sent",
 
@@ -733,5 +733,9 @@
   "bitcoin_light_theme": "Bitcoin Light Theme",
   "high_contrast_theme": "High Contrast Theme",
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
-  "monero_light_theme": "Monero Light Theme"
+  "monero_light_theme": "Monero Light Theme",
+  "available_balance_description": "The “Available Balance” or “Confirmed Balance” are funds that can be spent immediately. If funds appear in the lower balance but not the top balance, then you must wait a few minutes for the incoming funds to get more network confirmations. After they get more confirmations, they will be spendable.",
+  "syncing_wallet_alert_title": "Your wallet is syncing",
+  "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more."
+
 }

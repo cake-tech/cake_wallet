@@ -219,7 +219,7 @@
   "send_amount": "Adadi:",
   "send_fee": "Kudin:",
   "send_name": "Sunan",
-  "send_got_it": "Gama",
+  "got_it": "Gama",
   "send_sending": "Aika...",
   "send_success": "${crypto} kwalinku ya aika da nasara",
 
@@ -716,5 +716,8 @@
   "bitcoin_light_theme": "Jigon Hasken Bitcoin",
   "high_contrast_theme": "Babban Jigon Kwatance",
   "matrix_green_dark_theme": "Matrix Green Dark Jigo",
-  "monero_light_theme": "Jigon Hasken Monero"
+  "monero_light_theme": "Jigon Hasken Monero",
+  "available_balance_description": "Ma'auni mai samuwa” ko ”,Tabbataccen Ma'auni”, kudade ne da za a iya kashewa nan da nan. Idan kudade sun bayyana a cikin ƙananan ma'auni amma ba babban ma'auni ba, to dole ne ku jira 'yan mintoci kaɗan don kudaden shiga don samun ƙarin tabbaci na hanyar sadarwa. Bayan sun sami ƙarin tabbaci, za a kashe su.",
+  "syncing_wallet_alert_title": "Walat ɗin ku yana aiki tare",
+  "syncing_wallet_alert_content": "Ma'aunin ku da lissafin ma'amala bazai cika ba har sai an ce \"SYNCHRONIZED\" a saman. Danna/matsa don ƙarin koyo."
 }

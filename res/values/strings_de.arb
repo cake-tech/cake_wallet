@@ -219,7 +219,7 @@
   "send_amount" : "Betrag:",
   "send_fee" : "Gebühr:",
   "send_name" : "Name",
-  "send_got_it" : "Verstanden",
+  "got_it": "Verstanden",
   "send_sending" : "Senden...",
   "send_success" : "Ihr ${crypto} wurde erfolgreich versendet",
 
@@ -733,5 +733,9 @@
   "bitcoin_light_theme": "Bitcoin Light-Thema",
   "high_contrast_theme": "Kontrastreiches Thema",
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
-  "monero_light_theme": "Monero Light-Thema"
+  "monero_light_theme": "Monero Light-Thema",
+  "available_balance_description": "Verfügbarer Saldo ist der Betrag, den Sie sofort ausgeben können. Dieser Betrag kann sich ändern, wenn Sie eine Transaktion senden oder empfangen.",
+  "syncing_wallet_alert_title": "Ihr Wallet wird synchronisiert",
+  "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren."
+
 }

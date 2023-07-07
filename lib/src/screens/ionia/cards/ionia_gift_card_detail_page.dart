@@ -213,7 +213,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                     })
                     .expand((e) => e)
                     .toList()),
-            actionTitle: S.of(context).send_got_it,
+            actionTitle: S.of(context).got_it,
           );
         });
   }

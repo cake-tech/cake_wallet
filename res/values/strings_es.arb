@@ -219,7 +219,7 @@
   "send_amount" : "Cantidad:",
   "send_fee" : "Cuota:",
   "send_name" : "Nombre",
-  "send_got_it" : "Entendido",
+  "got_it": "Entendido",
   "send_sending" : "Enviando...",
   "send_success" : "Su ${crypto} fue enviado con éxito",
 
@@ -733,5 +733,8 @@
   "bitcoin_light_theme": "Tema de la luz de Bitcoin",
   "high_contrast_theme": "Tema de alto contraste",
   "matrix_green_dark_theme": "Matrix verde oscuro tema",
-  "monero_light_theme": "Tema ligero de Monero"
+  "monero_light_theme": "Tema ligero de Monero",
+  "available_balance_description": "Su saldo disponible es la cantidad de fondos que puede gastar. Los fondos que se muestran aquí se pueden gastar inmediatamente.",
+  "syncing_wallet_alert_title": "Tu billetera se está sincronizando",
+  "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información."
 }

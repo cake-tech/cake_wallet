@@ -219,7 +219,7 @@
   "send_amount" : "จำนวน:",
   "send_fee" : "ค่าธรรมเนียม:",
   "send_name" : "ชื่อ",
-  "send_got_it" : "เข้าใจ",
+  "got_it": "เข้าใจ",
   "send_sending" : "กำลังส่ง...",
   "send_success" : "คุณได้ส่ง ${crypto} เรียบร้อยแล้ว",
 
@@ -726,6 +726,9 @@
   "setup_totp_recommended": "ตั้งค่า TOTP (แนะนำ)",
   "disable_buy": "ปิดการใช้งานการซื้อ",
   "disable_sell": "ปิดการใช้งานการขาย",
+  "available_balance_description": "จำนวนเงินที่คุณสามารถใช้ได้ในการซื้อหรือขาย",
+  "syncing_wallet_alert_title": "กระเป๋าสตางค์ของคุณกำลังซิงค์",
+  "syncing_wallet_alert_content": "รายการยอดเงินและธุรกรรมของคุณอาจไม่สมบูรณ์จนกว่าจะมีข้อความว่า “ซิงโครไนซ์” ที่ด้านบน คลิก/แตะเพื่อเรียนรู้เพิ่มเติม่",
   "monero_dark_theme": "ธีมมืด Monero",
   "bitcoin_dark_theme": "ธีมมืด Bitcoin",
   "bitcoin_light_theme": "ธีมแสง Bitcoin",

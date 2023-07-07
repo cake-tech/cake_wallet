@@ -3,10 +3,10 @@ import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
-class MarketPlaceItem extends StatelessWidget {
+class DashBoardRoundedCardWidget extends StatelessWidget {
 
 
-  MarketPlaceItem({
+  DashBoardRoundedCardWidget({
     required this.onTap,
     required this.title,
     required this.subTitle,

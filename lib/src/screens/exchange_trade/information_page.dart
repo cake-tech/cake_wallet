@@ -34,6 +34,7 @@ class InformationPage extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(24, 28, 24, 24),
                 child: Text(
                   information,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
@@ -47,7 +48,7 @@ class InformationPage extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                 child: PrimaryButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  text: S.of(context).send_got_it,
+                  text: S.of(context).got_it,
                   color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
                   textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                 ),

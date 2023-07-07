@@ -219,7 +219,7 @@
   "send_amount" : "Montante:",
   "send_fee" : "Taxa:",
   "send_name" : "Nome",
-  "send_got_it" : "Entendi",
+  "got_it": "Entendi",
   "send_sending" : "Enviando...",
   "send_success" : "Seu ${crypto} foi enviado com sucesso",
 
@@ -727,6 +727,9 @@
   "setup_totp_recommended": "Configurar TOTP (recomendado)",
   "disable_buy": "Desativar ação de compra",
   "disable_sell": "Desativar ação de venda",
+  "available_balance_description": "Seu saldo disponível é o saldo total menos o saldo congelado. O saldo congelado é o saldo que você não pode gastar, mas que ainda não foi confirmado na blockchain. O saldo congelado é geralmente o resultado de transações recentes.",
+  "syncing_wallet_alert_title": "Sua carteira está sincronizando",
+  "syncing_wallet_alert_content": "Seu saldo e lista de transações podem não estar completos até que diga “SYNCHRONIZED” no topo. Clique/toque para saber mais.",
   "monero_dark_theme": "Monero Tema Escuro",
   "bitcoin_dark_theme": "Tema escuro Bitcoin",
   "bitcoin_light_theme": "Tema claro de bitcoin",
