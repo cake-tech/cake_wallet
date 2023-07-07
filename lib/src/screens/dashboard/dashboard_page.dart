@@ -43,7 +43,7 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ResponsiveLayoutUtil.instance.shouldRenderMobileUI(context)
+      body: ResponsiveLayoutUtil.instance.shouldRenderMobileUI()
           ? _DashboardPageView(
               balancePage: balancePage,
               dashboardViewModel: dashboardViewModel,

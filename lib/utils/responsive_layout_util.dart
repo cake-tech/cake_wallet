@@ -11,15 +11,18 @@ class ResponsiveLayoutUtil {
 
   static final instance = ResponsiveLayoutUtil._();
 
-  bool get isMobile => MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.shortestSide <= _kMobileThreshold;
+  bool get isMobile =>
+      MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.shortestSide <=
+      _kMobileThreshold;
 
-  bool shouldRenderMobileUI(BuildContext context) {
-     final orientation = MediaQuery.of(context).orientation;
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    if (isMobile || orientation == Orientation.portrait && width < height) {
-      return true;
-    } else if (orientation == Orientation.landscape && width < height) {
+  bool shouldRenderMobileUI() {
+    final mediaQuery = MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+    final orientation = mediaQuery.orientation;
+    final width = mediaQuery.size.width;
+    final height = mediaQuery.size.height;
+    if (isMobile ||
+        (orientation == Orientation.portrait && width < height) ||
+        (orientation == Orientation.landscape && width < height)) {
       return true;
     } else {
       return false;
