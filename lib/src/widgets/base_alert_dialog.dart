@@ -110,7 +110,9 @@ class BaseAlertDialog extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
+            decoration: BoxDecoration(
+                color:
+                    Theme.of(context).extension<AlertTheme>()!.backdropColor),
             child: Center(
               child: GestureDetector(
                 onTap: () => null,

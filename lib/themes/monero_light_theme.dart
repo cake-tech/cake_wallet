@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -141,6 +142,11 @@ class MoneroLightTheme extends LightTheme {
   QRCodeTheme get qrCodeTheme => super
       .qrCodeTheme
       .copyWith(qrWidgetCopyButtonColor: colorScheme.secondary);
+
+  @override
+  AlertTheme get alertTheme => super
+      .alertTheme
+      .copyWith(backdropColor: colorScheme.inverseSurface.withOpacity(0.75));
 
   @override
   ThemeData get themeData => super.themeData.copyWith(

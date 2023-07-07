@@ -8,7 +8,14 @@ import 'package:cake_wallet/themes/monero_light_theme.dart';
 import 'package:flutter/material.dart';
 
 class HighContrastTheme extends MoneroLightTheme {
-  HighContrastTheme({required int raw}) : super(raw: raw);
+  HighContrastTheme({required int raw}) : super(raw: raw) {
+    colorScheme = ColorScheme.fromSwatch(
+        primarySwatch: Colors.grey,
+        accentColor: primaryColor,
+        backgroundColor: Colors.white,
+        cardColor: containerColor,
+        brightness: Brightness.light);
+  }
 
   @override
   String get title => S.current.high_contrast_theme;
@@ -16,14 +23,6 @@ class HighContrastTheme extends MoneroLightTheme {
   Color get primaryColor => Colors.black;
   @override
   Color get containerColor => Palette.highContrastGray;
-
-  @override
-  ColorScheme get colorScheme => ColorScheme.fromSwatch(
-      primarySwatch: Colors.grey,
-      accentColor: primaryColor,
-      backgroundColor: Colors.white,
-      cardColor: containerColor,
-      brightness: Brightness.light);
 
   @override
   Color get primaryTextColor => colorScheme.onBackground;

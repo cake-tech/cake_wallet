@@ -1,7 +1,6 @@
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -148,7 +147,7 @@ class BalancePage extends StatelessWidget {
                               fontSize: 16,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                              color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1)),
 
                     ],
@@ -159,8 +158,7 @@ class BalancePage extends StatelessWidget {
                         fontSize: 28,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w800,
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                        height: 1)),
+                        color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor)),
               ],
             ),
             SizedBox(height: 26),

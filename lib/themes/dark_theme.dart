@@ -142,8 +142,9 @@ class DarkTheme extends ThemeBase {
       PickerTheme(dividerColor: PaletteDark.dividerColor);
 
   @override
-  AlertTheme get alertTheme =>
-      AlertTheme(leftButtonTextColor: Palette.alizarinRed);
+  AlertTheme get alertTheme => AlertTheme(
+      backdropColor: PaletteDark.darkNightBlue.withOpacity(0.75),
+      leftButtonTextColor: Palette.alizarinRed);
 
   @override
   OrderTheme get orderTheme => OrderTheme(iconColor: Colors.white);

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/themes/dark_theme.dart';
 import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -141,9 +142,9 @@ class MoneroDarkTheme extends DarkTheme {
       super.seedWidgetTheme.copyWith(hintTextColor: Colors.grey);
 
   @override
-  TransactionTradeTheme get transactionTradeTheme =>
-      super.transactionTradeTheme.copyWith(
-          detailsTitlesColor: Colors.grey, rowsColor: containerColor);
+  TransactionTradeTheme get transactionTradeTheme => super
+      .transactionTradeTheme
+      .copyWith(detailsTitlesColor: Colors.grey, rowsColor: containerColor);
 
   @override
   CakeTextTheme get cakeTextTheme => super.cakeTextTheme.copyWith(
@@ -169,6 +170,11 @@ class MoneroDarkTheme extends DarkTheme {
   @override
   QRCodeTheme get qrCodeTheme => QRCodeTheme(
       qrCodeColor: Colors.grey, qrWidgetCopyButtonColor: Colors.grey);
+
+  @override
+  AlertTheme get alertTheme => super
+      .alertTheme
+      .copyWith(backdropColor: colorScheme.surface.withOpacity(0.75));
 
   @override
   ThemeData get themeData => super.themeData.copyWith(

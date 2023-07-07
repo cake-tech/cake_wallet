@@ -142,8 +142,9 @@ class LightTheme extends ThemeBase {
       PickerTheme(dividerColor: Palette.periwinkleCraiola);
 
   @override
-  AlertTheme get alertTheme =>
-      AlertTheme(leftButtonTextColor: Palette.brightOrange);
+  AlertTheme get alertTheme => AlertTheme(
+      backdropColor: PaletteDark.darkNightBlue.withOpacity(0.75),
+      leftButtonTextColor: Palette.brightOrange);
 
   @override
   OrderTheme get orderTheme => OrderTheme(iconColor: Colors.black);
