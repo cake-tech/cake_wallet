@@ -219,7 +219,7 @@
   "send_amount" : "Montant :",
   "send_fee" : "Frais :",
   "send_name" : "Nom",
-  "send_got_it" : "Compris",
+  "got_it": "Compris",
   "send_sending" : "Envoi...",
   "send_success" : "Vos ${crypto} ont été envoyés avec succès",
 
@@ -727,5 +727,8 @@
   "setup_2fa_text": "Cake 2FA (Authentification à 2 Facteurs) n'est PAS aussi sûr que le stockage à froid. Cake 2FA protège contre les attaques basiques, comme un ami fournissant votre empreinte digitale pendant que vous dormez.\n\n Cake 2FA ne protège PAS contre un appareil compromis par un attaquant sophistiqué.\n\n Si vous perdez l'accès à vos codes 2FA , VOUS PERDREZ L'ACCÈS À CE PORTEFEUILLE (WALLET). Vous devrez restaurer votre portefeuille à partir de sa phrase secrète (seed). VOUS DEVEZ DONC SAUVEGARDER VOTRE PHRASE SECRÈTE ! De plus, quelqu'un ayant accès à votre phrase secrète pourra voler vos fonds, en contournant Cake 2FA.\n\n Le personnel d'assistance de Cake ne pourra pas vous aider si vous perdez l'accès à votre phrase secrète, puisque Cake est un portefeuille non dépositaire (non custodial).",
   "setup_totp_recommended": "Configurer TOTP (recommandé)",
   "disable_buy": "Désactiver l'action d'achat",
-  "disable_sell": "Désactiver l'action de vente"
+  "disable_sell": "Désactiver l'action de vente",
+  "available_balance_description": "Le solde disponible est le montant que vous pouvez dépenser immédiatement. Il est calculé en soustrayant le solde gelé du solde total.",
+  "syncing_wallet_alert_title": "Votre portefeuille est en cours de synchronisation",
+  "syncing_wallet_alert_content": "Votre solde et votre liste de transactions peuvent ne pas être complets tant qu'il n'y a pas « SYNCHRONISÉ » en haut. Cliquez/appuyez pour en savoir plus."
 }

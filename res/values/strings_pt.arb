@@ -219,7 +219,7 @@
   "send_amount" : "Montante:",
   "send_fee" : "Taxa:",
   "send_name" : "Nome",
-  "send_got_it" : "Entendi",
+  "got_it": "Entendi",
   "send_sending" : "Enviando...",
   "send_success" : "Seu ${crypto} foi enviado com sucesso",
 
@@ -726,5 +726,8 @@
   "setup_2fa_text": "O Cake 2FA NÃO é tão seguro quanto o armazenamento a frio. O 2FA protege contra tipos básicos de ataques, como seu amigo fornecer sua impressão digital enquanto você está dormindo.\n\n O Cake 2FA NÃO protege contra um dispositivo comprometido por um invasor sofisticado.\n\n Se você perder o acesso aos seus códigos 2FA , VOCÊ PERDERÁ O ACESSO A ESTA CARTEIRA. Você precisará restaurar sua carteira da semente mnemônica. VOCÊ DEVE, PORTANTO, FAZER BACKUP DE SUAS SEMENTES MNEMÔNICAS! Além disso, alguém com acesso às suas sementes mnemônicas poderá roubar seus fundos, ignorando o Cake 2FA.\n\n A equipe de suporte do Cake não poderá ajudá-lo se você perder o acesso à sua semente mnemônica, pois o Cake é um carteira não custodial.",
   "setup_totp_recommended": "Configurar TOTP (recomendado)",
   "disable_buy": "Desativar ação de compra",
-  "disable_sell": "Desativar ação de venda"
+  "disable_sell": "Desativar ação de venda",
+  "available_balance_description": "Seu saldo disponível é o saldo total menos o saldo congelado. O saldo congelado é o saldo que você não pode gastar, mas que ainda não foi confirmado na blockchain. O saldo congelado é geralmente o resultado de transações recentes.",
+  "syncing_wallet_alert_title": "Sua carteira está sincronizando",
+  "syncing_wallet_alert_content": "Seu saldo e lista de transações podem não estar completos até que diga “SYNCHRONIZED” no topo. Clique/toque para saber mais."
 }

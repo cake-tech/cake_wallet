@@ -1,9 +1,11 @@
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -37,6 +39,23 @@ class TransactionsPage extends StatelessWidget {
         padding: EdgeInsets.only(top: 24, bottom: 24),
         child: Column(
           children: <Widget>[
+            Observer(builder: (_) {
+              final status = dashboardViewModel.status;
+              if (status is SyncingSyncStatus) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  child: DashBoardRoundedCardWidget(
+                    onTap: () => Navigator.of(context).pushNamed(
+                        Routes.webViewPage,
+                        arguments: ['', Uri.parse('https://guides.cakewallet.com/docs/bugs-service-status/why_are_my_funds_not_appearing/')]),
+                    title: S.of(context).syncing_wallet_alert_title,
+                    subTitle: S.of(context).syncing_wallet_alert_content,
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            }),
             HeaderRow(dashboardViewModel: dashboardViewModel),
             Expanded(child: Observer(builder: (_) {
               final items = dashboardViewModel.items;

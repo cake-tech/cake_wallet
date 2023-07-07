@@ -219,7 +219,7 @@
   "send_amount" : "Cantidad:",
   "send_fee" : "Cuota:",
   "send_name" : "Nombre",
-  "send_got_it" : "Entendido",
+  "got_it": "Entendido",
   "send_sending" : "Enviando...",
   "send_success" : "Su ${crypto} fue enviado con éxito",
 
@@ -727,5 +727,8 @@
   "setup_2fa_text": "Cake 2FA NO es tan seguro como el almacenamiento en frío. 2FA protege contra tipos básicos de ataques, como cuando un amigo proporciona su huella digital mientras usted duerme.\n\n Cake 2FA NO protege contra un dispositivo comprometido por un atacante sofisticado.\n\n Si pierde el acceso a sus códigos 2FA , PERDERÁS EL ACCESO A ESTA BILLETERA. Deberá restaurar su billetera desde la semilla mnemotécnica. ¡POR LO TANTO, DEBE HACER UNA COPIA DE SEGURIDAD DE SUS SEMILLAS MNEMÓNICAS! Además, alguien con acceso a sus semillas mnemotécnicas podrá robar sus fondos, sin pasar por Cake 2FA.\n\n El personal de soporte de Cake no podrá ayudarlo si pierde el acceso a su semilla mnemotécnica, ya que Cake es un billetera sin custodia.",
   "setup_totp_recommended": "Configurar TOTP (Recomendado)",
   "disable_buy": "Desactivar acción de compra",
-  "disable_sell": "Desactivar acción de venta"
+  "disable_sell": "Desactivar acción de venta",
+  "available_balance_description": "Su saldo disponible es la cantidad de fondos que puede gastar. Los fondos que se muestran aquí se pueden gastar inmediatamente.",
+  "syncing_wallet_alert_title": "Tu billetera se está sincronizando",
+  "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información."
 }

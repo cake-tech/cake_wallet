@@ -219,7 +219,7 @@
   "send_amount" : "Miktar:",
   "send_fee" : "Komisyon:",
   "send_name" : "İsim",
-  "send_got_it" : "Tamamdır",
+  "got_it": "Tamamdır",
   "send_sending" : "Gönderiliyor...",
   "send_success" : "${crypto} başarıyla gönderildi",
 
@@ -727,5 +727,8 @@
   "setup_2fa_text": "Cake 2FA, soğuk hava deposu kadar güvenli DEĞİLDİR. 2FA, siz uyurken arkadaşınızın parmak izinizi sağlaması gibi temel saldırı türlerine karşı koruma sağlar.\n\n Cake 2FA, gelişmiş bir saldırgan tarafından güvenliği ihlal edilmiş bir cihaza karşı koruma SAĞLAMAZ.\n\n 2FA kodlarınıza erişimi kaybederseniz , BU CÜZDANA ERİŞİMİNİZİ KAYBEDECEKSİNİZ. Mnemonic seed'den cüzdanınızı geri yüklemeniz gerekecek. BU NEDENLE HATIRLAYICI TOHUMLARINIZI YEDEKLEMELİSİNİZ! Ayrıca anımsatıcı tohumlarınıza erişimi olan biri, Cake 2FA'yı atlayarak paranızı çalabilir.\n\n Cake, anımsatıcı tohumlarınıza erişimi kaybederseniz size yardımcı olamaz, çünkü Cake bir saklama dışı cüzdan.",
   "setup_totp_recommended": "TOTP'yi kurun (Önerilir)",
   "disable_buy": "Satın alma işlemini devre dışı bırak",
-  "disable_sell": "Satış işlemini devre dışı bırak"
+  "disable_sell": "Satış işlemini devre dışı bırak",
+  "available_balance_description": "Bu, cüzdanınızda harcayabileceğiniz miktar. Bu miktar, cüzdanınızdan çekilebilecek toplam bakiyeden daha düşük olabilir, çünkü bazı fonlar henüz kullanılamaz durumda olabilir.",
+  "syncing_wallet_alert_title": "Cüzdanınız senkronize ediliyor",
+  "syncing_wallet_alert_content": "Bakiyeniz ve işlem listeniz, en üstte \"SENKRONİZE EDİLDİ\" yazana kadar tamamlanmamış olabilir. Daha fazla bilgi edinmek için tıklayın/dokunun."
 }

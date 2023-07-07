@@ -219,7 +219,7 @@
   "send_amount" : "Ammontare:",
   "send_fee" : "Commissione:",
   "send_name" : "Nome",
-  "send_got_it" : "Ho capito",
+  "got_it": "Ho capito",
   "send_sending" : "Invio...",
   "send_success" : " ${crypto} inviati con successo",
 
@@ -727,5 +727,8 @@
   "setup_2fa_text": "Cake 2FA NON è sicuro come la cella frigorifera. 2FA protegge da tipi di attacchi di base, come il tuo amico che fornisce la tua impronta digitale mentre dormi.\n\n Cake 2FA NON protegge da un dispositivo compromesso da un aggressore sofisticato.\n\n Se perdi l'accesso ai tuoi codici 2FA , PERDERAI L'ACCESSO A QUESTO PORTAFOGLIO. Dovrai ripristinare il tuo portafoglio dal seme mnemonico. DOVETE QUINDI SOSTITUIRE I VOSTRI SEMI MNEMONICI! Inoltre, qualcuno con accesso ai tuoi seed mnemonici sarà in grado di rubare i tuoi fondi, aggirando Cake 2FA.\n\n Il personale di supporto di Cake non sarà in grado di aiutarti se perdi l'accesso al tuo seed mnemonico, poiché Cake è un portafoglio non detentivo.",
   "setup_totp_recommended": "Imposta TOTP (consigliato)",
   "disable_buy": "Disabilita l'azione di acquisto",
-  "disable_sell": "Disabilita l'azione di vendita"
+  "disable_sell": "Disabilita l'azione di vendita",
+  "available_balance_description": "Il saldo disponibile è il saldo totale meno i fondi congelati. I fondi congelati sono fondi che sono stati inviati ma non sono ancora stati confermati.",
+  "syncing_wallet_alert_title": "Il tuo portafoglio si sta sincronizzando",
+  "syncing_wallet_alert_content": "Il saldo e l'elenco delle transazioni potrebbero non essere completi fino a quando non viene visualizzato \"SYNCHRONIZED\" in alto. Clicca/tocca per saperne di più."
 }

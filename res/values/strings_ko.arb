@@ -219,7 +219,7 @@
   "send_amount" : "양:",
   "send_fee" : "회비:",
   "send_name" : "이름",
-  "send_got_it" : "알았다",
+  "got_it": "알았다",
   "send_sending" : "배상...",
   "send_success" : "${crypto}가 성공적으로 전송되었습니다",
 
@@ -727,5 +727,8 @@
   "setup_2fa_text": "케이크 2FA는 냉장 보관만큼 안전하지 않습니다. 2FA는 당신이 잠자는 동안 친구가 지문을 제공하는 것과 같은 기본적인 유형의 공격으로부터 보호합니다.\n\n Cake 2FA는 정교한 공격자에 의해 손상된 장치로부터 보호하지 않습니다.\n\n 2FA 코드에 대한 액세스 권한을 잃으면 , 이 지갑에 대한 액세스 권한을 잃게 됩니다. 니모닉 시드에서 지갑을 복원해야 합니다. 따라서 니모닉 시드를 백업해야 합니다! 또한 니모닉 시드에 액세스할 수 있는 사람이 Cake 2FA를 우회하여 자금을 훔칠 수 있습니다.\n\n 니모닉 시드에 대한 액세스 권한을 잃으면 Cake 지원 직원이 도와줄 수 없습니다. 비수탁 지갑.",
   "setup_totp_recommended": "TOTP 설정(권장)",
   "disable_buy": "구매 행동 비활성화",
-  "disable_sell": "판매 조치 비활성화"
+  "disable_sell": "판매 조치 비활성화",
+  "available_balance_description": "이 지갑에서 사용할 수 있는 잔액입니다. 이 잔액은 블록체인에서 가져온 것이며, Cake Wallet이 사용할 수 없습니다.",
+  "syncing_wallet_alert_title": "지갑 동기화 중",
+  "syncing_wallet_alert_content": "상단에 \"동기화됨\"이라고 표시될 때까지 잔액 및 거래 목록이 완전하지 않을 수 있습니다. 자세히 알아보려면 클릭/탭하세요."
 }
