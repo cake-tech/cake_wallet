@@ -134,7 +134,7 @@ class DefaultErc20Tokens {
       symbol: "BNB",
       contractAddress: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
       decimal: 18,
-      enabled: true,
+      enabled: false,
     ),
     Erc20Token(
       name: "stETH",
