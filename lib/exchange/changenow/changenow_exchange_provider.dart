@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/distribution_info.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
@@ -14,7 +18,7 @@ import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
-  ChangeNowExchangeProvider()
+  ChangeNowExchangeProvider({required this.settingsStore})
       : _lastUsedRateId = '',
         super(
             pairList: CryptoCurrency.all
@@ -25,7 +29,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
                 .expand((i) => i)
                 .toList());
 
-  static final apiKey = DeviceInfo.instance.isMobile ? secrets.changeNowApiKey : secrets.changeNowApiKeyDesktop;
+  static final apiKey =
+      DeviceInfo.instance.isMobile ? secrets.changeNowApiKey : secrets.changeNowApiKeyDesktop;
   static const apiAuthority = 'api.changenow.io';
   static const createTradePath = '/v2/exchange';
   static const findTradeByIdPath = '/v2/exchange/by-id';
@@ -46,21 +51,22 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => true;
 
   @override
-  ExchangeProviderDescription get description =>
-      ExchangeProviderDescription.changeNow;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.changeNow;
 
   @override
   Future<bool> checkIsAvailable() async => true;
+
+  final SettingsStore settingsStore;
 
   String _lastUsedRateId;
 
   static String getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';
 
   @override
-  Future<Limits> fetchLimits({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required bool isFixedRateMode}) async {
     final headers = {apiHeaderKey: apiKey};
     final normalizedFrom = normalizeCryptoCurrency(from);
     final normalizedTo = normalizeCryptoCurrency(to);
@@ -70,10 +76,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'toCurrency': normalizedTo,
       'fromNetwork': networkFor(from),
       'toNetwork': networkFor(to),
-      'flow': flow};
+      'flow': flow
+    };
     final uri = Uri.https(apiAuthority, rangePath, params);
     final response = await get(uri, headers: headers);
-    
+
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
@@ -87,19 +94,24 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     return Limits(
-      min: responseJSON['minAmount'] as double?,
-      max: responseJSON['maxAmount'] as double?);
+        min: responseJSON['minAmount'] as double?, max: responseJSON['maxAmount'] as double?);
   }
 
   @override
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as ChangeNowRequest;
-    final headers = {
-      apiHeaderKey: apiKey,
-      'Content-Type': 'application/json'};
+    final distributionPath = await DistributionInfo.instance.getDistributionPath();
+    final formattedAppVersion = int.tryParse(settingsStore.appVersion.replaceAll('.', '')) ?? 0;
+    final payload = {
+      'app': isMoneroOnly ? 'monerocom' : 'cakewallet',
+      'device': Platform.operatingSystem,
+      'distribution': distributionPath,
+      'version': formattedAppVersion
+    };
+    final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
     final flow = getFlow(isFixedRateMode);
     final type = isFixedRateMode ? 'reverse' : 'direct';
-    final body = <String, String>{
+    final body = <String, dynamic>{
       'fromCurrency': normalizeCryptoCurrency(_request.from),
       'toCurrency': normalizeCryptoCurrency(_request.to),
       'fromNetwork': networkFor(_request.from),
@@ -109,7 +121,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'address': _request.address,
       'flow': flow,
       'type': type,
-      'refundAddress': _request.refundAddress
+      'refundAddress': _request.refundAddress,
+      'payload': payload,
     };
 
     if (isFixedRateMode) {
@@ -164,7 +177,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final headers = {apiHeaderKey: apiKey};
     final params = <String, String>{'id': id};
-    final uri = Uri.https(apiAuthority,findTradeByIdPath, params);
+    final uri = Uri.https(apiAuthority, findTradeByIdPath, params);
     final response = await get(uri, headers: headers);
 
     if (response.statusCode == 404) {
@@ -175,8 +188,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
-      throw TradeNotFoundException(id,
-          provider: description, description: error);
+      throw TradeNotFoundException(id, provider: description, description: error);
     }
 
     if (response.statusCode != 200) {
@@ -234,19 +246,20 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         'fromNetwork': networkFor(from),
         'toNetwork': networkFor(to),
         'type': type,
-        'flow': flow};
+        'flow': flow
+      };
 
       if (isReverse) {
         params['toAmount'] = amount.toString();
       } else {
         params['fromAmount'] = amount.toString();
       }
-      
+
       final uri = Uri.https(apiAuthority, estimatedAmountPath, params);
       final response = await get(uri, headers: headers);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['fromAmount'].toString());
-      final toAmount =  double.parse(responseJSON['toAmount'].toString());
+      final toAmount = double.parse(responseJSON['toAmount'].toString());
       final rateId = responseJSON['rateId'] as String? ?? '';
 
       if (rateId.isNotEmpty) {
@@ -254,35 +267,31 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       }
 
       return isReverse ? (amount / fromAmount) : (toAmount / amount);
-    } catch(e) {
+    } catch (e) {
       print(e.toString());
       return 0.0;
     }
   }
- 
+
   String networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.usdt:
         return CryptoCurrency.btc.title.toLowerCase();
       default:
-        return currency.tag != null
-            ? currency.tag!.toLowerCase()
-            : currency.title.toLowerCase();
-      }
+        return currency.tag != null ? currency.tag!.toLowerCase() : currency.title.toLowerCase();
     }
-
   }
+}
 
-   String normalizeCryptoCurrency(CryptoCurrency currency) {
-   switch(currency) {
-      case CryptoCurrency.zec:
-        return 'zec';
-      case CryptoCurrency.usdcpoly:
-        return 'usdcmatic';
-      case CryptoCurrency.maticpoly:
-        return 'maticmainnet';
-      default:
-        return currency.title.toLowerCase();
-    }
-
+String normalizeCryptoCurrency(CryptoCurrency currency) {
+  switch (currency) {
+    case CryptoCurrency.zec:
+      return 'zec';
+    case CryptoCurrency.usdcpoly:
+      return 'usdcmatic';
+    case CryptoCurrency.maticpoly:
+      return 'maticmainnet';
+    default:
+      return currency.title.toLowerCase();
   }
+}
