@@ -41,6 +41,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialDisableSell,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required bool initialShowHistoricalFiatAmount,
       required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
@@ -71,6 +72,7 @@ abstract class SettingsStoreBase with Store {
         useTOTP2FA = initialUseTOTP2FA,
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
+        showHistoricalFiatAmount = initialShowHistoricalFiatAmount,
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
@@ -180,6 +182,12 @@ abstract class SettingsStoreBase with Store {
         (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
 
     reaction(
+            (_) => showHistoricalFiatAmount,
+            (bool historicalFiatRate) => sharedPreferences.setBool(
+            PreferencesKey.showHistoricalFiatAmountKey,
+                historicalFiatRate));
+
+    reaction(
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
@@ -252,6 +260,8 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
+  bool showHistoricalFiatAmount;
+
   String totpSecretKey;
 
   @computed
@@ -356,11 +366,14 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell =
         sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
-    final currentFiatApiMode = FiatApiMode.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
-            FiatApiMode.enabled.raw);
-    final allowBiometricalAuthentication =
-        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
+    final currentFiatApiMode = FiatApiMode.deserialize(raw: sharedPreferences
+            .getInt(PreferencesKey.currentFiatApiModeKey) ?? FiatApiMode.enabled.raw);
+    final allowBiometricalAuthentication = sharedPreferences
+            .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+        false;
+    final showHistoricalFiatAmount = sharedPreferences
+        .getBool(PreferencesKey.showHistoricalFiatAmountKey) ??
+        false;
     final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
@@ -438,6 +451,7 @@ abstract class SettingsStoreBase with Store {
         initialDisableSell: disableSell,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialShowHistoricalFiatAmount: showHistoricalFiatAmount,
         initialTotpSecretKey: totpSecretKey,
         initialUseTOTP2FA: useTOTP2FA,
         initialFailedTokenTrial: tokenTrialNumber,
@@ -497,6 +511,9 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication = sharedPreferences
         .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         allowBiometricalAuthentication;
+    showHistoricalFiatAmount = sharedPreferences
+        .getBool(PreferencesKey.showHistoricalFiatAmountKey) ??
+        showHistoricalFiatAmount;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;

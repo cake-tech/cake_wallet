@@ -1,3 +1,6 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -14,6 +17,9 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+
+import 'dashboard/dashboard_view_model.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -24,11 +30,12 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionDetailsViewModelBase(
       {required this.transactionInfo,
       required this.transactionDescriptionBox,
+      required this.dashboardViewModel,
       required this.wallet,
       required this.settingsStore})
-      : items = [],
-      isRecipientAddressShown = false,
-      showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
+      : items = ObservableList<TransactionDetailsListItem>(),
+        isRecipientAddressShown = false,
+        showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
@@ -38,19 +45,13 @@ abstract class TransactionDetailsViewModelBase with Store {
       final addressIndex = tx.additionalInfo['addressIndex'] as int;
       final feeFormatted = tx.feeFormatted();
       final _items = [
+        StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
         StandartListItem(
-            title: S.current.transaction_details_transaction_id, value: tx.id),
-        StandartListItem(
-            title: S.current.transaction_details_date,
-            value: dateFormat.format(tx.date)),
-        StandartListItem(
-            title: S.current.transaction_details_height, value: '${tx.height}'),
-        StandartListItem(
-            title: S.current.transaction_details_amount,
-            value: tx.amountFormatted()),
+            title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+        StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+        StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
         if (feeFormatted != null)
-          StandartListItem(
-            title: S.current.transaction_details_fee, value: feeFormatted),
+          StandartListItem(title: S.current.transaction_details_fee, value: feeFormatted),
         if (key?.isNotEmpty ?? false)
           StandartListItem(title: S.current.transaction_key, value: key!)
       ];
@@ -64,18 +65,12 @@ abstract class TransactionDetailsViewModelBase with Store {
 
           if (address?.isNotEmpty ?? false) {
             isRecipientAddressShown = true;
-            _items.add(
-                StandartListItem(
-                    title: S.current.transaction_details_recipient_address,
-                    value: address));
+            _items.add(StandartListItem(
+                title: S.current.transaction_details_recipient_address, value: address));
           }
 
           if (label?.isNotEmpty ?? false) {
-            _items.add(
-                StandartListItem(
-                  title: S.current.address_label,
-                  value: label)
-            );
+            _items.add(StandartListItem(title: S.current.address_label, value: label));
           }
         } catch (e) {
           print(e.toString());
@@ -85,26 +80,16 @@ abstract class TransactionDetailsViewModelBase with Store {
       items.addAll(_items);
     }
 
-    if (wallet.type == WalletType.bitcoin
-        || wallet.type == WalletType.litecoin) {
+    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
       final _items = [
+        StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
         StandartListItem(
-            title: S.current.transaction_details_transaction_id, value: tx.id),
-        StandartListItem(
-            title: S.current.transaction_details_date,
-            value: dateFormat.format(tx.date)),
-        StandartListItem(
-            title: S.current.confirmations,
-            value: tx.confirmations.toString()),
-        StandartListItem(
-            title: S.current.transaction_details_height, value: '${tx.height}'),
-        StandartListItem(
-            title: S.current.transaction_details_amount,
-            value: tx.amountFormatted()),
+            title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+        StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
+        StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+        StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
         if (tx.feeFormatted()?.isNotEmpty ?? false)
-          StandartListItem(
-              title: S.current.transaction_details_fee,
-              value: tx.feeFormatted()!),
+          StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!)
       ];
 
       items.addAll(_items);
@@ -112,19 +97,13 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     if (wallet.type == WalletType.haven) {
       items.addAll([
+        StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
         StandartListItem(
-            title: S.current.transaction_details_transaction_id, value: tx.id),
-        StandartListItem(
-            title: S.current.transaction_details_date,
-            value: dateFormat.format(tx.date)),
-        StandartListItem(
-            title: S.current.transaction_details_height, value: '${tx.height}'),
-        StandartListItem(
-            title: S.current.transaction_details_amount,
-            value: tx.amountFormatted()),
+            title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+        StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+        StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
         if (tx.feeFormatted()?.isNotEmpty ?? false)
-          StandartListItem(
-            title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+          StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!)
       ]);
     }
 
@@ -136,10 +115,9 @@ abstract class TransactionDetailsViewModelBase with Store {
 
         if (recipientAddress?.isNotEmpty ?? false) {
           items.add(StandartListItem(
-              title: S.current.transaction_details_recipient_address,
-              value: recipientAddress!));
+              title: S.current.transaction_details_recipient_address, value: recipientAddress!));
         }
-      } catch(_) {
+      } catch (_) {
         // FIX-ME: Unhandled exception
       }
     }
@@ -155,9 +133,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           } catch (e) {}
         }));
 
-    final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.id,
-        orElse: () => TransactionDescription(id: transactionInfo.id));
+    final description = dashboardViewModel.getTransactionDescription(transactionInfo);
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
@@ -171,14 +147,30 @@ abstract class TransactionDetailsViewModelBase with Store {
             transactionDescriptionBox.add(description);
           }
         }));
+
+    if (settingsStore.showHistoricalFiatAmount &&
+        description.historicalFiatRate != null &&
+        description.historicalFiatRate! > 0 && settingsStore.fiatApiMode != FiatApiMode.disabled) {
+      final index =
+          items.indexWhere((element) => element.title == S.current.transaction_details_fee);
+
+      items.insert(
+          index + 1,
+          StandartListItem(
+              title: S.current.historical_fiat_amount,
+              value: description.historicalFiatRate!.toStringAsFixed(2) +
+                  ' ' +
+                  settingsStore.fiatCurrency.toString()));
+    }
   }
 
   final TransactionInfo transactionInfo;
   final Box<TransactionDescription> transactionDescriptionBox;
+  final DashboardViewModel dashboardViewModel;
   final SettingsStore settingsStore;
   final WalletBase wallet;
 
-  final List<TransactionDetailsListItem> items;
+  final ObservableList<TransactionDetailsListItem> items;
   bool showRecipientAddress;
   bool isRecipientAddressShown;
 

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
@@ -69,27 +70,34 @@ class TransactionsPage extends StatelessWidget {
                         if (item is DateSectionItem) {
                           return DateSectionRaw(date: item.date);
                         }
+                        
+                      if (item is TransactionListItem) {
+                        final transaction = item.transaction;
+                        final description =
+                        dashboardViewModel.getTransactionDescription(transaction);
+                        final formattedFiatAmount =
+                        dashboardViewModel.settingsStore.fiatApiMode == FiatApiMode.disabled
+                            ? ''
+                            : (dashboardViewModel.settingsStore.showHistoricalFiatAmount
+                            ? (description.historicalFiatRate == null ||
+                            description.historicalFiatRate == 0.0
+                            ? ''
+                            : dashboardViewModel.settingsStore.fiatCurrency.toString() +
+                            ' ' +
+                            description.historicalFiatRate!.toStringAsFixed(2))
+                            : item.formattedFiatAmount);
 
-                        if (item is TransactionListItem) {
-                          final transaction = item.transaction;
-
-                          return Observer(
-                              builder: (_) => TransactionRow(
-                                  onTap: () => Navigator.of(context).pushNamed(
-                                      Routes.transactionDetails,
-                                      arguments: transaction),
-                                  direction: transaction.direction,
-                                  formattedDate: DateFormat('HH:mm')
-                                      .format(transaction.date),
-                                  formattedAmount: item.formattedCryptoAmount,
-                                  formattedFiatAmount: dashboardViewModel
-                                          .balanceViewModel.isFiatDisabled
-                                      ? ''
-                                      : item.formattedFiatAmount,
-                                  isPending: transaction.isPending,
-                                  title: item.formattedTitle +
-                                      item.formattedStatus));
-                        }
+                        return Observer(
+                            builder: (_) => TransactionRow(
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                direction: transaction.direction,
+                                formattedDate: DateFormat('HH:mm').format(transaction.date),
+                                formattedAmount: item.formattedCryptoAmount,
+                                formattedFiatAmount: formattedFiatAmount,
+                                isPending: transaction.isPending,
+                                title: item.formattedTitle + item.formattedStatus));
+                      }
 
                         if (item is AnonpayTransactionListItem) {
                           final transactionInfo = item.transaction;

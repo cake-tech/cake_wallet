@@ -1,7 +1,13 @@
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -17,6 +23,7 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
@@ -43,6 +50,7 @@ abstract class DashboardViewModelBase with Store {
       required this.settingsStore,
       required this.yatStore,
       required this.ordersStore,
+      required this.transactionDescriptionBox,
       required this.anonpayTransactionsStore})
   : isOutdatedElectrumWallet = false,
     hasSellAction = false,
@@ -114,6 +122,31 @@ abstract class DashboardViewModelBase with Store {
 
     final _wallet = wallet;
 
+
+   reaction((_) => settingsStore.fiatCurrency,
+            (FiatCurrency fiatCurrency) {
+          _wallet.transactionHistory.transactions.values.forEach((tx) {
+            _getHistoricalFiatRate(tx);
+          });
+        });
+
+    reaction((_) => settingsStore.fiatApiMode,
+            (FiatApiMode fiatApiMode) {
+          _wallet.transactionHistory.transactions.values.forEach((tx) {
+            _getHistoricalFiatRate(tx);
+          });
+        });
+
+
+     reaction((_) => settingsStore.showHistoricalFiatAmount,
+            (bool showHistoricalFiatAmount) {
+      if (showHistoricalFiatAmount) {
+        _wallet.transactionHistory.transactions.values.forEach((tx) {
+          _getHistoricalFiatRate(tx);
+        });
+      }
+        });
+
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
 
@@ -128,11 +161,16 @@ abstract class DashboardViewModelBase with Store {
           .where((tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions = ObservableList.of(_accountTransactions.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(_accountTransactions.map((transaction) {
+
+
+          _getHistoricalFiatRate(transaction);
+
+        return TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore);
+      }));
     } else {
       transactions = ObservableList.of(wallet
           .transactionHistory.transactions.values
@@ -143,7 +181,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);
-    
+
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
@@ -152,9 +190,12 @@ abstract class DashboardViewModelBase with Store {
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore),
         filter: (TransactionInfo? transaction) {
+
           if (transaction == null) {
             return false;
           }
+
+          _getHistoricalFiatRate(transaction);
 
           final wallet = _wallet;
           if (wallet.type == WalletType.monero) {
@@ -210,7 +251,7 @@ abstract class DashboardViewModelBase with Store {
   @computed
   BalanceDisplayMode get balanceDisplayMode =>
       appStore.settingsStore.balanceDisplayMode;
-    
+
   @computed
   bool get shouldShowMarketPlaceInDashboard {
     return appStore.settingsStore.shouldShowMarketPlaceInDashboard;
@@ -225,7 +266,7 @@ abstract class DashboardViewModelBase with Store {
   List<OrderListItem> get orders => ordersStore.orders
       .where((item) => item.order.walletId == wallet.id)
       .toList();
-  
+
   @computed
   List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
       .where((item) => item.transaction.walletId == wallet.id)
@@ -270,6 +311,8 @@ abstract class DashboardViewModelBase with Store {
   TransactionFilterStore transactionFilterStore;
 
   Map<String, List<FilterItem>> filterItems;
+
+  final Box<TransactionDescription> transactionDescriptionBox;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
@@ -385,6 +428,7 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
+
     transactions.clear();
 
     final _accountTransactions = monero!.getTransactionHistory(wallet).transactions.values
@@ -403,4 +447,54 @@ abstract class DashboardViewModelBase with Store {
     hasBuyAction = !isHaven;
     hasSellAction = !isHaven;
   }
+
+  Future<void> _getHistoricalFiatRate(TransactionInfo transactionInfo) async {
+    if (FiatApiMode.disabled == settingsStore.fiatApiMode
+    || !settingsStore.showHistoricalFiatAmount) return;
+    final description = getTransactionDescription(transactionInfo);
+
+
+    if (description.historicalFiat != settingsStore.fiatCurrency.toString()
+        || description.historicalFiatRate == null) {
+      if (description.key == 0) description.delete();
+      description.historicalFiatRate = null;
+      transactionDescriptionBox.put(description.id, description);
+      final fiat = settingsStore.fiatCurrency;
+
+      final historicalFiatRate = await FiatConversionService.fetchHistoricalPrice(
+          crypto: wallet.currency,
+          fiat: fiat,
+          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+          date: transactionInfo.date);
+      var formattedFiatAmount = 0.0;
+      switch (wallet.type) {
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+          formattedFiatAmount = bitcoinAmountToDouble(amount: transactionInfo.amount);
+          break;
+        case WalletType.monero:
+        case WalletType.haven:
+          formattedFiatAmount = moneroAmountToDouble(amount: transactionInfo.amount);
+          break;
+        default:
+          formattedFiatAmount;
+      }
+      description.historicalFiatRaw = settingsStore.fiatCurrency.toString();
+
+      if (historicalFiatRate != null) {
+        final historicalFiatAmountFormatted = formattedFiatAmount * historicalFiatRate;
+        if (description.key == 0) description.delete();
+          description.historicalFiatRate = historicalFiatAmountFormatted;
+          transactionDescriptionBox.put(description.id, description);
+      } else {
+        if (description.key == 0) description.delete();
+        description.historicalFiatRate = null;
+        transactionDescriptionBox.put(description.id, description);
+      }
+    }
+  }
+
+  TransactionDescription getTransactionDescription(TransactionInfo transactionInfo) =>
+      transactionDescriptionBox.values.firstWhere((val) => val.id == transactionInfo.id,
+          orElse: () => TransactionDescription(id: transactionInfo.id));
 }

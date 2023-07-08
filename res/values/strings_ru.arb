@@ -709,6 +709,7 @@
   "error_text_input_above_maximum_limit" : "Сумма больше максимальной",
   "show_market_place":"Показать торговую площадку",
   "prevent_screenshots": "Предотвратить скриншоты и запись экрана",
+  "historical_fiat_amount": "Историческая фиатная сумма",
   "modify_2fa": "Изменить торт 2FA",
   "disable_cake_2fa": "Отключить торт 2FA",
   "question_to_disable_2fa":"Вы уверены, что хотите отключить Cake 2FA? Код 2FA больше не потребуется для доступа к кошельку и некоторым функциям.",

@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_i
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,7 +28,9 @@ class TransactionDetailsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     // FIX-ME: Added `context` it was not used here before, maby bug ?
-    return SectionStandardList(
+    return Observer(
+        builder: (_) {
+      return SectionStandardList(
         context: context,
         sectionCount: 1,
         itemCounter: (int _) => transactionDetailsViewModel.items.length,
@@ -63,6 +66,6 @@ class TransactionDetailsPage extends BasePage {
           }
 
           return Container();
-        });
+        });});
   }
 }

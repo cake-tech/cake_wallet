@@ -60,6 +60,13 @@ class DisplaySettingsPage extends BasePage {
                       currency.fullName.toLowerCase().contains(searchText);
                 },
               ),
+            SettingsSwitcherCell(
+              title: S.current.historical_fiat_amount,
+              value: _displaySettingsViewModel.showHistoricalFiatAmount,
+              onValueChange: (_, bool value) {
+                _displaySettingsViewModel.setShowHistoricalFiatAmount(value);
+              },
+            ),
             SettingsPickerCell<String>(
               title: S.current.settings_change_language,
               searchHintText: S.current.search_language,
