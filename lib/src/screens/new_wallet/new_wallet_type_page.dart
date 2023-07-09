@@ -53,7 +53,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     super.initState();
 
     searchController.addListener(() {
-      filteredTypes = types;
       setState(() {
         filteredTypes = List.from(types.where((type) => walletTypeToDisplayName(type)
             .toLowerCase()
