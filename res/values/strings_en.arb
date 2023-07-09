@@ -219,7 +219,7 @@
   "send_amount" : "Amount:",
   "send_fee" : "Fee:",
   "send_name" : "Name",
-  "send_got_it" : "Got it",
+  "got_it": "Got it",
   "send_sending" : "Sending...",
   "send_success" : "Your ${crypto} was successfully sent",
 
@@ -727,5 +727,9 @@
   "setup_2fa_text": "Cake 2FA is NOT as secure as cold storage. 2FA protects against basic types of attacks, such as your friend providing your fingerprint while you are sleeping.\n\n Cake 2FA does NOT protect against a compromised device by a sophisticated attacker.\n\n If you lose access to your 2FA codes, YOU WILL LOSE ACCESS TO THIS WALLET. You will need to restore your wallet from mnemonic seed. YOU MUST THEREFORE BACK UP YOUR MNEMONIC SEEDS! Further, someone with access to your mnemonic seed(s) will be able to steal your funds, bypassing Cake 2FA.\n\n Cake support staff will be unable to assist you if you lose access to your mnemonic seed, since Cake is a noncustodial wallet.",
   "setup_totp_recommended": "Set up TOTP (Recommended)",
   "disable_buy": "Disable buy action",
-  "disable_sell": "Disable sell action"
+  "disable_sell": "Disable sell action",
+  "available_balance_description": "The “Available Balance” or “Confirmed Balance” are funds that can be spent immediately. If funds appear in the lower balance but not the top balance, then you must wait a few minutes for the incoming funds to get more network confirmations. After they get more confirmations, they will be spendable.",
+  "syncing_wallet_alert_title": "Your wallet is syncing",
+  "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more."
+
 }

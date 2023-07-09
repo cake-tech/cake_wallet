@@ -219,7 +219,7 @@
   "send_amount" : "Iznos:",
   "send_fee" : "Naknada:",
   "send_name" : "Ime",
-  "send_got_it" : "U redu",
+  "got_it": "U redu",
   "send_sending" : "Slanje...",
   "send_success" : "Vaš ${crypto} je uspješno poslan",
 
@@ -727,7 +727,10 @@
   "setup_2fa_text": "Torta 2FA NIJE sigurna kao hladno skladište. 2FA štiti od osnovnih vrsta napada, kao što je vaš prijatelj koji vam daje otisak prsta dok spavate.\n\n Cake 2FA NE štiti od kompromitiranog uređaja od strane sofisticiranog napadača.\n\n Ako izgubite pristup svojim 2FA kodovima , IZGUBIT ĆETE PRISTUP OVOM NOVČANIKU. Morat ćete obnoviti svoj novčanik iz mnemoničkog sjemena. STOGA MORATE NAPRAVITI SIGURNOSNE KOPIJE SVOJIH MNEMONIČKIH SJEMENA! Nadalje, netko tko ima pristup vašem mnemoničkom seedu(ima) moći će ukrasti vaša sredstva, zaobilazeći Cake 2FA.\n\n Cake osoblje za podršku neće vam moći pomoći ako izgubite pristup svom mnemoničkom seedu, budući da je Cake neskrbnički novčanik.",
   "setup_totp_recommended": "Postavite TOTP (preporučeno)",
   "disable_buy": "Onemogući kupnju",
-  "disable_sell": "Onemogući akciju prodaje"
+  "disable_sell": "Onemogući akciju prodaje",
+  "available_balance_description": "Dostupno stanje je iznos koji možete potrošiti. To je vaš saldo minus bilo kakve transakcije koje su još uvijek u tijeku.",
+  "syncing_wallet_alert_title": "Vaš novčanik se sinkronizira",
+  "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više."
 }
 
 

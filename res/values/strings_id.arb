@@ -216,7 +216,7 @@
   "send_amount" : "Jumlah:",
   "send_fee" : "Biaya:",
   "send_name" : "Nama",
-  "send_got_it" : "Sudah paham",
+  "got_it": "Sudah paham",
   "send_sending" : "Mengirim...",
   "send_success" : "${crypto}mu berhasil dikirim",
 
@@ -703,7 +703,10 @@
   "setup_2fa_text": "Cake 2FA TIDAK seaman cold storage. 2FA melindungi dari jenis serangan dasar, seperti teman Anda memberikan sidik jari saat Anda sedang tidur.\n\n Cake 2FA TIDAK melindungi dari perangkat yang disusupi oleh penyerang canggih.\n\n Jika Anda kehilangan akses ke kode 2FA , ANDA AKAN KEHILANGAN AKSES KE DOMPET INI. Anda perlu memulihkan dompet Anda dari benih mnemonik. OLEH KARENA ITU, ANDA HARUS MENYIMPAN BIJI MNEMONIK ANDA! Selanjutnya, seseorang yang memiliki akses ke benih mnemonik Anda akan dapat mencuri dana Anda, melewati Cake 2FA.\n\n Staf pendukung Cake tidak akan dapat membantu Anda jika Anda kehilangan akses ke benih mnemonik Anda, karena Cake adalah dompet tanpa hak asuh.",
   "setup_totp_recommended": "Siapkan TOTP (Disarankan)",
   "disable_buy": "Nonaktifkan tindakan beli",
-  "disable_sell": "Nonaktifkan aksi jual"
+  "disable_sell": "Nonaktifkan aksi jual",
+  "available_balance_description": "“Saldo yang Tersedia” atau “Saldo yang Dikonfirmasi” adalah dana yang dapat langsung dibelanjakan. Jika dana muncul di saldo bawah tetapi tidak di saldo atas, maka Anda harus menunggu beberapa menit agar dana masuk mendapatkan konfirmasi jaringan lainnya. Setelah mereka mendapatkan lebih banyak konfirmasi, mereka akan dapat dibelanjakan.",
+  "syncing_wallet_alert_title": "Dompet Anda sedang disinkronkan",
+  "syncing_wallet_alert_content": "Saldo dan daftar transaksi Anda mungkin belum lengkap sampai tertulis “SYNCHRONIZED” di bagian atas. Klik/ketuk untuk mempelajari lebih lanjut."
 }
 
 

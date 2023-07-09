@@ -219,7 +219,7 @@
   "send_amount" : "Částka:",
   "send_fee" : "Poplatek:",
   "send_name" : "Název",
-  "send_got_it" : "Rozumím",
+  "got_it": "Rozumím",
   "send_sending" : "Odesílání...",
   "send_success" : "Vaše ${crypto} bylo úspěšně odesláno",
 
@@ -721,5 +721,8 @@
   "setup_2fa_text": "Cake 2FA NENÍ tak bezpečný jako skladování v chladu. 2FA chrání před základními typy útoků, jako je váš přítel, který vám poskytne otisk prstu, když spíte.\n\n Cake 2FA nechrání před napadením zařízení sofistikovaným útočníkem.\n\n Pokud ztratíte přístup ke svým kódům 2FA , ZTRÁTÍTE PŘÍSTUP K TÉTO PENĚŽENCE. Budete muset obnovit svou peněženku z mnemotechnického semínka. MUSÍTE TEDY ZÁLOHOVAT SVÉ MNEMONICKÉ SEMÉNKY! Kromě toho někdo s přístupem k vašemu mnemotechnickému semenu bude moci ukrást vaše finanční prostředky a obejít Cake 2FA.\n\n Pracovníci podpory Cake vám nebudou schopni pomoci, pokud ztratíte přístup k vašemu mnemotechnickému semenu, protože Cake je nevazební peněženka.",
   "setup_totp_recommended": "Nastavit TOTP (doporučeno)",
   "disable_buy": "Zakázat akci nákupu",
-  "disable_sell": "Zakázat akci prodeje"
+  "disable_sell": "Zakázat akci prodeje",
+  "available_balance_description": "Dostupná částka je částka, kterou můžete okamžitě utratit. Zmrazená částka je částka, která ještě není k dispozici, protože ještě nebyla potvrzena síťovým protokolem.",
+  "syncing_wallet_alert_title": "Vaše peněženka se synchronizuje",
+  "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více."
 }

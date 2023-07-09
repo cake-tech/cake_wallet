@@ -219,7 +219,7 @@
   "send_amount" : "金额:",
   "send_fee" : "手续费:",
   "send_name" : "名称",
-  "send_got_it" : "明白",
+  "got_it": "明白",
   "send_sending" : "正在发送...",
   "send_success" : "您的${crypto}已成功发送",
 
@@ -726,5 +726,8 @@
   "setup_2fa_text": "Cake 2FA 不如冷藏安全。 2FA 可防止基本类型的攻击，例如您的朋友在您睡觉时提供您的指纹。\n\n Cake 2FA 无法防止老练的攻击者破坏设备。\n\n 如果您无法访问您的 2FA 代码, 您将无法访问此钱包。您将需要从助记词种子恢复您的钱包。因此，您必须备份您的助记词种子！此外，有权访问您的助记种子的人将能够绕过 Cake 2FA 窃取您的资金。\n\n 如果您无法访问您的助记种子，Cake 支持人员将无法帮助您，因为 Cake 是一个非托管钱包。",
   "setup_totp_recommended": "设置 TOTP（推荐）",
   "disable_buy": "禁用购买操作",
-  "disable_sell": "禁用卖出操作"
+  "disable_sell": "禁用卖出操作",
+  "available_balance_description": "可用余额是您可以使用的金额。冻结余额是您当前正在等待确认的金额。",
+  "syncing_wallet_alert_title": "您的钱包正在同步",
+  "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。"
 }

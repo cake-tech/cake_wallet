@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class MarketPlaceItem extends StatelessWidget {
+class DashBoardRoundedCardWidget extends StatelessWidget {
 
 
-  MarketPlaceItem({
+  DashBoardRoundedCardWidget({
     required this.onTap,
     required this.title,
     required this.subTitle,

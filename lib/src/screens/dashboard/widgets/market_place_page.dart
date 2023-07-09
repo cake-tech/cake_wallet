@@ -1,6 +1,6 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/market_place_item.dart';
+import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
@@ -51,13 +51,13 @@ class MarketPlacePage extends StatelessWidget {
                   controller: _scrollController,
                   children: <Widget>[
                     SizedBox(height: 20),
-                    MarketPlaceItem(
+                    DashBoardRoundedCardWidget(
                       onTap: () => _navigatorToGiftCardsPage(context),
                       title: S.of(context).cake_pay_title,
                       subTitle: S.of(context).cake_pay_subtitle,
                     ),
                     SizedBox(height: 20),
-                    MarketPlaceItem(
+                    DashBoardRoundedCardWidget(
                       onTap: () => launchUrl(
                         Uri.https("buy.cakepay.com"),
                         mode: LaunchMode.externalApplication,

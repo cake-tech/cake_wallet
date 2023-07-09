@@ -219,7 +219,7 @@
   "send_amount" : "Bedrag:",
   "send_fee" : "Vergoeding:",
   "send_name" : "Naam",
-  "send_got_it" : "Ik snap het",
+  "got_it": "Ik snap het",
   "send_sending" : "Bezig met verzenden...",
   "send_success" : "Uw ${crypto} is succesvol verzonden",
 
@@ -727,5 +727,8 @@
   "setup_2fa_text": "Cake 2FA is NIET zo veilig als koude opslag. 2FA beschermt tegen basistypen aanvallen, zoals uw vriend die uw vingerafdruk geeft terwijl u slaapt.\n\n Cake 2FA biedt GEEN bescherming tegen een gecompromitteerd apparaat door een geavanceerde aanvaller.\n\n Als u de toegang tot uw 2FA-codes kwijtraakt , VERLIEST U DE TOEGANG TOT DEZE PORTEFEUILLE. U moet uw portemonnee herstellen van mnemonic seed. JE MOET DAAROM EEN BACK-UP MAKEN VAN JE MNEMONISCHE ZADEN! Verder kan iemand met toegang tot je geheugensteuntje(s) je geld stelen, waarbij Cake 2FA wordt omzeild.\n\n Het ondersteunend personeel van Cake kan je niet helpen als je de toegang tot je geheugensteuntje kwijtraakt, aangezien Cake een niet-bewaarbare portemonnee.",
   "setup_totp_recommended": "TOTP instellen (aanbevolen)",
   "disable_buy": "Koopactie uitschakelen",
-  "disable_sell": "Verkoopactie uitschakelen"
+  "disable_sell": "Verkoopactie uitschakelen",
+  "available_balance_description": "Beschikbaar saldo is het saldo dat u kunt uitgeven. Het kan lager zijn dan uw totale saldo als u onlangs geld hebt verzonden.",
+  "syncing_wallet_alert_title": "Uw portemonnee wordt gesynchroniseerd",
+  "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie."
 }

@@ -219,7 +219,7 @@
     "send_amount" : "Iye:",
     "send_fee" : "Owó àfikún:",
     "send_name" : "Orúkọ",
-    "send_got_it" : "Ó dáa",
+    "got_it": "Ó dáa",
     "send_sending" : "Ń Ránṣẹ́...",
     "send_success" : "A ti ránṣẹ́ ${crypto} yín dáadáa",
 
@@ -723,5 +723,8 @@
     "setup_2fa_text": "Cake 2FA kii ṣe nipasẹ aisan tabi ni akoso aisan. 2FA ti ṣe pada ninu awọn iṣẹ pataki, bi atilẹyin ti o fun iṣẹ rẹ ti o ti jẹ saanu.\n\n Cake 2FA kii ṣe pada ninu atilẹyin ti o ti ba alabara kan ti o sise gidi gan.\n\n Ti o ba pọ akosile rẹ 2FA, O YOO RI ATOJU SI IWE IWE NA. O yoo nilo lati yan pẹlu iwe iwe ni o ba ṣe iṣẹ rẹ. O ni aṣẹ iru ki o gba asise akojọ iwe iwe rẹ! Nitori a ko ni aṣẹ pẹlu ohun ti o ba ṣe iṣẹ rẹ lati yan pẹlu akojọ iwe iwe rẹ, nitori Cake ni iwe iwe ti ko se iṣẹ itumọ.",
     "setup_totp_recommended": "Sọ TOTP (Kẹṣọdọ)",
     "disable_buy": "Ko iṣọrọ ọja",
-    "disable_sell": "Ko iṣọrọ iṣọrọ"
+    "disable_sell": "Ko iṣọrọ iṣọrọ",
+    "available_balance_description": "“Iwọntunwọnsi Wa” tabi “Iwọntunwọnsi Ijẹrisi” jẹ awọn owo ti o le ṣee lo lẹsẹkẹsẹ. Ti awọn owo ba han ni iwọntunwọnsi kekere ṣugbọn kii ṣe iwọntunwọnsi oke, lẹhinna o gbọdọ duro iṣẹju diẹ fun awọn owo ti nwọle lati gba awọn ijẹrisi nẹtiwọọki diẹ sii. Lẹhin ti wọn gba awọn ijẹrisi diẹ sii, wọn yoo jẹ inawo.",
+    "syncing_wallet_alert_title": "Apamọwọ rẹ n muṣiṣẹpọ",
+    "syncing_wallet_alert_content": "Iwontunws.funfun rẹ ati atokọ idunadura le ma pari titi ti yoo fi sọ “SYNCHRONIZED” ni oke. Tẹ/tẹ ni kia kia lati ni imọ siwaju sii."
 }
