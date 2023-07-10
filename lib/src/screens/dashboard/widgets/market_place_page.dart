@@ -52,7 +52,10 @@ class MarketPlacePage extends StatelessWidget {
                   children: <Widget>[
                     SizedBox(height: 20),
                     DashBoardRoundedCardWidget(
-                      onTap: () => _navigatorToGiftCardsPage(context),
+                      onTap: () => launchUrl(
+                        Uri.parse("https://cakelabs.com/news/cake-pay-mobile-to-shut-down/"),
+                        mode: LaunchMode.externalApplication,
+                      ),
                       title: S.of(context).cake_pay_title,
                       subTitle: S.of(context).cake_pay_subtitle,
                     ),
@@ -75,6 +78,7 @@ class MarketPlacePage extends StatelessWidget {
     );
   }
 
+  // TODO: Remove ionia flow/files if we will discard it
   void _navigatorToGiftCardsPage(BuildContext context) {
     final walletType = dashboardViewModel.type;
 
