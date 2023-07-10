@@ -130,7 +130,7 @@ abstract class ExchangeViewModelBase with Store {
   final SharedPreferences sharedPreferences;
 
   List<ExchangeProvider> get _allProviders => [
-        ChangeNowExchangeProvider(),
+        ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
         TrocadorExchangeProvider(useTorOnly: _useTorOnly),
