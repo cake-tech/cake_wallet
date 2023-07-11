@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AccountTile extends StatelessWidget {
-  AccountTile({
-    required this.isCurrent,
-    required this.accountName,
-    this.accountBalance,
-    required this.currency,
-    required this.onTap,
-    required this.onEdit
-  });
+  AccountTile(
+      {required this.isCurrent,
+      required this.accountName,
+      this.accountBalance,
+      required this.currency,
+      required this.onTap,
+      required this.onEdit});
 
   final bool isCurrent;
   final String accountName;
@@ -32,11 +31,13 @@ class AccountTile extends StatelessWidget {
         height: 77,
         padding: EdgeInsets.only(left: 24, right: 24),
         color: color,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Wrap(
+          direction: Axis.horizontal,
+          alignment: WrapAlignment.spaceBetween,
+          runAlignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
-              flex: 2,
+            Container(
               child: Text(
                 accountName,
                 style: TextStyle(
@@ -49,19 +50,19 @@ class AccountTile extends StatelessWidget {
               ),
             ),
             if (accountBalance != null)
-             Expanded(
-               child: Text(
-                '${accountBalance.toString()} $currency',
-                textAlign: TextAlign.end,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Lato',
-                  color: Theme.of(context).textTheme!.headlineMedium!.color!,
-                  decoration: TextDecoration.none,
+              Container(
+                child: Text(
+                  '${accountBalance.toString()} $currency',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Lato',
+                    color: Theme.of(context).textTheme!.headlineMedium!.color!,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
-                         ),
-             ),
+              ),
           ],
         ),
       ),
