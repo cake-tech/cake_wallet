@@ -129,6 +129,7 @@ class MoneroDarkTheme extends DarkTheme {
       templateNewTextColor:
           dashboardPageTheme.indicatorDotTheme.activeIndicatorColor,
       templateDottedBorderColor: colorScheme.primaryContainer,
+      templateSelectedCurrencyTitleColor: Colors.black,
       textFieldButtonIconColor: colorScheme.inverseSurface,
       textFieldButtonColor: colorScheme.onInverseSurface,
       textFieldHintColor: Colors.grey.withOpacity(0.5),

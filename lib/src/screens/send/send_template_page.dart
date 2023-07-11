@@ -40,6 +40,9 @@ class SendTemplatePage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
+  bool get gradientAll => true;
+
+  @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
@@ -221,7 +224,7 @@ class SendTemplatePage extends BasePage {
                 }
               },
               text: S.of(context).save,
-              color: Colors.green,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),
           ),

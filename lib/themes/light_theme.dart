@@ -155,6 +155,8 @@ class LightTheme extends ThemeBase {
       templateBackgroundColor: Palette.blueAlice,
       templateNewTextColor: Palette.darkBlueCraiola,
       templateDottedBorderColor: Palette.moderateLavender,
+      templateSelectedCurrencyBackgroundColor: Colors.white,
+      templateSelectedCurrencyTitleColor: primaryColor,
       estimatedFeeColor: Colors.white.withOpacity(0.5),
       textFieldButtonIconColor: Colors.white,
       textFieldButtonColor: Colors.white.withOpacity(0.2),

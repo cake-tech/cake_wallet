@@ -4,6 +4,8 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
   final Color templateTitleColor;
   final Color templateBackgroundColor;
   final Color templateNewTextColor;
+  final Color templateSelectedCurrencyBackgroundColor;
+  final Color templateSelectedCurrencyTitleColor;
   final Color templateDottedBorderColor;
   final Color estimatedFeeColor;
   final Color textFieldButtonIconColor;
@@ -18,6 +20,8 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
       {required this.templateTitleColor,
       required this.templateBackgroundColor,
       required this.templateNewTextColor,
+      required this.templateSelectedCurrencyBackgroundColor,
+      required this.templateSelectedCurrencyTitleColor,
       required this.templateDottedBorderColor,
       required this.estimatedFeeColor,
       required this.textFieldButtonIconColor,
@@ -33,6 +37,8 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
           {Color? templateTitleColor,
           Color? templateBackgroundColor,
           Color? templateNewTextColor,
+          Color? templateSelectedCurrencyBackgroundColor,
+          Color? templateSelectedCurrencyTitleColor,
           Color? templateDottedBorderColor,
           Color? estimatedFeeColor,
           Color? textFieldButtonIconColor,
@@ -48,6 +54,12 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
               templateBackgroundColor ?? this.templateBackgroundColor,
           templateNewTextColor:
               templateNewTextColor ?? this.templateNewTextColor,
+          templateSelectedCurrencyBackgroundColor:
+              templateSelectedCurrencyBackgroundColor ??
+                  this.templateSelectedCurrencyBackgroundColor,
+          templateSelectedCurrencyTitleColor:
+              templateSelectedCurrencyTitleColor ??
+                  this.templateSelectedCurrencyTitleColor,
           templateDottedBorderColor:
               templateDottedBorderColor ?? this.templateDottedBorderColor,
           estimatedFeeColor: estimatedFeeColor ?? this.estimatedFeeColor,
@@ -75,6 +87,14 @@ class SendPageTheme extends ThemeExtension<SendPageTheme> {
             templateBackgroundColor, other.templateBackgroundColor, t)!,
         templateNewTextColor:
             Color.lerp(templateNewTextColor, other.templateNewTextColor, t)!,
+        templateSelectedCurrencyBackgroundColor: Color.lerp(
+            templateSelectedCurrencyBackgroundColor,
+            other.templateSelectedCurrencyBackgroundColor,
+            t)!,
+        templateSelectedCurrencyTitleColor: Color.lerp(
+            templateSelectedCurrencyTitleColor,
+            other.templateSelectedCurrencyTitleColor,
+            t)!,
         templateDottedBorderColor: Color.lerp(
             templateDottedBorderColor, other.templateDottedBorderColor, t)!,
         estimatedFeeColor:

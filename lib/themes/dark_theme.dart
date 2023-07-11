@@ -155,6 +155,8 @@ class DarkTheme extends ThemeBase {
       templateBackgroundColor: PaletteDark.darkVioletBlue,
       templateNewTextColor: PaletteDark.darkCyanBlue,
       templateDottedBorderColor: PaletteDark.darkCyanBlue,
+      templateSelectedCurrencyBackgroundColor: primaryColor,
+      templateSelectedCurrencyTitleColor: Colors.white,
       estimatedFeeColor: Colors.white,
       textFieldButtonIconColor: PaletteDark.gray,
       textFieldButtonColor: PaletteDark.buttonNightBlue,
