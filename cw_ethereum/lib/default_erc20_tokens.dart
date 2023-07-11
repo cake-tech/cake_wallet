@@ -276,6 +276,13 @@ class DefaultErc20Tokens {
       decimal: 18,
       enabled: false,
     ),
+    Erc20Token(
+      name: "Verse",
+      symbol: "VERSE",
+      contractAddress: "0x249cA82617eC3DfB2589c4c17ab7EC9765350a18",
+      decimal: 18,
+      enabled: false,
+    ),
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {
