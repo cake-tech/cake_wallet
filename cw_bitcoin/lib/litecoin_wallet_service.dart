@@ -70,6 +70,7 @@ class LitecoinWalletService extends WalletService<
     await currentWallet.renameWalletFiles(newName);
 
     final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
