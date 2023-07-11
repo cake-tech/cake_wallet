@@ -68,7 +68,6 @@ abstract class WalletCreationVMBase with Store {
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
-
     // if (restoreWallet != null &&
     //     restoreWallet.restoreMode == WalletRestoreMode.txids) {
     await _createFlowForSweepAll(options, restoreWallet);
@@ -109,6 +108,7 @@ abstract class WalletCreationVMBase with Store {
     dynamic options,
     RestoredWallet? restoreWallet,
   ) async {
+    state = IsExecutingState();
     final type = restoreWallet?.type ?? this.type;
 
     try {
@@ -145,7 +145,7 @@ abstract class WalletCreationVMBase with Store {
       await restoredWallet.startSync();
 
       await syncCompleter.future;
-      
+
       // * Sweep all funds from restoredWallet to newWallet
       await _sweepAllFundsToNewWallet(
         restoredWallet,
@@ -153,7 +153,6 @@ abstract class WalletCreationVMBase with Store {
         type,
         restoreWallet?.txId ?? '',
       );
-
     } catch (e) {
       print(
         'Error occurred while creating a new wallet from Scan QR using sweep all',
@@ -215,17 +214,18 @@ abstract class WalletCreationVMBase with Store {
   }
 
   Future<void> _sweepAllFundsToNewWallet(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          wallet,
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          newWallet,
-      WalletType type,
+    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+            TransactionInfo>
+        wallet,
+    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+            TransactionInfo>
+        newWallet,
+    WalletType type,
     String paymentId,
   ) async {
-
-    final output = Output(wallet, _appStore.settingsStore,
+    final output = Output(
+      wallet,
+      _appStore.settingsStore,
       _fiatConversationStore,
       () => wallet.currency,
     );
@@ -308,14 +308,10 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-
   Future<void> _createTransaction(WalletBase wallet, Object credentials) async {
     try {
-      print('in here');
-      state = IsExecutingState();
       print('about to enter wallet create transaction function');
       pendingTransaction = await wallet.createTransaction(credentials);
-      state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
     }
