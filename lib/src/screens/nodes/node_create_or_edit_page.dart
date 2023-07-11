@@ -115,6 +115,7 @@ class NodeCreateOrEditPage extends BasePage {
           bottomSectionPadding: EdgeInsets.only(bottom: 24),
           bottomSection: Observer(
               builder: (_) => Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Flexible(
                           child: Container(

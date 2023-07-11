@@ -9,12 +9,16 @@ class SelectButton extends StatelessWidget {
     required this.onTap,
     this.image,
     this.isSelected = false,
+    this.showTrailingIcon = true,
+    this.height = 60,
   });
 
   final Image? image;
   final String text;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool showTrailingIcon;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +39,7 @@ class SelectButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 60,
+        height: height,
         padding: EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -67,7 +71,7 @@ class SelectButton extends StatelessWidget {
                 )
               ],
             ),
-            selectArrowImage
+            if (showTrailingIcon) selectArrowImage
           ],
         ),
       ),

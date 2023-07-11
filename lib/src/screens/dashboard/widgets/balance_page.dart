@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -41,7 +42,7 @@ class BalancePage extends StatelessWidget {
                     textAlign: TextAlign.center);
               })),
           Observer(builder: (_) {
-            if (dashboardViewModel.balanceViewModel.isShowCard) {
+            if (dashboardViewModel.balanceViewModel.isShowCard && FeatureFlag.isCakePayEnabled) {
               return IntroducingCard(
                   title: S.of(context).introducing_cake_pay,
                   subTitle: S.of(context).cake_pay_learn_more,

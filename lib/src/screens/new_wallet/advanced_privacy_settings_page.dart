@@ -116,16 +116,18 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
               textColor: Colors.white,
             ),
             const SizedBox(height: 25),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-              child: Text(
-                S.of(context).settings_can_be_changed_later,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+            LayoutBuilder(
+              builder: (_, constraints) => SizedBox(
+                width: constraints.maxWidth * 0.8,
+                child: Text(
+                  S.of(context).settings_can_be_changed_later,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                  ),
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),
