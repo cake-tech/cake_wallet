@@ -16,9 +16,6 @@ class BalancePage extends StatelessWidget {
   final DashboardViewModel dashboardViewModel;
   final SettingsStore settingsStore;
 
-  Color get backgroundLightColor =>
-      settingsStore.currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
