@@ -30,7 +30,7 @@ enum WalletType {
   haven,
 
   @HiveField(5)
-  ethereum
+  ethereum,
 }
 
 int serializeToInt(WalletType type) {
