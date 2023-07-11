@@ -41,7 +41,10 @@ class IoniaVerifyIoniaOtp extends BasePage {
     return Text(
       S.current.verification,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -62,7 +65,10 @@ class IoniaVerifyIoniaOtp extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!.backgroundColor!,
+          keyboardBarColor: Theme.of(context)
+              .accentTextTheme!
+              .bodyLarge!
+              .backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -72,7 +78,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
           ]),
       child: Container(
         height: 0,
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.all(24),
           content: Column(
@@ -93,7 +99,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(S.of(context).dont_get_code),
+                  Text(S.of(context).didnt_get_code),
                   SizedBox(width: 20),
                   InkWell(
                     onTap: () => isSignIn
@@ -120,7 +126,10 @@ class IoniaVerifyIoniaOtp extends BasePage {
                       onPressed: _verify,
                       isDisabled: _authViewModel.otpState is IoniaOtpSendDisabled,
                       isLoading: _authViewModel.otpState is IoniaOtpValidating,
-                      color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .bodyLarge!
+                          .color!,
                       textColor: Colors.white,
                     ),
                   ),

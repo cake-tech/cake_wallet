@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -47,23 +48,24 @@ class MainActions {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
-          if (DeviceInfo.instance.isMobile) {
-            Navigator.of(context).pushNamed(Routes.onramperPage);
-          } else {
-            final uri = getIt
-                .get<OnRamperBuyProvider>()
-                .requestUrl();
-            await launchUrl(uri);
+          if (viewModel.isEnabledBuyAction) {
+            final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context)
+                  .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
+            } else {
+              await launchUrl(uri);
+            }
           }
           break;
         case WalletType.monero:
-          if (DeviceInfo.instance.isMobile) {
-            Navigator.of(context).pushNamed(Routes.payfuraPage);
-          } else {
-            final uri = getIt
-                .get<PayfuraBuyProvider>()
-                .requestUrl();
-            await launchUrl(uri);
+          if (viewModel.isEnabledBuyAction) {
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context).pushNamed(Routes.payfuraPage);
+            } else {
+              final uri = getIt.get<PayfuraBuyProvider>().requestUrl();
+              await launchUrl(uri);
+            }
           }
           break;
         default:
@@ -118,12 +120,22 @@ class MainActions {
 
       switch (walletType) {
         case WalletType.bitcoin:
-          final moonPaySellProvider = MoonPaySellProvider();
-          final uri = await moonPaySellProvider.requestUrl(
-            currency: viewModel.wallet.currency,
-            refundWalletAddress: viewModel.wallet.walletAddresses.address,
-          );
-          await launchUrl(uri);
+        case WalletType.litecoin:
+          if (viewModel.isEnabledSellAction) {
+            final moonPaySellProvider = MoonPaySellProvider();
+            final uri = await moonPaySellProvider.requestUrl(
+              currency: viewModel.wallet.currency,
+              refundWalletAddress: viewModel.wallet.walletAddresses.address,
+              settingsStore: viewModel.settingsStore,
+            );
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context).pushNamed(Routes.webViewPage,
+                  arguments: [S.of(context).sell, uri]);
+            } else {
+              await launchUrl(uri);
+            }
+          }
+
           break;
         default:
           await showPopUp<void>(

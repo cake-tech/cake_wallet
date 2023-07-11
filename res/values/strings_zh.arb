@@ -485,7 +485,7 @@
   "submit_request" : "提交请求",
 
   "buy_alert_content" : "目前我们只支持购买比特币、莱特币和门罗币。 请创建或切换到您的比特币、莱特币或门罗币钱包。",
-  "sell_alert_content" : "我们目前只支持比特币的销售。 要出售比特币，请创建或切换到您的比特币钱包。",
+  "sell_alert_content" : "我们目前只支持比特币和莱特币的销售。 请创建或切换到您的比特币或莱特币钱包。",
 
   "outdated_electrum_wallet_description" : "在Cake创建的新比特币钱包现在有一个24字的种子。你必须创建一个新的比特币钱包，并将你所有的资金转移到新的24字钱包，并停止使用12字种子的钱包。请立即这样做以保证你的资金安全。",
   "understand" : "我已知晓",
@@ -556,7 +556,7 @@
   "purchase_gift_card": "购买礼品卡",
   "verification": "验证",
   "fill_code": "请填写提供给您邮箱的验证码",
-  "dont_get_code": "没有获取代码？",
+  "didnt_get_code": "没有获取代码？",
   "resend_code": "请重新发送",
   "debit_card": "借记卡",
   "cakepay_prepaid_card": "CakePay 预付借记卡",
@@ -707,5 +707,24 @@
   "error_text_input_below_minimum_limit" : "金额小于最小值",
   "error_text_input_above_maximum_limit" : "金额大于最大值",
   "show_market_place" :"显示市场",
-  "prevent_screenshots": "防止截屏和录屏"
+  "prevent_screenshots": "防止截屏和录屏",
+  "modify_2fa": "修改蛋糕2FA",
+  "disable_cake_2fa": "禁用蛋糕 2FA",
+  "question_to_disable_2fa":"您确定要禁用 Cake 2FA 吗？访问钱包和某些功能将不再需要 2FA 代码。",
+  "disable": "停用",
+  "setup_2fa": "设置蛋糕 2FA",
+  "verify_with_2fa": "用 Cake 2FA 验证",
+  "totp_code": "TOTP代码",
+  "please_fill_totp": "请填写您其他设备上的 8 位代码",
+  "totp_2fa_success": "成功！为此钱包启用了 Cake 2FA。请记住保存您的助记词种子，以防您无法访问钱包。",
+  "totp_verification_success" :"验证成功！",
+  "totp_2fa_failure": "不正确的代码。 请尝试不同的代码或生成新的密钥。 使用支持 8 位代码和 SHA512 的兼容 2FA 应用程序。",
+  "enter_totp_code": "请输入 TOTP 代码。",
+  "add_secret_code":"将此密码添加到另一台设备",
+  "totp_secret_code":"TOTP密码",
+  "important_note": "重要的提示",
+  "setup_2fa_text": "Cake 2FA 不如冷藏安全。 2FA 可防止基本类型的攻击，例如您的朋友在您睡觉时提供您的指纹。\n\n Cake 2FA 无法防止老练的攻击者破坏设备。\n\n 如果您无法访问您的 2FA 代码, 您将无法访问此钱包。您将需要从助记词种子恢复您的钱包。因此，您必须备份您的助记词种子！此外，有权访问您的助记种子的人将能够绕过 Cake 2FA 窃取您的资金。\n\n 如果您无法访问您的助记种子，Cake 支持人员将无法帮助您，因为 Cake 是一个非托管钱包。",
+  "setup_totp_recommended": "设置 TOTP（推荐）",
+  "disable_buy": "禁用购买操作",
+  "disable_sell": "禁用卖出操作"
 }

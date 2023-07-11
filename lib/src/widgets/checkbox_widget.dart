@@ -42,15 +42,19 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
             decoration: BoxDecoration(
                 color: value
                     ? Palette.blueCraiola
-                    : Theme.of(context).accentTextTheme!.subtitle1!.decorationColor!,
+                    : Theme.of(context)
+                        .accentTextTheme!
+                        .titleMedium!
+                        .decorationColor!,
                 borderRadius: BorderRadius.all(Radius.circular(2)),
                 border: Border.all(
                     color: value
                         ? Palette.blueCraiola
-                        : Theme.of(context).accentTextTheme!.overline!.color!,
-                    width: 1
-                )
-            ),
+                        : Theme.of(context)
+                            .accentTextTheme!
+                            .labelSmall!
+                            .color!,
+                    width: 1)),
             child: value
                 ? Center(
               child: Icon(
@@ -66,7 +70,7 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
             child: Text(
               caption,
               style: TextStyle(
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                   fontSize: 18,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w500,

@@ -43,14 +43,14 @@ class TradeRow extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!)),
+                            color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!)),
                     formattedAmount != null
                         ? Text(formattedAmount! + ' ' + amountCrypto,
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 color:
-                                    Theme.of(context).accentTextTheme!.headline2!.backgroundColor!))
+                                    Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!))
                         : Container()
                   ]),
                   SizedBox(height: 5),
@@ -59,7 +59,7 @@ class TradeRow extends StatelessWidget {
                       Text(createdAtFormattedDate!,
                           style: TextStyle(
                               fontSize: 14,
-                              color: Theme.of(context).textTheme!.overline!.backgroundColor!))
+                              color: Theme.of(context).textTheme!.labelSmall!.backgroundColor!))
                   ])
                 ],
               ))

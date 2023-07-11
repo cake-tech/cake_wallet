@@ -19,13 +19,14 @@ class AddTemplateButton extends StatelessWidget {
         child: DottedBorder(
           borderType: BorderType.RRect,
           dashPattern: [6, 4],
-          color: Theme.of(context).primaryTextTheme.headline3!.decorationColor!,
+          color:
+              Theme.of(context).primaryTextTheme!.displaySmall!.decorationColor!,
           strokeWidth: 2,
           radius: Radius.circular(20),
           child: Container(
             height: 34,
             padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveLayoutUtil.instance.isMobile(context) ? 10 : 30),
+                horizontal: ResponsiveLayoutUtil.instance.isMobile ? 10 : 30),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -34,14 +35,20 @@ class AddTemplateButton extends StatelessWidget {
             child: currentTemplatesLength >= 1
                 ? Icon(
                     Icons.add,
-                    color: Theme.of(context).primaryTextTheme.headline2!.color!,
+                    color: Theme.of(context)
+                        .primaryTextTheme!
+                        .displayMedium!
+                        .color!,
                   )
                 : Text(
                     S.of(context).new_template,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryTextTheme.headline2!.color!,
+                      color: Theme.of(context)
+                          .primaryTextTheme!
+                          .displayMedium!
+                          .color!,
                     ),
                   ),
           ),

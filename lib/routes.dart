@@ -70,7 +70,7 @@ class Routes {
   static const ioniaPaymentStatusPage = '/ionia_payment_status_page';
   static const ioniaMoreOptionsPage = '/ionia_more_options_page';
   static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
-  static const onramperPage = '/onramper';
+  static const webViewPage = '/web_view_page';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -84,4 +84,8 @@ class Routes {
   static const payfuraPage = '/pay_fura_page';
   static const desktop_actions = '/desktop_actions';
   static const transactionsPage = '/transactions_page';
+  static const setup_2faPage = '/setup_2fa_page';
+  static const setup_2faQRPage = '/setup_2fa_qr_page';
+  static const totpAuthCodePage = '/totp_auth_code_page';
+  static const modify2FAPage = '/modify_2fa_page';
 }

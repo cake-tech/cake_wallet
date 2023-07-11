@@ -3,34 +3,27 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:mobx/mobx.dart';
 
 class IoniaWelcomePage extends BasePage {
-  IoniaWelcomePage(this._cardsListViewModel);
+  IoniaWelcomePage();
 
   @override
   Widget middle(BuildContext context) {
     return Text(
       S.current.welcome_to_cakepay,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
 
-  final IoniaGiftCardsListViewModel _cardsListViewModel;
-
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _cardsListViewModel.isLoggedIn, (bool state) {
-      if (state) {
-        Navigator.pushReplacementNamed(context, Routes.ioniaManageCardsPage);
-      }
-    });
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -38,14 +31,14 @@ class IoniaWelcomePage extends BasePage {
         children: [
           Column(
             children: [
-              SizedBox(height: 100),
+              SizedBox(height: 90),
               Text(
                 S.of(context).about_cake_pay,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
               SizedBox(height: 20),
@@ -55,7 +48,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
             ],
@@ -66,7 +59,10 @@ class IoniaWelcomePage extends BasePage {
               PrimaryButton(
                 text: S.of(context).create_account,
                 onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaCreateAccountPage),
-                color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
+                color: Theme.of(context)
+                    .accentTextTheme!
+                    .bodyLarge!
+                    .color!,
                 textColor: Colors.white,
               ),
               SizedBox(
@@ -78,7 +74,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
               SizedBox(height: 8),
