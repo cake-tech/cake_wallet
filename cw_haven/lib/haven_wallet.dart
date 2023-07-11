@@ -266,15 +266,14 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       await currentCacheFile.copy(newWalletPath);
     }
     if (currentKeysFile.existsSync()) {
-      await currentKeysFile.copy( '$newWalletPath.keys');
+      await currentKeysFile.copy('$newWalletPath.keys');
     }
     if (currentAddressListFile.existsSync()) {
       await currentAddressListFile.copy('$newWalletPath.address.txt');
     }
 
     // Delete old name's dir and files
-    final oldDirPath = await pathForWalletDir(name: name, type: type);
-    await Directory(oldDirPath).delete(recursive: true);
+    await Directory(currentWalletPath).delete(recursive: true);
   }
 
   @override
