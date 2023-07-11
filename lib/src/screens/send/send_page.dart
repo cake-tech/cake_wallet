@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
@@ -245,26 +246,38 @@ class SendPage extends BasePage {
                                       from: template.isCurrencySelected
                                           ? template.cryptoCurrency
                                           : template.fiatCurrency,
+                                      recipients: template.additionalRecipients,
                                       onTap: () async {
-                                        final fiatFromTemplate = FiatCurrency
-                                            .all
-                                            .singleWhere((element) =>
-                                                element.title ==
-                                                template.fiatCurrency);
-                                        final output = _defineCurrentOutput();
-                                        output.address = template.address;
-                                        if (template.isCurrencySelected) {
-                                          output
-                                              .setCryptoAmount(template.amount);
+                                        if (template.additionalRecipients !=
+                                            null) {
+                                          sendViewModel.clearOutputs();
+
+                                          template.additionalRecipients!
+                                              .forEach((currentElement) async {
+                                            int i = template
+                                                .additionalRecipients!
+                                                .indexOf(currentElement);
+
+                                            Output output;
+                                            try {
+                                              output = sendViewModel.outputs[i];
+                                            } catch (e) {
+                                              sendViewModel.addOutput();
+                                              output = sendViewModel.outputs[i];
+                                            }
+
+                                            await _setInputsFromTemplate(
+                                                context,
+                                                output: output,
+                                                template: currentElement);
+                                          });
                                         } else {
-                                          sendViewModel.setFiatCurrency(
-                                              fiatFromTemplate);
-                                          output.setFiatAmount(
-                                              template.amountFiat);
+                                            final output = _defineCurrentOutput();
+                                            await _setInputsFromTemplate(
+                                                context,
+                                                output: output,
+                                                template: template);
                                         }
-                                        output.resetParsedAddress();
-                                        await output
-                                            .fetchParsedAddress(context);
                                       },
                                       onRemove: () {
                                         showPopUp<void>(
@@ -473,6 +486,24 @@ class SendPage extends BasePage {
     });
 
     _effectsInstalled = true;
+  }
+
+  Future<void> _setInputsFromTemplate(BuildContext context,
+      {required Output output, required Template template}) async {
+    final fiatFromTemplate = FiatCurrency.all
+        .singleWhere((element) => element.title == template.fiatCurrency);
+
+    output.address = template.address;
+
+    if (template.isCurrencySelected) {
+      output.setCryptoAmount(template.amount);
+    } else {
+      sendViewModel.setFiatCurrency(fiatFromTemplate);
+      output.setFiatAmount(template.amountFiat);
+    }
+
+    output.resetParsedAddress();
+    await output.fetchParsedAddress(context);
   }
 
   Output _defineCurrentOutput() {
