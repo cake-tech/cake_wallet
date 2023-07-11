@@ -75,7 +75,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
-                        onTap: () => _loadWallet(wallet),
+                        onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
                         child: Container(
                           height: tileHeight,
                           width: double.infinity,
