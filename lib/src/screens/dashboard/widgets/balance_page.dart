@@ -1,6 +1,5 @@
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -13,9 +12,6 @@ class BalancePage extends StatelessWidget {
 
   final DashboardViewModel dashboardViewModel;
   final SettingsStore settingsStore;
-
-  Color get backgroundLightColor =>
-      settingsStore.currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
 
   @override
   Widget build(BuildContext context) {
