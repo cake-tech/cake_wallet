@@ -237,16 +237,34 @@ class SendPage extends BasePage {
                                   itemCount: itemCount,
                                   itemBuilder: (context, index) {
                                     final template = templates[index];
+                                    String Function(Template)
+                                        amountForTemplate = (element) =>
+                                            template.isCurrencySelected
+                                                ? element.amount
+                                                : element.amountFiat;
+                                    String totalAmount =
+                                        amountForTemplate(template);
+
+                                    if (template.additionalRecipients != null &&
+                                        template.additionalRecipients!.length >
+                                            1) {
+                                      totalAmount =
+                                          template.additionalRecipients!.fold(
+                                              amountForTemplate(template),
+                                              (previousValue, element) =>
+                                                  (double.parse(previousValue) +
+                                                          double.parse(
+                                                              amountForTemplate(
+                                                                  element)))
+                                                      .toString());
+                                    }
                                     return TemplateTile(
                                       key: UniqueKey(),
                                       to: template.name,
-                                      amount: template.isCurrencySelected
-                                          ? template.amount
-                                          : template.amountFiat,
+                                      amount: totalAmount,
                                       from: template.isCurrencySelected
                                           ? template.cryptoCurrency
                                           : template.fiatCurrency,
-                                      recipients: template.additionalRecipients,
                                       onTap: () async {
                                         if (template.additionalRecipients !=
                                             null) {

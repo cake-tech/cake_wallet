@@ -623,5 +623,6 @@
   "disable_sell": "Zakázat akci prodeje",
   "available_balance_description": "Dostupná částka je částka, kterou můžete okamžitě utratit. Zmrazená částka je částka, která ještě není k dispozici, protože ještě nebyla potvrzena síťovým protokolem.",
   "syncing_wallet_alert_title": "Vaše peněženka se synchronizuje",
-  "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více."
+  "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více.",
+  "template_name": "Název šablony"
 }

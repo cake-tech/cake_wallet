@@ -12,9 +12,13 @@ import 'package:mobx/mobx.dart';
 
 class SendTemplateCard extends StatelessWidget {
   SendTemplateCard(
-      {super.key, required this.template, required this.sendTemplateViewModel});
+      {super.key,
+      required this.template,
+      required this.index,
+      required this.sendTemplateViewModel});
 
   final TemplateViewModel template;
+  final int index;
   final SendTemplateViewModel sendTemplateViewModel;
 
   final _addressController = TextEditingController();
@@ -43,25 +47,28 @@ class SendTemplateCard extends StatelessWidget {
           Padding(
               padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
               child: Column(children: <Widget>[
-                BaseTextFormField(
-                    controller: _nameController,
-                    hintText: S.of(context).send_name,
-                    borderColor: Theme.of(context)
-                        .primaryTextTheme
-                        .headlineSmall!
-                        .color!,
-                    textStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white),
-                    placeholderTextStyle: TextStyle(
-                        color: Theme.of(context)
-                            .primaryTextTheme
-                            .headlineSmall!
-                            .decorationColor!,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14),
-                    validator: sendTemplateViewModel.templateValidator),
+                if (index == 0)
+                  BaseTextFormField(
+                      controller: _nameController,
+                      hintText: sendTemplateViewModel.recipients.length > 1
+                          ? S.of(context).template_name
+                          : S.of(context).send_name,
+                      borderColor: Theme.of(context)
+                          .primaryTextTheme
+                          .headlineSmall!
+                          .color!,
+                      textStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white),
+                      placeholderTextStyle: TextStyle(
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .headlineSmall!
+                              .decorationColor!,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14),
+                      validator: sendTemplateViewModel.templateValidator),
                 Padding(
                     padding: EdgeInsets.only(top: 20),
                     child: AddressTextField(

@@ -629,5 +629,6 @@
   "disable_sell": "Disable sell action",
   "available_balance_description": "The “Available Balance” or “Confirmed Balance” are funds that can be spent immediately. If funds appear in the lower balance but not the top balance, then you must wait a few minutes for the incoming funds to get more network confirmations. After they get more confirmations, they will be spendable.",
   "syncing_wallet_alert_title": "Your wallet is syncing",
-  "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more."
+  "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more.",
+  "template_name": "Template Name"
 }

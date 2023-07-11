@@ -71,6 +71,7 @@ class SendTemplatePage extends BasePage {
                                   sendTemplateViewModel.recipients[index];
                               return SendTemplateCard(
                                   template: template,
+                                  index: index,
                                   sendTemplateViewModel: sendTemplateViewModel);
                             });
                       })),

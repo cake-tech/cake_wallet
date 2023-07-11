@@ -629,5 +629,6 @@
   "disable_sell": "Onemogući akciju prodaje",
   "available_balance_description": "Dostupno stanje je iznos koji možete potrošiti. To je vaš saldo minus bilo kakve transakcije koje su još uvijek u tijeku.",
   "syncing_wallet_alert_title": "Vaš novčanik se sinkronizira",
-  "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više."
+  "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više.",
+  "template_name": "Naziv predloška"
 }

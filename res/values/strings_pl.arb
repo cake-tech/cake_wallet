@@ -629,5 +629,6 @@
   "disable_sell": "Wyłącz akcję sprzedaży",
   "available_balance_description": "Dostępne saldo jest równoważne z saldem portfela minus zamrożone saldo.",
   "syncing_wallet_alert_title": "Twój portfel się synchronizuje",
-  "syncing_wallet_alert_content": "Twoje saldo i lista transakcji mogą nie być kompletne, dopóki u góry nie pojawi się napis „SYNCHRONIZOWANY”. Kliknij/stuknij, aby dowiedzieć się więcej."
+  "syncing_wallet_alert_content": "Twoje saldo i lista transakcji mogą nie być kompletne, dopóki u góry nie pojawi się napis „SYNCHRONIZOWANY”. Kliknij/stuknij, aby dowiedzieć się więcej.",
+  "template_name": "Nazwa szablonu"
 }
