@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Bedrag is meer dan maximaal",
   "show_market_place": "Toon Marktplaats",
   "prevent_screenshots": "Voorkom screenshots en schermopname",
+  "profile": "Profiel",
+  "close": "Dichtbij",
   "modify_2fa": "Wijzig Cake 2FA",
   "disable_cake_2fa": "Taart 2FA uitschakelen",
   "question_to_disable_2fa": "Weet je zeker dat je Cake 2FA wilt uitschakelen? Er is geen 2FA-code meer nodig om toegang te krijgen tot de portemonnee en bepaalde functies.",
@@ -629,5 +631,9 @@
   "disable_sell": "Verkoopactie uitschakelen",
   "available_balance_description": "Beschikbaar saldo is het saldo dat u kunt uitgeven. Het kan lager zijn dan uw totale saldo als u onlangs geld hebt verzonden.",
   "syncing_wallet_alert_title": "Uw portemonnee wordt gesynchroniseerd",
-  "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie."
+  "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie.",
+  "generate_name": "Naam genereren",
+  "balance_page": "Saldo pagina",
+  "share": "Deel",
+  "slidable": "Verschuifbaar"
 }

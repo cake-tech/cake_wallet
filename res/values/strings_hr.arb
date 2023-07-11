@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Iznos je veći od maskimalnog",
   "show_market_place": "Prikaži tržište",
   "prevent_screenshots": "Spriječite snimke zaslona i snimanje zaslona",
+  "profile": "Profil",
+  "close": "Zatvoriti",
   "modify_2fa": "Izmijenite tortu 2FA",
   "disable_cake_2fa": "Onemogući Cake 2FA",
   "question_to_disable_2fa": "Jeste li sigurni da želite onemogućiti Cake 2FA? 2FA kod više neće biti potreban za pristup novčaniku i određenim funkcijama.",
@@ -629,5 +631,9 @@
   "disable_sell": "Onemogući akciju prodaje",
   "available_balance_description": "Dostupno stanje je iznos koji možete potrošiti. To je vaš saldo minus bilo kakve transakcije koje su još uvijek u tijeku.",
   "syncing_wallet_alert_title": "Vaš novčanik se sinkronizira",
-  "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više."
+  "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više.",
+  "generate_name": "Generiraj ime",
+  "balance_page": "Stranica sa stanjem",
+  "share": "Udio",
+  "slidable": "Klizna"
 }

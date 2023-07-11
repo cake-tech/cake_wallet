@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Amount is more than the maximum",
   "show_market_place": "Show Marketplace",
   "prevent_screenshots": "Prevent screenshots and screen recording",
+  "profile": "Profile",
+  "close": "Close",
   "modify_2fa": "Modify Cake 2FA",
   "disable_cake_2fa": "Disable Cake 2FA",
   "question_to_disable_2fa": "Are you sure that you want to disable Cake 2FA? A 2FA code will no longer be needed to access the wallet and certain functions.",
@@ -629,5 +631,9 @@
   "disable_sell": "Disable sell action",
   "available_balance_description": "The “Available Balance” or “Confirmed Balance” are funds that can be spent immediately. If funds appear in the lower balance but not the top balance, then you must wait a few minutes for the incoming funds to get more network confirmations. After they get more confirmations, they will be spendable.",
   "syncing_wallet_alert_title": "Your wallet is syncing",
-  "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more."
+  "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more.",
+  "generate_name": "Generate Name",
+  "balance_page": "Balance Page",
+  "share": "Share",
+  "slidable": "Slidable"
 }

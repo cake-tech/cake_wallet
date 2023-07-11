@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "La cantidad es más que el máximo",
   "show_market_place": "Mostrar mercado",
   "prevent_screenshots": "Evitar capturas de pantalla y grabación de pantalla",
+  "profile": "Perfil",
+  "close": "Cerca",
   "modify_2fa": "Modificar torta 2FA",
   "disable_cake_2fa": "Desactivar pastel 2FA",
   "question_to_disable_2fa": "¿Está seguro de que desea deshabilitar Cake 2FA? Ya no se necesitará un código 2FA para acceder a la billetera y a ciertas funciones.",
@@ -629,5 +631,9 @@
   "disable_sell": "Desactivar acción de venta",
   "available_balance_description": "Su saldo disponible es la cantidad de fondos que puede gastar. Los fondos que se muestran aquí se pueden gastar inmediatamente.",
   "syncing_wallet_alert_title": "Tu billetera se está sincronizando",
-  "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información."
+  "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información.",
+  "generate_name": "Generar nombre",
+  "balance_page": "Página de saldo",
+  "share": "Compartir",
+  "slidable": "deslizable"
 }

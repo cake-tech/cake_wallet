@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "금액이 최대 값보다 많습니다.",
   "show_market_place": "마켓플레이스 표시",
   "prevent_screenshots": "스크린샷 및 화면 녹화 방지",
+  "profile": "프로필",
+  "close": "닫다",
   "modify_2fa": "수정 케이크 2FA",
   "disable_cake_2fa": "케이크 2FA 비활성화",
   "question_to_disable_2fa": "Cake 2FA를 비활성화하시겠습니까? 지갑 및 특정 기능에 액세스하는 데 더 이상 2FA 코드가 필요하지 않습니다.",
@@ -629,5 +631,9 @@
   "disable_sell": "판매 조치 비활성화",
   "available_balance_description": "이 지갑에서 사용할 수 있는 잔액입니다. 이 잔액은 블록체인에서 가져온 것이며, Cake Wallet이 사용할 수 없습니다.",
   "syncing_wallet_alert_title": "지갑 동기화 중",
-  "syncing_wallet_alert_content": "상단에 \"동기화됨\"이라고 표시될 때까지 잔액 및 거래 목록이 완전하지 않을 수 있습니다. 자세히 알아보려면 클릭/탭하세요."
+  "syncing_wallet_alert_content": "상단에 \"동기화됨\"이라고 표시될 때까지 잔액 및 거래 목록이 완전하지 않을 수 있습니다. 자세히 알아보려면 클릭/탭하세요.",
+  "generate_name": "이름 생성",
+  "balance_page": "잔액 페이지",
+  "share": "공유하다",
+  "slidable": "슬라이딩 가능"
 }

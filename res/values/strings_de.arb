@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Menge ist über dem Maximum",
   "show_market_place": "Marktplatz anzeigen",
   "prevent_screenshots": "Verhindern Sie Screenshots und Bildschirmaufzeichnungen",
+  "profile": "Profil",
+  "close": "Schließen",
   "modify_2fa": "Kuchen 2FA ändern",
   "disable_cake_2fa": "Kuchen 2FA deaktivieren",
   "question_to_disable_2fa": "Sind Sie sicher, dass Sie Cake 2FA deaktivieren möchten? Für den Zugriff auf die Brieftasche und bestimmte Funktionen wird kein 2FA-Code mehr benötigt.",
@@ -629,5 +631,9 @@
   "disable_sell": "Verkaufsaktion deaktivieren",
   "available_balance_description": "Verfügbarer Saldo ist der Betrag, den Sie sofort ausgeben können. Dieser Betrag kann sich ändern, wenn Sie eine Transaktion senden oder empfangen.",
   "syncing_wallet_alert_title": "Ihr Wallet wird synchronisiert",
-  "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren."
+  "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren.",
+  "generate_name": "Namen generieren",
+  "balance_page": "Balance-Seite",
+  "share": "Aktie",
+  "slidable": "Verschiebbar"
 }

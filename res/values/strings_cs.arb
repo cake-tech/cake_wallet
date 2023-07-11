@@ -602,6 +602,8 @@
   "error_text_input_above_maximum_limit": "Částka je větší než maximální hodnota",
   "show_market_place": "Zobrazit trh",
   "prevent_screenshots": "Zabránit vytváření snímků obrazovky a nahrávání obrazovky",
+  "profile": "Profil",
+  "close": "zavřít",
   "modify_2fa": "Upravte Cake 2FA",
   "disable_cake_2fa": "Zakázat Cake 2FA",
   "question_to_disable_2fa": "Opravdu chcete deaktivovat Cake 2FA? Pro přístup k peněžence a některým funkcím již nebude potřeba kód 2FA.",
@@ -623,5 +625,9 @@
   "disable_sell": "Zakázat akci prodeje",
   "available_balance_description": "Dostupná částka je částka, kterou můžete okamžitě utratit. Zmrazená částka je částka, která ještě není k dispozici, protože ještě nebyla potvrzena síťovým protokolem.",
   "syncing_wallet_alert_title": "Vaše peněženka se synchronizuje",
-  "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více."
+  "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více.",
+  "generate_name": "Generovat jméno",
+  "balance_page": "Stránka zůstatku",
+  "share": "Podíl",
+  "slidable": "Posuvné"
 }

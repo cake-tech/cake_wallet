@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Le montant est supérieur au maximum",
   "show_market_place": "Afficher la place de marché",
   "prevent_screenshots": "Empêcher les captures d'écran et l'enregistrement d'écran",
+  "profile": "Profil",
+  "close": "Fermer",
   "modify_2fa": "Modifier les paramètres Cake 2FA",
   "disable_cake_2fa": "Désactiver Cake 2FA",
   "question_to_disable_2fa": "Êtes-vous sûr de vouloir désactiver Cake 2FA ? Un code 2FA ne sera plus nécessaire pour accéder au portefeuille (wallet) et à certaines fonctions.",
@@ -629,5 +631,9 @@
   "disable_sell": "Désactiver l'action de vente",
   "available_balance_description": "Le solde disponible est le montant que vous pouvez dépenser immédiatement. Il est calculé en soustrayant le solde gelé du solde total.",
   "syncing_wallet_alert_title": "Votre portefeuille est en cours de synchronisation",
-  "syncing_wallet_alert_content": "Votre solde et votre liste de transactions peuvent ne pas être complets tant qu'il n'y a pas « SYNCHRONISÉ » en haut. Cliquez/appuyez pour en savoir plus."
+  "syncing_wallet_alert_content": "Votre solde et votre liste de transactions peuvent ne pas être complets tant qu'il n'y a pas « SYNCHRONISÉ » en haut. Cliquez/appuyez pour en savoir plus.",
+  "generate_name": "Générer un nom",
+  "balance_page": "Page Solde",
+  "share": "Partager",
+  "slidable": "Glissable"
 }

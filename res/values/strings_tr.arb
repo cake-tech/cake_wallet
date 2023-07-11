@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Miktar maksimumdan daha fazla",
   "show_market_place": "Pazar Yerini Göster",
   "prevent_screenshots": "Ekran görüntülerini ve ekran kaydını önleyin",
+  "profile": "Profil",
+  "close": "Kapalı",
   "modify_2fa": "Cake 2FA'yı Değiştirin",
   "disable_cake_2fa": "Cake 2FA'yı Devre Dışı Bırak",
   "question_to_disable_2fa": "Cake 2FA'yı devre dışı bırakmak istediğinizden emin misiniz? M-cüzdana ve belirli işlevlere erişmek için artık 2FA koduna gerek kalmayacak.",
@@ -629,5 +631,9 @@
   "disable_sell": "Satış işlemini devre dışı bırak",
   "available_balance_description": "Bu, cüzdanınızda harcayabileceğiniz miktar. Bu miktar, cüzdanınızdan çekilebilecek toplam bakiyeden daha düşük olabilir, çünkü bazı fonlar henüz kullanılamaz durumda olabilir.",
   "syncing_wallet_alert_title": "Cüzdanınız senkronize ediliyor",
-  "syncing_wallet_alert_content": "Bakiyeniz ve işlem listeniz, en üstte \"SENKRONİZE EDİLDİ\" yazana kadar tamamlanmamış olabilir. Daha fazla bilgi edinmek için tıklayın/dokunun."
+  "syncing_wallet_alert_content": "Bakiyeniz ve işlem listeniz, en üstte \"SENKRONİZE EDİLDİ\" yazana kadar tamamlanmamış olabilir. Daha fazla bilgi edinmek için tıklayın/dokunun.",
+  "generate_name": "İsim Oluştur",
+  "balance_page": "Bakiye Sayfası",
+  "share": "Paylaşmak",
+  "slidable": "kaydırılabilir"
 }

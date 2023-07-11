@@ -607,6 +607,8 @@
   "error_text_input_above_maximum_limit": "金额大于最大值",
   "show_market_place": "显示市场",
   "prevent_screenshots": "防止截屏和录屏",
+  "profile": "轮廓",
+  "close": "关闭",
   "modify_2fa": "修改蛋糕2FA",
   "disable_cake_2fa": "禁用蛋糕 2FA",
   "question_to_disable_2fa": "您确定要禁用 Cake 2FA 吗？访问钱包和某些功能将不再需要 2FA 代码。",
@@ -628,5 +630,9 @@
   "disable_sell": "禁用卖出操作",
   "available_balance_description": "可用余额是您可以使用的金额。冻结余额是您当前正在等待确认的金额。",
   "syncing_wallet_alert_title": "您的钱包正在同步",
-  "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。"
+  "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。",
+  "generate_name": "生成名称",
+  "balance_page": "余额页",
+  "share": "分享",
+  "slidable": "可滑动"
 }

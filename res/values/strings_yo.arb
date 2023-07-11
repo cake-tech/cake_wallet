@@ -604,6 +604,8 @@
   "error_text_input_above_maximum_limit": "Iye jọwọ ni o yẹ diẹ ti o wọle diẹ",
   "show_market_place": "Wa Sopọ Pataki",
   "prevent_screenshots": "Pese asapọ ti awọn ẹrọ eto aṣa",
+  "profile": "profaili",
+  "close": "sunmo",
   "modify_2fa": "Fi iṣiro 2FA sii Cake",
   "disable_cake_2fa": "Ko 2FA Cake sii",
   "question_to_disable_2fa": "Ṣe o wa daadaa pe o fẹ ko 2FA Cake? Ko si itumọ ti a yoo nilo lati ranse si iwe iwe naa ati eyikeyi iṣẹ ti o ni.",
@@ -625,5 +627,9 @@
   "disable_sell": "Ko iṣọrọ iṣọrọ",
   "available_balance_description": "“Iwọntunwọnsi Wa” tabi “Iwọntunwọnsi Ijẹrisi” jẹ awọn owo ti o le ṣee lo lẹsẹkẹsẹ. Ti awọn owo ba han ni iwọntunwọnsi kekere ṣugbọn kii ṣe iwọntunwọnsi oke, lẹhinna o gbọdọ duro iṣẹju diẹ fun awọn owo ti nwọle lati gba awọn ijẹrisi nẹtiwọọki diẹ sii. Lẹhin ti wọn gba awọn ijẹrisi diẹ sii, wọn yoo jẹ inawo.",
   "syncing_wallet_alert_title": "Apamọwọ rẹ n muṣiṣẹpọ",
-  "syncing_wallet_alert_content": "Iwontunws.funfun rẹ ati atokọ idunadura le ma pari titi ti yoo fi sọ “SYNCHRONIZED” ni oke. Tẹ/tẹ ni kia kia lati ni imọ siwaju sii."
+  "syncing_wallet_alert_content": "Iwontunws.funfun rẹ ati atokọ idunadura le ma pari titi ti yoo fi sọ “SYNCHRONIZED” ni oke. Tẹ/tẹ ni kia kia lati ni imọ siwaju sii.",
+  "generate_name": "Ṣẹda Orukọ",
+  "balance_page": "Oju-iwe iwọntunwọnsi",
+  "share": "Pinpin",
+  "slidable": "Slidable"
 }

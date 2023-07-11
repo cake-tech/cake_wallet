@@ -598,6 +598,8 @@
   "error_text_input_above_maximum_limit": "Jumlah lebih dari maksimal",
   "show_market_place": "Tampilkan Pasar",
   "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar",
+  "profile": "Profil",
+  "close": "Menutup",
   "modify_2fa": "Ubah Kue 2FA",
   "disable_cake_2fa": "Nonaktifkan Kue 2FA",
   "question_to_disable_2fa": "Apakah Anda yakin ingin menonaktifkan Cake 2FA? Kode 2FA tidak lagi diperlukan untuk mengakses dompet dan fungsi tertentu.",
@@ -619,5 +621,9 @@
   "disable_sell": "Nonaktifkan aksi jual",
   "available_balance_description": "“Saldo yang Tersedia” atau “Saldo yang Dikonfirmasi” adalah dana yang dapat langsung dibelanjakan. Jika dana muncul di saldo bawah tetapi tidak di saldo atas, maka Anda harus menunggu beberapa menit agar dana masuk mendapatkan konfirmasi jaringan lainnya. Setelah mereka mendapatkan lebih banyak konfirmasi, mereka akan dapat dibelanjakan.",
   "syncing_wallet_alert_title": "Dompet Anda sedang disinkronkan",
-  "syncing_wallet_alert_content": "Saldo dan daftar transaksi Anda mungkin belum lengkap sampai tertulis “SYNCHRONIZED” di bagian atas. Klik/ketuk untuk mempelajari lebih lanjut."
+  "syncing_wallet_alert_content": "Saldo dan daftar transaksi Anda mungkin belum lengkap sampai tertulis “SYNCHRONIZED” di bagian atas. Klik/ketuk untuk mempelajari lebih lanjut.",
+  "generate_name": "Hasilkan Nama",
+  "balance_page": "Halaman Saldo",
+  "share": "Membagikan",
+  "slidable": "Dapat digeser"
 }

@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "金額は最大値を超えています",
   "show_market_place": "マーケットプレイスを表示",
   "prevent_screenshots": "スクリーンショットと画面録画を防止する",
+  "profile": "プロフィール",
+  "close": "近い",
   "modify_2fa": "ケーキの 2FA を変更する",
   "disable_cake_2fa": "Cake 2FA を無効にする",
   "question_to_disable_2fa": "Cake 2FA を無効にしてもよろしいですか?ウォレットと特定の機能にアクセスするために 2FA コードは必要なくなります。",
@@ -629,5 +631,9 @@
   "disable_sell": "販売アクションを無効にする",
   "available_balance_description": "利用可能な残高は、ウォレットの残高から冷凍残高を差し引いたものです。",
   "syncing_wallet_alert_title": "ウォレットは同期中です",
-  "syncing_wallet_alert_content": "上部に「同期済み」と表示されるまで、残高と取引リストが完了していない可能性があります。詳細については、クリック/タップしてください。"
+  "syncing_wallet_alert_content": "上部に「同期済み」と表示されるまで、残高と取引リストが完了していない可能性があります。詳細については、クリック/タップしてください。",
+  "generate_name": "名前の生成",
+  "balance_page": "残高ページ",
+  "share": "共有",
+  "slidable": "スライド可能"
 }
