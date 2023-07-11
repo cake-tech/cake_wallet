@@ -115,10 +115,10 @@ SPEC CHECKSUMS:
   platform_device_id_macos: f763bb55f088be804d61b96eb4710b8ab6598e94
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
-  shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
+  shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   url_launcher_macos: 5335912b679c073563f29d89d33d10d459f95451
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
 
 PODFILE CHECKSUM: 5107934592df7813b33d744aebc8ddc6b5a5445f
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
