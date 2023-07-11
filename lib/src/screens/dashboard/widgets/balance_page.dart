@@ -1,6 +1,8 @@
+import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -104,63 +106,86 @@ class BalancePage extends StatelessWidget {
           color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!),
       child: Container(
           margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            SizedBox(
-              height: 4,
-            ),
-            Text('${availableBalanceLabel}',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .displaySmall!
-                        .backgroundColor!,
-                    height: 1)),
-            SizedBox(height: 5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Expanded(
-                child: AutoSizeText(availableBalance,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _showBalanceDescription(context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text('${availableBalanceLabel}',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .accentTextTheme!
+                                      .displaySmall!
+                                      .backgroundColor!,
+                                  height: 1)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(Icons.help_outline,
+                                size: 16,
+                                color: Theme.of(context)
+                                    .accentTextTheme!
+                                    .displaySmall!
+                                    .backgroundColor!),
+                          )
+                        ],
+                      ),SizedBox(
+                        height: 6,
+                      ),
+                      AutoSizeText(availableBalance,
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w900,
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .displayMedium!
+                                  .backgroundColor!,
+                              height: 1),
+                          maxLines: 1,
+                          textAlign: TextAlign.start),
+                      SizedBox(
+                        height: 6,
+                      ),
+                      Text('${availableFiatBalance}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context)
+                                  .accentTextTheme!
+                                  .displayMedium!
+                                  .backgroundColor!,
+                              height: 1)),
+
+                    ],
+                  ),
+                ),
+                Text(currency,
                     style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 28,
                         fontFamily: 'Lato',
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w800,
                         color: Theme.of(context)
                             .accentTextTheme!
                             .displayMedium!
                             .backgroundColor!,
-                        height: 1),
-                    maxLines: 1,
-                    textAlign: TextAlign.start),
-              ),
-              Text(currency,
-                  style: TextStyle(
-                      fontSize: 28,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!,
-                      height: 1)),
-            ]),
-            SizedBox(
-              height: 4,
+                        height: 1)),
+              ],
             ),
-            Text('${availableFiatBalance}',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .displayMedium!
-                        .backgroundColor!,
-                    height: 1)),
             SizedBox(height: 26),
             if (frozenBalance.isNotEmpty)
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -246,5 +271,11 @@ class BalancePage extends StatelessWidget {
             )
           ])),
     );
+  }
+
+  void _showBalanceDescription(BuildContext context) {
+    showPopUp<void>(
+        context: context,
+        builder: (_) => InformationPage(information: S.current.available_balance_description));
   }
 }
