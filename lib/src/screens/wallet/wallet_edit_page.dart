@@ -25,9 +25,9 @@ class WalletEditPage extends BasePage {
       : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(),
         super() {
+    _labelController.text = editingWallet.name;
     _labelController
         .addListener(() => walletListViewModel.newName = _labelController.text);
-    _labelController.text = editingWallet.name;
   }
 
   final GlobalKey<FormState> _formKey;
