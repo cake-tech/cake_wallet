@@ -14,7 +14,7 @@ abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
 
   void addMany(Map<String, TransactionType> transactions);
 
-  void clear();
+  void clear() => transactions.clear();
 
   // bool _isUpdating;
 

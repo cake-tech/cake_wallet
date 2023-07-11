@@ -24,7 +24,4 @@ abstract class HavenTransactionHistoryBase
   @override
   void addMany(Map<String, HavenTransactionInfo> transactions) =>
       this.transactions.addAll(transactions);
-
-  @override
-  void clear() => this.transactions.clear();
 }
