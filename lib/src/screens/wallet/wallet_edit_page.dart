@@ -15,7 +15,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 class WalletEditPage extends BasePage {
   WalletEditPage(
@@ -26,9 +25,6 @@ class WalletEditPage extends BasePage {
       : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(),
         super() {
-    reaction((_) => walletListViewModel.newName, (String newName) {
-      walletListViewModel.newName = newName;
-    });
     _labelController
         .addListener(() => walletListViewModel.newName = _labelController.text);
     _labelController.text = editingWallet.name;
