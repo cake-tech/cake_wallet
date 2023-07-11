@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class ResponsiveLayoutUtil {
   static const double _kMobileThreshold = 550;
   static const double kDesktopMaxWidthConstraint = 400;
+  static const double kDesktopMaxDashBoardWidthConstraint = 900;
   static const double kPopupWidth = 400;
   static const double kPopupSpaceHeight = 100;
   static const _kIpadMaxWidth = 2560.0;
