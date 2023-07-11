@@ -630,5 +630,9 @@
   "disable_sell": "禁用卖出操作",
   "available_balance_description": "可用余额是您可以使用的金额。冻结余额是您当前正在等待确认的金额。",
   "syncing_wallet_alert_title": "您的钱包正在同步",
-  "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。"
+  "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。",
+  "generate_name": "生成名称",
+  "balance_page": "余额页",
+  "share": "分享",
+  "slidable": "可滑动"
 }

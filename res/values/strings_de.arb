@@ -631,5 +631,9 @@
   "disable_sell": "Verkaufsaktion deaktivieren",
   "available_balance_description": "Verfügbarer Saldo ist der Betrag, den Sie sofort ausgeben können. Dieser Betrag kann sich ändern, wenn Sie eine Transaktion senden oder empfangen.",
   "syncing_wallet_alert_title": "Ihr Wallet wird synchronisiert",
-  "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren."
+  "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren.",
+  "generate_name": "Namen generieren",
+  "balance_page": "Balance-Seite",
+  "share": "Aktie",
+  "slidable": "Verschiebbar"
 }

@@ -631,5 +631,9 @@
   "disable_sell": "Verkoopactie uitschakelen",
   "available_balance_description": "Beschikbaar saldo is het saldo dat u kunt uitgeven. Het kan lager zijn dan uw totale saldo als u onlangs geld hebt verzonden.",
   "syncing_wallet_alert_title": "Uw portemonnee wordt gesynchroniseerd",
-  "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie."
+  "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie.",
+  "generate_name": "Naam genereren",
+  "balance_page": "Saldo pagina",
+  "share": "Deel",
+  "slidable": "Verschuifbaar"
 }

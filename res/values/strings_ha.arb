@@ -611,5 +611,9 @@
   "disable_sell": "Kashe karbuwa",
   "available_balance_description": "Ma'auni mai samuwa” ko ”,Tabbataccen Ma'auni”, kudade ne da za a iya kashewa nan da nan. Idan kudade sun bayyana a cikin ƙananan ma'auni amma ba babban ma'auni ba, to dole ne ku jira 'yan mintoci kaɗan don kudaden shiga don samun ƙarin tabbaci na hanyar sadarwa. Bayan sun sami ƙarin tabbaci, za a kashe su.",
   "syncing_wallet_alert_title": "Walat ɗin ku yana aiki tare",
-  "syncing_wallet_alert_content": "Ma'aunin ku da lissafin ma'amala bazai cika ba har sai an ce \"SYNCHRONIZED\" a saman. Danna/matsa don ƙarin koyo."
+  "syncing_wallet_alert_content": "Ma'aunin ku da lissafin ma'amala bazai cika ba har sai an ce \"SYNCHRONIZED\" a saman. Danna/matsa don ƙarin koyo.",
+  "generate_name": "Ƙirƙirar Suna",
+  "balance_page": "Ma'auni Page",
+  "share": "Raba",
+  "slidable": "Mai iya zamewa"
 }

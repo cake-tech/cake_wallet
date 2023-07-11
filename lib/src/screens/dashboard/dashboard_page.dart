@@ -257,7 +257,7 @@ class _DashboardPageView extends BasePage {
         ),
       );
     }
-    pages.add(Semantics(label: S.of(context).full_balance, child: balancePage));
+    pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
     pages.add(Semantics(
         label: S.of(context).settings_transactions,
         child: TransactionsPage(dashboardViewModel: dashboardViewModel)));

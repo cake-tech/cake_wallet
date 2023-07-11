@@ -621,5 +621,9 @@
   "disable_sell": "Nonaktifkan aksi jual",
   "available_balance_description": "“Saldo yang Tersedia” atau “Saldo yang Dikonfirmasi” adalah dana yang dapat langsung dibelanjakan. Jika dana muncul di saldo bawah tetapi tidak di saldo atas, maka Anda harus menunggu beberapa menit agar dana masuk mendapatkan konfirmasi jaringan lainnya. Setelah mereka mendapatkan lebih banyak konfirmasi, mereka akan dapat dibelanjakan.",
   "syncing_wallet_alert_title": "Dompet Anda sedang disinkronkan",
-  "syncing_wallet_alert_content": "Saldo dan daftar transaksi Anda mungkin belum lengkap sampai tertulis “SYNCHRONIZED” di bagian atas. Klik/ketuk untuk mempelajari lebih lanjut."
+  "syncing_wallet_alert_content": "Saldo dan daftar transaksi Anda mungkin belum lengkap sampai tertulis “SYNCHRONIZED” di bagian atas. Klik/ketuk untuk mempelajari lebih lanjut.",
+  "generate_name": "Hasilkan Nama",
+  "balance_page": "Halaman Saldo",
+  "share": "Membagikan",
+  "slidable": "Dapat digeser"
 }

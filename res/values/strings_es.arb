@@ -631,5 +631,9 @@
   "disable_sell": "Desactivar acción de venta",
   "available_balance_description": "Su saldo disponible es la cantidad de fondos que puede gastar. Los fondos que se muestran aquí se pueden gastar inmediatamente.",
   "syncing_wallet_alert_title": "Tu billetera se está sincronizando",
-  "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información."
+  "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información.",
+  "generate_name": "Generar nombre",
+  "balance_page": "Página de saldo",
+  "share": "Compartir",
+  "slidable": "deslizable"
 }
