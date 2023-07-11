@@ -216,7 +216,7 @@ class IoniaDebitCardPage extends BasePage {
                           onPressed: () => activate
                               ? Navigator.pushNamed(context, Routes.ioniaActivateDebitCardPage)
                               : Navigator.pop(context),
-                          text: S.of(context).send_got_it,
+                          text: S.of(context).got_it,
                           color: Color.fromRGBO(233, 242, 252, 1),
                           textColor:
                               Theme.of(context).textTheme!.displaySmall!.color!,

@@ -36,7 +36,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _provider = XMRTOExchangeProvider();
         break;
       case ExchangeProviderDescription.changeNow:
-        _provider = ChangeNowExchangeProvider();
+        _provider =
+            ChangeNowExchangeProvider(settingsStore: sendViewModel.balanceViewModel.settingsStore);
         break;
       case ExchangeProviderDescription.morphToken:
         _provider = MorphTokenExchangeProvider(trades: trades);
