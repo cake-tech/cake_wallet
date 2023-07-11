@@ -68,6 +68,7 @@ import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
@@ -568,12 +569,15 @@ Future setup({
         authService: getIt.get<AuthService>(),
       ));
 
-  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>(
-      (args, _) {
+  getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
+      (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
+          walletListViewModel, getIt.get<WalletLoadingService>()));
+
+  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
     final walletListViewModel = args.first as WalletListViewModel;
     final editingWallet = args.last as WalletListItem;
     return WalletEditPage(
-        walletListViewModel: walletListViewModel,
+        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: walletListViewModel),
         authService: getIt.get<AuthService>(),
         walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
         editingWallet: editingWallet);

@@ -146,6 +146,10 @@ class MoneroWalletService extends WalletService<
     if (isExist) {
       await file.delete(recursive: true);
     }
+
+    final walletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
+    await walletInfoSource.delete(walletInfo.key);
   }
 
   @override
