@@ -628,5 +628,9 @@
   "invalid_input": "Shigar da ba daidai ba",
   "fiat_balance": "Fiat Balance",
   "gross_balance": "Babban Ma'auni",
-  "alphabetical": "Harafi"
+  "alphabetical": "Harafi",
+  "generate_name": "Ƙirƙirar Suna",
+  "balance_page": "Ma'auni Page",
+  "share": "Raba",
+  "slidable": "Mai iya zamewa"
 }

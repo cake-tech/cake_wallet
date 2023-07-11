@@ -602,6 +602,8 @@
   "error_text_input_above_maximum_limit": "رقم زیادہ سے زیادہ سے زیادہ ہے۔",
   "show_market_place": "بازار دکھائیں۔",
   "prevent_screenshots": "اسکرین شاٹس اور اسکرین ریکارڈنگ کو روکیں۔",
+  "profile": "پروفائل",
+  "close": "بند کریں",
   "modify_2fa": "کیک 2FA میں ترمیم کریں۔",
   "disable_cake_2fa": "کیک 2FA کو غیر فعال کریں۔",
   "question_to_disable_2fa": "کیا آپ واقعی کیک 2FA کو غیر فعال کرنا چاہتے ہیں؟ بٹوے اور بعض افعال تک رسائی کے لیے اب 2FA کوڈ کی ضرورت نہیں ہوگی۔",
@@ -640,5 +642,9 @@
   "invalid_input": "غلط ان پٹ",
   "fiat_balance": "فیاٹ بیلنس",
   "gross_balance": "مجموعی بیلنس",
-  "alphabetical": "حروف تہجی کے مطابق"
+  "alphabetical": "حروف تہجی کے مطابق",
+  "generate_name": "نام پیدا کریں۔",
+  "balance_page": "بیلنس صفحہ",
+  "share": "بانٹیں",
+  "slidable": "سلائیڈ ایبل"
 }

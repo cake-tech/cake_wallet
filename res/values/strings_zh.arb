@@ -607,6 +607,8 @@
   "error_text_input_above_maximum_limit": "金额大于最大值",
   "show_market_place": "显示市场",
   "prevent_screenshots": "防止截屏和录屏",
+  "profile": "轮廓",
+  "close": "关闭",
   "modify_2fa": "修改蛋糕2FA",
   "disable_cake_2fa": "禁用蛋糕 2FA",
   "question_to_disable_2fa": "您确定要禁用 Cake 2FA 吗？访问钱包和某些功能将不再需要 2FA 代码。",
@@ -645,5 +647,9 @@
   "invalid_input": "输入无效",
   "fiat_balance": "法币余额",
   "gross_balance": "毛余额",
-  "alphabetical": "按字母顺序"
+  "alphabetical": "按字母顺序",
+  "generate_name": "生成名称",
+  "balance_page": "余额页",
+  "share": "分享",
+  "slidable": "可滑动"
 }

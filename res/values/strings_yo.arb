@@ -604,6 +604,8 @@
   "error_text_input_above_maximum_limit": "Iye jọwọ ni o yẹ diẹ ti o wọle diẹ",
   "show_market_place": "Wa Sopọ Pataki",
   "prevent_screenshots": "Pese asapọ ti awọn ẹrọ eto aṣa",
+  "profile": "profaili",
+  "close": "sunmo",
   "modify_2fa": "Fi iṣiro 2FA sii Cake",
   "disable_cake_2fa": "Ko 2FA Cake sii",
   "question_to_disable_2fa": "Ṣe o wa daadaa pe o fẹ ko 2FA Cake? Ko si itumọ ti a yoo nilo lati ranse si iwe iwe naa ati eyikeyi iṣẹ ti o ni.",
@@ -642,5 +644,9 @@
   "invalid_input": "Iṣawọle ti ko tọ",
   "fiat_balance": "Fiat Iwontunws.funfun",
   "gross_balance": "Iwontunws.funfun apapọ",
-  "alphabetical": "Labidibi"
+  "alphabetical": "Labidibi",
+  "generate_name": "Ṣẹda Orukọ",
+  "balance_page": "Oju-iwe iwọntunwọnsi",
+  "share": "Pinpin",
+  "slidable": "Slidable"
 }

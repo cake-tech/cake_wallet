@@ -24,4 +24,5 @@ abstract class MoneroTransactionHistoryBase
   @override
   void addMany(Map<String, MoneroTransactionInfo> transactions) =>
       this.transactions.addAll(transactions);
+
 }

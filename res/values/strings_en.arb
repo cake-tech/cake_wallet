@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Amount is more than the maximum",
   "show_market_place": "Show Marketplace",
   "prevent_screenshots": "Prevent screenshots and screen recording",
+  "profile": "Profile",
+  "close": "Close",
   "modify_2fa": "Modify Cake 2FA",
   "disable_cake_2fa": "Disable Cake 2FA",
   "question_to_disable_2fa": "Are you sure that you want to disable Cake 2FA? A 2FA code will no longer be needed to access the wallet and certain functions.",
@@ -646,5 +648,9 @@
   "invalid_input": "Invalid input",
   "fiat_balance": "Fiat Balance",
   "gross_balance": "Gross Balance",
-  "alphabetical": "Alphabetical"
+  "alphabetical": "Alphabetical",
+  "generate_name": "Generate Name",
+  "balance_page": "Balance Page",
+  "share": "Share",
+  "slidable": "Slidable"
 }

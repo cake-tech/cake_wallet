@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "L'ammontare è superiore al massimo",
   "show_market_place": "Mostra mercato",
   "prevent_screenshots": "Impedisci screenshot e registrazione dello schermo",
+  "profile": "Profilo",
+  "close": "Chiudere",
   "modify_2fa": "Modifica Torta 2FA",
   "disable_cake_2fa": "Disabilita Cake 2FA",
   "question_to_disable_2fa": "Sei sicuro di voler disabilitare Cake 2FA? Non sarà più necessario un codice 2FA per accedere al portafoglio e ad alcune funzioni.",
@@ -646,5 +648,9 @@
   "invalid_input": "Inserimento non valido",
   "fiat_balance": "Equilibrio fiat",
   "gross_balance": "Saldo lordo",
-  "alphabetical": "Alfabetico"
+  "alphabetical": "Alfabetico",
+  "generate_name": "Genera nome",
+  "balance_page": "Pagina di equilibrio",
+  "share": "Condividere",
+  "slidable": "Scorrevole"
 }

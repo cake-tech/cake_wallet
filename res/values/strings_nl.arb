@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Bedrag is meer dan maximaal",
   "show_market_place": "Toon Marktplaats",
   "prevent_screenshots": "Voorkom screenshots en schermopname",
+  "profile": "Profiel",
+  "close": "Dichtbij",
   "modify_2fa": "Wijzig Cake 2FA",
   "disable_cake_2fa": "Taart 2FA uitschakelen",
   "question_to_disable_2fa": "Weet je zeker dat je Cake 2FA wilt uitschakelen? Er is geen 2FA-code meer nodig om toegang te krijgen tot de portemonnee en bepaalde functies.",
@@ -646,5 +648,9 @@
   "invalid_input": "Ongeldige invoer",
   "fiat_balance": "Fiat Balans",
   "gross_balance": "Bruto saldo",
-  "alphabetical": "Alfabetisch"
+  "alphabetical": "Alfabetisch",
+  "generate_name": "Naam genereren",
+  "balance_page": "Saldo pagina",
+  "share": "Deel",
+  "slidable": "Verschuifbaar"
 }

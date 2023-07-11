@@ -608,6 +608,8 @@
   "error_text_input_above_maximum_limit": "Miktar maksimumdan daha fazla",
   "show_market_place": "Pazar Yerini Göster",
   "prevent_screenshots": "Ekran görüntülerini ve ekran kaydını önleyin",
+  "profile": "Profil",
+  "close": "Kapalı",
   "modify_2fa": "Cake 2FA'yı Değiştirin",
   "disable_cake_2fa": "Cake 2FA'yı Devre Dışı Bırak",
   "question_to_disable_2fa": "Cake 2FA'yı devre dışı bırakmak istediğinizden emin misiniz? M-cüzdana ve belirli işlevlere erişmek için artık 2FA koduna gerek kalmayacak.",
@@ -646,5 +648,9 @@
   "invalid_input": "Geçersiz Giriş",
   "fiat_balance": "Fiat Bakiyesi",
   "gross_balance": "Brüt Bakiye",
-  "alphabetical": "Alfabetik"
+  "alphabetical": "Alfabetik",
+  "generate_name": "İsim Oluştur",
+  "balance_page": "Bakiye Sayfası",
+  "share": "Paylaşmak",
+  "slidable": "kaydırılabilir"
 }

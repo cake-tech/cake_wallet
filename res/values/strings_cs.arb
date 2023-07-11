@@ -602,6 +602,8 @@
   "error_text_input_above_maximum_limit": "Částka je větší než maximální hodnota",
   "show_market_place": "Zobrazit trh",
   "prevent_screenshots": "Zabránit vytváření snímků obrazovky a nahrávání obrazovky",
+  "profile": "Profil",
+  "close": "zavřít",
   "modify_2fa": "Upravte Cake 2FA",
   "disable_cake_2fa": "Zakázat Cake 2FA",
   "question_to_disable_2fa": "Opravdu chcete deaktivovat Cake 2FA? Pro přístup k peněžence a některým funkcím již nebude potřeba kód 2FA.",
@@ -640,5 +642,9 @@
   "invalid_input": "Neplatný vstup",
   "fiat_balance": "Fiat Balance",
   "gross_balance": "Hrubý zůstatek",
-  "alphabetical": "Abecední"
+  "alphabetical": "Abecední",
+  "generate_name": "Generovat jméno",
+  "balance_page": "Stránka zůstatku",
+  "share": "Podíl",
+  "slidable": "Posuvné"
 }

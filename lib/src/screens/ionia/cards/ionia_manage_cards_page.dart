@@ -67,40 +67,6 @@ class IoniaManageCardsPage extends BasePage {
   Widget get endDrawer => CardMenu();
 
   @override
-  Widget leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
-      size: 16,
-    );
-
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-          // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
-            onPressed: (){
-             if (searchFocusNode.hasFocus) {
-              searchFocusNode.unfocus();
-              return;
-             }
-             
-              Navigator.of(context).pop();
-            },
-            child: _backButton),
-      ),
-    );
-  }
-
-  @override
   Widget middle(BuildContext context) {
     return Text(
       S.of(context).gift_cards,
@@ -123,26 +89,28 @@ class IoniaManageCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final filterButton = InkWell(
-        onTap: () async {
-          await showCategoryFilter(context);
-          _cardsListViewModel.getMerchants();
-        },
-        child: Container(
-          width: 32,
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+    final filterButton = Semantics(
+      label: S.of(context).filter_by,
+      child: InkWell(
+          onTap: () async {
+            await showCategoryFilter(context);
+            _cardsListViewModel.getMerchants();
+          },
+          child: Container(
+            width: 32,
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+              ),
+              borderRadius: BorderRadius.circular(10),
             ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Image.asset(
-            'assets/images/filter.png',
-            color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
-          ),
-        )
+            child: Image.asset(
+              'assets/images/filter.png',
+              color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+            ),
+          )),
     );
 
     return Padding(
@@ -281,11 +249,13 @@ class _SearchWidget extends StatelessWidget {
   final FocusNode focusNode;
   @override
   Widget build(BuildContext context) {
-    final searchIcon = Padding(
-      padding: EdgeInsets.all(8),
-      child: Image.asset(
-        'assets/images/mini_search_icon.png',
-        color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+    final searchIcon = ExcludeSemantics(
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Image.asset(
+          'assets/images/mini_search_icon.png',
+          color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+        ),
       ),
     );
 
@@ -335,18 +305,22 @@ class _TrailingIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        constraints: BoxConstraints(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        iconSize: 25,
-        onPressed: onPressed,
-        icon: Image.asset(
-          asset,
-          color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+    return Semantics(
+      label: S.of(context).profile,
+      child: Material(
+        color: Colors.transparent,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          iconSize: 25,
+          onPressed: onPressed,
+          icon: Image.asset(
+            asset,
+            color:
+                Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+          ),
         ),
       ),
     );
