@@ -87,13 +87,13 @@ String walletTypeToString(WalletType type) {
 String walletTypeToDisplayName(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return 'Monero';
+      return 'Monero (XMR)';
     case WalletType.bitcoin:
-      return 'Bitcoin (Electrum)';
+      return 'Bitcoin (BTC)';
     case WalletType.litecoin:
-      return 'Litecoin (Electrum)';
+      return 'Litecoin (LTC)';
     case WalletType.haven:
-      return 'Haven';
+      return 'Haven (XHV)';
     case WalletType.ethereum:
       return 'Ethereum';
     default:
