@@ -36,51 +36,35 @@ class PreSeedPage extends BasePage {
           alignment: Alignment.center,
           padding: EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-                maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-            child: CustomScrollView(slivers: [
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Column(
-                      children: [
-                        AspectRatio(aspectRatio: 1, child: image),
-                        Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            S
-                                .of(context)
-                                .pre_seed_description(wordsCount.toString()),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .bodySmall!
-                                    .color!),
-                          ),
-                        ),
-                      ],
-                    ),
-                    PrimaryButton(
-                        onPressed: () => Navigator.of(context)
-                            .popAndPushNamed(Routes.seed, arguments: true),
-                        text: S.of(context).pre_seed_button_text,
-                        color: Theme.of(context)
-                            
-                                .accentTextTheme!
-                            
-                                .bodyLarge!
-                                
-                            .color!,
-                        textColor: Colors.white)
-                  ],
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.3
+                  ),
+                  child: AspectRatio(aspectRatio: 1, child: image),
                 ),
-              ),
-            ]),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    S.of(context).pre_seed_description(wordsCount.toString()),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Theme.of(context).primaryTextTheme.bodySmall!.color!),
+                  ),
+                ),
+                PrimaryButton(
+                    onPressed: () =>
+                        Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true),
+                    text: S.of(context).pre_seed_button_text,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    textColor: Colors.white)
+              ],
+            ),
           ),
         ));
   }
