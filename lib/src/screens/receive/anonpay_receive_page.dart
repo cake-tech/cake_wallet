@@ -33,7 +33,7 @@ class AnonPayReceivePage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+      color: pageIconColor(context),
       size: 16,
     );
 
@@ -60,7 +60,7 @@ class AnonPayReceivePage extends BasePage {
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
               fontFamily: 'Lato',
-              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+              color: titleColor(context)),
         ),
         Text(
           invoiceInfo is AnonpayInvoiceInfo
@@ -91,7 +91,7 @@ class AnonPayReceivePage extends BasePage {
         ),
         icon: Icon(
           Icons.edit,
-          color: Theme.of(context).cardColor,
+          color: pageIconColor(context),
           size: 22.0,
         ),
       ),
