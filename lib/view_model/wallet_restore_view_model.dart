@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/mnemonic_length.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
@@ -24,7 +25,11 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase
     with _$WalletRestoreViewModel;
 
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
-  WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,FiatConversionStore fiatConversationStore,
+  WalletRestoreViewModelBase(
+      AppStore appStore,
+      WalletCreationService walletCreationService,
+      FiatConversionStore fiatConversationStore,
+      Box<TransactionDescription> transactionDescriptionBox,
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
       : availableModes = (type == WalletType.monero || type == WalletType.haven)
@@ -34,7 +39,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
-        super(appStore, walletInfoSource, walletCreationService, fiatConversationStore, type: type, isRecovery: true) {
+        super(appStore, walletInfoSource, walletCreationService,
+            fiatConversationStore, transactionDescriptionBox,
+            type: type, isRecovery: true) {
     isButtonEnabled =
         !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     walletCreationService.changeWalletType(type: type);

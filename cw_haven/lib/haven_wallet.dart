@@ -223,6 +223,12 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
+  Future<PendingTransaction> createTransactionForSweepAll(Object credentials) {
+    // TODO: implement createTransactionForSweepAllHaven
+    throw UnimplementedError();
+  }
+
+  @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     // FIXME: hardcoded value;
 

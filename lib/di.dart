@@ -301,7 +301,12 @@ Future setup({
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
-      getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type),getIt.get<FiatConversionStore>(), _walletInfoSource,
+          getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type),
+          getIt.get<FiatConversionStore>(),
+          transactionDescriptionBox,
+          _walletInfoSource,
+       
       type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromSeedVM, List, void>((args, _) {
@@ -310,7 +315,11 @@ Future setup({
     final mnemonic = args[2] as String;
 
     return WalletRestorationFromSeedVM(
-        getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource , getIt.get<FiatConversionStore>(),
+        getIt.get<AppStore>(),
+        getIt.get<WalletCreationService>(param1: type),
+        _walletInfoSource,
+        getIt.get<FiatConversionStore>(),
+        transactionDescriptionBox,
         type: type, language: language, seed: mnemonic);
   });
 
@@ -319,13 +328,21 @@ Future setup({
     final language = args[1] as String;
 
     return WalletRestorationFromKeysVM(
-        getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource, getIt.get<FiatConversionStore>(),
+        getIt.get<AppStore>(),
+        getIt.get<WalletCreationService>(param1: type),
+        _walletInfoSource,
+        getIt.get<FiatConversionStore>(),
+        transactionDescriptionBox,
         type: type, language: language);
   });
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
-        getIt.get<WalletCreationService>(param1: type), getIt.get<FiatConversionStore>(), _walletInfoSource, type);
+        getIt.get<WalletCreationService>(param1: type),
+        getIt.get<FiatConversionStore>(),
+        transactionDescriptionBox,
+        _walletInfoSource,
+        type);
   });
 
   getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
@@ -742,7 +759,11 @@ Future setup({
 
   getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>((type, _) =>
       WalletRestoreViewModel(
-          getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type),getIt.get<FiatConversionStore>(), _walletInfoSource,
+          getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type),
+          getIt.get<FiatConversionStore>(),
+          transactionDescriptionBox,
+          _walletInfoSource,
           type: type));
 
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>(

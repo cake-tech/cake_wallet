@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -19,14 +20,20 @@ part 'restore_from_qr_vm.g.dart';
 class WalletRestorationFromQRVM = WalletRestorationFromQRVMBase with _$WalletRestorationFromQRVM;
 
 abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store {
-  WalletRestorationFromQRVMBase(AppStore appStore, WalletCreationService walletCreationService,FiatConversionStore fiatConversationStore,
+  WalletRestorationFromQRVMBase(
+      AppStore appStore,
+      WalletCreationService walletCreationService,
+      FiatConversionStore fiatConversationStore,
+      Box<TransactionDescription> transactionDescriptionBox,
       Box<WalletInfo> walletInfoSource, WalletType type)
       : height = 0,
         viewKey = '',
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService, fiatConversationStore, type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService,
+            fiatConversationStore, transactionDescriptionBox,
+            type: type, isRecovery: true);
 
   @observable
   int height;
@@ -78,6 +85,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 height: restoreWallet.height ?? 0,
                 mnemonic: restoreWallet.mnemonicSeed ?? '',
                 password: password);
+              
           case WalletType.bitcoin:
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(

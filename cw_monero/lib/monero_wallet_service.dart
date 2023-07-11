@@ -1,10 +1,8 @@
 import 'dart:io';
-import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
-import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -178,28 +176,6 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       await wallet.init();
 
       return wallet;
-    } catch (e) {
-      // TODO: Implement Exception for wallet list service.
-      print('MoneroWalletsManager Error: $e');
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> sweepAllFunds(Node node, String address, String paymentId) async {
-    try {
-      final response = await monero_wallet_manager.sweepFundsToNewWallet(
-        node: node,
-        address: address,
-        paymentId: paymentId,
-      );
-
-   
-      if (response['error'] != null) {
-        throw Exception('${response['error']['message']}');
-      } else {
-        return response;
-      }
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');

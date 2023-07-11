@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -18,11 +19,17 @@ part 'wallet_new_vm.g.dart';
 class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
 
 abstract class WalletNewVMBase extends WalletCreationVM with Store {
-  WalletNewVMBase(AppStore appStore, WalletCreationService walletCreationService,FiatConversionStore fiatConversationStore,
+  WalletNewVMBase(
+      AppStore appStore,
+      WalletCreationService walletCreationService,
+      FiatConversionStore fiatConversationStore,
+      Box<TransactionDescription> transactionDescriptionBox,
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
       : selectedMnemonicLanguage = '',
-        super(appStore, walletInfoSource, walletCreationService,fiatConversationStore, type: type, isRecovery: false);
+        super(appStore, walletInfoSource, walletCreationService,
+            fiatConversationStore, transactionDescriptionBox,
+            type: type, isRecovery: false);
 
   @observable
   String selectedMnemonicLanguage;

@@ -172,8 +172,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final _credentials = credentials as MoneroTransactionCreationCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    // final unlockedBalance = monero_wallet.getUnlockedBalance(
-    //     accountIndex: walletAddresses.accountList.accounts.first.id);
+
+    final unlockedBalance = monero_wallet.getUnlockedBalance(
+        accountIndex: walletAddresses.account!.id);
 
     PendingTransactionDescription pendingTransactionDescription;
 
@@ -192,10 +193,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final int totalAmount = outputs.fold(
           0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      // if (unlockedBalance < totalAmount) {
-      //   throw MoneroTransactionCreationException(
-      //       'You do not have enough XMR to send this amount.');
-      // }
+      if (unlockedBalance < totalAmount) {
+        throw MoneroTransactionCreationException(
+            'You do not have enough XMR to send this amount.');
+      }
 
       final moneroOutputs = outputs.map((output) {
         final outputAddress =
@@ -217,16 +218,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           output.isParsedAddress ? output.extractedAddress : output.address;
       final amount =
           output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-      // final formattedAmount =
-      //     output.sendAll ? null : output.formattedCryptoAmount;
+          
+      final formattedAmount =
+          output.sendAll ? null : output.formattedCryptoAmount;
 
-      // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
-      //     (formattedAmount == null && unlockedBalance <= 0)) {
-      //   final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
+          (formattedAmount == null && unlockedBalance <= 0)) {
+        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
 
-      //   throw MoneroTransactionCreationException(
-      //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
-      // }
+        throw MoneroTransactionCreationException(
+            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      }
 
       pendingTransactionDescription =
           await transaction_history.createTransaction(
@@ -235,6 +237,34 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
               priorityRaw: _credentials.priority.serialize(),
               accountIndex: walletAddresses.account!.id);
     }
+
+    return PendingMoneroTransaction(pendingTransactionDescription);
+  }
+
+  @override
+  Future<PendingTransaction> createTransactionForSweepAll(
+      Object credentials) async {
+    final _credentials = credentials as MoneroTransactionCreationCredentials;
+    final outputs = _credentials.outputs;
+
+    PendingTransactionDescription pendingTransactionDescription;
+
+    if (!(syncStatus is SyncedSyncStatus)) {
+      print('Wallet is not synced');
+      throw MoneroTransactionCreationException('The wallet is not synced.');
+    }
+
+    final output = outputs.first;
+    final address =
+        output.isParsedAddress ? output.extractedAddress : output.address;
+    final amount =
+        output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+
+    pendingTransactionDescription = await transaction_history.createTransaction(
+        address: address!,
+        amount: amount,
+        priorityRaw: _credentials.priority.serialize(),
+        accountIndex: walletAddresses.account!.id);
 
     return PendingMoneroTransaction(pendingTransactionDescription);
   }
@@ -423,7 +453,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
         //! Introduce completer
-        syncCompleter.complete();
+        if (!syncCompleter.isCompleted) {
+          syncCompleter.complete();
+        }
         if (!_hasSyncAfterStartup) {
           _hasSyncAfterStartup = true;
           await save();

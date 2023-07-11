@@ -1,8 +1,6 @@
 import 'package:cake_wallet/di.dart';
-import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,10 +94,5 @@ class WalletCreationService {
     }
 
     return wallet;
-  }
-
-  Future<Map<String, dynamic>> sweepAllFunds(Node node, String address, String paymentId) async {
-    final result = await _service!.sweepAllFunds(node, address, paymentId);
-    return result;
   }
 }
