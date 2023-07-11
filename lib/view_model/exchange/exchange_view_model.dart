@@ -130,7 +130,7 @@ abstract class ExchangeViewModelBase with Store {
   final SharedPreferences sharedPreferences;
 
   List<ExchangeProvider> get _allProviders => [
-        ChangeNowExchangeProvider(),
+        ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
         TrocadorExchangeProvider(useTorOnly: _useTorOnly),
@@ -221,7 +221,7 @@ abstract class ExchangeViewModelBase with Store {
 
 
   bool get hasAllAmount =>
-      wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
+      (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) && depositCurrency == wallet.currency;
 
   bool get isMoneroWallet  => wallet.type == WalletType.monero;
 
@@ -443,7 +443,9 @@ abstract class ExchangeViewModelBase with Store {
           request = SideShiftRequest(
             depositMethod: depositCurrency,
             settleMethod: receiveCurrency,
-            depositAmount: depositAmount.replaceAll(',', '.'),
+            depositAmount: isFixedRateMode
+                ? receiveAmount.replaceAll(',', '.')
+                : depositAmount.replaceAll(',', '.'),            
             settleAddress: receiveAddress,
             refundAddress: depositAddress,
           );
@@ -564,7 +566,7 @@ abstract class ExchangeViewModelBase with Store {
 
   @action
   void calculateDepositAllAmount() {
-    if (wallet.type == WalletType.bitcoin) {
+    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
       final availableBalance = wallet.balance[wallet.currency]!.available;
       final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);
