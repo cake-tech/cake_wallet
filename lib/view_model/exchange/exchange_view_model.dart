@@ -221,7 +221,7 @@ abstract class ExchangeViewModelBase with Store {
 
 
   bool get hasAllAmount =>
-      wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
+      (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) && depositCurrency == wallet.currency;
 
   bool get isMoneroWallet  => wallet.type == WalletType.monero;
 
@@ -566,7 +566,7 @@ abstract class ExchangeViewModelBase with Store {
 
   @action
   void calculateDepositAllAmount() {
-    if (wallet.type == WalletType.bitcoin) {
+    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
       final availableBalance = wallet.balance[wallet.currency]!.available;
       final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);
