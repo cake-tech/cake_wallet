@@ -283,7 +283,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                     })
                     .expand((e) => e)
                     .toList()), 
-          actionTitle: S.current.send_got_it,
+          actionTitle: S.current.got_it,
         ); 
     });
   }

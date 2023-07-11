@@ -4,9 +4,9 @@ part 'desktop_sidebar_view_model.g.dart';
 
 enum SidebarItem {
   dashboard,
+  transactions,
   support,
   settings,
-  transactions;
 }
 
 class DesktopSidebarViewModel = DesktopSidebarViewModelBase with _$DesktopSidebarViewModel;

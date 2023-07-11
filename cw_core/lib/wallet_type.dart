@@ -26,7 +26,7 @@ enum WalletType {
   litecoin,
 
   @HiveField(4)
-  haven
+  haven,
 }
 
 int serializeToInt(WalletType type) {
@@ -77,13 +77,13 @@ String walletTypeToString(WalletType type) {
 String walletTypeToDisplayName(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return 'Monero';
+      return 'Monero (XMR)';
     case WalletType.bitcoin:
-      return 'Bitcoin (Electrum)';
+      return 'Bitcoin (BTC)';
     case WalletType.litecoin:
-      return 'Litecoin (Electrum)';
+      return 'Litecoin (LTC)';
     case WalletType.haven:
-      return 'Haven';
+      return 'Haven (XHV)';
     default:
       return '';
   }
