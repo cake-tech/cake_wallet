@@ -196,6 +196,12 @@ class SendTemplateCard extends StatelessWidget {
     if (template.name.isNotEmpty) {
       _nameController.text = template.name;
     }
+    if (template.output.cryptoAmount.isNotEmpty) {
+      _cryptoAmountController.text = template.output.cryptoAmount;
+    }
+    if (template.output.fiatAmount.isNotEmpty) {
+      _fiatAmountController.text = template.output.fiatAmount;
+    }
 
     _addressController.addListener(() {
       final address = _addressController.text;
