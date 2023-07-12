@@ -1,9 +1,6 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class StandardCheckbox extends StatelessWidget {
   StandardCheckbox(
@@ -52,7 +49,7 @@ class StandardCheckbox extends StatelessWidget {
             child: value
                 ? Icon(
                     Icons.check,
-                    color: iconColor ?? Colors.blue,
+                    color: iconColor ?? Theme.of(context).primaryColor,
                     size: 20.0,
                   )
                 : Offstage(),
