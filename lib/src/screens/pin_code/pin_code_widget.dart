@@ -226,7 +226,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                     child: Container(
                                       margin: EdgeInsets.only(left: marginLeft, right: marginRight),
                                       child: Semantics(
-                                        label: 'Delete',
+                                        label: S.of(context).delete,
                                         button: true,
                                         onTap: () => _pop(),
                                         child: TextButton(
