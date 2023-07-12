@@ -48,12 +48,18 @@ class ContactListPage extends BasePage {
                   // FIX-ME: Style
                   //shape: CircleBorder(),
                   onPressed: () async {
-                    authService.authenticateAction(
+                    if (contactListViewModel
+                        .shouldRequireTOTP2FAForAddingContacts) {
+                      authService.authenticateAction(
                       context,
                       route: Routes.addressBookAddContact,
                       conditionToDetermineIfToUse2FA: contactListViewModel
                           .shouldRequireTOTP2FAForAddingContacts,
-                    ); 
+                      );
+                    } else {
+                      await Navigator.of(context)
+                          .pushNamed(Routes.addressBookAddContact);
+                    }         
                   },
                   child: Offstage()),
             )

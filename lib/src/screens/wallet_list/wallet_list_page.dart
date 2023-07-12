@@ -162,21 +162,39 @@ class WalletListBodyState extends State<WalletListBody> {
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
               onPressed: () {
+                //TODO(David): Find a way to optimize this
                 if (isSingleCoin) {
-                  widget.authService.authenticateAction(
+                  if (widget.walletListViewModel
+                      .shouldRequireTOTP2FAForCreatingNewWallets) {
+                    widget.authService.authenticateAction(
                     context,
                     route: Routes.newWallet,
                     arguments: widget.walletListViewModel.currentWalletType,
                     conditionToDetermineIfToUse2FA: widget.walletListViewModel
                         .shouldRequireTOTP2FAForCreatingNewWallets,
-                  );    
+                    );
+                  } else {
+                    Navigator.of(context).pushNamed(
+                      Routes.newWallet,
+                      arguments: widget.walletListViewModel.currentWalletType,
+                    );
+                  }
                 } else {
-                  widget.authService.authenticateAction(
+                  if (widget.walletListViewModel
+                      .shouldRequireTOTP2FAForCreatingNewWallets) {
+                    widget.authService.authenticateAction(
                     context,
                     route: Routes.newWalletType,
                     conditionToDetermineIfToUse2FA: widget.walletListViewModel
                         .shouldRequireTOTP2FAForCreatingNewWallets,
                   );
+                  } else {
+                    Navigator.of(context).pushNamed(
+                      Routes.newWallet,
+                      arguments: widget.walletListViewModel.currentWalletType,
+                    );
+                  }
+             
                 }
               },
               image: newWalletImage,
@@ -187,13 +205,20 @@ class WalletListBodyState extends State<WalletListBody> {
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () {
-                  widget.authService.authenticateAction(
+                  if (widget.walletListViewModel
+                      .shouldRequireTOTP2FAForCreatingNewWallets) {
+                    widget.authService.authenticateAction(
                     context,
                     route: Routes.restoreOptions,
                     arguments: false,
                     conditionToDetermineIfToUse2FA: widget.walletListViewModel
                         .shouldRequireTOTP2FAForCreatingNewWallets,
                   );
+                  } else {
+                    Navigator.of(context)
+                        .pushNamed(Routes.restoreOptions, arguments: false);
+                  }
+                 
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
