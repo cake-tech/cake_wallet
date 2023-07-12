@@ -72,6 +72,7 @@ class SendTemplateCard extends StatelessWidget {
                 Padding(
                     padding: EdgeInsets.only(top: 20),
                     child: AddressTextField(
+                        selectedCurrency: sendTemplateViewModel.cryptoCurrency,
                         controller: _addressController,
                         onURIScanned: (uri) {
                           final paymentRequest = PaymentRequest.fromUri(uri);
@@ -83,6 +84,14 @@ class SendTemplateCard extends StatelessWidget {
                           AddressTextFieldOption.qrCode,
                           AddressTextFieldOption.addressBook
                         ],
+                        onPushPasteButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
+                        onPushAddressBookButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
                         buttonColor: Theme.of(context)
                             .primaryTextTheme
                             .headlineMedium!
