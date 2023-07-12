@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Àwọn àdírẹ́sì olùgbà",
   "wallet_list_title": "Àpamọ́wọ́ Monero",
   "wallet_list_create_new_wallet": "Ṣe àpamọ́wọ́ títun",
+    "wallet_list_edit_wallet" : "Ṣatunkọ apamọwọ",
+    "wallet_list_wallet_name" : "Orukọ apamọwọ",
   "wallet_list_restore_wallet": "Restore àpamọ́wọ́",
   "wallet_list_load_wallet": "Load àpamọ́wọ́",
   "wallet_list_loading_wallet": "Ń ṣí àpamọ́wọ́ ${wallet_name}",

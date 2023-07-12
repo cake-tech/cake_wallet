@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_haven/haven_transaction_creation_credentials.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -249,6 +251,29 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
     await haven_wallet.store();
+  }
+
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletPath = await pathForWallet(name: name, type: type);
+    final currentCacheFile = File(currentWalletPath);
+    final currentKeysFile = File('$currentWalletPath.keys');
+    final currentAddressListFile = File('$currentWalletPath.address.txt');
+
+    final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+
+    // Copies current wallet files into new wallet name's dir and files
+    if (currentCacheFile.existsSync()) {
+      await currentCacheFile.copy(newWalletPath);
+    }
+    if (currentKeysFile.existsSync()) {
+      await currentKeysFile.copy('$newWalletPath.keys');
+    }
+    if (currentAddressListFile.existsSync()) {
+      await currentAddressListFile.copy('$newWalletPath.address.txt');
+    }
+
+    // Delete old name's dir and files
+    await Directory(currentWalletPath).delete(recursive: true);
   }
 
   @override

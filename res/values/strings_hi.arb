@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "प्राप्तकर्ता के पते",
   "wallet_list_title": "Monero बटुआ",
   "wallet_list_create_new_wallet": "नया बटुआ बनाएँ",
+  "wallet_list_edit_wallet" : "बटुआ संपादित करें",
+  "wallet_list_wallet_name" : "बटुआ नाम",
   "wallet_list_restore_wallet": "वॉलेट को पुनर्स्थापित करें",
   "wallet_list_load_wallet": "वॉलेट लोड करें",
   "wallet_list_loading_wallet": "लोड हो रहा है ${wallet_name} बटुआ",

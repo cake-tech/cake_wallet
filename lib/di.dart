@@ -31,6 +31,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -67,6 +68,8 @@ import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -565,6 +568,21 @@ Future setup({
         walletListViewModel: getIt.get<WalletListViewModel>(),
         authService: getIt.get<AuthService>(),
       ));
+
+  getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
+      (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
+          walletListViewModel, getIt.get<WalletLoadingService>()));
+
+  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
+    final walletListViewModel = args.first as WalletListViewModel;
+    final editingWallet = args.last as WalletListItem;
+    return WalletEditPage(
+        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: walletListViewModel),
+        authService: getIt.get<AuthService>(),
+        walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
+        editingWallet: editingWallet);
+  });
+
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;

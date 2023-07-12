@@ -6,7 +6,6 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -15,7 +14,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
@@ -77,31 +75,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
-                        onTap: () async {
-                          if (wallet.isCurrent || !wallet.isEnabled) {
-                            return;
-                          }
-
-                          final confirmed = await showPopUp<bool>(
-                                  context: context,
-                                  builder: (dialogContext) {
-                                    return AlertWithTwoActions(
-                                        alertTitle: S.of(context).change_wallet_alert_title,
-                                        alertContent:
-                                            S.of(context).change_wallet_alert_content(wallet.name),
-                                        leftButtonText: S.of(context).cancel,
-                                        rightButtonText: S.of(context).change,
-                                        actionLeftButton: () =>
-                                            Navigator.of(dialogContext).pop(false),
-                                        actionRightButton: () =>
-                                            Navigator.of(dialogContext).pop(true));
-                                  }) ??
-                              false;
-
-                          if (confirmed) {
-                            await _loadWallet(wallet);
-                          }
-                        },
+                        onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
                         child: Container(
                           height: tileHeight,
                           width: double.infinity,
@@ -129,16 +103,21 @@ class WalletListBodyState extends State<WalletListBody> {
                                           ? _imageFor(type: wallet.type)
                                           : nonWalletTypeIcon,
                                       SizedBox(width: 10),
-                                      Text(
-                                        wallet.name,
-                                        style: TextStyle(
+                                      Flexible(
+                                        child: Text(
+                                          wallet.name,
+                                          maxLines: null,
+                                          softWrap: true,
+                                          style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
                                                 .primaryTextTheme
                                                 .titleLarge!
-                                                .color!),
-                                      )
+                                                .color!,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -149,12 +128,38 @@ class WalletListBodyState extends State<WalletListBody> {
 
                     return wallet.isCurrent
                         ? row
-                        : Slidable(
-                            key: Key('${wallet.key}'),
-                            startActionPane: _actionPane(wallet),
-                            endActionPane: _actionPane(wallet),
-                            child: row,
-                          );
+                        : Row(children: [
+                            Expanded(child: row),
+                            GestureDetector(
+                              onTap: () => Navigator.of(context).pushNamed(
+                                  Routes.walletEdit,
+                                  arguments: [widget.walletListViewModel, wallet]),
+                              child: Container(
+                                padding: EdgeInsets.only(right: 20),
+                                child: Center(
+                                  child: Container(
+                                    height: 40,
+                                    width: 44,
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium!
+                                            .decorationColor!),
+                                    child: Icon(
+                                      Icons.edit,
+                                      size: 14,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium!
+                                          .color!,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ]);
                   }),
             ),
           ),
@@ -226,47 +231,6 @@ class WalletListBodyState extends State<WalletListBody> {
     });
   }
 
-  Future<void> _removeWallet(WalletListItem wallet) async {
-    widget.authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
-      _onSuccessfulAuth(wallet);
-    });
-  }
-
-  void _onSuccessfulAuth(WalletListItem wallet) async {
-    bool confirmed = false;
-    await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithTwoActions(
-            alertTitle: S.of(context).delete_wallet,
-            alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
-            leftButtonText: S.of(context).cancel,
-            rightButtonText: S.of(context).delete,
-            actionLeftButton: () => Navigator.of(context).pop(),
-            actionRightButton: () {
-              confirmed = true;
-              Navigator.of(context).pop();
-            },
-          );
-        });
-
-    if (confirmed) {
-      try {
-        changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
-        await widget.walletListViewModel.remove(wallet);
-        hideProgressText();
-      } catch (e) {
-        changeProcessText(
-          S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
-        );
-      }
-    }
-  }
-
   void changeProcessText(String text) {
     _progressBar = createBar<void>(text, duration: null)..show(context);
   }
@@ -277,18 +241,4 @@ class WalletListBodyState extends State<WalletListBody> {
       _progressBar = null;
     });
   }
-
-  ActionPane _actionPane(WalletListItem wallet) => ActionPane(
-    motion: const ScrollMotion(),
-    extentRatio: 0.3,
-    children: [
-      SlidableAction(
-        onPressed: (_) => _removeWallet(wallet),
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        icon: CupertinoIcons.delete,
-        label: S.of(context).delete,
-      ),
-    ],
-  );
 }

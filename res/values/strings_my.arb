@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "လက်ခံသူလိပ်စာများ",
   "wallet_list_title": "Monero ပိုက်ဆံအိတ်",
   "wallet_list_create_new_wallet": "Wallet အသစ်ဖန်တီးပါ။",
+  "wallet_list_edit_wallet" : "ပိုက်ဆံအိတ်ကို တည်းဖြတ်ပါ။",
+  "wallet_list_wallet_name" : "ပိုက်ဆံအိတ်နာမည်",
   "wallet_list_restore_wallet": "ပိုက်ဆံအိတ်ကို ပြန်ယူပါ။",
   "wallet_list_load_wallet": "ပိုက်ဆံအိတ်ကို တင်ပါ။",
   "wallet_list_loading_wallet": "${wallet_name} ပိုက်ဆံအိတ်ကို ဖွင့်နေသည်။",

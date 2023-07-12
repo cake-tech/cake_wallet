@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Adireshin masu amfani",
   "wallet_list_title": "Monero walat",
   "wallet_list_create_new_wallet": "Ƙirƙiri Sabon Wallet",
+  "wallet_list_edit_wallet" : "Gyara walat",
+  "wallet_list_wallet_name" : "Sunan walat",
   "wallet_list_restore_wallet": "Maida Wallet",
   "wallet_list_load_wallet": "Ana loda wallet na Monero",
   "wallet_list_loading_wallet": "Ana loda ${wallet_name} walat",
@@ -617,3 +619,4 @@
   "share": "Raba",
   "slidable": "Mai iya zamewa"
 }
+
