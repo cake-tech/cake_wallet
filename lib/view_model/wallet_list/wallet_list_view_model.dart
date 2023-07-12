@@ -21,6 +21,7 @@ abstract class WalletListViewModelBase with Store {
     this._authService,
   ) : wallets = ObservableList<WalletListItem>() {
     updateList();
+    reaction((_) => _appStore.wallet, (_) => updateList());
   }
 
   @observable
