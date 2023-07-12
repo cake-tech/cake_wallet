@@ -26,8 +26,7 @@ class WalletEditPage extends BasePage {
         _labelController = TextEditingController(),
         super() {
     _labelController.text = editingWallet.name;
-    _labelController
-        .addListener(() => walletEditViewModel.newName = _labelController.text);
+    _labelController.addListener(() => walletEditViewModel.newName = _labelController.text);
   }
 
   final GlobalKey<FormState> _formKey;
@@ -46,78 +45,81 @@ class WalletEditPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Form(
-        key: _formKey,
-        child: Container(
-            padding: EdgeInsets.all(24.0),
-            child: Column(children: <Widget>[
-              Expanded(
-                  child: Center(
-                      child: BaseTextFormField(
-                          controller: _labelController,
-                          hintText: S.of(context).wallet_list_wallet_name,
-                          validator: WalletNameValidator()))),
-              Observer(builder: (_) {
-                final isLoading =
-                    walletEditViewModel.state is WalletEditRenamePending ||
-                        walletEditViewModel.state is WalletEditDeletePending;
+      key: _formKey,
+      child: Container(
+        padding: EdgeInsets.all(24.0),
+        child: Column(
+          children: <Widget>[
+            Expanded(
+                child: Center(
+                    child: BaseTextFormField(
+                        controller: _labelController,
+                        hintText: S.of(context).wallet_list_wallet_name,
+                        validator: WalletNameValidator()))),
+            Observer(
+              builder: (_) {
+                final isLoading = walletEditViewModel.state is WalletEditRenamePending ||
+                    walletEditViewModel.state is WalletEditDeletePending;
 
-                return Row(children: <Widget>[
-                  Flexible(
+                return Row(
+                  children: <Widget>[
+                    Flexible(
                       child: Container(
-                          padding: EdgeInsets.only(right: 8.0),
-                          child: LoadingPrimaryButton(
-                              isDisabled: isLoading,
-                              onPressed: () => _removeWallet(context),
-                              text: S.of(context).delete,
-                              color: Palette.red,
-                              textColor: Colors.white))),
-                  Flexible(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: LoadingPrimaryButton(
+                            isDisabled: isLoading,
+                            onPressed: () => _removeWallet(context),
+                            text: S.of(context).delete,
+                            color: Palette.red,
+                            textColor: Colors.white),
+                      ),
+                    ),
+                    Flexible(
                       child: Container(
-                          padding: EdgeInsets.only(left: 8.0),
-                          child: LoadingPrimaryButton(
-                              onPressed: () async {
-                                if (_formKey.currentState?.validate() ??
-                                    false) {
-                                  if (walletNewVM.nameExists(
-                                      walletEditViewModel.newName)) {
-                                    showPopUp<void>(
-                                        context: context,
-                                        builder: (_) {
-                                          return AlertWithOneAction(
-                                              alertTitle: '',
-                                              alertContent: S
-                                                  .of(context)
-                                                  .wallet_name_exists,
-                                              buttonText: S.of(context).ok,
-                                              buttonAction: () =>
-                                                  Navigator.of(context).pop());
-                                        });
-                                  } else {
-                                    try {
-                                      await walletEditViewModel
-                                          .changeName(editingWallet);
-                                      Navigator.of(context).pop();
-                                      walletEditViewModel.resetState();
-                                    } catch (e) {}
-                                  }
-                                }
-                              },
-                              text: S.of(context).save,
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .bodyLarge!
-                                  .color!,
-                              textColor: Colors.white,
-                              isDisabled: walletEditViewModel.newName.isEmpty ||
-                                  isLoading)))
-                ]);
-              })
-            ])));
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: LoadingPrimaryButton(
+                          onPressed: () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              if (walletNewVM.nameExists(walletEditViewModel.newName)) {
+                                showPopUp<void>(
+                                  context: context,
+                                  builder: (_) {
+                                    return AlertWithOneAction(
+                                      alertTitle: '',
+                                      alertContent: S.of(context).wallet_name_exists,
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () => Navigator.of(context).pop(),
+                                    );
+                                  },
+                                );
+                              } else {
+                                try {
+                                  await walletEditViewModel.changeName(editingWallet);
+                                  Navigator.of(context).pop();
+                                  walletEditViewModel.resetState();
+                                } catch (e) {}
+                              }
+                            }
+                          },
+                          text: S.of(context).save,
+                          color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                          textColor: Colors.white,
+                          isDisabled: walletEditViewModel.newName.isEmpty || isLoading,
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              },
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _removeWallet(BuildContext context) async {
-    authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+    authService.authenticateAction(context, onAuthSuccess: (isAuthenticatedSuccessfully) async {
       if (!isAuthenticatedSuccessfully) {
         return;
       }
@@ -134,9 +136,7 @@ class WalletEditPage extends BasePage {
         builder: (BuildContext dialogContext) {
           return AlertWithTwoActions(
               alertTitle: S.of(context).delete_wallet,
-              alertContent: S
-                  .of(context)
-                  .delete_wallet_confirm_message(editingWallet.name),
+              alertContent: S.of(context).delete_wallet_confirm_message(editingWallet.name),
               leftButtonText: S.of(context).cancel,
               rightButtonText: S.of(context).delete,
               actionLeftButton: () => Navigator.of(dialogContext).pop(),
@@ -150,16 +150,13 @@ class WalletEditPage extends BasePage {
       Navigator.of(context).pop();
 
       try {
-        changeProcessText(context,
-            S.of(context).wallet_list_removing_wallet(editingWallet.name));
+        changeProcessText(context, S.of(context).wallet_list_removing_wallet(editingWallet.name));
         await walletEditViewModel.remove(editingWallet);
         hideProgressText();
       } catch (e) {
         changeProcessText(
           context,
-          S
-              .of(context)
-              .wallet_list_failed_to_remove(editingWallet.name, e.toString()),
+          S.of(context).wallet_list_failed_to_remove(editingWallet.name, e.toString()),
         );
       }
     }

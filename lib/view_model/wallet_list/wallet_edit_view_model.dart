@@ -13,8 +13,6 @@ abstract class WalletEditViewModelState {}
 
 class WalletEditViewModelInitialState extends WalletEditViewModelState {}
 
-class WalletEditLoadingWallet extends WalletEditViewModelState {}
-
 class WalletEditRenamePending extends WalletEditViewModelState {}
 
 class WalletEditDeletePending extends WalletEditViewModelState {}

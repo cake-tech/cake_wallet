@@ -40,10 +40,6 @@ abstract class WalletListViewModelBase with Store {
         await _walletLoadingService.load(walletItem.type, walletItem.name);
 
     _appStore.changeCurrentWallet(wallet);
-
-    final walletInfo = _walletInfoSource.values.firstWhere(
-        (info) => info.id == WalletBase.idFor(wallet.name, wallet.type));
-    _walletInfoSource.put(walletItem.key, walletInfo);
   }
 
   @action
