@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/widgets/nav_bar.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 enum AppBarStyle { regular, withShadow, transparent }
 
@@ -83,7 +84,7 @@ abstract class BasePage extends StatelessWidget {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: 'Back',
+            label: S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(

@@ -3,6 +3,7 @@ import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class IntroducingCard extends StatelessWidget {
   IntroducingCard(
@@ -66,7 +67,7 @@ class IntroducingCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0,16,16,0),
               child: Semantics(
-                label: 'Close',
+                label: S.of(context).close,
                 child: GestureDetector(
                   onTap: closeCard,
                   child: Container(

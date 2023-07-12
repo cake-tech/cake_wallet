@@ -25,32 +25,37 @@ class ContactListPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    return Container(
-        width: 32.0,
-        height: 32.0,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).cardColor),
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Icon(Icons.add,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                size: 22.0),
-            ButtonTheme(
-              minWidth: 32.0,
-              height: 32.0,
-              child: TextButton(
-                  // FIX-ME: Style
-                  //shape: CircleBorder(),
-                  onPressed: () async {
-                    await Navigator.of(context)
-                        .pushNamed(Routes.addressBookAddContact);
-                  },
-                  child: Offstage()),
-            )
-          ],
-        ));
+    return MergeSemantics(
+      child: Container(
+          width: 32.0,
+          height: 32.0,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).cardColor),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Icon(Icons.add,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  size: 22.0),
+              ButtonTheme(
+                minWidth: 32.0,
+                height: 32.0,
+                child: Semantics(
+                  label: S.of(context).add,
+                  child: TextButton(
+                      // FIX-ME: Style
+                      //shape: CircleBorder(),
+                      onPressed: () async {
+                        await Navigator.of(context)
+                            .pushNamed(Routes.addressBookAddContact);
+                      },
+                      child: Offstage()),
+                ),
+              )
+            ],
+          )),
+    );
   }
 
   @override
