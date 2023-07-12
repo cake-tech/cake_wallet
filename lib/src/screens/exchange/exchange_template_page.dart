@@ -31,6 +31,9 @@ class ExchangeTemplatePage extends BasePage {
   var _isReactionsSet = false;
 
   @override
+  bool get gradientAll => true;
+
+  @override
   String get title => S.current.exchange_new_template;
 
   @override

@@ -100,6 +100,7 @@ class DarkTheme extends ThemeBase {
   @override
   DashboardPageTheme get dashboardPageTheme =>
       super.dashboardPageTheme.copyWith(
+          cardTextColor: super.dashboardPageTheme.textColor,
           indicatorDotTheme: IndicatorDotTheme(
               indicatorColor: PaletteDark.cyanBlue,
               activeIndicatorColor: Colors.white));
@@ -116,6 +117,7 @@ class DarkTheme extends ThemeBase {
       backgroundColor: PaletteDark.deepPurpleBlue,
       subnameTextColor: PaletteDark.darkCyanBlue,
       dividerColor: PaletteDark.darkOceanBlue,
+      settingTitleColor: receivePageTheme.tilesTextColor,
       settingActionsIconColor: PaletteDark.pigeonBlue,
       iconColor: PaletteDark.darkCyanBlue);
 
@@ -138,8 +140,10 @@ class DarkTheme extends ThemeBase {
   InfoTheme get infoTheme => InfoTheme(textColor: Palette.darkLavender);
 
   @override
-  PickerTheme get pickerTheme =>
-      PickerTheme(dividerColor: PaletteDark.dividerColor);
+  PickerTheme get pickerTheme => PickerTheme(
+      dividerColor: PaletteDark.dividerColor,
+      searchTextColor: cakeTextTheme.textfieldUnderlineColor,
+      searchBackgroundFillColor: addressTheme.actionButtonColor);
 
   @override
   AlertTheme get alertTheme => AlertTheme(
@@ -188,6 +192,10 @@ class DarkTheme extends ThemeBase {
 
   @override
   AccountListTheme get accountListTheme => AccountListTheme(
+      currentAccountBackgroundColor: dialogBackgroundColor,
+      currentAccountTextColor: primaryColor,
+      currentAccountAmountColor: receivePageTheme.iconsColor,
+      tilesAmountColor: receivePageTheme.iconsColor,
       tilesBackgroundColor: PaletteDark.darkOceanBlue,
       tilesTextColor: Colors.white);
 

@@ -41,6 +41,7 @@ class BrightTheme extends LightTheme {
           pageTitleTextColor: Colors.white,
           mainActionsIconColor: Colors.white,
           textColor: Colors.white,
+          cardTextColor: Colors.white,
           indicatorDotTheme: IndicatorDotTheme(
               indicatorColor: Colors.white.withOpacity(0.5),
               activeIndicatorColor: Colors.white));
@@ -77,7 +78,8 @@ class BrightTheme extends LightTheme {
   FilterTheme get filterTheme => super.filterTheme.copyWith(
       checkboxSecondGradientColor: Palette.pinkFlamingo,
       checkboxBackgroundColor: Colors.white,
-      buttonColor: Colors.white.withOpacity(0.2));
+      buttonColor: Colors.white.withOpacity(0.2),
+      iconColor: Colors.white);
 
   @override
   WalletListTheme get walletListTheme => super.walletListTheme.copyWith(
@@ -117,6 +119,8 @@ class BrightTheme extends LightTheme {
 
   @override
   CakeTextTheme get cakeTextTheme => super.cakeTextTheme.copyWith(
+      buttonSecondaryTextColor: super.cakeTextTheme.secondaryTextColor,
+      buttonTextColor: super.cakeTextTheme.titleColor,
       addressButtonBorderColor: Colors.white.withOpacity(0.4),
       dateSectionRowColor: Colors.white.withOpacity(0.5));
 }

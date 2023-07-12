@@ -42,7 +42,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
@@ -51,7 +51,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                     Text(
                       subTitle,
                       style: TextStyle(
-                          color:  Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                          color:  Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Lato'),
                     )

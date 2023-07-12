@@ -49,7 +49,9 @@ class TemplateTileState extends State<TemplateTile> {
 
   @override
   Widget build(BuildContext context) {
-    final color = isRemovable ? Colors.white : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+    final color = isRemovable
+        ? Colors.white
+        : Theme.of(context).extension<SendPageTheme>()!.templateTitleColor;
     final toIcon = Image.asset('assets/images/to_icon.png', color: color);
 
     final content = Row(

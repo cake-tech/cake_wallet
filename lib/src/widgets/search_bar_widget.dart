@@ -1,5 +1,4 @@
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -18,12 +17,18 @@ class SearchBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: searchController,
-      style: TextStyle(color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor),
+      style: TextStyle(
+          color: Theme.of(context).extension<PickerTheme>()!.searchTextColor),
       decoration: InputDecoration(
         hintText: hintText ?? S.of(context).search_currency,
-        prefixIcon: Image.asset("assets/images/search_icon.png"),
+        hintStyle: TextStyle(
+            color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
+        prefixIcon: Image.asset("assets/images/search_icon.png",
+            color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),
         filled: true,
-        fillColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+        fillColor: Theme.of(context)
+            .extension<PickerTheme>()!
+            .searchBackgroundFillColor,
         alignLabelWithHint: false,
         contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         enabledBorder: OutlineInputBorder(

@@ -47,7 +47,7 @@ class ActionButton extends StatelessWidget {
               style: TextStyle(
                   fontSize: 10,
                   color: textColor ??
-                      Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                      Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
             )
           ],
         ),

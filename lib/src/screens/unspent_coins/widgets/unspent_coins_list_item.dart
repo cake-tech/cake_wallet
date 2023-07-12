@@ -29,10 +29,10 @@ class UnspentCoinsListItem extends StatelessWidget {
 
     final amountColor = isSending
         ? Colors.white
-        : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
     final addressColor = isSending
         ? Colors.white.withOpacity(0.5)
-        : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor;
+        : Theme.of(context).extension<CakeTextTheme>()!.buttonSecondaryTextColor;
 
     return Container(
         height: 70,

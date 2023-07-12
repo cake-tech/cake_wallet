@@ -27,7 +27,7 @@ class SelectButton extends StatelessWidget {
         : Theme.of(context).cardColor;
     final textColor = isSelected
         ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-        : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
     final arrowColor = isSelected
         ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
         : Theme.of(context).extension<FilterTheme>()!.titlesColor;

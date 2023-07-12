@@ -6,6 +6,7 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
   final Color secondGradientBackgroundColor;
   final Color thirdGradientBackgroundColor;
   final Color textColor;
+  final Color cardTextColor;
   final Color pageTitleTextColor;
   final Color mainActionsIconColor;
 
@@ -18,9 +19,11 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
       required this.textColor,
       required this.indicatorDotTheme,
       Color? mainActionsIconColor,
-      Color? pageTitleTextColor})
+      Color? pageTitleTextColor,
+      Color? cardTextColor})
       : pageTitleTextColor = pageTitleTextColor ?? textColor,
-        mainActionsIconColor = mainActionsIconColor ?? textColor;
+        mainActionsIconColor = mainActionsIconColor ?? textColor,
+        cardTextColor = cardTextColor ?? textColor;
 
   @override
   DashboardPageTheme copyWith(
@@ -30,7 +33,8 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
           Color? textColor,
           IndicatorDotTheme? indicatorDotTheme,
           Color? pageTitleTextColor,
-          Color? mainActionsIconColor}) =>
+          Color? mainActionsIconColor,
+          Color? cardTextColor}) =>
       DashboardPageTheme(
           firstGradientBackgroundColor:
               firstGradientBackgroundColor ?? this.firstGradientBackgroundColor,
@@ -42,7 +46,8 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
           indicatorDotTheme: indicatorDotTheme ?? this.indicatorDotTheme,
           pageTitleTextColor: pageTitleTextColor ?? this.pageTitleTextColor,
           mainActionsIconColor:
-              mainActionsIconColor ?? this.mainActionsIconColor);
+              mainActionsIconColor ?? this.mainActionsIconColor,
+          cardTextColor: cardTextColor ?? this.cardTextColor);
 
   @override
   DashboardPageTheme lerp(ThemeExtension<DashboardPageTheme>? other, double t) {
@@ -67,6 +72,8 @@ class DashboardPageTheme extends ThemeExtension<DashboardPageTheme> {
                 pageTitleTextColor,
         mainActionsIconColor:
             Color.lerp(mainActionsIconColor, other.mainActionsIconColor, t) ??
-                mainActionsIconColor);
+                mainActionsIconColor,
+        cardTextColor:
+            Color.lerp(cardTextColor, other.cardTextColor, t) ?? cardTextColor);
   }
 }

@@ -1,8 +1,17 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/monero_light_theme.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +32,15 @@ class HighContrastTheme extends MoneroLightTheme {
   Color get primaryColor => Colors.black;
   @override
   Color get containerColor => Palette.highContrastGray;
-
   @override
   Color get primaryTextColor => colorScheme.onBackground;
+  @override
+  Color get dialogBackgroundColor => Colors.white;
+
+  @override
+  CakeTextTheme get cakeTextTheme => super.cakeTextTheme.copyWith(
+      buttonTextColor: Colors.white,
+      buttonSecondaryTextColor: Colors.white.withOpacity(0.5));
 
   @override
   SyncIndicatorTheme get syncIndicatorStyle =>
@@ -43,10 +58,61 @@ class HighContrastTheme extends MoneroLightTheme {
   @override
   DashboardPageTheme get dashboardPageTheme =>
       super.dashboardPageTheme.copyWith(
-          // textColor: Colors.white,
+          textColor: Colors.black,
+          cardTextColor: Colors.white,
           mainActionsIconColor: Colors.white,
           indicatorDotTheme: IndicatorDotTheme(
-              indicatorColor:
-                  super.dashboardPageTheme.indicatorDotTheme.indicatorColor,
-              activeIndicatorColor: primaryColor));
+              indicatorColor: Colors.grey, activeIndicatorColor: Colors.black));
+
+  @override
+  ExchangePageTheme get exchangePageTheme => super
+      .exchangePageTheme
+      .copyWith(firstGradientTopPanelColor: containerColor);
+
+  @override
+  SendPageTheme get sendPageTheme => super.sendPageTheme.copyWith(
+      templateTitleColor: Colors.white,
+      templateBackgroundColor: Colors.black,
+      firstGradientColor: containerColor);
+
+  @override
+  AddressTheme get addressTheme =>
+      super.addressTheme.copyWith(actionButtonColor: Colors.grey);
+
+  @override
+  FilterTheme get filterTheme =>
+      super.filterTheme.copyWith(iconColor: Colors.white);
+
+  @override
+  CakeMenuTheme get menuTheme => super.menuTheme.copyWith(
+      settingTitleColor: Colors.black,
+      headerFirstGradientColor: containerColor,
+      iconColor: Colors.white);
+
+  @override
+  PickerTheme get pickerTheme => super.pickerTheme.copyWith(
+      searchIconColor: Colors.white,
+      searchHintColor: Colors.white,
+      searchTextColor: Colors.white,
+      searchBackgroundFillColor: Colors.grey);
+
+  @override
+  AccountListTheme get accountListTheme => super.accountListTheme.copyWith(
+      tilesTextColor: Colors.black,
+      tilesBackgroundColor: Colors.white,
+      currentAccountBackgroundColor: containerColor,
+      currentAccountTextColor: Colors.white,
+      currentAccountAmountColor: Colors.white);
+
+  @override
+  ReceivePageTheme get receivePageTheme => super.receivePageTheme.copyWith(
+      tilesTextColor: Colors.white,
+      iconsBackgroundColor: Colors.grey,
+      iconsColor: Colors.black);
+
+  @override
+  ThemeData get themeData => super.themeData.copyWith(
+      disabledColor: Colors.grey,
+      dialogTheme:
+          super.themeData.dialogTheme.copyWith(backgroundColor: Colors.white));
 }

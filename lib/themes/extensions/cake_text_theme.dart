@@ -6,13 +6,20 @@ class CakeTextTheme extends ThemeExtension<CakeTextTheme> {
   final Color titleColor;
   final Color addressButtonBorderColor;
   final Color dateSectionRowColor;
+  final Color buttonTextColor;
+  final Color buttonSecondaryTextColor;
 
   CakeTextTheme(
       {required this.secondaryTextColor,
       required this.textfieldUnderlineColor,
       required this.titleColor,
       required this.addressButtonBorderColor,
-      required this.dateSectionRowColor});
+      required this.dateSectionRowColor,
+      Color? buttonTextColor,
+      Color? buttonSecondaryTextColor})
+      : buttonTextColor = buttonTextColor ?? titleColor,
+        buttonSecondaryTextColor =
+            buttonSecondaryTextColor ?? secondaryTextColor;
 
   @override
   CakeTextTheme copyWith(
@@ -20,7 +27,9 @@ class CakeTextTheme extends ThemeExtension<CakeTextTheme> {
           Color? textfieldUnderlineColor,
           Color? titleColor,
           Color? addressButtonBorderColor,
-          Color? dateSectionRowColor}) =>
+          Color? dateSectionRowColor,
+          Color? buttonTextColor,
+          Color? buttonSecondaryTextColor}) =>
       CakeTextTheme(
           secondaryTextColor: secondaryTextColor ?? this.secondaryTextColor,
           textfieldUnderlineColor:
@@ -28,7 +37,10 @@ class CakeTextTheme extends ThemeExtension<CakeTextTheme> {
           titleColor: titleColor ?? this.titleColor,
           addressButtonBorderColor:
               addressButtonBorderColor ?? this.addressButtonBorderColor,
-          dateSectionRowColor: dateSectionRowColor ?? this.dateSectionRowColor);
+          dateSectionRowColor: dateSectionRowColor ?? this.dateSectionRowColor,
+          buttonTextColor: buttonTextColor ?? this.buttonTextColor,
+          buttonSecondaryTextColor:
+              buttonSecondaryTextColor ?? this.buttonSecondaryTextColor);
 
   @override
   CakeTextTheme lerp(ThemeExtension<CakeTextTheme>? other, double t) {
@@ -45,6 +57,9 @@ class CakeTextTheme extends ThemeExtension<CakeTextTheme> {
         addressButtonBorderColor: Color.lerp(
             addressButtonBorderColor, other.addressButtonBorderColor, t)!,
         dateSectionRowColor:
-            Color.lerp(dateSectionRowColor, other.dateSectionRowColor, t)!);
+            Color.lerp(dateSectionRowColor, other.dateSectionRowColor, t)!,
+        buttonTextColor: Color.lerp(buttonTextColor, other.buttonTextColor, t)!,
+        buttonSecondaryTextColor: Color.lerp(
+            buttonSecondaryTextColor, other.buttonSecondaryTextColor, t)!);
   }
 }

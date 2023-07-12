@@ -128,6 +128,8 @@ class MoneroDarkTheme extends DarkTheme {
   SendPageTheme get sendPageTheme => super.sendPageTheme.copyWith(
       templateNewTextColor:
           dashboardPageTheme.indicatorDotTheme.activeIndicatorColor,
+      templateTitleColor: primaryTextColor,
+      templateBackgroundColor: containerColor,
       templateDottedBorderColor: colorScheme.primaryContainer,
       templateSelectedCurrencyTitleColor: Colors.black,
       textFieldButtonIconColor: colorScheme.inverseSurface,

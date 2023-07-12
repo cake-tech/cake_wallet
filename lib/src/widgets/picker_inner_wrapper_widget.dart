@@ -45,7 +45,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(14)),
               child: Container(
-                color: Theme.of(context).extension<AccountListTheme>()!.tilesTextColor,
+                color: Theme.of(context).dialogTheme.backgroundColor,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight:
@@ -73,7 +73,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(14)),
             child: Container(
-              color: Theme.of(context).extension<AccountListTheme>()!.tilesTextColor,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,

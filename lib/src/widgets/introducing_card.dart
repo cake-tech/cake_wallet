@@ -47,7 +47,7 @@ class IntroducingCard extends StatelessWidget {
                               fontSize: 24,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                               height: 1),
                           maxLines: 1,
                           textAlign: TextAlign.center),
@@ -57,7 +57,7 @@ class IntroducingCard extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 12,
                               fontFamily: 'Lato',
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                               height: 1)),
                     ],
                   ),

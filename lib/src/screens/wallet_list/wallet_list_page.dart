@@ -59,7 +59,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage =
         Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+        height: 12, width: 12, color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor);
 
     return Container(
       padding: EdgeInsets.only(top: 16),
@@ -181,7 +181,7 @@ class WalletListBodyState extends State<WalletListBody> {
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).cardColor,
-                textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
+                textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor)
           ])),
     );
   }

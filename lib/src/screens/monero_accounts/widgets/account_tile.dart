@@ -21,10 +21,14 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).dialogBackgroundColor
+        ? Theme.of(context)
+            .extension<AccountListTheme>()!
+            .currentAccountBackgroundColor
         : Theme.of(context).extension<AccountListTheme>()!.tilesBackgroundColor;
     final textColor = isCurrent
-        ? Theme.of(context).primaryColor
+        ? Theme.of(context)
+            .extension<AccountListTheme>()!
+            .currentAccountTextColor
         : Theme.of(context).extension<AccountListTheme>()!.tilesTextColor;
 
     final Widget cell = GestureDetector(
@@ -60,7 +64,13 @@ class AccountTile extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Lato',
-                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                    color: isCurrent
+                        ? Theme.of(context)
+                            .extension<AccountListTheme>()!
+                            .currentAccountAmountColor
+                        : Theme.of(context)
+                            .extension<AccountListTheme>()!
+                            .tilesAmountColor,
                     decoration: TextDecoration.none,
                   ),
                 ),

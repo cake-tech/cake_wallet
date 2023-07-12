@@ -8,6 +8,7 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
   final Color backgroundColor;
   final Color iconColor;
   final Color settingActionsIconColor;
+  final Color settingTitleColor;
 
   CakeMenuTheme(
       {required this.headerFirstGradientColor,
@@ -16,7 +17,8 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
       required this.subnameTextColor,
       required this.dividerColor,
       required this.iconColor,
-      required this.settingActionsIconColor});
+      required this.settingActionsIconColor,
+      required this.settingTitleColor});
 
   @override
   CakeMenuTheme copyWith(
@@ -26,7 +28,8 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
           Color? subnameTextColor,
           Color? dividerColor,
           Color? iconColor,
-          Color? settingActionsIconColor}) =>
+          Color? settingActionsIconColor,
+          Color? settingTitleColor}) =>
       CakeMenuTheme(
           headerFirstGradientColor:
               headerFirstGradientColor ?? this.headerFirstGradientColor,
@@ -37,7 +40,8 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
           dividerColor: dividerColor ?? this.dividerColor,
           iconColor: iconColor ?? this.iconColor,
           settingActionsIconColor:
-              settingActionsIconColor ?? this.settingActionsIconColor);
+              settingActionsIconColor ?? this.settingActionsIconColor,
+          settingTitleColor: settingTitleColor ?? this.settingTitleColor);
 
   @override
   CakeMenuTheme lerp(ThemeExtension<CakeMenuTheme>? other, double t) {
@@ -63,6 +67,9 @@ class CakeMenuTheme extends ThemeExtension<CakeMenuTheme> {
         iconColor: Color.lerp(iconColor, other.iconColor, t) ?? iconColor,
         settingActionsIconColor: Color.lerp(
                 settingActionsIconColor, other.settingActionsIconColor, t) ??
-            settingActionsIconColor);
+            settingActionsIconColor, 
+        settingTitleColor: Color.lerp(
+                settingTitleColor, other.settingTitleColor, t) ??
+            settingTitleColor);
   }
 }

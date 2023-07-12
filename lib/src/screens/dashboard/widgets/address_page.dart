@@ -202,12 +202,12 @@ class AddressPage extends BasePage {
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
-                                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                                            color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
                                       )),
                               Icon(
                                 Icons.arrow_forward_ios,
                                 size: 14,
-                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                                color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                               )
                             ],
                           ),

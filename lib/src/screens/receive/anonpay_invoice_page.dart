@@ -45,7 +45,7 @@ class AnonPayInvoicePage extends BasePage {
   bool effectsInstalled = false;
 
   @override
-  bool get gradientBackground => true;
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;

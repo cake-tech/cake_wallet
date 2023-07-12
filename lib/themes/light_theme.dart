@@ -100,6 +100,7 @@ class LightTheme extends ThemeBase {
   @override
   DashboardPageTheme get dashboardPageTheme =>
       super.dashboardPageTheme.copyWith(
+          cardTextColor: super.dashboardPageTheme.textColor,
           indicatorDotTheme: IndicatorDotTheme(
               indicatorColor: PaletteDark.darkCyanBlue.withOpacity(0.67),
               activeIndicatorColor: PaletteDark.darkNightBlue));
@@ -117,6 +118,7 @@ class LightTheme extends ThemeBase {
       subnameTextColor: Colors.white,
       dividerColor: Palette.wildLavender,
       iconColor: Colors.white,
+      settingTitleColor: receivePageTheme.tilesTextColor,
       settingActionsIconColor: Palette.gray);
 
   @override
@@ -138,8 +140,10 @@ class LightTheme extends ThemeBase {
   InfoTheme get infoTheme => InfoTheme(textColor: Palette.darkBlueCraiola);
 
   @override
-  PickerTheme get pickerTheme =>
-      PickerTheme(dividerColor: Palette.periwinkleCraiola);
+  PickerTheme get pickerTheme => PickerTheme(
+      dividerColor: Palette.periwinkleCraiola,
+      searchTextColor: cakeTextTheme.textfieldUnderlineColor,
+      searchBackgroundFillColor: addressTheme.actionButtonColor);
 
   @override
   AlertTheme get alertTheme => AlertTheme(
@@ -188,7 +192,12 @@ class LightTheme extends ThemeBase {
 
   @override
   AccountListTheme get accountListTheme => AccountListTheme(
-      tilesBackgroundColor: Colors.white, tilesTextColor: Palette.violetBlue);
+      currentAccountBackgroundColor: dialogBackgroundColor,
+      currentAccountTextColor: primaryColor,
+      currentAccountAmountColor: receivePageTheme.iconsColor,
+      tilesBackgroundColor: Colors.white,
+      tilesAmountColor: receivePageTheme.iconsColor,
+      tilesTextColor: Palette.violetBlue);
 
   @override
   ReceivePageTheme get receivePageTheme => ReceivePageTheme(

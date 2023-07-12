@@ -191,7 +191,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                       height: 1),
                 ),
                 SizedBox(height: 24)
@@ -224,7 +224,7 @@ class BalancePage extends StatelessWidget {
                   fontSize: 12,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
-                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                  color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                   height: 1),
             )
           ])),

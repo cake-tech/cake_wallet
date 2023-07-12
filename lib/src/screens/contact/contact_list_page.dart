@@ -36,7 +36,9 @@ class ContactListPage extends BasePage {
             alignment: Alignment.center,
             children: <Widget>[
               Icon(Icons.add,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Theme.of(context)
+                      .extension<CakeTextTheme>()!
+                      .buttonTextColor,
                   size: 22.0),
               ButtonTheme(
                 minWidth: 32.0,

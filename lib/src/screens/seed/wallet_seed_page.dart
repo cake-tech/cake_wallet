@@ -76,7 +76,9 @@ class WalletSeedPage extends BasePage {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Palette.blueCraiola),
+                    color: Theme.of(context)
+                        .extension<CakeTextTheme>()!
+                        .buttonTextColor),
               ),
             ),
           )
