@@ -2,7 +2,6 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -37,46 +36,33 @@ class PreSeedPage extends BasePage {
           alignment: Alignment.center,
           padding: EdgeInsets.all(24),
           child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
             child: Column(
-              children: [
-                Flexible(
-                    flex: 2,
-                    child: AspectRatio(
-                        aspectRatio: 1,
-                        child: FittedBox(child: image, fit: BoxFit.contain))),
-                Flexible(
-                    flex: 3,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(top: 70, left: 16, right: 16),
-                          child: Text(
-                            S
-                                .of(context)
-                                .pre_seed_description(wordsCount.toString()),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .bodySmall!
-                                    .color!),
-                          ),
-                        ),
-                        PrimaryButton(
-                            onPressed: () => Navigator.of(context)
-                                .popAndPushNamed(Routes.seed, arguments: true),
-                            text: S.of(context).pre_seed_button_text,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .bodyLarge!
-                                .color!,
-                            textColor: Colors.white)
-                      ],
-                    ))
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.3
+                  ),
+                  child: AspectRatio(aspectRatio: 1, child: image),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    S.of(context).pre_seed_description(wordsCount.toString()),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Theme.of(context).primaryTextTheme.bodySmall!.color!),
+                  ),
+                ),
+                PrimaryButton(
+                    onPressed: () =>
+                        Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true),
+                    text: S.of(context).pre_seed_button_text,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    textColor: Colors.white)
               ],
             ),
           ),
