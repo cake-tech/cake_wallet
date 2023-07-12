@@ -155,7 +155,7 @@ class AddressTextField extends StatelessWidget {
                                 child: Image.asset(
                                   'assets/images/qr_code_icon.png',
                                   color: iconColor ??
-                                      Theme.of(context).dialogTheme.backgroundColor,
+                                      Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                 )),
                           ),
                         ))
@@ -183,7 +183,7 @@ class AddressTextField extends StatelessWidget {
                                 child: Image.asset(
                                   'assets/images/open_book.png',
                                   color: iconColor ??
-                                      Theme.of(context).dialogTheme.backgroundColor,
+                                      Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                 )),
                           ),
                         ))
