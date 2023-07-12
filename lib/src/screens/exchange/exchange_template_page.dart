@@ -242,7 +242,7 @@ class ExchangeTemplatePage extends BasePage {
                       }
                     },
                     text: S.of(context).save,
-                    color: Colors.green,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white),
               ]),
             ))
