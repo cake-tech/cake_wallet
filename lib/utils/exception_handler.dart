@@ -132,9 +132,9 @@ class ExceptionHandler {
   static const List<String> _ignoredErrors = const [
     "Bad file descriptor",
     "No space left on device",
-    "Write failed (OS Error: Broken pipe)",
+    "Write failed (OS Error: Broken pipe",
     "Can't assign requested address",
-    "Read failed (OS Error: Socket is not connected)",
+    "Read failed (OS Error: Socket is not connected",
     "Operation timed out",
     "No route to host",
     "Software caused connection abort",
