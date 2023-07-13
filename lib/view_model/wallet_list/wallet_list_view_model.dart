@@ -1,8 +1,5 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -26,7 +23,7 @@ abstract class WalletListViewModelBase with Store {
     this._authService,
   ) : wallets = ObservableList<WalletListItem>() {
     _updateList();
-    reaction((_) => _appStore.wallet, (_) => _updateList());
+    reaction((_) => _appStore.wallet, (_) => updateList());
   }
 
   @observable
@@ -41,7 +38,9 @@ abstract class WalletListViewModelBase with Store {
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
-    final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
+    final wallet =
+        await _walletLoadingService.load(walletItem.type, walletItem.name);
+
     _appStore.changeCurrentWallet(wallet);
     _updateList();
   }

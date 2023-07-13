@@ -7,19 +7,30 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletLoadingService {
-	WalletLoadingService(
-		this.sharedPreferences,
-		this.keyService,
-		this.walletServiceFactory);
-	
-	final SharedPreferences sharedPreferences;
-	final KeyService keyService;
-	final WalletService Function(WalletType type) walletServiceFactory;
+  WalletLoadingService(this.sharedPreferences, this.keyService, this.walletServiceFactory);
 
-	Future<WalletBase> load(WalletType type, String name, {String? password}) async {
-		final walletService = walletServiceFactory.call(type);
-		final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
- 		final wallet = await walletService.openWallet(name, walletPassword);
+  final SharedPreferences sharedPreferences;
+  final KeyService keyService;
+  final WalletService Function(WalletType type) walletServiceFactory;
+
+  Future<void> renameWallet(WalletType type, String name, String newName,
+      {String? password}) async {
+    final walletService = walletServiceFactory.call(type);
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+
+    // Save the current wallet's password to the new wallet name's key
+    await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
+    // Delete previous wallet name from keyService to keep only new wallet's name
+    // otherwise keeps duplicate (old and new names)
+    await keyService.deleteWalletPassword(walletName: name);
+
+    await walletService.rename(name, walletPassword, newName);
+  }
+
+  Future<WalletBase> load(WalletType type, String name, {String? password}) async {
+    final walletService = walletServiceFactory.call(type);
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+    final wallet = await walletService.openWallet(name, walletPassword);
 
   	if (type == WalletType.monero) {
   		await updateMoneroWalletPassword(wallet);
@@ -36,14 +47,14 @@ class WalletLoadingService {
 			return;
 		}
 
-		final password = generateWalletPassword();
-		// Save new generated password with backup key for case where
-		// wallet will change password, but it will fail to update in secure storage
-		final bakWalletName = '#__${wallet.name}_bak__#';
-		await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
-		await wallet.changePassword(password);
-		await keyService.saveWalletPassword(walletName: wallet.name, password: password);
-		isPasswordUpdated = true;
-		await sharedPreferences.setBool(key, isPasswordUpdated);
-	}
+    final password = generateWalletPassword();
+    // Save new generated password with backup key for case where
+    // wallet will change password, but it will fail to update in secure storage
+    final bakWalletName = '#__${wallet.name}_bak__#';
+    await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
+    await wallet.changePassword(password);
+    await keyService.saveWalletPassword(walletName: wallet.name, password: password);
+    isPasswordUpdated = true;
+    await sharedPreferences.setBool(key, isPasswordUpdated);
+  }
 }

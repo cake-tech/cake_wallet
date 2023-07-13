@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
@@ -7,11 +6,8 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
-import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
@@ -23,8 +19,6 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -43,6 +37,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -79,6 +74,8 @@ import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
@@ -174,7 +171,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -582,6 +578,21 @@ Future setup({
         authService: getIt.get<AuthService>(),
       ));
 
+  getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
+      (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
+          walletListViewModel, getIt.get<WalletLoadingService>()));
+
+  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
+    final walletListViewModel = args.first as WalletListViewModel;
+    final editingWallet = args.last as WalletListItem;
+    return WalletEditPage(
+        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: walletListViewModel),
+        authService: getIt.get<AuthService>(),
+        walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
+        editingWallet: editingWallet);
+  });
+
+
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
 
@@ -926,7 +937,7 @@ Future setup({
     return IoniaVerifyIoniaOtp(getIt.get<IoniaAuthViewModel>(), email, isSignIn);
   });
 
-  getIt.registerFactory(() => IoniaWelcomePage());
+  getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaGiftCardsListViewModel>()));
 
   getIt.registerFactoryParam<IoniaBuyGiftCardPage, List, void>((List args, _) {
     final merchant = args.first as IoniaMerchant;
