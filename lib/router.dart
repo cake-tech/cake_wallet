@@ -8,8 +8,7 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
-import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
+import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -48,7 +47,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -564,11 +562,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
         param1: paymentInfo,
         param2: commitedInfo));
 
-    case Routes.onramperPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
-
-    case Routes.payfuraPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<PayFuraPage>());
+    case Routes.webViewPage:
+      final args = settings.arguments as List;
+      final title = args.first as String;
+      final url = args[1] as Uri;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<WebViewPage>(
+          param1: title,
+          param2: url));
 
     case Routes.advancedPrivacySettings:
       final type = settings.arguments as WalletType;

@@ -1,6 +1,5 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -85,7 +84,7 @@ class MarketPlacePage extends StatelessWidget {
 
     switch (walletType) {
       case WalletType.haven:
-        showPopUp<void>(
+         showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
               return AlertWithOneAction(

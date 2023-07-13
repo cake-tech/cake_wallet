@@ -86,5 +86,4 @@ abstract class ElectrumTransactionHistoryBase
 
   void _update(ElectrumTransactionInfo transaction) =>
       transactions[transaction.id] = transaction;
-
 }

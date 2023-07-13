@@ -40,6 +40,7 @@ class AnonPayInvoicePage extends BasePage {
   final _formKey = GlobalKey<FormState>();
 
   bool effectsInstalled = false;
+
   @override
   Color get titleColor => Colors.white;
 
@@ -82,34 +83,33 @@ class AnonPayInvoicePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context)
-              .accentTextTheme!
-              .bodyLarge!
-              .backgroundColor!,
-          nextFocus: false,
-          actions: [
-            KeyboardActionsItem(
-              focusNode: _amountFocusNode,
-              toolbarButtons: [(_) => KeyboardDoneButton()],
-            ),
-          ]),
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 24),
-          content: Container(
-            decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).primaryTextTheme!.titleSmall!.color!,
-                  Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _amountFocusNode,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
               ),
-              ) : null,
+            ]),
+        child: Container(
+          color: Theme.of(context).colorScheme.background,
+          child: ScrollableWithBottomSection(
+            contentPadding: EdgeInsets.only(bottom: 24),
+            content: Container(
+              decoration: ResponsiveLayoutUtil.instance.isMobile
+                  ? BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).primaryTextTheme!.titleSmall!.color!,
+                          Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    )
+                  : null,
               child: Observer(builder: (_) {
                 return Padding(
                   padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
@@ -142,12 +142,10 @@ class AnonPayInvoicePage extends BasePage {
                             : S.of(context).anonpay_description("a donation link", "donate"),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Theme.of(context)
-                              .primaryTextTheme!
-                              .displayLarge!
-                              .decorationColor!,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12),
+                            color:
+                                Theme.of(context).primaryTextTheme!.displayLarge!.decorationColor!,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12),
                       ),
                     ),
                   ),
@@ -173,10 +171,7 @@ class AnonPayInvoicePage extends BasePage {
                         anonInvoicePageViewModel.generateDonationLink();
                       }
                     },
-                     color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                     textColor: Colors.white,
                     isLoading: anonInvoicePageViewModel.state is IsExecutingState,
                   ),
