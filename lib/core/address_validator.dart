@@ -56,7 +56,6 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zrx:
       case CryptoCurrency.dydx:
       case CryptoCurrency.steth:
-      case CryptoCurrency.1inch:
         return '0x[0-9a-zA-Z]';
       case CryptoCurrency.xrp:
         return '^[0-9a-zA-Z]{34}\$|^X[0-9a-zA-Z]{46}\$';
@@ -167,7 +166,6 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zrx:
       case CryptoCurrency.dydx:
       case CryptoCurrency.steth:
-      case CryptoCurrency.1inch:
         return [42];
       case CryptoCurrency.ltc:
         return [34, 43, 63];
