@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +27,7 @@ class AnonPayInvoicePage extends BasePage {
   AnonPayInvoicePage(
     this.anonInvoicePageViewModel,
     this.receiveOptionViewModel,
-  ) : _amountFocusNode = FocusNode() {
-  }
+  ) : _amountFocusNode = FocusNode() {}
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -54,6 +53,9 @@ class AnonPayInvoicePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
+  void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
+
+  @override
   Widget middle(BuildContext context) =>
       PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
 
@@ -65,15 +67,22 @@ class AnonPayInvoicePage extends BasePage {
         anonInvoicePageViewModel.reset();
       });
 
+  Future<bool> _onNavigateBack(BuildContext context) async {
+    onClose(context);
+    return false;
+  }
+
   @override
   Widget body(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context));
 
-    return KeyboardActions(
-      disableScroll: true,
-      config: KeyboardActionsConfig(
-          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context)
+    return WillPopScope(
+      onWillPop: () => _onNavigateBack(context),
+      child: KeyboardActions(
+        disableScroll: true,
+        config: KeyboardActionsConfig(
+            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+            keyboardBarColor: Theme.of(context)
               .accentTextTheme!
               .bodyLarge!
               .backgroundColor!,
@@ -89,7 +98,7 @@ class AnonPayInvoicePage extends BasePage {
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
-            decoration: DeviceInfo.instance.isMobile ? BoxDecoration(
+            decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(

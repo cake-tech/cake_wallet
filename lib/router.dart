@@ -8,8 +8,7 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
-import 'package:cake_wallet/src/screens/buy/payfura_page.dart';
+import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -48,6 +47,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +66,7 @@ import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
@@ -276,6 +277,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.walletList:
       return MaterialPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
+
+    case Routes.walletEdit:
+      return MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<WalletEditPage>(
+              param1: settings.arguments as List<dynamic>));
 
     case Routes.auth:
       return MaterialPageRoute<void>(
@@ -558,9 +565,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.onramperPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<OnRamperPage>());
-
-    case Routes.payfuraPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<PayFuraPage>());
 
     case Routes.advancedPrivacySettings:
       final type = settings.arguments as WalletType;
