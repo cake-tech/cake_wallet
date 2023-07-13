@@ -3,7 +3,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
-import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -161,7 +160,7 @@ class MoneroWalletService extends WalletService<
       String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values.firstWhere(
         (info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = MoneroWallet(walletInfo: currentWalletInfo);
+    final currentWallet = MoneroWallet(walletInfo: currentWalletInfo, password: password);
 
     await currentWallet.renameWalletFiles(newName);
 

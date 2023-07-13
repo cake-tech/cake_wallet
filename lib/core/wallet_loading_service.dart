@@ -58,27 +58,3 @@ class WalletLoadingService {
     await sharedPreferences.setBool(key, isPasswordUpdated);
   }
 }
-
-    if (type == WalletType.monero) {
-      await updateMoneroWalletPassword(wallet);
-    }
-    return wallet;
-  }
-  Future<void> updateMoneroWalletPassword(WalletBase wallet) async {
-    final key = PreferencesKey.moneroWalletUpdateV1Key(wallet.name);
-    var isPasswordUpdated = sharedPreferences.getBool(key) ?? false;
-    if (isPasswordUpdated) {
-      return;
-    }
-    final password = generateWalletPassword();
-    // Save new generated password with backup key for case where
-    // wallet will change password, but it will fail to update in secure storage
-    final bakWalletName = '#__${wallet.name}_bak__#';
-    await keyService.saveWalletPassword(
-        walletName: bakWalletName, password: password);
-    await wallet.changePassword(password);
-    await keyService.saveWalletPassword(
-        walletName: wallet.name, password: password);
-    isPasswordUpdated = true;
-    await sharedPreferences.setBool(key, isPasswordUpdated);
-  }
