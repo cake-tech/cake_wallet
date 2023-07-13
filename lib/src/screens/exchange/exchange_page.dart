@@ -117,7 +117,7 @@ class ExchangePage extends BasePage {
     final _closeButton = currentTheme.type == ThemeType.dark
         ? closeButtonImageDarkTheme : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
 
     return MergeSemantics(
       child: SizedBox(
@@ -601,8 +601,8 @@ class ExchangePage extends BasePage {
               alertContent: S.of(context).low_fee_alert,
               leftButtonText: S.of(context).ignor,
               rightButtonText: S.of(context).use_suggested,
-              actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-              actionRightButton: () => Navigator.of(dialogContext).pop(true));
+              actionLeftButton: () => Navigator.of(context).pop(false),
+              actionRightButton: () => Navigator.of(context).pop(true));
         }) ?? false;
     if (confirmed) {
       exchangeViewModel.setDefaultTransactionPriority();
@@ -733,7 +733,7 @@ class ExchangePage extends BasePage {
       },
     ));
 
-    if (ResponsiveLayoutUtil.instance.isMobile) {
+    if (ResponsiveLayoutUtil.instance.isMobile(context)) {
       return MobileExchangeCardsSection(
         firstExchangeCard: firstExchangeCard,
         secondExchangeCard: secondExchangeCard,

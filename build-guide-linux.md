@@ -37,6 +37,9 @@ CakeWallet requires some packages to be install on your build system. You may ea
 
 Need to install flutter. For this please check section [How to install flutter on Linux](https://docs.flutter.dev/get-started/install/linux).
 
+
+
+
 ### 3. Verify Installations
 
 Verify that the Flutter have been correctly installed on your system with the following command:
@@ -46,7 +49,7 @@ Verify that the Flutter have been correctly installed on your system with the fo
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.x.x, on Linux, locale en_US.UTF-8)
+[✓] Flutter (Channel stable, 3.7.x, on Linux, locale en_US.UTF-8)
 ```
 
 ### 4. Acquiring the CakeWallet Source Code
@@ -100,6 +103,38 @@ Install Flutter package dependencies with this command:
 > `$ flutter pub get`
 
 
+> ### If you get the error like:
+> ```
+> The lower bound of "sdk: '>=2.0.0-dev.68.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
+> ```
+>
+> #### Downgrade Flutter to version 3.7.x
+> Make sure that Flutter is reverted back to version 3.7.x (which would automatically revert Dart to 2.18 or 2.19)
+> 
+> In your Linux terminal, find where your Flutter SDK is installed with:
+> 
+> ```
+> $ which flutter
+> ```
+> 
+> Proceed to the Flutter SDK path:
+> 
+> ```
+> $ cd user/snap/flutter/common/flutter
+> ```
+> 
+> In the Flutter SDK directory, revert to a 3.7.x version (I used 3.7.12):
+> 
+> 
+> ```
+> $ git checkout 3.7.12
+> ```
+> Then re-configure Cake Wallet's Linux project again. For this open `scripts/linux` (`$cd scripts/linux`) directory and run:
+> `$ ./cakewallet.sh`
+> and back to project root directory:
+> `$ cd ../..`
+> and fetch dependecies again
+> `$ flutter pub get`
 
 Your CakeWallet binary will be built with some specific keys for iterate with 3rd party services. You may generate these secret keys placeholders with the following command:
 

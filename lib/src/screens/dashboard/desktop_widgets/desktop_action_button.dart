@@ -21,54 +21,57 @@ class DesktopActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 25),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
-            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
-          ),
-          child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  image,
-                  height: 30,
-                  width: 30,
-                  color: isEnabled
-                      ? Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!
-                      : Theme.of(context)
-                          .accentTextTheme!
-                          .displaySmall!
-                          .backgroundColor!,
-                ),
-                const SizedBox(width: 10),
-                AutoSizeText(
-                  title,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.bold,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 25),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15.0),
+              color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+            ),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    image,
+                    height: 30,
+                    width: 30,
                     color: isEnabled
                         ? Theme.of(context)
                             .accentTextTheme!
                             .displayMedium!
                             .backgroundColor!
-                        : null,
-                    height: 1,
+                        : Theme.of(context)
+                            .accentTextTheme!
+                            .displaySmall!
+                            .backgroundColor!,
                   ),
-                  maxLines: 1,
-                  textAlign: TextAlign.center,
-                )
-              ],
+                  const SizedBox(width: 10),
+                  AutoSizeText(
+                    title,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.bold,
+                      color: isEnabled
+                          ? Theme.of(context)
+                              .accentTextTheme!
+                              .displayMedium!
+                              .backgroundColor!
+                          : null,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
             ),
           ),
         ),

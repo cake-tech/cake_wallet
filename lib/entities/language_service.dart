@@ -55,11 +55,11 @@ class LanguageService {
     'cs': 'czk',
     'ur': 'pak',
     'id': 'idn',
-    'yo': 'nga',
+    'yo': 'yor',
     'ha': 'hau'
   };
 
-  static final list = <String, String>{};
+  static final list = <String, String> {};
 
   static void loadLocaleList() {
     supportedLocales.forEach((key, value) {
