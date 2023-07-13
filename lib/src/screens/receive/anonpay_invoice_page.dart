@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
@@ -54,9 +53,7 @@ class AnonPayInvoicePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  void onClose(BuildContext context) {
-    Navigator.popUntil(context, ModalRoute.withName(Routes.dashboard));
-  }
+  void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
 
   @override
   Widget middle(BuildContext context) =>

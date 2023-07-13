@@ -6,7 +6,6 @@ class ResponsiveLayoutUtil {
   static const double kDesktopMaxDashBoardWidthConstraint = 900;
   static const double kPopupWidth = 400;
   static const double kPopupSpaceHeight = 100;
-  static const _kIpadMaxWidth = 2560.0;
 
   const ResponsiveLayoutUtil._();
 
@@ -28,11 +27,6 @@ class ResponsiveLayoutUtil {
     } else {
       return false;
     }
-  }
-
-  bool get isIpad {
-    final width = MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.width;
-    return width >= _kMobileThreshold && !(width > _kIpadMaxWidth);
   }
 
   /// Returns dynamic size.
