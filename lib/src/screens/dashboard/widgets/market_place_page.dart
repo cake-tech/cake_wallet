@@ -1,7 +1,7 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/market_place_item.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
@@ -51,15 +51,17 @@ class MarketPlacePage extends StatelessWidget {
                 child: ListView(
                   controller: _scrollController,
                   children: <Widget>[
-                    if (!SettingsStoreBase.walletPasswordDirectInput)
-                      ...[SizedBox(height: 20),
-                      MarketPlaceItem(
-                        onTap: () => _navigatorToGiftCardsPage(context),
-                        title: S.of(context).cake_pay_title,
-                        subTitle: S.of(context).cake_pay_subtitle,
-                      )],
                     SizedBox(height: 20),
-                    MarketPlaceItem(
+                    DashBoardRoundedCardWidget(
+                      onTap: () => launchUrl(
+                        Uri.parse("https://cakelabs.com/news/cake-pay-mobile-to-shut-down/"),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      title: S.of(context).cake_pay_title,
+                      subTitle: S.of(context).cake_pay_subtitle,
+                    ),
+                    SizedBox(height: 20),
+                    DashBoardRoundedCardWidget(
                       onTap: () => launchUrl(
                         Uri.https("buy.cakepay.com"),
                         mode: LaunchMode.externalApplication,
@@ -77,6 +79,7 @@ class MarketPlacePage extends StatelessWidget {
     );
   }
 
+  // TODO: Remove ionia flow/files if we will discard it
   void _navigatorToGiftCardsPage(BuildContext context) {
     final walletType = dashboardViewModel.type;
 

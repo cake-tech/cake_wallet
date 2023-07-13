@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:cw_bitcoin/encryption_file_utils.dart';
@@ -437,6 +438,28 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final path = await makePath();
     await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
+  }
+
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletFile = File(currentWalletPath);
+
+    final currentDirPath =
+        await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+
+    // Copies current wallet files into new wallet name's dir and files
+    if (currentWalletFile.existsSync()) {
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      await currentWalletFile.copy(newWalletPath);
+    }
+    if (currentTransactionsFile.existsSync()) {
+      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
+    }
+
+    // Delete old name's dir and files
+    await Directory(currentDirPath).delete(recursive: true);
   }
 
   @override

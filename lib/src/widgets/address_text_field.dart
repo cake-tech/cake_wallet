@@ -114,55 +114,66 @@ class AddressTextField extends StatelessWidget {
                         width: prefixIconWidth,
                         height: prefixIconHeight,
                         padding: EdgeInsets.only(top: 0),
-                        child: InkWell(
-                          onTap: () async => _pasteAddress(context),
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color: buttonColor ??
-                                      Theme.of(context)
-                                          .accentTextTheme!
+                        child: Semantics(
+                          label: S.of(context).paste,
+                          child: InkWell(
+                            onTap: () async => _pasteAddress(context),
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color: buttonColor ??
+                                        Theme.of(context)
+                                            .accentTextTheme
+                                            !
                                           .titleLarge!
-                                          .color!,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6))),
-                              child: Image.asset(
-                                'assets/images/paste_ios.png',
-                                color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme!
+                                            .color!,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(6))),
+                                child: Image.asset(
+                                  'assets/images/paste_ios.png',
+                                  color: iconColor ??
+                                      Theme.of(context)
+                                          .primaryTextTheme
+                                          !
                                         .headlineMedium!
-                                        .decorationColor!,
-                              )),
+                                          .decorationColor!,
+                                )),
+                          ),
                         )),
                   ],
-                  if (this.options.contains(AddressTextFieldOption.qrCode) && DeviceInfo.instance.isMobile) 
-                  ...[
+                  if (this.options.contains(AddressTextFieldOption.qrCode) &&
+                      DeviceInfo.instance.isMobile) ...[
                     Container(
                         width: prefixIconWidth,
                         height: prefixIconHeight,
                         padding: EdgeInsets.only(top: 0),
-                        child: InkWell(
-                          onTap: () async => _presentQRScanner(context),
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color: buttonColor ??
-                                      Theme.of(context)
-                                          .accentTextTheme
+                        child: Semantics(
+                          label: S.of(context).scan_qr_code,
+                          child: InkWell(
+                            onTap: () async => _presentQRScanner(context),
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color: buttonColor ??
+                                        Theme.of(context)
+                                            .accentTextTheme
+                                            
                                           .titleLarge!
-                                          .color!,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6))),
-                              child: Image.asset(
-                                'assets/images/qr_code_icon.png',
-                                color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme!.headlineMedium!
-                                        .decorationColor!,
-                              )),
+                                            .color!,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(6))),
+                                child: Image.asset(
+                                  'assets/images/qr_code_icon.png',
+                                  color: iconColor ??
+                                      Theme.of(context)
+                                          .primaryTextTheme
+                                          !.headlineMedium!
+                                          .decorationColor!,
+                                )),
+                          ),
                         ))
-                  ] else SizedBox(width: 5),
+                  ] else
+                    SizedBox(width: 5),
                   if (this
                       .options
                       .contains(AddressTextFieldOption.addressBook)) ...[
@@ -170,26 +181,32 @@ class AddressTextField extends StatelessWidget {
                         width: prefixIconWidth,
                         height: prefixIconHeight,
                         padding: EdgeInsets.only(top: 0),
-                        child: InkWell(
-                          onTap: () async => _presetAddressBookPicker(context),
-                          child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color: buttonColor ??
-                                      Theme.of(context)
-                                          .accentTextTheme!
+                        child: Semantics(
+                          label: S.of(context).address_book,
+                          child: InkWell(
+                            onTap: () async =>
+                                _presetAddressBookPicker(context),
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color: buttonColor ??
+                                        Theme.of(context)
+                                            .accentTextTheme
+                                            !
                                           .titleLarge!
-                                          .color!,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6))),
-                              child: Image.asset(
-                                'assets/images/open_book.png',
-                                color: iconColor ??
-                                    Theme.of(context)
-                                        .primaryTextTheme!
+                                            .color!,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(6))),
+                                child: Image.asset(
+                                  'assets/images/open_book.png',
+                                  color: iconColor ??
+                                      Theme.of(context)
+                                          .primaryTextTheme
+                                          !
                                         .headlineMedium!
-                                        .decorationColor!,
-                              )),
+                                          .decorationColor!,
+                                )),
+                          ),
                         ))
                   ]
                 ],

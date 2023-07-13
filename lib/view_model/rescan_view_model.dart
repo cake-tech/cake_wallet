@@ -24,6 +24,7 @@ abstract class RescanViewModelBase with Store {
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {
     state = RescanWalletState.rescaning;
     await _wallet.rescan(height: restoreHeight);
+    _wallet.transactionHistory.clear();
     state = RescanWalletState.none;
   }
 }
