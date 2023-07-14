@@ -904,6 +904,8 @@ Future setup({
   getIt.registerFactory<IoniaAnyPay>(() => IoniaAnyPay(
       getIt.get<IoniaService>(), getIt.get<AnyPayApi>(), getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory(()=> MarketPlaceViewModel(getIt.get<IoniaService>()));
+
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactory(()=> MarketPlaceViewModel(getIt.get<IoniaService>()));
@@ -1075,6 +1077,7 @@ Future setup({
     return WalletUnlockPage(
       getIt.get<WalletUnlockLoadableViewModel>(param1: args),
       args.callback,
+      args.authPasswordHandler,
       closable: closable);
   }, instanceName: 'wallet_unlock_loadable');
 
@@ -1082,6 +1085,7 @@ Future setup({
     return WalletUnlockPage(
       getIt.get<WalletUnlockVerifiableViewModel>(param1: args),
       args.callback,
+      args.authPasswordHandler,
       closable: closable);
   }, instanceName: 'wallet_unlock_verifiable');
 
