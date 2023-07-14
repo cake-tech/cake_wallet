@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
@@ -115,23 +117,42 @@ class NodeCreateOrEditPage extends BasePage {
           bottomSectionPadding: EdgeInsets.only(bottom: 24),
           bottomSection: Observer(
               builder: (_) => Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Flexible(
                           child: Container(
                         padding: EdgeInsets.only(right: 8.0),
                         child: LoadingPrimaryButton(
                             onPressed: () async {
-                              if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                                return;
-                              }
+                              final confirmed = await showPopUp<bool>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertWithTwoActions(
+                                            alertTitle:
+                                                S.of(context).remove_node,
+                                            alertContent: S
+                                                .of(context)
+                                                .remove_node_message,
+                                            rightButtonText:
+                                                S.of(context).remove,
+                                            leftButtonText:
+                                                S.of(context).cancel,
+                                            actionRightButton: () =>
+                                                Navigator.pop(context, true),
+                                            actionLeftButton: () =>
+                                                Navigator.pop(context, false));
+                                      }) ??
+                                  false;
 
-                              await nodeCreateOrEditViewModel.connect();
+                              if (confirmed) {
+                                await editingNode!.delete();
+                                Navigator.of(context).pop();
+                              }
                             },
-                            isLoading: nodeCreateOrEditViewModel
-                                .connectionState is IsExecutingState,
-                            text: S.of(context).node_test,
-                            isDisabled: !nodeCreateOrEditViewModel.isReady,
-                            color: Colors.orange,
+                            text: S.of(context).delete,
+                            isDisabled: !nodeCreateOrEditViewModel.isReady ||
+                                (isSelected ?? false),
+                            color: Palette.red,
                             textColor: Colors.white),
                       )),
                       Flexible(

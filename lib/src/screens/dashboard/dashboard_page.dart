@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -42,15 +43,30 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ResponsiveLayoutUtil.instance.isMobile
-          ? _DashboardPageView(
+    return Scaffold(body: LayoutBuilder(
+      builder: (context, constraints) {
+        if (DeviceInfo.instance.isDesktop) {
+          if (constraints.maxWidth > ResponsiveLayoutUtil.kDesktopMaxDashBoardWidthConstraint) {
+            return getIt.get<DesktopSidebarWrapper>();
+          } else {
+            return _DashboardPageView(
               balancePage: balancePage,
               dashboardViewModel: dashboardViewModel,
               addressListViewModel: addressListViewModel,
-            )
-          : getIt.get<DesktopSidebarWrapper>(),
-    );
+            );
+          }
+        } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
+          return _DashboardPageView(
+            balancePage: balancePage,
+            dashboardViewModel: dashboardViewModel,
+            addressListViewModel: addressListViewModel,
+          );
+        } else {
+          return getIt.get<DesktopSidebarWrapper>();
+        }
+
+      },
+    ));
   }
 }
 
@@ -111,7 +127,8 @@ class _DashboardPageView extends BasePage {
             //splashColor: Colors.transparent,
             //padding: EdgeInsets.all(0),
             onPressed: () => onOpenEndDrawer(),
-            child: Semantics(label: 'Menu', child: menuButton)));
+            child: Semantics(
+                label: S.of(context).wallet_menu, child: menuButton)));
   }
 
   final DashboardViewModel dashboardViewModel;
@@ -248,17 +265,17 @@ class _DashboardPageView extends BasePage {
     }
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(Semantics(
-          label: 'Marketplace Page',
+          label: S.of(context).market_place,
           child: MarketPlacePage(
-            dashboardViewModel: dashboardViewModel, 
+            dashboardViewModel: dashboardViewModel,
             marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
           ),
         ),
       );
     }
-    pages.add(Semantics(label: 'Balance Page', child: balancePage));
+    pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
     pages.add(Semantics(
-        label: 'Transactions Page',
+        label: S.of(context).settings_transactions,
         child: TransactionsPage(dashboardViewModel: dashboardViewModel)));
     _isEffectsInstalled = true;
 
