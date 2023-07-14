@@ -1,13 +1,12 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
+import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/language_list.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,8 +36,13 @@ class RestoreOptionsPage extends BasePage {
             child: Column(
               children: <Widget>[
                 RestoreButton(
-                    onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys,
-                        arguments: isNewInstall),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        Routes.restoreWalletFromSeedKeys,
+                        arguments: isNewInstall,
+                      );
+                    },
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
                     description: S.of(context).restore_description_from_seed_keys),
@@ -49,7 +53,9 @@ class RestoreOptionsPage extends BasePage {
                         onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
                         image: imageBackup,
                         title: S.of(context).restore_title_from_backup,
-                        description: S.of(context).restore_description_from_backup),
+                      description:
+                          S.of(context).restore_description_from_backup,
+                    ),
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 24),
@@ -61,24 +67,46 @@ class RestoreOptionsPage extends BasePage {
                               arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
                             setupPinContext.close();
                             isPinSet = true;
-                          });
+                            },
+                          );
                         }
-                        if (!isNewInstall || isPinSet) {
+
+                        if (!isNewInstall || isPinSet) {                     
                           try {
-                            final restoreWallet =
-                                await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+                            final restoreWallet = await WalletRestoreFromQRCode
+                                .scanQRCodeForRestoring(context);
 
                             final restoreFromQRViewModel =
-                                getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+                                getIt.get<WalletRestorationFromQRVM>(
+                              param1: restoreWallet.type,
+                            );
 
-                            await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
+                            if (restoreWallet.txId != null &&
+                                restoreWallet.txId!.isNotEmpty) {
+                              Navigator.pushNamed(
+                                context,
+                                Routes.sweepingWalletPage,
+                                arguments: SweepingWalletPageData(
+                                  restorationFromQRVM: restoreFromQRViewModel,
+                                  restoredWallet: restoreWallet,
+                                ),
+                              );
+                            } else {
+                              await restoreFromQRViewModel.create(
+                                restoreWallet: restoreWallet,
+                              );
 
-                            if (restoreFromQRViewModel.state is FailureState) {
-                              final errorState = restoreFromQRViewModel.state as FailureState;
-                              _onWalletCreateFailure(context,
-                                  'Create wallet state: ${errorState.error}');
+                              if (restoreFromQRViewModel.state
+                                  is FailureState) {
+                                final errorState = restoreFromQRViewModel.state
+                                    as FailureState;
+
+                                _onWalletCreateFailure(
+                                  context,
+                                  'Create wallet state: ${errorState.error}',
+                                );
+                              }
                             }
-                            
                           } catch (e) {
                             _onWalletCreateFailure(context, e.toString());
                           }
@@ -94,15 +122,19 @@ class RestoreOptionsPage extends BasePage {
     );
   }
 
-  void _onWalletCreateFailure(BuildContext context, String error) {
-    showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-              alertTitle: S.current.error,
-              alertContent: error,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
-        });
+  void _onWalletCreateFailure(BuildContext context, String error) async {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+          alertTitle: S.current.error,
+          alertContent: error,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+
+    Navigator.pop(context);
   }
 }

@@ -218,7 +218,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           output.isParsedAddress ? output.extractedAddress : output.address;
       final amount =
           output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-          
+
       final formattedAmount =
           output.sendAll ? null : output.formattedCryptoAmount;
 
@@ -259,6 +259,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         output.isParsedAddress ? output.extractedAddress : output.address;
     final amount =
         output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+
+    final unlockedBalance = balance[currency]?.unlockedBalance;
+
+    if (unlockedBalance == null || unlockedBalance == 0) {
+      final formattedBalance =
+          moneroAmountToString(amount: unlockedBalance ?? 0);
+
+      throw MoneroTransactionCreationException(
+        'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.',
+      );
+    }
 
     pendingTransactionDescription = await transaction_history.createTransaction(
         address: address!,
@@ -454,7 +465,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         syncStatus = SyncedSyncStatus();
         //! Introduce completer
         if (!syncCompleter.isCompleted) {
-          syncCompleter.complete();
+          if (blocksLeft == 0) {
+            syncCompleter.complete();
+          }
         }
         if (!_hasSyncAfterStartup) {
           _hasSyncAfterStartup = true;

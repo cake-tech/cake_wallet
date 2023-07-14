@@ -19,6 +19,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -59,6 +60,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -807,6 +809,11 @@ Future setup({
 
   getIt.registerFactoryParam<RestoreOptionsPage, bool, void>(
       (bool isNewInstall, _) => RestoreOptionsPage(isNewInstall: isNewInstall));
+
+  getIt.registerFactoryParam<SweepingWalletPage, SweepingWalletPageData, void>(
+    (sweepingWalletPageData, _) =>
+        SweepingWalletPage(sweepingWalletPageData: sweepingWalletPageData),
+  );
 
   getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupService>()));
 

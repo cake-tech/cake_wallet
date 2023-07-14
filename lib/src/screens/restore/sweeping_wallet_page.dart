@@ -1,17 +1,22 @@
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/scheduler.dart';
 
 class SweepingWalletPage extends BasePage {
-  SweepingWalletPage();
+  SweepingWalletPage({required this.sweepingWalletPageData});
+
+  final SweepingWalletPageData sweepingWalletPageData;
 
   static const aspectRatioImage = 1.25;
   final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
   final welcomeImageDark = Image.asset('assets/images/welcome.png');
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -23,23 +28,31 @@ class SweepingWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
+    final welcomeImage = currentTheme.type == ThemeType.dark
+        ? welcomeImageDark
+        : welcomeImageLight;
 
     return SweepingWalletWidget(
-      aspectRatioImage: aspectRatioImage,
       welcomeImage: welcomeImage,
+      restoredWallet: sweepingWalletPageData.restoredWallet,
+      aspectRatioImage: aspectRatioImage,
+      restoreFromQRViewModel: sweepingWalletPageData.restorationFromQRVM,
     );
   }
 }
 
 class SweepingWalletWidget extends StatefulWidget {
   const SweepingWalletWidget({
-    required this.aspectRatioImage,
     required this.welcomeImage,
+    required this.restoredWallet,
+    required this.aspectRatioImage,
+    required this.restoreFromQRViewModel,
   });
 
-  final double aspectRatioImage;
   final Image welcomeImage;
+  final double aspectRatioImage;
+  final RestoredWallet restoredWallet;
+  final WalletRestorationFromQRVM restoreFromQRViewModel;
 
   @override
   State<SweepingWalletWidget> createState() => _SweepingWalletWidgetState();
@@ -49,9 +62,40 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
   @override
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-
+      await _initializeRestoreFromQR();
     });
     super.initState();
+  }
+
+  Future<void> _initializeRestoreFromQR() async {
+    try {
+      await widget.restoreFromQRViewModel
+          .createFlowForSweepAll(restoreWallet: widget.restoredWallet);
+
+      if (widget.restoreFromQRViewModel.state is FailureState) {
+        final errorState = widget.restoreFromQRViewModel.state as FailureState;
+        _onWalletCreateFailure(
+            context, 'Create wallet state: ${errorState.error}');
+      }
+    } catch (e) {
+      _onWalletCreateFailure(context, e.toString());
+    }
+  }
+
+  void _onWalletCreateFailure(BuildContext context, String error) async {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+          alertTitle: S.current.error,
+          alertContent: error,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+
+    Navigator.pop(context);
   }
 
   @override
@@ -61,15 +105,20 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
         child: Container(
             padding: EdgeInsets.only(top: 64, bottom: 24, left: 24, right: 24),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Flexible(
-                    flex: 2,
-                    child: AspectRatio(
-                        aspectRatio: widget.aspectRatioImage,
-                        child: FittedBox(child: widget.welcomeImage, fit: BoxFit.fill))),
+                  flex: 4,
+                  child: AspectRatio(
+                    aspectRatio: widget.aspectRatioImage,
+                    child: FittedBox(
+                      child: widget.welcomeImage,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                ),
                 Flexible(
-                    flex: 3,
+                    flex: 2,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -83,7 +132,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context)
-                                      .accentTextTheme!
+                                      .accentTextTheme
                                       .displayMedium!
                                       .color,
                                 ),
@@ -98,7 +147,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context)
-                                      .primaryTextTheme!
+                                      .primaryTextTheme
                                       .titleLarge!
                                       .color!,
                                 ),
@@ -113,7 +162,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context)
-                                      .accentTextTheme!
+                                      .accentTextTheme
                                       .displayMedium!
                                       .color,
                                 ),
@@ -129,4 +178,12 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
   }
 }
 
+class SweepingWalletPageData {
+  final WalletRestorationFromQRVM restorationFromQRVM;
+  final RestoredWallet restoredWallet;
 
+  SweepingWalletPageData({
+    required this.restorationFromQRVM,
+    required this.restoredWallet,
+  });
+}

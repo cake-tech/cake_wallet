@@ -199,7 +199,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.sweepingWalletPage:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SweepingWalletPage>());
+        builder: (_) => getIt.get<SweepingWalletPage>(
+          param1: settings.arguments as SweepingWalletPageData,
+        ),
+      );
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(

@@ -68,18 +68,7 @@ abstract class WalletCreationVMBase with Store {
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
-    // if (restoreWallet != null &&
-    //     restoreWallet.restoreMode == WalletRestoreMode.txids) {
-    await _createFlowForSweepAll(options, restoreWallet);
-    // }
-
-    // await _createTransactionFlowNormally(options, restoreWallet);
-  }
-
-  Future<void> _createTransactionFlowNormally(
-    dynamic options,
-    RestoredWallet? restoreWallet,
-  ) async {
+    print('Inside normal create function');
     try {
       final restoredWallet = await _createNewWalletWithoutSwitching(
         options: options,
@@ -104,10 +93,11 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  Future<void> _createFlowForSweepAll(
+  Future<void> createFlowForSweepAll({
     dynamic options,
     RestoredWallet? restoreWallet,
-  ) async {
+  }) async {
+    print('Inside sweep all create function');
     state = IsExecutingState();
     final type = restoreWallet?.type ?? this.type;
 
@@ -195,7 +185,7 @@ abstract class WalletCreationVMBase with Store {
         name: name,
         type: type,
         //TODO(David): Ask Omar about this, was previous isRecovery
-        isRecovery: restoreWallet != null ? true : false,
+        isRecovery: restoreWallet != null,
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
         path: path,
@@ -311,7 +301,8 @@ abstract class WalletCreationVMBase with Store {
   Future<void> _createTransaction(WalletBase wallet, Object credentials) async {
     try {
       print('about to enter wallet create transaction function');
-      pendingTransaction = await wallet.createTransaction(credentials);
+      pendingTransaction =
+          await wallet.createTransactionForSweepAll(credentials);
     } catch (e) {
       state = FailureState(e.toString());
     }
