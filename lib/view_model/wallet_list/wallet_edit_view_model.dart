@@ -32,11 +32,12 @@ abstract class WalletEditViewModelBase with Store {
   final WalletLoadingService _walletLoadingService;
 
   @action
-  Future<void> changeName(WalletListItem walletItem) async {
+  Future<void> changeName(WalletListItem walletItem, {String? password}) async {
     state = WalletEditRenamePending();
     await _walletLoadingService.renameWallet(
-        walletItem.type, walletItem.name, newName);
-    _walletListViewModel.updateList();
+        walletItem.type, walletItem.name, newName,
+        password: password);
+    resetState();
   }
 
   @action
@@ -45,11 +46,11 @@ abstract class WalletEditViewModelBase with Store {
     final walletService = getIt.get<WalletService>(param1: wallet.type);
     await walletService.remove(wallet.name);
     resetState();
-    _walletListViewModel.updateList();
   }
 
   @action
   void resetState() {
+    _walletListViewModel.updateList();
     state = WalletEditViewModelInitialState();
   }
 }
