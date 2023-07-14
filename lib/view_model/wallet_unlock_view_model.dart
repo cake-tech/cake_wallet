@@ -6,4 +6,6 @@ abstract class WalletUnlockViewModel {
   void setPassword(String password);
   ExecutionState get state;
   Future<void> unlock();
+  void success();
+  void failure(dynamic e);
 }

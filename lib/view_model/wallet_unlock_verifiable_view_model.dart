@@ -7,15 +7,15 @@ import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
 
 part 'wallet_unlock_verifiable_view_model.g.dart';
 
-class WalletUnlockVerifiableViewModel = WalletUnlockVerifiableViewModelBase with _$WalletUnlockVerifiableViewModel;
+class WalletUnlockVerifiableViewModel = WalletUnlockVerifiableViewModelBase
+    with _$WalletUnlockVerifiableViewModel;
 
-abstract class WalletUnlockVerifiableViewModelBase extends WalletUnlockViewModel with Store {
-	WalletUnlockVerifiableViewModelBase(
-		this.appStore, {
-      required this.walletName,
-      required this.walletType})
-    : password = '',
-      state = InitialExecutionState();
+abstract class WalletUnlockVerifiableViewModelBase extends WalletUnlockViewModel
+    with Store {
+  WalletUnlockVerifiableViewModelBase(this.appStore,
+      {required this.walletName, required this.walletType})
+      : password = '',
+        state = InitialExecutionState();
 
   final String walletName;
 
@@ -38,12 +38,24 @@ abstract class WalletUnlockVerifiableViewModelBase extends WalletUnlockViewModel
   @override
   @action
   Future<void> unlock() async {
-  	try {
-  		state = appStore.wallet!.password == password
-  			? ExecutedSuccessfullyState()
-  			: FailureState(S.current.invalid_password) ;
-		} catch(e) {
-			state = FailureState('${S.current.invalid_password}\n${e.toString()}');
-		}
+    try {
+      state = appStore.wallet!.password == password
+          ? ExecutedSuccessfullyState()
+          : FailureState(S.current.invalid_password);
+    } catch (e) {
+      failure('${S.current.invalid_password}\n${e.toString()}');
+    }
+  }
+
+  @override
+  @action
+  void success() {
+    state = ExecutedSuccessfullyState();
+  }
+
+  @override
+  @action
+  void failure(e) {
+    state = FailureState(e.toString());
   }
 }
