@@ -100,7 +100,7 @@ class WalletEditPage extends BasePage {
                                 try {
                                   if (SettingsStoreBase
                                       .walletPasswordDirectInput) {
-                                    Navigator.of(context).pushNamed(
+                                    await Navigator.of(context).pushNamed(
                                         Routes.walletUnlockLoadable,
                                         arguments: WalletUnlockArguments(
                                             authPasswordHandler:
@@ -121,9 +121,9 @@ class WalletEditPage extends BasePage {
                                   } else {
                                     await walletEditViewModel
                                         .changeName(editingWallet);
-
-                                    Navigator.of(context).pop();
                                   }
+
+                                  Navigator.of(context).pop();
                                 } catch (e) {}
                               }
                             }
