@@ -2,8 +2,12 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
@@ -94,9 +98,36 @@ class WalletEditPage extends BasePage {
                                 );
                               } else {
                                 try {
-                                  await walletEditViewModel.changeName(editingWallet);
-                                  Navigator.of(context).pop();
-                                  walletEditViewModel.resetState();
+                                  bool confirmed = false;
+
+                                  if (SettingsStoreBase
+                                      .walletPasswordDirectInput) {
+                                    await Navigator.of(context).pushNamed(
+                                        Routes.walletUnlockLoadable,
+                                        arguments: WalletUnlockArguments(
+                                            authPasswordHandler:
+                                                (String password) async {
+                                              await walletEditViewModel
+                                                  .changeName(editingWallet,
+                                                      password: password);
+                                            },
+                                            callback: (bool
+                                                    isAuthenticatedSuccessfully,
+                                                AuthPageState auth) async {
+                                              if (isAuthenticatedSuccessfully) {
+                                                auth.close();
+                                                confirmed = true;
+                                              }
+                                            },
+                                            walletName: editingWallet.name,
+                                            walletType: editingWallet.type));
+                                  } else {
+                                    await walletEditViewModel
+                                        .changeName(editingWallet);
+                                    confirmed = true;
+                                  }
+
+                                  if (confirmed) Navigator.of(context).pop();
                                 } catch (e) {}
                               }
                             }

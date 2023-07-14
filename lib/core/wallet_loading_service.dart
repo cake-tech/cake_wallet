@@ -27,7 +27,7 @@ class WalletLoadingService {
     // otherwise keeps duplicate (old and new names)
     await keyService.deleteWalletPassword(walletName: name);
 
-    await walletService.rename(name, password, newName);
+    await walletService.rename(name, walletPassword, newName);
 
     // set shared preferences flag based on previous wallet name
     if (type == WalletType.monero) {

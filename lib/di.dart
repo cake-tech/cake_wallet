@@ -1108,6 +1108,7 @@ Future<void> setup({
     return WalletUnlockPage(
       getIt.get<WalletUnlockLoadableViewModel>(param1: args),
       args.callback,
+      args.authPasswordHandler,
       closable: closable);
   }, instanceName: 'wallet_unlock_loadable');
 
@@ -1115,6 +1116,7 @@ Future<void> setup({
     return WalletUnlockPage(
       getIt.get<WalletUnlockVerifiableViewModel>(param1: args),
       args.callback,
+      args.authPasswordHandler,
       closable: closable);
   }, instanceName: 'wallet_unlock_verifiable');
 

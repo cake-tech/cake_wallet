@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +18,12 @@ class WalletUnlockPage extends StatefulWidget {
   WalletUnlockPage(
   this.walletUnlockViewModel,
   this.onAuthenticationFinished,
+  this.authPasswordHandler,
   {required this.closable});
 
   final WalletUnlockViewModel walletUnlockViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;
+  final AuthPasswordHandler? authPasswordHandler;
   final bool closable;
 
   @override
@@ -204,7 +207,20 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
             		child: Observer(
                   builder: (_) =>
                     LoadingPrimaryButton(
-                      onPressed: () => widget.walletUnlockViewModel.unlock(),
+                      onPressed: () async {
+                        if (widget.authPasswordHandler != null) {
+                          try {
+                            await widget.authPasswordHandler!(widget
+                                .walletUnlockViewModel.password);
+                            widget.walletUnlockViewModel.success();
+                          } catch (e) {
+                            widget.walletUnlockViewModel.failure(e);
+                          }
+                          return;
+                        }
+
+                        widget.walletUnlockViewModel.unlock();
+                      },
                       text: S.of(context).unlock,
                       color: Colors.green,
                       textColor: Colors.white,
