@@ -98,6 +98,8 @@ class WalletEditPage extends BasePage {
                                 );
                               } else {
                                 try {
+                                  bool confirmed = false;
+
                                   if (SettingsStoreBase
                                       .walletPasswordDirectInput) {
                                     await Navigator.of(context).pushNamed(
@@ -114,6 +116,7 @@ class WalletEditPage extends BasePage {
                                                 AuthPageState auth) async {
                                               if (isAuthenticatedSuccessfully) {
                                                 auth.close();
+                                                confirmed = true;
                                               }
                                             },
                                             walletName: editingWallet.name,
@@ -121,9 +124,10 @@ class WalletEditPage extends BasePage {
                                   } else {
                                     await walletEditViewModel
                                         .changeName(editingWallet);
+                                    confirmed = true;
                                   }
 
-                                  Navigator.of(context).pop();
+                                  if (confirmed) Navigator.of(context).pop();
                                 } catch (e) {}
                               }
                             }
