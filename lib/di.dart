@@ -42,6 +42,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
@@ -897,6 +898,8 @@ Future setup({
 
   getIt.registerFactory<IoniaAnyPay>(() => IoniaAnyPay(
       getIt.get<IoniaService>(), getIt.get<AnyPayApi>(), getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory(()=> MarketPlaceViewModel(getIt.get<IoniaService>()));
 
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
