@@ -269,26 +269,59 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: name, type: type);
-    final currentCacheFile = File(currentWalletPath);
-    final currentKeysFile = File('$currentWalletPath.keys');
-    final currentAddressListFile = File('$currentWalletPath.address.txt');
+    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
 
-    final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+    try {
+      // -- rename the waller folder --
+      final currentWalletDir =
+          Directory(await pathForWalletDir(name: name, type: type));
+      final newWalletDirPath =
+          await pathForWalletDir(name: newWalletName, type: type);
+      await currentWalletDir.rename(newWalletDirPath);
 
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentCacheFile.existsSync()) {
-      await currentCacheFile.copy(newWalletPath);
-    }
-    if (currentKeysFile.existsSync()) {
-      await currentKeysFile.copy('$newWalletPath.keys');
-    }
-    if (currentAddressListFile.existsSync()) {
-      await currentAddressListFile.copy('$newWalletPath.address.txt');
-    }
+      // -- use new waller folder to rename files with old names still --
+      final renamedWalletPath = newWalletDirPath + '/$name';
 
-    // Delete old name's dir and files
-    await Directory(currentWalletPath).delete(recursive: true);
+      final currentCacheFile = File(renamedWalletPath);
+      final currentKeysFile = File('$renamedWalletPath.keys');
+      final currentAddressListFile = File('$renamedWalletPath.address.txt');
+
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type);
+
+      if (currentCacheFile.existsSync()) {
+        await currentCacheFile.rename(newWalletPath);
+      }
+      if (currentKeysFile.existsSync()) {
+        await currentKeysFile.rename('$newWalletPath.keys');
+      }
+      if (currentAddressListFile.existsSync()) {
+        await currentAddressListFile.rename('$newWalletPath.address.txt');
+      }
+    } catch (e) {
+      final currentWalletPath = await pathForWallet(name: name, type: type);
+
+      final currentCacheFile = File(currentWalletPath);
+      final currentKeysFile = File('$currentWalletPath.keys');
+      final currentAddressListFile = File('$currentWalletPath.address.txt');
+
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type);
+
+      // Copies current wallet files into new wallet name's dir and files
+      if (currentCacheFile.existsSync()) {
+        await currentCacheFile.copy(newWalletPath);
+      }
+      if (currentKeysFile.existsSync()) {
+        await currentKeysFile.copy('$newWalletPath.keys');
+      }
+      if (currentAddressListFile.existsSync()) {
+        await currentAddressListFile.copy('$newWalletPath.address.txt');
+      }
+
+      // Delete old name's dir and files
+      await Directory(currentWalletDirPath).delete(recursive: true);
+    }
   }
 
   @override

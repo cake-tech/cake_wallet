@@ -27,6 +27,14 @@ class WalletLoadingService {
     await keyService.deleteWalletPassword(walletName: name);
 
     await walletService.rename(name, password, newName);
+
+    // set shared preferences flag based on previous wallet name
+    if (type == WalletType.monero) {
+      final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(name);
+      final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
+      final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
+      await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
+    }
   }
 
   Future<WalletBase> load(WalletType type, String name) async {
