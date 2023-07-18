@@ -334,7 +334,7 @@ class WalletListBodyState extends State<WalletListBody> {
       try {
         changeProcessText(
             S.of(context).wallet_list_removing_wallet(wallet.name));
-        await widget.walletListViewModel.remove(wallet);
+        await _removeWallet(wallet);
         hideProgressText();
       } catch (e) {
         changeProcessText(
