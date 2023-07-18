@@ -431,6 +431,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     await transactionHistory.save();
   }
 
+  @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
     final currentWalletFile = File(currentWalletPath);

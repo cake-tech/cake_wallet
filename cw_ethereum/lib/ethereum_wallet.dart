@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -346,5 +347,30 @@ abstract class EthereumWalletBase
     final initialErc20Tokens = DefaultErc20Tokens().initialErc20Tokens;
 
     initialErc20Tokens.forEach((token) => erc20TokensBox.put(token.contractAddress, token));
+  }
+
+  @override
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletFile = File(currentWalletPath);
+
+    final currentDirPath =
+    await pathForWalletDir(name: walletInfo.name, type: type);
+    // TODO: un-hash when transactions flow is implemented
+    // final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+
+    // Copies current wallet files into new wallet name's dir and files
+    if (currentWalletFile.existsSync()) {
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      await currentWalletFile.copy(newWalletPath);
+    }
+    // TODO: un-hash when transactions flow is implemented
+    // if (currentTransactionsFile.existsSync()) {
+    //   final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+    //   await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
+    // }
+
+    // Delete old name's dir and files
+    await Directory(currentDirPath).delete(recursive: true);
   }
 }
