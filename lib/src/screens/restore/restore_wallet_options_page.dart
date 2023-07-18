@@ -29,14 +29,14 @@ class RestoreWalletOptionsPage extends BasePage {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              RestoreButton(
+              CardButton(
                   onPressed: () => onRestoreFromSeed(context),
                   image: imageSeed,
                   title: S.of(context).restore_title_from_seed,
                   description: _fromSeedDescription(context)),
               Padding(
                 padding: EdgeInsets.only(top: 24),
-                child: RestoreButton(
+                child: CardButton(
                     onPressed: () => onRestoreFromKeys(context),
                     image: imageKeys,
                     title: _fromKeyTitle(context),

@@ -37,7 +37,7 @@ class RestoreOptionsPage extends BasePage {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                RestoreButton(
+                CardButton(
                     onPressed: () => Navigator.pushNamed(
                         context, Routes.restoreWalletFromSeedKeys,
                         arguments: isNewInstall),
@@ -47,7 +47,7 @@ class RestoreOptionsPage extends BasePage {
                 if (isNewInstall)
                   Padding(
                     padding: EdgeInsets.only(top: 24),
-                    child: RestoreButton(
+                    child: CardButton(
                         onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
                         image: imageBackup,
                         title: S.of(context).restore_title_from_backup,
@@ -55,7 +55,7 @@ class RestoreOptionsPage extends BasePage {
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 24),
-                  child: RestoreButton(
+                  child: CardButton(
                       onPressed: () async {
                         bool isPinSet = false;
                         if (isNewInstall) {

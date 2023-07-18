@@ -1,7 +1,6 @@
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_link_provider_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
@@ -18,37 +17,51 @@ class SupportPage extends BasePage {
   String get title => S.current.settings_support;
 
   @override
+  AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  @override
   Widget body(BuildContext context) {
-    final iconColor = Theme.of(context)
-        .accentTextTheme!
-        .displayLarge!
-        .backgroundColor!;
-    // FIX-ME: Added `context` it was not used here before, maby bug ?
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 500),
-        child: SectionStandardList(
-            context: context,
-            sectionCount: 1,
-            itemCounter: (int _) => supportViewModel.items.length,
-            itemBuilder: (_, __, index) {
-              final item = supportViewModel.items[index];
+    final iconColor =
+        Theme.of(context).accentTextTheme.displayLarge!.backgroundColor!;
 
-              if (item is RegularListItem) {
-                return SettingsCellWithArrow(title: item.title, handler: item.handler);
-              }
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+        gradient: LinearGradient(colors: [
+          Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+          Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 500),
+          child: SectionStandardList(
+              context: context,
+              sectionCount: 1,
+              itemCounter: (int _) => supportViewModel.items.length,
+              itemBuilder: (_, __, index) {
+                final item = supportViewModel.items[index];
 
-              if (item is LinkListItem) {
-                return SettingsLinkProviderCell(
-                    title: item.title,
-                    icon: item.icon,
-                    iconColor: item.hasIconColor ? iconColor : null,
-                    link: item.link,
-                    linkTitle: item.linkTitle);
-              }
+                if (item is RegularListItem) {
+                  return SettingsCellWithArrow(
+                      title: item.title, handler: item.handler);
+                }
 
-              return Container();
-            }),
+                if (item is LinkListItem) {
+                  return SettingsLinkProviderCell(
+                      title: item.title,
+                      icon: item.icon,
+                      iconColor: item.hasIconColor ? iconColor : null,
+                      link: item.link,
+                      linkTitle: item.linkTitle);
+                }
+
+                return Container();
+              }),
+        ),
       ),
     );
   }
