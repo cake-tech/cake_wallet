@@ -4,7 +4,6 @@ import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/balance.dart';
@@ -74,6 +73,7 @@ abstract class WalletCreationVMBase with Store {
         options: options,
         restoreWallet: restoreWallet,
         regenerateName: true,
+        isRecovery: true,
       );
 
       print(
@@ -102,8 +102,11 @@ abstract class WalletCreationVMBase with Store {
     final type = restoreWallet?.type ?? this.type;
 
     try {
-      final newWallet =
-          await _createNewWalletWithoutSwitching(options: options);
+      final newWallet = await _createNewWalletWithoutSwitching(
+        options: 'English',
+        regenerateName: true,
+        isRecovery: false,
+      );
 
       final newWalletAddress = newWallet.walletAddresses.address;
 
@@ -113,6 +116,7 @@ abstract class WalletCreationVMBase with Store {
         options: options,
         restoreWallet: restoreWallet,
         regenerateName: true,
+        isRecovery: true,
       );
 
       print(
@@ -161,10 +165,12 @@ abstract class WalletCreationVMBase with Store {
 
   Future<
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-          TransactionInfo>> _createNewWalletWithoutSwitching(
-      {dynamic options,
-      RestoredWallet? restoreWallet,
-      bool regenerateName = false}) async {
+          TransactionInfo>> _createNewWalletWithoutSwitching({
+    dynamic options,
+    RestoredWallet? restoreWallet,
+    bool regenerateName = false,
+    bool isRecovery = false,
+  }) async {
     state = IsExecutingState();
     if (name.isEmpty) {
       name = await generateName();
@@ -185,7 +191,7 @@ abstract class WalletCreationVMBase with Store {
         name: name,
         type: type,
         //TODO(David): Ask Omar about this, was previous isRecovery
-        isRecovery: restoreWallet != null,
+        isRecovery: isRecovery,
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
         path: path,

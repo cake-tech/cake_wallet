@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -71,6 +73,13 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
     try {
       await widget.restoreFromQRViewModel
           .createFlowForSweepAll(restoreWallet: widget.restoredWallet);
+
+      if (widget.restoreFromQRViewModel.state is ExecutedSuccessfullyState) {
+        await Navigator.of(navigatorKey.currentContext!).pushNamed(
+          Routes.preSeed,
+          arguments: widget.restoreFromQRViewModel.type,
+        );
+      }
 
       if (widget.restoreFromQRViewModel.state is FailureState) {
         final errorState = widget.restoreFromQRViewModel.state as FailureState;
