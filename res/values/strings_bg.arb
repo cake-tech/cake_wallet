@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Адрес на получател",
   "wallet_list_title": "Monero портфейл",
   "wallet_list_create_new_wallet": "Създаване на нов портфейл",
+  "wallet_list_edit_wallet" : "Редактиране на портфейла",
+  "wallet_list_wallet_name" : "Име на портфейла",
   "wallet_list_restore_wallet": "Възстановяване на портфейл",
   "wallet_list_load_wallet": "Зареждане на портфейл",
   "wallet_list_loading_wallet": "Зареждане на портфейл ${wallet_name}",

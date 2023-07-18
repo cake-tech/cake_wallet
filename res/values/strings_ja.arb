@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "受信者のアドレス",
   "wallet_list_title": "Monero 財布",
   "wallet_list_create_new_wallet": "新しいウォレットを作成",
+  "wallet_list_edit_wallet" : "ウォレットを編集する",
+  "wallet_list_wallet_name" : "ウォレット名",
   "wallet_list_restore_wallet": "ウォレットを復元",
   "wallet_list_load_wallet": "ウォレットをロード",
   "wallet_list_loading_wallet": "読み込み中 ${wallet_name} 財布",

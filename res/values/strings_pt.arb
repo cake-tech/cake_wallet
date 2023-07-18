@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Endereços de destinatários",
   "wallet_list_title": "Carteira Monero",
   "wallet_list_create_new_wallet": "Criar nova carteira",
+  "wallet_list_edit_wallet" : "Editar carteira",
+  "wallet_list_wallet_name" : "Nome da carteira",
   "wallet_list_restore_wallet": "Restaurar carteira",
   "wallet_list_load_wallet": "Abrir carteira",
   "wallet_list_loading_wallet": "Abrindo a carteira ${wallet_name}",

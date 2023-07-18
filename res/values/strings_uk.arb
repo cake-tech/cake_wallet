@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Адреси одержувачів",
   "wallet_list_title": "Monero Гаманець",
   "wallet_list_create_new_wallet": "Створити новий гаманець",
+  "wallet_list_edit_wallet" : "Редагувати гаманець",
+  "wallet_list_wallet_name" : "Назва гаманця",
   "wallet_list_restore_wallet": "Відновити гаманець",
   "wallet_list_load_wallet": "Завантаження гаманця",
   "wallet_list_loading_wallet": "Завантаження ${wallet_name} гаманця",
