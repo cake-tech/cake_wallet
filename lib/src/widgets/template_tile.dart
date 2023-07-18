@@ -53,45 +53,47 @@ class TemplateTileState extends State<TemplateTile> {
     final toIcon = Image.asset('assets/images/to_icon.png', color: color);
 
     final content = Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(
-          amount,
-          style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: color
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 5),
-          child: Text(
-            from,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: color
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 5),
-          child: toIcon,
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 5),
-          child: Text(
-            to,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: color
-            ),
-          ),
-        ),
-      ],
-    );
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: widget.hasMultipleRecipients ?? false
+            ? [
+                Text(
+                  to,
+                  style: TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600, color: color),
+                ),
+              ]
+            : [
+                Text(
+                  amount,
+                  style: TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600, color: color),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    from,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: color),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: toIcon,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    to,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: color),
+                  ),
+                ),
+              ]);
 
     final tile = Container(
         padding: EdgeInsets.only(right: 10),
@@ -108,21 +110,7 @@ class TemplateTileState extends State<TemplateTile> {
               height: 40,
               padding: EdgeInsets.only(left: 24, right: 24),
               color: Theme.of(context).primaryTextTheme!.displayMedium!.decorationColor!,
-              child: widget.hasMultipleRecipients ?? false
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          amount,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: color),
-                        )
-                      ],
-                    )
-                  : content,
+              child: content,
             ),
           ),
         )
