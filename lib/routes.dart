@@ -11,6 +11,7 @@ class Routes {
   static const transactionDetails = '/transaction_info';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
+  static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
   static const seedLanguage = '/seed_language';

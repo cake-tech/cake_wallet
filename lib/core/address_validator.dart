@@ -36,6 +36,26 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.oxt:
       case CryptoCurrency.paxg:
       case CryptoCurrency.uni:
+      case CryptoCurrency.aave:
+      case CryptoCurrency.bat:
+      case CryptoCurrency.comp:
+      case CryptoCurrency.cro:
+      case CryptoCurrency.ens:
+      case CryptoCurrency.ftm:
+      case CryptoCurrency.frax:
+      case CryptoCurrency.gusd:
+      case CryptoCurrency.gtc:
+      case CryptoCurrency.grt:
+      case CryptoCurrency.ldo:
+      case CryptoCurrency.nexo:
+      case CryptoCurrency.pepe:
+      case CryptoCurrency.storj:
+      case CryptoCurrency.tusd:
+      case CryptoCurrency.wbtc:
+      case CryptoCurrency.weth:
+      case CryptoCurrency.zrx:
+      case CryptoCurrency.dydx:
+      case CryptoCurrency.steth:
       case CryptoCurrency.shib:
         return '0x[0-9a-zA-Z]';
       case CryptoCurrency.xrp:
@@ -102,8 +122,6 @@ class AddressValidator extends TextValidator {
         return null;
       case CryptoCurrency.ada:
         return null;
-      case CryptoCurrency.ape:
-        return [42];
       case CryptoCurrency.avaxc:
         return [42];
       case CryptoCurrency.bch:
@@ -112,13 +130,43 @@ class AddressValidator extends TextValidator {
         return [42];
       case CryptoCurrency.btc:
         return null;
-      case CryptoCurrency.dai:
-        return [42];
       case CryptoCurrency.dash:
         return [34];
       case CryptoCurrency.eos:
         return [42];
       case CryptoCurrency.eth:
+      case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.mana:
+      case CryptoCurrency.matic:
+      case CryptoCurrency.maticpoly:
+      case CryptoCurrency.mkr:
+      case CryptoCurrency.oxt:
+      case CryptoCurrency.paxg:
+      case CryptoCurrency.uni:
+      case CryptoCurrency.dai:
+      case CryptoCurrency.ape:
+      case CryptoCurrency.usdc:
+      case CryptoCurrency.usdterc20:
+      case CryptoCurrency.aave:
+      case CryptoCurrency.bat:
+      case CryptoCurrency.comp:
+      case CryptoCurrency.cro:
+      case CryptoCurrency.ens:
+      case CryptoCurrency.ftm:
+      case CryptoCurrency.frax:
+      case CryptoCurrency.gusd:
+      case CryptoCurrency.gtc:
+      case CryptoCurrency.grt:
+      case CryptoCurrency.ldo:
+      case CryptoCurrency.nexo:
+      case CryptoCurrency.pepe:
+      case CryptoCurrency.storj:
+      case CryptoCurrency.tusd:
+      case CryptoCurrency.wbtc:
+      case CryptoCurrency.weth:
+      case CryptoCurrency.zrx:
+      case CryptoCurrency.dydx:
+      case CryptoCurrency.steth:
       case CryptoCurrency.shib:
         return [42];
       case CryptoCurrency.ltc:
@@ -131,14 +179,10 @@ class AddressValidator extends TextValidator {
         return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.trx:
         return [34];
-      case CryptoCurrency.usdc:
-        return [42];
       case CryptoCurrency.usdcsol:
         return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.usdt:
         return [34];
-      case CryptoCurrency.usdterc20:
-        return [42];
       case CryptoCurrency.usdttrc20:
         return [34];
       case CryptoCurrency.xlm:
@@ -186,15 +230,6 @@ class AddressValidator extends TextValidator {
         return [35];
       case CryptoCurrency.stx:
         return [40, 41, 42];
-      case CryptoCurrency.usdcpoly:
-      case CryptoCurrency.mana:
-      case CryptoCurrency.matic:
-      case CryptoCurrency.maticpoly:
-      case CryptoCurrency.mkr:
-      case CryptoCurrency.oxt:
-      case CryptoCurrency.paxg:
-      case CryptoCurrency.uni:
-        return [42];
       case CryptoCurrency.rune:
         return [43];
       case CryptoCurrency.scrt:

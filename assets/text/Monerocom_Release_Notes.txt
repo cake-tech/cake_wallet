@@ -1,3 +1,6 @@
-Enable iPad/Tablet separate layout from mobile UI
-SideShift update and fixes
-Bug Fixes
+Improved edit/delete for nodes and wallets
+Wallets can now be renamed
+Accessibility improvements
+Improve Monero wallet rescan
+Additional exchange assets: SHIB, AAVE, ARB, BAT, COMP, CRO, ENS, FTM, FRAX, GUSD, GTC, GRT, LDO, NEXO, CAKE, PEPE, STORJ, TUSD, WBTC, WETH, ZRX, DYDX, STETH
+Cake Pay is temporarily removed, see https://cakelabs.com/news/cake-pay-mobile-to-shut-down/

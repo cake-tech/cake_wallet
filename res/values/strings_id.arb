@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Alamat Penerima",
   "wallet_list_title": "Dompet Monero",
   "wallet_list_create_new_wallet": "Buat Dompet Baru",
+  "wallet_list_edit_wallet" : "Edit dompet",
+  "wallet_list_wallet_name" : "Nama dompet",
   "wallet_list_restore_wallet": "Pulihkan Dompet",
   "wallet_list_load_wallet": "Muat dompet",
   "wallet_list_loading_wallet": "Memuat ${wallet_name} dompet",
