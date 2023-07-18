@@ -8,7 +8,8 @@ class TemplateTile extends StatefulWidget {
     required this.amount,
     required this.from,
     required this.onTap,
-    required this.onRemove
+    required this.onRemove,
+    this.hasMultipleRecipients,
   }) : super(key: key);
 
   final String to;
@@ -16,6 +17,7 @@ class TemplateTile extends StatefulWidget {
   final String from;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+  final bool? hasMultipleRecipients;
 
   @override
   TemplateTileState createState() => TemplateTileState(
@@ -106,7 +108,21 @@ class TemplateTileState extends State<TemplateTile> {
               height: 40,
               padding: EdgeInsets.only(left: 24, right: 24),
               color: Theme.of(context).primaryTextTheme!.displayMedium!.decorationColor!,
-              child: content,
+              child: widget.hasMultipleRecipients ?? false
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          amount,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: color),
+                        )
+                      ],
+                    )
+                  : content,
             ),
           ),
         )
