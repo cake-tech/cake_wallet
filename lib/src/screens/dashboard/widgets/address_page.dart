@@ -73,7 +73,7 @@ class AddressPage extends BasePage {
         ? closeButtonImageDarkTheme
         : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
       child: SizedBox(
@@ -82,7 +82,9 @@ class AddressPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView ? 'Close' : 'Back',
+            label: !isMobileView
+                ? S.of(context).close
+                : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(

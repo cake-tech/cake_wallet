@@ -62,7 +62,7 @@ class SendPage extends BasePage {
     final _closeButton = currentTheme.type == ThemeType.dark
         ? closeButtonImageDarkTheme : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
       child: SizedBox(
@@ -71,7 +71,9 @@ class SendPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView ? 'Close' : 'Back',
+            label: !isMobileView
+                ? S.of(context).close
+                : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(
@@ -92,7 +94,7 @@ class SendPage extends BasePage {
   double _sendCardHeight(BuildContext context) {
     final double initialHeight = sendViewModel.isElectrumWallet ? 490 : 465;
 
-    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
+    if (!ResponsiveLayoutUtil.instance.isMobile) {
       return initialHeight - 66;
     }
     return initialHeight;

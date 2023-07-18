@@ -1,6 +1,5 @@
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
-import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -48,22 +47,20 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
           if (viewModel.isEnabledBuyAction) {
+            final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
             if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.onramperPage);
+              Navigator.of(context)
+                  .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
             } else {
-              final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
               await launchUrl(uri);
             }
           }
           break;
         case WalletType.monero:
           if (viewModel.isEnabledBuyAction) {
-            if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.payfuraPage);
-            } else {
-              final uri = getIt.get<PayfuraBuyProvider>().requestUrl();
-              await launchUrl(uri);
-            }
+            // final uri = getIt.get<PayfuraBuyProvider>().requestUrl();
+            final uri = Uri.parse("https://monero.com/trade");
+            await launchUrl(uri);
           }
           break;
         default:
@@ -118,14 +115,22 @@ class MainActions {
 
       switch (walletType) {
         case WalletType.bitcoin:
+        case WalletType.litecoin:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
             final uri = await moonPaySellProvider.requestUrl(
               currency: viewModel.wallet.currency,
               refundWalletAddress: viewModel.wallet.walletAddresses.address,
+              settingsStore: viewModel.settingsStore,
             );
-            await launchUrl(uri);
+            if (DeviceInfo.instance.isMobile) {
+              Navigator.of(context).pushNamed(Routes.webViewPage,
+                  arguments: [S.of(context).sell, uri]);
+            } else {
+              await launchUrl(uri);
+            }
           }
+
           break;
         default:
           await showPopUp<void>(

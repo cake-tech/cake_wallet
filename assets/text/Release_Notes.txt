@@ -1,6 +1,7 @@
-Opt-in to Cake 2FA for security. More info: https://guides.cakewallet.com/docs/advanced-features/authentication/#cake-2fa
-Auto generate restore height for Monero restore QR codes
-Hausa and Yoruba languages
-Additional privacy settings
-Update Monero to 0.18.2.2
-Refactoring and bug fixes
+Improved edit/delete for nodes and wallets
+Wallets can now be renamed
+Accessibility improvements
+Bitcoin transaction bug fixes
+Improve Monero wallet rescan
+Additional exchange assets: SHIB, AAVE, ARB, BAT, COMP, CRO, ENS, FTM, FRAX, GUSD, GTC, GRT, LDO, NEXO, CAKE, PEPE, STORJ, TUSD, WBTC, WETH, ZRX, DYDX, STETH
+Cake Pay is temporarily removed, see https://cakelabs.com/news/cake-pay-mobile-to-shut-down/
