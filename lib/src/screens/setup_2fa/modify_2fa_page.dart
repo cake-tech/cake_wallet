@@ -131,7 +131,7 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                     .backgroundColor!,
                 tabs: [
                   Tab(text: S.current.narrow, height: 30),
-                  Tab(text: S.current.narrow, height: 30),
+                  Tab(text: S.current.normal, height: 30),
                   Tab(text: S.current.aggressive, height: 30),
                 ],
               ),
