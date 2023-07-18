@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Direcciones de destinatarios",
   "wallet_list_title": "Monedero Monero",
   "wallet_list_create_new_wallet": "Crear nueva billetera",
+  "wallet_list_edit_wallet" : "Editar billetera",
+  "wallet_list_wallet_name" : "Nombre de la billetera",
   "wallet_list_restore_wallet": "Restaurar billetera",
   "wallet_list_load_wallet": "Billetera de carga",
   "wallet_list_loading_wallet": "Billetera ${wallet_name} de carga",

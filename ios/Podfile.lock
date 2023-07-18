@@ -126,7 +126,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - permission_handler_apple (9.1.0):
+  - permission_handler_apple (9.1.1):
     - Flutter
   - platform_device_id (0.0.1):
     - Flutter
@@ -271,12 +271,12 @@ SPEC CHECKSUMS:
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
-  permission_handler_apple: 8f116445eff3c0e7c65ad60f5fef5490aa94b4e4
+  permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
-  shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
+  shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   SwiftProtobuf: 40bd808372cb8706108f22d28f8ab4a6b9bc6989
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
@@ -286,4 +286,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 09df1114e7c360f55770d35a79356bf5446e0100
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1

@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "ที่อยู่ผู้รับ",
   "wallet_list_title": "กระเป๋า Monero",
   "wallet_list_create_new_wallet": "สร้างกระเป๋าใหม่",
+  "wallet_list_edit_wallet" : "แก้ไขกระเป๋าสตางค์",
+  "wallet_list_wallet_name" : "ชื่อกระเป๋าสตางค์",
   "wallet_list_restore_wallet": "กู้กระเป๋า",
   "wallet_list_load_wallet": "โหลดกระเป๋า",
   "wallet_list_loading_wallet": "กำลังโหลดกระเป๋า ${wallet_name}",

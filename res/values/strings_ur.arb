@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "وصول کنندگان کے پتے",
   "wallet_list_title": "Monero والیٹ",
   "wallet_list_create_new_wallet": "نیا والیٹ بنائیں",
+  "wallet_list_edit_wallet" : "بٹوے میں ترمیم کریں۔",
+  "wallet_list_wallet_name" : "بٹوے کا نام",
   "wallet_list_restore_wallet": "والیٹ کو بحال کریں۔",
   "wallet_list_load_wallet": "پرس لوڈ کریں۔",
   "wallet_list_loading_wallet": "${wallet_name} والیٹ لوڈ ہو رہا ہے۔",

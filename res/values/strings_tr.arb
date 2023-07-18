@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Alıcı adres",
   "wallet_list_title": "Monero Cüzdanı",
   "wallet_list_create_new_wallet": "Yeni Cüzdan Oluştur",
+  "wallet_list_edit_wallet" : "Cüzdanı düzenle",
+  "wallet_list_wallet_name" : "Cüzdan adı",
   "wallet_list_restore_wallet": "Cüzdanı Geri Yükle",
   "wallet_list_load_wallet": "Cüzdanı yükle",
   "wallet_list_loading_wallet": "${wallet_name} cüzdanı yükleniyor",

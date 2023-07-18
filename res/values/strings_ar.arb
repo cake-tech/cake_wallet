@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "عناوين المستلم",
   "wallet_list_title": "محفظة Monero",
   "wallet_list_create_new_wallet": "إنشاء محفظة جديدة",
+   "wallet_list_edit_wallet" : "تحرير المحفظة",
+   "wallet_list_wallet_name" : "اسم المحفظة",
   "wallet_list_restore_wallet": "استعادة المحفظة",
   "wallet_list_load_wallet": "تحميل المحفظة",
   "wallet_list_loading_wallet": "جار تحميل محفظة ${wallet_name}",

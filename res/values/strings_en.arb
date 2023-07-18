@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Recipient addresses",
   "wallet_list_title": "Monero Wallet",
   "wallet_list_create_new_wallet": "Create New Wallet",
+  "wallet_list_edit_wallet" : "Edit wallet",
+  "wallet_list_wallet_name" : "Wallet name",
   "wallet_list_restore_wallet": "Restore Wallet",
   "wallet_list_load_wallet": "Load wallet",
   "wallet_list_loading_wallet": "Loading ${wallet_name} wallet",

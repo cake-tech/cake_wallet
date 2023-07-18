@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "Indirizzi dei destinatari",
   "wallet_list_title": "Portafoglio Monero",
   "wallet_list_create_new_wallet": "Crea Nuovo Portafoglio",
+  "wallet_list_edit_wallet" : "Modifica portafoglio",
+  "wallet_list_wallet_name" : "Nome del portafoglio",
   "wallet_list_restore_wallet": "Recupera Portafoglio",
   "wallet_list_load_wallet": "Caricamento Portafoglio",
   "wallet_list_loading_wallet": "Caricamento portafoglio ${wallet_name}",

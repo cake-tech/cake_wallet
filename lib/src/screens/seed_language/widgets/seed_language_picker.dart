@@ -4,16 +4,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 List<Image> flagImages = [
-  Image.asset('assets/images/usa.png'),
-  Image.asset('assets/images/china.png'),
-  Image.asset('assets/images/holland.png'),
-  Image.asset('assets/images/germany.png'),
-  Image.asset('assets/images/japan.png'),
-  Image.asset('assets/images/portugal.png'),
-  Image.asset('assets/images/russia.png'),
-  Image.asset('assets/images/spain.png'),
-  Image.asset('assets/images/france.png'),
-  Image.asset('assets/images/italy.png'),
+  Image.asset('assets/images/flags/usa.png'),
+  Image.asset('assets/images/flags/chn.png'),
+  Image.asset('assets/images/flags/nld.png'),
+  Image.asset('assets/images/flags/deu.png'),
+  Image.asset('assets/images/flags/jpn.png'),
+  Image.asset('assets/images/flags/prt.png'),
+  Image.asset('assets/images/flags/rus.png'),
+  Image.asset('assets/images/flags/esp.png'),
+  Image.asset('assets/images/flags/fra.png'),
+  Image.asset('assets/images/flags/ita.png'),
 ];
 
 const List<String> languageCodes = [

@@ -1,21 +1,23 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 
 class NodeListRow extends StandardListRow {
   NodeListRow(
       {required String title,
+      required this.node,
       required void Function(BuildContext context) onTap,
-      required bool isSelected,
-      required this.isAlive})
+      required bool isSelected})
       : super(title: title, onTap: onTap, isSelected: isSelected);
 
-  final Future<bool> isAlive;
+  final Node node;
 
   @override
-  Widget buildTrailing(BuildContext context) {
+  Widget buildLeading(BuildContext context) {
     return FutureBuilder(
-        future: isAlive,
+        future: node.requestNode(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -24,6 +26,24 @@ class NodeListRow extends StandardListRow {
               return NodeIndicator(isLive: false);
           }
         });
+  }
+
+  @override
+  Widget buildTrailing(BuildContext context) {
+    return GestureDetector(
+        onTap: () => Navigator.of(context).pushNamed(Routes.newNode,
+            arguments: {'editingNode': node, 'isSelected': isSelected}),
+        child: Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context)
+                    .textTheme
+                    .headlineMedium!
+                    .decorationColor!),
+            child: Icon(Icons.edit,
+                size: 14,
+                color: Theme.of(context).textTheme.headlineMedium!.color!)));
   }
 }
 

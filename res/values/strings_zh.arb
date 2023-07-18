@@ -250,6 +250,8 @@
   "transaction_details_recipient_address": "收件人地址",
   "wallet_list_title": "Monero 钱包",
   "wallet_list_create_new_wallet": "创建新钱包",
+  "wallet_list_edit_wallet" : "编辑钱包",
+  "wallet_list_wallet_name" : "钱包名称",
   "wallet_list_restore_wallet": "恢复钱包",
   "wallet_list_load_wallet": "加载钱包",
   "wallet_list_loading_wallet": "载入中 ${wallet_name} 钱包",

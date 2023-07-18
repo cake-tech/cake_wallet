@@ -231,7 +231,7 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          return StandardListSeparator(padding: EdgeInsets.only(left: 24));
+          return StandardListSeparator(padding: dividerPadding);
         },
         itemCount: totalRows.length,
         itemBuilder: (_, index) => totalRows[index]);
