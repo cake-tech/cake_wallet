@@ -1,7 +1,7 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 
-enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed, twitter }
+enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed, twitter, contact }
 
 class ParsedAddress {
   ParsedAddress({
@@ -62,6 +62,14 @@ class ParsedAddress {
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.twitter,
+    );
+  }
+
+  factory ParsedAddress.fetchContactAddress({required String address, required String name}){
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.contact,
     );
   }
 
