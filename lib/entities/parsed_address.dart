@@ -40,13 +40,17 @@ class ParsedAddress {
       );
   }
 
-  factory ParsedAddress.fetchOpenAliasAddress({required OpenaliasRecord record, required String name}){
-      return ParsedAddress(
-        addresses: [record.address],
-        name: record.name,
-        description: record.description,
-        parseFrom: ParseFrom.openAlias,
-      );
+  factory ParsedAddress.fetchOpenAliasAddress(
+      {required OpenaliasRecord record, required String name}) {
+    if (record.address.isEmpty) {
+      return ParsedAddress(addresses: [name]);
+    }
+    return ParsedAddress(
+      addresses: [record.address],
+      name: record.name,
+      description: record.description,
+      parseFrom: ParseFrom.openAlias,
+    );
   }
 
   factory ParsedAddress.fetchFioAddress({required String address, required String name}){
