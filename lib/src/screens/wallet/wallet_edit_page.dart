@@ -125,7 +125,10 @@ class WalletEditPage extends BasePage {
       }
 
       _onSuccessfulAuth(context);
-    });
+      },
+      conditionToDetermineIfToUse2FA:
+          walletEditViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+    );
   }
 
   void _onSuccessfulAuth(BuildContext context) async {

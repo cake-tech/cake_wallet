@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
@@ -18,8 +19,11 @@ class WalletEditRenamePending extends WalletEditViewModelState {}
 class WalletEditDeletePending extends WalletEditViewModelState {}
 
 abstract class WalletEditViewModelBase with Store {
-  WalletEditViewModelBase(this._walletListViewModel, this._walletLoadingService)
-      : state = WalletEditViewModelInitialState(),
+  WalletEditViewModelBase(
+    this._walletListViewModel,
+    this._walletLoadingService,
+    this._appStore,
+  )   : state = WalletEditViewModelInitialState(),
         newName = '';
 
   @observable
@@ -28,8 +32,13 @@ abstract class WalletEditViewModelBase with Store {
   @observable
   String newName;
 
+  final AppStore _appStore;
   final WalletListViewModel _walletListViewModel;
   final WalletLoadingService _walletLoadingService;
+
+  @computed
+  bool get shouldRequireTOTP2FAForCreatingNewWallets =>
+      _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
 
   @action
   Future<void> changeName(WalletListItem walletItem) async {

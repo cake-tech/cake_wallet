@@ -599,7 +599,11 @@ Future setup({
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
       (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
-          walletListViewModel, getIt.get<WalletLoadingService>()));
+      walletListViewModel,
+      getIt.get<WalletLoadingService>(),
+      getIt.get<AppStore>(),
+    ),
+  );
 
   getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
     final walletListViewModel = args.first as WalletListViewModel;

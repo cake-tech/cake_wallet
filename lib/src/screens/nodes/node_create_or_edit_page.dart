@@ -15,7 +15,11 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 
 class NodeCreateOrEditPage extends BasePage {
-  NodeCreateOrEditPage({required this.nodeCreateOrEditViewModel,this.editingNode, this.isSelected})
+  NodeCreateOrEditPage({
+    required this.nodeCreateOrEditViewModel,
+    this.editingNode,
+    this.isSelected,
+  })
       : _formKey = GlobalKey<FormState>(),
         _addressController = TextEditingController(),
         _portController = TextEditingController(),
@@ -64,7 +68,21 @@ class NodeCreateOrEditPage extends BasePage {
   final TextEditingController _passwordController;
 
   @override
-  String get title => editingNode != null ? S.current.edit_node : S.current.node_new;
+  String get title =>
+      editingNode != null ? S.current.edit_node : S.current.node_new;
+
+  @override
+  Widget trailing(BuildContext context) => IconButton(
+        onPressed: () async {
+          await nodeCreateOrEditViewModel.scanQRCodeForNewNode();
+        },
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        icon: Image.asset(
+          'assets/images/qr_code_icon.png',
+        ),
+      );
 
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
@@ -72,38 +90,44 @@ class NodeCreateOrEditPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
     reaction((_) => nodeCreateOrEditViewModel.connectionState,
-            (ExecutionState state) {
-          if (state is ExecutedSuccessfullyState) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              showPopUp<void>(
-                  context: context,
-                  builder: (BuildContext context) =>
-                      AlertWithOneAction(
-                          alertTitle: S.of(context).new_node_testing,
-                          alertContent: state.payload as bool
-                              ? S.of(context).node_connection_successful
-                              : S.of(context).node_connection_failed,
-                          buttonText: S.of(context).ok,
-                          buttonAction: () => Navigator.of(context).pop()));
-            });
-          }
+        (ExecutionState state) {
+      if (state is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) => AlertWithOneAction(
+                alertTitle: S.of(context).new_node_testing,
+                alertContent: state.payload as bool
+                    ? S.of(context).node_connection_successful
+                    : S.of(context).node_connection_failed,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop(),
+              ),
+            );
+          },
+        );
+      }
 
-          if (state is FailureState) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              showPopUp<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertWithOneAction(
-                        alertTitle: S.of(context).error,
-                        alertContent: state.error,
-                        buttonText: S.of(context).ok,
-                        buttonAction: () => Navigator.of(context).pop());
-                  });
-            });
-          }
-        });
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              },
+            );
+          },
+        );
+      }
+    });
 
     return Container(
         padding: EdgeInsets.only(left: 24, right: 24),
@@ -116,7 +140,8 @@ class NodeCreateOrEditPage extends BasePage {
           ),
           bottomSectionPadding: EdgeInsets.only(bottom: 24),
           bottomSection: Observer(
-              builder: (_) => Row(
+          builder: (_) {
+            return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Flexible(
@@ -140,10 +165,15 @@ class NodeCreateOrEditPage extends BasePage {
                                             actionRightButton: () =>
                                                 Navigator.pop(context, true),
                                             actionLeftButton: () =>
-                                                Navigator.pop(context, false));
-                                      }) ??
+                                                Navigator.pop(
+                                    context,
+                                    false,
+                                  ),
+                                );
+                              },
+                            ) ??
                                   false;
-
+              
                               if (confirmed) {
                                 await editingNode!.delete();
                                 Navigator.of(context).pop();
@@ -153,34 +183,40 @@ class NodeCreateOrEditPage extends BasePage {
                             isDisabled: !nodeCreateOrEditViewModel.isReady ||
                                 (isSelected ?? false),
                             color: Palette.red,
-                            textColor: Colors.white),
-                      )),
+                      textColor: Colors.white,
+                    ),
+                  ),
+                ),
                       Flexible(
                           child: Container(
                         padding: EdgeInsets.only(left: 8.0),
                         child: PrimaryButton(
                           onPressed: () async {
-                            if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                              return;
-                            }
-
-                            await nodeCreateOrEditViewModel.save(
-                                editingNode: editingNode, saveAsCurrent: isSelected ?? false);
-                            Navigator.of(context).pop();
-                          },
+                        if (_formKey.currentState != null &&
+                            !_formKey.currentState!.validate()) {
+                          return;
+                        }
+                        await nodeCreateOrEditViewModel.save(
+                          editingNode: editingNode,
+                          saveAsCurrent: isSelected ?? false,
+                        );
+                        Navigator.of(context).pop();
+                      },
                           text: S.of(context).save,
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                      color:
+                          Theme.of(context).accentTextTheme.bodyLarge!.color!,
                           textColor: Colors.white,
-                          isDisabled: (!nodeCreateOrEditViewModel.isReady)||
-                              (nodeCreateOrEditViewModel
-                              .connectionState is IsExecutingState),
-                        ),
-                      )),
-                    ],
-                  )),
-        ));
+                      isDisabled: (!nodeCreateOrEditViewModel.isReady) ||
+                          (nodeCreateOrEditViewModel.connectionState
+                              is IsExecutingState),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 }
