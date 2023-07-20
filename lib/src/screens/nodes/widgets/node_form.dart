@@ -40,6 +40,17 @@ class NodeForm extends StatelessWidget {
         }
       });
     }
+    reaction((_) => nodeViewModel.address, (String address) {
+      if (address != _addressController.text) {
+        _addressController.text = address;
+      }
+    });
+
+    reaction((_) => nodeViewModel.port, (String port) {
+      if (port != _portController.text) {
+        _portController.text = port;
+      }
+    });
 
     _addressController.addListener(() => nodeViewModel.address = _addressController.text);
     _portController.addListener(() => nodeViewModel.port = _portController.text);
