@@ -86,6 +86,8 @@ class TransactionListItem extends ActionListItem with Keyable {
           price: price);
         break;
       case WalletType.ethereum:
+        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
             price: price);

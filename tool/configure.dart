@@ -533,6 +533,8 @@ abstract class Ethereum {
   Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
   Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+  
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
 }
   """;
 

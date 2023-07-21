@@ -106,4 +106,16 @@ class CWEthereum extends Ethereum {
     final ethereumWallet = wallet as EthereumWallet;
     return await ethereumWallet.getErc20Token(contractAddress);
   }
+
+  @override
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
+    transaction as EthereumTransactionInfo;
+    if (transaction.tokenSymbol == CryptoCurrency.eth.title) {
+      return CryptoCurrency.eth;
+    }
+
+    wallet as EthereumWallet;
+    return wallet.erc20Currencies
+        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+  }
 }

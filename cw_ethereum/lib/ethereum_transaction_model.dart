@@ -11,6 +11,7 @@ class EthereumTransactionModel {
   final int blockNumber;
   final String? tokenSymbol;
   final int? tokenDecimal;
+  final bool isError;
 
   EthereumTransactionModel({
     required this.date,
@@ -25,6 +26,7 @@ class EthereumTransactionModel {
     required this.blockNumber,
     required this.tokenSymbol,
     required this.tokenDecimal,
+    required this.isError,
   });
 
   factory EthereumTransactionModel.fromJson(Map<String, dynamic> json) => EthereumTransactionModel(
@@ -40,5 +42,6 @@ class EthereumTransactionModel {
         blockNumber: int.parse(json["blockNumber"]),
         tokenSymbol: json["tokenSymbol"] ?? "ETH",
         tokenDecimal: int.tryParse(json["tokenDecimal"] ?? ""),
+        isError: json["isError"] == "1",
       );
 }

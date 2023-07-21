@@ -210,6 +210,10 @@ abstract class EthereumWalletBase
     final Map<String, EthereumTransactionInfo> result = {};
 
     for (var transactionModel in transactions) {
+      if (transactionModel.isError) {
+        continue;
+      }
+
       result[transactionModel.hash] = EthereumTransactionInfo(
         id: transactionModel.hash,
         height: transactionModel.blockNumber,
