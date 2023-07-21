@@ -16,12 +16,13 @@ import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/.secrets.g.dart' as secrets;
 
 class EthereumClient {
+  final _httpClient = Client();
   Web3Client? _client;
   StreamSubscription<Transfer>? subscription;
 
   bool connect(Node node) {
     try {
-      _client = Web3Client(node.uri.toString(), Client());
+      _client = Web3Client(node.uri.toString(), _httpClient);
 
       return true;
     } catch (e) {
@@ -242,25 +243,28 @@ I/flutter ( 4474): Gas Used: 53000
 
   Future<List<EthereumTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
-    final client = Client();
+    try {
+      final response = await _httpClient.get(Uri.https("api.etherscan.io", "/api", {
+        "module": "account",
+        "action": contractAddress != null ? "tokentx" : "txlist",
+        if (contractAddress != null) "contractaddress": contractAddress,
+        "address": address,
+        "apikey": secrets.etherScanApiKey,
+      }));
 
-    final response = await client.get(Uri.https("api.etherscan.io", "/api", {
-      "module": "account",
-      "action": contractAddress != null ? "tokentx" : "txlist",
-      if (contractAddress != null) "contractaddress": contractAddress,
-      "address": address,
-      "apikey": secrets.etherScanApiKey,
-    }));
+      final _jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
-    final _jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+      if (response.statusCode >= 200 && response.statusCode < 300 && _jsonResponse['status'] != 0) {
+        return (_jsonResponse['result'] as List)
+            .map((e) => EthereumTransactionModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
 
-    if (response.statusCode >= 200 && response.statusCode < 300 && _jsonResponse['status'] != 0) {
-      return (_jsonResponse['result'] as List)
-          .map((e) => EthereumTransactionModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return [];
+    } catch (e) {
+      print(e);
+      return [];
     }
-
-    return [];
   }
 
 // Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {

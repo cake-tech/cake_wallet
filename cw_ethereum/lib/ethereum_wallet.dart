@@ -19,6 +19,7 @@ import 'package:cw_ethereum/ethereum_exceptions.dart';
 import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
 import 'package:cw_ethereum/ethereum_transaction_info.dart';
+import 'package:cw_ethereum/ethereum_transaction_model.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
@@ -200,14 +201,19 @@ abstract class EthereumWalletBase
     final address = _privateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
 
+    final List<Future<List<EthereumTransactionModel>>> erc20TokensTransactions = [];
+
     for (var token in balance.keys) {
       if (token is Erc20Token) {
-        transactions.addAll(await _client.fetchTransactions(
+        erc20TokensTransactions.add(_client.fetchTransactions(
           address,
           contractAddress: token.contractAddress,
         ));
       }
     }
+
+    final tokensTransaction = await Future.wait(erc20TokensTransactions);
+    transactions.addAll(tokensTransaction.expand((element) => element));
 
     final Map<String, EthereumTransactionInfo> result = {};
 
