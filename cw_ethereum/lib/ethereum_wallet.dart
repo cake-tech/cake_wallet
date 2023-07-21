@@ -175,6 +175,9 @@ abstract class EthereumWalletBase
       gas: _priorityFees[_credentials.priority!.raw],
       priority: _credentials.priority!,
       currency: _credentials.currency,
+      contractAddress: _credentials.currency is Erc20Token
+          ? (_credentials.currency as Erc20Token).contractAddress
+          : null,
     );
 
     return pendingEthereumTransaction;
