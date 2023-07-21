@@ -95,7 +95,7 @@ String walletTypeToDisplayName(WalletType type) {
     case WalletType.haven:
       return 'Haven (XHV)';
     case WalletType.ethereum:
-      return 'Ethereum';
+      return 'Ethereum (ETH)';
     default:
       return '';
   }

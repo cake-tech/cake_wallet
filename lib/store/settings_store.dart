@@ -415,7 +415,7 @@ abstract class SettingsStoreBase with Store {
     final sortBalanceBy =
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
-        sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? false;
+        sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -568,7 +568,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
     sortBalanceBy = SortBalanceBy
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
-    pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? false;
+    pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

@@ -786,8 +786,8 @@ Future setup({
           transactionDetailsViewModel:
               getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
-  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), void>(
-      (param1, _) => NewWalletTypePage(onTypeSelected: param1));
+  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
+      (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
   getIt.registerFactoryParam<PreSeedPage, WalletType, void>(
       (WalletType type, _) => PreSeedPage(type));

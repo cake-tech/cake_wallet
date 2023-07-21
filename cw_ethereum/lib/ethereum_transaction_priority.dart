@@ -8,7 +8,7 @@ class EthereumTransactionPriority extends TransactionPriority {
 
   static const List<EthereumTransactionPriority> all = [fast, medium, slow];
   static const EthereumTransactionPriority slow =
-      EthereumTransactionPriority(title: 'Slow', raw: 0, tip: 50);
+      EthereumTransactionPriority(title: 'slow', raw: 0, tip: 50);
   static const EthereumTransactionPriority medium =
       EthereumTransactionPriority(title: 'Medium', raw: 1, tip: 75);
   static const EthereumTransactionPriority fast =

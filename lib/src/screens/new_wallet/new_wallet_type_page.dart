@@ -11,14 +11,17 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class NewWalletTypePage extends BasePage {
-  NewWalletTypePage({required this.onTypeSelected});
+  NewWalletTypePage({required this.onTypeSelected, required this.isCreate});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
+  final bool isCreate;
+
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
   final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
 
   @override
-  String get title => S.current.wallet_list_restore_wallet;
+  String get title =>
+      isCreate ? S.current.wallet_list_create_new_wallet : S.current.wallet_list_restore_wallet;
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(

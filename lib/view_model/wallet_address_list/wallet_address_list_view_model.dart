@@ -95,9 +95,7 @@ class LitecoinURI extends PaymentURI {
 }
 
 class EthereumURI extends PaymentURI {
-  EthereumURI({
-    required String amount,
-    required String address})
+  EthereumURI({required String amount, required String address})
       : super(amount: amount, address: address);
 
   @override
@@ -254,6 +252,10 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
+
+  @computed
+  bool get showElectrumAddressDisclaimer =>
+      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
