@@ -7,12 +7,13 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_ethereum/default_erc20_tokens.dart';
-import 'package:cw_ethereum/ethereum_balance.dart';
+import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_exceptions.dart';
 import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
@@ -45,6 +46,7 @@ abstract class EthereumWalletBase
         _password = password,
         _mnemonic = mnemonic,
         _priorityFees = [],
+        _isTransactionUpdating = false,
         _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, ERC20Balance>.of(
@@ -68,6 +70,7 @@ abstract class EthereumWalletBase
 
   List<int> _priorityFees;
   int? _gasPrice;
+  bool _isTransactionUpdating;
 
   @override
   WalletAddresses walletAddresses;
@@ -174,9 +177,56 @@ abstract class EthereumWalletBase
     return pendingEthereumTransaction;
   }
 
+  Future<void> updateTransactions() async {
+    try {
+      if (_isTransactionUpdating) {
+        return;
+      }
+
+      _isTransactionUpdating = true;
+      final transactions = await fetchTransactions();
+      transactionHistory.addMany(transactions);
+      await transactionHistory.save();
+      _isTransactionUpdating = false;
+    } catch (_) {
+      _isTransactionUpdating = false;
+    }
+  }
+
   @override
-  Future<Map<String, EthereumTransactionInfo>> fetchTransactions() {
-    throw UnimplementedError("fetchTransactions");
+  Future<Map<String, EthereumTransactionInfo>> fetchTransactions() async {
+    final address = _privateKey.address.hex;
+    final transactions = await _client.fetchTransactions(address);
+
+    for (var token in balance.keys) {
+      if (token is Erc20Token) {
+        transactions.addAll(await _client.fetchTransactions(
+          address,
+          contractAddress: token.contractAddress,
+        ));
+      }
+    }
+
+    final Map<String, EthereumTransactionInfo> result = {};
+
+    for (var transactionModel in transactions) {
+      result[transactionModel.hash] = EthereumTransactionInfo(
+        id: transactionModel.hash,
+        height: transactionModel.blockNumber,
+        amount: transactionModel.amount.toInt(),
+        direction: transactionModel.from == address
+            ? TransactionDirection.outgoing
+            : TransactionDirection.incoming,
+        isPending: false,
+        date: transactionModel.date,
+        confirmations: transactionModel.confirmations,
+        fee: transactionModel.gasUsed * transactionModel.gasPrice.toInt(),
+        exponent: transactionModel.tokenDecimal ?? 18,
+        tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
+      );
+    }
+
+    return result;
   }
 
   @override
@@ -204,6 +254,7 @@ abstract class EthereumWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
+      await updateTransactions();
       _gasPrice = await _client.getGasUnitPrice();
       _priorityFees = await _client.getEstimatedGasForPriorities();
 
@@ -354,8 +405,7 @@ abstract class EthereumWalletBase
     final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
     final currentWalletFile = File(currentWalletPath);
 
-    final currentDirPath =
-    await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
     // TODO: un-hash when transactions flow is implemented
     // final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
 

@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_ethereum/ethereum_balance.dart';
+import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_ethereum/ethereum_transaction_model.dart';
 import 'package:cw_ethereum/pending_ethereum_transaction.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
@@ -11,6 +13,7 @@ import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/contracts/erc20.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
+import 'package:cw_ethereum/.secrets.g.dart' as secrets;
 
 class EthereumClient {
   Web3Client? _client;
@@ -53,7 +56,6 @@ class EthereumClient {
     // final eventFilter = FilterOptions(address: userAddress);
     //
     // _client!.events(eventFilter).listen((event) {
-    //     print("!!!!!!!!!!!!!!!!!!");
     //     print('Address ${event.address} data ${event.data} tx hash ${event.transactionHash}!');
     //     onNewTransaction(event);
     // });
@@ -61,7 +63,6 @@ class EthereumClient {
     // final erc20 = Erc20(client: _client!, address: userAddress);
     //
     // subscription = erc20.transferEvents().take(1).listen((event) {
-    //   print("!!!!!!!!!!!!!!!!!!");
     //   print('${event.from} sent ${event.value} MetaCoins to ${event.to}!');
     //   onNewTransaction(event);
     // });
@@ -155,7 +156,6 @@ class EthereumClient {
     // Wait for the transaction receipt to become available
     TransactionReceipt? receipt;
     while (receipt == null) {
-      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       receipt = await _client!.getTransactionReceipt(transactionHash);
       await Future.delayed(Duration(seconds: 1));
     }
@@ -238,6 +238,29 @@ I/flutter ( 4474): Gas Used: 53000
   void stop() {
     subscription?.cancel();
     _client?.dispose();
+  }
+
+  Future<List<EthereumTransactionModel>> fetchTransactions(String address,
+      {String? contractAddress}) async {
+    final client = Client();
+
+    final response = await client.get(Uri.https("api.etherscan.io", "/api", {
+      "module": "account",
+      "action": contractAddress != null ? "tokentx" : "txlist",
+      if (contractAddress != null) "contractaddress": contractAddress,
+      "address": address,
+      "apikey": secrets.etherScanApiKey,
+    }));
+
+    final _jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+
+    if (response.statusCode >= 200 && response.statusCode < 300 && _jsonResponse['status'] != 0) {
+      return (_jsonResponse['result'] as List)
+          .map((e) => EthereumTransactionModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    return [];
   }
 
 // Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {

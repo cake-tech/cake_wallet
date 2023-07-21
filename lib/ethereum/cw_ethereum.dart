@@ -81,6 +81,13 @@ class CWEthereum extends Ethereum {
   int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
 
   @override
+  double formatterEthereumAmountToDouble({required TransactionInfo transaction}) {
+    transaction as EthereumTransactionInfo;
+    return cryptoAmountToDouble(
+        amount: transaction.amount, divider: BigInt.from(10).pow(transaction.exponent).toInt());
+  }
+
+  @override
   List<Erc20Token> getERC20Currencies(WalletBase wallet) {
     final ethereumWallet = wallet as EthereumWallet;
     return ethereumWallet.erc20Currencies;
