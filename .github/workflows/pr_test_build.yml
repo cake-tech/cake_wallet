@@ -123,6 +123,13 @@ jobs:
       - name: Rename app
         run: echo -e "id=com.cakewallet.test\nname=$GITHUB_HEAD_REF" > /opt/android/cake_wallet/android/app.properties
 
+      - name: Free Up GitHub Actions Ubuntu Runner Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Build
         run: |
           cd /opt/android/cake_wallet
