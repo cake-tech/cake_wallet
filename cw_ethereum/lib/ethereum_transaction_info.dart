@@ -43,26 +43,29 @@ class EthereumTransactionInfo extends TransactionInfo {
 
   factory EthereumTransactionInfo.fromJson(Map<String, dynamic> data) {
     return EthereumTransactionInfo(
-        id: data['id'] as String,
-        height: data['height'] as int,
-        amount: data['amount'] as int,
-        fee: data['fee'] as int,
-        direction: parseTransactionDirectionFromInt(data['direction'] as int),
-        date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-        isPending: data['isPending'] as bool,
-        confirmations: data['confirmations'] as int);
+      id: data['id'] as String,
+      height: data['height'] as int,
+      amount: data['amount'] as int,
+      exponent: data['exponent'] as int,
+      fee: data['fee'] as int,
+      direction: parseTransactionDirectionFromInt(data['direction'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      isPending: data['isPending'] as bool,
+      confirmations: data['confirmations'] as int,
+      tokenSymbol: data['tokenSymbol'] as String,
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final m = <String, dynamic>{};
-    m['id'] = id;
-    m['height'] = height;
-    m['amount'] = amount;
-    m['direction'] = direction.index;
-    m['date'] = date.millisecondsSinceEpoch;
-    m['isPending'] = isPending;
-    m['confirmations'] = confirmations;
-    m['fee'] = fee;
-    return m;
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'height': height,
+        'amount': amount,
+        'exponent': exponent,
+        'fee': fee,
+        'direction': direction.index,
+        'date': date.millisecondsSinceEpoch,
+        'isPending': isPending,
+        'confirmations': confirmations,
+        'tokenSymbol': tokenSymbol,
+      };
 }

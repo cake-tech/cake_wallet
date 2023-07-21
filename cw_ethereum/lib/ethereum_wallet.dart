@@ -53,6 +53,7 @@ abstract class EthereumWalletBase
             {CryptoCurrency.eth: initialBalance ?? ERC20Balance(BigInt.zero)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
+    transactionHistory = EthereumTransactionHistory(walletInfo: walletInfo, password: password);
 
     if (!Hive.isAdapterRegistered(Erc20Token.typeId)) {
       Hive.registerAdapter(Erc20TokenAdapter());
@@ -86,9 +87,10 @@ abstract class EthereumWalletBase
   Future<void> init() async {
     erc20TokensBox = await Hive.openBox<Erc20Token>(Erc20Token.boxName);
     await walletAddresses.init();
+    await transactionHistory.init();
     _privateKey = await getPrivateKey(_mnemonic, _password);
-    transactionHistory = EthereumTransactionHistory();
     walletAddresses.address = _privateKey.address.toString();
+    await save();
   }
 
   @override
@@ -410,19 +412,17 @@ abstract class EthereumWalletBase
     final currentWalletFile = File(currentWalletPath);
 
     final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    // TODO: un-hash when transactions flow is implemented
-    // final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
       final newWalletPath = await pathForWallet(name: newWalletName, type: type);
       await currentWalletFile.copy(newWalletPath);
     }
-    // TODO: un-hash when transactions flow is implemented
-    // if (currentTransactionsFile.existsSync()) {
-    //   final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-    //   await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    // }
+    if (currentTransactionsFile.existsSync()) {
+      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
+    }
 
     // Delete old name's dir and files
     await Directory(currentDirPath).delete(recursive: true);
