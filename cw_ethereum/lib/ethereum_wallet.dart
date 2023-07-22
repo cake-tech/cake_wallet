@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -16,6 +17,7 @@ import 'package:cw_ethereum/default_erc20_tokens.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_exceptions.dart';
+import 'package:cw_ethereum/ethereum_formatter.dart';
 import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
 import 'package:cw_ethereum/ethereum_transaction_info.dart';
@@ -144,26 +146,30 @@ abstract class EthereumWalletBase
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
     final _erc20Balance = balance[_credentials.currency]!;
-    int totalAmount = 0;
+    BigInt totalAmount = BigInt.zero;
+    BigInt amountToEthereumMultiplier = BigInt.from(pow(10, 18 - ethereumAmountLength));
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw EthereumTransactionCreationException();
       }
 
-      totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      totalAmount =
+          BigInt.from(outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0))) *
+              amountToEthereumMultiplier;
 
-      if (_erc20Balance.balance < EtherAmount.inWei(totalAmount as BigInt).getInWei) {
+      if (_erc20Balance.balance < totalAmount) {
         throw EthereumTransactionCreationException();
       }
     } else {
       final output = outputs.first;
-      final int allAmount = _erc20Balance.balance.toInt() - feeRate(_credentials.priority!);
-      totalAmount = output.sendAll ? allAmount : output.formattedCryptoAmount ?? 0;
+      final BigInt allAmount = _erc20Balance.balance - BigInt.from(feeRate(_credentials.priority!));
+      totalAmount = output.sendAll
+          ? allAmount
+          : BigInt.from(output.formattedCryptoAmount ?? 0) * amountToEthereumMultiplier;
 
-      if ((output.sendAll &&
-              _erc20Balance.balance < EtherAmount.inWei(totalAmount as BigInt).getInWei) ||
-          (!output.sendAll && _erc20Balance.balance.toInt() <= 0)) {
+      if ((output.sendAll && _erc20Balance.balance < totalAmount) ||
+          (!output.sendAll && _erc20Balance.balance <= BigInt.zero)) {
         throw EthereumTransactionCreationException();
       }
     }
@@ -228,14 +234,14 @@ abstract class EthereumWalletBase
       result[transactionModel.hash] = EthereumTransactionInfo(
         id: transactionModel.hash,
         height: transactionModel.blockNumber,
-        amount: transactionModel.amount.toInt(),
+        ethAmount: transactionModel.amount,
         direction: transactionModel.from == address
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         isPending: false,
         date: transactionModel.date,
         confirmations: transactionModel.confirmations,
-        fee: transactionModel.gasUsed * transactionModel.gasPrice.toInt(),
+        ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
         exponent: transactionModel.tokenDecimal ?? 18,
         tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
       );

@@ -6,31 +6,34 @@ class EthereumTransactionInfo extends TransactionInfo {
   EthereumTransactionInfo({
     required this.id,
     required this.height,
-    required this.amount,
-    required this.fee,
+    required this.ethAmount,
+    required this.ethFee,
     this.tokenSymbol = "ETH",
     this.exponent = 18,
     required this.direction,
     required this.isPending,
     required this.date,
     required this.confirmations,
-  });
+  })  : this.amount = ethAmount.toInt(),
+        this.fee = ethFee.toInt();
 
   final String id;
   final int height;
   final int amount;
+  final BigInt ethAmount;
   final int exponent;
   final TransactionDirection direction;
   final DateTime date;
   final bool isPending;
   final int fee;
+  final BigInt ethFee;
   final int confirmations;
   final String tokenSymbol;
   String? _fiatAmount;
 
   @override
   String amountFormatted() =>
-      '${formatAmount((BigInt.from(amount) / BigInt.from(10).pow(exponent)).toString())} $tokenSymbol';
+      '${formatAmount((ethAmount / BigInt.from(10).pow(exponent)).toString())} $tokenSymbol';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -39,15 +42,15 @@ class EthereumTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '${(BigInt.from(fee) / BigInt.from(10).pow(18)).toString()} ETH';
+  String feeFormatted() => '${(ethFee / BigInt.from(10).pow(18)).toString()} ETH';
 
   factory EthereumTransactionInfo.fromJson(Map<String, dynamic> data) {
     return EthereumTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
-      amount: data['amount'] as int,
+      ethAmount: data['amount'] as BigInt,
       exponent: data['exponent'] as int,
-      fee: data['fee'] as int,
+      ethFee: data['fee'] as BigInt,
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
@@ -59,9 +62,9 @@ class EthereumTransactionInfo extends TransactionInfo {
   Map<String, dynamic> toJson() => {
         'id': id,
         'height': height,
-        'amount': amount,
+        'amount': ethAmount,
         'exponent': exponent,
-        'fee': fee,
+        'fee': ethFee,
         'direction': direction.index,
         'date': date.millisecondsSinceEpoch,
         'isPending': isPending,
