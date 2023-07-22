@@ -147,30 +147,33 @@ abstract class EthereumWalletBase
     final hasMultiDestination = outputs.length > 1;
     final _erc20Balance = balance[_credentials.currency]!;
     BigInt totalAmount = BigInt.zero;
-    BigInt amountToEthereumMultiplier = BigInt.from(pow(10, 18 - ethereumAmountLength));
+    int exponent =
+        _credentials.currency is Erc20Token ? (_credentials.currency as Erc20Token).decimal : 18;
+    BigInt amountToEthereumMultiplier = BigInt.from(pow(10, exponent));
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw EthereumTransactionCreationException();
+        throw EthereumTransactionCreationException(_credentials.currency);
       }
 
-      totalAmount =
-          BigInt.from(outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0))) *
-              amountToEthereumMultiplier;
+      final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
+          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
+      totalAmount = BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
 
       if (_erc20Balance.balance < totalAmount) {
-        throw EthereumTransactionCreationException();
+        throw EthereumTransactionCreationException(_credentials.currency);
       }
     } else {
       final output = outputs.first;
       final BigInt allAmount = _erc20Balance.balance - BigInt.from(feeRate(_credentials.priority!));
+      final totalOriginalAmount =
+          EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
       totalAmount = output.sendAll
           ? allAmount
-          : BigInt.from(output.formattedCryptoAmount ?? 0) * amountToEthereumMultiplier;
+          : BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
 
-      if ((output.sendAll && _erc20Balance.balance < totalAmount) ||
-          (!output.sendAll && _erc20Balance.balance <= BigInt.zero)) {
-        throw EthereumTransactionCreationException();
+      if (_erc20Balance.balance < totalAmount) {
+        throw EthereumTransactionCreationException(_credentials.currency);
       }
     }
 
@@ -181,6 +184,7 @@ abstract class EthereumWalletBase
       gas: _priorityFees[_credentials.priority!.raw],
       priority: _credentials.priority!,
       currency: _credentials.currency,
+      exponent: exponent,
       contractAddress: _credentials.currency is Erc20Token
           ? (_credentials.currency as Erc20Token).contractAddress
           : null,

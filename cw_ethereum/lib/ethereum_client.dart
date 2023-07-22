@@ -97,6 +97,7 @@ class EthereumClient {
     required int gas,
     required EthereumTransactionPriority priority,
     required CryptoCurrency currency,
+    required int exponent,
     String? contractAddress,
   }) async {
     assert(currency == CryptoCurrency.eth || contractAddress != null);
@@ -115,7 +116,7 @@ class EthereumClient {
 
     final signedTransaction = await _client!.signTransaction(privateKey, transaction);
 
-    final estimatedGas;
+    final BigInt estimatedGas;
     final Function _sendTransaction;
 
     if (_isEthereum) {
@@ -129,14 +130,10 @@ class EthereumClient {
         address: EthereumAddress.fromHex(contractAddress!),
       );
 
-      final originalAmount = BigInt.parse(amount) / BigInt.from(pow(10, 18));
-      final int exponent = (await erc20.decimals()).toInt();
-      final _amount = BigInt.from(originalAmount * pow(10, exponent));
-
       _sendTransaction = () async {
         await erc20.transfer(
           EthereumAddress.fromHex(toAddress),
-          _amount,
+          BigInt.parse(amount),
           credentials: privateKey,
         );
       };
@@ -147,6 +144,7 @@ class EthereumClient {
       amount: amount,
       fee: estimatedGas * price.getInWei,
       sendTransaction: _sendTransaction,
+      exponent: exponent,
     );
   }
 

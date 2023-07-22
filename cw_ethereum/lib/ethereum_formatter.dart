@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:intl/intl.dart';
 
 const ethereumAmountLength = 12;
@@ -17,10 +15,9 @@ class EthereumFormatter {
     }
   }
 
-  static int parseEthereumBigIntAmount(BigInt amount) {
+  static double parseEthereumAmountToDouble(int amount) {
     try {
-      double result = amount / BigInt.from(pow(10, 18 - ethereumAmountLength));
-      return result.toInt();
+      return amount / ethereumAmountDivider;
     } catch (_) {
       return 0;
     }
