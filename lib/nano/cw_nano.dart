@@ -1,121 +1,105 @@
 part of 'nano.dart';
 
+
+// class CWMoneroAccountList extends MoneroAccountList {
+// 	CWMoneroAccountList(this._wallet);
+// 	final Object _wallet;
+
+// 	@override
+// 	@computed
+//   ObservableList<Account> get accounts {
+//   	final moneroWallet = _wallet as MoneroWallet;
+//   	final accounts = moneroWallet.walletAddresses.accountList
+//   		.accounts
+//   		.map((acc) => Account(id: acc.id, label: acc.label, balance: acc.balance))
+//   		.toList();
+//   	return ObservableList<Account>.of(accounts);
+//   }
+
+//   @override
+//   void update(Object wallet) {
+//   	final moneroWallet = wallet as MoneroWallet;
+//   	moneroWallet.walletAddresses.accountList.update();
+//   }
+
+//   @override
+// 	void refresh(Object wallet) {
+// 		final moneroWallet = wallet as MoneroWallet;
+//   	moneroWallet.walletAddresses.accountList.refresh();
+// 	}
+
+// 	@override
+//   List<Account> getAll(Object wallet) {
+//   	final moneroWallet = wallet as MoneroWallet;
+//   	return moneroWallet.walletAddresses.accountList
+//   		.getAll()
+//   		.map((acc) => Account(id: acc.id, label: acc.label, balance: acc.balance))
+//   		.toList();
+//   }
+
+//   @override
+//   Future<void> addAccount(Object wallet, {required String label}) async {
+//   	final moneroWallet = wallet as MoneroWallet;
+//   	await moneroWallet.walletAddresses.accountList.addAccount(label: label);
+//   }
+
+//   @override
+//   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label}) async {
+//   	final moneroWallet = wallet as MoneroWallet;
+//   	await moneroWallet.walletAddresses.accountList
+//   		.setLabelAccount(
+//   			accountIndex: accountIndex,
+//   			label: label);
+//   }
+// }
+
 class CWNano extends Nano {
-  @override
-  List<String> getNanoWordList(String language) => EthereumMnemonics.englishWordlist;
 
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource) =>
-      EthereumWalletService(walletInfoSource);
+  // @override
+	// NanoAccountList getAccountList(Object wallet) {
+	// 	return CWNanoAccountList(wallet);
+	// }
 
   @override
-  WalletCredentials createEthereumNewWalletCredentials({
+  List<String> getNanoWordList(String language) {
+    throw UnimplementedError();
+  }
+
+  @override
+  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource) {
+    return NanoWalletService(walletInfoSource);
+  }
+
+  // @override
+  // WalletCredentials createNanoNewWalletCredentials({
+  //   required String name,
+  //   WalletInfo? walletInfo,
+  // }) =>
+  //     NanoNewWalletCredentials(name: name, walletInfo: walletInfo);
+
+  @override
+  WalletCredentials createNanoNewWalletCredentials({
     required String name,
-    WalletInfo? walletInfo,
-  }) =>
-      EthereumNewWalletCredentials(name: name, walletInfo: walletInfo);
-
-  @override
-  WalletCredentials createEthereumRestoreWalletFromSeedCredentials({
-    required String name,
-    required String mnemonic,
-    required String password,
-  }) =>
-      EthereumRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
-
-  @override
-  String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
-
-  @override
-  TransactionPriority getDefaultTransactionPriority() => EthereumTransactionPriority.medium;
-
-  @override
-  List<TransactionPriority> getTransactionPriorities() => EthereumTransactionPriority.all;
-
-  @override
-  TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
-      EthereumTransactionPriority.deserialize(raw: raw);
-
-  @override
-  int getEstimatedFee(Object wallet, TransactionPriority priority) {
-    final ethereumWallet = wallet as EthereumWallet;
-    return ethereumWallet.feeRate(priority);
-  }
-
-  Object createEthereumTransactionCredentials(
-    List<Output> outputs, {
-    required TransactionPriority priority,
-    required CryptoCurrency currency,
-    int? feeRate,
-  }) =>
-      EthereumTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
-            .toList(),
-        priority: priority as EthereumTransactionPriority,
-        currency: currency,
-        feeRate: feeRate,
-      );
-
-  Object createEthereumTransactionCredentialsRaw(
-    List<OutputInfo> outputs, {
-    TransactionPriority? priority,
-    required CryptoCurrency currency,
-    required int feeRate,
-  }) =>
-      EthereumTransactionCredentials(
-        outputs,
-        priority: priority as EthereumTransactionPriority?,
-        currency: currency,
-        feeRate: feeRate,
-      );
-
-  @override
-  int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
-
-  @override
-  double formatterEthereumAmountToDouble({required TransactionInfo transaction}) {
-    transaction as EthereumTransactionInfo;
-    return cryptoAmountToDouble(
-        amount: transaction.amount, divider: BigInt.from(10).pow(transaction.exponent).toInt());
+    required String language,
+    String? password,
+  }) {
+    return NanoNewWalletCredentials(name: name, password: password, language: language);
   }
 
   @override
-  List<Erc20Token> getERC20Currencies(WalletBase wallet) {
-    final ethereumWallet = wallet as EthereumWallet;
-    return ethereumWallet.erc20Currencies;
+  TransactionHistoryBase getTransactionHistory(Object wallet) {
+    // final moneroWallet = wallet as MoneroWallet;
+    // return moneroWallet.transactionHistory;
+    throw UnimplementedError();
   }
 
   @override
-  Future<void> addErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).addErc20Token(token);
-
-  @override
-  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).deleteErc20Token(token);
-
-  @override
-  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
-    final ethereumWallet = wallet as EthereumWallet;
-    return await ethereumWallet.getErc20Token(contractAddress);
+  void onStartup() {
+    // monero_wallet_api.onStartup();
   }
 
   @override
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as EthereumTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.eth.title) {
-      return CryptoCurrency.eth;
-    }
-
-    wallet as EthereumWallet;
-    return wallet.erc20Currencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+  List<String> getMoneroWordList(String language) {
+    throw UnimplementedError();
   }
 }

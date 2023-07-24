@@ -3,23 +3,11 @@ import 'dart:io';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_monero/monero_transaction_creation_exception.dart';
-import 'package:cw_monero/monero_transaction_info.dart';
-import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
-import 'package:cw_monero/api/structs/pending_transaction.dart';
+import 'package:cw_nano/nano_balance.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_monero/api/transaction_history.dart'
-    as monero_transaction_history;
-import 'package:cw_monero/api/wallet.dart';
-import 'package:cw_monero/api/wallet.dart' as monero_wallet;
-import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
-import 'package:cw_monero/api/monero_output.dart';
-import 'package:cw_monero/monero_transaction_creation_credentials.dart';
-import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_balance.dart';
-import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -35,33 +23,30 @@ const moneroBlockSize = 1000;
 
 class NanoWallet = NanoWalletBase with _$NanoWallet;
 
-abstract class NanoWalletBase extends WalletBase<MoneroBalance,
-    MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+abstract class NanoWalletBase
+    extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo> with Store {
   NanoWalletBase({required WalletInfo walletInfo})
-      : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
-            CryptoCurrency.xmr: MoneroBalance(
-              fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
-              unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0))
-            }),
+      : balance = ObservableMap<CryptoCurrency, NanoBalance>.of({
+          CryptoCurrency.nano: NanoBalance(
+              currentBalance: nano_wallet.getFullBalance(accountIndex: 0),
+              receivableBalance: nano_wallet.getFullBalance(accountIndex: 0))
+        }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         walletAddresses = NanoWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
-    _onAccountChangeReaction = reaction((_) => walletAddresses.account,
-            (Account? account) {
+    _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
       if (account == null) {
         return;
       }
 
-      balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(
-        <CryptoCurrency, MoneroBalance>{
-          currency: MoneroBalance(
+      balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency, MoneroBalance>{
+        currency: MoneroBalance(
             fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
-            unlockedBalance:
-                monero_wallet.getUnlockedBalance(accountIndex: account.id))
-        });
+            unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: account.id))
+      });
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
   }
@@ -97,12 +82,12 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> init() async {
     await walletAddresses.init();
-    balance =  ObservableMap<CryptoCurrency, MoneroBalance>.of(
-       <CryptoCurrency, MoneroBalance>{
-          currency: MoneroBalance(
-            fullBalance: monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id),
-            unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id))
-          });
+    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency, MoneroBalance>{
+      currency: MoneroBalance(
+          fullBalance: monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id),
+          unlockedBalance:
+              monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id))
+    });
     _setListeners();
     await updateTransactions();
 
@@ -110,8 +95,7 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
       monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
       if (monero_wallet.getCurrentHeight() <= 1) {
-        monero_wallet.setRefreshFromBlockHeight(
-            height: walletInfo.restoreHeight);
+        monero_wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
       }
     }
 
@@ -119,6 +103,7 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
     //    Duration(seconds: _autoSaveInterval),
     //    (_) async => await save());
   }
+
   @override
   Future<void>? updateBalance() => null;
 
@@ -134,9 +119,7 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
     try {
       syncStatus = ConnectingSyncStatus();
       await monero_wallet.setupNode(
-          address: node.uri.toString(),
-          useSSL: node.isSSL,
-          isLightWallet: false);
+          address: node.uri.toString(), useSSL: node.isSSL, isLightWallet: false);
 
       monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
@@ -166,96 +149,14 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final _credentials = credentials as MoneroTransactionCreationCredentials;
-    final outputs = _credentials.outputs;
-    final hasMultiDestination = outputs.length > 1;
-    final unlockedBalance =
-    monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
-
-    PendingTransactionDescription pendingTransactionDescription;
-
-    if (!(syncStatus is SyncedSyncStatus)) {
-      throw MoneroTransactionCreationException('The wallet is not synced.');
-    }
-
-    if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll
-          || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
-      }
-
-      final int totalAmount = outputs.fold(0, (acc, value) =>
-          acc + (value.formattedCryptoAmount ?? 0));
-
-      if (unlockedBalance < totalAmount) {
-        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
-      }
-
-      final moneroOutputs = outputs.map((output) {
-      final outputAddress = output.isParsedAddress
-          ? output.extractedAddress
-          : output.address;
-
-      return MoneroOutput(
-          address: outputAddress!,
-          amount: output.cryptoAmount!.replaceAll(',', '.'));
-      }).toList();
-
-      pendingTransactionDescription =
-      await transaction_history.createTransactionMultDest(
-          outputs: moneroOutputs,
-          priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account!.id);
-    } else {
-      final output = outputs.first;
-      final address = output.isParsedAddress
-          ? output.extractedAddress
-          : output.address;
-      final amount = output.sendAll
-          ? null
-          : output.cryptoAmount!.replaceAll(',', '.');
-      final formattedAmount = output.sendAll
-          ? null
-          : output.formattedCryptoAmount;
-
-      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
-          (formattedAmount == null && unlockedBalance <= 0)) {
-        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
-
-        throw MoneroTransactionCreationException(
-            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
-      }
-
-      pendingTransactionDescription =
-      await transaction_history.createTransaction(
-          address: address!,
-          amount: amount,
-          priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account!.id);
-    }
-
-    return PendingMoneroTransaction(pendingTransactionDescription);
+    // final _credentials = credentials as MoneroTransactionCreationCredentials;
+    // return null;
+    throw UnimplementedError();
   }
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     // FIXME: hardcoded value;
-
-    if (priority is MoneroTransactionPriority) {
-      switch (priority) {
-        case MoneroTransactionPriority.slow:
-          return 24590000;
-        case MoneroTransactionPriority.automatic:
-          return 123050000;
-        case MoneroTransactionPriority.medium:
-          return 245029999;
-        case MoneroTransactionPriority.fast:
-          return 614530000;
-        case MoneroTransactionPriority.fastest:
-          return 26021600000;
-      }
-    }
-
     return 0;
   }
 
@@ -272,10 +173,8 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
 
     try {
       // -- rename the waller folder --
-      final currentWalletDir =
-          Directory(await pathForWalletDir(name: name, type: type));
-      final newWalletDirPath =
-          await pathForWalletDir(name: newWalletName, type: type);
+      final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
+      final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
       await currentWalletDir.rename(newWalletDirPath);
 
       // -- use new waller folder to rename files with old names still --
@@ -285,8 +184,7 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
       final currentKeysFile = File('$renamedWalletPath.keys');
       final currentAddressListFile = File('$renamedWalletPath.address.txt');
 
-      final newWalletPath =
-          await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
 
       if (currentCacheFile.existsSync()) {
         await currentCacheFile.rename(newWalletPath);
@@ -304,8 +202,7 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
       final currentKeysFile = File('$currentWalletPath.keys');
       final currentAddressListFile = File('$currentWalletPath.address.txt');
 
-      final newWalletPath =
-          await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
 
       // Copies current wallet files into new wallet name's dir and files
       if (currentCacheFile.existsSync()) {
@@ -352,16 +249,14 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
   }
 
   String getTransactionAddress(int accountIndex, int addressIndex) =>
-      monero_wallet.getAddress(
-          accountIndex: accountIndex,
-          addressIndex: addressIndex);
+      monero_wallet.getAddress(accountIndex: accountIndex, addressIndex: addressIndex);
 
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     monero_transaction_history.refreshTransactions();
-    return _getAllTransactions(null).fold<Map<String, MoneroTransactionInfo>>(
-        <String, MoneroTransactionInfo>{},
-        (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
+    return _getAllTransactions(null)
+        .fold<Map<String, MoneroTransactionInfo>>(<String, MoneroTransactionInfo>{},
+            (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
@@ -388,11 +283,10 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
   }
 
-  List<MoneroTransactionInfo> _getAllTransactions(dynamic _) =>
-      monero_transaction_history
-          .getAllTransations()
-          .map((row) => MoneroTransactionInfo.fromRow(row))
-          .toList();
+  List<MoneroTransactionInfo> _getAllTransactions(dynamic _) => monero_transaction_history
+      .getAllTransations()
+      .map((row) => MoneroTransactionInfo.fromRow(row))
+      .toList();
 
   void _setListeners() {
     _listener?.stop();
@@ -414,8 +308,7 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
   }
 
   int _getHeightDistance(DateTime date) {
-    final distance =
-        DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
+    final distance = DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
     final daysTmp = (distance / 86400).round();
     final days = daysTmp < 1 ? 1 : daysTmp;
 
@@ -439,16 +332,13 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
 
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance) {
-      balance[currency] = MoneroBalance(
-          fullBalance: fullBalance, unlockedBalance: unlockedBalance);
+      balance[currency] = MoneroBalance(fullBalance: fullBalance, unlockedBalance: unlockedBalance);
     }
   }
 
-  Future<void> _askForUpdateTransactionHistory() async =>
-      await updateTransactions();
+  Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
 
-  int _getFullBalance() =>
-      monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
+  int _getFullBalance() => monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
 
   int _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
@@ -468,9 +358,9 @@ abstract class NanoWalletBase extends WalletBase<MoneroBalance,
         syncStatus = SyncedSyncStatus();
 
         if (!_hasSyncAfterStartup) {
-           _hasSyncAfterStartup = true;
-           await save();
-         }
+          _hasSyncAfterStartup = true;
+          await save();
+        }
 
         if (walletInfo.isRecovery) {
           await setAsRecovered();

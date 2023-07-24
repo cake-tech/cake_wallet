@@ -24,7 +24,6 @@ class NanoBalance extends Balance {
   //       super(moneroParseAmount(amount: formattedReceivableBalance),
   //           moneroParseAmount(amount: formattedCurrentBalance));
 
-
   @override
   String get formattedAvailableBalance => "error";
 
