@@ -29,6 +29,7 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
@@ -61,6 +62,8 @@ abstract class EthereumWalletBase
     if (!Hive.isAdapterRegistered(Erc20Token.typeId)) {
       Hive.registerAdapter(Erc20TokenAdapter());
     }
+
+    _sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
   final String _mnemonic;
@@ -89,6 +92,8 @@ abstract class EthereumWalletBase
   @override
   @observable
   late ObservableMap<CryptoCurrency, ERC20Balance> balance;
+
+  Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
     erc20TokensBox = await Hive.openBox<Erc20Token>(Erc20Token.boxName);
@@ -137,9 +142,7 @@ abstract class EthereumWalletBase
 
       _client.setListeners(_privateKey.address, _onNewTransaction);
 
-      // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
-      _transactionsUpdateTimer =
-          Timer.periodic(Duration(seconds: 10), (_) => _updateTransactions());
+      _setTransactionUpdateTimer();
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
@@ -203,6 +206,10 @@ abstract class EthereumWalletBase
   Future<void> _updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
+        return;
+      }
+      bool isEtherscanEnabled = (await _sharedPrefs.future).getBool("use_etherscan") ?? true;
+      if (!isEtherscanEnabled) {
         return;
       }
 
@@ -452,5 +459,22 @@ abstract class EthereumWalletBase
 
     // Delete old name's dir and files
     await Directory(currentDirPath).delete(recursive: true);
+  }
+
+  void _setTransactionUpdateTimer() {
+    if (_transactionsUpdateTimer?.isActive ?? false) {
+      _transactionsUpdateTimer!.cancel();
+    }
+
+    _transactionsUpdateTimer = Timer.periodic(Duration(seconds: 10), (_) => _updateTransactions());
+  }
+
+  void updateEtherscanUsageState(bool isEnabled) {
+    if (isEnabled) {
+      _updateTransactions();
+      _setTransactionUpdateTimer();
+    } else {
+      _transactionsUpdateTimer?.cancel();
+    }
   }
 }

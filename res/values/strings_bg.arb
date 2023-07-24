@@ -648,5 +648,6 @@
   "generate_name": "Генериране на име",
   "balance_page": "Страница за баланс",
   "share": "Дял",
-  "slidable": "Плъзгащ се"
+  "slidable": "Плъзгащ се",
+  "etherscan_history": "История на Etherscan"
 }

@@ -60,6 +60,7 @@ abstract class SettingsStoreBase with Store {
       required this.pinTimeOutDuration,
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
+      required this.useEtherscan,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
@@ -227,6 +228,11 @@ abstract class SettingsStoreBase with Store {
         (bool pinNativeTokenAtTop) =>
             _sharedPreferences.setBool(PreferencesKey.pinNativeTokenAtTop, pinNativeTokenAtTop));
 
+    reaction(
+        (_) => useEtherscan,
+        (bool useEtherscan) =>
+            _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -311,6 +317,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool pinNativeTokenAtTop;
+
+  @observable
+  bool useEtherscan;
 
   String appVersion;
 
@@ -416,6 +425,8 @@ abstract class SettingsStoreBase with Store {
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
+    final useEtherscan =
+        sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -488,6 +499,7 @@ abstract class SettingsStoreBase with Store {
         initialLanguageCode: savedLanguageCode,
         sortBalanceBy: sortBalanceBy,
         pinNativeTokenAtTop: pinNativeTokenAtTop,
+        useEtherscan: useEtherscan,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
@@ -569,6 +581,7 @@ abstract class SettingsStoreBase with Store {
     sortBalanceBy = SortBalanceBy
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
+    useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

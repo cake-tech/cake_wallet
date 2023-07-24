@@ -118,4 +118,9 @@ class CWEthereum extends Ethereum {
     return wallet.erc20Currencies
         .firstWhere((element) => transaction.tokenSymbol == element.symbol);
   }
+
+  @override
+  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
+    (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
+  }
 }

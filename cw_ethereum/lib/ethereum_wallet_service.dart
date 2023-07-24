@@ -72,7 +72,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       throw EthereumMnemonicIsIncorrectException();
     }
 
-    final wallet = await EthereumWallet(
+    final wallet = EthereumWallet(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,

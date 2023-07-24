@@ -42,6 +42,7 @@ class PreferencesKey {
   static const lastAppReviewDate = 'last_app_review_date';
   static const sortBalanceBy = 'sort_balance_by';
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
+  static const useEtherscan = 'use_etherscan';
 
 
 

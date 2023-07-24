@@ -637,7 +637,7 @@ Future setup({
   });
 
   getIt.registerFactory(() {
-    return PrivacySettingsViewModel(getIt.get<SettingsStore>());
+    return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
   getIt.registerFactory(() {

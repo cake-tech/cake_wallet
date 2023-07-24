@@ -226,6 +226,7 @@ class BackupService {
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
+    final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName,
         currentWalletName);
@@ -322,6 +323,9 @@ class BackupService {
 
     if (pinNativeTokenAtTop != null)
       await _sharedPreferences.setBool(PreferencesKey.pinNativeTokenAtTop, pinNativeTokenAtTop);
+
+    if (useEtherscan != null)
+      await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
 
     await preferencesFile.delete();
   }
@@ -475,6 +479,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
       PreferencesKey.pinNativeTokenAtTop:
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
+      PreferencesKey.useEtherscan:
+          _sharedPreferences.getBool(PreferencesKey.useEtherscan),
     };
 
     return json.encode(preferences);

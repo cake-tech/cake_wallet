@@ -654,5 +654,6 @@
   "generate_name": "Generiraj ime",
   "balance_page": "Stranica sa stanjem",
   "share": "Udio",
-  "slidable": "Klizna"
+  "slidable": "Klizna",
+  "etherscan_history": "Etherscan povijest"
 }

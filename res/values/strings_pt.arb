@@ -653,5 +653,6 @@
   "generate_name": "Gerar nome",
   "balance_page": "Página de saldo",
   "share": "Compartilhar",
-  "slidable": "Deslizável"
+  "slidable": "Deslizável",
+  "etherscan_history": "história Etherscan"
 }

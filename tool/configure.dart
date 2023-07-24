@@ -535,6 +535,7 @@ abstract class Ethereum {
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
 }
   """;
 
