@@ -4,6 +4,7 @@ const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
+const nanoOutputPath = 'lib/nano/nano.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -574,7 +575,7 @@ abstract class Ethereum {
 }
 
 Future<void> generateNano(bool hasImplementation) async {
-  final outputFile = File(ethereumOutputPath);
+  final outputFile = File(nanoOutputPath);
   const nanoCommonHeaders = """
 """;
   const nanoCWHeaders = """
@@ -676,7 +677,7 @@ Future<void> generatePubspec({
     path: ./cw_nano
   """;
   const cwBanano = """
-  cw_nano:
+  cw_banano:
     path: ./cw_banano
   """;
   final inputFile = File(pubspecOutputPath);

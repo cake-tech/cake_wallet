@@ -4,9 +4,14 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_nano/api/wallet.dart' as nano_wallet_api;
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
 
 part 'cw_nano.dart';
 
