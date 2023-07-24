@@ -6,9 +6,9 @@ The following are the system requirements to build CakeWallet for your Android d
 
 ```
 Ubuntu >= 16.04 
-Android SDK 28
+Android SDK 29 or higher (better to have the latest one 33)
 Android NDK 17c
-Flutter 2 or above
+Flutter 3.7.x
 ```
 
 ## Building CakeWallet on Android
@@ -55,7 +55,7 @@ You may download and install the latest version of Android Studio [here](https:/
 
 ### 3. Installing Flutter
 
-Need to install flutter with version `3.x.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
+Need to install flutter with version `3.7.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
 
 ### 4. Verify Installations
 
@@ -66,9 +66,9 @@ Verify that the Android toolchain, Flutter, and Android Studio have been correct
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.x.x, on Linux, locale en_US.UTF-8)
-[✓] Android toolchain - develop for Android devices (Android SDK version 28)
-[✓] Android Studio (version 4.0)
+[✓] Flutter (Channel stable, 3.7.x, on Linux, locale en_US.UTF-8)
+[✓] Android toolchain - develop for Android devices (Android SDK version 29 or higher)
+[✓] Android Studio (version 4.0 or higher)
 ```
 
 ### 5. Generate a secure keystore for Android
