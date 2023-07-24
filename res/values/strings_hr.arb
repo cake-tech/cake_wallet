@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Adrese primatelja",
   "wallet_list_title": "Monero novčanik",
   "wallet_list_create_new_wallet": "Izradi novi novčanik",
-  "wallet_list_edit_wallet" : "Uredi novčanik",
-  "wallet_list_wallet_name" : "Naziv novčanika",
+  "wallet_list_edit_wallet": "Uredi novčanik",
+  "wallet_list_wallet_name": "Naziv novčanika",
   "wallet_list_restore_wallet": "Oporavi novčanik",
   "wallet_list_load_wallet": "Učitaj novčanik",
   "wallet_list_loading_wallet": "Učitavanje novčanika ${wallet_name}",
@@ -637,5 +637,11 @@
   "generate_name": "Generiraj ime",
   "balance_page": "Stranica sa stanjem",
   "share": "Udio",
-  "slidable": "Klizna"
+  "slidable": "Klizna",
+  "support_title_live_chat": "Podrška uživo",
+  "support_description_live_chat": "Besplatno i brzo! Obučeni predstavnici podrške dostupni su za pomoć",
+  "support_title_guides": "Vodiči za torte",
+  "support_description_guides": "Dokumentacija i podrška za uobičajena pitanja",
+  "support_title_other_links": "Ostale veze za podršku",
+  "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama"
 }

@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Adresa příjemce",
   "wallet_list_title": "Monero Wallet",
   "wallet_list_create_new_wallet": "Vytvořit novou peněženku",
-  "wallet_list_edit_wallet" : "Upravit peněženku",
-  "wallet_list_wallet_name" : "Název peněženky",
+  "wallet_list_edit_wallet": "Upravit peněženku",
+  "wallet_list_wallet_name": "Název peněženky",
   "wallet_list_restore_wallet": "Obnovit peněženku",
   "wallet_list_load_wallet": "Načíst peněženku",
   "wallet_list_loading_wallet": "Načítám ${wallet_name} peněženku",
@@ -631,5 +631,11 @@
   "generate_name": "Generovat jméno",
   "balance_page": "Stránka zůstatku",
   "share": "Podíl",
-  "slidable": "Posuvné"
+  "slidable": "Posuvné",
+  "support_title_live_chat": "Živá podpora",
+  "support_description_live_chat": "Zdarma a rychle! K dispozici jsou zástupci vyškolených podpůrných podpory",
+  "support_title_guides": "Průvodce peněženkami dortu",
+  "support_description_guides": "Dokumentace a podpora běžných otázek",
+  "support_title_other_links": "Další odkazy na podporu",
+  "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody"
 }

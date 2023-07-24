@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "လက်ခံသူလိပ်စာများ",
   "wallet_list_title": "Monero ပိုက်ဆံအိတ်",
   "wallet_list_create_new_wallet": "Wallet အသစ်ဖန်တီးပါ။",
-  "wallet_list_edit_wallet" : "ပိုက်ဆံအိတ်ကို တည်းဖြတ်ပါ။",
-  "wallet_list_wallet_name" : "ပိုက်ဆံအိတ်နာမည်",
+  "wallet_list_edit_wallet": "ပိုက်ဆံအိတ်ကို တည်းဖြတ်ပါ။",
+  "wallet_list_wallet_name": "ပိုက်ဆံအိတ်နာမည်",
   "wallet_list_restore_wallet": "ပိုက်ဆံအိတ်ကို ပြန်ယူပါ။",
   "wallet_list_load_wallet": "ပိုက်ဆံအိတ်ကို တင်ပါ။",
   "wallet_list_loading_wallet": "${wallet_name} ပိုက်ဆံအိတ်ကို ဖွင့်နေသည်။",
@@ -637,5 +637,11 @@
   "generate_name": "အမည်ဖန်တီးပါ။",
   "balance_page": "လက်ကျန်စာမျက်နှာ",
   "share": "မျှဝေပါ။",
-  "slidable": "လျှောချနိုင်သည်။"
+  "slidable": "လျှောချနိုင်သည်။",
+  "support_title_live_chat": "တိုက်ရိုက်ပံ့ပိုးမှု",
+  "support_description_live_chat": "အခမဲ့နှင့်အစာရှောင်ခြင်း! လေ့ကျင့်ထားသောထောက်ခံသူကိုယ်စားလှယ်များသည်ကူညီနိုင်သည်",
+  "support_title_guides": "ကိတ်မုန့်ပိုက်ဆံအိတ်လမ်းညွှန်များ",
+  "support_description_guides": "ဘုံပြ issues နာများအတွက်စာရွက်စာတမ်းများနှင့်ထောက်ခံမှု",
+  "support_title_other_links": "အခြားအထောက်အပံ့လင့်များ",
+  "support_description_other_links": "ကျွန်ုပ်တို့၏လူမှုအသိုင်းအဝိုင်းများသို့ 0 င်ရောက်ပါ"
 }

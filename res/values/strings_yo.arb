@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Àwọn àdírẹ́sì olùgbà",
   "wallet_list_title": "Àpamọ́wọ́ Monero",
   "wallet_list_create_new_wallet": "Ṣe àpamọ́wọ́ títun",
-    "wallet_list_edit_wallet" : "Ṣatunkọ apamọwọ",
-    "wallet_list_wallet_name" : "Orukọ apamọwọ",
+  "wallet_list_edit_wallet": "Ṣatunkọ apamọwọ",
+  "wallet_list_wallet_name": "Orukọ apamọwọ",
   "wallet_list_restore_wallet": "Restore àpamọ́wọ́",
   "wallet_list_load_wallet": "Load àpamọ́wọ́",
   "wallet_list_loading_wallet": "Ń ṣí àpamọ́wọ́ ${wallet_name}",
@@ -633,5 +633,11 @@
   "generate_name": "Ṣẹda Orukọ",
   "balance_page": "Oju-iwe iwọntunwọnsi",
   "share": "Pinpin",
-  "slidable": "Slidable"
+  "slidable": "Slidable",
+  "support_title_live_chat": "Atilẹyin ifiwe",
+  "support_description_live_chat": "Free ati sare! Ti oṣiṣẹ awọn aṣoju wa lati ṣe iranlọwọ",
+  "support_title_guides": "Akara oyinbo Awọn Itọsọna Awọki oyinbo",
+  "support_description_guides": "Iwe ati atilẹyin fun awọn ọran ti o wọpọ",
+  "support_title_other_links": "Awọn ọna asopọ atilẹyin miiran",
+  "support_description_other_links": "Darapọ mọ awọn agbegbe wa tabi de wa awọn alabaṣepọ wa nipasẹ awọn ọna miiran"
 }

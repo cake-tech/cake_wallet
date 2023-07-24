@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Adressen van ontvangers",
   "wallet_list_title": "Monero portemonnee",
   "wallet_list_create_new_wallet": "Maak een nieuwe portemonnee",
-  "wallet_list_edit_wallet" : "Portemonnee bewerken",
-  "wallet_list_wallet_name" : "Portemonnee naam",
+  "wallet_list_edit_wallet": "Portemonnee bewerken",
+  "wallet_list_wallet_name": "Portemonnee naam",
   "wallet_list_restore_wallet": "Portemonnee herstellen",
   "wallet_list_load_wallet": "Portemonnee laden",
   "wallet_list_loading_wallet": "Bezig met laden ${wallet_name} portemonnee",
@@ -637,5 +637,11 @@
   "generate_name": "Naam genereren",
   "balance_page": "Saldo pagina",
   "share": "Deel",
-  "slidable": "Verschuifbaar"
+  "slidable": "Verschuifbaar",
+  "support_title_live_chat": "Live ondersteuning",
+  "support_description_live_chat": "Gratis en snel! Getrainde ondersteuningsvertegenwoordigers zijn beschikbaar om te helpen",
+  "support_title_guides": "Cake -portemonnee gidsen",
+  "support_description_guides": "Documentatie en ondersteuning voor gemeenschappelijke problemen",
+  "support_title_other_links": "Andere ondersteuningslinks",
+  "support_description_other_links": "Word lid van onze gemeenschappen of bereik ons ​​onze partners via andere methoden"
 }

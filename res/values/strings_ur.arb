@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "وصول کنندگان کے پتے",
   "wallet_list_title": "Monero والیٹ",
   "wallet_list_create_new_wallet": "نیا والیٹ بنائیں",
-  "wallet_list_edit_wallet" : "بٹوے میں ترمیم کریں۔",
-  "wallet_list_wallet_name" : "بٹوے کا نام",
+  "wallet_list_edit_wallet": "بٹوے میں ترمیم کریں۔",
+  "wallet_list_wallet_name": "بٹوے کا نام",
   "wallet_list_restore_wallet": "والیٹ کو بحال کریں۔",
   "wallet_list_load_wallet": "پرس لوڈ کریں۔",
   "wallet_list_loading_wallet": "${wallet_name} والیٹ لوڈ ہو رہا ہے۔",
@@ -631,5 +631,11 @@
   "generate_name": "نام پیدا کریں۔",
   "balance_page": "بیلنس صفحہ",
   "share": "بانٹیں",
-  "slidable": "سلائیڈ ایبل"
+  "slidable": "سلائیڈ ایبل",
+  "support_title_live_chat": "براہ راست مدد",
+  "support_description_live_chat": "مفت اور تیز! تربیت یافتہ معاون نمائندے مدد کے لئے دستیاب ہیں",
+  "support_title_guides": "کیک پرس گائڈز",
+  "support_description_guides": "عام مسائل کے لئے دستاویزات اور مدد",
+  "support_title_other_links": "دوسرے سپورٹ لنکس",
+  "support_description_other_links": "ہماری برادریوں میں شامل ہوں یا دوسرے طریقوں سے ہمارے شراکت داروں تک پہنچیں"
 }

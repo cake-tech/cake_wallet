@@ -86,6 +86,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
       ref: cake-update-v2
+  chatwoot_sdk: ^0.0.9
 
 dev_dependencies:
   flutter_test:
@@ -99,6 +100,7 @@ dev_dependencies:
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
   # replace https://github.com/dart-lang/lints#migrating-from-packagepedantic
+  translator: ^0.1.7
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "प्राप्तकर्ता के पते",
   "wallet_list_title": "Monero बटुआ",
   "wallet_list_create_new_wallet": "नया बटुआ बनाएँ",
-  "wallet_list_edit_wallet" : "बटुआ संपादित करें",
-  "wallet_list_wallet_name" : "बटुआ नाम",
+  "wallet_list_edit_wallet": "बटुआ संपादित करें",
+  "wallet_list_wallet_name": "बटुआ नाम",
   "wallet_list_restore_wallet": "वॉलेट को पुनर्स्थापित करें",
   "wallet_list_load_wallet": "वॉलेट लोड करें",
   "wallet_list_loading_wallet": "लोड हो रहा है ${wallet_name} बटुआ",
@@ -637,5 +637,11 @@
   "generate_name": "नाम जनरेट करें",
   "balance_page": "बैलेंस पेज",
   "share": "शेयर करना",
-  "slidable": "फिसलने लायक"
+  "slidable": "फिसलने लायक",
+  "support_title_live_chat": "लाइव सहायता",
+  "support_description_live_chat": "मुक्त और तेजी से! प्रशिक्षित सहायता प्रतिनिधि सहायता के लिए उपलब्ध हैं",
+  "support_title_guides": "केक वॉलेट गाइड",
+  "support_description_guides": "सामान्य मुद्दों के लिए प्रलेखन और समर्थन",
+  "support_title_other_links": "अन्य समर्थन लिंक",
+  "support_description_other_links": "हमारे समुदायों में शामिल हों या अन्य तरीकों के माध्यम से हमारे साथी तक पहुंचें"
 }

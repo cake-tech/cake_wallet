@@ -211,7 +211,7 @@
   "settings_only_trades": "Nur Handel",
   "settings_only_transactions": "Nur Transaktionen",
   "settings_none": "Keiner",
-  "settings_support": "Unterstützen",
+  "settings_support": "Hilfe",
   "settings_terms_and_conditions": "Geschäftsbedingungen",
   "pin_is_incorrect": "PIN ist falsch",
   "setup_pin": "PIN einrichten",
@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Empfängeradressen",
   "wallet_list_title": "Monero-Wallet",
   "wallet_list_create_new_wallet": "Neue Wallet erstellen",
-  "wallet_list_edit_wallet" : "Wallet bearbeiten",
-  "wallet_list_wallet_name" : "Wallet namen",
+  "wallet_list_edit_wallet": "Wallet bearbeiten",
+  "wallet_list_wallet_name": "Wallet namen",
   "wallet_list_restore_wallet": "Wallet wiederherstellen",
   "wallet_list_load_wallet": "Wallet laden",
   "wallet_list_loading_wallet": "Wallet ${wallet_name} wird geladen",
@@ -637,5 +637,11 @@
   "generate_name": "Namen generieren",
   "balance_page": "Balance-Seite",
   "share": "Aktie",
-  "slidable": "Verschiebbar"
+  "slidable": "Verschiebbar",
+  "support_title_live_chat": "Live Support",
+  "support_description_live_chat": "Kostenlos und schnell! Ausgebildete Mitarbeiter stehen zur Unterstützung bereit, um zu helfen",
+  "support_title_guides": "Cake Wallet Guides",
+  "support_description_guides": "Dokumentation und Hilfe für bekannte Probleme",
+  "support_title_other_links": "Andere Support-Links",
+  "support_description_other_links": "Treten Sie unseren Communities bei oder erreichen Sie uns oder unsere Partner über andere Methoden"
 }

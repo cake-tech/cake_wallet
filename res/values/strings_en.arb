@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Recipient addresses",
   "wallet_list_title": "Monero Wallet",
   "wallet_list_create_new_wallet": "Create New Wallet",
-  "wallet_list_edit_wallet" : "Edit wallet",
-  "wallet_list_wallet_name" : "Wallet name",
+  "wallet_list_edit_wallet": "Edit wallet",
+  "wallet_list_wallet_name": "Wallet name",
   "wallet_list_restore_wallet": "Restore Wallet",
   "wallet_list_load_wallet": "Load wallet",
   "wallet_list_loading_wallet": "Loading ${wallet_name} wallet",
@@ -637,5 +637,11 @@
   "generate_name": "Generate Name",
   "balance_page": "Balance Page",
   "share": "Share",
-  "slidable": "Slidable"
+  "slidable": "Slidable",
+  "support_title_live_chat": "Live Support",
+  "support_description_live_chat": "Free and fast! Trained support representatives are available to assist",
+  "support_title_guides": "Cake Wallet guides",
+  "support_description_guides": "Documentation and support for common issues",
+  "support_title_other_links": "Other support links",
+  "support_description_other_links": "Join our communities or reach us our our partners through other methods"
 }

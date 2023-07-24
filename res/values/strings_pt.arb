@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Endereços de destinatários",
   "wallet_list_title": "Carteira Monero",
   "wallet_list_create_new_wallet": "Criar nova carteira",
-  "wallet_list_edit_wallet" : "Editar carteira",
-  "wallet_list_wallet_name" : "Nome da carteira",
+  "wallet_list_edit_wallet": "Editar carteira",
+  "wallet_list_wallet_name": "Nome da carteira",
   "wallet_list_restore_wallet": "Restaurar carteira",
   "wallet_list_load_wallet": "Abrir carteira",
   "wallet_list_loading_wallet": "Abrindo a carteira ${wallet_name}",
@@ -636,5 +636,11 @@
   "generate_name": "Gerar nome",
   "balance_page": "Página de saldo",
   "share": "Compartilhar",
-  "slidable": "Deslizável"
+  "slidable": "Deslizável",
+  "support_title_live_chat": "Apoio ao vivo",
+  "support_description_live_chat": "Livre e rápido! Representantes de suporte treinado estão disponíveis para ajudar",
+  "support_title_guides": "Guias da carteira de bolo",
+  "support_description_guides": "Documentação e suporte para problemas comuns",
+  "support_title_other_links": "Outros links de suporte",
+  "support_description_other_links": "Junte -se às nossas comunidades ou chegue a nós nossos parceiros por meio de outros métodos"
 }

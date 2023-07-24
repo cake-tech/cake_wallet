@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Адреса получателей",
   "wallet_list_title": "Monero Кошелёк",
   "wallet_list_create_new_wallet": "Создать новый кошелёк",
-  "wallet_list_edit_wallet" : "Изменить кошелек",
-  "wallet_list_wallet_name" : "Имя кошелька",
+  "wallet_list_edit_wallet": "Изменить кошелек",
+  "wallet_list_wallet_name": "Имя кошелька",
   "wallet_list_restore_wallet": "Восстановить кошелёк",
   "wallet_list_load_wallet": "Загрузка кошелька",
   "wallet_list_loading_wallet": "Загрузка ${wallet_name} кошелька",
@@ -637,5 +637,11 @@
   "generate_name": "Создать имя",
   "balance_page": "Страница баланса",
   "share": "Делиться",
-  "slidable": "Скользящий"
+  "slidable": "Скользящий",
+  "support_title_live_chat": "Живая поддержка",
+  "support_description_live_chat": "Бесплатно и быстро! Обученные представители поддержки доступны для оказания помощи",
+  "support_title_guides": "Корт -гиды",
+  "support_description_guides": "Документация и поддержка общих вопросов",
+  "support_title_other_links": "Другие ссылки на поддержку",
+  "support_description_other_links": "Присоединяйтесь к нашим сообществам или охватите нас наших партнеров с помощью других методов"
 }

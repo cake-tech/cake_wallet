@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "ที่อยู่ผู้รับ",
   "wallet_list_title": "กระเป๋า Monero",
   "wallet_list_create_new_wallet": "สร้างกระเป๋าใหม่",
-  "wallet_list_edit_wallet" : "แก้ไขกระเป๋าสตางค์",
-  "wallet_list_wallet_name" : "ชื่อกระเป๋าสตางค์",
+  "wallet_list_edit_wallet": "แก้ไขกระเป๋าสตางค์",
+  "wallet_list_wallet_name": "ชื่อกระเป๋าสตางค์",
   "wallet_list_restore_wallet": "กู้กระเป๋า",
   "wallet_list_load_wallet": "โหลดกระเป๋า",
   "wallet_list_loading_wallet": "กำลังโหลดกระเป๋า ${wallet_name}",
@@ -637,5 +637,11 @@
   "generate_name": "สร้างชื่อ",
   "balance_page": "หน้ายอดคงเหลือ",
   "share": "แบ่งปัน",
-  "slidable": "เลื่อนได้"
+  "slidable": "เลื่อนได้",
+  "support_title_live_chat": "การสนับสนุนสด",
+  "support_description_live_chat": "ฟรีและรวดเร็ว! ตัวแทนฝ่ายสนับสนุนที่ผ่านการฝึกอบรมพร้อมให้ความช่วยเหลือ",
+  "support_title_guides": "คู่มือกระเป๋าเงินเค้ก",
+  "support_description_guides": "เอกสารและการสนับสนุนสำหรับปัญหาทั่วไป",
+  "support_title_other_links": "ลิงค์สนับสนุนอื่น ๆ",
+  "support_description_other_links": "เข้าร่วมชุมชนของเราหรือเข้าถึงคู่ค้าของเราด้วยวิธีอื่น ๆ"
 }

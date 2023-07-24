@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "收件人地址",
   "wallet_list_title": "Monero 钱包",
   "wallet_list_create_new_wallet": "创建新钱包",
-  "wallet_list_edit_wallet" : "编辑钱包",
-  "wallet_list_wallet_name" : "钱包名称",
+  "wallet_list_edit_wallet": "编辑钱包",
+  "wallet_list_wallet_name": "钱包名称",
   "wallet_list_restore_wallet": "恢复钱包",
   "wallet_list_load_wallet": "加载钱包",
   "wallet_list_loading_wallet": "载入中 ${wallet_name} 钱包",
@@ -636,5 +636,11 @@
   "generate_name": "生成名称",
   "balance_page": "余额页",
   "share": "分享",
-  "slidable": "可滑动"
+  "slidable": "可滑动",
+  "support_title_live_chat": "实时支持",
+  "support_description_live_chat": "免费快速！训练有素的支持代表可以协助",
+  "support_title_guides": "蛋糕钱包指南",
+  "support_description_guides": "对常见问题的文档和支持",
+  "support_title_other_links": "其他支持链接",
+  "support_description_other_links": "加入我们的社区或通过其他方法与我们联系我们的合作伙伴"
 }

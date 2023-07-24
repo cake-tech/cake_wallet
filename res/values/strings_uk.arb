@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Адреси одержувачів",
   "wallet_list_title": "Monero Гаманець",
   "wallet_list_create_new_wallet": "Створити новий гаманець",
-  "wallet_list_edit_wallet" : "Редагувати гаманець",
-  "wallet_list_wallet_name" : "Назва гаманця",
+  "wallet_list_edit_wallet": "Редагувати гаманець",
+  "wallet_list_wallet_name": "Назва гаманця",
   "wallet_list_restore_wallet": "Відновити гаманець",
   "wallet_list_load_wallet": "Завантаження гаманця",
   "wallet_list_loading_wallet": "Завантаження ${wallet_name} гаманця",
@@ -637,5 +637,11 @@
   "generate_name": "Згенерувати назву",
   "balance_page": "Сторінка балансу",
   "share": "Поділіться",
-  "slidable": "Розсувний"
+  "slidable": "Розсувний",
+  "support_title_live_chat": "Жива підтримка",
+  "support_description_live_chat": "Безкоштовно і швидко! Навчені представники підтримки доступні для надання допомоги",
+  "support_title_guides": "Поклики для гаманців тортів",
+  "support_description_guides": "Документація та підтримка загальних питань",
+  "support_title_other_links": "Інші посилання на підтримку",
+  "support_description_other_links": "Приєднуйтесь до наших спільнот або досягайте нас нашими партнерами іншими методами"
 }

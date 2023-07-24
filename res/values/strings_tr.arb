@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Alıcı adres",
   "wallet_list_title": "Monero Cüzdanı",
   "wallet_list_create_new_wallet": "Yeni Cüzdan Oluştur",
-  "wallet_list_edit_wallet" : "Cüzdanı düzenle",
-  "wallet_list_wallet_name" : "Cüzdan adı",
+  "wallet_list_edit_wallet": "Cüzdanı düzenle",
+  "wallet_list_wallet_name": "Cüzdan adı",
   "wallet_list_restore_wallet": "Cüzdanı Geri Yükle",
   "wallet_list_load_wallet": "Cüzdanı yükle",
   "wallet_list_loading_wallet": "${wallet_name} cüzdanı yükleniyor",
@@ -637,5 +637,11 @@
   "generate_name": "İsim Oluştur",
   "balance_page": "Bakiye Sayfası",
   "share": "Paylaşmak",
-  "slidable": "kaydırılabilir"
+  "slidable": "kaydırılabilir",
+  "support_title_live_chat": "Canlı destek",
+  "support_description_live_chat": "Ücretsiz ve hızlı! Eğitimli destek temsilcileri yardımcı olmak için mevcuttur",
+  "support_title_guides": "Kek Cüzdan Kılavuzları",
+  "support_description_guides": "Ortak sorunlara belge ve destek",
+  "support_title_other_links": "Diğer destek bağlantıları",
+  "support_description_other_links": "Topluluklarımıza katılın veya ortaklarımıza diğer yöntemlerle bize ulaşın"
 }
