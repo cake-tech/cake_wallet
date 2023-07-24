@@ -125,6 +125,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.haven) {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
       }
+
+      if (_wallet.type == WalletType.ethereum) {
+        return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
+      }
     } catch (e) {
       print(e.toString());
     }

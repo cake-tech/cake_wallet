@@ -52,7 +52,13 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () {
+      if (walletType == WalletType.ethereum) {
+        return _wallet.currency;
+      }
+
+      return selectedCryptoCurrency;
+    }));
   }
 
   @observable
@@ -101,8 +107,11 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
+        final currency = walletType == WalletType.ethereum
+            ? _wallet.currency
+            : selectedCryptoCurrency;
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[_wallet.currency]!,
+            price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
         return fiat;
       } else {

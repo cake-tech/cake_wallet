@@ -528,7 +528,7 @@ abstract class Ethereum {
   });
 
   int formatterEthereumParseAmount(String amount);
-  double formatterEthereumAmountToDouble({required TransactionInfo transaction});
+  double formatterEthereumAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
   Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
   Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
