@@ -102,7 +102,7 @@ abstract class SendViewModelBase with Store {
     try {
       if (pendingTransaction != null) {
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+            price: _fiatConversationStore.prices[_wallet.currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
         return fiat;
       } else {
