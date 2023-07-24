@@ -9,6 +9,7 @@ const walletTypes = [
   WalletType.litecoin,
   WalletType.haven,
   WalletType.ethereum,
+  WalletType.bitcoinCash,
 ];
 const walletTypeTypeId = 5;
 
@@ -31,6 +32,9 @@ enum WalletType {
 
   @HiveField(5)
   ethereum,
+
+  @HiveField(6)
+  bitcoinCash,
 }
 
 int serializeToInt(WalletType type) {
@@ -45,6 +49,8 @@ int serializeToInt(WalletType type) {
       return 3;
     case WalletType.ethereum:
       return 4;
+    case WalletType.bitcoinCash:
+      return 5;
     default:
       return -1;
   }
@@ -62,6 +68,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.haven;
     case 4:
       return WalletType.ethereum;
+    case 4:
+      return WalletType.bitcoinCash;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -79,6 +87,8 @@ String walletTypeToString(WalletType type) {
       return 'Haven';
     case WalletType.ethereum:
       return 'Ethereum';
+    case WalletType.bitcoinCash:
+      return 'Bitcoin Cash';
     default:
       return '';
   }
@@ -96,6 +106,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Haven (XHV)';
     case WalletType.ethereum:
       return 'Ethereum';
+    case WalletType.bitcoinCash:
+      return 'Bitcoin Cash (BCH)';
     default:
       return '';
   }
@@ -113,6 +125,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.bitcoinCash:
+      return CryptoCurrency.bch;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }

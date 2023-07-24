@@ -70,6 +70,7 @@ class WalletCreationService {
           PreferencesKey.moneroWalletUpdateV1Key(wallet.name),
           _isNewMoneroWalletPasswordUpdated);
     }
+    print('wallet: $wallet');
 
     return wallet;
   }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
+const bitcoinOutputPath = 'lib/bitcoin/bitcoin_cash.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
@@ -46,7 +46,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 """;
-  const bitcoinCwPart = "part 'cw_bitcoin.dart';";
+  const bitcoinCwPart = "part 'cw_bitcoin_cash.dart';";
   const bitcoinContent = """
 class Unspent {
   Unspent(this.address, this.hash, this.value, this.vout)

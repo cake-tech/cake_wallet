@@ -13,7 +13,7 @@ import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/contracts/erc20.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
-import 'package:cw_ethereum/.secrets.g.dart' as secrets;
+//import 'package:cw_ethereum/.secrets.g.dart' as secrets;
 
 class EthereumClient {
   Web3Client? _client;
@@ -249,7 +249,7 @@ I/flutter ( 4474): Gas Used: 53000
       "action": contractAddress != null ? "tokentx" : "txlist",
       if (contractAddress != null) "contractaddress": contractAddress,
       "address": address,
-      "apikey": secrets.etherScanApiKey,
+      "apikey": '',
     }));
 
     final _jsonResponse = json.decode(response.body) as Map<String, dynamic>;
