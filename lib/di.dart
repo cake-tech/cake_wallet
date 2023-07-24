@@ -31,6 +31,8 @@ import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
+import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -845,7 +847,11 @@ Future setup({
 
   getIt.registerFactory(() => SupportViewModel());
 
-  getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
+  getIt.registerFactory(() => SupportPage());
+
+  getIt.registerFactory(() => SupportChatPage());
+
+  getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
