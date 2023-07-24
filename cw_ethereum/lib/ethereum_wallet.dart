@@ -76,6 +76,9 @@ abstract class EthereumWalletBase
   int? _gasPrice;
   bool _isTransactionUpdating;
 
+  // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
+  Timer? _transactionsUpdateTimer;
+
   @override
   WalletAddresses walletAddresses;
 
@@ -117,6 +120,7 @@ abstract class EthereumWalletBase
   @override
   void close() {
     _client.stop();
+    _transactionsUpdateTimer?.cancel();
   }
 
   @action
@@ -132,7 +136,10 @@ abstract class EthereumWalletBase
       }
 
       _client.setListeners(_privateKey.address, _onNewTransaction);
-      _updateBalance();
+
+      // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
+      _transactionsUpdateTimer =
+          Timer.periodic(Duration(seconds: 10), (_) => _updateTransactions());
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
@@ -193,7 +200,7 @@ abstract class EthereumWalletBase
     return pendingEthereumTransaction;
   }
 
-  Future<void> updateTransactions() async {
+  Future<void> _updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
         return;
@@ -279,7 +286,7 @@ abstract class EthereumWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
-      await updateTransactions();
+      await _updateTransactions();
       _gasPrice = await _client.getGasUnitPrice();
       _priorityFees = await _client.getEstimatedGasForPriorities();
 
@@ -414,9 +421,9 @@ abstract class EthereumWalletBase
   Future<Erc20Token?> getErc20Token(String contractAddress) async =>
       await _client.getErc20Token(contractAddress);
 
-  void _onNewTransaction(FilterEvent event) {
+  void _onNewTransaction() {
     _updateBalance();
-    // TODO: Add in transaction history
+    _updateTransactions();
   }
 
   void addInitialTokens() {
