@@ -10,6 +10,7 @@ const walletTypes = [
   WalletType.haven,
   WalletType.ethereum,
   WalletType.nano,
+  WalletType.banano,
 ];
 const walletTypeTypeId = 5;
 

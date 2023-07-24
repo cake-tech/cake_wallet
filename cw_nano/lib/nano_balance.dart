@@ -12,7 +12,7 @@ class NanoBalance extends Balance {
   late String formattedCurrentBalance;
   late String formattedReceivableBalance;
 
-  NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(currentBalance.toInt(), receivableBalance.toInt()) {
+  NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0) {
     this.formattedCurrentBalance = "";
     this.formattedReceivableBalance = "";
   }
@@ -23,4 +23,11 @@ class NanoBalance extends Balance {
   //       receivableBalance = moneroParseAmount(amount: formattedReceivableBalance),
   //       super(moneroParseAmount(amount: formattedReceivableBalance),
   //           moneroParseAmount(amount: formattedCurrentBalance));
+
+
+  @override
+  String get formattedAvailableBalance => "error";
+
+  @override
+  String get formattedAdditionalBalance => "error";
 }
