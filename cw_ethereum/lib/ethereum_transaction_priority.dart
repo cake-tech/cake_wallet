@@ -35,7 +35,7 @@ class EthereumTransactionPriority extends TransactionPriority {
 
     switch (this) {
       case EthereumTransactionPriority.slow:
-        label = 'slow';
+        label = 'Slow';
         break;
       case EthereumTransactionPriority.medium:
         label = 'Medium';
