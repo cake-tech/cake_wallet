@@ -52,13 +52,7 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () {
-      if (walletType == WalletType.ethereum) {
-        return _wallet.currency;
-      }
-
-      return selectedCryptoCurrency;
-    }));
+    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @observable

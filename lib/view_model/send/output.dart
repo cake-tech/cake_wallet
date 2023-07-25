@@ -139,8 +139,9 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
+      final currency = _wallet.type == WalletType.ethereum ? _wallet.currency : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
+          price: _fiatConversationStore.prices[currency]!,
           cryptoAmount: estimatedFee);
       return fiat;
     } catch (_) {
