@@ -13,6 +13,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:cw_nano/nano_mnemonic.dart';
 
 part 'cw_nano.dart';
 
@@ -45,6 +46,12 @@ abstract class Nano {
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
     String password,
+  });
+
+  WalletCredentials createNanoRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
   });
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);

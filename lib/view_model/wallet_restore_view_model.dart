@@ -1,7 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/mnemonic_length.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -19,9 +17,7 @@ import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
-
-class WalletRestoreViewModel = WalletRestoreViewModelBase
-    with _$WalletRestoreViewModel;
+class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreViewModel;
 
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
@@ -35,8 +31,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
-    isButtonEnabled =
-        !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
+    isButtonEnabled = !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     walletCreationService.changeWalletType(type: type);
   }
 
@@ -53,7 +48,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @observable
   bool isButtonEnabled;
-  
+
   @override
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
@@ -66,31 +61,22 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name,
-              height: height,
-              mnemonic: seed,
-              password: password);
+              name: name, height: height, mnemonic: seed, password: password);
         case WalletType.bitcoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-            name: name,
-            mnemonic: seed,
-            password: password);
+              name: name, mnemonic: seed, password: password);
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-            name: name,
-            mnemonic: seed,
-            password: password);
+              name: name, mnemonic: seed, password: password);
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
-              name: name,
-              height: height,
-              mnemonic: seed,
-              password: password);
+              name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: seed,
-              password: password);
+              name: name, mnemonic: seed, password: password);
+        case WalletType.nano:
+          return nano!.createNanoRestoreWalletFromSeedCredentials(
+              name: name, mnemonic: seed, password: password);
         default:
           break;
       }

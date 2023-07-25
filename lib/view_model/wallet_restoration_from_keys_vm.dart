@@ -18,10 +18,9 @@ part 'wallet_restoration_from_keys_vm.g.dart';
 class WalletRestorationFromKeysVM = WalletRestorationFromKeysVMBase
     with _$WalletRestorationFromKeysVM;
 
-abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
-    with Store {
-  WalletRestorationFromKeysVMBase(AppStore appStore,
-      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
+abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM with Store {
+  WalletRestorationFromKeysVMBase(AppStore appStore, WalletCreationService walletCreationService,
+      Box<WalletInfo> walletInfoSource,
       {required WalletType type, required this.language})
       : height = 0,
         viewKey = '',
@@ -64,8 +63,8 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
             spendKey: spendKey,
             height: height);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
-            name: name, password: password, wif: wif);
+        return bitcoin!
+            .createBitcoinRestoreWalletFromWIFCredentials(name: name, password: password, wif: wif);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

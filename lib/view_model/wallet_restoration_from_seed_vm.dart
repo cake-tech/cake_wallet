@@ -1,3 +1,4 @@
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -18,10 +19,9 @@ part 'wallet_restoration_from_seed_vm.g.dart';
 class WalletRestorationFromSeedVM = WalletRestorationFromSeedVMBase
     with _$WalletRestorationFromSeedVM;
 
-abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
-    with Store {
-  WalletRestorationFromSeedVMBase(AppStore appStore,
-      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
+abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM with Store {
+  WalletRestorationFromSeedVMBase(AppStore appStore, WalletCreationService walletCreationService,
+      Box<WalletInfo> walletInfoSource,
       {required WalletType type, required this.language, this.seed = ''})
       : height = 0,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
@@ -46,6 +46,9 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
             name: name, height: height, mnemonic: seed, password: password);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+            name: name, mnemonic: seed, password: password);
+      case WalletType.nano:
+        return nano!.createNanoRestoreWalletFromSeedCredentials(
             name: name, mnemonic: seed, password: password);
       default:
         throw Exception('Unexpected type: ${type.toString()}');

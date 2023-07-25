@@ -8,7 +8,8 @@ class CWNano extends Nano {
 
   @override
   List<String> getNanoWordList(String language) {
-    throw UnimplementedError();
+    // throw UnimplementedError();
+    return NanoMnemomics.WORDLIST;
   }
 
   @override
@@ -29,12 +30,23 @@ class CWNano extends Nano {
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
     String? password,
-  }) {
-    return NanoNewWalletCredentials(
-      name: name,
-      password: password,
-    );
-  }
+  }) =>
+      NanoNewWalletCredentials(
+        name: name,
+        password: password,
+      );
+
+  @override
+  WalletCredentials createNanoRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+  }) =>
+      NanoRestoreWalletFromSeedCredentials(
+        name: name,
+        password: password,
+        mnemonic: mnemonic,
+      );
 
   @override
   TransactionHistoryBase getTransactionHistory(Object wallet) {

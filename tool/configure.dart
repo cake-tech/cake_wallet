@@ -604,6 +604,12 @@ abstract class Nano {
     required String name,
     String password,
   });
+  
+  WalletCredentials createNanoRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+  });
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
