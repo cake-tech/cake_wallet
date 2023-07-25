@@ -49,6 +49,9 @@ abstract class EthereumTransactionHistoryBase
     final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await read(path: path, password: _password);
+    if (content.isEmpty) {
+      return {};
+    }
     return json.decode(content) as Map<String, dynamic>;
   }
 

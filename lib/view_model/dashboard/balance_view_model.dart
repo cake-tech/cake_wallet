@@ -316,8 +316,8 @@ abstract class BalanceViewModelBase with Store {
               price: fiatConvertationStore.prices[a.asset] ?? 0,
               cryptoAmount: a.availableBalance)));
         case SortBalanceBy.GrossBalance:
-          return double.parse(b.availableBalance)
-              .compareTo(double.parse(a.availableBalance));
+          return (double.tryParse(b.availableBalance) ?? 0)
+              .compareTo(double.tryParse(a.availableBalance) ?? 0);
         case SortBalanceBy.Alphabetical:
           return a.asset.title.compareTo(b.asset.title);
       }
@@ -368,7 +368,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
-    if (cryptoAmount == null || cryptoAmount.isEmpty) {
+    if (cryptoAmount == null || cryptoAmount.isEmpty || double.tryParse(cryptoAmount) == null) {
       return '0.00';
     }
 
