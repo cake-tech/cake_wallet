@@ -602,7 +602,6 @@ abstract class Nano {
 
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
-    required String language,
     String password,
   });
 

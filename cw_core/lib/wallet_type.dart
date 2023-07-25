@@ -118,7 +118,7 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Ethereum (ETH)';
     case WalletType.nano:
       return 'Nano (XNO)';
-    case WalletType.ethereum:
+    case WalletType.banano:
       return 'Banano (BAN)';
     default:
       return '';

@@ -26,22 +26,22 @@ import 'package:cw_core/wallet_info.dart';
 // }
 
 
-class NanoNewWalletCredentials extends WalletCredentials {
-  NanoNewWalletCredentials({required String name, required this.language, String? password})
-      : super(name: name, password: password);
+// class NanoNewWalletCredentials extends WalletCredentials {
+//   NanoNewWalletCredentials({required String name, required this.language, String? password})
+//       : super(name: name, password: password);
 
-  final String language;
-}
+//   final String language;
+// }
 
-class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
-  NanoRestoreWalletFromSeedCredentials(
-      {required String name, required this.mnemonic, int height = 0, String? password})
-      : super(name: name, password: password, height: height);
+// class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
+//   NanoRestoreWalletFromSeedCredentials(
+//       {required String name, required this.mnemonic, int height = 0, String? password})
+//       : super(name: name, password: password, height: height);
 
-  final String mnemonic;
-}
+//   final String mnemonic;
+// }
 
-class NanoWalletLoadingException implements Exception {
-  @override
-  String toString() => 'Failure to load the wallet.';
-}
+// class NanoWalletLoadingException implements Exception {
+//   @override
+//   String toString() => 'Failure to load the wallet.';
+// }

@@ -22,7 +22,7 @@ abstract class NanoTransactionHistoryBase
       transactions[transaction.id] = transaction;
 
   @override
-  void addMany(Map<String, MoneroTransactionInfo> transactions) =>
+  void addMany(Map<String, NanoTransactionInfo> transactions) =>
       this.transactions.addAll(transactions);
 
 }

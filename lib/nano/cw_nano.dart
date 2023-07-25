@@ -13,8 +13,8 @@ class CWNano extends Nano {
 
   @override
   WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource) {
-    // return NanoWalletService(walletInfoSource);
-    throw UnimplementedError();
+    return NanoWalletService(walletInfoSource);
+    // throw UnimplementedError();
   }
 
   NanoWalletDetails getNanoWalletDetails(Object wallet) {
@@ -25,23 +25,14 @@ class CWNano extends Nano {
     throw UnimplementedError();
   }
 
-  // @override
-  // WalletCredentials createNanoNewWalletCredentials({
-  //   required String name,
-  //   WalletInfo? walletInfo,
-  // }) =>
-  //     NanoNewWalletCredentials(name: name, walletInfo: walletInfo);
-
   @override
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
-    required String language,
     String? password,
   }) {
     return NanoNewWalletCredentials(
       name: name,
       password: password,
-      language: language,
     );
   }
 
