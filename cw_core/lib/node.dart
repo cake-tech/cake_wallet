@@ -3,6 +3,7 @@ import 'package:cw_core/keyable.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
 
@@ -35,7 +36,7 @@ class Node extends HiveObject with Keyable {
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false;
 
-  static const typeId = 1;
+  static const typeId = NODE_TYPE_ID;
   static const boxName = 'Nodes';
 
   @HiveField(0, defaultValue: '')
