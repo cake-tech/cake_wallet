@@ -47,7 +47,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.nano:
-        return nano!.createNanoNewWalletCredentials(name: name, language: options as String);
+        return nano!.createNanoNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');;
     }

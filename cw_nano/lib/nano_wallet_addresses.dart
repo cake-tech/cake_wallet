@@ -11,38 +11,26 @@ class NanoWalletAddresses = NanoWalletAddressesBase with _$NanoWalletAddresses;
 
 abstract class NanoWalletAddressesBase extends WalletAddresses with Store {
   NanoWalletAddressesBase(WalletInfo walletInfo)
-      : accountList = NanoAccountList(),
-        address = '',
+      : address = '',
         super(walletInfo);
 
   @override
-  @observable
   String address;
-
-  @observable
-  Account? account;
-
-  NanoAccountList accountList;
 
   @override
   Future<void> init() async {
-    accountList.update();
-    account = accountList.accounts.first;
+    address = walletInfo.address;
+    await updateAddressesInBox();
   }
 
   @override
   Future<void> updateAddressesInBox() async {
-    throw UnimplementedError();
-  }
-
-  bool validate() {
-    accountList.update();
-    final accountListLength = accountList.accounts.length ?? 0;
-
-    if (accountListLength <= 0) {
-      return false;
+    try {
+      addressesMap.clear();
+      addressesMap[address] = '';
+      await saveAddressesInBox();
+    } catch (e) {
+      print(e.toString());
     }
-
-    return true;
   }
 }

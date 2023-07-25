@@ -13,8 +13,8 @@ class CWNano extends Nano {
 
   @override
   WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource) {
+    print("creating NanoWalletService");
     return NanoWalletService(walletInfoSource);
-    // throw UnimplementedError();
   }
 
   NanoWalletDetails getNanoWalletDetails(Object wallet) {

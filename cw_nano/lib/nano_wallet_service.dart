@@ -63,16 +63,11 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
     print("nano_wallet_service create");
     final mnemonic = bip39.generateMnemonic();
-    print("gened");
     final wallet = NanoWallet(
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
     );
-    print("nano_wallet created");
-    // await wallet.init();
-    // await wallet.save();
-    throw Exception("stop");
     return wallet;
   }
 
@@ -108,6 +103,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
+    print("a");
     throw UnimplementedError();
     // try {
     //   final path = await pathForWallet(name: credentials.name, type: getType());
@@ -132,6 +128,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials) async {
+    print("b");
     throw UnimplementedError();
     // try {
     //   final path = await pathForWallet(name: credentials.name, type: getType());
@@ -153,11 +150,13 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<bool> isWalletExit(String s) async {
+    print("c");
     throw UnimplementedError();
   }
 
   @override
   Future<WalletBase> openWallet(String s, String s2) async {
+    print("d");
     throw UnimplementedError();
   }
 }

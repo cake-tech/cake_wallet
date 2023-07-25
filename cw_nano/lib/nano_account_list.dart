@@ -13,7 +13,7 @@ abstract class NanoAccountListBase with Store {
       : accounts = ObservableList<Account>(),
         _isRefreshing = false,
         _isUpdating = false {
-    refresh();
+    // refresh();
   }
 
   @observable
