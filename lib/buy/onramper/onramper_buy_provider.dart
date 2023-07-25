@@ -60,11 +60,12 @@ class OnRamperBuyProvider {
         break;
     }
 
+    final networkName = _wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
 
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
       'defaultCrypto': _normalizeCryptoCurrency,
-      'wallets': '${_wallet.currency.title}:${_wallet.walletAddresses.address}',
+      'networkWallets': '${networkName}:${_wallet.walletAddresses.address}',
       'supportSell': "false",
       'supportSwap': "false",
       'primaryColor': primaryColor,
