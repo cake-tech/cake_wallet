@@ -85,15 +85,11 @@ class EthereumClient {
 
     final signedTransaction = await _client!.signTransaction(privateKey, transaction);
 
-    final BigInt estimatedGas;
     final Function _sendTransaction;
 
     if (_isEthereum) {
-      estimatedGas = BigInt.from(21000);
       _sendTransaction = () async => await sendTransaction(signedTransaction);
     } else {
-      estimatedGas = BigInt.from(50000);
-
       final erc20 = Erc20(
         client: _client!,
         address: EthereumAddress.fromHex(contractAddress!),
@@ -111,7 +107,7 @@ class EthereumClient {
     return PendingEthereumTransaction(
       signedTransaction: signedTransaction,
       amount: amount,
-      fee: estimatedGas * price.getInWei,
+      fee: BigInt.from(gas) * price.getInWei,
       sendTransaction: _sendTransaction,
       exponent: exponent,
     );

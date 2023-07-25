@@ -466,7 +466,10 @@ abstract class EthereumWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(Duration(seconds: 10), (_) => _updateTransactions());
+    _transactionsUpdateTimer = Timer.periodic(Duration(seconds: 10), (_) {
+      _updateTransactions();
+      _updateBalance();
+    });
   }
 
   void updateEtherscanUsageState(bool isEnabled) {
