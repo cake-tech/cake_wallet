@@ -274,6 +274,9 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
+  bool get hasAdditionalBalance => wallet.type != WalletType.ethereum;
+
+  @computed
   List<BalanceRecord> get formattedBalances {
     final balance = balances.values.toList();
 
