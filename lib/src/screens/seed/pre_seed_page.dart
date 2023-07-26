@@ -11,9 +11,7 @@ class PreSeedPage extends BasePage {
   PreSeedPage(this.type)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        wordsCount = type == WalletType.monero
-            ? 25
-            : 24; // FIXME: Stupid fast implementation
+        wordsCount = _wordsCount(type);
 
   final Image imageDark;
   final Image imageLight;
@@ -61,11 +59,22 @@ class PreSeedPage extends BasePage {
                     onPressed: () =>
                         Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true),
                     text: S.of(context).pre_seed_button_text,
-                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
                     textColor: Colors.white)
               ],
             ),
           ),
         ));
+  }
+
+  static int _wordsCount(WalletType type) {
+    switch (type) {
+      case WalletType.monero:
+        return 25;
+      case WalletType.ethereum:
+        return 12;
+      default:
+        return 24;
+    }
   }
 }
