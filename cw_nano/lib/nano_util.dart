@@ -6,15 +6,20 @@ import "package:ed25519_hd_key/ed25519_hd_key.dart";
 import 'package:flutter/material.dart';
 import 'package:libcrypto/libcrypto.dart';
 import 'package:nanodart/nanodart.dart';
+import 'package:ed25519_hd_key/ed25519_hd_key.dart';
+import 'package:nanodart/nanodart.dart';
 
 class NanoUtil {
   // standard:
   static String seedToPrivate(String seed, int index) {
-    return NanoHelpers.byteToHex(Ed25519Blake2b.derivePrivkey(NanoHelpers.hexToBytes(seed), index)!).toUpperCase();
+    // return NanoHelpers.byteToHex(Ed25519Blake2b.derivePrivkey(NanoHelpers.hexToBytes(seed), index)!)
+    //     .toUpperCase();
+    return NanoKeys.seedToPrivate(seed, index);
   }
 
   static String seedToAddress(String seed, int index) {
-    return NanoAccounts.createAccount(NanoAccountType.NANO, privateKeyToPublic(seedToPrivate(seed, index)));
+    return NanoAccounts.createAccount(
+        NanoAccountType.NANO, privateKeyToPublic(seedToPrivate(seed, index)));
   }
 
   // static String createPublicKey(String privateKey) {
@@ -22,7 +27,8 @@ class NanoUtil {
   // }
 
   static String privateKeyToPublic(String privateKey) {
-    return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
+    // return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
+    return NanoKeys.createPublicKey(privateKey);
   }
 
   static String addressToPublicKey(String publicAddress) {

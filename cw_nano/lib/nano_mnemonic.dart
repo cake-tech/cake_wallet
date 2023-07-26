@@ -1,6 +1,12 @@
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:nanodart/nanodart.dart';
 
+class NanoMnemonicIsIncorrectException implements Exception {
+  @override
+  String toString() =>
+      'Nano mnemonic has incorrect format. Mnemonic should contain 12 or 24 words separated by space.';
+}
+
 class NanoMnemomics {
   /// Converts a nano seed to a 24-word mnemonic word list
   static List<String> seedToMnemonic(String seed) {

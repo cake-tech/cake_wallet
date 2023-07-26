@@ -1,3 +1,4 @@
+import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -52,6 +53,7 @@ abstract class Nano {
     required String name,
     required String mnemonic,
     required String password,
+    required DerivationType derivationType,
   });
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);

@@ -40,12 +40,14 @@ class CWNano extends Nano {
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
+    required DerivationType derivationType,
     required String password,
   }) =>
       NanoRestoreWalletFromSeedCredentials(
         name: name,
         password: password,
         mnemonic: mnemonic,
+        derivationType: derivationType,
       );
 
   @override

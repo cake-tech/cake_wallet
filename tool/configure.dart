@@ -609,6 +609,7 @@ abstract class Nano {
     required String name,
     required String mnemonic,
     required String password,
+    required DerivationType derivationType,
   });
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);

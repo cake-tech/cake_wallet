@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -9,21 +8,24 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_nano/file.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
+import 'package:cw_nano/nano_util.dart';
 import 'package:mobx/mobx.dart';
-import 'package:web3dart/credentials.dart';
 import 'dart:async';
-import 'dart:io';
 import 'package:cw_nano/nano_wallet_addresses.dart';
-import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:bip32/bip32.dart' as bip32;
 
 part 'nano_wallet.g.dart';
 
 class NanoWallet = NanoWalletBase with _$NanoWallet;
+
+enum DerivationType { bip39, nano }
 
 abstract class NanoWalletBase
     extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo> with Store {
@@ -31,10 +33,12 @@ abstract class NanoWalletBase
     required WalletInfo walletInfo,
     required String mnemonic,
     required String password,
+    required DerivationType derivationType,
     NanoBalance? initialBalance,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
+        _derivationType = derivationType,
         _isTransactionUpdating = false,
         _priorityFees = [],
         walletAddresses = NanoWalletAddresses(walletInfo),
@@ -43,13 +47,17 @@ abstract class NanoWalletBase
               NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero)
         }),
         super(walletInfo) {
-    print("@@@@@ initializing nano wallet @@@@@");
     this.walletInfo = walletInfo;
     transactionHistory = NanoTransactionHistory();
   }
 
   final String _mnemonic;
   final String _password;
+  final DerivationType _derivationType;
+
+  late final String _privateKey;
+  late final String _publicAddress;
+  late final String _seed;
 
   List<int> _priorityFees;
   int? _gasPrice;
@@ -66,11 +74,25 @@ abstract class NanoWalletBase
   @observable
   late ObservableMap<CryptoCurrency, NanoBalance> balance;
 
-  Future<void> init() async {}
+
+  // initialize the different forms of private / public key we'll need:
+  Future<void> init() async {
+    final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
+
+    _seed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
+    _privateKey = await NanoUtil.uniSeedToPrivate(_mnemonic, 0, type);
+    _publicAddress = await NanoUtil.uniSeedToAddress(_mnemonic, 0, type);
+
+    await walletAddresses.init();
+    // await transactionHistory.init();
+
+    // walletAddresses.address = _privateKey.address.toString();
+    await save();
+  }
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    return 0;
+    return 0; // always 0 :)
   }
 
   @override
@@ -122,8 +144,10 @@ abstract class NanoWalletBase
 
   @override
   Future<void> save() async {
-    print("l");
-    throw UnimplementedError();
+    await walletAddresses.updateAddressesInBox();
+    final path = await makePath();
+    await write(path: path, password: _password, data: toJSON());
+    await transactionHistory.save();
   }
 
   @override
@@ -139,6 +163,13 @@ abstract class NanoWalletBase
     throw UnimplementedError();
   }
 
+  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+
+  String toJSON() => json.encode({
+        'mnemonic': _mnemonic,
+        // 'balance': balance[currency]!.toJSON(),
+      });
+
   static Future<NanoWallet> open({
     required String name,
     required String password,
@@ -151,24 +182,12 @@ abstract class NanoWalletBase
     await save();
   }
 
-  Future<void> _fetchErc20Balances() async {
-    throw UnimplementedError();
-  }
-
   Future<EthPrivateKey> getPrivateKey(String mnemonic, String password) async {
     print("o");
     throw UnimplementedError();
   }
 
   Future<void>? updateBalance() async => await _updateBalance();
-
-  Future<void> addErc20Token(Erc20Token token) async {
-    throw UnimplementedError();
-  }
-
-  Future<void> deleteErc20Token(Erc20Token token) async {
-    throw UnimplementedError();
-  }
 
   void _onNewTransaction(FilterEvent event) {
     throw UnimplementedError();

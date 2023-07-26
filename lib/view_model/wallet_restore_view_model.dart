@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cw_nano/nano_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -75,8 +76,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
               name: name, mnemonic: seed, password: password);
         case WalletType.nano:
+          // default to bip39 for now:
+          final DerivationType derivationType = DerivationType.bip39;
           return nano!.createNanoRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+            name: name,
+            mnemonic: seed,
+            password: password,
+            derivationType: derivationType,
+          );
         default:
           break;
       }

@@ -47,9 +47,9 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM with Sto
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name, mnemonic: seed, password: password);
-      case WalletType.nano:
-        return nano!.createNanoRestoreWalletFromSeedCredentials(
-            name: name, mnemonic: seed, password: password);
+      // case WalletType.nano:
+      //   return nano!.createNanoRestoreWalletFromSeedCredentials(
+      //       name: name, mnemonic: seed, password: password, derivationType: );
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

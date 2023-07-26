@@ -27,6 +27,7 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
+const nanoDefaultNodeUri = 'rpc.nano.to';
 
 Future defaultSettingsMigration(
     {required int version,
@@ -252,6 +253,12 @@ Node? getHavenDefaultNode({required Box<Node> nodes}) {
 Node? getEthereumDefaultNode({required Box<Node> nodes}) {
     return nodes.values.firstWhereOrNull(
           (Node node) => node.uriRaw == ethereumDefaultNodeUri)
+          ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
+}
+
+Node? getNanoDefaultNode({required Box<Node> nodes}) {
+    return nodes.values.firstWhereOrNull(
+          (Node node) => node.uriRaw == nanoDefaultNodeUri)
           ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
 }
 
