@@ -20,6 +20,8 @@ class OnRamperBuyProvider {
     switch (_wallet.currency) {
       case CryptoCurrency.ltc:
         return "LTC_LITECOIN";
+      case CryptoCurrency.xmr:
+        return "XMR_MONERO";
       default:
         return _wallet.currency.title;
     }
