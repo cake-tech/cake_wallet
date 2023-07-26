@@ -235,6 +235,9 @@ abstract class OutputBase with Store {
       case WalletType.haven:
         maximumFractionDigits = 12;
         break;
+      case WalletType.ethereum:
+        maximumFractionDigits = 12;
+        break;
       default:
         break;
     }

@@ -159,7 +159,7 @@ abstract class EthereumWalletBase
     BigInt totalAmount = BigInt.zero;
     int exponent =
         _credentials.currency is Erc20Token ? (_credentials.currency as Erc20Token).decimal : 18;
-    BigInt amountToEthereumMultiplier = BigInt.from(pow(10, exponent));
+    num amountToEthereumMultiplier = pow(10, exponent);
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
@@ -168,7 +168,7 @@ abstract class EthereumWalletBase
 
       final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-      totalAmount = BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
+      totalAmount = BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
         throw EthereumTransactionCreationException(_credentials.currency);
@@ -180,7 +180,7 @@ abstract class EthereumWalletBase
           EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
       totalAmount = output.sendAll
           ? allAmount
-          : BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
+          : BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
         throw EthereumTransactionCreationException(_credentials.currency);
