@@ -15,26 +15,28 @@ import 'package:cake_wallet/store/settings_store.dart';
 
 part 'send_template_view_model.g.dart';
 
-class SendTemplateViewModel = SendTemplateViewModelBase
-    with _$SendTemplateViewModel;
+class SendTemplateViewModel = SendTemplateViewModelBase with _$SendTemplateViewModel;
 
 abstract class SendTemplateViewModelBase with Store {
-  SendTemplateViewModelBase(this._wallet, this._settingsStore,
-      this._sendTemplateStore, this._fiatConversationStore)
-  : output = Output(_wallet, _settingsStore, _fiatConversationStore, () => _wallet.currency) {
-    output = Output(_wallet, _settingsStore, _fiatConversationStore, () => currency);
-  }
+  SendTemplateViewModelBase(this._wallet, this._settingsStore, this._sendTemplateStore,
+      FiatConversionStore _fiatConversationStore)
+      : output = Output(_wallet, _settingsStore, _fiatConversationStore, () => _wallet.currency),
+        _currency = _wallet.currency;
 
   Output output;
 
-  Validator get amountValidator =>
+  @observable
+  CryptoCurrency _currency;
+
+  TextValidator get amountValidator =>
       AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
-  Validator get addressValidator => AddressValidator(type: _wallet.currency);
+  TextValidator get addressValidator => AddressValidator(type: _wallet.currency);
 
-  Validator get templateValidator => TemplateValidator();
+  TextValidator get templateValidator => TemplateValidator();
 
-  CryptoCurrency get currency => _wallet.currency;
+  @computed
+  CryptoCurrency get currency => _currency;
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
@@ -45,35 +47,43 @@ abstract class SendTemplateViewModelBase with Store {
   bool isFiatSelected = false;
 
   @action
-  void selectCurrency () {
+  void selectCurrency() {
     isCurrencySelected = true;
     isFiatSelected = false;
   }
 
   @action
-  void selectFiat () {
+  void selectFiat() {
     isFiatSelected = true;
     isCurrencySelected = false;
+  }
+
+  @action
+  void changeSelectedCurrency(CryptoCurrency currency) {
+    isCurrencySelected = true;
+    _currency = currency;
   }
 
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
+  @computed
+  List<CryptoCurrency> get walletCurrencies => _wallet.balance.keys.toList();
+
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateStore _sendTemplateStore;
-  final FiatConversionStore _fiatConversationStore;
 
   void updateTemplate() => _sendTemplateStore.update();
 
   void addTemplate(
       {required String name,
-        required bool isCurrencySelected,
-        required String address,
-        required String cryptoCurrency,
-        required String fiatCurrency,
-        required String amount,
-        required String amountFiat}) {
+      required bool isCurrencySelected,
+      required String address,
+      required String cryptoCurrency,
+      required String fiatCurrency,
+      required String amount,
+      required String amountFiat}) {
     _sendTemplateStore.addTemplate(
         name: name,
         isCurrencySelected: isCurrencySelected,

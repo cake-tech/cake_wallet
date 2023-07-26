@@ -1,4 +1,8 @@
+import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
@@ -47,218 +51,194 @@ class SendTemplatePage extends BasePage {
     _setEffects(context);
 
     return KeyboardActions(
-        config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context)
-                .accentTextTheme!
-                .bodyLarge!
-                .backgroundColor!,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _cryptoAmountFocus,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
+      config: KeyboardActionsConfig(
+          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+          keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
+          nextFocus: false,
+          actions: [
+            KeyboardActionsItem(
+              focusNode: _cryptoAmountFocus,
+              toolbarButtons: [(_) => KeyboardDoneButton()],
+            ),
+            KeyboardActionsItem(
+              focusNode: _fiatAmountFocus,
+              toolbarButtons: [(_) => KeyboardDoneButton()],
+            )
+          ]),
+      child: Container(
+        height: 0,
+        color: Theme.of(context).colorScheme.background,
+        child: ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.only(bottom: 24),
+          content: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
               ),
-              KeyboardActionsItem(
-                focusNode: _fiatAmountFocus,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
-              )
-            ]),
-        child: Container(
-          height: 0,
-          color: Theme.of(context).colorScheme.background,
-          child: ScrollableWithBottomSection(
-            contentPadding: EdgeInsets.only(bottom: 24),
-            content: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-                gradient: LinearGradient(colors: [
-                  Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                  Theme.of(context)
-                      .primaryTextTheme!
-                      .titleMedium!
-                      .decorationColor!,
-                ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
-                      child: Column(
-                        children: <Widget>[
-                          BaseTextFormField(
-                            controller: _nameController,
-                            hintText: S.of(context).send_name,
-                            borderColor: Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineSmall!
-                                .color!,
+              gradient: LinearGradient(colors: [
+                Theme.of(context).primaryTextTheme.titleMedium!.color!,
+                Theme.of(context).primaryTextTheme.titleMedium!.decorationColor!,
+              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
+                    child: Column(
+                      children: <Widget>[
+                        BaseTextFormField(
+                          controller: _nameController,
+                          hintText: S.of(context).send_name,
+                          borderColor: Theme.of(context).primaryTextTheme.headlineSmall!.color!,
+                          textStyle: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+                          placeholderTextStyle: TextStyle(
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headlineSmall!
+                                  .decorationColor!,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14),
+                          validator: sendTemplateViewModel.templateValidator,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: AddressTextField(
+                            controller: _addressController,
+                            onURIScanned: (uri) {
+                              final paymentRequest = PaymentRequest.fromUri(uri);
+                              _addressController.text = paymentRequest.address;
+                              _cryptoAmountController.text = paymentRequest.amount;
+                            },
+                            options: [
+                              AddressTextFieldOption.paste,
+                              AddressTextFieldOption.qrCode,
+                              AddressTextFieldOption.addressBook
+                            ],
+                            buttonColor: Theme.of(context).primaryTextTheme.headlineMedium!.color!,
+                            borderColor: Theme.of(context).primaryTextTheme.headlineSmall!.color!,
                             textStyle: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+                            hintStyle: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                            placeholderTextStyle: TextStyle(
                                 color: Theme.of(context)
-                                    .primaryTextTheme!
+                                    .primaryTextTheme
                                     .headlineSmall!
-                                    .decorationColor!,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14),
-                            validator: sendTemplateViewModel.templateValidator,
+                                    .decorationColor!),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 20),
-                            child: AddressTextField(
-                              controller: _addressController,
-                              onURIScanned: (uri) {
-                                final paymentRequest = PaymentRequest.fromUri(uri);
-                                _addressController.text = paymentRequest.address;
-                                _cryptoAmountController.text = paymentRequest.amount;
-                              },
-                              options: [
-                                AddressTextFieldOption.paste,
-                                AddressTextFieldOption.qrCode,
-                                AddressTextFieldOption.addressBook
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Focus(
+                                onFocusChange: (hasFocus) {
+                                  if (hasFocus) {
+                                    sendTemplateViewModel.selectCurrency();
+                                  }
+                                },
+                                child: BaseTextFormField(
+                                    focusNode: _cryptoAmountFocus,
+                                    controller: _cryptoAmountController,
+                                    keyboardType: TextInputType.numberWithOptions(
+                                        signed: false, decimal: true),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                    ],
+                                    prefixIcon: Observer(
+                                      builder: (_) => PrefixCurrencyIcon(
+                                        title: sendTemplateViewModel.currency.title,
+                                        isSelected: sendTemplateViewModel.isCurrencySelected,
+                                        onTap: sendTemplateViewModel.walletCurrencies.length > 1
+                                            ? () => _presentPicker(context)
+                                            : null,
+                                      ),
+                                    ),
+                                    hintText: '0.0000',
+                                    borderColor:
+                                        Theme.of(context).primaryTextTheme.headlineSmall!.color!,
+                                    textStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                    placeholderTextStyle: TextStyle(
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .headlineSmall!
+                                            .decorationColor!,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14),
+                                    validator: sendTemplateViewModel.amountValidator))),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: Focus(
+                            onFocusChange: (hasFocus) {
+                              if (hasFocus) {
+                                sendTemplateViewModel.selectFiat();
+                              }
+                            },
+                            child: BaseTextFormField(
+                              focusNode: _fiatAmountFocus,
+                              controller: _fiatAmountController,
+                              keyboardType: TextInputType.numberWithOptions(
+                                signed: false,
+                                decimal: true,
+                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
                               ],
-                              buttonColor: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineMedium!
-                                  .color!,
-                              borderColor: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineSmall!
-                                  .color!,
+                              prefixIcon: Observer(
+                                builder: (_) => PrefixCurrencyIcon(
+                                  title: sendTemplateViewModel.fiat.title,
+                                  isSelected: sendTemplateViewModel.isFiatSelected,
+                                ),
+                              ),
+                              hintText: '0.00',
+                              borderColor: Theme.of(context).primaryTextTheme.headlineSmall!.color!,
                               textStyle: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
-                              hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+                              placeholderTextStyle: TextStyle(
                                   color: Theme.of(context)
-                                      .primaryTextTheme!
+                                      .primaryTextTheme
                                       .headlineSmall!
-                                      .decorationColor!),
+                                      .decorationColor!,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14),
                             ),
                           ),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: Focus(
-                                  onFocusChange: (hasFocus) {
-                                    if (hasFocus) {
-                                      sendTemplateViewModel.selectCurrency();
-                                    }
-                                  },
-                                  child: BaseTextFormField(
-                                  focusNode: _cryptoAmountFocus,
-                                  controller: _cryptoAmountController,
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      signed: false, decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.deny(
-                                        RegExp('[\\-|\\ ]'))
-                                  ],
-                                  prefixIcon: Observer(
-                                      builder: (_) => PrefixCurrencyIcon(
-                                        title: sendTemplateViewModel
-                                            .currency.title,
-                                        isSelected:
-                                        sendTemplateViewModel
-                                            .isCurrencySelected,
-                                      )),
-                                  hintText: '0.0000',
-                                  borderColor: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .headlineSmall!
-                                      .color!,
-                                  textStyle: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
-                                  placeholderTextStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineSmall!
-                                          .decorationColor!,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14),
-                                  validator:
-                                      sendTemplateViewModel.amountValidator))),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: Focus(
-                                  onFocusChange: (hasFocus) {
-                                    if (hasFocus) {
-                                      sendTemplateViewModel.selectFiat();
-                                    }
-                                  },
-                                  child: BaseTextFormField(
-                                focusNode: _fiatAmountFocus,
-                                controller: _fiatAmountController,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    signed: false, decimal: true),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.deny(
-                                      RegExp('[\\-|\\ ]'))
-                                ],
-                                prefixIcon: Observer(
-                                    builder: (_) => PrefixCurrencyIcon(
-                                      title: sendTemplateViewModel
-                                          .fiat.title,
-                                      isSelected: sendTemplateViewModel
-                                          .isFiatSelected,
-                                    )),
-                                hintText: '0.00',
-                                borderColor: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headlineSmall!
-                                    .color!,
-                                textStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
-                                placeholderTextStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .headlineSmall!
-                                        .decorationColor!,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14),
-                              ))),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            bottomSectionPadding:
-                EdgeInsets.only(left: 24, right: 24, bottom: 24),
-            bottomSection: PrimaryButton(
-              onPressed: () {
-                if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-                  sendTemplateViewModel.addTemplate(
-                      isCurrencySelected: sendTemplateViewModel.isCurrencySelected,
-                      name: _nameController.text,
-                      address: _addressController.text,
-                      cryptoCurrency:sendTemplateViewModel.currency.title,
-                      fiatCurrency: sendTemplateViewModel.fiat.title,
-                      amount: _cryptoAmountController.text,
-                      amountFiat: _fiatAmountController.text);
-                  Navigator.of(context).pop();
-                }
-              },
-              text: S.of(context).save,
-              color: Colors.green,
-              textColor: Colors.white,
-            ),
           ),
-        ));
+          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          bottomSection: PrimaryButton(
+            onPressed: () {
+              if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+                sendTemplateViewModel.addTemplate(
+                  isCurrencySelected: sendTemplateViewModel.isCurrencySelected,
+                  name: _nameController.text,
+                  address: _addressController.text,
+                  cryptoCurrency: sendTemplateViewModel.currency.title,
+                  fiatCurrency: sendTemplateViewModel.fiat.title,
+                  amount: _cryptoAmountController.text,
+                  amountFiat: _fiatAmountController.text,
+                );
+                Navigator.of(context).pop();
+              }
+            },
+            text: S.of(context).save,
+            color: Colors.green,
+            textColor: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 
   void _setEffects(BuildContext context) {
@@ -311,5 +291,19 @@ class SendTemplatePage extends BasePage {
     });
 
     _effectsInstalled = true;
+  }
+
+  void _presentPicker(BuildContext context) {
+    showPopUp<void>(
+      context: context,
+      builder: (_) => CurrencyPicker(
+        selectedAtIndex:
+            sendTemplateViewModel.walletCurrencies.indexOf(sendTemplateViewModel.currency),
+        items: sendTemplateViewModel.walletCurrencies,
+        hintText: S.of(context).search_currency,
+        onItemSelected: (Currency cur) =>
+            sendTemplateViewModel.changeSelectedCurrency(cur as CryptoCurrency),
+      ),
+    );
   }
 }
