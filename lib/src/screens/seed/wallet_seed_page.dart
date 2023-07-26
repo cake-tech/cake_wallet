@@ -12,6 +12,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -159,8 +160,7 @@ class WalletSeedPage extends BasePage {
                           child: Builder(
                               builder: (context) => PrimaryButton(
                                   onPressed: () {
-                                    Clipboard.setData(
-                                        ClipboardData(text: walletSeedViewModel.seed));
+                                    SensitiveClipboard.copy(walletSeedViewModel.seed);
                                     showBar<void>(context, S.of(context).copied_to_clipboard);
                                   },
                                   text: S.of(context).copy,
