@@ -5,7 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class SupportChatPage extends BasePage {
   final chatwootBaseUrl = "https://support.cakewallet.com";
-  final chatwootInboxIdentifier = "GqBN8XmphPdgJmrH2Bs76ZKN";
+  final chatwootInboxIdentifier = "kyUCS2fX2xnPSRrtTixPyJWu";
 
   @override
   String get title => S.current.settings_support;
@@ -26,14 +26,9 @@ class SupportChatPage extends BasePage {
           Theme.of(context).primaryTextTheme.titleMedium!.decorationColor!,
         ], begin: Alignment.topLeft, end: Alignment.bottomRight),
       ),
-      child: ChatwootChat(
+      child: ChatwootWidget(
         baseUrl: chatwootBaseUrl,
-        inboxIdentifier: chatwootInboxIdentifier,
-        user: ChatwootUser(
-          identifier: "cakewallet.com",
-          email: "dummy@cakewallet.com",
-          name: "Mobile User",
-        ),
+        websiteToken: chatwootInboxIdentifier,
       ),
     );
   }

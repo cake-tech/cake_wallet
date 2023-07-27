@@ -6,7 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SupportPage extends BasePage {
-  final imageKeys = Image.asset('assets/images/restore_keys.png');
+
+  final imageLiveSupport = Image.asset('assets/images/live_support.png');
+  final imageWalletGuides = Image.asset('assets/images/wallet_guides.png');
+  final imageMoreLinks = Image.asset('assets/images/more_links.png');
+
   final guidesLink = "https://guides.cakewallet.com/";
 
   @override
@@ -26,7 +30,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: SupportTile(
-                  image: imageKeys,
+                  image: imageLiveSupport,
                   title: S.of(context).support_title_live_chat,
                   description: S.of(context).support_description_live_chat,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportLiveChat),
@@ -35,7 +39,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: SupportTile(
-                  image: imageKeys,
+                  image: imageWalletGuides,
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
                   onPressed: () => _launchUrl(guidesLink),
@@ -44,7 +48,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: SupportTile(
-                  image: imageKeys,
+                  image: imageMoreLinks,
                   title: S.of(context).support_title_other_links,
                   description: S.of(context).support_description_other_links,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),

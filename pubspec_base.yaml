@@ -86,7 +86,17 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
       ref: cake-update-v2
-  chatwoot_sdk: ^0.0.9
+  chatwoot_sdk:
+    git:
+      url: https://github.com/chatwoot/chatwoot-flutter-sdk.git
+
+dependency_overrides:
+  flutter_secure_storage:
+    git:
+      url: https://github.com/cake-tech/flutter_secure_storage.git
+      path: flutter_secure_storage
+      ref: cake-8.0.0
+      version: 8.0.0
 
 dev_dependencies:
   flutter_test:
