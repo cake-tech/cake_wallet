@@ -17,6 +17,7 @@ dependencies:
   bip39: ^1.0.6
   bip32: ^2.0.0
   nanodart: ^2.0.0
+  decimal: ^2.3.3
   libcrypto: ^0.2.2
   ed25519_hd_key: ^2.2.0
   hex: ^0.2.0

@@ -5,11 +5,13 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/file.dart';
 import 'package:cw_nano/nano_balance.dart';
+import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_util.dart';
@@ -40,7 +42,7 @@ abstract class NanoWalletBase
         _mnemonic = mnemonic,
         _derivationType = derivationType,
         _isTransactionUpdating = false,
-        _priorityFees = [],
+        _client = NanoClient(),
         walletAddresses = NanoWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, NanoBalance>.of({
           CryptoCurrency.nano: initialBalance ??
@@ -48,7 +50,7 @@ abstract class NanoWalletBase
         }),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = NanoTransactionHistory();
+    transactionHistory = NanoTransactionHistory(walletInfo: walletInfo, password: password);
   }
 
   final String _mnemonic;
@@ -59,8 +61,7 @@ abstract class NanoWalletBase
   late final String _publicAddress;
   late final String _seedKey;
 
-  List<int> _priorityFees;
-  int? _gasPrice;
+  late NanoClient _client;
   bool _isTransactionUpdating;
 
   @override
@@ -84,7 +85,7 @@ abstract class NanoWalletBase
     this.walletInfo.address = _publicAddress;
 
     await walletAddresses.init();
-    // await transactionHistory.init();
+    await transactionHistory.init();
 
     // walletAddresses.address = _privateKey.address.toString();
     await save();
@@ -103,14 +104,24 @@ abstract class NanoWalletBase
 
   @override
   void close() {
-    // _client.stop();
+    _client.stop();
   }
 
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
-    print("f");
-    throw UnimplementedError();
+    try {
+      syncStatus = ConnectingSyncStatus();
+      final isConnected = _client.connect(node);
+      if (!isConnected) {
+        throw Exception("Ethereum Node connection failed");
+      }
+      // _client.setListeners(_privateKey.address, _onNewTransaction);
+      _updateBalance();
+      syncStatus = ConnectedSyncStatus();
+    } catch (e) {
+      syncStatus = FailedSyncStatus();
+    }
   }
 
   @override
@@ -120,14 +131,45 @@ abstract class NanoWalletBase
   }
 
   Future<void> updateTransactions() async {
-    print("h");
-    throw UnimplementedError();
+    print("updating_transactions");
+    try {
+      if (_isTransactionUpdating) {
+        return;
+      }
+
+      _isTransactionUpdating = true;
+      final transactions = await fetchTransactions();
+      transactionHistory.addMany(transactions);
+      await transactionHistory.save();
+      _isTransactionUpdating = false;
+    } catch (_) {
+      _isTransactionUpdating = false;
+    }
   }
 
   @override
   Future<Map<String, NanoTransactionInfo>> fetchTransactions() async {
-    print("i");
-    throw UnimplementedError();
+    String address = _publicAddress;
+
+    final transactions = await _client.fetchTransactions(address);
+
+    final Map<String, NanoTransactionInfo> result = {};
+
+    for (var transactionModel in transactions) {
+      result[transactionModel.hash] = NanoTransactionInfo(
+        id: transactionModel.hash,
+        amountRaw: transactionModel.amount,
+        height: transactionModel.height,
+        direction: transactionModel.account == address
+            ? TransactionDirection.outgoing
+            : TransactionDirection.incoming,
+        confirmed: transactionModel.confirmed,
+        date: transactionModel.date ?? DateTime.now(),
+        confirmations: transactionModel.confirmed ? 1 : 0,
+      );
+    }
+
+    return result;
   }
 
   @override
@@ -156,11 +198,15 @@ abstract class NanoWalletBase
   @action
   @override
   Future<void> startSync() async {
-    throw UnimplementedError();
-  }
+    try {
+      syncStatus = AttemptingSyncStatus();
+      await _updateBalance();
+      await updateTransactions();
 
-  int feeRate(TransactionPriority priority) {
-    throw UnimplementedError();
+      syncStatus = SyncedSyncStatus();
+    } catch (e) {
+      syncStatus = FailedSyncStatus();
+    }
   }
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
@@ -177,16 +223,16 @@ abstract class NanoWalletBase
     required String password,
     required WalletInfo walletInfo,
   }) async {
-    // TODO: finish
     final path = await pathForWallet(name: name, type: walletInfo.type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
-    final balance = /*NanoBalance.fromJSON(data['balance'] as String) ?? */
-        NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero);
+    final balance = NanoBalance.fromString(
+        formattedCurrentBalance: data['balance'] as String? ?? "0",
+        formattedReceivableBalance: "0");
 
     DerivationType derivationType = DerivationType.bip39;
-    if (data['derivationType'] == "nano") {
+    if (data['derivationType'] == "DerivationType.nano") {
       derivationType = DerivationType.nano;
     }
 
@@ -201,11 +247,6 @@ abstract class NanoWalletBase
 
   Future<void> _updateBalance() async {
     await save();
-  }
-
-  Future<EthPrivateKey> getPrivateKey(String mnemonic, String password) async {
-    print("o");
-    throw UnimplementedError();
   }
 
   Future<void>? updateBalance() async => await _updateBalance();

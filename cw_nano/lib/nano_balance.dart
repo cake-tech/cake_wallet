@@ -6,6 +6,10 @@ String rawToFormattedAmount(BigInt amount, Currency currency) {
   return "";
 }
 
+BigInt stringAmountToBigInt(String amount) {
+  return BigInt.zero;
+}
+
 class NanoBalance extends Balance {
   final BigInt currentBalance;
   final BigInt receivableBalance;
@@ -17,16 +21,19 @@ class NanoBalance extends Balance {
     this.formattedReceivableBalance = "";
   }
 
-  // NanoBalance.fromString(
-  //     {required this.formattedCurrentBalance, required this.formattedReceivableBalance})
-  //     : currentBalance = moneroParseAmount(amount: formattedCurrentBalance),
-  //       receivableBalance = moneroParseAmount(amount: formattedReceivableBalance),
-  //       super(moneroParseAmount(amount: formattedReceivableBalance),
-  //           moneroParseAmount(amount: formattedCurrentBalance));
+  NanoBalance.fromString(
+      {required this.formattedCurrentBalance, required this.formattedReceivableBalance})
+      : currentBalance = stringAmountToBigInt(formattedCurrentBalance),
+        receivableBalance = stringAmountToBigInt(formattedReceivableBalance),
+        super(0, 0);
 
   @override
-  String get formattedAvailableBalance => "0";
+  String get formattedAvailableBalance {
+    return "0";
+  }
 
   @override
-  String get formattedAdditionalBalance => "0";
+  String get formattedAdditionalBalance {
+    return "0";
+  }
 }

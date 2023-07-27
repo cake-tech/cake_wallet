@@ -116,7 +116,6 @@ class NanoURI extends PaymentURI {
 
   @override
   String toString() {
-    print(address);
     var base = 'nano:' + address;
 
     if (amount.isNotEmpty) {

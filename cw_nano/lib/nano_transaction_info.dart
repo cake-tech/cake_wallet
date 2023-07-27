@@ -1,72 +1,39 @@
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_monero/api/structs/transaction_info_row.dart';
-import 'package:cw_core/parseBoolFromString.dart';
-import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_monero/api/transaction_history.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_nano/nano_util.dart';
 
 class NanoTransactionInfo extends TransactionInfo {
-  NanoTransactionInfo(this.id, this.height, this.direction, this.date, this.isPending, this.amount,
-      this.accountIndex, this.addressIndex, this.amountRaw, this.confirmations);
-
-  // NanoTransactionInfo.fromMap(Map<String, Object?> map)
-  //     : id = (map['hash'] ?? '') as String,
-  //       height = (map['height'] ?? 0) as int,
-  //       direction = map['direction'] != null
-  //           ? parseTransactionDirectionFromNumber(map['direction'] as String)
-  //           : TransactionDirection.incoming,
-  //       date = DateTime.fromMillisecondsSinceEpoch(
-  //           (int.tryParse(map['timestamp'] as String? ?? '') ?? 0) * 1000),
-  //       isPending = parseBoolFromString(map['isPending'] as String),
-  //       amount = map['amount'] as int,
-  //       accountIndex = int.parse(map['accountIndex'] as String),
-  //       addressIndex = map['addressIndex'] as int,
-  //       confirmations = map['confirmations'] as int,
-  //       key = getTxKey((map['hash'] ?? '') as String),
-  //       fee = map['fee'] as int? ?? 0 {
-  //   additionalInfo = <String, dynamic>{
-  //     'key': key,
-  //     'accountIndex': accountIndex,
-  //     'addressIndex': addressIndex
-  //   };
-  // }
-
-  // NanoTransactionInfo.fromRow(TransactionInfoRow row)
-  //     : id = row.getHash(),
-  //       height = row.blockHeight,
-  //       direction = parseTransactionDirectionFromInt(row.direction),
-  //       date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
-  //       isPending = row.isPending != 0,
-  //       amount = row.getAmount(),
-  //       accountIndex = row.subaddrAccount,
-  //       addressIndex = row.subaddrIndex,
-  //       confirmations = row.confirmations,
-  //       key = getTxKey(row.getHash()),
-  //       fee = row.fee {
-  //   additionalInfo = <String, dynamic>{
-  //     'key': key,
-  //     'accountIndex': accountIndex,
-  //     'addressIndex': addressIndex
-  //   };
-  // }
+  NanoTransactionInfo({
+    required this.id,
+    required this.height,
+    required this.amountRaw,
+    this.tokenSymbol = "XNO",
+    required this.direction,
+    required this.confirmed,
+    required this.date,
+    required this.confirmations,
+  }) : this.amount = amountRaw.toInt();
 
   final String id;
   final int height;
-  final TransactionDirection direction;
-  final DateTime date;
-  final int accountIndex;
-  final bool isPending;
   final int amount;
   final BigInt amountRaw;
-  final int addressIndex;
+  final TransactionDirection direction;
+  final DateTime date;
+  final bool confirmed;
   final int confirmations;
-  String? recipientAddress;
-  String? key;
+  final String tokenSymbol;
   String? _fiatAmount;
 
+  bool get isPending => !this.confirmed;
+
   @override
-  String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} XNO';
+  String amountFormatted() {
+    final String amt = NanoUtil.getRawAsUsableString(amountRaw.toString(), NanoUtil.rawPerNano);
+    final String acc = NanoUtil.getRawAccuracy(amountRaw.toString(), NanoUtil.rawPerNano);
+    return "$acc$amt $tokenSymbol";
+  }
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -75,5 +42,29 @@ class NanoTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '${formatAmount(moneroAmountToString(amount: 0))} XNO';
+  String feeFormatted() => "0 XNO";
+
+  factory NanoTransactionInfo.fromJson(Map<String, dynamic> data) {
+    return NanoTransactionInfo(
+      id: data['id'] as String,
+      height: data['height'] as int,
+      amountRaw: data['amountRaw'] as BigInt,
+      direction: parseTransactionDirectionFromInt(data['direction'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      confirmed: data['confirmed'] as bool,
+      confirmations: data['confirmations'] as int,
+      tokenSymbol: data['tokenSymbol'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'height': height,
+        'amountRaw': amountRaw,
+        'direction': direction.index,
+        'date': date.millisecondsSinceEpoch,
+        'confirmed': confirmed,
+        'confirmations': confirmations,
+        'tokenSymbol': tokenSymbol,
+      };
 }
