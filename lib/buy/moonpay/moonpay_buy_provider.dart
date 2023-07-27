@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:http/http.dart';
@@ -16,20 +19,42 @@ class MoonPaySellProvider {
   MoonPaySellProvider({this.isTest = false})
     : baseUrl = isTest ? _baseTestUrl : _baseProductUrl;
 
-  static const _baseTestUrl = 'sell-staging.moonpay.com';
+  static const _baseTestUrl = 'sell-sandbox.moonpay.com';
   static const _baseProductUrl = 'sell.moonpay.com';
+  static String themeToMoonPayTheme(ThemeBase theme) {
+    switch (theme.type) {
+      case ThemeType.bright:
+        return 'light';
+      case ThemeType.light:
+        return 'light';
+      case ThemeType.dark:
+        return 'dark';
+    }
+  }
   static String get _apiKey =>  secrets.moonPayApiKey;
   static String get _secretKey =>  secrets.moonPaySecretKey;
   final bool isTest;
   final String baseUrl;
 
-  Future<String> requestUrl({CryptoCurrency currency, String refundWalletAddress}) async {
+  Future<Uri> requestUrl(
+      {required CryptoCurrency currency,
+        required String refundWalletAddress,
+        required SettingsStore settingsStore}) async {
+
+    final customParams = {
+      'theme': themeToMoonPayTheme(settingsStore.currentTheme),
+      'language': settingsStore.languageCode,
+      'colorCode': settingsStore.currentTheme.type == ThemeType.dark
+          ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
+          : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
+    };
+
     final originalUri = Uri.https(
       baseUrl, '', <String, dynamic>{
         'apiKey': _apiKey,
         'defaultBaseCurrencyCode': currency.toString().toLowerCase(),
         'refundWalletAddress': refundWalletAddress
-    });
+    }..addAll(customParams));
     final messageBytes = utf8.encode('?${originalUri.query}');
     final key = utf8.encode(_secretKey);
     final hmac = Hmac(sha256, key);
@@ -37,21 +62,20 @@ class MoonPaySellProvider {
     final signature = base64.encode(digest.bytes);
 
     if (isTest) {
-      return originalUri.toString();
+      return originalUri;
     }
 
     final query = Map<String, dynamic>.from(originalUri.queryParameters);
     query['signature'] = signature;
     final signedUri = originalUri.replace(queryParameters: query);
-    return signedUri.toString();
+    return signedUri;
   }
 }
 
 class MoonPayBuyProvider extends BuyProvider {
-  MoonPayBuyProvider({WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment) {
-      baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl;
-  }
+  MoonPayBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
+      : baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl,
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseTestUrl = 'https://buy-staging.moonpay.com';
   static const _baseProductUrl = 'https://buy.moonpay.com';
@@ -109,8 +133,8 @@ class MoonPayBuyProvider extends BuyProvider {
         _quoteSuffix + '/?apiKey=' + _apiKey +
         '&baseCurrencyAmount=' + amount +
         '&baseCurrencyCode=' + sourceCurrency.toLowerCase();
-
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       throw BuyException(
@@ -133,8 +157,8 @@ class MoonPayBuyProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final url = _apiUrl + _transactionsSuffix + '/$id' +
         '?apiKey=' + _apiKey;
-
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       throw BuyException(
@@ -164,8 +188,8 @@ class MoonPayBuyProvider extends BuyProvider {
   static Future<bool> onEnabled() async {
     final url = _apiUrl + _ipAddressSuffix + '?apiKey=' + _apiKey;
     var isBuyEnable = false;
-
-    final response = await get(url);
+    final uri = Uri.parse(url);
+    final response = await get(uri);
 
     try {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;

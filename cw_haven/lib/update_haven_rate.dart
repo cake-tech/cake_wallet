@@ -1,7 +1,7 @@
 //import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_haven/balance_list.dart';
+import 'package:cw_haven/api/balance_list.dart';
 
 //Future<void> updateHavenRate(FiatConversionStore fiatConversionStore) async {
 //  final rate = getRate();

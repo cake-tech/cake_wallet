@@ -21,7 +21,7 @@ class DisclaimerPage extends BasePage {
   String get title => 'Terms of Use';
 
   @override
-  Widget leading(BuildContext context) =>
+  Widget? leading(BuildContext context) =>
       isReadOnly ? super.leading(context) : null;
 
   @override
@@ -30,7 +30,7 @@ class DisclaimerPage extends BasePage {
 }
 
 class DisclaimerPageBody extends StatefulWidget {
-  DisclaimerPageBody({this.isReadOnly});
+  DisclaimerPageBody({required this.isReadOnly});
 
   final bool isReadOnly;
 
@@ -67,7 +67,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
     return WillPopScope(
         onWillPop: () async => false,
         child: Container(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.background,
           child: Column(
             children: <Widget>[
               SizedBox(height: 10.0),
@@ -88,9 +88,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .title
-                                        .color),
+                                        .primaryTextTheme!
+                                        .titleLarge!
+                                        .color!),
                               ),
                             )
                           ],
@@ -108,9 +108,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .title
-                                        .color),
+                                        .primaryTextTheme!
+                                        .titleLarge!
+                                        .color!),
                               ),
                             )
                           ],
@@ -127,9 +127,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.normal,
                                   color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .title
-                                      .color),
+                                      .primaryTextTheme!
+                                      .titleLarge!
+                                      .color!),
                             ))
                           ],
                         ),
@@ -147,9 +147,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .title
-                                        .color),
+                                        .primaryTextTheme!
+                                        .titleLarge!
+                                        .color!),
                               ),
                             )
                           ],
@@ -195,7 +195,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   Theme.of(context)
                                       .backgroundColor
                                       .withOpacity(0.0),
-                                  Theme.of(context).backgroundColor,
+                                  Theme.of(context).colorScheme.background,
                                 ],
                                 begin: FractionalOffset.topCenter,
                                 end: FractionalOffset.bottomCenter,
@@ -233,13 +233,13 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .caption
-                                              .color,
+                                              .primaryTextTheme!
+                                              .bodySmall!
+                                              .color!,
                                           width: 1.0),
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(8.0)),
-                                      color: Theme.of(context).backgroundColor),
+                                      color: Theme.of(context).colorScheme.background),
                                   child: _checked
                                       ? Icon(
                                           Icons.check,
@@ -254,9 +254,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14.0,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .title
-                                          .color),
+                                          .primaryTextTheme!
+                                          .titleLarge!
+                                          .color!),
                                 )
                               ],
                             ),
@@ -274,13 +274,13 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                           : null,
                       text: 'Accept',
                       color: Theme.of(context)
-                          .accentTextTheme
-                          .subtitle
-                          .decorationColor,
+                          .accentTextTheme!
+                          .titleSmall!
+                          .decorationColor!,
                       textColor: Theme.of(context)
-                          .accentTextTheme
-                          .headline
-                          .decorationColor),
+                          .accentTextTheme!
+                          .headlineSmall!
+                          .decorationColor!),
                 ),
               ],
             ],

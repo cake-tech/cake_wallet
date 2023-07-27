@@ -4,16 +4,16 @@ import 'package:flutter/cupertino.dart';
 
 class AlertWithTwoActions extends BaseAlertDialog {
   AlertWithTwoActions({
-    @required this.alertTitle,
-    @required this.alertContent,
-    @required this.leftButtonText,
-    @required this.rightButtonText,
-    @required this.actionLeftButton,
-    @required this.actionRightButton,
+    required this.alertTitle,
+    required this.alertContent,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
     this.alertBarrierDismissible = true,
     this.isDividerExist = false,
-    this.leftActionColor,
-    this.rightActionColor,
+    // this.leftActionColor,
+    // this.rightActionColor,
   });
 
   final String alertTitle;
@@ -23,8 +23,8 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final VoidCallback actionLeftButton;
   final VoidCallback actionRightButton;
   final bool alertBarrierDismissible;
-  final Color leftActionColor;
-  final Color rightActionColor;
+  // final Color leftActionColor;
+  // final Color rightActionColor;
   final bool isDividerExist;
 
   @override
@@ -41,10 +41,10 @@ class AlertWithTwoActions extends BaseAlertDialog {
   VoidCallback get actionRight => actionRightButton;
   @override
   bool get barrierDismissible => alertBarrierDismissible;
-  @override
-  Color get leftButtonColor => leftActionColor;
-  @override
-  Color get rightButtonColor => rightActionColor;
+  // @override
+  // Color get leftButtonColor => leftActionColor;
+  // @override
+  // Color get rightButtonColor => rightActionColor;
   @override
   bool get isDividerExists => isDividerExist;
 }

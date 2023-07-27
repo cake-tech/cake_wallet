@@ -1,7 +1,6 @@
-import 'dart:ffi';
 
+import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -21,7 +20,10 @@ class IoniaAccountCardsPage extends BasePage {
     return Text(
       S.of(context).cards,
       style: textLargeSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -42,7 +44,9 @@ class _IoniaCardTabs extends StatefulWidget {
 }
 
 class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProviderStateMixin {
-  TabController _tabController;
+  _IoniaCardTabsState();
+
+  TabController? _tabController;
 
   @override
   void initState() {
@@ -53,7 +57,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
   @override
   void dispose() {
     super.dispose();
-    _tabController.dispose();
+    _tabController?.dispose();
   }
 
   @override
@@ -68,23 +72,34 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
             width: 230,
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
+              color: Theme.of(context)
+                  .accentTextTheme!
+                  .displayLarge!
+                  .backgroundColor!
+                  .withOpacity(0.1),
               borderRadius: BorderRadius.circular(
                 25.0,
               ),
             ),
             child: Theme(
-              data: ThemeData(primaryTextTheme: TextTheme(body2: TextStyle(backgroundColor: Colors.transparent))),
+              data: ThemeData(primaryTextTheme: TextTheme(bodyLarge: TextStyle(backgroundColor: Colors.transparent))),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
                   borderRadius: BorderRadius.circular(
                     25.0,
                   ),
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                 ),
-                labelColor: Theme.of(context).primaryTextTheme.display4.backgroundColor,
-                unselectedLabelColor: Theme.of(context).primaryTextTheme.title.color,
+                labelColor: Theme.of(context)
+                    .primaryTextTheme!
+                    .displayLarge!
+                    .backgroundColor!,
+                unselectedLabelColor:
+                    Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 tabs: [
                   Tab(
                     text: S.of(context).active,
@@ -106,6 +121,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_balance_note,
                     merchList: viewModel.activeMechs,
+                    isLoading: viewModel.merchantState is IoniaLoadingMerchantState,
                     onTap: (giftCard) {
                       Navigator.pushNamed(
                         context,
@@ -116,6 +132,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_redeemed_note,
                     merchList: viewModel.redeemedMerchs,
+                    isLoading: viewModel.merchantState is IoniaLoadingMerchantState,
                     onTap: (giftCard) {
                       Navigator.pushNamed(
                         context,
@@ -135,25 +152,39 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
 
 class _IoniaCardListView extends StatelessWidget {
   _IoniaCardListView({
-    Key key,
-    @required this.emptyText,
-    @required this.merchList,
-    @required this.onTap,
+    Key? key,
+    required this.emptyText,
+    required this.merchList,
+    required this.onTap,
+    this.isLoading = false,
   }) : super(key: key);
 
   final String emptyText;
   final List<IoniaGiftCard> merchList;
   final void Function(IoniaGiftCard giftCard) onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    if(isLoading){
+      return Center(
+        child: CircularProgressIndicator(
+          backgroundColor: Theme.of(context)
+              .accentTextTheme!
+              .displayMedium!
+              .backgroundColor!,
+          valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).primaryTextTheme!.bodyMedium!.color!),
+        ),
+      );
+    }
     return merchList.isEmpty
         ? Center(
             child: Text(
               emptyText,
               textAlign: TextAlign.center,
               style: textSmall(
-                color: Theme.of(context).primaryTextTheme.overline.color,
+                color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
               ),
             ),
           )
@@ -166,10 +197,18 @@ class _IoniaCardListView extends StatelessWidget {
                 child: CardItem(
                   onTap: () => onTap?.call(merchant),
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
+                  backgroundColor: Theme.of(context)
+                      .accentTextTheme!
+                      .displayLarge!
+                      .backgroundColor!
+                      .withOpacity(0.1),
                   discount: 0,
+                  hideBorder: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
+                  titleColor: Theme.of(context)
+                      .accentTextTheme!
+                      .displayLarge!
+                      .backgroundColor!,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: '',
                   logoUrl: merchant.logoUrl,

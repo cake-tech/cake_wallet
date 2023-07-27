@@ -4,13 +4,13 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 
 class XMRTOTradeRequest extends TradeRequest {
   XMRTOTradeRequest(
-      {@required this.from,
-      @required this.to,
-      @required this.amount,
-      @required this.receiveAmount,
-      @required this.address,
-      @required this.refundAddress,
-      @required this.isBTCRequest});
+      {required this.from,
+      required this.to,
+      required this.amount,
+      required this.receiveAmount,
+      required this.address,
+      required this.refundAddress,
+      required this.isBTCRequest});
 
   final CryptoCurrency from;
   final CryptoCurrency to;

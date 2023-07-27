@@ -7,7 +7,7 @@ class BaseTextFormField extends StatelessWidget {
       this.keyboardType = TextInputType.text,
       this.textInputAction = TextInputAction.done,
       this.textAlign = TextAlign.start,
-      this.autovalidate = false,
+      this.autovalidateMode,
       this.hintText = '',
       this.maxLines = 1,
       this.inputFormatters,
@@ -27,33 +27,35 @@ class BaseTextFormField extends StatelessWidget {
       this.maxLength,
       this.focusNode,
       this.initialValue,
+      this.onSubmit,
       this.borderWidth = 1.0});
 
-  final TextEditingController controller;
-  final TextInputType keyboardType;
-  final TextInputAction textInputAction;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
   final TextAlign textAlign;
-  final bool autovalidate;
-  final String hintText;
-  final int maxLines;
-  final List<TextInputFormatter> inputFormatters;
-  final Color textColor;
-  final Color hintColor;
-  final Color borderColor;
-  final Widget prefix;
-  final Widget prefixIcon;
-  final Widget suffix;
-  final Widget suffixIcon;
-  final bool enabled;
-  final FormFieldValidator<String> validator;
-  final TextStyle placeholderTextStyle;
-  final TextStyle textStyle;
-  final int maxLength;
-  final FocusNode focusNode;
+  final AutovalidateMode? autovalidateMode;
+  final String? hintText;
+  final int? maxLines;
+  final List<TextInputFormatter>? inputFormatters;
+  final Color? textColor;
+  final Color? hintColor;
+  final Color? borderColor;
+  final Widget? prefix;
+  final Widget? prefixIcon;
+  final Widget? suffix;
+  final Widget? suffixIcon;
+  final bool? enabled;
+  final FormFieldValidator<String>? validator;
+  final TextStyle? placeholderTextStyle;
+  final TextStyle? textStyle;
+  final int? maxLength;
+  final FocusNode? focusNode;
   final bool readOnly;
-  final bool enableInteractiveSelection;
-  final String initialValue;
+  final bool? enableInteractiveSelection;
+  final String? initialValue;
   final double borderWidth;
+  final void Function(String)? onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -66,16 +68,17 @@ class BaseTextFormField extends StatelessWidget {
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       textAlign: textAlign,
-      autovalidate: autovalidate,
+      autovalidateMode: autovalidateMode,
       maxLines: maxLines,
       inputFormatters: inputFormatters,
       enabled: enabled,
       maxLength: maxLength,
+      onFieldSubmitted: onSubmit,
       style: textStyle ??
           TextStyle(
               fontSize: 16.0,
-              color:
-                  textColor ?? Theme.of(context).primaryTextTheme.title.color),
+              color: textColor ??
+                  Theme.of(context).primaryTextTheme!.titleLarge!.color!),
       decoration: InputDecoration(
           prefix: prefix,
           prefixIcon: prefixIcon,
@@ -89,17 +92,26 @@ class BaseTextFormField extends StatelessWidget {
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme.title.backgroundColor,
+                      Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .backgroundColor!,
                   width: borderWidth)),
           disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme.title.backgroundColor,
+                      Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .backgroundColor!,
                   width: borderWidth)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context).primaryTextTheme.title.backgroundColor,
+                      Theme.of(context)
+                          .primaryTextTheme!
+                          .titleLarge!
+                          .backgroundColor!,
                   width: borderWidth))),
       validator: validator,
     );

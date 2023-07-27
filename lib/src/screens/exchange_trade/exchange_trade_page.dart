@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -40,7 +41,7 @@ void showInformation(
 }
 
 class ExchangeTradePage extends BasePage {
-  ExchangeTradePage({@required this.exchangeTradeViewModel});
+  ExchangeTradePage({required this.exchangeTradeViewModel});
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
 
@@ -50,17 +51,18 @@ class ExchangeTradePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme.title.color);
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
 
     return SizedBox(
       height: 20.0,
       width: 20.0,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => showInformation(exchangeTradeViewModel, context),
             child: questionImage),
       ),
@@ -109,9 +111,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme.overline.color);
+        color: Theme.of(context).primaryTextTheme!.labelSmall!.color!);
 
-    _setEffects(context);
+    _setEffects();
 
     return Container(
       child: ScrollableWithBottomSection(
@@ -132,15 +134,16 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .overline
-                                      .color),
+                                      .primaryTextTheme!
+                                      .labelSmall!
+                                      .color!),
                             ),
-                            TimerWidget(trade.expiredAt,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color)
+                            if (trade.expiredAt != null)
+                              TimerWidget(trade.expiredAt!,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme!
+                                      .titleLarge!
+                                      .color!)
                           ])
                     : Offstage(),
                 Padding(
@@ -158,19 +161,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                       border: Border.all(
                                           width: 3,
                                           color: Theme.of(context)
-                                              .accentTextTheme
-                                              .subtitle
-                                              .color
+                                              .accentTextTheme!
+                                              .titleSmall!
+                                              .color!
                                       )
                                   ),
-                                  child: QrImage(
-                                    data: trade.inputAddress ?? fetchingLabel,
-                                    backgroundColor: Colors.transparent,
-                                    foregroundColor: Theme.of(context)
-                                        .accentTextTheme
-                                        .subtitle
-                                        .color,
-                                  ),
+                                  child: QrImage(data: trade.inputAddress ?? fetchingLabel),
                                 )))),
                     Spacer(flex: 3)
                   ]),
@@ -184,15 +180,15 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     separatorBuilder: (context, index) => Container(
                       height: 1,
                       color: Theme.of(context)
-                          .accentTextTheme
-                          .subtitle
-                          .backgroundColor,
+                          .accentTextTheme!
+                          .titleSmall!
+                          .backgroundColor!,
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
                       final value = item.data ?? fetchingLabel;
 
-                      final content = StandartListRow(
+                      final content = ListRow(
                         title: item.title,
                         value: value,
                         valueFontSize: 14,
@@ -227,19 +223,22 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     !(sendingState is TransactionCommitted)
                 ? LoadingPrimaryButton(
                     isDisabled: trade.inputAddress == null ||
-                        trade.inputAddress.isEmpty,
+                        trade.inputAddress!.isEmpty,
                     isLoading: sendingState is IsExecutingState,
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
                     text: S.of(context).confirm,
-                    color: Theme.of(context).accentTextTheme.body2.color,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .bodyLarge!
+                        .color!,
                     textColor: Colors.white)
                 : Offstage();
           })),
     );
   }
 
-  void _setEffects(BuildContext context) {
+  void _setEffects() {
     if (_effectsInstalled) {
       return;
     }
@@ -250,12 +249,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
-              builder: (BuildContext context) {
+              builder: (BuildContext popupContext) {
                 return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
+                    alertTitle: S.of(popupContext).error,
                     alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
+                    buttonText: S.of(popupContext).ok,
+                    buttonAction: () => Navigator.of(popupContext).pop());
               });
         });
       }
@@ -264,127 +263,28 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
-              builder: (BuildContext context) {
+              builder: (BuildContext popupContext) {
                 return ConfirmSendingAlert(
-                    alertTitle: S.of(context).confirm_sending,
-                    amount: S.of(context).send_amount,
+                    alertTitle: S.of(popupContext).confirm_sending,
+                    amount: S.of(popupContext).send_amount,
                     amountValue: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransaction.amountFormatted,
-                    fee: S.of(context).send_fee,
+                        .pendingTransaction!.amountFormatted,
+                    fee: S.of(popupContext).send_fee,
                     feeValue: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransaction.feeFormatted,
-                    rightButtonText: S.of(context).ok,
-                    leftButtonText: S.of(context).cancel,
+                        .pendingTransaction!.feeFormatted,
+                    rightButtonText: S.of(popupContext).ok,
+                    leftButtonText: S.of(popupContext).cancel,
                     actionRightButton: () async {
-                      Navigator.of(context).pop();
+                      Navigator.of(popupContext).pop();
                       await widget.exchangeTradeViewModel.sendViewModel
                           .commitTransaction();
-                      await showPopUp<void>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Observer(builder: (_) {
-                              final state = widget
-                                  .exchangeTradeViewModel.sendViewModel.state;
-
-                              if (state is TransactionCommitted) {
-                                return Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      color: Theme.of(context).backgroundColor,
-                                      child: Center(
-                                        child: Image.asset(
-                                            'assets/images/birthday_cake.png'),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                            top: 220, left: 24, right: 24),
-                                        child: Text(
-                                          S.of(context).send_success(widget
-                                              .exchangeTradeViewModel
-                                              .wallet
-                                              .currency
-                                              .toString()),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .title
-                                                .color,
-                                            decoration: TextDecoration.none,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                        left: 24,
-                                        right: 24,
-                                        bottom: 24,
-                                        child: PrimaryButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            text: S.of(context).send_got_it,
-                                            color: Theme.of(context)
-                                                .accentTextTheme
-                                                .body2
-                                                .color,
-                                            textColor: Colors.white))
-                                  ],
-                                );
-                              }
-
-                              return Stack(
-                                children: <Widget>[
-                                  Container(
-                                    color: Theme.of(context).backgroundColor,
-                                    child: Center(
-                                      child: Image.asset(
-                                          'assets/images/birthday_cake.png'),
-                                    ),
-                                  ),
-                                  BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                        sigmaX: 3.0, sigmaY: 3.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .backgroundColor
-                                              .withOpacity(0.25)),
-                                      child: Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(top: 220),
-                                          child: Text(
-                                            S.of(context).send_sending,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .title
-                                                  .color,
-                                              decoration: TextDecoration.none,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              );
-                            });
-                          });
+                      transactionStatePopup();
                     },
-                    actionLeftButton: () => Navigator.of(context).pop(),
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmount
-                        +  ' ' + widget.exchangeTradeViewModel.sendViewModel.fiat.title,
-                    fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel
-                            .pendingTransactionFiatAmount +
-                        ' ' +
-                        widget.exchangeTradeViewModel.sendViewModel.fiat.title,
+                    actionLeftButton: () => Navigator.of(popupContext).pop(),
+                    feeFiatAmount: widget.exchangeTradeViewModel
+                        .pendingTransactionFeeFiatAmountFormatted,
+                    fiatAmountValue: widget.exchangeTradeViewModel
+                        .pendingTransactionFiatAmountValueFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel
                                  .outputs);
               });
@@ -395,17 +295,120 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
-              builder: (BuildContext context) {
+              builder: (BuildContext popupContext) {
                 return AlertWithOneAction(
-                    alertTitle: S.of(context).sending,
-                    alertContent: S.of(context).transaction_sent,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
+                    alertTitle: S.of(popupContext).sending,
+                    alertContent: S.of(popupContext).transaction_sent,
+                    buttonText: S.of(popupContext).ok,
+                    buttonAction: () => Navigator.of(popupContext).pop());
               });
         });
       }
     });
 
     _effectsInstalled = true;
+  }
+
+  void transactionStatePopup() {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext popupContext) {
+          return Observer(builder: (_) {
+            final state = widget
+                .exchangeTradeViewModel.sendViewModel.state;
+
+            if (state is TransactionCommitted) {
+              return Stack(
+                children: <Widget>[
+                  Container(
+                    color: Theme.of(popupContext).backgroundColor,
+                    child: Center(
+                      child: Image.asset(
+                          'assets/images/birthday_cake.png'),
+                    ),
+                  ),
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: 220, left: 24, right: 24),
+                      child: Text(
+                        S.of(popupContext).send_success(widget
+                            .exchangeTradeViewModel
+                            .wallet
+                            .currency
+                            .toString()),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(popupContext)
+                              .primaryTextTheme!
+                              .titleLarge!
+                              .color,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                      left: 24,
+                      right: 24,
+                      bottom: 24,
+                      child: PrimaryButton(
+                          onPressed: () {
+                            Navigator.of(popupContext).pop();
+                            RequestReviewHandler.requestReview();
+                          },  
+                          text: S.of(popupContext).got_it,
+                          color: Theme.of(popupContext)
+                              .accentTextTheme!
+                              .bodyLarge!
+                              .color!,
+                          textColor: Colors.white))
+                ],
+              );
+            }
+
+            return Stack(
+              children: <Widget>[
+                Container(
+                  color: Theme.of(popupContext).backgroundColor,
+                  child: Center(
+                    child: Image.asset(
+                        'assets/images/birthday_cake.png'),
+                  ),
+                ),
+                BackdropFilter(
+                  filter: ImageFilter.blur(
+                      sigmaX: 3.0, sigmaY: 3.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(popupContext)
+                            .backgroundColor
+                            .withOpacity(0.25)),
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 220),
+                        child: Text(
+                          S.of(popupContext).send_sending,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(popupContext)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            );
+          });
+        });
   }
 }

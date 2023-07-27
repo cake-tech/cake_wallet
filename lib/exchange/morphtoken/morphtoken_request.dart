@@ -4,11 +4,11 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 
 class MorphTokenRequest extends TradeRequest {
   MorphTokenRequest(
-      {@required this.from,
-        @required this.to,
-        @required this.address,
-        @required this.amount,
-        @required this.refundAddress});
+      {required this.from,
+        required this.to,
+        required this.address,
+        required this.amount,
+        required this.refundAddress});
 
   CryptoCurrency from;
   CryptoCurrency to;

@@ -1,12 +1,12 @@
-import 'dart:ui';
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,21 +19,31 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class SendCard extends StatefulWidget {
-  SendCard({Key key, @required this.output, @required this.sendViewModel}) : super(key: key);
+  SendCard({
+    Key? key,
+    required this.output,
+    required this.sendViewModel,
+    this.initialPaymentRequest,
+  }) : super(key: key);
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentRequest? initialPaymentRequest;
 
   @override
   SendCardState createState() => SendCardState(
     output: output,
-    sendViewModel: sendViewModel
+    sendViewModel: sendViewModel,
+    initialPaymentRequest: initialPaymentRequest,
   );
 }
 
 class SendCardState extends State<SendCard>
     with AutomaticKeepAliveClientMixin<SendCard> {
-  SendCardState({@required this.output, @required this.sendViewModel})
+  SendCardState({
+    required this.output,
+    required this.sendViewModel,
+    this.initialPaymentRequest})
       : addressController = TextEditingController(),
         cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
@@ -48,6 +58,7 @@ class SendCardState extends State<SendCard>
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentRequest? initialPaymentRequest;
 
   final TextEditingController addressController;
   final TextEditingController cryptoAmountController;
@@ -61,6 +72,27 @@ class SendCardState extends State<SendCard>
   bool _effectsInstalled = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    /// if the current wallet doesn't match the one in the qr code
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: S.of(context).unmatched_currencies,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     _setEffects(context);
@@ -70,8 +102,10 @@ class SendCardState extends State<SendCard>
         KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-                keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                    .backgroundColor,
+                keyboardBarColor: Theme.of(context)
+                    .accentTextTheme!
+                    .bodyLarge!
+                    .backgroundColor!,
                 nextFocus: false,
                 actions: [
                   KeyboardActionsItem(
@@ -88,20 +122,25 @@ class SendCardState extends State<SendCard>
               color: Colors.transparent,
             )),
         Container(
-          decoration: BoxDecoration(
+          decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24)),
             gradient: LinearGradient(colors: [
-              Theme.of(context).primaryTextTheme.subhead.color,
+              Theme.of(context).primaryTextTheme!.titleMedium!.color!,
               Theme.of(context)
-                  .primaryTextTheme
-                  .subhead
-                  .decorationColor,
+                  .primaryTextTheme!
+                  .titleMedium!
+                  .decorationColor!,
             ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          ),
+          ) : null,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
+            padding: EdgeInsets.fromLTRB(
+              24,
+              ResponsiveLayoutUtil.instance.isMobile ? 100 : 55,
+              24,
+              ResponsiveLayoutUtil.instance.isMobile ? 32 : 0,
+            ),
             child: SingleChildScrollView(
                 child: Observer(builder: (_) => Column(
                   mainAxisSize: MainAxisSize.min,
@@ -126,13 +165,13 @@ class SendCardState extends State<SendCard>
                           AddressTextFieldOption.addressBook
                         ],
                         buttonColor: Theme.of(context)
-                            .primaryTextTheme
-                            .display1
-                            .color,
+                            .primaryTextTheme!
+                            .headlineMedium!
+                            .color!,
                         borderColor: Theme.of(context)
-                            .primaryTextTheme
-                            .headline
-                            .color,
+                            .primaryTextTheme!
+                            .headlineSmall!
+                            .color!,
                         textStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -141,9 +180,9 @@ class SendCardState extends State<SendCard>
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context)
-                                .primaryTextTheme
-                                .headline
-                                .decorationColor),
+                                .primaryTextTheme!
+                                .headlineSmall!
+                                .decorationColor!),
                         onPushPasteButton: (context) async {
                           output.resetParsedAddress();
                           await output.fetchParsedAddress(context);
@@ -153,6 +192,7 @@ class SendCardState extends State<SendCard>
                           await output.fetchParsedAddress(context);
                         },
                         validator: validator,
+                        selectedCurrency: sendViewModel.currency,
                       );
                     }),
                     if (output.isParsedAddress) Padding(
@@ -161,9 +201,9 @@ class SendCardState extends State<SendCard>
                         controller: extractedAddressController,
                         readOnly: true,
                         borderColor: Theme.of(context)
-                            .primaryTextTheme
-                            .headline
-                            .color,
+                            .primaryTextTheme!
+                            .headlineSmall!
+                            .color!,
                         textStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -193,22 +233,22 @@ class SendCardState extends State<SendCard>
                                           height: 32,
                                           decoration: BoxDecoration(
                                               color: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .display1
-                                                  .color,
+                                                  .primaryTextTheme!
+                                                  .headlineMedium!
+                                                  .color!,
                                               borderRadius:
                                               BorderRadius.all(Radius.circular(6))),
                                           child: Center(
                                             child: Padding(
                                               padding: const EdgeInsets.all(6.0),
-                                              child: Text( sendViewModel.selectedCryptoCurrency.tag,
+                                              child: Text( sendViewModel.selectedCryptoCurrency.tag!,
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight: FontWeight.bold,
                                                       color: Theme.of(context)
-                                                          .primaryTextTheme
-                                                          .display1
-                                                          .decorationColor)),
+                                                          .primaryTextTheme!
+                                                          .headlineMedium!
+                                                          .decorationColor!)),
                                             ),
                                           ),
                                         ),
@@ -247,9 +287,9 @@ class SendCardState extends State<SendCard>
                                                 color: Colors.white),
                                             placeholderTextStyle: TextStyle(
                                                 color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .headline
-                                                    .decorationColor,
+                                                    .primaryTextTheme!
+                                                    .headlineSmall!
+                                                    .decorationColor!,
                                                 fontWeight: FontWeight.w500,
                                                 fontSize: 14),
                                             validator: output.sendAll
@@ -268,9 +308,9 @@ class SendCardState extends State<SendCard>
                                                     child: Container(
                                                       decoration: BoxDecoration(
                                                           color: Theme.of(context)
-                                                              .primaryTextTheme
-                                                              .display1
-                                                              .color,
+                                                              .primaryTextTheme!
+                                                              .headlineMedium!
+                                                              .color!,
                                                           borderRadius:
                                                           BorderRadius.all(
                                                               Radius.circular(6))),
@@ -285,18 +325,18 @@ class SendCardState extends State<SendCard>
                                                                   FontWeight.bold,
                                                                   color:
                                                                   Theme.of(context)
-                                                                      .primaryTextTheme
-                                                                      .display1
-                                                                      .decorationColor))),
+                                                                      .primaryTextTheme!
+                                                                      .headlineMedium!
+                                                                      .decorationColor!))),
                                                     ))))]),
                                 ),
                               ],
                             )
                         )),
                     Divider(height: 1,color: Theme.of(context)
-                        .primaryTextTheme
-                        .headline
-                        .decorationColor),
+                        .primaryTextTheme!
+                        .headlineSmall!
+                        .decorationColor!),
                     Observer(
                         builder: (_) => Padding(
                           padding: EdgeInsets.only(top: 10),
@@ -313,9 +353,9 @@ class SendCardState extends State<SendCard>
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Theme.of(context)
-                                            .primaryTextTheme
-                                            .headline
-                                            .decorationColor),
+                                            .primaryTextTheme!
+                                            .headlineSmall!
+                                            .decorationColor!),
                                   )),
                               Text(
                                 sendViewModel.balance,
@@ -323,14 +363,15 @@ class SendCardState extends State<SendCard>
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headline
-                                        .decorationColor),
+                                        .primaryTextTheme!
+                                        .headlineSmall!
+                                        .decorationColor!),
                               )
                             ],
                           ),
                         )),
-                    Padding(
+                    if (!sendViewModel.isFiatDisabled)
+                      Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: BaseTextFormField(
                           focusNode: fiatAmountFocus,
@@ -353,18 +394,16 @@ class SendCardState extends State<SendCard>
                           ),
                           hintText: '0.00',
                           borderColor: Theme.of(context)
-                              .primaryTextTheme
-                              .headline
-                              .color,
+                              .primaryTextTheme!
+                              .headlineSmall!
+                              .color!,
                           textStyle: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: Colors.white),
                           placeholderTextStyle: TextStyle(
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .headline
-                                  .decorationColor,
+                                  .primaryTextTheme!.headlineSmall!.decorationColor!,
                               fontWeight: FontWeight.w500,
                               fontSize: 14),
                         )),
@@ -375,9 +414,9 @@ class SendCardState extends State<SendCard>
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
                         borderColor: Theme.of(context)
-                            .primaryTextTheme
-                            .headline
-                            .color,
+                            .primaryTextTheme!
+                            .headlineSmall!
+                            .color!,
                         textStyle: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -387,9 +426,9 @@ class SendCardState extends State<SendCard>
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context)
-                                .primaryTextTheme
-                                .headline
-                                .decorationColor),
+                                .primaryTextTheme!
+                                .headlineSmall!
+                                .decorationColor!),
                       ),
                     ),
                     Observer(
@@ -411,7 +450,7 @@ class SendCardState extends State<SendCard>
                                         fontSize: 12,
                                         fontWeight:
                                         FontWeight.w500,
-                                        //color: Theme.of(context).primaryTextTheme.display2.color,
+                                        //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
                                         color: Colors.white)),
                                 Container(
                                   child: Row(
@@ -432,14 +471,15 @@ class SendCardState extends State<SendCard>
                                                   fontSize: 12,
                                                   fontWeight:
                                                   FontWeight.w600,
-                                                  //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                  //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
                                                   color:
                                                   Colors.white)),
                                           Padding(
                                               padding:
                                               EdgeInsets.only(top: 5),
-                                              child: Text(
-                                                  output
+                                              child: sendViewModel.isFiatDisabled
+                                                  ? const SizedBox(height: 14)
+                                                  : Text(output
                                                       .estimatedFeeFiatAmount
                                                       +  ' ' +
                                                       sendViewModel
@@ -450,9 +490,9 @@ class SendCardState extends State<SendCard>
                                                       FontWeight.w600,
                                                       color: Theme
                                                           .of(context)
-                                                          .primaryTextTheme
-                                                          .headline
-                                                          .decorationColor))
+                                                          .primaryTextTheme!
+                                                          .headlineSmall!
+                                                          .decorationColor!))
                                           ),
                                         ],
                                       ),
@@ -510,15 +550,19 @@ class SendCardState extends State<SendCard>
   }
 
   void _setEffects(BuildContext context) {
-    addressController.text = output.address;
-    cryptoAmountController.text = output.cryptoAmount;
+     if (_effectsInstalled) {
+      return;
+    }
+    
+    if (output.address.isNotEmpty) {
+      addressController.text = output.address;
+    }
+    if (output.cryptoAmount.isNotEmpty) {
+      cryptoAmountController.text = output.cryptoAmount;
+    }
     fiatAmountController.text = output.fiatAmount;
     noteController.text = output.note;
     extractedAddressController.text = output.extractedAddress;
-
-    if (_effectsInstalled) {
-      return;
-    }
 
     cryptoAmountController.addListener(() {
       final amount = cryptoAmountController.text;
@@ -552,7 +596,7 @@ class SendCardState extends State<SendCard>
     reaction((_) => output.sendAll, (bool all) {
       if (all) {
         cryptoAmountController.text = S.current.all;
-        fiatAmountController.text = null;
+        fiatAmountController.text = '';
       }
     });
 
@@ -602,6 +646,13 @@ class SendCardState extends State<SendCard>
     reaction((_) => output.extractedAddress, (String extractedAddress) {
       extractedAddressController.text = extractedAddress;
     });
+
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName == initialPaymentRequest!.scheme.toLowerCase()) {
+      addressController.text = initialPaymentRequest!.address;
+      cryptoAmountController.text = initialPaymentRequest!.amount;
+      noteController.text = initialPaymentRequest!.note;
+    }
 
     _effectsInstalled = true;
   }

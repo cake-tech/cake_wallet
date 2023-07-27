@@ -8,22 +8,24 @@ import 'package:cw_haven/api/transaction_history.dart';
 
 class HavenTransactionInfo extends TransactionInfo {
   HavenTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
+      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
+      this.confirmations);
 
-  HavenTransactionInfo.fromMap(Map map)
+  HavenTransactionInfo.fromMap(Map<String, Object> map)
       : id = (map['hash'] ?? '') as String,
         height = (map['height'] ?? 0) as int,
         direction =
             parseTransactionDirectionFromNumber(map['direction'] as String) ??
                 TransactionDirection.incoming,
         date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
+            int.parse(map['timestamp'] as String? ?? '0') * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
+        confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int ?? 0;
+        fee = map['fee'] as int? ?? 0;
 
     HavenTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
@@ -35,6 +37,7 @@ class HavenTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
+        confirmations = row.confirmations,
         key = null, //getTxKey(row.getHash()),
         fee = row.fee,
         assetType = row.getAssetType();
@@ -48,11 +51,11 @@ class HavenTransactionInfo extends TransactionInfo {
   final int amount;
   final int fee;
   final int addressIndex;
-  String recipientAddress;
-  String key;
-  String assetType;
-
-  String _fiatAmount;
+  final int confirmations;
+  late String recipientAddress;
+  late String assetType;
+  String? _fiatAmount;
+  String? key;
 
   @override
   String amountFormatted() =>

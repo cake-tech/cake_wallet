@@ -1,5 +1,4 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -12,14 +11,13 @@ import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaManageCardsPage extends BasePage {
-  IoniaManageCardsPage(this._cardsListViewModel) {
+  IoniaManageCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
     _searchController.addListener(() {
       if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
@@ -27,7 +25,11 @@ class IoniaManageCardsPage extends BasePage {
         });
       }
     });
+
+    _cardsListViewModel.getMerchants();
+
   }
+  final FocusNode searchFocusNode;
   final IoniaGiftCardsListViewModel _cardsListViewModel;
 
   final _searchDebounce = Debounce(Duration(milliseconds: 500));
@@ -47,7 +49,7 @@ class IoniaManageCardsPage extends BasePage {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Theme.of(context).accentColor,
+              Theme.of(context).colorScheme.secondary,
               Theme.of(context).scaffoldBackgroundColor,
               Theme.of(context).primaryColor,
             ],
@@ -65,34 +67,14 @@ class IoniaManageCardsPage extends BasePage {
   Widget get endDrawer => CardMenu();
 
   @override
-  Widget leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
-      size: 16,
-    );
-
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
-            onPressed: () => Navigator.pop(context),
-            child: _backButton),
-      ),
-    );
-  }
-
-  @override
   Widget middle(BuildContext context) {
     return Text(
       S.of(context).gift_cards,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayMedium!
+            .backgroundColor!,
       ),
     );
   }
@@ -107,15 +89,29 @@ class IoniaManageCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final filterIcon = InkWell(
-        onTap: () async {
-          final selectedFilters = await showCategoryFilter(context, _cardsListViewModel);
-          _cardsListViewModel.setSelectedFilter(selectedFilters);
-        },
-        child: Image.asset(
-          'assets/images/filter.png',
-          color: Theme.of(context).textTheme.caption.decorationColor,
-        ));
+    final filterButton = Semantics(
+      label: S.of(context).filter_by,
+      child: InkWell(
+          onTap: () async {
+            await showCategoryFilter(context);
+            _cardsListViewModel.getMerchants();
+          },
+          child: Container(
+            width: 32,
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Image.asset(
+              'assets/images/filter.png',
+              color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+            ),
+          )),
+    );
 
     return Padding(
       padding: const EdgeInsets.all(14.0),
@@ -129,20 +125,10 @@ class IoniaManageCardsPage extends BasePage {
                 Expanded(
                     child: _SearchWidget(
                   controller: _searchController,
+                  focusNode: searchFocusNode,
                 )),
                 SizedBox(width: 10),
-                Container(
-                  width: 32,
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: filterIcon,
-                )
+                filterButton
               ],
             ),
           ),
@@ -157,16 +143,12 @@ class IoniaManageCardsPage extends BasePage {
     );
   }
 
-  Future<List<IoniaCategory>> showCategoryFilter(
-    BuildContext context,
-    IoniaGiftCardsListViewModel viewModel,
-  ) async {
-    return await showPopUp<List<IoniaCategory>>(
+  Future <void> showCategoryFilter(BuildContext context) async {
+    return showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
         return IoniaFilterModal(
-          filterViewModel: getIt.get<IoniaFilterViewModel>(),
-          selectedCategories: viewModel.selectedFilters,
+          ioniaGiftCardsListViewModel: _cardsListViewModel,
         );
       },
     );
@@ -175,8 +157,8 @@ class IoniaManageCardsPage extends BasePage {
 
 class IoniaManageCardsPageBody extends StatefulWidget {
   const IoniaManageCardsPageBody({
-    Key key,
-    @required this.cardsListViewModel,
+    Key? key,
+    required this.cardsListViewModel,
   }) : super(key: key);
 
   final IoniaGiftCardsListViewModel cardsListViewModel;
@@ -208,7 +190,10 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) => Stack(children: [
+      builder: (_) {
+        final merchantState = widget.cardsListViewModel.merchantState;
+        if (merchantState is IoniaLoadedMerchantState) {
+        return Stack(children: [
         ListView.separated(
           padding: EdgeInsets.only(left: 2, right: 22),
           controller: _scrollController,
@@ -223,9 +208,9 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               },
               title: merchant.legalName,
               subTitle: merchant.avaibilityStatus,
-              backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
-              titleColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
-              subtitleColor: Theme.of(context).accentTextTheme.display2.backgroundColor,
+              backgroundColor: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+              titleColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+              subtitleColor: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
               discount: merchant.discount,
             );
           },
@@ -236,35 +221,47 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
                 thumbHeight: thumbHeight,
                 rightOffset: 1,
                 width: 3,
-                backgroundColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.05),
-                thumbColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.5),
+                backgroundColor: Theme.of(context).textTheme!.bodySmall!.decorationColor!.withOpacity(0.05),
+                thumbColor: Theme.of(context).textTheme!.bodySmall!.decorationColor!.withOpacity(0.5),
                 fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
               )
             : Offstage()
-      ]),
+          ]);
+         } 
+         return Center(
+          child: CircularProgressIndicator(
+            backgroundColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme!.bodyMedium!.color!),
+          ),
+        );
+      }
     );
   }
 }
 
 class _SearchWidget extends StatelessWidget {
   const _SearchWidget({
-    Key key,
-    @required this.controller,
+    Key? key,
+    required this.controller,
+    required this.focusNode,
   }) : super(key: key);
   final TextEditingController controller;
-
+  final FocusNode focusNode;
   @override
   Widget build(BuildContext context) {
-    final searchIcon = Padding(
-      padding: EdgeInsets.all(8),
-      child: Image.asset(
-        'assets/images/mini_search_icon.png',
-        color: Theme.of(context).textTheme.caption.decorationColor,
+    final searchIcon = ExcludeSemantics(
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Image.asset(
+          'assets/images/mini_search_icon.png',
+          color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+        ),
       ),
     );
 
     return TextField(
-      style: TextStyle(color: Colors.white),
+      focusNode: focusNode,
+      style: TextStyle(color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!),
       controller: controller,
       decoration: InputDecoration(
           filled: true,
@@ -272,10 +269,10 @@ class _SearchWidget extends StatelessWidget {
             top: 10,
             left: 10,
           ),
-          fillColor: Colors.white.withOpacity(0.15),
+          fillColor: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.6),
+            color: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
           ),
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -301,24 +298,29 @@ class _SearchWidget extends StatelessWidget {
 }
 
 class _TrailingIcon extends StatelessWidget {
-  final String asset;
-  final VoidCallback onPressed;
+  const _TrailingIcon({required this.asset, this.onPressed});
 
-  const _TrailingIcon({this.asset, this.onPressed});
+  final String asset;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.centerRight,
-      width: 25,
-      child: FlatButton(
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        padding: EdgeInsets.all(0),
-        onPressed: onPressed,
-        child: Image.asset(
-          asset,
-          color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+    return Semantics(
+      label: S.of(context).profile,
+      child: Material(
+        color: Colors.transparent,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          iconSize: 25,
+          onPressed: onPressed,
+          icon: Image.asset(
+            asset,
+            color:
+                Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+          ),
         ),
       ),
     );

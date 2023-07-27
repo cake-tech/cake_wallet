@@ -41,7 +41,10 @@ class IoniaVerifyIoniaOtp extends BasePage {
     return Text(
       S.current.verification,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -62,7 +65,10 @@ class IoniaVerifyIoniaOtp extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).accentTextTheme.body2.backgroundColor,
+          keyboardBarColor: Theme.of(context)
+              .accentTextTheme!
+              .bodyLarge!
+              .backgroundColor!,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -72,7 +78,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
           ]),
       child: Container(
         height: 0,
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.all(24),
           content: Column(
@@ -82,6 +88,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
                 keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                 focusNode: _codeFocus,
                 controller: _codeController,
+                onSubmit: (_) => _verify(),
               ),
               SizedBox(height: 14),
               Text(
@@ -92,7 +99,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(S.of(context).dont_get_code),
+                  Text(S.of(context).didnt_get_code),
                   SizedBox(width: 20),
                   InkWell(
                     onTap: () => isSignIn
@@ -116,10 +123,13 @@ class IoniaVerifyIoniaOtp extends BasePage {
                   Observer(
                     builder: (_) => LoadingPrimaryButton(
                       text: S.of(context).continue_text,
-                      onPressed: () async => await _authViewModel.verifyEmail(_codeController.text),
+                      onPressed: _verify,
                       isDisabled: _authViewModel.otpState is IoniaOtpSendDisabled,
                       isLoading: _authViewModel.otpState is IoniaOtpValidating,
-                      color: Theme.of(context).accentTextTheme.body2.color,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .bodyLarge!
+                          .color!,
                       textColor: Colors.white,
                     ),
                   ),
@@ -148,4 +158,6 @@ class IoniaVerifyIoniaOtp extends BasePage {
   void _onOtpSuccessful(BuildContext context) =>
       Navigator.of(context)
         .pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
+
+  void _verify() async => await _authViewModel.verifyEmail(_codeController.text);
 }

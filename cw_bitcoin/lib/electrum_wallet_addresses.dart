@@ -4,7 +4,6 @@ import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
@@ -14,13 +13,13 @@ class ElectrumWalletAddresses = ElectrumWalletAddressesBase
 
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(WalletInfo walletInfo,
-      {@required List<BitcoinAddressRecord> initialAddresses,
+      {required this.mainHd,
+      required this.sideHd,
+      required this.electrumClient,
+      required this.networkType,
+      List<BitcoinAddressRecord>? initialAddresses,
       int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0,
-      this.mainHd,
-      this.sideHd,
-      this.electrumClient,
-      this.networkType})
+      int initialChangeAddressIndex = 0})
       : addresses = ObservableList<BitcoinAddressRecord>.of(
           (initialAddresses ?? []).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of(
@@ -31,10 +30,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           (initialAddresses ?? [])
             .where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed)
         .toSet()),
-      super(walletInfo) {
-    currentReceiveAddressIndex = initialRegularAddressIndex;
-    currentChangeAddressIndex = initialChangeAddressIndex;
-  }
+        currentReceiveAddressIndex = initialRegularAddressIndex,
+        currentChangeAddressIndex = initialChangeAddressIndex,
+      super(walletInfo);
 
   static const defaultReceiveAddressesCount = 22;
   static const defaultChangeAddressesCount = 17;
@@ -50,7 +48,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   @computed
-  String get address => receiveAddresses.first.address;
+  String get address {
+    if (receiveAddresses.isEmpty) {
+      return generateNewAddress().address;
+    }
+
+    return receiveAddresses.first.address;
+  }
 
   @override
   set address(String addr) => null;
@@ -123,18 +127,19 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  Future<BitcoinAddressRecord> generateNewAddress(
-      {bool isHidden = false, bitcoin.HDWallet hd}) async {
+  BitcoinAddressRecord generateNewAddress(
+      {bitcoin.HDWallet? hd, bool isHidden = false}) {
     currentReceiveAddressIndex += 1;
+    // FIX-ME: Check logic for whichi HD should be used here  ???
     final address = BitcoinAddressRecord(
-        getAddress(index: currentReceiveAddressIndex, hd: hd),
+        getAddress(index: currentReceiveAddressIndex, hd: hd ?? sideHd),
         index: currentReceiveAddressIndex,
         isHidden: isHidden);
     addresses.add(address);
     return address;
   }
 
-  String getAddress({@required int index, @required bitcoin.HDWallet hd}) => '';
+  String getAddress({required int index, required bitcoin.HDWallet hd}) => '';
 
   @override
   Future<void> updateAddressesInBox() async {
@@ -166,7 +171,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> _discoverAddresses(bitcoin.HDWallet hd, bool isHidden) async {
     var hasAddrUse = true;
     List<BitcoinAddressRecord> addrs;
-    
+
     if (addresses.isNotEmpty) {
       addrs = addresses
         .where((addr) => addr.isHidden == isHidden)
@@ -180,7 +185,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           hd: hd,
           isHidden: isHidden);
     }
-    
+
     while(hasAddrUse) {
       final addr = addrs.last.address;
       hasAddrUse = await _hasAddressUsed(addr);
@@ -239,7 +244,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<List<BitcoinAddressRecord>> _createNewAddresses(int count,
-      {int startIndex = 0, bitcoin.HDWallet hd, bool isHidden = false}) async {
+      {required bitcoin.HDWallet hd, int startIndex = 0, bool isHidden = false}) async {
     final list = <BitcoinAddressRecord>[];
 
     for (var i = startIndex; i < count + startIndex; i++) {

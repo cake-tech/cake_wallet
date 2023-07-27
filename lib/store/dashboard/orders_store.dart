@@ -10,26 +10,26 @@ part 'orders_store.g.dart';
 class OrdersStore = OrdersStoreBase with _$OrdersStore;
 
 abstract class OrdersStoreBase with Store {
-  OrdersStoreBase({this.ordersSource, this.settingsStore}) {
-    orders = <OrderListItem>[];
-
-    orderId = '';
-
+  OrdersStoreBase({required this.ordersSource,
+    required this.settingsStore})
+    : orders = <OrderListItem>[],
+      orderId = '' {
     _onOrdersChanged =
         ordersSource.watch().listen((_) async => await updateOrderList());
-
     updateOrderList();
   }
 
   Box<Order> ordersSource;
-  StreamSubscription<BoxEvent> _onOrdersChanged;
+
   SettingsStore settingsStore;
+
+  StreamSubscription<BoxEvent>? _onOrdersChanged;
 
   @observable
   List<OrderListItem> orders;
 
   @observable
-  Order order;
+  Order? order;
 
   @observable
   String orderId;

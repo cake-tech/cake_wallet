@@ -7,17 +7,17 @@ final bitcoinAmountFormat = NumberFormat()
   ..maximumFractionDigits = bitcoinAmountLength
   ..minimumFractionDigits = 1;
 
-String bitcoinAmountToString({int amount}) => bitcoinAmountFormat.format(
+String bitcoinAmountToString({required int amount}) => bitcoinAmountFormat.format(
     cryptoAmountToDouble(amount: amount, divider: bitcoinAmountDivider));
 
-double bitcoinAmountToDouble({int amount}) =>
+double bitcoinAmountToDouble({required int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: bitcoinAmountDivider);
 
 int stringDoubleToBitcoinAmount(String amount) {
   int result = 0;
 
   try {
-    result = (double.parse(amount) * bitcoinAmountDivider).toInt();
+    result = (double.parse(amount) * bitcoinAmountDivider).round();
   } catch (e) {
     result = 0;
   }

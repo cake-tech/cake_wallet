@@ -2,28 +2,44 @@ import 'package:flutter/material.dart';
 
 class SelectButton extends StatelessWidget {
   SelectButton({
-    @required this.image,
-    @required this.text,
-    @required this.onTap,
+    required this.text,
+    required this.onTap,
+    this.image,
     this.isSelected = false,
+    this.showTrailingIcon = true,
+    this.height = 60,
   });
 
-  final Image image;
+  final Image? image;
   final String text;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool showTrailingIcon;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     final color = isSelected
-          ? Colors.green
-          : Theme.of(context).accentTextTheme.caption.color;
+        ? Colors.green
+        : Theme.of(context)
+            .accentTextTheme!
+            .bodySmall!
+            .color!;
     final textColor = isSelected
-          ? Theme.of(context).accentTextTheme.headline.decorationColor
-          : Theme.of(context).primaryTextTheme.title.color;
+        ? Theme.of(context)
+            .accentTextTheme!
+            .headlineSmall!
+            .decorationColor!
+        : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
     final arrowColor = isSelected
-        ? Theme.of(context).accentTextTheme.headline.decorationColor
-        : Theme.of(context).accentTextTheme.subhead.color;
+        ? Theme.of(context)
+            .accentTextTheme!
+            .headlineSmall!
+            .decorationColor!
+        : Theme.of(context)
+            .accentTextTheme!
+            .titleMedium!
+            .color!;
 
     final selectArrowImage = Image.asset('assets/images/select_arrow.png',
           color: arrowColor);
@@ -32,7 +48,7 @@ class SelectButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 60,
+        height: height,
         padding: EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -64,7 +80,7 @@ class SelectButton extends StatelessWidget {
                 )
               ],
             ),
-            selectArrowImage
+            if (showTrailingIcon) selectArrowImage
           ],
         ),
       ),

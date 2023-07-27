@@ -19,13 +19,18 @@ Future<String> extractAddressFromParsed(
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.openAlias:
-      title = S.of(context).openalias_alert_title;
-      content = S.of(context).openalias_alert_content(parsedAddress.name);
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (OpenAlias)');
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.fio:
       title = S.of(context).address_detected;
-      content = S.of(context).openalias_alert_content(parsedAddress.name);
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (FIO)');
+      address = parsedAddress.addresses.first;
+      break;
+    case ParseFrom.twitter:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Twitter)');
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.yatRecord:
@@ -46,7 +51,7 @@ Future<String> extractAddressFromParsed(
 
       content += S.of(context).choose_address;
 
-      address = await showPopUp<String>(
+      address = await showPopUp<String?>(
           context: context,
           builder: (BuildContext context) {
 
@@ -56,9 +61,9 @@ Future<String> extractAddressFromParsed(
                 alertContent: content,
                 addresses: parsedAddress.addresses),
               onWillPop: () async => false);
-          });
+          }) ?? '';
 
-      if (address?.isEmpty ?? true) {
+      if (address.isEmpty) {
         return parsedAddress.name;
       }
 

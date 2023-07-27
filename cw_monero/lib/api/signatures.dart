@@ -35,7 +35,7 @@ typedef get_node_height = Int64 Function();
 typedef is_connected = Int8 Function();
 
 typedef setup_node = Int8 Function(
-    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int8, Int8, Pointer<Utf8>);
+    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, Int8, Int8, Pointer<Utf8>);
 
 typedef start_refresh = Void Function();
 
@@ -82,7 +82,7 @@ typedef account_set_label = Void Function(
 
 typedef transactions_refresh = Void Function();
 
-typedef get_tx_key = Pointer<Utf8> Function(Pointer<Utf8> txId);
+typedef get_tx_key = Pointer<Utf8>? Function(Pointer<Utf8> txId);
 
 typedef transactions_count = Int64 Function();
 
@@ -126,3 +126,7 @@ typedef rescan_blockchain = Void Function();
 typedef get_subaddress_label = Pointer<Utf8> Function(
     Int32 accountIndex,
     Int32 addressIndex);
+
+typedef set_trusted_daemon = Void Function(Int8 trusted);
+
+typedef trusted_daemon = Int8 Function();

@@ -4,7 +4,9 @@ import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 
 class OrderListItem extends ActionListItem {
-  OrderListItem({this.order, this.settingsStore});
+  OrderListItem({
+    required this.order,
+    required this.settingsStore});
 
   final Order order;
   final SettingsStore settingsStore;

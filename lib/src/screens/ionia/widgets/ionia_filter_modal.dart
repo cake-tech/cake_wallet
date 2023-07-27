@@ -1,22 +1,18 @@
-import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/palette.dart';
 
 class IoniaFilterModal extends StatelessWidget {
-  IoniaFilterModal({
-    @required this.filterViewModel,
-    @required this.selectedCategories,
-  }) {
-    filterViewModel.setSelectedCategories(this.selectedCategories);
+  IoniaFilterModal({required this.ioniaGiftCardsListViewModel}){
+    ioniaGiftCardsListViewModel.resetIoniaCategories();
   }
 
-  final IoniaFilterViewModel filterViewModel;
-  final List<IoniaCategory> selectedCategories;
+  final IoniaGiftCardsListViewModel ioniaGiftCardsListViewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +20,7 @@ class IoniaFilterModal extends StatelessWidget {
       padding: EdgeInsets.all(10),
       child: Image.asset(
         'assets/images/mini_search_icon.png',
-        color: Theme.of(context).accentColor,
+        color: Theme.of(context).textTheme!.titleSmall!.color!,
       ),
     );
     return Scaffold(
@@ -38,7 +34,7 @@ class IoniaFilterModal extends StatelessWidget {
               padding: EdgeInsets.only(top: 24, bottom: 20),
               margin: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).backgroundColor,
+                color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Column(
@@ -48,16 +44,16 @@ class IoniaFilterModal extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 24, right: 24),
                       child: TextField(
-                        onChanged: filterViewModel.onSearchFilter,
+                        onChanged: ioniaGiftCardsListViewModel.onSearchFilter,
                         style: textMedium(
-                          color: Theme.of(context).primaryTextTheme.title.color,
+                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                         ),
                         decoration: InputDecoration(
                           filled: true,
                           prefixIcon: searchIcon,
                           hintText: S.of(context).search_category,
                           contentPadding: EdgeInsets.only(bottom: 5),
-                          fillColor: Theme.of(context).textTheme.subhead.backgroundColor,
+                          fillColor: Theme.of(context).primaryTextTheme!.bodySmall!.decorationColor!.withOpacity(0.5),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(8),
@@ -73,13 +69,13 @@ class IoniaFilterModal extends StatelessWidget {
                     return ListView.builder(
                       padding: EdgeInsets.zero,
                       shrinkWrap: true,
-                      itemCount: filterViewModel.ioniaCategories.length,
+                      itemCount: ioniaGiftCardsListViewModel.ioniaCategories.length,
                       itemBuilder: (_, index) {
-                        final category = filterViewModel.ioniaCategories[index];
+                        final category = ioniaGiftCardsListViewModel.ioniaCategories[index];
                         return Padding(
                           padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
                           child: InkWell(
-                            onTap: () => filterViewModel.selectFilter(category),
+                            onTap: () => ioniaGiftCardsListViewModel.setSelectedFilter(category),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -88,19 +84,19 @@ class IoniaFilterModal extends StatelessWidget {
                                   children: [
                                     Image.asset(
                                       category.iconPath,
-                                      color: Theme.of(context).primaryTextTheme.title.color,
+                                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                     ),
                                     SizedBox(width: 10),
                                     Text(category.title,
                                         style: textSmall(
-                                          color: Theme.of(context).primaryTextTheme.title.color,
+                                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                                         ).copyWith(fontWeight: FontWeight.w500)),
                                   ],
                                 ),
                                 Observer(builder: (_) {
-                                  final value = filterViewModel.selectedIndices;
+                                  final value = ioniaGiftCardsListViewModel.selectedIndices;
                                   return RoundedCheckbox(
-                                    value: value.contains(category.index),
+                                    value: value.contains(category),
                                   );
                                 }),
                               ],
@@ -114,13 +110,13 @@ class IoniaFilterModal extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: () => Navigator.pop(context, filterViewModel.selectedCategories),
+              onTap: () => Navigator.pop(context),
               child: Container(
                 margin: EdgeInsets.only(bottom: 40),
                 child: CircleAvatar(
                   child: Icon(
                     Icons.close,
-                    color: Colors.black,
+                    color: Palette.darkBlueCraiola,
                   ),
                   backgroundColor: Colors.white,
                 ),

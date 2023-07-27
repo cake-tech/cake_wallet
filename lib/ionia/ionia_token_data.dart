@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
 class IoniaTokenData {
-	IoniaTokenData({@required this.accessToken, @required this.tokenType, @required this.expiredAt});
+	IoniaTokenData({required this.accessToken, required this.tokenType, required this.expiredAt});
 
 	factory IoniaTokenData.fromJson(String source) {
 		final decoded = json.decode(source) as Map<String, dynamic>;

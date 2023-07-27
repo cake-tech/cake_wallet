@@ -38,18 +38,18 @@ final errorStringNative = havenApi
     .asFunction<ErrorString>();
 
 void createWalletSync(
-    {String path, String password, String language, int nettype = 0}) {
-  final pathPointer = Utf8.toUtf8(path);
-  final passwordPointer = Utf8.toUtf8(password);
-  final languagePointer = Utf8.toUtf8(language);
-  final errorMessagePointer = allocate<Utf8>();
+    {required String path, required String password, required String language, int nettype = 0}) {
+  final pathPointer = path.toNativeUtf8();
+  final passwordPointer = password.toNativeUtf8();
+  final languagePointer = language.toNativeUtf8();
+  final errorMessagePointer = ''.toNativeUtf8();
   final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
           languagePointer, nettype, errorMessagePointer) !=
       0;
 
-  free(pathPointer);
-  free(passwordPointer);
-  free(languagePointer);
+  calloc.free(pathPointer);
+  calloc.free(passwordPointer);
+  calloc.free(languagePointer);
 
   if (!isWalletCreated) {
     throw WalletCreationException(
@@ -59,25 +59,25 @@ void createWalletSync(
   // setupNodeSync(address: "node.moneroworld.com:18089");
 }
 
-bool isWalletExistSync({String path}) {
-  final pathPointer = Utf8.toUtf8(path);
+bool isWalletExistSync({required String path}) {
+  final pathPointer = path.toNativeUtf8();
   final isExist = isWalletExistNative(pathPointer) != 0;
 
-  free(pathPointer);
+  calloc.free(pathPointer);
 
   return isExist;
 }
 
 void restoreWalletFromSeedSync(
-    {String path,
-    String password,
-    String seed,
+    {required String path,
+    required String password,
+    required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
-  final pathPointer = Utf8.toUtf8(path);
-  final passwordPointer = Utf8.toUtf8(password);
-  final seedPointer = Utf8.toUtf8(seed);
-  final errorMessagePointer = allocate<Utf8>();
+  final pathPointer = path.toNativeUtf8();
+  final passwordPointer = password.toNativeUtf8();
+  final seedPointer = seed.toNativeUtf8();
+  final errorMessagePointer = ''.toNativeUtf8();
   final isWalletRestored = restoreWalletFromSeedNative(
           pathPointer,
           passwordPointer,
@@ -87,9 +87,9 @@ void restoreWalletFromSeedSync(
           errorMessagePointer) !=
       0;
 
-  free(pathPointer);
-  free(passwordPointer);
-  free(seedPointer);
+  calloc.free(pathPointer);
+  calloc.free(passwordPointer);
+  calloc.free(seedPointer);
 
   if (!isWalletRestored) {
     throw WalletRestoreFromSeedException(
@@ -98,21 +98,21 @@ void restoreWalletFromSeedSync(
 }
 
 void restoreWalletFromKeysSync(
-    {String path,
-    String password,
-    String language,
-    String address,
-    String viewKey,
-    String spendKey,
+    {required String path,
+    required String password,
+    required String language,
+    required String address,
+    required String viewKey,
+    required String spendKey,
     int nettype = 0,
     int restoreHeight = 0}) {
-  final pathPointer = Utf8.toUtf8(path);
-  final passwordPointer = Utf8.toUtf8(password);
-  final languagePointer = Utf8.toUtf8(language);
-  final addressPointer = Utf8.toUtf8(address);
-  final viewKeyPointer = Utf8.toUtf8(viewKey);
-  final spendKeyPointer = Utf8.toUtf8(spendKey);
-  final errorMessagePointer = allocate<Utf8>();
+  final pathPointer = path.toNativeUtf8();
+  final passwordPointer = password.toNativeUtf8();
+  final languagePointer = language.toNativeUtf8();
+  final addressPointer = address.toNativeUtf8();
+  final viewKeyPointer = viewKey.toNativeUtf8();
+  final spendKeyPointer = spendKey.toNativeUtf8();
+  final errorMessagePointer = ''.toNativeUtf8();
   final isWalletRestored = restoreWalletFromKeysNative(
           pathPointer,
           passwordPointer,
@@ -125,12 +125,12 @@ void restoreWalletFromKeysSync(
           errorMessagePointer) !=
       0;
 
-  free(pathPointer);
-  free(passwordPointer);
-  free(languagePointer);
-  free(addressPointer);
-  free(viewKeyPointer);
-  free(spendKeyPointer);
+  calloc.free(pathPointer);
+  calloc.free(passwordPointer);
+  calloc.free(languagePointer);
+  calloc.free(addressPointer);
+  calloc.free(viewKeyPointer);
+  calloc.free(spendKeyPointer);
 
   if (!isWalletRestored) {
     throw WalletRestoreFromKeysException(
@@ -138,12 +138,12 @@ void restoreWalletFromKeysSync(
   }
 }
 
-void loadWallet({String path, String password, int nettype = 0}) {
-  final pathPointer = Utf8.toUtf8(path);
-  final passwordPointer = Utf8.toUtf8(password);
+void loadWallet({required String path, required String password, int nettype = 0}) {
+  final pathPointer = path.toNativeUtf8();
+  final passwordPointer = password.toNativeUtf8();
   final loaded = loadWalletNative(pathPointer, passwordPointer, nettype) != 0;
-  free(pathPointer);
-  free(passwordPointer);
+  calloc.free(pathPointer);
+  calloc.free(passwordPointer);
 
   if (!loaded) {
     throw WalletOpeningException(
@@ -189,20 +189,20 @@ void _restoreFromKeys(Map<String, dynamic> args) {
 }
 
 Future<void> _openWallet(Map<String, String> args) async =>
-    loadWallet(path: args['path'], password: args['password']);
+    loadWallet(path: args['path'] as String, password: args['password'] as String);
 
 bool _isWalletExist(String path) => isWalletExistSync(path: path);
 
-void openWallet({String path, String password, int nettype = 0}) async =>
+void openWallet({required String path, required String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
 Future<void> openWalletAsync(Map<String, String> args) async =>
     compute(_openWallet, args);
 
 Future<void> createWallet(
-        {String path,
-        String password,
-        String language,
+        {required String path,
+        required String password,
+        required String language,
         int nettype = 0}) async =>
     compute(_createWallet, {
       'path': path,
@@ -211,10 +211,10 @@ Future<void> createWallet(
       'nettype': nettype
     });
 
-Future restoreFromSeed(
-        {String path,
-        String password,
-        String seed,
+Future<void> restoreFromSeed(
+        {required String path,
+        required String password,
+        required String seed,
         int nettype = 0,
         int restoreHeight = 0}) async =>
     compute<Map<String, Object>, void>(_restoreFromSeed, {
@@ -225,13 +225,13 @@ Future restoreFromSeed(
       'restoreHeight': restoreHeight
     });
 
-Future restoreFromKeys(
-        {String path,
-        String password,
-        String language,
-        String address,
-        String viewKey,
-        String spendKey,
+Future<void> restoreFromKeys(
+        {required String path,
+        required String password,
+        required String language,
+        required String address,
+        required String viewKey,
+        required String spendKey,
         int nettype = 0,
         int restoreHeight = 0}) async =>
     compute<Map<String, Object>, void>(_restoreFromKeys, {
@@ -245,4 +245,4 @@ Future restoreFromKeys(
       'restoreHeight': restoreHeight
     });
 
-Future<bool> isWalletExist({String path}) => compute(_isWalletExist, path);
+Future<bool> isWalletExist({required String path}) => compute(_isWalletExist, path);

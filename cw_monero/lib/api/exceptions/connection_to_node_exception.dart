@@ -1,5 +1,5 @@
 class ConnectionToNodeException implements Exception {
-  ConnectionToNodeException({this.message});
+  ConnectionToNodeException({required this.message});
 
   final String message;
 }

@@ -38,7 +38,8 @@ class YatEmojiId extends StatelessWidget {
                   topRight: Radius.circular(24)),
               child: Container(
                   height: 420,
-                  color: Theme.of(context).buttonColor,
+                  color:
+                      Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
                   padding: EdgeInsets.fromLTRB(24, 15, 24, 24),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
@@ -88,7 +89,7 @@ class YatEmojiId extends StatelessWidget {
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Lato',
-                                      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                                      color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
                                       decoration: TextDecoration.none,
                                     )
                                 ),
@@ -102,9 +103,9 @@ class YatEmojiId extends StatelessWidget {
                                           fontWeight: FontWeight.normal,
                                           fontFamily: 'Lato',
                                           color: Theme.of(context)
-                                            .accentTextTheme
-                                            .display2
-                                            .backgroundColor,
+                                            .accentTextTheme!
+                                            .displaySmall!
+                                            .backgroundColor!,
                                           decoration: TextDecoration.none,
                                         )
                                     )

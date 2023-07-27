@@ -12,7 +12,8 @@ abstract class SecretStoreBase with Store {
     final secretStore = SecretStore();
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await storage.read(key: backupPasswordKey);
-    secretStore.write(key: backupPasswordKey, value: backupPassword);
+    // FIX-ME: backupPassword ?? '' ???
+    secretStore.write(key: backupPasswordKey, value: backupPassword ?? '');
 
     return secretStore;
   }
@@ -23,6 +24,6 @@ abstract class SecretStoreBase with Store {
 
   String read(String key) => values[key] as String;
 
-  String write({@required String key, @required String value}) =>
+  String write({required String key, required String value}) =>
       values[key] = value;
 }

@@ -3,24 +3,23 @@ import 'package:flutter/material.dart';
 
 class CollapsibleSectionList extends SectionStandardList {
   CollapsibleSectionList(
-      {bool hasTopSeparator,
-        BuildContext context,
-        int sectionCount,
-        int Function(int sectionIndex) itemCounter,
-        Widget Function(BuildContext context, int sectionIndex, int itemIndex)
-        itemBuilder,
-        Widget Function(BuildContext context, int sectionIndex)
-        sectionTitleBuilder,
-        Color themeColor,
-        Color dividerThemeColor})
+      {required BuildContext context,
+        required int sectionCount,
+        required int Function(int sectionIndex) itemCounter,
+        required Widget Function(BuildContext context, int sectionIndex, int itemIndex) itemBuilder,
+        Color? themeColor,
+        Color? dividerThemeColor,
+        Widget Function(BuildContext context, int sectionIndex)? sectionTitleBuilder,
+        bool hasTopSeparator = false})
       : super(
-      hasTopSeparator: hasTopSeparator,
-      sectionCount: sectionCount,
-      itemCounter: itemCounter,
-      itemBuilder: itemBuilder,
-      sectionTitleBuilder: sectionTitleBuilder,
-      themeColor: themeColor,
-      dividerThemeColor: dividerThemeColor);
+          context: context,
+          hasTopSeparator: hasTopSeparator,
+          sectionCount: sectionCount,
+          itemCounter: itemCounter,
+          itemBuilder: itemBuilder,
+          sectionTitleBuilder: sectionTitleBuilder,
+          themeColor: themeColor,
+          dividerThemeColor: dividerThemeColor);
 
   @override
   List<Widget> transform(
@@ -28,12 +27,10 @@ class CollapsibleSectionList extends SectionStandardList {
       BuildContext context,
       int sectionCount,
       int Function(int sectionIndex) itemCounter,
-      Widget Function(BuildContext context, int sectionIndex, int itemIndex)
-      itemBuilder,
-      Widget Function(BuildContext context, int sectionIndex)
-      sectionTitleBuilder,
-      themeColor,
-      dividerThemeColor) {
+      Widget Function(BuildContext context, int sectionIndex, int itemIndex) itemBuilder,
+      Widget Function(BuildContext context, int sectionIndex)? sectionTitleBuilder,
+      Color? themeColor,
+      Color? dividerThemeColor) {
     final items = <Widget>[];
 
     for (var sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
@@ -41,7 +38,7 @@ class CollapsibleSectionList extends SectionStandardList {
 
       items.add(Theme(
         data: ThemeData(
-            textTheme: TextTheme(subtitle1: TextStyle(color: themeColor,fontFamily: 'Lato')),
+            textTheme: TextTheme(titleMedium: TextStyle(color: themeColor,fontFamily: 'Lato')),
             backgroundColor: dividerThemeColor,
             unselectedWidgetColor: themeColor,
             accentColor: themeColor)
@@ -51,6 +48,8 @@ class CollapsibleSectionList extends SectionStandardList {
           child: ListTileTheme(
             contentPadding: EdgeInsets.only(right: 16,top:sectionIndex>0?26:0),
             child: ExpansionTile(
+              textColor: themeColor,
+              iconColor: themeColor,
               title: sectionTitleBuilder == null
                   ? Container()
                   : Container(child: buildTitle(items, sectionIndex, context)),
@@ -70,8 +69,10 @@ class CollapsibleSectionList extends SectionStandardList {
   @override
   Widget buildTitle(
       List<Widget> items, int sectionIndex, BuildContext context) {
-    final title = sectionTitleBuilder(context, sectionIndex);
-    return title;
+    if (sectionTitleBuilder == null) {
+      throw Exception('Cannot to build title. sectionTitleBuilder is null');
+    }
+    return sectionTitleBuilder!.call(context, sectionIndex);
   }
 
   @override

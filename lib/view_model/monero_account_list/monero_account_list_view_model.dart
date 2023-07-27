@@ -1,3 +1,4 @@
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -21,41 +22,48 @@ abstract class MoneroAccountListViewModelBase with Store {
     this.scrollOffsetFromTop = scrollOffsetFromTop;
   }
 
+  CryptoCurrency get currency => _wallet.currency;
+
   @computed
   List<AccountListItem> get accounts {
     if (_wallet.type == WalletType.haven) {
       return haven
-        .getAccountList(_wallet)
+        !.getAccountList(_wallet)
         .accounts.map((acc) => AccountListItem(
             label: acc.label,
             id: acc.id,
-            isSelected: acc.id == haven.getCurrentAccount(_wallet).id))
+            isSelected: acc.id == haven!.getCurrentAccount(_wallet).id))
         .toList();
     }
 
     if (_wallet.type == WalletType.monero) {
       return monero
-        .getAccountList(_wallet)
+        !.getAccountList(_wallet)
         .accounts.map((acc) => AccountListItem(
             label: acc.label,
             id: acc.id,
-            isSelected: acc.id == monero.getCurrentAccount(_wallet).id))
+            balance: acc.balance,
+            isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
         .toList();
     }
+
+    throw Exception('Unexpected wallet type: ${_wallet.type}');
   }
 
   final WalletBase _wallet;
 
   void select(AccountListItem item) {
     if (_wallet.type == WalletType.monero) {
-      monero.setCurrentAccount(
+      monero!.setCurrentAccount(
         _wallet,
         item.id,
-        item.label);
+        item.label,
+        item.balance,
+        );
     }
 
     if (_wallet.type == WalletType.haven) {
-      haven.setCurrentAccount(
+      haven!.setCurrentAccount(
         _wallet,
         item.id,
         item.label);

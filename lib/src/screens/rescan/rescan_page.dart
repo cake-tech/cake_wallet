@@ -32,10 +32,13 @@ class RescanPage extends BasePage {
                   onPressed: () async {
                     await _rescanViewModel.rescanCurrentWallet(
                         restoreHeight:
-                            _blockchainHeightWidgetKey.currentState.height);
+                            _blockchainHeightWidgetKey.currentState!.height);
                     Navigator.of(context).pop();
                   },
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                   isDisabled: !_rescanViewModel.isButtonEnabled,
                 ))

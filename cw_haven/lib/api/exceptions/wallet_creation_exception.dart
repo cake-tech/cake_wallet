@@ -1,5 +1,5 @@
 class WalletCreationException implements Exception {
-  WalletCreationException({this.message});
+  WalletCreationException({required this.message});
 
   final String message;
 

@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 
 class IoniaOrder {
-  IoniaOrder({@required this.id,
-    @required this.uri,
-    @required this.currency,
-    @required this.amount,
-    @required this.paymentId});
+  IoniaOrder({required this.id,
+    required this.uri,
+    required this.currency,
+    required this.amount,
+    required this.paymentId});
   factory IoniaOrder.fromMap(Map<String, dynamic> obj) {
     return IoniaOrder(
       id: obj['order_id'] as String,

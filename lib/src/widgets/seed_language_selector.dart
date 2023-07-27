@@ -5,7 +5,8 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 
 class SeedLanguageSelector extends StatefulWidget {
-  SeedLanguageSelector({Key key, this.initialSelected}) : super(key: key);
+  SeedLanguageSelector({Key? key, required this.initialSelected})
+      : super(key: key);
 
   final String initialSelected;
 
@@ -15,7 +16,7 @@ class SeedLanguageSelector extends StatefulWidget {
 }
 
 class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
-  SeedLanguageSelectorState({this.selected});
+  SeedLanguageSelectorState({required this.selected});
 
   final seedLocales = [
     S.current.seed_language_english,
@@ -30,21 +31,20 @@ class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
     S.current.seed_language_italian,
   ];
   String selected;
-  final _pickerKey = GlobalKey<SeedLanguagePickerState>();
 
   @override
   Widget build(BuildContext context) {
     return SelectButton(
-        image: null,
-        text: seedLocales[seedLanguages.indexOf(selected)],
-        onTap: () async {
-          final selected = await showPopUp<String>(
-              context: context,
-              builder: (BuildContext context) =>
-                  SeedLanguagePicker(key: _pickerKey, selected: this.selected));
-          if (selected != null) {
-            setState(() => this.selected = selected);
-          }
-        });
+      image: null,
+      text: seedLocales[seedLanguages.indexOf(selected)],
+      onTap: () async {
+        await showPopUp<String>(
+            context: context,
+            builder: (_) => SeedLanguagePicker(
+                selected: this.selected,
+                onItemSelected: (String selected) =>
+                    setState(() => this.selected = selected)));
+      },
+    );
   }
 }

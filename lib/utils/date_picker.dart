@@ -2,11 +2,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<DateTime> getDate({
-  @required BuildContext context,
-  @required DateTime initialDate,
-  @required DateTime firstDate,
-  @required DateTime lastDate}) {
+Future<DateTime?> getDate({
+  required BuildContext context,
+  required DateTime initialDate,
+  required DateTime firstDate,
+  required DateTime lastDate}) {
 
   if (Platform.isIOS) {
     return _buildCupertinoDataPicker(context, initialDate, firstDate, lastDate);
@@ -15,7 +15,7 @@ Future<DateTime> getDate({
   return _buildMaterialDataPicker(context, initialDate, firstDate, lastDate);
 }
 
-Future<DateTime> _buildMaterialDataPicker(
+Future<DateTime?> _buildMaterialDataPicker(
   BuildContext context,
   DateTime initialDate,
   DateTime firstDate,
@@ -28,12 +28,12 @@ Future<DateTime> _buildMaterialDataPicker(
       helpText: '');
 }
 
-Future<DateTime> _buildCupertinoDataPicker(
+Future<DateTime?> _buildCupertinoDataPicker(
   BuildContext context,
   DateTime initialDate,
   DateTime firstDate,
   DateTime lastDate) async {
-  DateTime date;
+  DateTime? date;
   await showModalBottomSheet<void>(
       context: context,
       builder: (_) {
@@ -45,7 +45,6 @@ Future<DateTime> _buildCupertinoDataPicker(
             initialDateTime: initialDate,
             minimumDate: firstDate,
             maximumDate: lastDate,
-            backgroundColor: Colors.white,
           ),
         );
       }

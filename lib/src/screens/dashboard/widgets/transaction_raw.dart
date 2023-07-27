@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 class TransactionRow extends StatelessWidget {
   TransactionRow(
-      {this.direction,
-      this.formattedDate,
-      this.formattedAmount,
-      this.formattedFiatAmount,
-      this.isPending,
-      @required this.onTap});
+      {required this.direction,
+      required this.formattedDate,
+      required this.formattedAmount,
+      required this.formattedFiatAmount,
+      required this.isPending,
+      required this.title,
+      required this.onTap});
 
   final VoidCallback onTap;
   final TransactionDirection direction;
@@ -17,6 +17,7 @@ class TransactionRow extends StatelessWidget {
   final String formattedAmount;
   final String formattedFiatAmount;
   final bool isPending;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class TransactionRow extends StatelessWidget {
                 width: 36,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).textTheme.overline.decorationColor
+                    color: Theme.of(context).textTheme!.labelSmall!.decorationColor!
                 ),
                 child: Image.asset(
                     direction == TransactionDirection.incoming
@@ -49,22 +50,18 @@ class TransactionRow extends StatelessWidget {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text(
-                                (direction == TransactionDirection.incoming
-                                    ? S.of(context).received
-                                    : S.of(context).sent) +
-                                    (isPending ? S.of(context).pending : ''),
+                            Text(title,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor)),
+                                    color: Theme.of(context).accentTextTheme!
+                                        .displayMedium!.backgroundColor!)),
                             Text(formattedAmount,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor))
+                                    color: Theme.of(context).accentTextTheme!
+                                        .displayMedium!.backgroundColor!))
                           ]),
                       SizedBox(height: 5),
                       Row(
@@ -74,16 +71,16 @@ class TransactionRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 14,
                                     color: Theme.of(context)
-                                        .textTheme
-                                        .overline
-                                        .backgroundColor)),
+                                        .textTheme!
+                                        .labelSmall!
+                                        .backgroundColor!)),
                             Text(formattedFiatAmount,
                                 style: TextStyle(
                                     fontSize: 14,
                                     color: Theme.of(context)
-                                        .textTheme
-                                        .overline
-                                        .backgroundColor))
+                                        .textTheme!
+                                        .labelSmall!
+                                        .backgroundColor!))
                           ])
                     ],
                   )

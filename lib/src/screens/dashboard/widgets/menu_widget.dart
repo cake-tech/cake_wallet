@@ -1,10 +1,9 @@
-import 'dart:ui';
+import 'package:cake_wallet/src/widgets/setting_action_button.dart';
+import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 // FIXME: terrible design.
@@ -19,10 +18,19 @@ class MenuWidget extends StatefulWidget {
 }
 
 class MenuWidgetState extends State<MenuWidget> {
-  Image moneroIcon;
-  Image bitcoinIcon;
-  Image litecoinIcon;
-  Image havenIcon;
+  MenuWidgetState()
+      : this.menuWidth = 0,
+        this.screenWidth = 0,
+        this.screenHeight = 0,
+        this.headerHeight = 120,
+        this.tileHeight = 60,
+        this.fromTopEdge = 50,
+        this.fromBottomEdge = 25,
+        this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
+        this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
+        this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
+        this.havenIcon = Image.asset('assets/images/haven_menu.png');
+
   final largeScreen = 731;
 
   double menuWidth;
@@ -33,6 +41,11 @@ class MenuWidgetState extends State<MenuWidget> {
   double tileHeight;
   double fromTopEdge;
   double fromBottomEdge;
+
+  Image moneroIcon;
+  Image bitcoinIcon;
+  Image litecoinIcon;
+  Image havenIcon;
 
   @override
   void initState() {
@@ -68,16 +81,18 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final walletMenu = WalletMenu(
-        context,
-        () async => widget.dashboardViewModel.reconnect(),
-        widget.dashboardViewModel.hasRescan);
-    final itemCount = walletMenu.items.length;
+    final itemCount = SettingActions.all.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
-        color: Theme.of(context).accentTextTheme.overline.decorationColor);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .labelSmall!
+            .decorationColor!);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
-        color: Theme.of(context).accentTextTheme.overline.decorationColor);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .labelSmall!
+            .decorationColor!);
     litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
     havenIcon = Image.asset('assets/images/haven_menu.png');
 
@@ -91,17 +106,16 @@ class MenuWidgetState extends State<MenuWidget> {
               height: 60,
               width: 4,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(2)),
-                  color: PaletteDark.gray),
+                  borderRadius: BorderRadius.all(Radius.circular(2)), color: PaletteDark.gray),
             )),
         SizedBox(width: 12),
         Expanded(
             child: ClipRRect(
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24)),
+                    topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
                 child: Container(
-                  color: Theme.of(context).textTheme.body2.decorationColor,
+                  color:
+                      Theme.of(context).textTheme!.bodyLarge!.decorationColor!,
                   child: ListView.separated(
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
@@ -109,25 +123,18 @@ class MenuWidgetState extends State<MenuWidget> {
                           return Container(
                             height: headerHeight,
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                  colors: [
-                                    Theme.of(context)
-                                        .accentTextTheme
-                                        .display1
-                                        .color,
-                                    Theme.of(context)
-                                        .accentTextTheme
-                                        .display1
-                                        .decorationColor,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight),
+                              gradient: LinearGradient(colors: [
+                                Theme.of(context)
+                                    .accentTextTheme!
+                                    .headlineMedium!
+                                    .color!,
+                                Theme.of(context)
+                                    .accentTextTheme!
+                                    .headlineMedium!
+                                    .decorationColor!,                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                             ),
                             padding: EdgeInsets.only(
-                                left: 24,
-                                top: fromTopEdge,
-                                right: 24,
-                                bottom: fromBottomEdge),
+                                left: 24, top: fromTopEdge, right: 24, bottom: fromBottomEdge),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
@@ -136,13 +143,10 @@ class MenuWidgetState extends State<MenuWidget> {
                                 SingleChildScrollView(
                                     child: Container(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        widget.dashboardViewModel.subname !=
-                                                null
-                                            ? MainAxisAlignment.spaceBetween
-                                            : MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: widget.dashboardViewModel.subname.isNotEmpty
+                                        ? MainAxisAlignment.spaceBetween
+                                        : MainAxisAlignment.center,
                                     children: <Widget>[
                                       Text(
                                         widget.dashboardViewModel.name,
@@ -151,19 +155,16 @@ class MenuWidgetState extends State<MenuWidget> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      if (widget.dashboardViewModel.subname !=
-                                          null)
+                                      if (widget.dashboardViewModel.subname.isNotEmpty)
                                         Observer(
                                             builder: (_) => Text(
-                                                  widget.dashboardViewModel
-                                                      .subname,
+                                                  widget.dashboardViewModel.subname,
                                                   style: TextStyle(
                                                       color: Theme.of(context)
-                                                          .accentTextTheme
-                                                          .overline
-                                                          .decorationColor,
-                                                      fontWeight:
-                                                          FontWeight.w500,
+                                                          .accentTextTheme!
+                                                          .labelSmall!
+                                                          .decorationColor!,
+                                                      fontWeight: FontWeight.w500,
                                                       fontSize: 12),
                                                 ))
                                     ],
@@ -176,58 +177,27 @@ class MenuWidgetState extends State<MenuWidget> {
 
                         index--;
 
-                        final item = walletMenu.items[index];
-                        final title = item.title;
-                        final image = item.image ?? Offstage();
+                        final item = SettingActions.all[index];
+                       
                         final isLastTile = index == itemCount - 1;
 
-                        return GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              walletMenu.action(index);
-                            },
-                            child: Container(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .body2
-                                  .decorationColor,
-                              height: isLastTile ? headerHeight : tileHeight,
-                              padding: isLastTile
-                                  ? EdgeInsets.only(
-                                      left: 24,
-                                      right: 24,
-                                      top: fromBottomEdge,
-                                      //bottom: fromTopEdge
-                                    )
-                                  : EdgeInsets.only(left: 24, right: 24),
-                              alignment: isLastTile ? Alignment.topLeft : null,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  image,
-                                  SizedBox(width: 16),
-                                  Expanded(
-                                      child: Text(
-                                    title,
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .display2
-                                            .color,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ))
-                                ],
-                              ),
-                            ));
+                        return SettingActionButton(
+                          isLastTile: isLastTile,
+                          tileHeight: tileHeight,
+                          selectionActive: false,
+                          fromBottomEdge: fromBottomEdge,
+                          fromTopEdge: fromTopEdge,
+                          onTap: () => item.onTap.call(context),
+                          image: item.image,
+                          title: item.name.call(context),
+                        );
                       },
                       separatorBuilder: (_, index) => Container(
                             height: 1,
                             color: Theme.of(context)
-                                .primaryTextTheme
-                                .caption
-                                .decorationColor,
+                                .primaryTextTheme!
+                                .bodySmall!
+                                .decorationColor!,
                           ),
                       itemCount: itemCount + 1),
                 )))
@@ -235,7 +205,7 @@ class MenuWidgetState extends State<MenuWidget> {
     );
   }
 
-  Image _iconFor({@required WalletType type}) {
+  Image _iconFor({required WalletType type}) {
     switch (type) {
       case WalletType.monero:
         return moneroIcon;
@@ -246,7 +216,7 @@ class MenuWidgetState extends State<MenuWidget> {
       case WalletType.haven:
         return havenIcon;
       default:
-        return null;
+        throw Exception('No icon for ${type.toString()}');
     }
   }
 }

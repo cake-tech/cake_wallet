@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class YatException implements Exception {
-  YatException({@required this.text});
+  YatException({required this.text});
 
   final String text;
 

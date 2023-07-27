@@ -8,10 +8,12 @@ class IoniaAuthViewModel  = IoniaAuthViewModelBase with _$IoniaAuthViewModel;
 
 abstract class IoniaAuthViewModelBase with Store {
 
-  IoniaAuthViewModelBase({this.ioniaService}):
+  IoniaAuthViewModelBase({required this.ioniaService}):
     createUserState = IoniaInitialCreateState(),
     signInState = IoniaInitialCreateState(),
-    otpState = IoniaOtpSendDisabled();
+    otpState = IoniaOtpSendDisabled(),
+    email = '',
+    otp = '';
 
   final IoniaService ioniaService;
 

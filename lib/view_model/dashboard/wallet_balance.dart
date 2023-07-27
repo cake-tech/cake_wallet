@@ -1,5 +1,5 @@
 class WalletBalance {
-  WalletBalance({this.unlockedBalance, this.totalBalance});
+  WalletBalance({required this.unlockedBalance, required this.totalBalance});
 
   String unlockedBalance;
   String totalBalance;

@@ -12,21 +12,22 @@ class HavenWalletAddresses = HavenWalletAddressesBase
     with _$HavenWalletAddresses;
 
 abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Account> with Store {
-  HavenWalletAddressesBase(WalletInfo walletInfo) : super(walletInfo) {
-    accountList = HavenAccountList();
-    subaddressList = HavenSubaddressList();
-  }
+  HavenWalletAddressesBase(WalletInfo walletInfo)
+    : accountList = HavenAccountList(),
+      subaddressList = HavenSubaddressList(),
+      address = '',
+      super(walletInfo);
 
   @override
   @observable
   String address;
   
-  @override
+  // @override
   @observable
-  Account account;
+  Account? account;
 
   @observable
-  Subaddress subaddress;
+  Subaddress? subaddress;
 
   HavenSubaddressList subaddressList;
   
@@ -36,7 +37,7 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.first;
-    updateSubaddressList(accountIndex: account.id ?? 0);
+    updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
 
@@ -62,14 +63,14 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
 
   bool validate() {
     accountList.update();
-    final accountListLength = accountList.accounts?.length ?? 0;
+    final accountListLength = accountList.accounts.length ?? 0;
 
     if (accountListLength <= 0) {
       return false;
     }
 
     subaddressList.update(accountIndex: accountList.accounts.first.id);
-    final subaddressListLength = subaddressList.subaddresses?.length ?? 0;
+    final subaddressListLength = subaddressList.subaddresses.length ?? 0;
 
     if (subaddressListLength <= 0) {
       return false;
@@ -78,9 +79,9 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
     return true;
   }
 
-  void updateSubaddressList({int accountIndex}) {
+  void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
     subaddress = subaddressList.subaddresses.first;
-    address = subaddress.address;
+    address = subaddress!.address;
   }
 }

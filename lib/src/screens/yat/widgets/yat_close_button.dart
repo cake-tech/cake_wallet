@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class YatCloseButton extends StatelessWidget {
   YatCloseButton({this.onClose});
 
-  final VoidCallback onClose;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {

@@ -6,9 +6,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class RestoreWalletOptionsPage extends BasePage {
   RestoreWalletOptionsPage(
-      {@required this.type,
-      @required this.onRestoreFromSeed,
-      @required this.onRestoreFromKeys});
+      {required this.type,
+      required this.onRestoreFromSeed,
+      required this.onRestoreFromKeys});
 
   final WalletType type;
   final Function(BuildContext context) onRestoreFromSeed;

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -21,8 +22,9 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
     with Store {
   WalletRestorationFromSeedVMBase(AppStore appStore,
       WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
-      {@required WalletType type, @required this.language, this.seed})
-      : super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
+      {required WalletType type, required this.language, this.seed = ''})
+      : height = 0,
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   String seed;
@@ -40,13 +42,13 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
 
     switch (type) {
       case WalletType.monero:
-        return monero.createMoneroRestoreWalletFromSeedCredentials(
+        return monero!.createMoneroRestoreWalletFromSeedCredentials(
             name: name, height: height, mnemonic: seed, password: password);
       case WalletType.bitcoin:
-        return bitcoin.createBitcoinRestoreWalletFromSeedCredentials(
+        return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name, mnemonic: seed, password: password);
       default:
-        return null;
+        throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 

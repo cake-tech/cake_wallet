@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class HeaderTile extends StatelessWidget {
   HeaderTile({
-    @required this.onTap,
-    @required this.title,
-    @required this.icon
+    required this.onTap,
+    required this.title,
+    required this.icon
   });
 
   final VoidCallback onTap;
@@ -22,7 +22,7 @@ class HeaderTile extends StatelessWidget {
             top: 24,
             bottom: 24
         ),
-        color: Theme.of(context).textTheme.display2.decorationColor,
+        color: Theme.of(context).textTheme!.displaySmall!.decorationColor!,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -32,16 +32,17 @@ class HeaderTile extends StatelessWidget {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme.display2.color
-              ),
+                  color: Theme.of(context)!.textTheme.displaySmall!.color!),
             ),
             Container(
               height: 32,
               width: 32,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).textTheme.display1.decorationColor
-              ),
+                  color: Theme.of(context)
+                      .textTheme!
+                      .headlineMedium!
+                      .decorationColor!),
               child: icon,
             )
           ],

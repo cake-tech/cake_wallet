@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 
 class ScrollableWithBottomSection extends StatefulWidget {
   ScrollableWithBottomSection(
-      {this.content,
-      this.bottomSection,
+      {required this.content,
+      required this.bottomSection,
       this.contentPadding,
       this.bottomSectionPadding});
 
   final Widget content;
   final Widget bottomSection;
-  final EdgeInsets contentPadding;
-  final EdgeInsets bottomSectionPadding;
+  final EdgeInsets? contentPadding;
+  final EdgeInsets? bottomSectionPadding;
 
   @override
   ScrollableWithBottomSectionState createState() =>

@@ -5,7 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class BuyProvider {
-  BuyProvider({this.wallet, this.isTestEnvironment});
+  BuyProvider({required this.wallet, required this.isTestEnvironment});
 
   final WalletBase wallet;
   final bool isTestEnvironment;

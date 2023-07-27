@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'package:cw_core/key.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:flutter/foundation.dart';
 
 Future<void> write(
-    {@required String path,
-    @required String password,
-    @required String data}) async {
+    {required String path,
+    required String password,
+    required String data}) async {
   final keys = extractKeys(password);
   final key = encrypt.Key.fromBase64(keys.first);
   final iv = encrypt.IV.fromBase64(keys.last);
@@ -16,9 +15,9 @@ Future<void> write(
 }
 
 Future<void> writeData(
-    {@required String path,
-    @required String password,
-    @required String data}) async {
+    {required String path,
+    required String password,
+    required String data}) async {
   final keys = extractKeys(password);
   final key = encrypt.Key.fromBase64(keys.first);
   final iv = encrypt.IV.fromBase64(keys.last);
@@ -27,7 +26,7 @@ Future<void> writeData(
   f.writeAsStringSync(encrypted);
 }
 
-Future<String> read({@required String path, @required String password}) async {
+Future<String> read({required String path, required String password}) async {
   final file = File(path);
 
   if (!file.existsSync()) {

@@ -4,7 +4,9 @@ import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 
 class TradeListItem extends ActionListItem {
-  TradeListItem({this.trade, this.settingsStore});
+  TradeListItem({
+    required this.trade,
+    required this.settingsStore});
 
   final Trade trade;
   final SettingsStore settingsStore;
@@ -20,5 +22,5 @@ class TradeListItem extends ActionListItem {
   }
 
   @override
-  DateTime get date => trade.createdAt;
+  DateTime get date => trade.createdAt!;
 }

@@ -1,20 +1,15 @@
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
 
-class SettingsChoicesCell extends StatefulWidget {
-  const SettingsChoicesCell(this.choicesListItem, {Key key}) : super(key: key);
+class SettingsChoicesCell extends StatelessWidget {
+  const SettingsChoicesCell(this.choicesListItem, {Key? key}) : super(key: key);
 
   final ChoicesListItem choicesListItem;
 
   @override
-  _SettingsChoicesCellState createState() => _SettingsChoicesCellState();
-}
-
-class _SettingsChoicesCellState extends State<SettingsChoicesCell> {
-  @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).backgroundColor,
+      color: Theme.of(context).colorScheme.background,
       padding: EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -23,11 +18,11 @@ class _SettingsChoicesCellState extends State<SettingsChoicesCell> {
           Row(
             children: [
               Text(
-                widget.choicesListItem.title,
+                choicesListItem.title,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ),
               ),
             ],
@@ -39,27 +34,39 @@ class _SettingsChoicesCellState extends State<SettingsChoicesCell> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).accentTextTheme.display2.color,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .displaySmall!
+                      .color!,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: widget.choicesListItem.items.map((dynamic e) {
-                    final isSelected = widget.choicesListItem.selectedItem() == e;
+                  children: choicesListItem.items.map((dynamic e) {
+                    final isSelected = choicesListItem.selectedItem == e;
                     return GestureDetector(
                       onTap: () {
-                        widget.choicesListItem.onItemSelected?.call(e);
-                        setState(() {});
+                        choicesListItem.onItemSelected?.call(e);
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: isSelected ? Theme.of(context).accentTextTheme.body2.color : null,
+                          color: isSelected
+                              ? Theme.of(context)
+                                  .accentTextTheme!
+                                  .bodyLarge!
+                                  .color!
+                              : null,
                         ),
                         child: Text(
-                          widget.choicesListItem.displayItem?.call(e) ?? e.toString(),
+                          choicesListItem.displayItem?.call(e) ?? e.toString(),
                           style: TextStyle(
-                            color: isSelected ? Colors.white : Theme.of(context).primaryTextTheme.caption.color,
+                            color: isSelected
+                                ? Colors.white
+                                : Theme.of(context)
+                                    .primaryTextTheme!
+                                    .bodySmall!
+                                    .color!,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                           ),
                         ),

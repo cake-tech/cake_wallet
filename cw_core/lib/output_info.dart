@@ -1,20 +1,20 @@
 class OutputInfo {
 	const OutputInfo(
-		{this.fiatAmount,
-		this.cryptoAmount,
-		this.address,
-		this.note,
-		this.sendAll,
-		this.extractedAddress,
-		this.isParsedAddress,
-		this.formattedCryptoAmount});
+		{required this.address,
+		required this.sendAll,
+		required this.isParsedAddress,
+    this.cryptoAmount,
+		this.formattedCryptoAmount,
+    this.fiatAmount,
+    this.note,
+    this.extractedAddress,});
 
-  	final String fiatAmount;
-  	final String cryptoAmount;
+  	final String? fiatAmount;
+  	final String? cryptoAmount;
   	final String address;
-  	final String note;
-  	final String extractedAddress;
+  	final String? note;
+  	final String? extractedAddress;
   	final bool sendAll;
   	final bool isParsedAddress;
-  	final int formattedCryptoAmount;
+  	final int? formattedCryptoAmount;
 }

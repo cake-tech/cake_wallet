@@ -120,7 +120,7 @@ Future<void> main(List<String> args) async {
   });
 }
 
-String localizedStrings({Map<String, dynamic> config, bool hasOverride}) {
+String localizedStrings({required Map<String, dynamic> config, required bool hasOverride}) {
   var output = '';
 
   final pattern = RegExp('[\$]{(.*?)}');

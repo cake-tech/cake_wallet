@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +14,6 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -40,17 +41,26 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 Future<void> main() async {
-  try {
+  await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
+    FlutterError.onError = ExceptionHandler.onError;
+
+    /// A callback that is invoked when an unhandled error occurs in the root
+    /// isolate.
+    PlatformDispatcher.instance.onError = (error, stack) {
+      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+
+      return true;
+    };
+
+    final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
 
     await initializeAppConfigs();
-
-    await bootstrap(navigatorKey);
-    monero?.onStartup();
 
     runApp(App());
   } catch (e) {
@@ -111,27 +121,27 @@ Future<void> initializeAppConfigs() async {
     Hive.registerAdapter(UnspentCoinsInfoAdapter());
   }
 
+  if (!Hive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
+    Hive.registerAdapter(AnonpayInvoiceInfoAdapter());
+  }
+
   final secureStorage = FlutterSecureStorage();
-  final transactionDescriptionsBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-  final tradesBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage, forKey: Trade.boxKey);
-  final ordersBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage, forKey: Order.boxKey);
+  final transactionDescriptionsBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
+  final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await Hive.openBox<Contact>(Contact.boxName);
   final nodes = await Hive.openBox<Node>(Node.boxName);
   final transactionDescriptions = await Hive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
-  final trades =
-      await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-  final orders =
-      await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
   final templates = await Hive.openBox<Template>(Template.boxName);
-  final exchangeTemplates =
-      await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-  Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+  Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
 
   if (!isMoneroOnly) {
     unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
@@ -139,33 +149,35 @@ Future<void> initializeAppConfigs() async {
 
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
-  nodes: nodes,
-  walletInfoSource: walletInfoSource,
-  contactSource: contacts,
-  tradesSource: trades,
-  ordersSource: orders,
-  unspentCoinsInfoSource: unspentCoinsInfoSource,
-  // fiatConvertationService: fiatConvertationService,
-  templates: templates,
-  exchangeTemplates: exchangeTemplates,
-  transactionDescriptions: transactionDescriptions,
-  secureStorage: secureStorage,
-  initialMigrationVersion: 17);
-}
+      nodes: nodes,
+      walletInfoSource: walletInfoSource,
+      contactSource: contacts,
+      tradesSource: trades,
+      ordersSource: orders,
+      unspentCoinsInfoSource: unspentCoinsInfoSource,
+      // fiatConvertationService: fiatConvertationService,
+      templates: templates,
+      exchangeTemplates: exchangeTemplates,
+      transactionDescriptions: transactionDescriptions,
+      secureStorage: secureStorage,
+      anonpayInvoiceInfo: anonpayInvoiceInfo,
+      initialMigrationVersion: 19);
+  }
 
 Future<void> initialSetup(
-    {@required SharedPreferences sharedPreferences,
-    @required Box<Node> nodes,
-    @required Box<WalletInfo> walletInfoSource,
-    @required Box<Contact> contactSource,
-    @required Box<Trade> tradesSource,
-    @required Box<Order> ordersSource,
-    // @required FiatConvertationService fiatConvertationService,
-    @required Box<Template> templates,
-    @required Box<ExchangeTemplate> exchangeTemplates,
-    @required Box<TransactionDescription> transactionDescriptions,
-    @required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    FlutterSecureStorage secureStorage,
+    {required SharedPreferences sharedPreferences,
+    required Box<Node> nodes,
+    required Box<WalletInfo> walletInfoSource,
+    required Box<Contact> contactSource,
+    required Box<Trade> tradesSource,
+    required Box<Order> ordersSource,
+    // required FiatConvertationService fiatConvertationService,
+    required Box<Template> templates,
+    required Box<ExchangeTemplate> exchangeTemplates,
+    required Box<TransactionDescription> transactionDescriptions,
+    required FlutterSecureStorage secureStorage,
+    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
+    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
@@ -185,8 +197,10 @@ Future<void> initialSetup(
       exchangeTemplates: exchangeTemplates,
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      );
+      anonpayInvoiceInfoSource: anonpayInvoiceInfo,
+      unspentCoinsInfoSource: unspentCoinsInfoSource);
+  await bootstrap(navigatorKey);
+  monero?.onStartup();
 }
 
 class App extends StatefulWidget {
@@ -195,26 +209,16 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
-  AppState() {
-    yatStore = getIt.get<YatStore>();
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  }
+  AppState() : yatStore = getIt.get<YatStore>();
 
   YatStore yatStore;
-  StreamSubscription stream;
+  StreamSubscription? stream;
 
   @override
   void initState() {
     super.initState();
     //_handleIncomingLinks();
     //_handleInitialUri();
-  }
-
-  @override
-  void dispose() {
-    stream?.cancel();
-    super.dispose();
   }
 
   Future<void> _handleInitialUri() async {
@@ -234,7 +238,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
 
   void _handleIncomingLinks() {
     if (!kIsWeb) {
-      stream = getUriLinksStream().listen((Uri uri) {
+      stream = getUriLinksStream().listen((Uri? uri) {
         print('uri: $uri');
         if (!mounted) return;
         //_fetchEmojiFromUri(uri);
@@ -263,20 +267,19 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
-      final settingsStore = getIt.get<AppStore>().settingsStore;
+      final appStore = getIt.get<AppStore>();
+      final authService = getIt.get<AuthService>();
+      final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
-      final initialRoute =
-      authenticationStore.state == AuthenticationState.denied
+      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
           ? Routes.disclaimer
           : Routes.login;
       final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness = currentTheme.type == ThemeType.dark
-          ? Brightness.light
-          : Brightness.dark;
-      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
-          ? Brightness.light
-          : Brightness.dark;
+      final statusBarBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      final statusBarIconBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: statusBarColor,
           statusBarBrightness: statusBarBrightness,
@@ -284,23 +287,57 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
 
       return Root(
           key: rootKey,
+          appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
+          authService: authService,
           child: MaterialApp(
+            navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: settingsStore.theme,
-            localizationsDelegates: [
-              S.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-            ],
+            localizationsDelegates: localizationDelegates,
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
+            home: _Home(),
           ));
     });
+  }
+}
+
+class _Home extends StatefulWidget {
+  const _Home();
+
+  @override
+  State<_Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<_Home> {
+ @override
+  void didChangeDependencies() {
+    if(!ResponsiveLayoutUtil.instance.isMobile){
+    _setOrientation(context);
+    }
+    super.didChangeDependencies();
+  }
+
+
+ void _setOrientation(BuildContext context){
+    final orientation = MediaQuery.of(context).orientation;
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    if (orientation == Orientation.portrait && width < height) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    } else if (orientation == Orientation.landscape && width > height) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    }
+
+ }
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
   }
 }

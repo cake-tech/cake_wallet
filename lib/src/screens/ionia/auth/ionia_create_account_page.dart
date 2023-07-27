@@ -32,15 +32,18 @@ class IoniaCreateAccountPage extends BasePage {
   final FocusNode _emailFocus;
   final TextEditingController _emailController;
 
-  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jaqsmbq9w7dzvnqf';
-  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/hi9awnwxr6mqgiqj';
+  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jhjvdn7qq7k3ukwt';
+  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/uceirymz2ijacq5g';
 
   @override
   Widget middle(BuildContext context) {
     return Text(
       S.current.sign_up,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -66,6 +69,7 @@ class IoniaCreateAccountPage extends BasePage {
           validator: EmailValidator(),
           keyboardType: TextInputType.emailAddress,
           controller: _emailController,
+          onSubmit: (_) => _createAccount(),
         ),
       ),
       bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),
@@ -77,14 +81,13 @@ class IoniaCreateAccountPage extends BasePage {
               Observer(
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).create_account,
-                  onPressed: () async {
-                    if (!_formKey.currentState.validate()) {
-                      return;
-                    }
-                    await _authViewModel.createUser(_emailController.text);
-                  },
-                  isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  onPressed: _createAccount,
+                  isLoading:
+                      _authViewModel.createUserState is IoniaCreateStateLoading,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                 ),
               ),
@@ -104,7 +107,10 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                       text: S.of(context).settings_terms_and_conditions,
                       style: TextStyle(
-                        color: Theme.of(context).accentTextTheme.body2.color,
+                        color: Theme.of(context)
+                            .accentTextTheme!
+                            .bodyLarge!
+                            .color!,
                         fontWeight: FontWeight.w700,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -116,7 +122,10 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                         text: S.of(context).privacy_policy,
                         style: TextStyle(
-                          color: Theme.of(context).accentTextTheme.body2.color,
+                          color: Theme.of(context)
+                              .accentTextTheme!
+                              .bodyLarge!
+                              .color!,
                           fontWeight: FontWeight.w700,
                         ),
                         recognizer: TapGestureRecognizer()
@@ -151,4 +160,11 @@ class IoniaCreateAccountPage extends BasePage {
         Routes.ioniaVerifyIoniaOtpPage,
         arguments: [authViewModel.email, false],
       );
+
+  void _createAccount() async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+    await _authViewModel.createUser(_emailController.text);
+  }
 }

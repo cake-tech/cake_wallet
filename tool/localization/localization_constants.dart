@@ -21,20 +21,20 @@ import \'package:flutter/material.dart\';
 class S implements WidgetsLocalizations {
   const S();
 
-  static S current;
+  static late S current;
 
   static const GeneratedLocalizationsDelegate delegate =
     GeneratedLocalizationsDelegate();
 
-  static S of(BuildContext context) => Localizations.of<S>(context, S);  
+  static S of(BuildContext context) => Localizations.of<S>(context, S)!;
 """;
 
 const part2 = """
     ];
   }
 
-  LocaleListResolutionCallback listResolution({Locale fallback, bool withCountry = true}) {
-    return (List<Locale> locales, Iterable<Locale> supported) {
+  LocaleListResolutionCallback listResolution({required Locale fallback, bool withCountry = true}) {
+    return (List<Locale>? locales, Iterable<Locale> supported) {
       if (locales == null || locales.isEmpty) {
         return fallback ?? supported.first;
       } else {
@@ -43,8 +43,8 @@ const part2 = """
     };
   }
 
-  LocaleResolutionCallback resolution({Locale fallback, bool withCountry = true}) {
-    return (Locale locale, Iterable<Locale> supported) {
+  LocaleResolutionCallback resolution({required Locale fallback, bool withCountry = true}) {
+    return (Locale? locale, Iterable<Locale> supported) {
       return _resolve(locale, fallback, supported, withCountry);
     };
   }
@@ -70,7 +70,7 @@ const part3 = """
   @override
   bool shouldReload(GeneratedLocalizationsDelegate old) => false;
 
-  Locale _resolve(Locale locale, Locale fallback, Iterable<Locale> supported, bool withCountry) {
+  Locale _resolve(Locale? locale, Locale fallback, Iterable<Locale> supported, bool withCountry) {
     if (locale == null || !_isSupported(locale, withCountry)) {
       return fallback ?? supported.first;
     }
@@ -95,7 +95,7 @@ const part3 = """
         if (supportedLocale.countryCode == locale.countryCode) {
           return true;
         }
-        if (true != withCountry && (supportedLocale.countryCode == null || supportedLocale.countryCode.isEmpty)) {
+        if (true != withCountry && (supportedLocale.countryCode == null || supportedLocale.countryCode!.isEmpty)) {
           return true;
         }
       }
@@ -105,8 +105,8 @@ const part3 = """
 }
 
 String getLang(Locale l) => l == null
-  ? null
-  : l.countryCode != null && l.countryCode.isEmpty
+  ? throw Exception('Incorrect local')
+  : l.countryCode != null && l.countryCode!.isEmpty
     ? l.languageCode
     : l.toString();
 """;

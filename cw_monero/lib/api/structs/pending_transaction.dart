@@ -3,32 +3,32 @@ import 'package:ffi/ffi.dart';
 
 class PendingTransactionRaw extends Struct {
   @Int64()
-  int amount;
+  external int amount;
 
   @Int64()
-  int fee;
+  external int fee;
 
-  Pointer<Utf8> hash;
+  external Pointer<Utf8> hash;
 
-  Pointer<Utf8> hex;
+  external Pointer<Utf8> hex;
 
-  Pointer<Utf8> txKey;
+  external Pointer<Utf8> txKey;
 
-  String getHash() => Utf8.fromUtf8(hash);
+  String getHash() => hash.toDartString();
 
-  String getHex() => Utf8.fromUtf8(hex);
+  String getHex() => hex.toDartString();
 
-  String getKey() => Utf8.fromUtf8(txKey);
+  String getKey() => txKey.toDartString();
 }
 
 class PendingTransactionDescription {
   PendingTransactionDescription({
-    this.amount,
-    this.fee,
-    this.hash,
-    this.hex,
-    this.txKey,
-    this.pointerAddress});
+    required this.amount,
+    required this.fee,
+    required this.hash,
+    required this.hex,
+    required this.txKey,
+    required this.pointerAddress});
 
   final int amount;
   final int fee;

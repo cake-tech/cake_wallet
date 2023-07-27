@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 
-Image getBuyProviderIcon(BuyProviderDescription providerDescription,
+Image? getBuyProviderIcon(BuyProviderDescription providerDescription,
    {Color iconColor = Colors.black}) {
 
   final _wyreIcon =

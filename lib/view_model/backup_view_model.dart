@@ -8,11 +8,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'backup_view_model.g.dart';
 
 class BackupExportFile {
-  BackupExportFile(this.content, {@required this.name});
+  BackupExportFile(this.content, {required this.name});
 
   final String name;
   final List<int> content;
@@ -22,8 +23,9 @@ class BackupViewModel = BackupViewModelBase with _$BackupViewModel;
 
 abstract class BackupViewModelBase with Store {
   BackupViewModelBase(this.secureStorage, this.secretStore, this.backupService)
-      : isBackupPasswordVisible = false {
-    state = InitialExecutionState();
+      : isBackupPasswordVisible = false,
+        backupPassword = '',
+        state = InitialExecutionState() {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     secretStore.values.observe((change) {
       if (change.key == key) {
@@ -48,11 +50,11 @@ abstract class BackupViewModelBase with Store {
   @action
   Future<void> init() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    backupPassword = await secureStorage.read(key: key);
+    backupPassword = (await secureStorage.read(key: key))!;
   }
 
   @action
-  Future<BackupExportFile> exportBackup() async {
+  Future<BackupExportFile?> exportBackup() async {
     try {
       state = IsExecutingState();
       final backupContent = await backupService.exportBackup(backupPassword);
@@ -68,6 +70,21 @@ abstract class BackupViewModelBase with Store {
       state = FailureState(e.toString());
       return null;
     }
+  }
+
+  Future<String> saveBackupFileLocally(BackupExportFile backup) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final path = '${appDir.path}/${backup.name}';
+    final backupFile = File(path);
+    await backupFile.writeAsBytes(backup.content);
+    return path;
+  }
+
+  Future<void> removeBackupFileLocally(BackupExportFile backup) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final path = '${appDir.path}/${backup.name}';
+    final backupFile = File(path);
+    await backupFile.delete();
   }
 
   @action

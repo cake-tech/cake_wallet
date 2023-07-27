@@ -6,7 +6,7 @@ import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -17,7 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:hive/hive.dart';
 
 class TransactionDetailsPage extends BasePage {
-  TransactionDetailsPage({this.transactionDetailsViewModel});
+  TransactionDetailsPage({required this.transactionDetailsViewModel});
 
   @override
   String get title => S.current.transaction_details_title;
@@ -26,7 +26,9 @@ class TransactionDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
+        context: context,
         sectionCount: 1,
         itemCounter: (int _) => transactionDetailsViewModel.items.length,
         itemBuilder: (_, __, index) {
@@ -40,7 +42,7 @@ class TransactionDetailsPage extends BasePage {
                     S.of(context).transaction_details_copied(item.title));
               },
               child:
-                  StandartListRow(title: '${item.title}:', value: item.value),
+                  ListRow(title: '${item.title}:', value: item.value),
             );
           }
 
@@ -48,7 +50,7 @@ class TransactionDetailsPage extends BasePage {
             return GestureDetector(
               onTap: item.onTap,
               child:
-                  StandartListRow(title: '${item.title}:', value: item.value),
+                  ListRow(title: '${item.title}:', value: item.value),
             );
           }
 
@@ -60,7 +62,7 @@ class TransactionDetailsPage extends BasePage {
             );
           }
 
-          return null;
+          return Container();
         });
   }
 }

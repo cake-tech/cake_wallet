@@ -1,14 +1,13 @@
+import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FullscreenQRPage extends BasePage {
-  FullscreenQRPage({@required this.qrData, @required this.isLight});
+  FullscreenQRPage({required this.qrViewData});
 
-  final bool isLight;
-  final String qrData;
+  final QrViewData qrViewData;
 
   @override
   Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -23,7 +22,10 @@ class FullscreenQRPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+      color: Theme.of(context)
+          .accentTextTheme!
+          .displayMedium!
+          .backgroundColor!,
       size: 16,
     );
 
@@ -32,10 +34,11 @@ class FullscreenQRPage extends BasePage {
       width: 37,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          padding: EdgeInsets.all(0),
+        child: TextButton(
+          // FIX-ME: Style
+          //highlightColor: Colors.transparent,
+          //splashColor: Colors.transparent,
+          //padding: EdgeInsets.all(0),
           onPressed: () => onClose(context),
           child: _backButton,
         ),
@@ -48,7 +51,7 @@ class FullscreenQRPage extends BasePage {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ],
@@ -63,19 +66,23 @@ class FullscreenQRPage extends BasePage {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
       child: Hero(
-        tag: Key(qrData),
+        tag: Key(qrViewData.heroTag ?? qrViewData.data),
         child: Center(
           child: AspectRatio(
             aspectRatio: 1.0,
             child: Container(
-              padding: EdgeInsets.all(5),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  border: Border.all(width: 3, color: Theme.of(context).accentTextTheme.display3.backgroundColor)),
-              child: QrImage(
-                data: qrData,
-                backgroundColor: isLight ? Colors.transparent : Colors.black,
-                foregroundColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
-              ),
+                  border: Border.all(
+                      width: 3,
+                      color: Theme.of(context)
+                          .accentTextTheme!
+                          .displayMedium!
+                          .backgroundColor!)),
+              child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 3, color: Colors.white)),
+                  child: QrImage(data: qrViewData.data, version: qrViewData.version)),
             ),
           ),
         ),

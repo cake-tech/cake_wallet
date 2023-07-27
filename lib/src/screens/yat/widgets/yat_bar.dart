@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class YatBar extends StatelessWidget {
   YatBar({this.onClose});
 
-  final VoidCallback onClose;
+  final VoidCallback? onClose;
   final image = Image.asset('assets/images/yat_logo.png', width: 81, height: 28);
 
   @override

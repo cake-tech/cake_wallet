@@ -14,6 +14,11 @@ Future<void> loadCurrentWallet() async {
   final typeRaw =
       getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ??
           0;
+
+  if (name == null) {
+    throw Exception('Incorrect current wallet name: $name');
+  }
+
   final type = deserializeFromInt(typeRaw);
   final walletLoadingService = getIt.get<WalletLoadingService>();
   final wallet = await walletLoadingService.load(type, name);

@@ -1,14 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
-  factory NavBar(
-      {BuildContext context,
-      Widget leading,
-      Widget middle,
-      Widget trailing,
-      Color backgroundColor}) {
-
+  factory NavBar({Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
     return NavBar._internal(
         leading: leading,
         middle: middle,
@@ -18,12 +11,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   }
 
   factory NavBar.withShadow(
-      {BuildContext context,
-      Widget leading,
-      Widget middle,
-      Widget trailing,
-      Color backgroundColor}) {
-
+      {Widget? leading, Widget? middle, Widget? trailing, Color? backgroundColor}) {
     return NavBar._internal(
       leading: leading,
       middle: middle,
@@ -31,13 +19,15 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       height: 80,
       backgroundColor: backgroundColor,
       decoration: BoxDecoration(
-          color: backgroundColor,
-          boxShadow: [
-            BoxShadow(
-                color: Color.fromRGBO(132, 141, 198, 0.11),
-                blurRadius: 8,
-                offset: Offset(0, 2))
-          ]),
+        color: backgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(132, 141, 198, 0.11),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
     );
   }
 
@@ -52,23 +42,26 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   static const _originalHeight = 44.0; // iOS nav bar height
   static const _height = 60.0;
 
-  final Widget leading;
-  final Widget middle;
-  final Widget trailing;
-  final Color backgroundColor;
-  final BoxDecoration decoration;
+  final Widget? leading;
+  final Widget? middle;
+  final Widget? trailing;
+  final Color? backgroundColor;
+  final BoxDecoration? decoration;
   final double height;
 
   @override
   Widget build(BuildContext context) {
+    if (leading == null && middle == null && trailing == null) {
+      return const SizedBox();
+    }
+
     final pad = height - _originalHeight;
     final paddingTop = pad / 2;
     final _paddingBottom = (pad / 2);
 
     return Container(
       decoration: decoration ?? BoxDecoration(color: backgroundColor),
-      padding:
-          EdgeInsetsDirectional.only(bottom: _paddingBottom, top: paddingTop),
+      padding: EdgeInsetsDirectional.only(bottom: _paddingBottom, top: paddingTop),
       child: CupertinoNavigationBar(
         leading: leading,
         automaticallyImplyLeading: false,

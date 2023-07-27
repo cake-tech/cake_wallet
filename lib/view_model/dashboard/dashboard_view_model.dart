@@ -1,9 +1,9 @@
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/entities/transaction_history.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -17,10 +17,6 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
@@ -39,24 +35,36 @@ class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
   DashboardViewModelBase(
-      {this.balanceViewModel,
-      this.appStore,
-      this.tradesStore,
-      this.tradeFilterStore,
-      this.transactionFilterStore,
-      this.settingsStore,
-      this.yatStore,
-      this.ordersStore}) {
+      {required this.balanceViewModel,
+      required this.appStore,
+      required this.tradesStore,
+      required this.tradeFilterStore,
+      required this.transactionFilterStore,
+      required this.settingsStore,
+      required this.yatStore,
+      required this.ordersStore,
+      required this.anonpayTransactionsStore})
+  : isOutdatedElectrumWallet = false,
+    hasSellAction = false,
+    hasBuyAction = false,
+    hasExchangeAction = false,
+    isShowFirstYatIntroduction = false,
+    isShowSecondYatIntroduction = false,
+    isShowThirdYatIntroduction = false,
     filterItems = {
       S.current.transactions: [
         FilterItem(
+            value: () => transactionFilterStore.displayAll,
+            caption: S.current.all_transactions,
+            onChanged:  transactionFilterStore.toggleAll),
+        FilterItem(
             value: () => transactionFilterStore.displayIncoming,
             caption: S.current.incoming,
-            onChanged: (value) => transactionFilterStore.toggleIncoming()),
+            onChanged:transactionFilterStore.toggleIncoming),
         FilterItem(
             value: () => transactionFilterStore.displayOutgoing,
             caption: S.current.outgoing,
-            onChanged: (value) => transactionFilterStore.toggleOutgoing()),
+            onChanged: transactionFilterStore.toggleOutgoing),
         // FilterItem(
         //     value: () => false,
         //     caption: S.current.transactions_by_date,
@@ -64,15 +72,38 @@ abstract class DashboardViewModelBase with Store {
       ],
       S.current.trades: [
         FilterItem(
+            value: () => tradeFilterStore.displayAllTrades,
+            caption: S.current.all_trades,
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.all)),
+        FilterItem(
             value: () => tradeFilterStore.displayChangeNow,
-            caption: 'Change.NOW',
-            onChanged: (value) => tradeFilterStore
+            caption: ExchangeProviderDescription.changeNow.title,
+            onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+        FilterItem(
+            value: () => tradeFilterStore.displaySideShift,
+            caption: ExchangeProviderDescription.sideShift.title,
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
+        FilterItem(
+            value: () => tradeFilterStore.displaySimpleSwap,
+            caption: ExchangeProviderDescription.simpleSwap.title,
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
+        FilterItem(
+            value: () => tradeFilterStore.displayTrocador,
+            caption: ExchangeProviderDescription.trocador.title,
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.trocador)),
       ]
-    };
-
-    name = appStore.wallet?.name;
-    wallet ??= appStore.wallet;
+    },
+    subname = '',
+    name = appStore.wallet!.name,
+    type = appStore.wallet!.type,
+    transactions = ObservableList<TransactionListItem>(),
+    wallet = appStore.wallet! {
+    name = wallet.name;
     type = wallet.type;
     isOutdatedElectrumWallet =
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
@@ -84,17 +115,17 @@ abstract class DashboardViewModelBase with Store {
     final _wallet = wallet;
 
     if (_wallet.type == WalletType.monero) {
-      subname = monero.getCurrentAccount(_wallet)?.label;
+      subname = monero!.getCurrentAccount(_wallet).label;
 
-      _onMoneroAccountChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet)
+      _onMoneroAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet)
           .account, (Account account) => _onMoneroAccountChange(_wallet));
 
-      _onMoneroBalanceChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet).balance,
+      _onMoneroBalanceChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
 
       final _accountTransactions = _wallet
           .transactionHistory.transactions.values
-          .where((tx) => monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id)
+          .where((tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions = ObservableList.of(_accountTransactions.map((transaction) =>
@@ -112,21 +143,25 @@ abstract class DashboardViewModelBase with Store {
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);
-
+    
     connectMapToListWithTransform(
-        appStore.wallet.transactionHistory.transactions,
+        appStore.wallet!.transactionHistory.transactions,
         transactions,
-        (TransactionInfo val) => TransactionListItem(
-            transaction: val,
+        (TransactionInfo? transaction) => TransactionListItem(
+            transaction: transaction!,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore),
-        filter: (TransactionInfo tx) {
-      final wallet = _wallet;
-      if (wallet.type == WalletType.monero) {
-        return monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id;
-      }
+        filter: (TransactionInfo? transaction) {
+          if (transaction == null) {
+            return false;
+          }
 
-      return true;
+          final wallet = _wallet;
+          if (wallet.type == WalletType.monero) {
+            return monero!.getTransactionInfoAccountId(transaction) == monero!.getCurrentAccount(wallet).id;
+          }
+
+          return true;
     });
   }
 
@@ -175,6 +210,11 @@ abstract class DashboardViewModelBase with Store {
   @computed
   BalanceDisplayMode get balanceDisplayMode =>
       appStore.settingsStore.balanceDisplayMode;
+    
+  @computed
+  bool get shouldShowMarketPlaceInDashboard {
+    return appStore.settingsStore.shouldShowMarketPlaceInDashboard;
+  }
 
   @computed
   List<TradeListItem> get trades => tradesStore.trades
@@ -185,6 +225,11 @@ abstract class DashboardViewModelBase with Store {
   List<OrderListItem> get orders => ordersStore.orders
       .where((item) => item.order.walletId == wallet.id)
       .toList();
+  
+  @computed
+  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
+      .where((item) => item.transaction.walletId == wallet.id)
+      .toList();
 
   @computed
   double get price => balanceViewModel.price;
@@ -193,7 +238,7 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(transactionFilterStore.filtered(transactions: transactions));
+    _items.addAll(transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
 
@@ -204,7 +249,7 @@ abstract class DashboardViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
       wallet;
 
-  bool get hasRescan => wallet.type == WalletType.monero;
+  bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
 
   BalanceViewModel balanceViewModel;
 
@@ -220,6 +265,8 @@ abstract class DashboardViewModelBase with Store {
 
   TradeFilterStore tradeFilterStore;
 
+  AnonpayTransactionsStore anonpayTransactionsStore;
+
   TransactionFilterStore transactionFilterStore;
 
   Map<String, List<FilterItem>> filterItems;
@@ -232,27 +279,31 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) =>
       settingsStore.shouldShowYatPopup = shouldShow;
 
-  @observable
-  bool isEnabledExchangeAction;
+  @computed
+  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
   bool hasExchangeAction;
 
-  @observable
-  bool isEnabledBuyAction;
+  @computed
+  bool get isEnabledBuyAction =>
+      !settingsStore.disableBuy && wallet.type != WalletType.haven;
 
   @observable
   bool hasBuyAction;
 
-  @observable
-  bool isEnabledSellAction;
+  @computed
+  bool get isEnabledSellAction =>
+      !settingsStore.disableSell &&
+      wallet.type != WalletType.haven &&
+      wallet.type != WalletType.monero;
 
   @observable
   bool hasSellAction;
 
-  ReactionDisposer _onMoneroAccountChangeReaction;
+  ReactionDisposer? _onMoneroAccountChangeReaction;
 
-  ReactionDisposer _onMoneroBalanceChangeReaction;
+  ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   @observable
   bool isOutdatedElectrumWallet;
@@ -265,8 +316,12 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
+              TransactionInfo>?
           wallet) {
+    if (wallet == null) {
+      return;
+    }
+
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
@@ -275,20 +330,22 @@ abstract class DashboardViewModelBase with Store {
     updateActions();
 
     if (wallet.type == WalletType.monero) {
-      subname = monero.getCurrentAccount(wallet)?.label;
+      subname = monero!.getCurrentAccount(wallet).label;
 
-      _onMoneroAccountChangeReaction?.reaction?.dispose();
-      _onMoneroBalanceChangeReaction?.reaction?.dispose();
+      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onMoneroBalanceChangeReaction?.reaction.dispose();
 
-      _onMoneroAccountChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet)
+      _onMoneroAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet)
           .account, (Account account) => _onMoneroAccountChange(wallet));
 
-      _onMoneroBalanceChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet).balance,
+      _onMoneroBalanceChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
     } else {
-      subname = null;
+      // FIX-ME: Check for side effects
+      // subname = null;
+      subname = '';
 
       transactions.clear();
 
@@ -300,24 +357,29 @@ abstract class DashboardViewModelBase with Store {
     }
 
     connectMapToListWithTransform(
-        appStore.wallet.transactionHistory.transactions,
+        appStore.wallet!.transactionHistory.transactions,
         transactions,
-        (TransactionInfo val) => TransactionListItem(
-            transaction: val,
+        (TransactionInfo? transaction)
+          => TransactionListItem(
+            transaction: transaction!,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore),
-        filter: (TransactionInfo tx) {
-      if (wallet.type == WalletType.monero) {
-        return monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id;
-      }
+        filter: (TransactionInfo? tx) {
+          if (tx == null) {
+            return false;
+          }
 
-      return true;
+          if (wallet.type == WalletType.monero) {
+            return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
+          }
+
+          return true;
     });
   }
 
   @action
   void _onMoneroAccountChange(WalletBase wallet) {
-    subname = monero.getCurrentAccount(wallet)?.label;
+    subname = monero!.getCurrentAccount(wallet).label;
     _onMoneroTransactionsUpdate(wallet);
   }
 
@@ -325,8 +387,8 @@ abstract class DashboardViewModelBase with Store {
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
     transactions.clear();
 
-    final _accountTransactions = monero.getTransactionHistory(wallet).transactions.values
-        .where((tx) => monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id)
+    final _accountTransactions = monero!.getTransactionHistory(wallet).transactions.values
+        .where((tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
         .toList();
 
     transactions.addAll(_accountTransactions.map((transaction) =>
@@ -337,14 +399,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    isEnabledExchangeAction = wallet.type != WalletType.haven;
     hasExchangeAction = !isHaven;
-    isEnabledBuyAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero;
-    hasBuyAction = !isMoneroOnly && !isHaven;
-    isEnabledSellAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero
-      && wallet.type != WalletType.litecoin;
-    hasSellAction = !isMoneroOnly && !isHaven;
+    hasBuyAction = !isHaven;
+    hasSellAction = !isHaven;
   }
 }

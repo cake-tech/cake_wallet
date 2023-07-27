@@ -9,10 +9,9 @@ class EditBackupPasswordViewModel = EditBackupPasswordViewModelBase
     with _$EditBackupPasswordViewModel;
 
 abstract class EditBackupPasswordViewModelBase with Store {
-  EditBackupPasswordViewModelBase(this.secureStorage, this.secretStore) {
-    final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    backupPassword = secretStore.read(key);
-  }
+  EditBackupPasswordViewModelBase(this.secureStorage, this.secretStore)
+  : backupPassword = secretStore.read(generateStoreKeyFor(key: SecretStoreKey.backupPassword)),
+    _originalPassword = '';
 
   final FlutterSecureStorage secureStorage;
   final SecretStore secretStore;
@@ -30,7 +29,7 @@ abstract class EditBackupPasswordViewModelBase with Store {
   @action
   Future<void> init() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    final password = await secureStorage.read(key: key);
+    final password = (await secureStorage.read(key: key))!;
     _originalPassword = password;
     backupPassword = password;
   }

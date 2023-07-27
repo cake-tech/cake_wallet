@@ -5,17 +5,17 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_model.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_tile.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
-import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/route_aware.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -26,14 +26,14 @@ class IoniaGiftCardDetailPage extends BasePage {
   final IoniaGiftCardDetailsViewModel viewModel;
 
   @override
-  Widget leading(BuildContext context) {
-    if (ModalRoute.of(context).isFirst) {
+  Widget? leading(BuildContext context) {
+    if (ModalRoute.of(context)!.isFirst) {
       return null;
     }
 
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).primaryTextTheme.title.color,
+      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
       size: 16,
     );
     return Padding(
@@ -43,11 +43,12 @@ class IoniaGiftCardDetailPage extends BasePage {
         width: 37,
         child: ButtonTheme(
           minWidth: double.minPositive,
-          child: FlatButton(
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              padding: EdgeInsets.all(0),
-              onPressed: () => onClose(context),
+          child: TextButton(
+              // FIX-ME: Style
+              //highlightColor: Colors.transparent,
+              //splashColor: Colors.transparent,
+              //padding: EdgeInsets.all(0),
+              onPressed: ()=> onClose(context),
               child: _backButton),
         ),
       ),
@@ -58,7 +59,11 @@ class IoniaGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       viewModel.giftCard.legalName,
-      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme.display4.backgroundColor),
+      style: textMediumSemiBold(
+          color: Theme.of(context)
+              .accentTextTheme!
+              .displayLarge!
+              .backgroundColor!),
     );
   }
 
@@ -80,7 +85,12 @@ class IoniaGiftCardDetailPage extends BasePage {
       }
     });
 
-    return ScrollableWithBottomSection(
+    return RouteAwareWidget(
+        pushToWidget: ()=> viewModel.increaseBrightness(),
+        pushToNextWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+        popNextWidget: ()=> viewModel.increaseBrightness(),
+        popWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+      child: ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Column(
         children: [
@@ -98,20 +108,21 @@ class IoniaGiftCardDetailPage extends BasePage {
             title: S.of(context).gift_card_number,
             subTitle: viewModel.giftCard.cardNumber,
           ),
-          if (viewModel.giftCard.cardPin?.isNotEmpty ?? false)
-            ...[Divider(height: 30),
+          if (viewModel.giftCard.cardPin.isNotEmpty) ...[
+            Divider(height: 30),
             buildIoniaTile(
               context,
               title: S.of(context).pin_number,
               subTitle: viewModel.giftCard.cardPin,
-            )],
+            )
+          ],
           Divider(height: 30),
-          Observer(builder: (_) =>
-            buildIoniaTile(
-              context,
-              title: S.of(context).amount,
-              subTitle: viewModel.giftCard.remainingAmount.toStringAsFixed(2) ?? '0.00',
-            )),
+          Observer(
+              builder: (_) => buildIoniaTile(
+                    context,
+                    title: S.of(context).amount,
+                    subTitle: viewModel.remainingAmount.toStringAsFixed(2),
+                  )),
           Divider(height: 50),
           TextIconButton(
             label: S.of(context).how_to_use_card,
@@ -120,32 +131,54 @@ class IoniaGiftCardDetailPage extends BasePage {
         ],
       ),
       bottomSection: Padding(
-          padding: EdgeInsets.only(bottom: 12),
-          child: Observer(builder: (_) {
-             if (!viewModel.giftCard.isEmpty) {
-              return LoadingPrimaryButton(
-                isLoading: viewModel.redeemState is IsExecutingState,
-                onPressed: () => viewModel.redeem().then((_){
-                 Navigator.of(context).pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
-                }),
-                text: S.of(context).mark_as_redeemed,
-                color: Theme.of(context).accentTextTheme.body2.color,
-                textColor: Colors.white);
-              }
+        padding: EdgeInsets.only(bottom: 12),
+        child: Observer(
+          builder: (_) {
+            if (!viewModel.giftCard.isEmpty) {
+              return Column(
+                children: [
+                  PrimaryButton(
+                    onPressed: () async {
+                       await Navigator.of(context).pushNamed(
+                          Routes.ioniaMoreOptionsPage,
+                          arguments: [viewModel.giftCard]) as String?;
+                        viewModel.refeshCard();
+                    },
+                    text: S.of(context).more_options,
+                    color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                    textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  ),
+                  SizedBox(height: 12),
+                  LoadingPrimaryButton(
+                    isLoading: viewModel.redeemState is IsExecutingState,
+                    onPressed: () => viewModel.redeem().then(
+                      (_) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            Routes.ioniaManageCardsPage, (route) => route.isFirst);
+                      },
+                    ),
+                    text: S.of(context).mark_as_redeemed,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    textColor: Colors.white,
+                  ),
+                ],
+              );
+            }
 
-              return Container();
-            })),
-    );
+            return Container();
+          },
+        ),
+      ),
+    ));
   }
 
-  Widget buildIoniaTile(BuildContext context, {@required String title, @required String subTitle}) {
+  Widget buildIoniaTile(BuildContext context, {required String title, required String subTitle}) {
     return IoniaTile(
-      title: title,
-      subTitle: subTitle,
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: subTitle));
-        showBar<void>(context,
-            S.of(context).transaction_details_copied(title));
+        title: title,
+        subTitle: subTitle,
+        onTap: () {
+          Clipboard.setData(ClipboardData(text: subTitle));
+          showBar<void>(context, S.of(context).transaction_details_copied(title));
         });
   }
 
@@ -156,10 +189,10 @@ class IoniaGiftCardDetailPage extends BasePage {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
-           return IoniaAlertModal(
+          return IoniaAlertModal(
             title: S.of(context).how_to_use_card,
             content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: viewModel.giftCard.instructions
                     .map((instruction) {
                       return [
@@ -168,21 +201,21 @@ class IoniaGiftCardDetailPage extends BasePage {
                             child: Text(
                               instruction.header,
                               style: textLargeSemiBold(
-                                color: Theme.of(context).textTheme.display2.color,
+                                color: Theme.of(context).textTheme!.displaySmall!.color!,
                               ),
                             )),
                         Text(
                           instruction.body,
                           style: textMedium(
-                            color: Theme.of(context).textTheme.display2.color,
+                            color: Theme.of(context).textTheme!.displaySmall!.color!,
                           ),
                         )
                       ];
                     })
                     .expand((e) => e)
                     .toList()),
-            actionTitle: S.of(context).send_got_it,
-           );
+            actionTitle: S.of(context).got_it,
+          );
         });
   }
 }

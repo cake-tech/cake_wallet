@@ -6,10 +6,9 @@ part 'ionia_buy_card_view_model.g.dart';
 class IoniaBuyCardViewModel = IoniaBuyCardViewModelBase with _$IoniaBuyCardViewModel;
 
 abstract class IoniaBuyCardViewModelBase with Store {
-  IoniaBuyCardViewModelBase({this.ioniaMerchant}) {
-    isEnablePurchase = false;
-    amount = 0;
-  }
+  IoniaBuyCardViewModelBase({required this.ioniaMerchant}) 
+    : isEnablePurchase = false,
+      amount = 0;
 
   final IoniaMerchant ioniaMerchant;
 

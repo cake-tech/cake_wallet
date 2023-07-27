@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 
 class ChoicesListItem<ItemType> extends SettingsListItem {
   ChoicesListItem(
-      {@required String title,
-        @required this.selectedItem,
-        @required this.items,
-        String Function(ItemType item) displayItem,
-        void Function(ItemType item) onItemSelected})
+      {required String title,
+      required this.selectedItem,
+      required this.items,
+      this.displayItem,
+      void Function(ItemType item)? onItemSelected})
       : _onItemSelected = onItemSelected,
         _displayItem = displayItem,
         super(title);
 
   final ItemType Function() selectedItem;
   final List<ItemType> items;
-  final String Function(ItemType item) _displayItem;
-  final void Function(ItemType item) _onItemSelected;
+  final String Function(ItemType item)? _displayItem;
+  final void Function(ItemType item)? _onItemSelected;
 
   void onItemSelected(dynamic item) {
     if (item is ItemType) {

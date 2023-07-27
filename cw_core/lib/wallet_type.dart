@@ -26,7 +26,7 @@ enum WalletType {
   litecoin,
 
   @HiveField(4)
-  haven
+  haven,
 }
 
 int serializeToInt(WalletType type) {
@@ -55,7 +55,7 @@ WalletType deserializeFromInt(int raw) {
     case 3:
       return WalletType.haven;
     default:
-      return null;
+      throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
 }
 
@@ -77,13 +77,13 @@ String walletTypeToString(WalletType type) {
 String walletTypeToDisplayName(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return 'Monero';
+      return 'Monero (XMR)';
     case WalletType.bitcoin:
-      return 'Bitcoin (Electrum)';
+      return 'Bitcoin (BTC)';
     case WalletType.litecoin:
-      return 'Litecoin (Electrum)';
+      return 'Litecoin (LTC)';
     case WalletType.haven:
-      return 'Haven';
+      return 'Haven (XHV)';
     default:
       return '';
   }
@@ -100,6 +100,6 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
     case WalletType.haven:
       return CryptoCurrency.xhv;
     default:
-      return null;
+      throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
 }

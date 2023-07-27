@@ -1,4 +1,4 @@
-String calculateFiatAmountRaw({double price, double cryptoAmount}) {
+String calculateFiatAmountRaw({required double cryptoAmount, double? price}) {
   if (price == null) {
     return '0.00';
   }

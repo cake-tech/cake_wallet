@@ -5,7 +5,7 @@ class Debounce {
   Debounce(this.duration);
   
   final Duration duration;
-  Timer _timer;
+  Timer? _timer;
   
   void run(VoidCallback action) {
     _timer?.cancel();

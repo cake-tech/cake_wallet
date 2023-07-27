@@ -2,7 +2,7 @@ import 'package:cw_core/transaction_priority.dart';
 //import 'package:cake_wallet/generated/i18n.dart';
 
 class BitcoinTransactionPriority extends TransactionPriority {
-  const BitcoinTransactionPriority({String title, int raw})
+  const BitcoinTransactionPriority({required String title, required int raw})
       : super(title: title, raw: raw);
 
   static const List<BitcoinTransactionPriority> all = [fast, medium, slow];
@@ -13,7 +13,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
   static const BitcoinTransactionPriority fast =
       BitcoinTransactionPriority(title: 'Fast', raw: 2);
 
-  static BitcoinTransactionPriority deserialize({int raw}) {
+  static BitcoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return slow;
@@ -22,7 +22,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
       case 2:
         return fast;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
     }
   }
 
@@ -53,7 +53,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
 }
 
 class LitecoinTransactionPriority extends BitcoinTransactionPriority {
-  const LitecoinTransactionPriority({String title, int raw})
+  const LitecoinTransactionPriority({required String title, required int raw})
       : super(title: title, raw: raw);
 
   static const List<LitecoinTransactionPriority> all = [fast, medium, slow];
@@ -64,7 +64,7 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
   static const LitecoinTransactionPriority fast =
       LitecoinTransactionPriority(title: 'Fast', raw: 2);
 
-  static LitecoinTransactionPriority deserialize({int raw}) {
+  static LitecoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return slow;
@@ -73,7 +73,7 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
       case 2:
         return fast;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
     }
   }
 

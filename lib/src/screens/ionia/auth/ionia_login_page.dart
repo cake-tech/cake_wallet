@@ -26,9 +26,6 @@ class IoniaLoginPage extends BasePage {
 
   final IoniaAuthViewModel _authViewModel;
 
-  @override
-  Color get titleColor => Colors.black;
-
   final TextEditingController _emailController;
 
   @override
@@ -36,7 +33,10 @@ class IoniaLoginPage extends BasePage {
     return Text(
       S.current.login,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayLarge!
+            .backgroundColor!,
       ),
     );
   }
@@ -60,6 +60,7 @@ class IoniaLoginPage extends BasePage {
           keyboardType: TextInputType.emailAddress,
           validator: EmailValidator(),
           controller: _emailController,
+          onSubmit: (text) => _login(),
         ),
       ),
       bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),
@@ -71,14 +72,12 @@ class IoniaLoginPage extends BasePage {
               Observer(
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).login,
-                  onPressed: () async {
-                    if (!_formKey.currentState.validate()) {
-                      return;
-                    }
-                    await _authViewModel.signIn(_emailController.text);
-                  },
+                  onPressed: _login,
                   isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context)
+                      .accentTextTheme!
+                      .bodyLarge!
+                      .color!,
                   textColor: Colors.white,
                 ),
               ),
@@ -109,4 +108,11 @@ class IoniaLoginPage extends BasePage {
         Routes.ioniaVerifyIoniaOtpPage,
         arguments: [authViewModel.email, true],
       );
+
+  void _login() async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+    await _authViewModel.signIn(_emailController.text);
+  }
 }

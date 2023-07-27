@@ -8,7 +8,7 @@ class CwHaven {
       const MethodChannel('cw_haven');
 
   static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
+    final String version = await _channel.invokeMethod<String>('getPlatformVersion') ?? '';
     return version;
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -11,6 +12,10 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
+  Color? get leftActionButtonTextColor => null;
+  Color? get rightActionButtonTextColor => null;
+  Color? get leftActionButtonColor => null;
+  Color? get rightActionButtonColor => null;
 
   Widget title(BuildContext context) {
     return Text(
@@ -20,7 +25,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
         decoration: TextDecoration.none,
       ),
     );
@@ -34,71 +39,76 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
         fontFamily: 'Lato',
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
         decoration: TextDecoration.none,
       ),
     );
   }
 
   Widget actionButtons(BuildContext context) {
-    return Row(
+    return Container(
+      height: 52,
+      child: Row(
       mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Flexible(
-            child: Container(
-          height: 52,
-          padding: EdgeInsets.only(left: 6, right: 6),
-          color: Theme.of(context).accentTextTheme.body2.decorationColor,
-          child: ButtonTheme(
-            minWidth: double.infinity,
-            child: FlatButton(
-                onPressed: actionLeft,
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                child: Text(
-                  leftActionButtonText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme.body2.backgroundColor,
-                    decoration: TextDecoration.none,
-                  ),
-                )),
-          ),
-        )),
-        Container(
-          width: 1,
-          height: 52,
-          color: Theme.of(context).dividerColor,
-        ),
-        Flexible(
-            child: Container(
-          height: 52,
-          padding: EdgeInsets.only(left: 6, right: 6),
-          color: Theme.of(context).accentTextTheme.body1.backgroundColor,
-          child: ButtonTheme(
-            minWidth: double.infinity,
-            child: FlatButton(
-                onPressed: actionRight,
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                child: Text(
-                  rightActionButtonText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryTextTheme.body1.backgroundColor,
-                    decoration: TextDecoration.none,
-                  ),
-                )),
-          ),
-        )),
-      ],
-    );
+            Expanded(
+              child: TextButton(
+                  onPressed: actionLeft,
+                  style: TextButton.styleFrom(
+                      backgroundColor: leftActionButtonColor ??
+                          Theme.of(context)
+                              .accentTextTheme!
+                              .bodyLarge!
+                              .decorationColor!,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.zero))),
+                  child: Text(
+                    leftActionButtonText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w600,
+                      color: leftActionButtonTextColor ??
+                          Theme.of(context)
+                              .primaryTextTheme!
+                              .bodyLarge!
+                              .backgroundColor!,
+                      decoration: TextDecoration.none,
+                    ),
+                  )),
+            ),
+            const SectionDivider(),
+            Expanded(
+              child: TextButton(
+                  onPressed: actionRight,
+                  style: TextButton.styleFrom(
+                      backgroundColor: rightActionButtonColor ??
+                          Theme.of(context)
+                              .accentTextTheme!
+                              .bodyMedium!
+                              .backgroundColor!,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.zero))),
+                  child: Text(
+                    rightActionButtonText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w600,
+                      color: rightActionButtonTextColor ??
+                          Theme.of(context)
+                              .primaryTextTheme!
+                              .bodyMedium!
+                              .backgroundColor!,
+                      decoration: TextDecoration.none,
+                    ),
+                  )),
+            ),
+          ],
+        ));
   }
 
   @override
@@ -118,7 +128,10 @@ class BaseAlertDialog extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
                     width: 300,
-                    color: Theme.of(context).accentTextTheme.title.decorationColor,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .titleLarge!
+                        .decorationColor!,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -132,10 +145,7 @@ class BaseAlertDialog extends StatelessWidget {
                             isDividerExists
                                 ? Padding(
                                     padding: EdgeInsets.only(top: 16, bottom: 8),
-                                    child: Container(
-                                      height: 1,
-                                      color: Theme.of(context).dividerColor,
-                                    ),
+                                    child: const SectionDivider(),
                                   )
                                 : Offstage(),
                             Padding(
@@ -144,10 +154,7 @@ class BaseAlertDialog extends StatelessWidget {
                             )
                           ],
                         ),
-                        Container(
-                          height: 1,
-                          color: Theme.of(context).dividerColor,
-                        ),
+                        const SectionDivider(),
                         actionButtons(context)
                       ],
                     ),

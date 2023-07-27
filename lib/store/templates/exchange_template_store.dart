@@ -8,7 +8,8 @@ part 'exchange_template_store.g.dart';
 class ExchangeTemplateStore = ExchangeTemplateBase with _$ExchangeTemplateStore;
 
 abstract class ExchangeTemplateBase with Store {
-  ExchangeTemplateBase({this.templateSource}) {
+  ExchangeTemplateBase({required this.templateSource})
+      : templates = ObservableList<ExchangeTemplate>() {
     templates = ObservableList<ExchangeTemplate>();
     update();
   }
@@ -19,22 +20,31 @@ abstract class ExchangeTemplateBase with Store {
   Box<ExchangeTemplate> templateSource;
 
   @action
-  void update() =>
-      templates.replaceRange(0, templates.length, templateSource.values.toList());
+  void update() => templates.replaceRange(0, templates.length, templateSource.values.toList());
 
   @action
-  Future addTemplate({String amount, String depositCurrency, String receiveCurrency,
-    String provider, String depositAddress, String receiveAddress}) async {
+  Future<void> addTemplate({
+    required String amount,
+    required String depositCurrency,
+    required String receiveCurrency,
+    required String provider,
+    required String depositAddress,
+    required String receiveAddress,
+    required String depositCurrencyTitle,
+    required String receiveCurrencyTitle,
+  }) async {
     final template = ExchangeTemplate(
-        amount: amount,
-        depositCurrency: depositCurrency,
-        receiveCurrency: receiveCurrency,
-        provider: provider,
-        depositAddress: depositAddress,
-        receiveAddress: receiveAddress);
+        amountRaw: amount,
+        depositCurrencyRaw: depositCurrency,
+        receiveCurrencyRaw: receiveCurrency,
+        providerRaw: provider,
+        depositAddressRaw: depositAddress,
+        receiveAddressRaw: receiveAddress,
+        depositCurrencyTitleRaw: depositCurrencyTitle,
+        receiveCurrencyTitleRaw: receiveCurrencyTitle);
     await templateSource.add(template);
   }
 
   @action
-  Future remove({ExchangeTemplate template}) async => await template.delete();
+  Future<void> remove({required ExchangeTemplate template}) async => await template.delete();
 }

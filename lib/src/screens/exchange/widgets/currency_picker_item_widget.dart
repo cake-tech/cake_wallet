@@ -2,39 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class PickerItemWidget extends StatelessWidget {
-  const PickerItemWidget({this.iconPath, this.title, this.isSelected = false, this.tag, this.onTap});
+  const PickerItemWidget({
+    required this.title,
+    this.iconPath,
+    this.isSelected = false,
+    this.tag,
+    this.onTap});
 
-  final String iconPath;
+  final String? iconPath;
   final String title;
   final bool isSelected;
-  final String tag;
-  final void Function() onTap;
+  final String? tag;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Theme.of(context).accentTextTheme.headline6.color,
+        color: Theme.of(context)
+            .accentTextTheme!
+            .titleLarge!
+            .color!,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
           child: Row(
             children: [
               Container(
                 child: Image.asset(
-                  iconPath,
+                  iconPath ?? '',
                   height: 20.0,
                   width: 20.0,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 12),
               Expanded(
                 child: Row(
                   children: [
                     Text(
-                      title,
+                      title.toUpperCase(),
                       style: TextStyle(
-                        color: isSelected ? Palette.blueCraiola : Theme.of(context).primaryTextTheme.title.color,
+                        color: isSelected
+                            ? Palette.blueCraiola
+                            : Theme.of(context)
+                                .primaryTextTheme!
+                                .titleLarge!
+                                .color!,
                         fontSize: isSelected ? 16 : 14.0,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
@@ -48,27 +61,39 @@ class PickerItemWidget extends StatelessWidget {
                           height: 18.0,
                           child: Center(
                             child: Text(
-                              tag,
+                              tag!,
                               style: TextStyle(
-                                  fontSize: 7.0, fontFamily: 'Lato', color: Theme.of(context).textTheme.body1.color),
+                                  fontSize: 7.0,
+                                  fontFamily: 'Lato',
+                                  color: Theme.of(context)
+                                      .textTheme!
+                                      .bodyMedium!
+                                      .color!),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context).textTheme.body1.decorationColor,
+                            color: Theme.of(context)
+                                .textTheme!
+                                .bodyMedium!
+                                .decorationColor!,
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-              if (isSelected) Icon(Icons.check_circle, color: Theme.of(context).accentTextTheme.body2.color)
+              if (isSelected)
+                Icon(Icons.check_circle,
+                    color: Theme.of(context)
+                        .accentTextTheme!
+                        .bodyLarge!
+                        .color!)
             ],
           ),
         ),
       ),
     );
-    ;
   }
 }

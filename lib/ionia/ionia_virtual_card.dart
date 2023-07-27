@@ -1,19 +1,17 @@
-import 'package:flutter/foundation.dart';
-
 class IoniaVirtualCard {
 	IoniaVirtualCard({
-		@required this.token,
-		@required this.createdAt,
-		@required this.lastFour,
-		@required this.state,
-		@required this.pan,
-		@required this.cvv,
-		@required this.expirationMonth,
-		@required this.expirationYear,
-		@required this.fundsLimit,
-		@required this.spendLimit});
+		required this.token,
+		required this.createdAt,
+		required this.lastFour,
+		required this.state,
+		required this.pan,
+		required this.cvv,
+		required this.expirationMonth,
+		required this.expirationYear,
+		required this.fundsLimit,
+		required this.spendLimit});
 	
-	factory IoniaVirtualCard.fromMap(Map<String, Object> source) {
+	factory IoniaVirtualCard.fromMap(Map<String, dynamic> source) {
 		final created = source['created'] as String;
 		final createdAt = DateTime.tryParse(created);
 
@@ -37,7 +35,7 @@ class IoniaVirtualCard {
 	final String cvv;
 	final String expirationMonth;
 	final String expirationYear;
-	final DateTime createdAt;
+	final DateTime? createdAt;
 	final double fundsLimit;
 	final double spendLimit;
 }

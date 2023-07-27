@@ -8,87 +8,111 @@ part 'trade.g.dart';
 
 @HiveType(typeId: Trade.typeId)
 class Trade extends HiveObject {
-  Trade(
-      {this.id,
-      ExchangeProviderDescription provider,
-      CryptoCurrency from,
-      CryptoCurrency to,
-      TradeState state,
-      this.createdAt,
-      this.expiredAt,
-      this.amount,
-      this.inputAddress,
-      this.extraId,
-      this.outputTransaction,
-      this.refundAddress,
-      this.walletId})
-      : providerRaw = provider?.raw,
-        fromRaw = from?.raw,
-        toRaw = to?.raw,
-        stateRaw = state?.raw;
+  Trade({
+    required this.id,
+    required this.amount,
+    ExchangeProviderDescription? provider,
+    CryptoCurrency? from,
+    CryptoCurrency? to,
+    TradeState? state,
+    this.createdAt,
+    this.expiredAt,
+    this.inputAddress,
+    this.extraId,
+    this.outputTransaction,
+    this.refundAddress,
+    this.walletId,
+    this.payoutAddress,
+    this.password,
+    this.providerId,
+    this.providerName,
+  }) {
+    if (provider != null) {
+      providerRaw = provider.raw;
+    }
+    if (from != null) {
+      fromRaw = from.raw;
+    }
+    if (to != null) {
+      toRaw = to.raw;
+    }
+    if (state != null) {
+      stateRaw = state.raw;
+    }
+  }
 
   static const typeId = 3;
   static const boxName = 'Trades';
   static const boxKey = 'tradesBoxKey';
 
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String id;
 
-  @HiveField(1)
-  int providerRaw;
+  @HiveField(1, defaultValue: 0)
+  late int providerRaw;
 
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  @HiveField(2)
-  int fromRaw;
+  @HiveField(2, defaultValue: 0)
+  late int fromRaw;
 
   CryptoCurrency get from => CryptoCurrency.deserialize(raw: fromRaw);
 
-  @HiveField(3)
-  int toRaw;
+  @HiveField(3, defaultValue: 0)
+  late int toRaw;
 
   CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw);
 
-  @HiveField(4)
-  String stateRaw;
+  @HiveField(4, defaultValue: '')
+  late String stateRaw;
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
 
   @HiveField(5)
-  DateTime createdAt;
+  DateTime? createdAt;
 
   @HiveField(6)
-  DateTime expiredAt;
+  DateTime? expiredAt;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: '')
   String amount;
 
   @HiveField(8)
-  String inputAddress;
+  String? inputAddress;
 
   @HiveField(9)
-  String extraId;
+  String? extraId;
 
   @HiveField(10)
-  String outputTransaction;
+  String? outputTransaction;
 
   @HiveField(11)
-  String refundAddress;
+  String? refundAddress;
 
   @HiveField(12)
-  String walletId;
+  String? walletId;
 
-  static Trade fromMap(Map map) {
+  @HiveField(13)
+  String? payoutAddress;
+
+  @HiveField(14)
+  String? password;
+
+  @HiveField(15)
+  String? providerId;
+
+  @HiveField(16)
+  String? providerName;
+
+  static Trade fromMap(Map<String, Object?> map) {
     return Trade(
         id: map['id'] as String,
-        provider: ExchangeProviderDescription.deserialize(
-            raw: map['provider'] as int),
+        provider: ExchangeProviderDescription.deserialize(raw: map['provider'] as int),
         from: CryptoCurrency.deserialize(raw: map['input'] as int),
         to: CryptoCurrency.deserialize(raw: map['output'] as int),
-        createdAt: map['date'] != null
-            ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int)
-            : null,
+        createdAt:
+            map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
         amount: map['amount'] as String,
         walletId: map['wallet_id'] as String);
   }
@@ -99,7 +123,7 @@ class Trade extends HiveObject {
       'provider': provider.serialize(),
       'input': from.serialize(),
       'output': to.serialize(),
-      'date': createdAt != null ? createdAt.millisecondsSinceEpoch : null,
+      'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
       'wallet_id': walletId
     };

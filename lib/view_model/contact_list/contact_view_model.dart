@@ -11,14 +11,13 @@ part 'contact_view_model.g.dart';
 class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._contacts,  {ContactRecord contact})
+  ContactViewModelBase(this._contacts,  {ContactRecord? contact})
       : state = InitialExecutionState(),
         currencies = CryptoCurrency.all,
-        _contact = contact {
-    name = _contact?.name;
-    address = _contact?.address;
-    currency = _contact?.type;
-  }
+        _contact = contact,
+        name = contact?.name ?? '',
+        address = contact?.address ?? '',
+        currency = contact?.type;
 
   @observable
   ExecutionState state;
@@ -30,17 +29,17 @@ abstract class ContactViewModelBase with Store {
   String address;
 
   @observable
-  CryptoCurrency currency;
+  CryptoCurrency? currency;
 
   @computed
   bool get isReady =>
-      (name?.isNotEmpty ?? false) &&
-      (currency?.toString()?.isNotEmpty ?? false) &&
-      (address?.isNotEmpty ?? false);
+      name.isNotEmpty &&
+      (currency?.toString().isNotEmpty ?? false) &&
+      address.isNotEmpty;
 
   final List<CryptoCurrency> currencies;
   final Box<Contact> _contacts;
-  final ContactRecord _contact;
+  final ContactRecord? _contact;
 
   @action
   void reset() {
@@ -54,13 +53,13 @@ abstract class ContactViewModelBase with Store {
       state = IsExecutingState();
 
       if (_contact != null) {
-        _contact.name = name;
-        _contact.address = address;
-        _contact.type = currency;
-        await _contact.save();
+        _contact?.name = name;
+        _contact?.address = address;
+        _contact?.type = currency!;
+        await _contact?.save();
       } else {
         await _contacts
-            .add(Contact(name: name, address: address, type: currency));
+            .add(Contact(name: name, address: address, type: currency!));
       }
 
       state = ExecutedSuccessfullyState();

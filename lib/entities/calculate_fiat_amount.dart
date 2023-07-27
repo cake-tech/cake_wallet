@@ -1,4 +1,4 @@
-String calculateFiatAmount({double price, String cryptoAmount}) {
+String calculateFiatAmount({double? price, String? cryptoAmount}) {
   if (price == null || cryptoAmount == null) {
     return '0.00';
   }

@@ -1,5 +1,7 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
@@ -13,7 +15,9 @@ import 'package:cw_core/wallet_type.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
-      {this.transaction, this.balanceViewModel, this.settingsStore});
+      {required this.transaction,
+      required this.balanceViewModel,
+      required this.settingsStore});
 
   final TransactionInfo transaction;
   final BalanceViewModel balanceViewModel;
@@ -23,7 +27,7 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
 
-  BalanceDisplayMode get displayMode => settingsStore.balanceDisplayMode;
+  BalanceDisplayMode get displayMode => balanceViewModel.displayMode;
 
   @override
   dynamic get keyIndex => transaction.id;
@@ -33,6 +37,30 @@ class TransactionListItem extends ActionListItem with Keyable {
         ? '---'
         : transaction.amountFormatted();
   }
+  String get formattedTitle {
+    if (transaction.direction == TransactionDirection.incoming) {
+      return S.current.received;
+    }
+
+    return S.current.sent;
+  }
+
+  String get formattedPendingStatus {
+    if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
+      return ' (${transaction.confirmations}/10)';
+    }
+    return '';
+  }
+
+  String get formattedStatus {
+    if (transaction.direction == TransactionDirection.incoming) {
+      if (balanceViewModel.wallet.type == WalletType.monero ||
+          balanceViewModel.wallet.type == WalletType.haven) {
+          return formattedPendingStatus;
+        }
+      }
+    return transaction.isPending ? S.current.pending : '';
+    }
 
   String get formattedFiatAmount {
     var amount = '';
@@ -40,20 +68,20 @@ class TransactionListItem extends ActionListItem with Keyable {
     switch(balanceViewModel.wallet.type) {
       case WalletType.monero:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: monero.formatterMoneroAmountToDouble(amount: transaction.amount),
+          cryptoAmount: monero!.formatterMoneroAmountToDouble(amount: transaction.amount),
           price: price);
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: bitcoin.formatterBitcoinAmountToDouble(amount: transaction.amount),
+          cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
           price: price);
         break;
       case WalletType.haven:
-        final asset = haven.assetOfTransaction(transaction);
+        final asset = haven!.assetOfTransaction(transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: haven.formatterMoneroAmountToDouble(amount: transaction.amount),
+          cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
           price: price);
         break;
       default:

@@ -4,7 +4,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 
 class BuyItem {
-  BuyItem({this.provider, this.buyAmountViewModel});
+  BuyItem({required this.provider, required this.buyAmountViewModel});
 
   final BuyProvider provider;
   final BuyAmountViewModel buyAmountViewModel;
@@ -18,7 +18,7 @@ class BuyItem {
 
     try {
       _buyAmount = await provider
-          .calculateAmount(amount?.toString(), fiatCurrency.title);
+          .calculateAmount(amount?.toString() ?? '', fiatCurrency.title);
     } catch (e) {
       _buyAmount = BuyAmount(sourceAmount: 0.0, destAmount: 0.0);
       print(e.toString());

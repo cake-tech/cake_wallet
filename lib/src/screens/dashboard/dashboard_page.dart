@@ -1,14 +1,20 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/main_actions.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/version_comparator.dart';
+import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
@@ -19,19 +25,60 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 
-class DashboardPage extends BasePage {
+class DashboardPage extends StatelessWidget {
   DashboardPage({
-    @required this.balancePage,
-    @required this.walletViewModel,
-    @required this.addressListViewModel,
+    required this.balancePage,
+    required this.dashboardViewModel,
+    required this.addressListViewModel,
   });
+
   final BalancePage balancePage;
-  
+  final DashboardViewModel dashboardViewModel;
+  final WalletAddressListViewModel addressListViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: LayoutBuilder(
+      builder: (context, constraints) {
+        if (DeviceInfo.instance.isDesktop) {
+          if (constraints.maxWidth > ResponsiveLayoutUtil.kDesktopMaxDashBoardWidthConstraint) {
+            return getIt.get<DesktopSidebarWrapper>();
+          } else {
+            return _DashboardPageView(
+              balancePage: balancePage,
+              dashboardViewModel: dashboardViewModel,
+              addressListViewModel: addressListViewModel,
+            );
+          }
+        } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
+          return _DashboardPageView(
+            balancePage: balancePage,
+            dashboardViewModel: dashboardViewModel,
+            addressListViewModel: addressListViewModel,
+          );
+        } else {
+          return getIt.get<DesktopSidebarWrapper>();
+        }
+
+      },
+    ));
+  }
+}
+
+class _DashboardPageView extends BasePage {
+  _DashboardPageView({
+    required this.balancePage,
+    required this.dashboardViewModel,
+    required this.addressListViewModel,
+  });
+
+  final BalancePage balancePage;
+
   @override
   Color get backgroundLightColor =>
       currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -44,7 +91,7 @@ class DashboardPage extends BasePage {
       (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-            Theme.of(context).accentColor,
+            Theme.of(context).colorScheme.secondary,
             Theme.of(context).scaffoldBackgroundColor,
             Theme.of(context).primaryColor,
           ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
@@ -54,282 +101,244 @@ class DashboardPage extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget get endDrawer => MenuWidget(walletViewModel);
+  Widget get endDrawer => MenuWidget(dashboardViewModel);
 
   @override
   Widget middle(BuildContext context) {
-    return SyncIndicator(dashboardViewModel: walletViewModel,
-        onTap: () => Navigator.of(context, rootNavigator: true)
-            .pushNamed(Routes.nodeList));
+    return SyncIndicator(
+        dashboardViewModel: dashboardViewModel,
+        onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync));
   }
 
   @override
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset('assets/images/menu.png',
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+        color: Theme.of(context)
+            .accentTextTheme!
+            .displayMedium!
+            .backgroundColor);
 
     return Container(
         alignment: Alignment.centerRight,
         width: 40,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+            // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => onOpenEndDrawer(),
-            child: menuButton));
+            child: Semantics(
+                label: S.of(context).wallet_menu, child: menuButton)));
   }
 
-  final DashboardViewModel walletViewModel;
+  final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
-  final controller = PageController(initialPage: 1);
-
-  var pages = <Widget>[];
+  int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
+  ObservableList<Widget> pages = ObservableList<Widget>();
   bool _isEffectsInstalled = false;
-  StreamSubscription<bool> _onInactiveSub;
+  StreamSubscription<bool>? _onInactiveSub;
 
   @override
   Widget body(BuildContext context) {
-    final sendImage = Image.asset('assets/images/upload.png',
-        height: 24,
-        width: 24,
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
-    final receiveImage = Image.asset('assets/images/received.png',
-        height: 24,
-        width: 24,
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final controller = PageController(initialPage: initialPage);
+
+    reaction((_) => dashboardViewModel.shouldShowMarketPlaceInDashboard, (bool value) {
+      if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
+        controller.jumpToPage(0);
+      }
+      pages.clear();
+      _isEffectsInstalled = false;
+      _setEffects(context);
+
+      if (value) {
+        controller.jumpToPage(1);
+      } else {
+        controller.jumpToPage(0);
+      }
+    });
     _setEffects(context);
 
     return SafeArea(
-      minimum: EdgeInsets.only(bottom: 24),
+        minimum: EdgeInsets.only(bottom: 24),
         child: Column(
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        Expanded(
-            child: PageView.builder(
-                controller: controller,
-                itemCount: pages.length,
-                itemBuilder: (context, index) => pages[index])),
-        Padding(
-            padding: EdgeInsets.only(bottom: 24, top: 10),
-            child: SmoothPageIndicator(
-              controller: controller,
-              count: pages.length,
-              effect: ColorTransitionEffect(
-                  spacing: 6.0,
-                  radius: 6.0,
-                  dotWidth: 6.0,
-                  dotHeight: 6.0,
-                  dotColor: Theme.of(context).indicatorColor,
-                  activeDotColor: Theme.of(context)
-                      .accentTextTheme
-                      .display1
-                      .backgroundColor),
-            )),
-        Observer(builder: (_) {
-          return ClipRect(
-            child:Container(
-             margin: const EdgeInsets.only(left: 16, right: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50.0),
-                    border: Border.all(color: currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
-                    color:Theme.of(context).textTheme.title.backgroundColor),
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Expanded(
+                child: Observer(builder: (context) {
+              return PageView.builder(
+                  controller: controller,
+                  itemCount: pages.length,
+                  itemBuilder: (context, index) => pages[index]);
+            })),
+            Padding(
+                padding: EdgeInsets.only(bottom: 24, top: 10),
+                child: Observer(builder: (context) {
+                  return ExcludeSemantics(
+                    child: SmoothPageIndicator(
+                      controller: controller,
+                      count: pages.length,
+                      effect: ColorTransitionEffect(
+                          spacing: 6.0,
+                          radius: 6.0,
+                          dotWidth: 6.0,
+                          dotHeight: 6.0,
+                          dotColor: Theme.of(context).indicatorColor,
+                          activeDotColor: Theme.of(context)
+                              .accentTextTheme!
+                              .headlineMedium!
+                              .backgroundColor!),
+                    ),
+                  );
+                }
+                )),
+            Observer(builder: (_) {
+              return ClipRect(
                 child: Container(
-                  padding: EdgeInsets.only(left: 32, right: 32),
-                  child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  if (walletViewModel.hasBuyAction)
-                    ActionButton(
-                      image: Image.asset('assets/images/buy.png',
-                        height: 24,
-                        width: 24,
-                        color: !walletViewModel.isEnabledBuyAction
-                          ? Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor
-                          : Theme.of(context).accentTextTheme.display3.backgroundColor),
-                      title: S.of(context).buy,
-                      onClick: () async => await _onClickBuyButton(context),
-                      textColor: !walletViewModel.isEnabledBuyAction
-                        ? Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .backgroundColor
-                        : null),  
-                  ActionButton(
-                      image: receiveImage,
-                      title: S.of(context).receive,
-                      route: Routes.addressPage),
-                  if (walletViewModel.hasExchangeAction)
-                    ActionButton(
-                      image:  Image.asset('assets/images/transfer.png',
-                        height: 24,
-                        width: 24,
-                        color: !walletViewModel.isEnabledExchangeAction
-                          ? Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor
-                          : Theme.of(context).accentTextTheme.display3.backgroundColor),
-                      title: S.of(context).exchange,
-                      onClick: () async => _onClickExchangeButton(context),
-                      textColor: !walletViewModel.isEnabledExchangeAction
-                        ? Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .backgroundColor
-                        : null),
-                  ActionButton(
-                      image: sendImage,
-                      title: S.of(context).send,
-                      route: Routes.send),
-                  if (walletViewModel.hasSellAction)
-                    ActionButton(
-                      image: Image.asset('assets/images/sell.png',
-                        height: 24,
-                        width: 24,
-                        color: !walletViewModel.isEnabledSellAction
-                          ? Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor
-                          : Theme.of(context).accentTextTheme.display3.backgroundColor),
-                      title: S.of(context).sell,
-                      onClick: () async => await _onClickSellButton(context),
-                      textColor: !walletViewModel.isEnabledSellAction
-                        ? Theme.of(context)
-                          .accentTextTheme
-                          .display2
-                          .backgroundColor
-                        : null),
-                ],
-              ),),
-            ),),);
-          }),
-       
-      ],
-    ));
+                  margin: const EdgeInsets.only(left: 16, right: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50.0),
+                      border: Border.all(
+                        color: currentTheme.type == ThemeType.bright
+                            ? Color.fromRGBO(255, 255, 255, 0.2)
+                            : Colors.transparent,
+                        width: 1,
+                      ),
+                      color: Theme.of(context)
+                          .textTheme!
+                          .titleLarge!
+                          .backgroundColor!,
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.only(left: 32, right: 32),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: MainActions.all
+                            .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
+                            .map((action) => Semantics(
+                                  button: true,
+                                  enabled: (action.isEnabled
+                                          ?.call(dashboardViewModel) ??
+                                      true),
+                                  child: ActionButton(
+                                    image: Image.asset(action.image,
+                                        height: 24,
+                                        width: 24,
+                                        color: action.isEnabled?.call(
+                                                    dashboardViewModel) ??
+                                                true
+                                            ? Theme.of(context)
+                                                .accentTextTheme!
+                                                .displayMedium!
+                                                .backgroundColor!
+                                            : Theme.of(context)
+                                                .accentTextTheme!
+                                                .displaySmall!
+                                                .backgroundColor!),
+                                    title: action.name(context),
+                                    onClick: () async => await action.onTap(
+                                        context, dashboardViewModel),
+                                    textColor: action.isEnabled
+                                                ?.call(dashboardViewModel) ??
+                                            true
+                                        ? null
+                                        : Theme.of(context)
+                                            .accentTextTheme!
+                                            .displaySmall!
+                                            .backgroundColor!,
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ],
+        ));
   }
 
   void _setEffects(BuildContext context) async {
     if (_isEffectsInstalled) {
       return;
     }
-    pages.add(MarketPlacePage(dashboardViewModel: walletViewModel));
-    pages.add(balancePage);
-    pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
+    if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
+      pages.add(Semantics(
+          label: S.of(context).market_place,
+          child: MarketPlacePage(
+            dashboardViewModel: dashboardViewModel,
+            marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
+          ),
+        ),
+      );
+    }
+    pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
+    pages.add(Semantics(
+        label: S.of(context).settings_transactions,
+        child: TransactionsPage(dashboardViewModel: dashboardViewModel)));
     _isEffectsInstalled = true;
 
     autorun((_) async {
-      if (!walletViewModel.isOutdatedElectrumWallet) {
+      if (!dashboardViewModel.isOutdatedElectrumWallet) {
         return;
       }
 
       await Future<void>.delayed(Duration(seconds: 1));
-      await showPopUp<void>(
+      if (context.mounted) {
+        await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
                 alertTitle: S.of(context).pre_seed_title,
-                alertContent:
-                    S.of(context).outdated_electrum_wallet_description,
+                alertContent: S.of(context).outdated_electrum_wallet_description,
                 buttonText: S.of(context).understand,
                 buttonAction: () => Navigator.of(context).pop());
           });
+      }
     });
+
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final currentAppVersion =
+        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+      await Future<void>.delayed(Duration(seconds: 1));
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return ReleaseNotesScreen(
+                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
+          });
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    } else if (isNewInstall!) {
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
 
     var needToPresentYat = false;
     var isInactive = false;
 
-    _onInactiveSub = rootKey.currentState.isInactive.listen((inactive) {
+    _onInactiveSub = rootKey.currentState!.isInactive.listen((inactive) {
       isInactive = inactive;
 
       if (needToPresentYat) {
         Future<void>.delayed(Duration(milliseconds: 500)).then((_) {
           showPopUp<void>(
-              context: navigatorKey.currentContext,
-              builder: (_) => YatEmojiId(walletViewModel.yatStore.emoji));
+              context: navigatorKey.currentContext!,
+              builder: (_) => YatEmojiId(dashboardViewModel.yatStore.emoji));
           needToPresentYat = false;
         });
       }
     });
 
-    walletViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
+    dashboardViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
       if (!_isEffectsInstalled || emoji.isEmpty) {
         return;
       }
 
       needToPresentYat = true;
     });
-  }
-
-  Future<void> _onClickBuyButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.bitcoin:
-        Navigator.of(context).pushNamed(Routes.preOrder);
-        break;
-      case WalletType.litecoin:
-        Navigator.of(context).pushNamed(Routes.preOrder);
-        break;
-      default:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).buy,
-                  alertContent: S.of(context).buy_alert_content,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-    }
-  }
-
-  Future<void> _onClickSellButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.bitcoin:
-        final moonPaySellProvider = MoonPaySellProvider();
-        final uri = await moonPaySellProvider.requestUrl(
-            currency: walletViewModel.wallet.currency,
-            refundWalletAddress:
-                walletViewModel.wallet.walletAddresses.address);
-        await launch(uri);
-        break;
-      default:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).sell,
-                  alertContent: S.of(context).sell_alert_content,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-    }
-  }
-
-  Future<void> _onClickExchangeButton(BuildContext context) async {
-    final walletType = walletViewModel.type;
-
-    switch (walletType) {
-      case WalletType.haven:
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: 'Exchange',
-                  alertContent: 'Exchange for this asset is not supported yet.',
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-        break;
-      default:
-        await Navigator.of(context).pushNamed(Routes.exchange);
-    }
   }
 }

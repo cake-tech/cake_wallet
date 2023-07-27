@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RoundedCheckbox extends StatelessWidget {
-  RoundedCheckbox({Key key, @required this.value}) : super(key: key);
+  RoundedCheckbox({Key? key, required this.value}) : super(key: key);
 
   final bool value;
 
@@ -15,11 +15,11 @@ class RoundedCheckbox extends StatelessWidget {
               width: 20.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                color: Theme.of(context).accentTextTheme.body2.color,
+                color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
               ),
               child: Icon(
                 Icons.check,
-                color: Theme.of(context).backgroundColor,
+                color: Theme.of(context).colorScheme.background,
                 size: 14.0,
               ))
           : Offstage();

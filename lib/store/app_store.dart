@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
@@ -14,15 +15,15 @@ class AppStore = AppStoreBase with _$AppStore;
 
 abstract class AppStoreBase with Store {
   AppStoreBase(
-      {this.authenticationStore,
-      this.walletList,
-      this.settingsStore,
-      this.nodeListStore});
+      {required this.authenticationStore,
+      required this.walletList,
+      required this.settingsStore,
+      required this.nodeListStore});
 
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
       wallet;
 
   WalletListStore walletList;
@@ -38,5 +39,6 @@ abstract class AppStoreBase with Store {
           wallet) {
     this.wallet?.close();
     this.wallet = wallet;
+    this.wallet!.setExceptionHandler(ExceptionHandler.onError);
   }
 }

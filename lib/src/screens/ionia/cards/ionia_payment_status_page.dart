@@ -23,8 +23,11 @@ class IoniaPaymentStatusPage extends BasePage {
         S.of(context).generating_gift_card,
         textAlign: TextAlign.center,
         style: textMediumSemiBold(
-          color: Theme.of(context).accentTextTheme.display4.backgroundColor));
-    }
+            color: Theme.of(context)
+                .accentTextTheme!
+                .displayLarge!
+                .backgroundColor!));
+  }
 
   @override
   Widget body(BuildContext context) {
@@ -42,7 +45,7 @@ class _IoniaPaymentStatusPageBody extends StatefulWidget {
 }
 
 class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPageBody> {
-  ReactionDisposer _onGiftCardReaction;
+  ReactionDisposer? _onGiftCardReaction;
 
   @override
   void initState() {
@@ -53,7 +56,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
       });
     }
 
-    _onGiftCardReaction = reaction((_) => widget.viewModel.giftCard, (IoniaGiftCard giftCard) {
+    _onGiftCardReaction = reaction((_) => widget.viewModel.giftCard, (IoniaGiftCard? giftCard) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context)
           .pushReplacementNamed(Routes.ioniaGiftCardDetailPage, arguments: [giftCard]);
@@ -65,8 +68,8 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
 
   @override
   void dispose() {
-    _onGiftCardReaction?.reaction?.dispose();
-    widget.viewModel.timer.cancel();
+    _onGiftCardReaction?.reaction.dispose();
+    widget.viewModel.timer?.cancel();
     super.dispose();
   }
 
@@ -90,7 +93,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
             Text(
               S.of(context).awaiting_payment_confirmation,
               style: textLargeSemiBold(
-                color: Theme.of(context).primaryTextTheme.title.color))
+                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!))
             ]),
           SizedBox(height: 40),
           Row(children: [
@@ -129,7 +132,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                   Text(
                     S.of(context).gift_card_is_generated,
                     style: textLargeSemiBold(
-                      color: Theme.of(context).primaryTextTheme.title.color))
+                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!))
                   ]));
             }
 
@@ -147,7 +150,7 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
               Text(
                 S.of(context).generating_gift_card,
                 style: textLargeSemiBold(
-                  color: Theme.of(context).primaryTextTheme.title.color))]);
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!))]);
           }),
         ],
       ),
@@ -157,9 +160,10 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
             Container(
               padding: EdgeInsets.only(left: 40, right: 40, bottom: 20),
               child: Text(
-                S.of(context).proceed_after_one_minute,
+                widget.viewModel.payingByBitcoin ? S.of(context).bitcoin_payments_require_1_confirmation
+                    : S.of(context).proceed_after_one_minute,
                 style: textMedium(
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
                 ).copyWith(fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               )),
@@ -171,15 +175,15 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
                         Routes.ioniaGiftCardDetailPage,
                         arguments: [widget.viewModel.giftCard]),
                     text: S.of(context).open_gift_card,
-                    color: Theme.of(context).accentTextTheme.body2.color,
+                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
                     textColor: Colors.white);
                 }
 
                 return PrimaryButton(
                   onPressed: () => Navigator.of(context).pushNamed(Routes.support),
                   text: S.of(context).contact_support,
-                  color: Theme.of(context).accentTextTheme.caption.color,
-                  textColor: Theme.of(context).primaryTextTheme.title.color);
+                  color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                  textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
                 })
             ])
       ),
@@ -195,14 +199,14 @@ class _IoniaPaymentStatusPageBodyBodyState extends State<_IoniaPaymentStatusPage
           Text(
             title,
             style: textXSmall(
-              color: Theme.of(context).primaryTextTheme.overline.color,
+              color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
             ),
           ),
           SizedBox(height: 8),
           Text(
             subtitle,
             style: textMedium(
-              color: Theme.of(context).primaryTextTheme.title.color,
+              color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
             ),
           ),
         ],

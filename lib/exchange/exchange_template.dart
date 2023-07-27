@@ -4,33 +4,56 @@ part 'exchange_template.g.dart';
 
 @HiveType(typeId: ExchangeTemplate.typeId)
 class ExchangeTemplate extends HiveObject {
-  ExchangeTemplate({
-    this.amount,
-    this.depositCurrency,
-    this.receiveCurrency,
-    this.provider,
-    this.depositAddress,
-    this.receiveAddress
-  });
+  ExchangeTemplate(
+      {required this.amountRaw,
+      required this.depositCurrencyRaw,
+      required this.receiveCurrencyRaw,
+      required this.providerRaw,
+      required this.depositAddressRaw,
+      required this.receiveAddressRaw,
+      required this.depositCurrencyTitleRaw,
+      required this.receiveCurrencyTitleRaw});
 
   static const typeId = 7;
   static const boxName = 'ExchangeTemplate';
 
   @HiveField(0)
-  String amount;
+  String? amountRaw;
 
   @HiveField(1)
-  String depositCurrency;
+  String? depositCurrencyRaw;
 
   @HiveField(2)
-  String receiveCurrency;
+  String? receiveCurrencyRaw;
 
   @HiveField(3)
-  String provider;
+  String? providerRaw;
 
   @HiveField(4)
-  String depositAddress;
+  String? depositAddressRaw;
 
   @HiveField(5)
-  String receiveAddress;
+  String? receiveAddressRaw;
+
+  @HiveField(6)
+  String? depositCurrencyTitleRaw;
+
+  @HiveField(7)
+  String? receiveCurrencyTitleRaw;
+
+  String get amount => amountRaw ?? '';
+
+  String get depositCurrency => depositCurrencyRaw ?? '';
+
+  String get receiveCurrency => receiveCurrencyRaw ?? '';
+
+  String get provider => providerRaw ?? '';
+
+  String get depositAddress => depositAddressRaw ?? '';
+
+  String get receiveAddress => receiveAddressRaw ?? '';
+
+  String get depositCurrencyTitle => depositCurrencyTitleRaw ?? '';
+
+  String get receiveCurrencyTitle => receiveCurrencyTitleRaw ?? '';
 }
