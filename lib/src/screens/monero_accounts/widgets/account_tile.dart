@@ -33,11 +33,13 @@ class AccountTile extends StatelessWidget {
         padding: EdgeInsets.only(left: 60, right: 24),
         alignment: Alignment.centerLeft,
         color: color,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Wrap(
+          direction: Axis.horizontal,
+          alignment: WrapAlignment.spaceBetween,
+          runAlignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
-              flex: 2,
+            Container(
               child: Text(
                 accountName,
                 style: TextStyle(
@@ -50,7 +52,7 @@ class AccountTile extends StatelessWidget {
               ),
             ),
             if (accountBalance != null)
-              Expanded(
+              Container(
                 child: Text(
                   '${accountBalance.toString()} $currency',
                   textAlign: TextAlign.end,

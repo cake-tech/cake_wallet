@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
@@ -158,37 +159,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                     if (widget.hintText != null)
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: TextFormField(
-                          controller: searchController,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .titleLarge!
-                                  .color!),
-                          decoration: InputDecoration(
-                            hintText: widget.hintText,
-                            prefixIcon:
-                                Image.asset("assets/images/search_icon.png"),
-                            filled: true,
-                            fillColor: Theme.of(context)
-                                .accentTextTheme!
-                                .displaySmall!
-                                .color!,
-                            alignLabelWithHint: false,
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 16),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                )),
-                          ),
-                        ),
+                        child: SearchBarWidget(searchController: searchController),
                       ),
                     Divider(
                       color: Theme.of(context)
