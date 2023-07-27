@@ -20,10 +20,11 @@ class SendTemplateViewModel = SendTemplateViewModelBase with _$SendTemplateViewM
 abstract class SendTemplateViewModelBase with Store {
   SendTemplateViewModelBase(this._wallet, this._settingsStore, this._sendTemplateStore,
       FiatConversionStore _fiatConversationStore)
-      : output = Output(_wallet, _settingsStore, _fiatConversationStore, () => _wallet.currency),
-        _currency = _wallet.currency;
+      : _currency = _wallet.currency {
+    output = Output(_wallet, _settingsStore, _fiatConversationStore, () => _currency);
+  }
 
-  Output output;
+  late Output output;
 
   @observable
   CryptoCurrency _currency;

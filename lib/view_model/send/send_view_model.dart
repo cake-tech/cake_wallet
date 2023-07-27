@@ -319,7 +319,7 @@ abstract class SendViewModelBase with Store {
   }
 
   bool _isEqualCurrency(String currency) =>
-      currency.toLowerCase() == _wallet.currency.title.toLowerCase();
+      _wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
   @action
   void onClose() =>
