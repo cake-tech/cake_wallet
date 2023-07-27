@@ -51,6 +51,7 @@ abstract class SettingsStoreBase with Store {
       required int initialPinLength,
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
+      required bool initialSyncAll,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -81,6 +82,8 @@ abstract class SettingsStoreBase with Store {
         currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
         languageCode = initialLanguageCode,
+        currentSyncMode = initialSyncMode,
+        currentSyncAll = initialSyncAll,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -203,21 +206,17 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
-    reaction(
-        (_) => currentSyncMode,
-        (SyncMode syncMode) {
-          sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
+    reaction((_) => currentSyncMode, (SyncMode syncMode) {
+      sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
 
-          getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
-        });
+      getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
+    });
 
-    reaction(
-        (_) => currentSyncAll,
-        (bool syncAll) {
-          sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+    reaction((_) => currentSyncAll, (bool syncAll) {
+      sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
-          getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
-        });
+      getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
+    });
 
     reaction(
         (_) => exchangeStatus,
@@ -449,37 +448,36 @@ abstract class SettingsStoreBase with Store {
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
     return SettingsStore(
-        sharedPreferences: sharedPreferences,
-        initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
-        nodes: nodes,
-        appVersion: packageInfo.version,
-        deviceName: deviceName,
-        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        initialFiatCurrency: currentFiatCurrency,
-        initialBalanceDisplayMode: currentBalanceDisplayMode,
-        initialSaveRecipientAddress: shouldSaveRecipientAddress,
-        initialAppSecure: isAppSecure,
-        initialDisableBuy: disableBuy,
-        initialDisableSell: disableSell,
-        initialFiatMode: currentFiatApiMode,
-        initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-        initialTotpSecretKey: totpSecretKey,
-        initialUseTOTP2FA: useTOTP2FA,
-        initialFailedTokenTrial: tokenTrialNumber,
-        initialExchangeStatus: exchangeStatus,
-        initialTheme: savedTheme,
-        actionlistDisplayMode: actionListDisplayMode,
-        initialPinLength: pinLength,
-        pinTimeOutDuration: pinCodeTimeOutDuration,
-        initialLanguageCode: savedLanguageCode,
-        initialMoneroTransactionPriority: moneroTransactionPriority,
-        initialBitcoinTransactionPriority: bitcoinTransactionPriority,
-        shouldShowYatPopup: shouldShowYatPopup,
-        initialSyncMode: savedSyncMode,
-        initialSyncAll: savedSyncAll,
-        initialHavenTransactionPriority: havenTransactionPriority,
-        initialLitecoinTransactionPriority: litecoinTransactionPriority,
-        shouldShowYatPopup: shouldShowYatPopup,
+      sharedPreferences: sharedPreferences,
+      initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+      nodes: nodes,
+      appVersion: packageInfo.version,
+      deviceName: deviceName,
+      isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+      initialFiatCurrency: currentFiatCurrency,
+      initialBalanceDisplayMode: currentBalanceDisplayMode,
+      initialSaveRecipientAddress: shouldSaveRecipientAddress,
+      initialAppSecure: isAppSecure,
+      initialDisableBuy: disableBuy,
+      initialDisableSell: disableSell,
+      initialFiatMode: currentFiatApiMode,
+      initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+      initialTotpSecretKey: totpSecretKey,
+      initialUseTOTP2FA: useTOTP2FA,
+      initialFailedTokenTrial: tokenTrialNumber,
+      initialExchangeStatus: exchangeStatus,
+      initialTheme: savedTheme,
+      actionlistDisplayMode: actionListDisplayMode,
+      initialPinLength: pinLength,
+      pinTimeOutDuration: pinCodeTimeOutDuration,
+      initialLanguageCode: savedLanguageCode,
+      initialMoneroTransactionPriority: moneroTransactionPriority,
+      initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+      shouldShowYatPopup: shouldShowYatPopup,
+      initialSyncMode: savedSyncMode,
+      initialSyncAll: savedSyncAll,
+      initialHavenTransactionPriority: havenTransactionPriority,
+      initialLitecoinTransactionPriority: litecoinTransactionPriority,
     );
   }
 

@@ -57,24 +57,14 @@ Future<void> main() async {
       return true;
     };
 
-    final appDir = await getApplicationDocumentsDirectory();
     await Hive.close();
 
     await initializeAppConfigs();
 
     runApp(App());
-  } catch (e) {
-    runApp(MaterialApp(
-        debugShowCheckedModeBanner: true,
-        home: Scaffold(
-            body: Container(
-                margin:
-                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Text(
-                  'Error:\n${e.toString()}',
-                  style: TextStyle(fontSize: 22),
-                )))));
-  }
+  }, (error, stackTrace) async {
+    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+  });
 }
 
 Future<void> initializeAppConfigs() async {

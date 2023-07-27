@@ -539,7 +539,6 @@
   "background_sync_mode": "Mode de synchronisation en arrière-plan",
   "sync_all_wallets": "Synchroniser tous les portefeuilles",
   "gift_cards": "Cartes-Cadeaux",
-  "gift_cards_unavailable": "Les cartes-cadeaux ne sont disponibles à l'achat que via Monero, Bitcoin et Litecoin pour le moment",
   "introducing_cake_pay": "Présentation de Cake Pay !",
   "cake_pay_learn_more": "Achetez et utilisez instantanément des cartes-cadeaux dans l'application !\nBalayer de gauche à droite pour en savoir plus.",
   "automatic": "Automatique",
