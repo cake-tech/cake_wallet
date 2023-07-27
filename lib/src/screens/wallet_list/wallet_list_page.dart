@@ -47,6 +47,7 @@ class WalletListBodyState extends State<WalletListBody> {
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
+  final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
@@ -205,6 +206,8 @@ class WalletListBodyState extends State<WalletListBody> {
         return havenIcon;
       case WalletType.ethereum:
         return ethereumIcon;
+      case WalletType.nano:
+        return nanoIcon;
       default:
         return nonWalletTypeIcon;
     }

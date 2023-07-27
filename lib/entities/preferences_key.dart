@@ -6,6 +6,7 @@ class PreferencesKey {
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
+  static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';

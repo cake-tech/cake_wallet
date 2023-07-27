@@ -37,20 +37,13 @@ class NanoWalletLoadingException implements Exception {
 }
 
 class NanoRestoreWalletFromKeysCredentials extends WalletCredentials {
-  NanoRestoreWalletFromKeysCredentials(
-      {required String name,
-      required String password,
-      required this.language,
-      required this.address,
-      required this.viewKey,
-      required this.spendKey,
-      int height = 0})
-      : super(name: name, password: password, height: height);
+  NanoRestoreWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required this.seedKey,
+  }) : super(name: name, password: password);
 
-  final String language;
-  final String address;
-  final String viewKey;
-  final String spendKey;
+  final String seedKey;
 }
 
 class NanoWalletService extends WalletService<NanoNewWalletCredentials,
@@ -108,33 +101,36 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     // await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
-  @override
-  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
-    print("a");
-    throw UnimplementedError();
-    // try {
-    //   final path = await pathForWallet(name: credentials.name, type: getType());
-    //   await monero_wallet_manager.restoreFromKeys(
-    //       path: path,
-    //       password: credentials.password!,
-    //       language: credentials.language,
-    //       restoreHeight: credentials.height!,
-    //       address: credentials.address,
-    //       viewKey: credentials.viewKey,
-    //       spendKey: credentials.spendKey);
-    //   final wallet = NanoWallet(walletInfo: credentials.walletInfo!);
-    //   await wallet.init();
-
-    //   return wallet;
-    // } catch (e) {
-    //   // TODO: Implement Exception for wallet list service.
-    //   print('NanoWalletsManager Error: $e');
-    //   rethrow;
-    // }
+  Future<DerivationType> compareDerivationMethods({String? mnemonic, String? seedKey}) async {
+    // TODO:
+    return DerivationType.nano;
   }
 
-  Future<DerivationType> compareDerivationMethods({String? mnemonic, String? seedKey}) async {
-    return DerivationType.nano;
+  @override
+  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
+    throw UnimplementedError("restoreFromKeys");
+
+    DerivationType derivationType = DerivationType.bip39;
+
+    if (credentials.seedKey.length == 128) {
+      derivationType = DerivationType.bip39;
+    } else {
+      // we don't know for sure, but probably the nano standard:
+      derivationType = await compareDerivationMethods(seedKey: credentials.seedKey);
+    }
+
+    String? mnemonic;
+
+    final wallet = await NanoWallet(
+      password: credentials.password!,
+      mnemonic: mnemonic ?? "", // we can't derive the mnemonic from the key in all cases
+      walletInfo: credentials.walletInfo!,
+      derivationType: derivationType,
+    );
+
+    await wallet.init();
+    await wallet.save();
+    return wallet;
   }
 
   @override
@@ -163,13 +159,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       derivationType: derivationType,
     );
 
-    try {
-      await wallet.init();
-    } catch (e) {
-      print("test");
-      print(e);
-      rethrow;
-    }
+    await wallet.init();
     await wallet.save();
     return wallet;
   }

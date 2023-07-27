@@ -21,13 +21,12 @@ Future<List<Node>> loadDefaultNodes() async {
 }
 
 Future<List<Node>> loadBitcoinElectrumServerList() async {
-  final serverListRaw =
-      await rootBundle.loadString('assets/bitcoin_electrum_server_list.yml');
+  final serverListRaw = await rootBundle.loadString('assets/bitcoin_electrum_server_list.yml');
   final loadedServerList = loadYaml(serverListRaw) as YamlList;
   final serverList = <Node>[];
 
   for (final raw in loadedServerList) {
-     if (raw is Map) {
+    if (raw is Map) {
       final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.bitcoin;
       serverList.add(node);
@@ -38,8 +37,7 @@ Future<List<Node>> loadBitcoinElectrumServerList() async {
 }
 
 Future<List<Node>> loadLitecoinElectrumServerList() async {
-  final serverListRaw =
-      await rootBundle.loadString('assets/litecoin_electrum_server_list.yml');
+  final serverListRaw = await rootBundle.loadString('assets/litecoin_electrum_server_list.yml');
   final loadedServerList = loadYaml(serverListRaw) as YamlList;
   final serverList = <Node>[];
 
@@ -66,7 +64,7 @@ Future<List<Node>> loadDefaultHavenNodes() async {
       nodes.add(node);
     }
   }
-  
+
   return nodes;
 }
 
@@ -94,7 +92,7 @@ Future<List<Node>> loadDefaultNanoNodes() async {
   for (final raw in loadedNodes) {
     if (raw is Map) {
       final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.ethereum;
+      node.type = WalletType.nano;
       nodes.add(node);
     }
   }
@@ -107,12 +105,13 @@ Future resetToDefault(Box<Node> nodeSource) async {
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
   final litecoinElectrumServerList = await loadLitecoinElectrumServerList();
   final havenNodes = await loadDefaultHavenNodes();
+  final ethereumNodes = await loadDefaultEthereumNodes();
   final nanoNodes = await loadDefaultNanoNodes();
-  final nodes =
-      moneroNodes +
+  final nodes = moneroNodes +
       bitcoinElectrumServerList +
       litecoinElectrumServerList +
       havenNodes +
+      ethereumNodes +
       nanoNodes;
 
   await nodeSource.clear();

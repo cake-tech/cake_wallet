@@ -110,6 +110,23 @@ class EthereumURI extends PaymentURI {
   }
 }
 
+class NanoURI extends PaymentURI {
+  NanoURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    print(address);
+    var base = 'nano:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -170,6 +187,10 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (_wallet.type == WalletType.ethereum) {
       return EthereumURI(amount: amount, address: address.address);
+    }
+
+    if (_wallet.type == WalletType.nano) {
+      return NanoURI(amount: amount, address: address.address);
     }
 
     throw Exception('Unexpected type: ${type.toString()}');

@@ -57,7 +57,7 @@ abstract class NanoWalletBase
 
   late final String _privateKey;
   late final String _publicAddress;
-  late final String _seed;
+  late final String _seedKey;
 
   List<int> _priorityFees;
   int? _gasPrice;
@@ -74,14 +74,14 @@ abstract class NanoWalletBase
   @observable
   late ObservableMap<CryptoCurrency, NanoBalance> balance;
 
-
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
     final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
 
-    _seed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
-    _privateKey = await NanoUtil.uniSeedToPrivate(_mnemonic, 0, type);
-    _publicAddress = await NanoUtil.uniSeedToAddress(_mnemonic, 0, type);
+    _seedKey = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
+    _privateKey = await NanoUtil.uniSeedToPrivate(_seedKey, 0, type);
+    _publicAddress = await NanoUtil.uniSeedToAddress(_seedKey, 0, type);
+    this.walletInfo.address = _publicAddress;
 
     await walletAddresses.init();
     // await transactionHistory.init();
@@ -166,8 +166,10 @@ abstract class NanoWalletBase
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   String toJSON() => json.encode({
+        'seedKey': _seedKey,
         'mnemonic': _mnemonic,
         // 'balance': balance[currency]!.toJSON(),
+        'derivationType': _derivationType.toString()
       });
 
   static Future<NanoWallet> open({
@@ -175,7 +177,26 @@ abstract class NanoWalletBase
     required String password,
     required WalletInfo walletInfo,
   }) async {
-    throw UnimplementedError();
+    // TODO: finish
+    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final jsonSource = await read(path: path, password: password);
+    final data = json.decode(jsonSource) as Map;
+    final mnemonic = data['mnemonic'] as String;
+    final balance = /*NanoBalance.fromJSON(data['balance'] as String) ?? */
+        NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero);
+
+    DerivationType derivationType = DerivationType.bip39;
+    if (data['derivationType'] == "nano") {
+      derivationType = DerivationType.nano;
+    }
+
+    return NanoWallet(
+      walletInfo: walletInfo,
+      password: password,
+      mnemonic: mnemonic,
+      initialBalance: balance,
+      derivationType: derivationType,
+    );
   }
 
   Future<void> _updateBalance() async {
