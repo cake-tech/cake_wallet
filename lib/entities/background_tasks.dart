@@ -8,6 +8,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
@@ -15,8 +16,11 @@ import 'package:cake_wallet/di.dart';
 
 const moneroSyncTaskKey = "com.cake_wallet.monero_sync_task";
 
+@pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    await WidgetsFlutterBinding.ensureInitialized();
+
     try {
       switch (task) {
         case moneroSyncTaskKey:
@@ -29,25 +33,13 @@ void callbackDispatcher() {
 
           final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.monero);
 
-          final typeRaw =
-              getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
+          final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
 
-          WalletBase wallet;
+          WalletBase? wallet;
 
           /// if the user chose to sync only active wallet
-          if (!(inputData['sync_all'] as bool? ?? true)) {
-            /// if the current wallet is monero; sync it only
-            if (typeRaw == WalletType.monero.index) {
-              final name =
-                  getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
-
-              wallet = await walletLoadingService.load(WalletType.monero, name!);
-
-              await wallet.connectToNode(node: node);
-              await wallet.startSync();
-            }
-          } else {
-            /// else get all Monero wallets of the user and sync them
+          if (inputData!['sync_all'] as bool) {
+            /// get all Monero wallets of the user and sync them
             final List<WalletListItem> moneroWallets = getIt
                 .get<WalletListViewModel>()
                 .wallets
@@ -60,22 +52,32 @@ void callbackDispatcher() {
               await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
+          } else {
+            /// if the current wallet is monero; sync it only
+            if (typeRaw == WalletType.monero.index) {
+              final name =
+                  getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+
+              wallet = await walletLoadingService.load(WalletType.monero, name!);
+
+              await wallet.connectToNode(node: node);
+              await wallet.startSync();
+            }
           }
 
-          if (wallet?.syncStatus?.progress() == null) {
+          if (wallet?.syncStatus.progress() == null) {
             return Future.error("No Monero wallet found");
           }
 
           for (int i = 0;; i++) {
             await Future<void>.delayed(const Duration(seconds: 1));
-            if (wallet.syncStatus.progress() == 1.0) {
+            if (wallet?.syncStatus.progress() == 1.0) {
               break;
             }
             if (i > 600) {
               return Future.error("Synchronization Timed out");
             }
           }
-
           break;
       }
 
@@ -91,12 +93,12 @@ void callbackDispatcher() {
 class BackgroundTasks {
   void registerSyncTask({bool changeExisting = false}) async {
     try {
-      /// if its not android or the user has no monero wallets
-      if (!Platform.isAndroid ||
-          !getIt
-              .get<WalletListViewModel>()
-              .wallets
-              .any((element) => element.type == WalletType.monero)) {
+      /// if its not android nor ios, or the user has no monero wallets
+      bool hasMonero = getIt
+          .get<WalletListViewModel>()
+          .wallets
+          .any((element) => element.type == WalletType.monero);
+      if (!(Platform.isAndroid || Platform.isIOS) || !hasMonero) {
         return;
       }
 

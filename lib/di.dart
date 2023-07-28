@@ -240,6 +240,8 @@ Future setup({
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   }
 
+  getIt.registerFactory(() => BackgroundTasks());
+
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty ?? false) &&
       (secrets.wyreApiKey.isNotEmpty ?? false) &&
       (secrets.wyreAccountId.isNotEmpty ?? false);
@@ -985,8 +987,6 @@ Future setup({
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
-
-  getIt.registerFactory(() => BackgroundTasks());
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,

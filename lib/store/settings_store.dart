@@ -33,7 +33,8 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
-      {required SharedPreferences sharedPreferences,
+      {required BackgroundTasks backgroundTasks,
+      required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
@@ -66,6 +67,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         _sharedPreferences = sharedPreferences,
+        _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
         balanceDisplayMode = initialBalanceDisplayMode,
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
@@ -143,7 +145,8 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
 
     if (DeviceInfo.instance.isMobile) {
-      setIsAppSecureNative(isAppSecure);
+      // TODO: fix platform channel call with work manager
+      // setIsAppSecureNative(isAppSecure);
 
       reaction((_) => isAppSecure, (bool isAppSecure) {
         sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
@@ -209,13 +212,13 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
 
-      getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
+      _backgroundTasks.registerSyncTask(changeExisting: true);
     });
 
     reaction((_) => currentSyncAll, (bool syncAll) {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
-      getIt.get<BackgroundTasks>().registerSyncTask(changeExisting: true);
+      _backgroundTasks.registerSyncTask(changeExisting: true);
     });
 
     reaction(
@@ -312,7 +315,8 @@ abstract class SettingsStoreBase with Store {
 
   String deviceName;
 
-  SharedPreferences _sharedPreferences;
+  final SharedPreferences _sharedPreferences;
+  final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
 
@@ -341,6 +345,7 @@ abstract class SettingsStoreBase with Store {
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
       ThemeBase? initialTheme}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
+    final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
 
@@ -449,6 +454,7 @@ abstract class SettingsStoreBase with Store {
 
     return SettingsStore(
       sharedPreferences: sharedPreferences,
+      backgroundTasks: backgroundTasks,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       nodes: nodes,
       appVersion: packageInfo.version,
