@@ -15,6 +15,7 @@ import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_util.dart';
+import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:mobx/mobx.dart';
 import 'dart:async';
 import 'package:cw_nano/nano_wallet_addresses.dart';
@@ -27,20 +28,17 @@ part 'nano_wallet.g.dart';
 
 class NanoWallet = NanoWalletBase with _$NanoWallet;
 
-enum DerivationType { bip39, nano }
-
 abstract class NanoWalletBase
     extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo> with Store {
   NanoWalletBase({
-    required WalletInfo walletInfo,
+    required NanoWalletInfo walletInfo,
     required String mnemonic,
     required String password,
-    required DerivationType derivationType,
     NanoBalance? initialBalance,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _derivationType = derivationType,
+        _derivationType = walletInfo.derivationType,
         _isTransactionUpdating = false,
         _client = NanoClient(),
         walletAddresses = NanoWalletAddresses(walletInfo),
@@ -86,8 +84,6 @@ abstract class NanoWalletBase
 
     await walletAddresses.init();
     await transactionHistory.init();
-
-    // walletAddresses.address = _privateKey.address.toString();
     await save();
   }
 
@@ -127,7 +123,58 @@ abstract class NanoWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     print("g");
-    throw UnimplementedError();
+    print(credentials);
+    // throw UnimplementedError();
+
+    // final _credentials = credentials as EthereumTransactionCredentials;
+    // final outputs = _credentials.outputs;
+    // final hasMultiDestination = outputs.length > 1;
+    // final _erc20Balance = balance[_credentials.currency]!;
+    // BigInt totalAmount = BigInt.zero;
+    // int exponent =
+    //     _credentials.currency is Erc20Token ? (_credentials.currency as Erc20Token).decimal : 18;
+    // BigInt amountToEthereumMultiplier = BigInt.from(pow(10, exponent));
+
+    // if (hasMultiDestination) {
+    //   if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+    //     throw EthereumTransactionCreationException(_credentials.currency);
+    //   }
+
+    //   final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
+    //       outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
+    //   totalAmount = BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
+
+    //   if (_erc20Balance.balance < totalAmount) {
+    //     throw EthereumTransactionCreationException(_credentials.currency);
+    //   }
+    // } else {
+    //   final output = outputs.first;
+    //   final BigInt allAmount = _erc20Balance.balance - BigInt.from(feeRate(_credentials.priority!));
+    //   final totalOriginalAmount =
+    //       EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
+    //   totalAmount = output.sendAll
+    //       ? allAmount
+    //       : BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
+
+    //   if (_erc20Balance.balance < totalAmount) {
+    //     throw EthereumTransactionCreationException(_credentials.currency);
+    //   }
+    // }
+
+    // final pendingEthereumTransaction = await _client.signTransaction(
+    //   privateKey: _privateKey,
+    //   toAddress: _credentials.outputs.first.address,
+    //   amount: totalAmount.toString(),
+    //   gas: _priorityFees[_credentials.priority!.raw],
+    //   priority: _credentials.priority!,
+    //   currency: _credentials.currency,
+    //   exponent: exponent,
+    //   contractAddress: _credentials.currency is Erc20Token
+    //       ? (_credentials.currency as Erc20Token).contractAddress
+    //       : null,
+    // );
+
+    // return pendingEthereumTransaction;
   }
 
   Future<void> updateTransactions() async {
@@ -178,9 +225,10 @@ abstract class NanoWalletBase
   }
 
   @override
-  Future<void> rescan({required int height}) {
-    print("k");
-    throw UnimplementedError("rescan");
+  Future<void> rescan({required int height}) async {
+    fetchTransactions();
+    _updateBalance();
+    return;
   }
 
   @override
@@ -235,17 +283,20 @@ abstract class NanoWalletBase
       derivationType = DerivationType.nano;
     }
 
-    return NanoWallet(
+    final nanoWalletInfo = NanoWalletInfo(
       walletInfo: walletInfo,
+      derivationType: derivationType,
+    );
+
+    return NanoWallet(
+      walletInfo: nanoWalletInfo,
       password: password,
       mnemonic: mnemonic,
       initialBalance: balance,
-      derivationType: derivationType,
     );
   }
 
   Future<void> _updateBalance() async {
-    // this.balance.update(CryptoCurrency.nano, (value) => (await _client.getBalance(_publicAddress)));
     balance[currency] = await _client.getBalance(_publicAddress);
     await save();
   }

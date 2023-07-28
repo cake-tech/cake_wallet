@@ -13,6 +13,9 @@ import 'package:web3dart/contracts/erc20.dart';
 import 'package:cw_core/node.dart';
 
 class NanoClient {
+  // bit of a hack since we need access to a node in a weird location:
+  static const String BACKUP_NODE_URI = "rpc.nano.to";
+
   final _httpClient = Client();
   StreamSubscription<Transfer>? subscription;
   Node? _node;
@@ -97,23 +100,4 @@ class NanoClient {
       return [];
     }
   }
-
-// Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
-//     final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
-//     final contractAbi = ContractAbi.fromJson(abi, "ERC20");
-//
-//     final contract = DeployedContract(
-//       contractAbi,
-//       EthereumAddress.fromHex(_erc20Currencies[erc20Currency]!),
-//     );
-//     final decimalsFunction = contract.function('decimals');
-//     final decimals = await _client!.call(
-//       contract: contract,
-//       function: decimalsFunction,
-//       params: [],
-//     );
-//
-//     int exponent = int.parse(decimals.first.toString());
-//     return exponent;
-//   }
 }

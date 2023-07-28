@@ -1,15 +1,18 @@
 import 'dart:io';
 
+import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_nano/nano_balance.dart';
+import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
-// import 'package:cw_nano/nano_mnemonics.dart';
+import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet.dart';
-import 'package:cw_nano/nano_wallet_creation_credentials.dart';
+import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:hive/hive.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
@@ -62,11 +65,16 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
     print("nano_wallet_service create");
     final mnemonic = bip39.generateMnemonic();
-    final wallet = NanoWallet(
+
+    final nanoWalletInfo = NanoWalletInfo(
       walletInfo: credentials.walletInfo!,
+      derivationType: DerivationType.nano,
+    );
+
+    final wallet = NanoWallet(
+      walletInfo: nanoWalletInfo,
       mnemonic: mnemonic,
       password: credentials.password!,
-      derivationType: DerivationType.bip39,
     );
     return wallet;
   }
@@ -102,35 +110,69 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   Future<DerivationType> compareDerivationMethods({String? mnemonic, String? seedKey}) async {
-    // TODO:
-    return DerivationType.nano;
+    if (seedKey?.length == 128) {
+      return DerivationType.bip39;
+    }
+    if (mnemonic?.split(' ').length == 12) {
+      return DerivationType.bip39;
+    }
+
+    try {
+      NanoClient nanoClient = NanoClient();
+      // TODO: figure out how to load the current node uri in this context:
+      nanoClient.connect(Node(
+        uri: NanoClient.BACKUP_NODE_URI,
+        type: WalletType.nano,
+      ));
+
+      late String publicAddressStandard;
+      late String publicAddressBip39;
+
+      if (seedKey == null) {
+        seedKey = bip39.mnemonicToEntropy(mnemonic).toUpperCase();
+      }
+
+      publicAddressBip39 = await NanoUtil.hdSeedToAddress(seedKey, 0);
+      publicAddressStandard = await NanoUtil.seedToAddress(seedKey, 0);
+
+      // check if either has a balance:
+
+      NanoBalance bip39Balance = await nanoClient.getBalance(publicAddressBip39);
+      NanoBalance standardBalance = await nanoClient.getBalance(publicAddressStandard);
+
+      // TODO: this is super basic implementation, and if both addresses have balances
+      // it might not be the one that the user wants, though it is unlikely
+      if (bip39Balance.currentBalance > standardBalance.currentBalance) {
+        return DerivationType.bip39;
+      } else {
+        return DerivationType.nano;
+      }
+    } catch (e) {
+      return DerivationType.nano;
+    }
   }
 
   @override
   Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
     throw UnimplementedError("restoreFromKeys");
 
-    DerivationType derivationType = DerivationType.bip39;
+    // TODO: mnemonic can't be derived from the seedKey in the nanostandard derivation
+    // which complicates things
 
-    if (credentials.seedKey.length == 128) {
-      derivationType = DerivationType.bip39;
-    } else {
-      // we don't know for sure, but probably the nano standard:
-      derivationType = await compareDerivationMethods(seedKey: credentials.seedKey);
-    }
-
-    String? mnemonic;
-
-    final wallet = await NanoWallet(
-      password: credentials.password!,
-      mnemonic: mnemonic ?? "", // we can't derive the mnemonic from the key in all cases
-      walletInfo: credentials.walletInfo!,
-      derivationType: derivationType,
-    );
-
-    await wallet.init();
-    await wallet.save();
-    return wallet;
+    // DerivationType derivationType = await compareDerivationMethods(seedKey: credentials.seedKey);
+    // String? mnemonic;
+    // final nanoWalletInfo = NanoWalletInfo(
+    //   walletInfo: credentials.walletInfo!,
+    //   derivationType: derivationType,
+    // );
+    // final wallet = await NanoWallet(
+    //   password: credentials.password!,
+    //   mnemonic: mnemonic ?? "", // we can't derive the mnemonic from the key in all cases
+    //   walletInfo: nanoWalletInfo,
+    // );
+    // await wallet.init();
+    // await wallet.save();
+    // return wallet;
   }
 
   @override
@@ -143,20 +185,17 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       throw NanoMnemonicIsIncorrectException();
     }
 
-    DerivationType derivationType = DerivationType.bip39;
+    DerivationType derivationType = await compareDerivationMethods(mnemonic: credentials.mnemonic);
 
-    if (credentials.mnemonic.split(' ').length == 12) {
-      derivationType = DerivationType.bip39;
-    } else {
-      // we don't know for sure, but probably the nano standard:
-      derivationType = await compareDerivationMethods(mnemonic: credentials.mnemonic);
-    }
+    final nanoWalletInfo = NanoWalletInfo(
+      walletInfo: credentials.walletInfo!,
+      derivationType: derivationType,
+    );
 
     final wallet = await NanoWallet(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
-      walletInfo: credentials.walletInfo!,
-      derivationType: derivationType,
+      walletInfo: nanoWalletInfo,
     );
 
     await wallet.init();

@@ -581,6 +581,7 @@ Future<void> generateNano(bool hasImplementation) async {
   const nanoCWHeaders = """
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';

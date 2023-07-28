@@ -1,4 +1,5 @@
 import 'package:cw_nano/nano_wallet.dart';
+import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
