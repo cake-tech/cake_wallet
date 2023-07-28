@@ -29,66 +29,40 @@ class NanoClient {
   void setListeners(EthereumAddress userAddress, Function(FilterEvent) onNewTransaction) async {}
 
   Future<NanoBalance> getBalance(String address) async {
-    return NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero);
+    // this is the preferred rpc call but the test node isn't returning this one:
+    // final response = await _httpClient.post(
+    //   _node!.uri,
+    //   headers: {"Content-Type": "application/json"},
+    //   body: jsonEncode(
+    //     {
+    //       "action": "account_balance",
+    //       "account": address,
+    //     },
+    //   ),
+    // );
+    // final data = await jsonDecode(response.body);
+    // final String currentBalance = data["balance"] as String;
+    // final String receivableBalance = data["receivable"] as String;
+    // final BigInt cur = BigInt.parse(currentBalance);
+    // final BigInt rec = BigInt.parse(receivableBalance);
+
+    final response = await _httpClient.post(
+      _node!.uri,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(
+        {
+          "action": "accounts_balances",
+          "accounts": [address],
+        },
+      ),
+    );
+    final data = await jsonDecode(response.body);
+    final String currentBalance = data["balances"][address]["balance"] as String;
+    final String receivableBalance = data["balances"][address]["receivable"] as String;
+    final BigInt cur = BigInt.parse(currentBalance);
+    final BigInt rec = BigInt.parse(receivableBalance);
+    return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
-
-  // Future<PendingEthereumTransaction> signTransaction({
-  //   required EthPrivateKey privateKey,
-  //   required String toAddress,
-  //   required String amount,
-  //   required int gas,
-  //   required EthereumTransactionPriority priority,
-  //   required CryptoCurrency currency,
-  //   required int exponent,
-  //   String? contractAddress,
-  // }) async {
-  //   assert(currency == CryptoCurrency.eth || contractAddress != null);
-
-  //   bool _isEthereum = currency == CryptoCurrency.eth;
-
-  //   final price = await _client!.getGasPrice();
-
-  //   final Transaction transaction = Transaction(
-  //     from: privateKey.address,
-  //     to: EthereumAddress.fromHex(toAddress),
-  //     maxGas: gas,
-  //     gasPrice: price,
-  //     value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
-  //   );
-
-  //   final signedTransaction = await _client!.signTransaction(privateKey, transaction);
-
-  //   final BigInt estimatedGas;
-  //   final Function _sendTransaction;
-
-  //   if (_isEthereum) {
-  //     estimatedGas = BigInt.from(21000);
-  //     _sendTransaction = () async => await sendTransaction(signedTransaction);
-  //   } else {
-  //     estimatedGas = BigInt.from(50000);
-
-  //     final erc20 = Erc20(
-  //       client: _client!,
-  //       address: EthereumAddress.fromHex(contractAddress!),
-  //     );
-
-  //     _sendTransaction = () async {
-  //       await erc20.transfer(
-  //         EthereumAddress.fromHex(toAddress),
-  //         BigInt.parse(amount),
-  //         credentials: privateKey,
-  //       );
-  //     };
-  //   }
-
-  //   return PendingEthereumTransaction(
-  //     signedTransaction: signedTransaction,
-  //     amount: amount,
-  //     fee: estimatedGas * price.getInWei,
-  //     sendTransaction: _sendTransaction,
-  //     exponent: exponent,
-  //   );
-  // }
 
   Future<dynamic> getTransactionDetails(String transactionHash) async {
     throw UnimplementedError();
@@ -106,7 +80,7 @@ class NanoClient {
           body: jsonEncode({
             "action": "account_history",
             "account": address,
-            "count": "250",// TODO: pick a number
+            "count": "250", // TODO: pick a number
             // "raw": true,
           }));
       final data = await jsonDecode(response.body);

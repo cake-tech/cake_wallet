@@ -131,7 +131,6 @@ abstract class NanoWalletBase
   }
 
   Future<void> updateTransactions() async {
-    print("updating_transactions");
     try {
       if (_isTransactionUpdating) {
         return;
@@ -246,6 +245,8 @@ abstract class NanoWalletBase
   }
 
   Future<void> _updateBalance() async {
+    // this.balance.update(CryptoCurrency.nano, (value) => (await _client.getBalance(_publicAddress)));
+    balance[currency] = await _client.getBalance(_publicAddress);
     await save();
   }
 

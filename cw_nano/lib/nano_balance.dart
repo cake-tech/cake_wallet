@@ -1,6 +1,7 @@
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_nano/nano_util.dart';
 
 String rawToFormattedAmount(BigInt amount, Currency currency) {
   return "";
@@ -29,11 +30,11 @@ class NanoBalance extends Balance {
 
   @override
   String get formattedAvailableBalance {
-    return "0";
+    return NanoUtil.getRawAsUsableString(currentBalance.toString(), NanoUtil.rawPerNano);
   }
 
   @override
   String get formattedAdditionalBalance {
-    return "0";
+    return NanoUtil.getRawAsUsableString(receivableBalance.toString(), NanoUtil.rawPerNano);
   }
 }
