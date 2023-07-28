@@ -66,7 +66,8 @@ abstract class BalanceViewModelBase with Store {
     final price = fiatConvertationStore.prices[appStore.wallet!.currency];
 
     if (price == null) {
-      throw Exception('No price for ${appStore.wallet!.currency} (current wallet)');
+      // price should update on next fetch:
+      return 0;
     }
 
     return price;

@@ -32,28 +32,7 @@ class AnonPayReceivePage extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
-      size: 16,
-    );
-
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            onPressed: () =>
-                Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false),
-            child: _backButton),
-      ),
-    );
-  }
+  void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
 
   @override
   Widget middle(BuildContext context) {

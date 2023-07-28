@@ -359,7 +359,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             Navigator.of(popupContext).pop();
                             RequestReviewHandler.requestReview();
                           },  
-                          text: S.of(popupContext).send_got_it,
+                          text: S.of(popupContext).got_it,
                           color: Theme.of(popupContext)
                               .accentTextTheme!
                               .bodyLarge!

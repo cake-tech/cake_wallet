@@ -11,6 +11,7 @@ class Routes {
   static const transactionDetails = '/transaction_info';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
+  static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
   static const seedLanguage = '/seed_language';
@@ -70,7 +71,7 @@ class Routes {
   static const ioniaPaymentStatusPage = '/ionia_payment_status_page';
   static const ioniaMoreOptionsPage = '/ionia_more_options_page';
   static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
-  static const onramperPage = '/onramper';
+  static const webViewPage = '/web_view_page';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -81,7 +82,6 @@ class Routes {
   static const anonPayInvoicePage = '/anon_pay_invoice_page';
   static const anonPayReceivePage = '/anon_pay_receive_page';
   static const anonPayDetailsPage = '/anon_pay_details_page';
-  static const payfuraPage = '/pay_fura_page';
   static const desktop_actions = '/desktop_actions';
   static const transactionsPage = '/transactions_page';
   static const setup_2faPage = '/setup_2fa_page';
