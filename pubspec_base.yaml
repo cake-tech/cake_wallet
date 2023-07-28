@@ -88,15 +88,8 @@ dependencies:
       ref: cake-update-v2
   chatwoot_sdk:
     git:
-      url: https://github.com/chatwoot/chatwoot-flutter-sdk.git
-
-dependency_overrides:
-  flutter_secure_storage:
-    git:
-      url: https://github.com/cake-tech/flutter_secure_storage.git
-      path: flutter_secure_storage
-      ref: cake-8.0.0
-      version: 8.0.0
+      url: https://github.com/cake-tech/chatwoot-flutter-sdk.git
+      ref: cake-0.0.9
 
 dev_dependencies:
   flutter_test:
