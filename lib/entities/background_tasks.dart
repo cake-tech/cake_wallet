@@ -8,6 +8,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
@@ -34,7 +35,6 @@ void callbackDispatcher() {
 
           WalletBase? wallet;
 
-          /// if the user chose to sync only active wallet
           if (inputData!['sync_all'] as bool) {
             /// get all Monero wallets of the user and sync them
             final List<WalletListItem> moneroWallets = getIt
@@ -49,7 +49,7 @@ void callbackDispatcher() {
               await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
-          } else {
+          } else { /// if the user chose to sync only active wallet
             /// if the current wallet is monero; sync it only
             if (typeRaw == WalletType.monero.index) {
               final name =
@@ -111,8 +111,7 @@ class BackgroundTasks {
 
       await Workmanager().initialize(
         callbackDispatcher,
-        // isInDebugMode: kDebugMode,
-        isInDebugMode: true, // TODO: remove after testing
+        isInDebugMode: kDebugMode,
       );
 
       await Workmanager().registerPeriodicTask(
