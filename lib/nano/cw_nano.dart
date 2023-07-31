@@ -27,6 +27,15 @@ class CWNano extends Nano {
   }
 
   @override
+  Map<String, String> getKeys(Object wallet) {
+    final nanoWallet = wallet as NanoWallet;
+    final keys = nanoWallet.keys;
+    return <String, String>{
+      "seedKey": keys.seedKey,
+    };
+  }
+
+  @override
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
     String? password,

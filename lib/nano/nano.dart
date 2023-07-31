@@ -67,6 +67,7 @@ abstract class Nano {
 
   List<String> getNanoWordList(String language);
 
+  Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
 }
 

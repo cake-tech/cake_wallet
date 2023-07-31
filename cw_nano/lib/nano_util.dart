@@ -197,4 +197,15 @@ class NanoUtil {
     }
     return "";
   }
+
+  /// Return readable string amount as raw string
+  /// @param amount 1.01
+  /// @returns  101000000000000000000000000000
+  ///
+  static String getAmountAsRaw(String amount, BigInt rawPerCur) {
+    final Decimal asDecimal = Decimal.parse(amount);
+    final Decimal rawDecimal = Decimal.parse(rawPerCur.toString());
+    return (asDecimal * rawDecimal).toString();
+  }
+  
 }

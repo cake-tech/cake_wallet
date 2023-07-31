@@ -1,11 +1,5 @@
 class NanoWalletKeys {
-  const NanoWalletKeys({
-    required this.mnemonic,
-    required this.privateKey,
-    required this.derivationType,
-  });
+  const NanoWalletKeys({required this.seedKey});
 
-  final String privateKey;
-  final String derivationType;
-  final String mnemonic;
+  final String seedKey;
 }

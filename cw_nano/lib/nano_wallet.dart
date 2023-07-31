@@ -12,15 +12,18 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/file.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
+import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet_info.dart';
+import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
 import 'dart:async';
 import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:nanodart/nanodart.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
@@ -123,23 +126,62 @@ abstract class NanoWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    print("g");
-    print(credentials);
-    // throw UnimplementedError();
+    credentials = credentials as NanoTransactionCredentials;
+
+    BigInt runningAmount = BigInt.zero;
+    await _updateBalance();
+    BigInt runningBalance = balance[currency]?.currentBalance ?? BigInt.zero;
+
+    final List<Map<String, String>> blocks = [];
+    String? previousHash;
+
+    for (var txOut in credentials.outputs) {
+      late BigInt amt;
+      if (txOut.sendAll) {
+        amt = balance[currency]?.currentBalance ?? BigInt.zero;
+      } else {
+        amt = BigInt.tryParse(
+                NanoUtil.getAmountAsRaw(txOut.cryptoAmount ?? "0", NanoUtil.rawPerNano)) ??
+            BigInt.zero;
+      }
+
+      runningBalance = runningBalance - amt;
+
+      final block = await _client.constructSendBlock(
+        amountRaw: amt.toString(),
+        destinationAddress: txOut.address,
+        privateKey: _privateKey,
+        balanceAfterTx: runningBalance,
+        previousHash: previousHash,
+      );
+      previousHash = NanoBlocks.computeStateHash(
+        NanoAccountType.NANO,
+        block["account"]!,
+        block["previous"]!,
+        block["representative"]!,
+        BigInt.parse(block["balance"]!),
+        block["link"]!,
+      );
+
+      blocks.add(block);
+      runningAmount += amt;
+    }
+
+    try {
+      if (runningAmount > balance[currency]!.currentBalance || runningBalance < BigInt.zero) {
+        throw Exception(("Trying to send more than entire balance!"));
+      }
+    } catch (e) {
+      rethrow;
+    }
 
     return PendingNanoTransaction(
-      amount: BigInt.one,
+      amount: runningAmount,
       fee: 0,
-      id: "test",
+      id: "",
       nanoClient: _client,
+      blocks: blocks,
     );
-
-    // return PendingNanoTransaction(txb.build(), type,
-    //     electrumClient: electrumClient, amount: amount, fee: fee)
-    //   ..addListener((transaction) async {
-    //     transactionHistory.addOne(transaction);
-    //     await updateBalance();
-    //   });
   }
 
   Future<void> updateTransactions() async {
@@ -184,9 +226,8 @@ abstract class NanoWalletBase
   }
 
   @override
-  Object get keys {
-    print("j");
-    throw UnimplementedError("keys");
+  NanoWalletKeys get keys {
+    return NanoWalletKeys(seedKey: _seedKey);
   }
 
   @override
