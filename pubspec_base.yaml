@@ -86,10 +86,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
       ref: cake-update-v2
-  chatwoot_sdk:
-    git:
-      url: https://github.com/cake-tech/chatwoot-flutter-sdk.git
-      ref: cake-0.0.9
 
 dev_dependencies:
   flutter_test:

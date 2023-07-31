@@ -241,9 +241,9 @@ Future setup({
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   }
 
-  final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty ?? false) &&
-      (secrets.wyreApiKey.isNotEmpty ?? false) &&
-      (secrets.wyreAccountId.isNotEmpty ?? false);
+  final isBitcoinBuyEnabled = secrets.wyreSecretKey.isNotEmpty &&
+      secrets.wyreApiKey.isNotEmpty &&
+      secrets.wyreAccountId.isNotEmpty;
 
   final settingsStore = await SettingsStoreBase.load(
     nodeSource: _nodeSource,
@@ -849,7 +849,7 @@ Future setup({
 
   getIt.registerFactory(() => SupportPage());
 
-  getIt.registerFactory(() => SupportChatPage());
+  getIt.registerFactory(() => SupportChatPage(secureStorage: getIt.get<FlutterSecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
