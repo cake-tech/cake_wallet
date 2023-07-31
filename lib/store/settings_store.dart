@@ -145,8 +145,7 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
 
     if (DeviceInfo.instance.isMobile) {
-      // TODO: fix platform channel call with work manager
-      // setIsAppSecureNative(isAppSecure);
+      setIsAppSecureNative(isAppSecure);
 
       reaction((_) => isAppSecure, (bool isAppSecure) {
         sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);

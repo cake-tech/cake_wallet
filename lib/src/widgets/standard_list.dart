@@ -54,7 +54,7 @@ class StandardListRow extends StatelessWidget {
 
   Color titleColor(BuildContext context) => isSelected
       ? Palette.blueCraiola
-      : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      : Theme.of(context).primaryTextTheme.titleLarge!.color!;
 
   Color _backgroundColor(BuildContext context) {
     return Theme.of(context).colorScheme.background;
@@ -75,7 +75,7 @@ class SectionHeaderListRow extends StatelessWidget {
 
 class StandardListSeparator extends StatelessWidget {
 
-  StandardListSeparator({this.padding, this.height = 1});
+  const StandardListSeparator({this.padding, this.height = 1});
 
   final EdgeInsets? padding;
   final double height;
@@ -89,7 +89,7 @@ class StandardListSeparator extends StatelessWidget {
         child: Container(
             height: height,
             color: Theme.of(context)
-                .primaryTextTheme!
+                .primaryTextTheme
                 .titleLarge
                 ?.backgroundColor));
   }

@@ -21,6 +21,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -670,8 +671,7 @@ Future setup({
     return NodeListViewModel(_nodeSource, appStore);
   });
 
-  getIt.registerFactory(
-      () => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
+  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
@@ -1026,6 +1026,8 @@ Future setup({
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+
+  getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
 
   _isSetupFinished = true;
 }

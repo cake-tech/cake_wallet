@@ -8,7 +8,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
@@ -19,8 +18,6 @@ const moneroSyncTaskKey = "com.cake_wallet.monero_sync_task";
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    await WidgetsFlutterBinding.ensureInitialized();
-
     try {
       switch (task) {
         case moneroSyncTaskKey:
@@ -93,11 +90,11 @@ void callbackDispatcher() {
 class BackgroundTasks {
   void registerSyncTask({bool changeExisting = false}) async {
     try {
-      /// if its not android nor ios, or the user has no monero wallets
       bool hasMonero = getIt
           .get<WalletListViewModel>()
           .wallets
           .any((element) => element.type == WalletType.monero);
+      /// if its not android nor ios, or the user has no monero wallets
       if (!(Platform.isAndroid || Platform.isIOS) || !hasMonero) {
         return;
       }
@@ -126,7 +123,8 @@ class BackgroundTasks {
         existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
         inputData: <String, dynamic>{"sync_all": syncAll},
         constraints: Constraints(
-          networkType: NetworkType.connected,
+          networkType:
+              syncMode.type == SyncType.unobtrusive ? NetworkType.unmetered : NetworkType.connected,
           requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
           requiresCharging: syncMode.type == SyncType.unobtrusive,
           requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -62,16 +61,4 @@ abstract class OtherSettingsViewModelBase with Store {
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
       _settingsStore.priority[_wallet.type] = priority;
-
-  @computed
-  SyncMode get syncMode => _settingsStore.currentSyncMode;
-
-  @action
-  void setSyncMode(SyncMode syncMode) => _settingsStore.currentSyncMode = syncMode;
-
-  @computed
-  bool get syncAll => _settingsStore.currentSyncAll;
-
-  @action
-  void setSyncAll(bool value) => _settingsStore.currentSyncAll = value;
 }

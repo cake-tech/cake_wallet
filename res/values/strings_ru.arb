@@ -250,8 +250,8 @@
   "transaction_details_recipient_address": "Адреса получателей",
   "wallet_list_title": "Monero Кошелёк",
   "wallet_list_create_new_wallet": "Создать новый кошелёк",
-  "wallet_list_edit_wallet" : "Изменить кошелек",
-  "wallet_list_wallet_name" : "Имя кошелька",
+  "wallet_list_edit_wallet": "Изменить кошелек",
+  "wallet_list_wallet_name": "Имя кошелька",
   "wallet_list_restore_wallet": "Восстановить кошелёк",
   "wallet_list_load_wallet": "Загрузка кошелька",
   "wallet_list_loading_wallet": "Загрузка ${wallet_name} кошелька",
@@ -639,5 +639,6 @@
   "generate_name": "Создать имя",
   "balance_page": "Страница баланса",
   "share": "Делиться",
-  "slidable": "Скользящий"
+  "slidable": "Скользящий",
+  "manage_nodes": "Управление узлами"
 }
