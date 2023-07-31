@@ -77,13 +77,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
               name: name, mnemonic: seed, password: password);
         case WalletType.nano:
-          // default to bip39 for now:
-          final DerivationType derivationType = DerivationType.bip39;
           return nano!.createNanoRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationType,
+            derivationType: null,
           );
         default:
           break;

@@ -39,9 +39,9 @@ class CWNano extends Nano {
   @override
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
     required String name,
-    required String mnemonic,
-    required DerivationType derivationType,
     required String password,
+    required String mnemonic,
+    DerivationType? derivationType,
   }) =>
       NanoRestoreWalletFromSeedCredentials(
         name: name,
@@ -60,5 +60,23 @@ class CWNano extends Nano {
   @override
   void onStartup() {
     // monero_wallet_api.onStartup();
+  }
+
+  @override
+  Object createNanoTransactionCredentials(List<Output> outputs) {
+    return NanoTransactionCredentials(
+      outputs
+          .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount,
+              ))
+          .toList(),
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -32,13 +33,8 @@ part 'send_view_model.g.dart';
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
-  SendViewModelBase(
-      this._wallet,
-      this._settingsStore,
-      this.sendTemplateViewModel,
-      this._fiatConversationStore,
-      this.balanceViewModel,
-      this.transactionDescriptionBox)
+  SendViewModelBase(this._wallet, this._settingsStore, this.sendTemplateViewModel,
+      this._fiatConversationStore, this.balanceViewModel, this.transactionDescriptionBox)
       : state = InitialExecutionState(),
         currencies = _wallet.balance.keys.toList(),
         selectedCryptoCurrency = _wallet.currency,
@@ -52,7 +48,8 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs
+        .add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @observable
@@ -62,7 +59,8 @@ abstract class SendViewModelBase with Store {
 
   @action
   void addOutput() {
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs
+        .add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @action
@@ -149,13 +147,11 @@ abstract class SendViewModelBase with Store {
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFiatAmount +
-          ' ' + fiat.title;
+      isFiatDisabled ? '' : pendingTransactionFiatAmount + ' ' + fiat.title;
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount +
-          ' ' + fiat.title;
+      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
@@ -176,9 +172,8 @@ abstract class SendViewModelBase with Store {
 
   bool get hasMultiRecipient => _wallet.type != WalletType.haven;
 
-  bool get hasYat => outputs.any((out) =>
-      out.isParsedAddress &&
-      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  bool get hasYat => outputs
+      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
 
@@ -236,11 +231,9 @@ abstract class SendViewModelBase with Store {
       if (pendingTransaction!.id.isNotEmpty) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id,
-                recipientAddress: address,
-                transactionNote: note))
-            : await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id, transactionNote: note));
+                id: pendingTransaction!.id, recipientAddress: address, transactionNote: note))
+            : await transactionDescriptionBox
+                .add(TransactionDescription(id: pendingTransaction!.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -278,8 +271,8 @@ abstract class SendViewModelBase with Store {
           throw Exception('Priority is null for wallet type: ${_wallet.type}');
         }
 
-        return monero!.createMoneroTransactionCreationCredentials(
-            outputs: outputs, priority: priority);
+        return monero!
+            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority);
       case WalletType.haven:
         final priority = _settingsStore.priority[_wallet.type];
 
@@ -296,8 +289,12 @@ abstract class SendViewModelBase with Store {
           throw Exception('Priority is null for wallet type: ${_wallet.type}');
         }
 
-        return ethereum!.createEthereumTransactionCredentials(
-            outputs, priority: priority, currency: selectedCryptoCurrency);
+        return ethereum!.createEthereumTransactionCredentials(outputs,
+            priority: priority, currency: selectedCryptoCurrency);
+      case WalletType.nano:
+        return nano!.createNanoTransactionCredentials(
+          outputs,
+        );
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type}');
     }
@@ -319,10 +316,8 @@ abstract class SendViewModelBase with Store {
       currency.toLowerCase() == _wallet.currency.title.toLowerCase();
 
   @action
-  void onClose() =>
-      _settingsStore.fiatCurrency = fiatFromSettings;
+  void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
 
   @action
-  void setFiatCurrency(FiatCurrency fiat) =>
-      _settingsStore.fiatCurrency = fiat;
+  void setFiatCurrency(FiatCurrency fiat) => _settingsStore.fiatCurrency = fiat;
 }

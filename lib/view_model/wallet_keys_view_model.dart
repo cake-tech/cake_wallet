@@ -118,6 +118,10 @@ abstract class WalletKeysViewModelBase with Store {
         return 'litecoin-wallet';
       case WalletType.haven:
         return 'haven-wallet';
+      case WalletType.nano:
+        return 'nano-wallet';
+      case WalletType.banano:
+        return 'banano-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

@@ -16,6 +16,7 @@ import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet_info.dart';
+import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
 import 'dart:async';
 import 'package:cw_nano/nano_wallet_addresses.dart';
@@ -126,55 +127,19 @@ abstract class NanoWalletBase
     print(credentials);
     // throw UnimplementedError();
 
-    // final _credentials = credentials as EthereumTransactionCredentials;
-    // final outputs = _credentials.outputs;
-    // final hasMultiDestination = outputs.length > 1;
-    // final _erc20Balance = balance[_credentials.currency]!;
-    // BigInt totalAmount = BigInt.zero;
-    // int exponent =
-    //     _credentials.currency is Erc20Token ? (_credentials.currency as Erc20Token).decimal : 18;
-    // BigInt amountToEthereumMultiplier = BigInt.from(pow(10, exponent));
+    return PendingNanoTransaction(
+      amount: BigInt.one,
+      fee: 0,
+      id: "test",
+      nanoClient: _client,
+    );
 
-    // if (hasMultiDestination) {
-    //   if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-    //     throw EthereumTransactionCreationException(_credentials.currency);
-    //   }
-
-    //   final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
-    //       outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-    //   totalAmount = BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
-
-    //   if (_erc20Balance.balance < totalAmount) {
-    //     throw EthereumTransactionCreationException(_credentials.currency);
-    //   }
-    // } else {
-    //   final output = outputs.first;
-    //   final BigInt allAmount = _erc20Balance.balance - BigInt.from(feeRate(_credentials.priority!));
-    //   final totalOriginalAmount =
-    //       EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
-    //   totalAmount = output.sendAll
-    //       ? allAmount
-    //       : BigInt.from(totalOriginalAmount) * amountToEthereumMultiplier;
-
-    //   if (_erc20Balance.balance < totalAmount) {
-    //     throw EthereumTransactionCreationException(_credentials.currency);
-    //   }
-    // }
-
-    // final pendingEthereumTransaction = await _client.signTransaction(
-    //   privateKey: _privateKey,
-    //   toAddress: _credentials.outputs.first.address,
-    //   amount: totalAmount.toString(),
-    //   gas: _priorityFees[_credentials.priority!.raw],
-    //   priority: _credentials.priority!,
-    //   currency: _credentials.currency,
-    //   exponent: exponent,
-    //   contractAddress: _credentials.currency is Erc20Token
-    //       ? (_credentials.currency as Erc20Token).contractAddress
-    //       : null,
-    // );
-
-    // return pendingEthereumTransaction;
+    // return PendingNanoTransaction(txb.build(), type,
+    //     electrumClient: electrumClient, amount: amount, fee: fee)
+    //   ..addListener((transaction) async {
+    //     transactionHistory.addOne(transaction);
+    //     await updateBalance();
+    //   });
   }
 
   Future<void> updateTransactions() async {

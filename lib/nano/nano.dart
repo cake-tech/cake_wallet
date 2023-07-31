@@ -1,3 +1,6 @@
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
@@ -9,6 +12,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
+import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -52,9 +56,9 @@ abstract class Nano {
 
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
     required String name,
-    required String mnemonic,
     required String password,
-    required DerivationType derivationType,
+    required String mnemonic,
+    DerivationType? derivationType,
   });
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
@@ -62,6 +66,8 @@ abstract class Nano {
   void onStartup();
 
   List<String> getNanoWordList(String language);
+
+  Object createNanoTransactionCredentials(List<Output> outputs);
 }
 
 abstract class NanoAccountList {

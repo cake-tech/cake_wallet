@@ -25,13 +25,13 @@ class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
   NanoRestoreWalletFromSeedCredentials(
       {required String name,
       required this.mnemonic,
-      required this.derivationType,
+      this.derivationType,
       int height = 0,
       String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
-  final DerivationType derivationType;
+  final DerivationType? derivationType;
 }
 
 class NanoWalletLoadingException implements Exception {
@@ -44,9 +44,11 @@ class NanoRestoreWalletFromKeysCredentials extends WalletCredentials {
     required String name,
     required String password,
     required this.seedKey,
+    this.derivationType,
   }) : super(name: name, password: password);
 
   final String seedKey;
+  final DerivationType? derivationType;
 }
 
 class NanoWalletService extends WalletService<NanoNewWalletCredentials,
@@ -63,9 +65,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
-    print("nano_wallet_service create");
     final mnemonic = bip39.generateMnemonic();
-
     final nanoWalletInfo = NanoWalletInfo(
       walletInfo: credentials.walletInfo!,
       derivationType: DerivationType.nano,
@@ -140,7 +140,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       NanoBalance bip39Balance = await nanoClient.getBalance(publicAddressBip39);
       NanoBalance standardBalance = await nanoClient.getBalance(publicAddressStandard);
 
-      // TODO: this is super basic implementation, and if both addresses have balances
+      // TODO: this is a super basic implementation, and if both addresses have balances
       // it might not be the one that the user wants, though it is unlikely
       if (bip39Balance.currentBalance > standardBalance.currentBalance) {
         return DerivationType.bip39;
@@ -156,10 +156,10 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
     throw UnimplementedError("restoreFromKeys");
 
-    // TODO: mnemonic can't be derived from the seedKey in the nanostandard derivation
+    // TODO: mnemonic can't be derived from the seedKey in the nano standard derivation
     // which complicates things
 
-    // DerivationType derivationType = await compareDerivationMethods(seedKey: credentials.seedKey);
+    // DerivationType derivationType = credentials.derivationType ?? await compareDerivationMethods(seedKey: credentials.seedKey);
     // String? mnemonic;
     // final nanoWalletInfo = NanoWalletInfo(
     //   walletInfo: credentials.walletInfo!,
@@ -185,7 +185,8 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       throw NanoMnemonicIsIncorrectException();
     }
 
-    DerivationType derivationType = await compareDerivationMethods(mnemonic: credentials.mnemonic);
+    DerivationType derivationType = credentials.derivationType ??
+        await compareDerivationMethods(mnemonic: credentials.mnemonic);
 
     final nanoWalletInfo = NanoWalletInfo(
       walletInfo: credentials.walletInfo!,
