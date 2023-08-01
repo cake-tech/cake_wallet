@@ -1,7 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -65,7 +64,7 @@ class AddressPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
       size: 16,
     );
     final _closeButton =
@@ -115,29 +114,27 @@ class AddressPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    return !addressListViewModel.hasAddressList
-        ? Material(
-            color: Colors.transparent,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              iconSize: 25,
-              onPressed: () {
-                ShareUtil.share(
-                  text: addressListViewModel.uri.toString(),
-                  context: context,
-                );
-              },
-              icon: Icon(
-                Icons.share,
-                size: 20,
-                color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
-              ),
-            ),
-          )
-        : null;
+    return Material(
+      color: Colors.transparent,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints(),
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        iconSize: 25,
+        onPressed: () {
+          ShareUtil.share(
+            text: addressListViewModel.uri.toString(),
+            context: context,
+          );
+        },
+        icon: Icon(
+          Icons.share,
+          size: 20,
+          color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+        ),
+      ),
+    );
   }
 
   @override
@@ -175,7 +172,7 @@ class AddressPage extends BasePage {
         tapOutsideToDismiss: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -272,7 +269,7 @@ class AddressPage extends BasePage {
                         style: TextStyle(
                             fontSize: 15,
                             color:
-                                Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!));
+                                Theme.of(context).accentTextTheme.displaySmall!.backgroundColor!));
               })
             ],
           ),
