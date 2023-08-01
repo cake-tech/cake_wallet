@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -14,9 +15,9 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 
 class BackupPage extends BasePage {
   BackupPage(this.backupViewModelBase);
@@ -52,7 +53,8 @@ class BackupPage extends BasePage {
                       child: Observer(
                           builder: (_) => GestureDetector(
                                 onTap: () {
-                                  SensitiveClipboard.copy(backupViewModelBase.backupPassword);
+                                  ClipboardUtil.setSensitiveDataToClipboard(
+                                      ClipboardData(text: backupViewModelBase.backupPassword));
                                   showBar<void>(
                                       context,
                                       S.of(context).transaction_details_copied(

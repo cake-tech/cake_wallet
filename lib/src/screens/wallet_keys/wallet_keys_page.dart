@@ -5,13 +5,14 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 
 class WalletKeysPage extends BasePage {
   WalletKeysPage(this.walletKeysViewModel);
@@ -93,7 +94,7 @@ class WalletKeysPage extends BasePage {
 
                   return GestureDetector(
                     onTap: () {
-                      SensitiveClipboard.copy(item.value);
+                      ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: item.value));
                       showBar<void>(context, S.of(context).copied_key_to_clipboard(item.title));
                     },
                     child: ListRow(

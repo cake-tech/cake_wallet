@@ -6,11 +6,13 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
-import 'package:sensitive_clipboard/sensitive_clipboard.dart';
+
 
 class Setup2FAQRPage extends BasePage {
   Setup2FAQRPage({required this.setup2FAViewModel});
@@ -106,7 +108,8 @@ class Setup2FAQRPage extends BasePage {
                 height: 32,
                 child: InkWell(
                   onTap: () {
-                    SensitiveClipboard.copy('${setup2FAViewModel.secretKey}');
+                    ClipboardUtil.setSensitiveDataToClipboard(
+                        ClipboardData(text: '${setup2FAViewModel.secretKey}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(
