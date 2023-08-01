@@ -54,8 +54,9 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
             jsObjectName: 'ReactNativeWebView',
             onPostMessage: (String? message, Uri? sourceOrigin, bool isMainFrame,
                 JavaScriptReplyProxy replyProxy) {
-              if (message != null && isJsonString(message)) {
-                final parsedMessage = jsonDecode(message);
+              final shortenedMessage = message?.substring(16);
+              if (shortenedMessage != null && isJsonString(shortenedMessage)) {
+                final parsedMessage = jsonDecode(shortenedMessage);
                 final eventType = parsedMessage["event"];
                 if (eventType == 'loaded') {
                   final authToken = parsedMessage["config"]["authToken"];
