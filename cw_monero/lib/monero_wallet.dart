@@ -9,8 +9,7 @@ import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_monero/api/transaction_history.dart'
-    as monero_transaction_history;
+import 'package:cw_monero/api/transaction_history.dart' as monero_transaction_history;
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
@@ -273,12 +272,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> save() async {
+    await walletAddresses.updateUsedSubaddress();
+
+    if (isEnabledAutoGenerateSubaddress) {
+      walletAddresses.updateUnusedSubaddress(
+          accountIndex: walletAddresses.account?.id ?? 0,
+          defaultLabel: walletAddresses.account?.label ?? '');
+    }
+
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
     await monero_wallet.store();
-    if (isEnabledAutoGenerateSubaddress) {
-      walletAddresses.updateUnusedSubaddress(accountIndex: walletAddresses.account?.id ?? 0, defaultLabel: walletAddresses.account?.label ?? '');
-    }
   }
 
   Future<void> renameWalletFiles(String newWalletName) async {

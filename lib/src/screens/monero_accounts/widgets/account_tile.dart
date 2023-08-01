@@ -30,8 +30,7 @@ class AccountTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 77,
-        padding: EdgeInsets.only(left: 60, right: 24),
-        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.only(left: 24, right: 24),
         color: color,
         child: Wrap(
           direction: Axis.horizontal,

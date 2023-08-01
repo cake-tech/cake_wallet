@@ -120,8 +120,8 @@ abstract class MoneroSubaddressListBase with Store {
     final allAddresses = subaddress_list.getAllSubaddresses();
 
     if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last.getAddress())) {
-      final isAddressAdded = await _newSubaddress(accountIndex: accountIndex, label: label);
-      if (isAddressAdded) {
+      final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
+      if (!isAddressUnused) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
       }
     }

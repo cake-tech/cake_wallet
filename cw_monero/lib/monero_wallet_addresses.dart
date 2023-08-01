@@ -62,14 +62,6 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         });
       });
 
-      final transactions = _moneroTransactionHistory.transactions.values.toList();
-
-      transactions.forEach((element) {
-        final accountIndex = element.accountIndex;
-        final addressIndex = element.addressIndex;
-        usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: addressIndex));
-      });
-
       await saveAddressesInBox();
     } catch (e) {
       print(e.toString());
@@ -78,14 +70,14 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   bool validate() {
     accountList.update();
-    final accountListLength = accountList.accounts.length ?? 0;
+    final accountListLength = accountList.accounts.length;
 
     if (accountListLength <= 0) {
       return false;
     }
 
     subaddressList.update(accountIndex: accountList.accounts.first.id);
-    final subaddressListLength = subaddressList.subaddresses.length ?? 0;
+    final subaddressListLength = subaddressList.subaddresses.length;
 
     if (subaddressListLength <= 0) {
       return false;
@@ -98,6 +90,16 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     subaddressList.update(accountIndex: accountIndex);
     subaddress = subaddressList.subaddresses.first;
     address = subaddress!.address;
+  }
+
+  Future<void> updateUsedSubaddress() async {
+    final transactions = _moneroTransactionHistory.transactions.values.toList();
+
+    transactions.forEach((element) {
+      final accountIndex = element.accountIndex;
+      final addressIndex = element.addressIndex;
+      usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: addressIndex));
+    });
   }
 
   Future<void> updateUnusedSubaddress(
