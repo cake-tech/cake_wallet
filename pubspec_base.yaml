@@ -3,7 +3,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_cupertino_localizations: ^1.0.1
   intl: ^0.17.0
   url_launcher: ^6.1.4
   qr_flutter:
