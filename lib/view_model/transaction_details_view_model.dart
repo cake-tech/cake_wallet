@@ -116,6 +116,10 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
+      case WalletType.nano:
+        return 'https://nanolooker.com/block/${txId}';
+      case WalletType.banano:
+        return 'https://bananolooker.com/block/${txId}';  
       default:
         return '';
     }
@@ -133,6 +137,10 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
       case WalletType.ethereum:
         return S.current.view_transaction_on + 'etherscan.io';
+      case WalletType.nano:
+        return S.current.view_transaction_on + 'nanolooker.com';
+      case WalletType.banano:
+        return S.current.view_transaction_on + 'bananolooker.com';
       default:
         return '';
     }

@@ -165,6 +165,9 @@ abstract class SendViewModelBase with Store {
   bool get isElectrumWallet =>
       _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
 
+  @computed
+  bool get hasFees => _wallet.type != WalletType.nano && _wallet.type != WalletType.banano;
+
   @observable
   CryptoCurrency selectedCryptoCurrency;
 

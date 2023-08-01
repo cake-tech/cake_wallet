@@ -17,17 +17,17 @@ class NanoTransactionModel {
     required this.account,
   });
 
-  factory NanoTransactionModel.fromJson(Map<String, dynamic> json) {
-    DateTime? local_timestamp;
+  factory NanoTransactionModel.fromJson(dynamic json) {
+    DateTime? localTimestamp;
     try {
-      local_timestamp =
-          DateTime.fromMillisecondsSinceEpoch(int.parse(json["local_timeStamp"] as String) * 1000);
+      localTimestamp = DateTime.fromMillisecondsSinceEpoch(
+          int.parse(json["local_timestamp"] as String) * 1000);
     } catch (e) {
-      local_timestamp = DateTime.now();
+      localTimestamp = DateTime.now();
     }
 
     return NanoTransactionModel(
-      date: local_timestamp,
+      date: localTimestamp,
       hash: json["hash"] as String,
       height: int.parse(json["height"] as String),
       type: json["type"] as String,

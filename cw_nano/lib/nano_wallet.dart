@@ -117,7 +117,8 @@ abstract class NanoWalletBase
         throw Exception("Ethereum Node connection failed");
       }
       // _client.setListeners(_privateKey.address, _onNewTransaction);
-      _updateBalance();
+      await _updateBalance();
+      await _receiveAll();
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
@@ -182,6 +183,19 @@ abstract class NanoWalletBase
       nanoClient: _client,
       blocks: blocks,
     );
+  }
+
+  Future<void> _receiveAll() async {
+    int blocksReceived = await this._client.confirmAllReceivable(
+          destinationAddress: _publicAddress,
+          privateKey: _privateKey,
+        );
+
+    if (blocksReceived > 0) {
+      await Future<void>.delayed(Duration(seconds: 3));
+      _updateBalance();
+      updateTransactions();
+    }
   }
 
   Future<void> updateTransactions() async {
@@ -255,6 +269,10 @@ abstract class NanoWalletBase
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
       await updateTransactions();
+      Timer.periodic(
+        const Duration(minutes: 1),
+        (timer) async => await _receiveAll(),
+      );
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {

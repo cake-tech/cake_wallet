@@ -449,78 +449,79 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                 Theme.of(context).primaryTextTheme.headlineSmall!.decorationColor!),
                       ),
                     ),
-                    Observer(
-                      builder: (_) => GestureDetector(
-                        onTap: () => _setTransactionPriority(context),
-                        child: Container(
-                          padding: EdgeInsets.only(top: 24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                S.of(context).send_estimated_fee,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
-                                    color: Colors.white),
-                              ),
-                              Container(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          output.estimatedFee.toString() +
-                                              ' ' +
-                                              sendViewModel.selectedCryptoCurrency.toString(),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(top: 5),
-                                          child: sendViewModel.isFiatDisabled
-                                              ? const SizedBox(height: 14)
-                                              : Text(
-                                                  output.estimatedFeeFiatAmount +
-                                                      ' ' +
-                                                      sendViewModel.fiat.title,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .headlineSmall!
-                                                        .decorationColor!,
-                                                  ),
-                                                ),
-                                        ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 2, left: 5),
-                                      child: Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 12,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  ],
+                    if (sendViewModel.hasFees)
+                      Observer(
+                        builder: (_) => GestureDetector(
+                          onTap: () => _setTransactionPriority(context),
+                          child: Container(
+                            padding: EdgeInsets.only(top: 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  S.of(context).send_estimated_fee,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
+                                      color: Colors.white),
                                 ),
-                              )
-                            ],
+                                Container(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            output.estimatedFee.toString() +
+                                                ' ' +
+                                                sendViewModel.selectedCryptoCurrency.toString(),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 5),
+                                            child: sendViewModel.isFiatDisabled
+                                                ? const SizedBox(height: 14)
+                                                : Text(
+                                                    output.estimatedFeeFiatAmount +
+                                                        ' ' +
+                                                        sendViewModel.fiat.title,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Theme.of(context)
+                                                          .primaryTextTheme
+                                                          .headlineSmall!
+                                                          .decorationColor!,
+                                                    ),
+                                                  ),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 2, left: 5),
+                                        child: Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     if (sendViewModel.isElectrumWallet)
                       Padding(
                         padding: EdgeInsets.only(top: 6),

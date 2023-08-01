@@ -20,7 +20,6 @@ class NanoClient {
   static const String DEFAULT_REPRESENTATIVE =
       "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
-  // final _httpClient = http.Client();
   StreamSubscription<Transfer>? subscription;
   Node? _node;
 
@@ -195,6 +194,160 @@ class NanoClient {
     }
   }
 
+  Future<void> receiveBlock({
+    required String blockHash,
+    required String source,
+    required String amountRaw,
+    required String destinationAddress,
+    required String privateKey,
+  }) async {
+    bool openBlock = false;
+
+    final headers = {
+      "Content-Type": "application/json",
+    };
+
+    // first check if the account is open:
+    // get the account info (we need the frontier and representative):
+    final infoBody = jsonEncode({
+      "action": "account_info",
+      "representative": "true",
+      "account": destinationAddress,
+    });
+    final infoResponse = await http.post(
+      _node!.uri,
+      headers: headers,
+      body: infoBody,
+    );
+    final infoData = jsonDecode(infoResponse.body);
+
+    if (infoData["error"] != null) {
+      // account is not open yet, we need to create an open block:
+      openBlock = true;
+    }
+
+    // first get the account balance:
+    final balanceBody = jsonEncode({
+      "action": "account_balance",
+      "account": destinationAddress,
+    });
+
+    final balanceResponse = await http.post(
+      _node!.uri,
+      headers: headers,
+      body: balanceBody,
+    );
+
+    final balanceData = jsonDecode(balanceResponse.body);
+    final BigInt currentBalance = BigInt.parse(balanceData["balance"].toString());
+    final BigInt txAmount = BigInt.parse(amountRaw);
+    final BigInt balanceAfterTx = currentBalance + txAmount;
+
+    String frontier = infoData["frontier"].toString();
+    String representative = infoData["representative"].toString();
+
+    if (openBlock) {
+      // we don't have a representative set yet:
+      representative = DEFAULT_REPRESENTATIVE;
+    }
+
+    // link = send block hash:
+    final String link = blockHash;
+    // this "linkAsAccount" is meaningless:
+    final String linkAsAccount = NanoAccounts.createAccount(NanoAccountType.NANO, blockHash);
+
+    // construct the receive block:
+    Map<String, String> receiveBlock = {
+      "type": "state",
+      "account": destinationAddress,
+      "previous":
+          openBlock ? "0000000000000000000000000000000000000000000000000000000000000000" : frontier,
+      "representative": representative,
+      "balance": balanceAfterTx.toString(),
+      "link": link,
+      "link_as_account": linkAsAccount,
+    };
+
+    // sign the receive block:
+    final String hash = NanoBlocks.computeStateHash(
+      NanoAccountType.NANO,
+      receiveBlock["account"]!,
+      receiveBlock["previous"]!,
+      receiveBlock["representative"]!,
+      BigInt.parse(receiveBlock["balance"]!),
+      receiveBlock["link"]!,
+    );
+    final String signature = NanoSignatures.signBlock(hash, privateKey);
+
+    // get PoW for the receive block:
+    String? work;
+    if (openBlock) {
+      work = await requestWork(NanoAccounts.extractPublicKey(destinationAddress));
+    } else {
+      work = await requestWork(frontier);
+    }
+    receiveBlock["link_as_account"] = linkAsAccount;
+    receiveBlock["signature"] = signature;
+    receiveBlock["work"] = work;
+
+    // process the receive block:
+
+    final processBody = jsonEncode({
+      "action": "process",
+      "json_block": "true",
+      "subtype": "receive",
+      "block": receiveBlock,
+    });
+    final processResponse = await http.post(
+      _node!.uri,
+      headers: headers,
+      body: processBody,
+    );
+
+    final Map<String, dynamic> decoded = json.decode(processResponse.body) as Map<String, dynamic>;
+    if (decoded.containsKey("error")) {
+      throw Exception("Received error ${decoded["error"]}");
+    }
+  }
+
+  // returns the number of blocks received:
+  Future<int> confirmAllReceivable({
+    required String destinationAddress,
+    required String privateKey,
+  }) async {
+    final receivableResponse = await http.post(_node!.uri,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "action": "receivable",
+          "source": "true",
+          "account": destinationAddress,
+          "count": "-1",
+        }));
+
+    final receivableData = await jsonDecode(receivableResponse.body);
+    if (receivableData["blocks"] == "") {
+      return 0;
+    }
+    final blocks = receivableData["blocks"] as Map<String, dynamic>;
+    // confirm all receivable blocks:
+    for (final blockHash in blocks.keys) {
+      final block = blocks[blockHash];
+      final String amountRaw = block["amount"] as String;
+      final String source = block["source"] as String;
+      await receiveBlock(
+        blockHash: blockHash,
+        source: source,
+        amountRaw: amountRaw,
+        privateKey: privateKey,
+        destinationAddress: destinationAddress,
+      );
+      // a bit of a hack:
+      await Future<void>.delayed(const Duration(seconds: 2));
+    }
+
+    return blocks.keys.length;
+  }
+
   Future<dynamic> getTransactionDetails(String transactionHash) async {
     throw UnimplementedError();
   }
@@ -219,8 +372,7 @@ class NanoClient {
       // Map the transactions list to NanoTransactionModel using the factory
       // reversed so that the DateTime is correct when local_timestamp is absent
       return transactions.reversed
-          .map<NanoTransactionModel>(
-              (transaction) => NanoTransactionModel.fromJson(transaction as Map<String, dynamic>))
+          .map<NanoTransactionModel>((transaction) => NanoTransactionModel.fromJson(transaction))
           .toList();
     } catch (e) {
       print(e);
