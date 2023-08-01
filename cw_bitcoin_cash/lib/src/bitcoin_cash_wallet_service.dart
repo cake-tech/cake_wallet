@@ -12,8 +12,6 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
-import 'bitcoin_cash_wallet_creation_credentials.dart';
-
 class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredentials,
     BitcoinCashRestoreWalletFromSeedCredentials, BitcoinCashRestoreWalletFromWIFCredentials> {
   BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);

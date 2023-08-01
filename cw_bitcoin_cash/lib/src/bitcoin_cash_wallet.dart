@@ -13,6 +13,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:bip32/bip32.dart';
 
 import 'bitcoin_cash_balance.dart';
 import 'bitcoin_cash_client.dart';
@@ -35,7 +36,7 @@ abstract class BitcoinCashWalletBase extends WalletBase<BitcoinCashBalance,
       BitcoinCashClient? bitcoinCashClient,
       BitcoinCashBalance? initialBalance,
       CryptoCurrency? currency})
-      : hd = bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'"),
+      : hd = BIP32.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0/0"),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _isTransactionUpdating = false,
@@ -49,7 +50,7 @@ abstract class BitcoinCashWalletBase extends WalletBase<BitcoinCashBalance,
     transactionHistory = BitcoinCashTransactionHistory(walletInfo: walletInfo, password: password);
   }
 
-  final bitcoin.HDWallet hd;
+  final BIP32 hd;
   final String mnemonic;
 
   late BitcoinCashClient bitcoinCashClient;

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
+import 'package:cw_bitcoin_cash/src/bitcoin_cash_base.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
