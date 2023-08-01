@@ -48,7 +48,7 @@ class NanoTransactionInfo extends TransactionInfo {
     return NanoTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
-      amountRaw: data['amountRaw'] as BigInt,
+      amountRaw: BigInt.parse(data['amountRaw'] as String),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       confirmed: data['confirmed'] as bool,
@@ -60,7 +60,7 @@ class NanoTransactionInfo extends TransactionInfo {
   Map<String, dynamic> toJson() => {
         'id': id,
         'height': height,
-        'amountRaw': amountRaw,
+        'amountRaw': amountRaw.toString(),
         'direction': direction.index,
         'date': date.millisecondsSinceEpoch,
         'confirmed': confirmed,

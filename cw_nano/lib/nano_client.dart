@@ -31,11 +31,8 @@ class NanoClient {
       return false;
     }
   }
-
-  void setListeners(EthereumAddress userAddress, Function(FilterEvent) onNewTransaction) async {}
-
+  
   Future<NanoBalance> getBalance(String address) async {
-    // this is the preferred rpc call but the test node isn't returning this one:
     final response = await http.post(
       _node!.uri,
       headers: {"Content-Type": "application/json"},
@@ -319,16 +316,29 @@ class NanoClient {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "action": "receivable",
-          "source": "true",
           "account": destinationAddress,
           "count": "-1",
+          "source": true,
         }));
 
     final receivableData = await jsonDecode(receivableResponse.body);
-    if (receivableData["blocks"] == "") {
+    if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
       return 0;
     }
-    final blocks = receivableData["blocks"] as Map<String, dynamic>;
+    
+    dynamic blocks;
+    if (receivableData["blocks"] is List<dynamic>) {
+      var listBlocks = receivableData["blocks"] as List<dynamic>;
+      if (listBlocks.isEmpty) {
+        return 0;
+      }
+      blocks = {for (var block in listBlocks) block['hash']: block};
+    } else {
+      blocks = receivableData["blocks"] as Map<String, dynamic>;
+    }
+
+    blocks = blocks as Map<String, dynamic>;
+
     // confirm all receivable blocks:
     for (final blockHash in blocks.keys) {
       final block = blocks[blockHash];

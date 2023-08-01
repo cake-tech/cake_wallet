@@ -62,6 +62,7 @@ abstract class NanoWalletBase
   late final String _privateKey;
   late final String _publicAddress;
   late final String _seedKey;
+  Timer? _receiveTimer;
 
   late NanoClient _client;
   bool _isTransactionUpdating;
@@ -114,13 +115,17 @@ abstract class NanoWalletBase
       syncStatus = ConnectingSyncStatus();
       final isConnected = _client.connect(node);
       if (!isConnected) {
-        throw Exception("Ethereum Node connection failed");
+        throw Exception("Nano Node connection failed");
       }
-      // _client.setListeners(_privateKey.address, _onNewTransaction);
-      await _updateBalance();
-      await _receiveAll();
+
+      try {
+        await _updateBalance();
+        await _receiveAll();
+      } catch (e) {}
+
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
+      print(e);
       syncStatus = FailedSyncStatus();
     }
   }
@@ -186,6 +191,7 @@ abstract class NanoWalletBase
   }
 
   Future<void> _receiveAll() async {
+    await _updateBalance();
     int blocksReceived = await this._client.confirmAllReceivable(
           destinationAddress: _publicAddress,
           privateKey: _privateKey,
@@ -269,14 +275,22 @@ abstract class NanoWalletBase
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
       await updateTransactions();
-      Timer.periodic(
-        const Duration(minutes: 1),
-        (timer) async => await _receiveAll(),
-      );
+
+      _receiveTimer?.cancel();
+      _receiveTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+        // get our balance:
+        await _updateBalance();
+        // if we have anything to receive, process it:
+        if (balance[currency]!.receivableBalance > BigInt.zero) {
+          await _receiveAll();
+        }
+      });
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
+      print(e);
       syncStatus = FailedSyncStatus();
+      rethrow;
     }
   }
 
