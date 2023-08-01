@@ -637,5 +637,6 @@
   "generate_name": "Generar nombre",
   "balance_page": "Página de saldo",
   "share": "Compartir",
-  "slidable": "deslizable"
+  "slidable": "deslizable",
+  "template_name": "Nombre de la plantilla"
 }

@@ -636,5 +636,6 @@
   "generate_name": "生成名称",
   "balance_page": "余额页",
   "share": "分享",
-  "slidable": "可滑动"
+  "slidable": "可滑动",
+  "template_name": "模板名称"
 }

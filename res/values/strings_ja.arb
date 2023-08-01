@@ -637,5 +637,6 @@
   "generate_name": "名前の生成",
   "balance_page": "残高ページ",
   "share": "共有",
-  "slidable": "スライド可能"
+  "slidable": "スライド可能",
+  "template_name": "テンプレート名"
 }

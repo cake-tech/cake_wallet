@@ -637,5 +637,6 @@
   "generate_name": "Generate Name",
   "balance_page": "Balance Page",
   "share": "Share",
-  "slidable": "Slidable"
+  "slidable": "Slidable",
+  "template_name": "Template Name"
 }

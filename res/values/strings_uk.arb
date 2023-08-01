@@ -637,5 +637,6 @@
   "generate_name": "Згенерувати назву",
   "balance_page": "Сторінка балансу",
   "share": "Поділіться",
-  "slidable": "Розсувний"
+  "slidable": "Розсувний",
+  "template_name": "Назва шаблону"
 }

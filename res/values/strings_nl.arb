@@ -637,5 +637,6 @@
   "generate_name": "Naam genereren",
   "balance_page": "Saldo pagina",
   "share": "Deel",
-  "slidable": "Verschuifbaar"
+  "slidable": "Verschuifbaar",
+  "template_name": "Sjabloonnaam"
 }

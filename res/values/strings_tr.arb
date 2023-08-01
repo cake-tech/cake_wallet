@@ -637,5 +637,6 @@
   "generate_name": "İsim Oluştur",
   "balance_page": "Bakiye Sayfası",
   "share": "Paylaşmak",
-  "slidable": "kaydırılabilir"
+  "slidable": "kaydırılabilir",
+  "template_name": "şablon adı"
 }

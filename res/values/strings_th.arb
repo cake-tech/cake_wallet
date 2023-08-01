@@ -637,5 +637,6 @@
   "generate_name": "สร้างชื่อ",
   "balance_page": "หน้ายอดคงเหลือ",
   "share": "แบ่งปัน",
-  "slidable": "เลื่อนได้"
+  "slidable": "เลื่อนได้",
+  "template_name": "ชื่อแม่แบบ"
 }

@@ -637,5 +637,6 @@
   "generate_name": "Wygeneruj nazwę",
   "balance_page": "Strona salda",
   "share": "Udział",
-  "slidable": "Przesuwne"
+  "slidable": "Przesuwne",
+  "template_name": "Nazwa szablonu"
 }

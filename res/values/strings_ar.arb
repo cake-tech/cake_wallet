@@ -635,5 +635,6 @@
   "generate_name": "توليد الاسم",
   "balance_page": "صفحة التوازن",
   "share": "يشارك",
-  "slidable": "قابل للانزلاق"
+  "slidable": "قابل للانزلاق",
+  "template_name": "اسم القالب"
 }

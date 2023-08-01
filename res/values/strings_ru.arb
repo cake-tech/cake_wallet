@@ -637,5 +637,6 @@
   "generate_name": "Создать имя",
   "balance_page": "Страница баланса",
   "share": "Делиться",
-  "slidable": "Скользящий"
+  "slidable": "Скользящий",
+  "template_name": "Имя Шаблона"
 }

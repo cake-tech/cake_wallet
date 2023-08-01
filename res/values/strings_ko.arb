@@ -637,5 +637,6 @@
   "generate_name": "이름 생성",
   "balance_page": "잔액 페이지",
   "share": "공유하다",
-  "slidable": "슬라이딩 가능"
+  "slidable": "슬라이딩 가능",
+  "template_name": "템플릿 이름"
 }

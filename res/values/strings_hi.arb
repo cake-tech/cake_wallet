@@ -637,5 +637,6 @@
   "generate_name": "नाम जनरेट करें",
   "balance_page": "बैलेंस पेज",
   "share": "शेयर करना",
-  "slidable": "फिसलने लायक"
+  "slidable": "फिसलने लायक",
+  "template_name": "टेम्पलेट नाम"
 }

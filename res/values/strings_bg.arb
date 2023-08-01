@@ -631,5 +631,6 @@
   "generate_name": "Генериране на име",
   "balance_page": "Страница за баланс",
   "share": "Дял",
-  "slidable": "Плъзгащ се"
+  "slidable": "Плъзгащ се",
+  "template_name": "Име на шаблон"
 }

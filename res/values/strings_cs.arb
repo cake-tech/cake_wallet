@@ -631,5 +631,6 @@
   "generate_name": "Generovat jméno",
   "balance_page": "Stránka zůstatku",
   "share": "Podíl",
-  "slidable": "Posuvné"
+  "slidable": "Posuvné",
+  "template_name": "Název šablony"
 }

@@ -637,5 +637,6 @@
   "generate_name": "Genera nome",
   "balance_page": "Pagina di equilibrio",
   "share": "Condividere",
-  "slidable": "Scorrevole"
+  "slidable": "Scorrevole",
+  "template_name": "Nome modello"
 }

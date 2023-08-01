@@ -627,5 +627,6 @@
   "generate_name": "Hasilkan Nama",
   "balance_page": "Halaman Saldo",
   "share": "Membagikan",
-  "slidable": "Dapat digeser"
+  "slidable": "Dapat digeser",
+  "template_name": "Nama Templat"
 }

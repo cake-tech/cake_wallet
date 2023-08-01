@@ -637,5 +637,6 @@
   "generate_name": "Generiraj ime",
   "balance_page": "Stranica sa stanjem",
   "share": "Udio",
-  "slidable": "Klizna"
+  "slidable": "Klizna",
+  "template_name": "Naziv predloška"
 }

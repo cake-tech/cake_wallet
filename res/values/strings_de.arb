@@ -637,5 +637,6 @@
   "generate_name": "Namen generieren",
   "balance_page": "Balance-Seite",
   "share": "Aktie",
-  "slidable": "Verschiebbar"
+  "slidable": "Verschiebbar",
+  "template_name": "Vorlagenname"
 }
