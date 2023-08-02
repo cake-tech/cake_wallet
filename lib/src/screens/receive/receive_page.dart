@@ -87,7 +87,7 @@ class ReceivePage extends BasePage {
     return Material(
         color: Colors.transparent,
         child: Semantics(
-          label: 'Share',
+          label: S.of(context).share,
           child: IconButton(
             padding: EdgeInsets.zero,
             constraints: BoxConstraints(),

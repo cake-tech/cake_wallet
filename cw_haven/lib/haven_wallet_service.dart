@@ -149,6 +149,26 @@ class HavenWalletService extends WalletService<
     if (isExist) {
       await file.delete(recursive: true);
     }
+
+    final walletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
+    await walletInfoSource.delete(walletInfo.key);
+  }
+
+  @override
+  Future<void> rename(
+      String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values.firstWhere(
+        (info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWallet = HavenWallet(walletInfo: currentWalletInfo);
+
+    await currentWallet.renameWalletFiles(newName);
+
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
   @override

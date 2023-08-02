@@ -53,9 +53,32 @@ class LitecoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async =>
-      File(await pathForWalletDir(name: wallet, type: getType()))
-          .delete(recursive: true);
+  Future<void> remove(String wallet) async {
+    File(await pathForWalletDir(name: wallet, type: getType()))
+        .delete(recursive: true);
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    await walletInfoSource.delete(walletInfo.key);
+  }
+
+  @override
+  Future<void> rename(String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWallet = await LitecoinWalletBase.open(
+        password: password,
+        name: currentName,
+        walletInfo: currentWalletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
+
+    await currentWallet.renameWalletFiles(newName);
+
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
 
   @override
   Future<LitecoinWallet> restoreFromKeys(

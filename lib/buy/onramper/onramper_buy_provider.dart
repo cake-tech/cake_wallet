@@ -20,6 +20,8 @@ class OnRamperBuyProvider {
     switch (_wallet.currency) {
       case CryptoCurrency.ltc:
         return "LTC_LITECOIN";
+      case CryptoCurrency.xmr:
+        return "XMR_MONERO";
       default:
         return _wallet.currency.title;
     }
@@ -60,12 +62,12 @@ class OnRamperBuyProvider {
         break;
     }
 
+    final networkName = _wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
 
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
       'defaultCrypto': _normalizeCryptoCurrency,
-      'defaultFiat': _settingsStore.fiatCurrency.title,
-      'wallets': '${_wallet.currency.title}:${_wallet.walletAddresses.address}',
+      'networkWallets': '${networkName}:${_wallet.walletAddresses.address}',
       'supportSell': "false",
       'supportSwap': "false",
       'primaryColor': primaryColor,
