@@ -48,6 +48,15 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority;
   }
 
+  @computed
+  bool get changeRepresentativeEnabled {
+    if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
+      return true;
+    }
+
+    return false;
+  }
+
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
 

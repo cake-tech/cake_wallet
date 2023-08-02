@@ -62,6 +62,7 @@ abstract class NanoWalletBase
   late final String _privateKey;
   late final String _publicAddress;
   late final String _seedKey;
+  String? _representativeAddress;
   Timer? _receiveTimer;
 
   late NanoClient _client;
@@ -120,6 +121,7 @@ abstract class NanoWalletBase
 
       try {
         await _updateBalance();
+        await _updateRep();
         await _receiveAll();
       } catch (e) {}
 
@@ -337,6 +339,15 @@ abstract class NanoWalletBase
   Future<void> _updateBalance() async {
     balance[currency] = await _client.getBalance(_publicAddress);
     await save();
+  }
+
+  Future<void> _updateRep() async {
+    try {
+      final accountInfo = await _client.getAccountInfo(_publicAddress);
+      _representativeAddress = accountInfo["representative"] as String;
+    } catch (e) {
+      throw Exception("Failed to get representative address $e");
+    }
   }
 
   Future<void>? updateBalance() async => await _updateBalance();

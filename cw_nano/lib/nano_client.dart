@@ -31,7 +31,7 @@ class NanoClient {
       return false;
     }
   }
-  
+
   Future<NanoBalance> getBalance(String address) async {
     final response = await http.post(
       _node!.uri,
@@ -49,6 +49,27 @@ class NanoClient {
     final BigInt cur = BigInt.parse(currentBalance);
     final BigInt rec = BigInt.parse(receivableBalance);
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
+  }
+
+  Future<dynamic> getAccountInfo(String address) async {
+    try {
+      final response = await http.post(
+        _node!.uri,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(
+          {
+            "action": "account_info",
+            "representative": "true",
+            "account": address,
+          },
+        ),
+      );
+      final data = await jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      print("error while getting account info");
+      rethrow;
+    }
   }
 
   Future<String> requestWork(String hash) async {
@@ -325,7 +346,7 @@ class NanoClient {
     if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
       return 0;
     }
-    
+
     dynamic blocks;
     if (receivableData["blocks"] is List<dynamic>) {
       var listBlocks = receivableData["blocks"] as List<dynamic>;

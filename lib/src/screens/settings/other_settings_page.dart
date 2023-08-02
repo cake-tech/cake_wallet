@@ -31,9 +31,16 @@ class OtherSettingsPage extends BasePage {
             selectedItem: _otherSettingsViewModel.transactionPriority,
             onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
           ),
+          if (_otherSettingsViewModel.changeRepresentativeEnabled)
+            SettingsCellWithArrow(
+              title: S.current.change,
+              handler: (BuildContext context) =>
+                  Navigator.of(context).pushNamed(Routes.changeRep),
+            ),
           SettingsCellWithArrow(
             title: S.current.settings_terms_and_conditions,
-            handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.readDisclaimer),
+            handler: (BuildContext context) =>
+                Navigator.of(context).pushNamed(Routes.readDisclaimer),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           Spacer(),
