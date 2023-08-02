@@ -26,7 +26,8 @@ class AddressResolver {
     'nft',
     'dao',
     'blockchain',
-    'polygon'
+    'polygon',
+    'eth'
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
