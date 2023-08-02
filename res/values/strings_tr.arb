@@ -657,5 +657,6 @@
   "share": "Paylaşmak",
   "slidable": "kaydırılabilir",
   "template_name": "şablon adı",
-  "change_rep": "Temsilciyi Değiştir"
+  "change_rep": "Temsilciyi Değiştir",
+  "change_rep_message": "Temsilcileri değiştirmek istediğinizden emin misiniz?"
 }

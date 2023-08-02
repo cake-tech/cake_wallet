@@ -33,7 +33,7 @@ class OtherSettingsPage extends BasePage {
           ),
           if (_otherSettingsViewModel.changeRepresentativeEnabled)
             SettingsCellWithArrow(
-              title: S.current.change,
+              title: S.current.change_rep,
               handler: (BuildContext context) =>
                   Navigator.of(context).pushNamed(Routes.changeRep),
             ),

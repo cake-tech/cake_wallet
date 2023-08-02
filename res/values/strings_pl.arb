@@ -657,5 +657,6 @@
   "share": "Udział",
   "slidable": "Przesuwne",
   "template_name": "Nazwa szablonu",
-  "change_rep": "Zmień przedstawiciela"
+  "change_rep": "Zmień przedstawiciela",
+  "change_rep_message": "Czy na pewno chcesz zmienić przedstawiciela?"
 }

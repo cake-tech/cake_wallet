@@ -647,5 +647,6 @@
   "share": "Membagikan",
   "slidable": "Dapat digeser",
   "template_name": "Nama Templat",
-  "change_rep": "Ubah Perwakilan"
+  "change_rep": "Ubah Perwakilan",
+  "change_rep_message": "Apakah Anda yakin ingin mengubah perwakilan?"
 }

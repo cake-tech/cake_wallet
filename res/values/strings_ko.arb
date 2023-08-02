@@ -1,3 +1,4 @@
+
 {
   "welcome": "환영 에",
   "cake_wallet": "Cake Wallet",
@@ -657,5 +658,6 @@
   "share": "공유하다",
   "slidable": "슬라이딩 가능",
   "template_name": "템플릿 이름",
-  "change_rep": "대표자 변경"
+  "change_rep": "대표자 변경",
+  "change_rep_message": "담당자를 변경하시겠습니까?"
 }

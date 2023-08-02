@@ -657,5 +657,6 @@
   "share": "Udio",
   "slidable": "Klizna",
   "template_name": "Naziv predloška",
-  "change_rep": "Promjena predstavnika"
+  "change_rep": "Promjena predstavnika",
+  "change_rep_message": "Jeste li sigurni da želite promijeniti predstavnika?"
 }

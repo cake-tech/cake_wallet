@@ -657,5 +657,6 @@
   "share": "Share",
   "slidable": "Slidable",
   "template_name": "Template Name",
-  "change_rep": "Change Representative"
+  "change_rep": "Change Representative",
+  "change_rep_message": "Are you sure that you want to change representatives?"
 }

@@ -657,5 +657,6 @@
   "share": "Deel",
   "slidable": "Verschuifbaar",
   "template_name": "Sjabloonnaam",
-  "change_rep": "Vertegenwoordiger wijzigen"
+  "change_rep": "Vertegenwoordiger wijzigen",
+  "change_rep_message": "Weet u zeker dat u van vertegenwoordiger wilt veranderen?"
 }

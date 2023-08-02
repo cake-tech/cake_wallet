@@ -651,5 +651,6 @@
   "share": "Podíl",
   "slidable": "Posuvné",
   "template_name": "Název šablony",
-  "change_rep": "Změna zástupce"
+  "change_rep": "Změna zástupce",
+  "change_rep_message": "Jste si jisti, že chcete změnit zástupce?"
 }

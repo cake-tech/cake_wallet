@@ -656,5 +656,6 @@
   "share": "Compartilhar",
   "slidable": "Deslizável",
   "template_name": "Nome do modelo",
-  "change_rep": "Alterar representante"
+  "change_rep": "Alterar representante",
+  "change_rep_message": "Tem certeza de que deseja alterar os representantes?"
 }

@@ -657,5 +657,6 @@
   "share": "Aktie",
   "slidable": "Verschiebbar",
   "template_name": "Vorlagenname",
-  "change_rep": "Change-Beauftragter"
+  "change_rep": "Change-Beauftragter",
+  "change_rep_message": "Sind Sie sicher, dass Sie den Vertreter wechseln möchten?"
 }

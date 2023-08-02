@@ -637,5 +637,6 @@
   "share": "Raba",
   "slidable": "Mai iya zamewa",
   "template_name": "Sunan Samfura",
-  "change_rep": "Canza Wakili"
+  "change_rep": "Canza Wakili",
+  "change_rep_message": "Shin kun tabbata kuna son canza wakilai?"
 }

@@ -657,5 +657,6 @@
   "share": "共有",
   "slidable": "スライド可能",
   "template_name": "テンプレート名",
-  "change_rep": "代表者の変更"
+  "change_rep": "代表者の変更",
+  "change_rep_message": "代表者を変更してもよろしいですか?"
 }

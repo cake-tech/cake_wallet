@@ -657,5 +657,6 @@
   "share": "Compartir",
   "slidable": "deslizable",
   "template_name": "Nombre de la plantilla",
-  "change_rep": "Representante de cambio"
+  "change_rep": "Representante de cambio",
+  "change_rep_message": "¿Estás seguro de que quieres cambiar de representante?"
 }

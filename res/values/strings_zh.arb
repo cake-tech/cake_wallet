@@ -656,5 +656,6 @@
   "share": "分享",
   "slidable": "可滑动",
   "template_name": "模板名称",
-  "change_rep": "变革代表"
+  "change_rep": "变革代表",
+  "change_rep_message": "您确定要更换代表吗？"
 }

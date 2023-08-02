@@ -103,7 +103,7 @@ class NanoChangeRepPage extends BasePage {
                                     builder: (BuildContext context) {
                                       return AlertWithTwoActions(
                                           alertTitle: S.of(context).change_rep,
-                                          alertContent: S.of(context).remove_node_message,
+                                          alertContent: S.of(context).remove_rep_message,
                                           rightButtonText: S.of(context).change,
                                           leftButtonText: S.of(context).cancel,
                                           actionRightButton: () => Navigator.pop(context, true),
