@@ -656,5 +656,6 @@
   "balance_page": "Page Solde",
   "share": "Partager",
   "slidable": "Glissable",
-  "template_name": "Nom du modèle"
+  "template_name": "Nom du modèle",
+  "change_rep": "Changer de représentant"
 }

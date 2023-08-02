@@ -655,5 +655,6 @@
   "balance_page": "Página de saldo",
   "share": "Compartilhar",
   "slidable": "Deslizável",
-  "template_name": "Nome do modelo"
+  "template_name": "Nome do modelo",
+  "change_rep": "Alterar representante"
 }

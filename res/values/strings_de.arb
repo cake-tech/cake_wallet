@@ -656,5 +656,6 @@
   "balance_page": "Balance-Seite",
   "share": "Aktie",
   "slidable": "Verschiebbar",
-  "template_name": "Vorlagenname"
+  "template_name": "Vorlagenname",
+  "change_rep": "Change-Beauftragter"
 }

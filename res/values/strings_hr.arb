@@ -656,5 +656,6 @@
   "balance_page": "Stranica sa stanjem",
   "share": "Udio",
   "slidable": "Klizna",
-  "template_name": "Naziv predloška"
+  "template_name": "Naziv predloška",
+  "change_rep": "Promjena predstavnika"
 }

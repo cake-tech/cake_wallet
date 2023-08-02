@@ -650,5 +650,6 @@
   "balance_page": "Страница за баланс",
   "share": "Дял",
   "slidable": "Плъзгащ се",
-  "template_name": "Име на шаблон"
+  "template_name": "Име на шаблон",
+  "change_rep": "Смяна на представител"
 }

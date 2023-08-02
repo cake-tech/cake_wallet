@@ -656,5 +656,6 @@
   "balance_page": "Strona salda",
   "share": "Udział",
   "slidable": "Przesuwne",
-  "template_name": "Nazwa szablonu"
+  "template_name": "Nazwa szablonu",
+  "change_rep": "Zmień przedstawiciela"
 }

@@ -656,5 +656,6 @@
   "balance_page": "Saldo pagina",
   "share": "Deel",
   "slidable": "Verschuifbaar",
-  "template_name": "Sjabloonnaam"
+  "template_name": "Sjabloonnaam",
+  "change_rep": "Vertegenwoordiger wijzigen"
 }

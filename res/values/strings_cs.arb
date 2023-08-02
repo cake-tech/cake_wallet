@@ -650,5 +650,6 @@
   "balance_page": "Stránka zůstatku",
   "share": "Podíl",
   "slidable": "Posuvné",
-  "template_name": "Název šablony"
+  "template_name": "Název šablony",
+  "change_rep": "Změna zástupce"
 }

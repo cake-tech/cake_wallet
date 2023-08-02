@@ -656,5 +656,6 @@
   "balance_page": "Pagina di equilibrio",
   "share": "Condividere",
   "slidable": "Scorrevole",
-  "template_name": "Nome modello"
+  "template_name": "Nome modello",
+  "change_rep": "Cambia rappresentante"
 }

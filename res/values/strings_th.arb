@@ -656,5 +656,6 @@
   "balance_page": "หน้ายอดคงเหลือ",
   "share": "แบ่งปัน",
   "slidable": "เลื่อนได้",
-  "template_name": "ชื่อแม่แบบ"
+  "template_name": "ชื่อแม่แบบ",
+  "change_rep": "เปลี่ยนผู้แทน"
 }

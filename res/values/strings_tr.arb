@@ -656,5 +656,6 @@
   "balance_page": "Bakiye Sayfası",
   "share": "Paylaşmak",
   "slidable": "kaydırılabilir",
-  "template_name": "şablon adı"
+  "template_name": "şablon adı",
+  "change_rep": "Temsilciyi Değiştir"
 }
