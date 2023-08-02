@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -39,24 +40,26 @@ class ConnectionSyncPage extends BasePage {
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
             const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-            Observer(builder: (context) {
-              return SettingsPickerCell<SyncMode>(
-                title: S.current.background_sync_mode,
-                items: SyncMode.all,
-                displayItem: (SyncMode syncMode) => syncMode.name,
-                selectedItem: dashboardViewModel.syncMode,
-                onItemSelected: dashboardViewModel.setSyncMode,
-              );
-            }),
-            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-            Observer(builder: (context) {
-              return SettingsSwitcherCell(
-                title: S.current.sync_all_wallets,
-                value: dashboardViewModel.syncAll,
-                onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
-              );
-            }),
-            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+            if (DeviceInfo.instance.isMobile) ...[
+              Observer(builder: (context) {
+                return SettingsPickerCell<SyncMode>(
+                  title: S.current.background_sync_mode,
+                  items: SyncMode.all,
+                  displayItem: (SyncMode syncMode) => syncMode.name,
+                  selectedItem: dashboardViewModel.syncMode,
+                  onItemSelected: dashboardViewModel.setSyncMode,
+                );
+              }),
+              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+              Observer(builder: (context) {
+                return SettingsSwitcherCell(
+                  title: S.current.sync_all_wallets,
+                  value: dashboardViewModel.syncAll,
+                  onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
+                );
+              }),
+              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+            ],
           ],
           SettingsCellWithArrow(
             title: S.current.manage_nodes,

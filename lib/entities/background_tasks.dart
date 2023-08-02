@@ -3,18 +3,18 @@ import 'dart:io';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
 
-const moneroSyncTaskKey = "com.cake_wallet.monero_sync_task";
+const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -49,7 +49,8 @@ void callbackDispatcher() {
               await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
-          } else { /// if the user chose to sync only active wallet
+          } else {
+            /// if the user chose to sync only active wallet
             /// if the current wallet is monero; sync it only
             if (typeRaw == WalletType.monero.index) {
               final name =
@@ -94,8 +95,9 @@ class BackgroundTasks {
           .get<WalletListViewModel>()
           .wallets
           .any((element) => element.type == WalletType.monero);
-      /// if its not android nor ios, or the user has no monero wallets
-      if (!(Platform.isAndroid || Platform.isIOS) || !hasMonero) {
+
+      /// if its not android nor ios, or the user has no monero wallets; exit
+      if (!DeviceInfo.instance.isMobile || !hasMonero) {
         return;
       }
 
@@ -111,8 +113,30 @@ class BackgroundTasks {
 
       await Workmanager().initialize(
         callbackDispatcher,
-        isInDebugMode: kDebugMode,
+        isInDebugMode: true, // TODO: remove
+        // isInDebugMode: kDebugMode,
       );
+
+      final inputData = <String, dynamic>{"sync_all": syncAll};
+      final constraints = Constraints(
+        networkType:
+            syncMode.type == SyncType.unobtrusive ? NetworkType.unmetered : NetworkType.connected,
+        requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
+        requiresCharging: syncMode.type == SyncType.unobtrusive,
+        requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
+      );
+
+      if (Platform.isIOS) {
+        await Workmanager().registerOneOffTask(
+          moneroSyncTaskKey,
+          moneroSyncTaskKey,
+          initialDelay: syncMode.frequency,
+          existingWorkPolicy: ExistingWorkPolicy.replace,
+          inputData: inputData,
+          constraints: constraints,
+        );
+        return;
+      }
 
       await Workmanager().registerPeriodicTask(
         moneroSyncTaskKey,
@@ -120,14 +144,8 @@ class BackgroundTasks {
         initialDelay: syncMode.frequency,
         frequency: syncMode.frequency,
         existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
-        inputData: <String, dynamic>{"sync_all": syncAll},
-        constraints: Constraints(
-          networkType:
-              syncMode.type == SyncType.unobtrusive ? NetworkType.unmetered : NetworkType.connected,
-          requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
-          requiresCharging: syncMode.type == SyncType.unobtrusive,
-          requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
-        ),
+        inputData: inputData,
+        constraints: constraints,
       );
     } catch (error, stackTrace) {
       print(error);
