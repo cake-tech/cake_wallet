@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:ffi';
+import 'dart:io';
+import 'package:cw_core/node.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_haven/api/convert_utf8_to_string.dart';
@@ -6,6 +9,8 @@ import 'package:cw_haven/api/signatures.dart';
 import 'package:cw_haven/api/types.dart';
 import 'package:cw_haven/api/haven_api.dart';
 import 'package:cw_haven/api/wallet.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as ioc;
 import 'package:cw_haven/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_haven/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_haven/api/exceptions/wallet_restore_from_keys_exception.dart';
@@ -43,8 +48,8 @@ void createWalletSync(
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
-  final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
-          languagePointer, nettype, errorMessagePointer) !=
+  final isWalletCreated = createWalletNative(
+          pathPointer, passwordPointer, languagePointer, nettype, errorMessagePointer) !=
       0;
 
   calloc.free(pathPointer);
@@ -52,8 +57,7 @@ void createWalletSync(
   calloc.free(languagePointer);
 
   if (!isWalletCreated) {
-    throw WalletCreationException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
+    throw WalletCreationException(message: convertUTF8ToString(pointer: errorMessagePointer));
   }
 
   // setupNodeSync(address: "node.moneroworld.com:18089");
@@ -79,12 +83,7 @@ void restoreWalletFromSeedSync(
   final seedPointer = seed.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
   final isWalletRestored = restoreWalletFromSeedNative(
-          pathPointer,
-          passwordPointer,
-          seedPointer,
-          nettype,
-          restoreHeight,
-          errorMessagePointer) !=
+          pathPointer, passwordPointer, seedPointer, nettype, restoreHeight, errorMessagePointer) !=
       0;
 
   calloc.free(pathPointer);
@@ -146,8 +145,7 @@ void loadWallet({required String path, required String password, int nettype = 0
   calloc.free(passwordPointer);
 
   if (!loaded) {
-    throw WalletOpeningException(
-        message: convertUTF8ToString(pointer: errorStringNative()));
+    throw WalletOpeningException(message: convertUTF8ToString(pointer: errorStringNative()));
   }
 }
 
@@ -196,20 +194,15 @@ bool _isWalletExist(String path) => isWalletExistSync(path: path);
 void openWallet({required String path, required String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
-Future<void> openWalletAsync(Map<String, String> args) async =>
-    compute(_openWallet, args);
+Future<void> openWalletAsync(Map<String, String> args) async => compute(_openWallet, args);
 
 Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
         int nettype = 0}) async =>
-    compute(_createWallet, {
-      'path': path,
-      'password': password,
-      'language': language,
-      'nettype': nettype
-    });
+    compute(_createWallet,
+        {'path': path, 'password': password, 'language': language, 'nettype': nettype});
 
 Future<void> restoreFromSeed(
         {required String path,
@@ -244,5 +237,73 @@ Future<void> restoreFromKeys(
       'nettype': nettype,
       'restoreHeight': restoreHeight
     });
+
+Future<Map<String, dynamic>> sweepFundsToNewWallet({
+  required Node node,
+  required String address,
+  required String paymentId,
+  List subaddressIndices = const [],
+  int accountIndex = 0,
+  int priority = 0,
+  int ringSize = 0,
+  int outputs = 0,
+  int unlockTime = 1,
+  bool getTxKeys = false,
+  bool doNotRelay = false,
+  bool getTxHex = false,
+  bool getTxMetadata = false,
+  int belowAmount = 0,
+}) async {
+  final uri = Uri.http(node.uriRaw, '');
+  final path = '/json_rpc';
+  final rpcUri = Uri.https(uri.authority, path);
+  final realm = 'monero-rpc';
+  final body = {
+    'method': 'sweep_all',
+    'params': {
+      'address': address,
+      'account_index': accountIndex,
+      'subaddr_indices': subaddressIndices,
+      'priority': priority,
+      'ring_size': ringSize,
+      'outputs': outputs,
+      'unlock_time': unlockTime,
+      'payment_id': paymentId,
+      'get_tx_keys': getTxKeys,
+      'below_amount': belowAmount,
+      'do_not_relay': doNotRelay,
+      'get_tx_hex': getTxHex,
+      'get_tx_metadata': getTxMetadata,
+    },
+    'jsonrpc': '2.0',
+    'id': '0'
+  };
+
+  try {
+    final authenticatingClient = HttpClient();
+
+    authenticatingClient.addCredentials(
+      rpcUri,
+      realm,
+      HttpClientDigestCredentials(node.login ?? '', node.password ?? ''),
+    );
+
+    final http.Client client = ioc.IOClient(authenticatingClient);
+
+    final response = await client.post(
+      rpcUri,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(body),
+    );
+
+    client.close();
+
+    final resBody = json.decode(response.body) as Map<String, dynamic>;
+    return resBody;
+  } catch (e) {
+    print(e);
+    throw Exception(e);
+  }
+}
 
 Future<bool> isWalletExist({required String path}) => compute(_isWalletExist, path);

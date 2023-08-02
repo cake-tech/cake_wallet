@@ -52,7 +52,8 @@ Future<void> main() async {
     /// A callback that is invoked when an unhandled error occurs in the root
     /// isolate.
     PlatformDispatcher.instance.onError = (error, stack) {
-      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      ExceptionHandler.onError(
+          FlutterErrorDetails(exception: error, stack: stack));
 
       return true;
     };
@@ -106,25 +107,32 @@ Future<void> main() async {
     }
 
     final secureStorage = FlutterSecureStorage();
-    final transactionDescriptionsBoxKey =
-        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
+    final transactionDescriptionsBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+    final tradesBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: Trade.boxKey);
+    final ordersBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: Order.boxKey);
     final contacts = await Hive.openBox<Contact>(Contact.boxName);
     final nodes = await Hive.openBox<Node>(Node.boxName);
     final transactionDescriptions = await Hive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
-    final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+    final trades =
+        await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+    final orders =
+        await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
     final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
     final templates = await Hive.openBox<Template>(Template.boxName);
-    final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+    final exchangeTemplates =
+        await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+    final anonpayInvoiceInfo =
+        await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
 
     if (!isMoneroOnly) {
-      unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+      unspentCoinsInfoSource =
+          await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     }
 
     await initialSetup(
@@ -144,7 +152,8 @@ Future<void> main() async {
         initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
-    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    ExceptionHandler.onError(
+        FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
@@ -256,14 +265,17 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
-      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.disclaimer
-          : Routes.login;
+      final initialRoute =
+          authenticationStore.state == AuthenticationState.uninitialized
+              ? Routes.disclaimer
+              : Routes.login;
       final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      final statusBarIconBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: statusBarColor,
           statusBarBrightness: statusBarBrightness,
@@ -299,27 +311,27 @@ class _Home extends StatefulWidget {
 }
 
 class _HomeState extends State<_Home> {
- @override
+  @override
   void didChangeDependencies() {
-    if(!ResponsiveLayoutUtil.instance.isMobile){
-    _setOrientation(context);
+    if (!ResponsiveLayoutUtil.instance.isMobile) {
+      _setOrientation(context);
     }
     super.didChangeDependencies();
   }
 
-
- void _setOrientation(BuildContext context){
+  void _setOrientation(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     if (orientation == Orientation.portrait && width < height) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     } else if (orientation == Orientation.landscape && width > height) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+      SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     }
+  }
 
- }
- 
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();

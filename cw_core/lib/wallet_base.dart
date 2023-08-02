@@ -55,6 +55,8 @@ abstract class WalletBase<
   Future<void> startSync();
 
   Future<PendingTransaction> createTransaction(Object credentials);
+  
+  Future<PendingTransaction> createTransactionForSweepAll(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
 

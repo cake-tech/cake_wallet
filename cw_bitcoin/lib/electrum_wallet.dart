@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -347,6 +348,12 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         transactionHistory.addOne(transaction);
         await updateBalance();
       });
+  }
+
+  @override
+  Future<PendingTransaction> createTransactionForSweepAll(Object credentials) {
+    // TODO: implement createTransactionForSweepAllElectrum
+    throw UnimplementedError();
   }
 
   String toJSON() => json.encode({

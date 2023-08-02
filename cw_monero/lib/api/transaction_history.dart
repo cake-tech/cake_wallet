@@ -28,7 +28,8 @@ final transactionCreateNative = moneroApi
     .asFunction<TransactionCreate>();
 
 final transactionCreateMultDestNative = moneroApi
-    .lookup<NativeFunction<transaction_create_mult_dest>>('transaction_create_mult_dest')
+    .lookup<NativeFunction<transaction_create_mult_dest>>(
+        'transaction_create_mult_dest')
     .asFunction<TransactionCreateMultDest>();
 
 final transactionCommitNative = moneroApi
@@ -97,6 +98,7 @@ PendingTransactionDescription createTransactionSync(
   if (!created) {
     final message = errorMessagePointer.ref.getValue();
     calloc.free(errorMessagePointer);
+    print('Error message from creating transaction call $message');
     throw CreationTransactionException(message: message);
   }
 
@@ -111,15 +113,15 @@ PendingTransactionDescription createTransactionSync(
 
 PendingTransactionDescription createTransactionMultDestSync(
     {required List<MoneroOutput> outputs,
-      required String paymentId,
-      required int priorityRaw,
-      int accountIndex = 0}) {
+    required String paymentId,
+    required int priorityRaw,
+    int accountIndex = 0}) {
   final int size = outputs.length;
-  final List<Pointer<Utf8>> addressesPointers = outputs.map((output) =>
-      output.address.toNativeUtf8()).toList();
+  final List<Pointer<Utf8>> addressesPointers =
+      outputs.map((output) => output.address.toNativeUtf8()).toList();
   final Pointer<Pointer<Utf8>> addressesPointerPointer = calloc(size);
-  final List<Pointer<Utf8>> amountsPointers = outputs.map((output) =>
-      output.amount.toNativeUtf8()).toList();
+  final List<Pointer<Utf8>> amountsPointers =
+      outputs.map((output) => output.amount.toNativeUtf8()).toList();
   final Pointer<Pointer<Utf8>> amountsPointerPointer = calloc(size);
 
   for (int i = 0; i < size; i++) {
@@ -131,14 +133,14 @@ PendingTransactionDescription createTransactionMultDestSync(
   final errorMessagePointer = calloc<Utf8Box>();
   final pendingTransactionRawPointer = calloc<PendingTransactionRaw>();
   final created = transactionCreateMultDestNative(
-      addressesPointerPointer,
-      paymentIdPointer,
-      amountsPointerPointer,
-      size,
-      priorityRaw,
-      accountIndex,
-      errorMessagePointer,
-      pendingTransactionRawPointer) !=
+          addressesPointerPointer,
+          paymentIdPointer,
+          amountsPointerPointer,
+          size,
+          priorityRaw,
+          accountIndex,
+          errorMessagePointer,
+          pendingTransactionRawPointer) !=
       0;
 
   calloc.free(addressesPointerPointer);
@@ -164,10 +166,13 @@ PendingTransactionDescription createTransactionMultDestSync(
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
-void commitTransactionFromPointerAddress({required int address}) => commitTransaction(
-    transactionPointer: Pointer<PendingTransactionRaw>.fromAddress(address));
+void commitTransactionFromPointerAddress({required int address}) =>
+    commitTransaction(
+        transactionPointer:
+            Pointer<PendingTransactionRaw>.fromAddress(address));
 
-void commitTransaction({required Pointer<PendingTransactionRaw> transactionPointer}) {
+void commitTransaction(
+    {required Pointer<PendingTransactionRaw> transactionPointer}) {
   final errorMessagePointer = calloc<Utf8Box>();
   final isCommited =
       transactionCommitNative(transactionPointer, errorMessagePointer) != 0;
@@ -222,10 +227,10 @@ Future<PendingTransactionDescription> createTransaction(
     });
 
 Future<PendingTransactionDescription> createTransactionMultDest(
-    {required List<MoneroOutput> outputs,
-      required int priorityRaw,
-      String paymentId = '',
-      int accountIndex = 0}) =>
+        {required List<MoneroOutput> outputs,
+        required int priorityRaw,
+        String paymentId = '',
+        int accountIndex = 0}) =>
     compute(_createTransactionMultDestSync, {
       'outputs': outputs,
       'paymentId': paymentId,

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,15 +38,11 @@ class WalletCreationService {
 
   bool exists(String name) {
     final walletName = name.toLowerCase();
-    return walletInfoSource
-      .values
-      .any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
+    return walletInfoSource.values.any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
   }
 
   bool typeExists(WalletType type) {
-    return walletInfoSource
-        .values
-        .any((walletInfo) => walletInfo.type == type);
+    return walletInfoSource.values.any((walletInfo) => walletInfo.type == type);
   }
 
   void checkIfExists(String name) {
@@ -60,15 +55,12 @@ class WalletCreationService {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    await keyService.saveWalletPassword(
-        password: password, walletName: credentials.name);
-    final wallet =  await _service!.create(credentials);
+    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+    final wallet = await _service!.create(credentials);
 
     if (wallet.type == WalletType.monero) {
-      await sharedPreferences
-        .setBool(
-          PreferencesKey.moneroWalletUpdateV1Key(wallet.name),
-          _isNewMoneroWalletPasswordUpdated);
+      await sharedPreferences.setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
     }
 
     return wallet;
@@ -78,15 +70,12 @@ class WalletCreationService {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    await keyService.saveWalletPassword(
-        password: password, walletName: credentials.name);
+    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
     final wallet = await _service!.restoreFromKeys(credentials);
 
     if (wallet.type == WalletType.monero) {
-      await sharedPreferences
-        .setBool(
-          PreferencesKey.moneroWalletUpdateV1Key(wallet.name),
-          _isNewMoneroWalletPasswordUpdated);
+      await sharedPreferences.setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
     }
 
     return wallet;
@@ -96,15 +85,12 @@ class WalletCreationService {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    await keyService.saveWalletPassword(
-        password: password, walletName: credentials.name);
+    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
     final wallet = await _service!.restoreFromSeed(credentials);
 
     if (wallet.type == WalletType.monero) {
-      await sharedPreferences
-        .setBool(
-          PreferencesKey.moneroWalletUpdateV1Key(wallet.name),
-          _isNewMoneroWalletPasswordUpdated);
+      await sharedPreferences.setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
     }
 
     return wallet;

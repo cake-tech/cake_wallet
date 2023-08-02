@@ -125,11 +125,11 @@ class WalletRestoreFromQRCode {
 
   static WalletRestoreMode getWalletRestoreMode(Map<String, dynamic> credentials) {
     final type = credentials['type'] as WalletType;
-    if (credentials.containsKey('tx_payment_id')) {
-      final txIdValue = credentials['tx_payment_id'] as String? ?? '';
+    if (credentials.containsKey('txid')) {
+      final txIdValue = credentials['txid'] as String? ?? '';
       return txIdValue.isNotEmpty
           ? WalletRestoreMode.txids
-          : throw Exception('Unexpected restore mode: tx_payment_id is invalid');
+          : throw Exception('Unexpected restore mode: txid is invalid');
     }
 
     if (credentials.containsKey('seed')) {
