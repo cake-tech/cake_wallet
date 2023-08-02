@@ -3,7 +3,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_cupertino_localizations: ^1.0.1
   intl: ^0.17.0
   url_launcher: ^6.1.4
   qr_flutter:
@@ -82,6 +81,7 @@ dependencies:
   path_provider_android: 2.0.24
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
+  sensitive_clipboard: ^1.0.0
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
