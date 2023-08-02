@@ -63,7 +63,7 @@ class NanoChangeRepPage extends BasePage {
   // final CryptoCurrency type;
 
   @override
-  String get title => S.current.change_rep;
+  String get title => S.current.change;
 
   @override
   Widget body(BuildContext context) {
