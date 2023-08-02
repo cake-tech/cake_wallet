@@ -579,6 +579,11 @@ Future<void> generateNano(bool hasImplementation) async {
   const nanoCommonHeaders = """
 """;
   const nanoCWHeaders = """
+import 'package:cw_nano/nano_mnemonic.dart';
+import 'package:cw_nano/nano_wallet.dart';
+import 'package:cw_nano/nano_wallet_service.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/account.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_nano/nano_wallet_info.dart';
@@ -600,8 +605,6 @@ abstract class Nano {
   WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
 
   TransactionHistoryBase getTransactionHistory(Object wallet);
-
-  NanoWalletDetails getNanoWalletDetails(Object wallet);
 
   WalletCredentials createNanoNewWalletCredentials({
     required String name,

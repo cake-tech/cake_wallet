@@ -11,10 +11,6 @@ class CWNano extends Nano {
     return NanoWalletService(walletInfoSource);
   }
 
-  NanoWalletDetails getNanoWalletDetails(Object wallet) {
-    throw UnimplementedError();
-  }
-
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
     throw UnimplementedError();
   }

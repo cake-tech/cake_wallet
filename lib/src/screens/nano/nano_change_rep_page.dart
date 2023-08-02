@@ -63,7 +63,7 @@ class NanoChangeRepPage extends BasePage {
   // final CryptoCurrency type;
 
   @override
-  String get title => S.current.change;
+  String get title => S.current.change_rep;
 
   @override
   Widget body(BuildContext context) {
@@ -102,7 +102,7 @@ class NanoChangeRepPage extends BasePage {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertWithTwoActions(
-                                          alertTitle: S.of(context).remove_node,
+                                          alertTitle: S.of(context).change_rep,
                                           alertContent: S.of(context).remove_node_message,
                                           rightButtonText: S.of(context).change,
                                           leftButtonText: S.of(context).cancel,
