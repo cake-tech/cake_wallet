@@ -269,6 +269,7 @@
   "error_text_address": "Cüzdan adresi kripto para biriminin\ntürüne karşılık gelmelidir",
   "error_text_node_address": "Lütfen iPv4 adresi girin",
   "error_text_node_port": "Düğüm port'u yalnızca 0 ve 65535 arasında rakam içerebilir",
+  "error_text_node_proxy_address": "Lütfen <IPv4 adresi>:<bağlantı noktası> girin, örneğin 127.0.0.1:9050",
   "error_text_payment_id": "Ödeme ID'si yalnızca onaltılık (hex) olarak 16 veya 64 karakter içerebilir",
   "error_text_xmr": "XMR miktarı kullanılabilir bakiyeyi aşamaz.\nKesir basamaklarının sayısı 12'ye eşit veya daha az olmalıdır",
   "error_text_fiat": "Tutarın değeri, mevcut bakiyeyi aşamaz.\nKesir basamaklarının sayısı 2'ye eşit veya daha az olmalıdır",

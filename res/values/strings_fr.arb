@@ -269,6 +269,7 @@
   "error_text_address": "L'adresse du portefeuille (wallet) doit correspondre au type de\ncryptomonnaie",
   "error_text_node_address": "Merci d'entrer une adresse IPv4",
   "error_text_node_port": "Le port d'un nœud doit être un nombre compris entre 0 et 65535",
+  "error_text_node_proxy_address": "Veuillez saisir <adresse IPv4> :<port>, par exemple 127.0.0.1:9050",
   "error_text_payment_id": "Un ID de paiement ne peut être constitué que de 16 à 64 caractères hexadécimaux",
   "error_text_xmr": "La valeur de XMR dépasse le solde disponible.\nLa partie décimale doit comporter au plus 12 chiffres",
   "error_text_fiat": "La valeur du montant ne peut dépasser le solde disponible.\nLa partie décimale doit comporter au plus 2 chiffres",

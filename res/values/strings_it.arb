@@ -269,6 +269,7 @@
   "error_text_address": "L'indirizzo del Portafoglio deve corrispondere alla tipologia\ndi criptovaluta",
   "error_text_node_address": "Gentilmente inserisci un indirizzo iPv4",
   "error_text_node_port": "La porta del nodo può contenere solo numeri compresi tra 0 e 65535",
+  "error_text_node_proxy_address": "Inserisci <indirizzo IPv4>:<porta>, ad esempio 127.0.0.1:9050",
   "error_text_payment_id": "L'ID del pagamento può contenere solo da 16 a 64 caratteri in esadecimale",
   "error_text_xmr": "Il valore in XMR non può eccedere il saldo disponibile.\nIl numero delle cifre decimali deve essere inferiore o uguale a 12",
   "error_text_fiat": "L'ammontare non può eccedere il saldo dispoinibile.\nIl numero di cifre decimali deve essere inferiore o uguale a 2",

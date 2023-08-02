@@ -269,6 +269,7 @@
   "error_text_address": "ウォレットアドレスは、\n暗号通貨",
   "error_text_node_address": "iPv4アドレスを入力してください",
   "error_text_node_port": "ノードポートには、0〜65535の数字のみを含めることができます",
+  "error_text_node_proxy_address": "<IPv4 アドレス>:<ポート> を入力してください (例: 127.0.0.1:9050)",
   "error_text_payment_id": "支払いIDには、16進数で16〜64文字しか含めることができません",
   "error_text_xmr": "XMR値は利用可能な残高を超えることはできません.\n小数桁数は12以下でなければなりません",
   "error_text_fiat": "金額は利用可能な残高を超えることはできません.\n小数桁の数は2以下でなければなりません",

@@ -269,6 +269,7 @@
   "error_text_address": "Alamat dompet harus sesuai dengan tipe\nmata uang kripto",
   "error_text_node_address": "Silakan masukkan alamat iPv4",
   "error_text_node_port": "Port node hanya dapat berisi angka antara 0 dan 65535",
+  "error_text_node_proxy_address": "Masukkan <alamat IPv4>:<port>, misalnya 127.0.0.1:9050",
   "error_text_payment_id": "ID pembayaran hanya dapat berisi dari 16 hingga 64 karakter dalam hex",
   "error_text_xmr": "Nilai XMR tidak boleh melebihi saldo yang tersedia.\nJumlah digit pecahan harus kurang atau sama dengan 12",
   "error_text_fiat": "Nilai jumlah tidak boleh melebihi saldo yang tersedia.\nJumlah digit pecahan harus kurang atau sama dengan 2",

@@ -269,6 +269,7 @@
   "error_text_address": "Adresa peněženky musí odpovídat typu\nkryptoměny",
   "error_text_node_address": "prosím zadejte IPv4 adresu",
   "error_text_node_port": "Port uzlu musí být číslo mezi 0 a 65535",
+  "error_text_node_proxy_address": "Zadejte prosím <adresa IPv4>:<port>, například 127.0.0.1:9050",
   "error_text_payment_id": "ID platby se musí skládat z 16 až 64 hexadecimálních znaků",
   "error_text_xmr": "Hodnota XMR nemůže překročit dostupný zůstatek.\nPočet desetinných míst musí být menší, nebo roven 12",
   "error_text_fiat": "Částka nemůže překročit dostupný zůstatek.\nPočet desetinných míst musí být menší, nebo roven 2",

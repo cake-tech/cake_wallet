@@ -269,6 +269,7 @@
   "error_text_address": "钱包地址必须与类型对应\n加密货币",
   "error_text_node_address": "请输入一个IPv4地址",
   "error_text_node_port": "节点端口只能包含0到65535之间的数字",
+  "error_text_node_proxy_address": "请输入<IPv4地址>:<端口>，例如127.0.0.1:9050",
   "error_text_payment_id": "付款ID只能包含16到64个字符（十六进制）",
   "error_text_xmr": "XMR值不能超过可用余额.\n小数位数必须小于或等于12",
   "error_text_fiat": "金额不能超过可用余额.\n小数位数必须小于或等于2",

@@ -269,6 +269,7 @@
   "error_text_address": "Die Walletadresse muss dem Typ der Kryptowährung\nentsprechen",
   "error_text_node_address": "Bitte geben Sie eine iPv4-Adresse ein",
   "error_text_node_port": "Der Knotenport darf nur Nummern zwischen 0 und 65535 enthalten",
+  "error_text_node_proxy_address": "Bitte geben Sie <IPv4-Adresse>:<Port> ein, zum Beispiel 127.0.0.1:9050",
   "error_text_payment_id": "Die Zahlungs-ID darf nur 16 bis 64 hexadezimale Zeichen enthalten",
   "error_text_xmr": "Der XMR-Wert darf das verfügbare Guthaben nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 12 sein",
   "error_text_fiat": "Der Wert des Betrags darf den verfügbaren Kontostand nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 2 sein",

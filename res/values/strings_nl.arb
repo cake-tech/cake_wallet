@@ -269,6 +269,7 @@
   "error_text_address": "Portemonnee-adres moet overeenkomen met het type\nvan cryptocurrency",
   "error_text_node_address": "Voer een iPv4-adres in",
   "error_text_node_port": "Knooppuntpoort kan alleen nummers tussen 0 en 65535 bevatten",
+  "error_text_node_proxy_address": "Voer <IPv4-adres>:<poort> in, bijvoorbeeld 127.0.0.1:9050",
   "error_text_payment_id": "Betalings-ID kan alleen 16 tot 64 tekens bevatten in hexadecimale volgorde",
   "error_text_xmr": "XMR-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12",
   "error_text_fiat": "Waarde van bedrag kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 2",

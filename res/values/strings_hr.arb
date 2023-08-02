@@ -269,6 +269,7 @@
   "error_text_address": "Adresa novčanika mora odgovarati\nvrsti kriptovalute",
   "error_text_node_address": "Molimo unesite iPv4 adresu",
   "error_text_node_port": "Node port smije sadržavati samo brojeve između 0 i 65535",
+  "error_text_node_proxy_address": "Unesite <IPv4 adresa>:<port>, na primjer 127.0.0.1:9050",
   "error_text_payment_id": "ID plaćanja smije sadržavati samo od 16 do 64 znakova hex vrijednosti",
   "error_text_xmr": "XMR vrijednost ne smije biti veća od raspoloživog iznosa.\nBroj decimala smije biti 12 ili manji.",
   "error_text_fiat": "Vrijednost iznosa ne smije biti veća od raspoloživog iznosa.\nBroj decimala smije biti 2 ili manji.",

@@ -19,7 +19,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         port = '',
         login = '',
         password = '',
-        trusted = false;
+        trusted = false,
+        useSocksProxy = false,
+        socksProxyAddress = '';
 
   @observable
   ExecutionState state;
@@ -44,6 +46,12 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   bool trusted;
+
+  @observable
+  bool useSocksProxy;
+
+  @observable
+  String socksProxyAddress;
 
   @computed
   bool get isReady => address.isNotEmpty && port.isNotEmpty;
@@ -73,6 +81,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     password = '';
     useSSL = false;
     trusted = false;
+    useSocksProxy = false;
+    socksProxyAddress = '';
   }
 
   @action
@@ -94,6 +104,12 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
+  void setSocksProxy(bool val) => useSocksProxy = val;
+
+  @action
+  void setSocksProxyAddress(String val) => socksProxyAddress = val;
+
+  @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
         uri: uri,
@@ -101,7 +117,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         login: login,
         password: password,
         useSSL: useSSL,
-        trusted: trusted);
+        trusted: trusted,
+        socksProxyAddress: socksProxyAddress);
     try {
       state = IsExecutingState();
       if (editingNode != null) {
@@ -130,7 +147,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         login: login,
         password: password,
         useSSL: useSSL,
-        trusted: trusted);
+        trusted: trusted,
+        socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();
       final isAlive = await node.requestNode();

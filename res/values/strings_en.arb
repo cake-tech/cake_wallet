@@ -269,6 +269,7 @@
   "error_text_address": "Wallet address must correspond to the type\nof cryptocurrency",
   "error_text_node_address": "Please enter a iPv4 address",
   "error_text_node_port": "Node port can only contain numbers between 0 and 65535",
+  "error_text_node_proxy_address": "Please enter <IPv4 address>:<port>, for example 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID can only contain from 16 to 64 chars in hex",
   "error_text_xmr": "XMR value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12",
   "error_text_fiat": "Value of amount can't exceed available balance.\nThe number of fraction digits must be less or equal to 2",

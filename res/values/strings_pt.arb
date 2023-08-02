@@ -269,6 +269,7 @@
   "error_text_address": "O endereço da carteira deve corresponder à\ncriptomoeda selecionada",
   "error_text_node_address": "Digite um endereço iPv4",
   "error_text_node_port": "A porta do nó deve conter apenas números entre 0 e 65535",
+  "error_text_node_proxy_address": "Insira <endereço IPv4>:<porta>, por exemplo 127.0.0.1:9050",
   "error_text_payment_id": "O ID de pagamento pode conter apenas de 16 a 64 caracteres em hexadecimal",
   "error_text_xmr": "A quantia em XMR não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12",
   "error_text_fiat": "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos decimais deve ser menor ou igual a 2",

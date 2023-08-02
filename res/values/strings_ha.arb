@@ -269,6 +269,7 @@
   "error_text_address": "Adireshin hujja ya kamata ya dace da irin\nna cryptocurrency",
   "error_text_node_address": "Da fatan a shigar da iPv4 adireshin",
   "error_text_node_port": "Node tashar jiragen ruwa zai iya ƙunsar lambobi tsakanin 0 zuwa 65535 kawai",
+  "error_text_node_proxy_address": "Da fatan za a shigar da <IPv4 address>:<port>, misali 127.0.0.1:9050",
   "error_text_payment_id": "ID na biyan kudi kawai zai iya ɗaukar daga 16 zuwa 64 haruffa a cikin hex",
   "error_text_xmr": "XMR adadin ba zai iya wuce available balance.\nAdadin haruffan gaba zai kamata ya zama ko ƙasa daga na 12",
   "error_text_fiat": "Adadin kudin ba zai iya wuce available balance.\nAdadin haruffan gaba zai kamata ya zama ko ƙasa daga na 2",

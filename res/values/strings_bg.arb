@@ -269,6 +269,7 @@
   "error_text_address": "Адресът на портфейла трябва да отговаря \n на вида криптовалута",
   "error_text_node_address": "Моля, въведете iPv4 адрес",
   "error_text_node_port": "Node port-ът е цяло число между 0 и 65535",
+  "error_text_node_proxy_address": "Моля, въведете <IPv4 адрес>:<порт>, например 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID-то може да съдържа само между 16 и 64 шестнайсетични символа",
   "error_text_xmr": "XMR сумата не може да надхвърля наличния баланс.\nБроят на цифрите след десетичната запетая може да бъде най-много 12",
   "error_text_fiat": "Сумата не може да надвишава наличния баланс.\nThe number of fraction digits must be less or equal to 2",

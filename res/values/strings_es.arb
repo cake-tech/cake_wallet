@@ -269,6 +269,7 @@
   "error_text_address": "La dirección de la billetera debe corresponder al tipo \nde criptomoneda",
   "error_text_node_address": "Por favor, introduzca una dirección iPv4",
   "error_text_node_port": "El puerto de nodo solo puede contener números entre 0 y 65535",
+  "error_text_node_proxy_address": "Ingrese <dirección IPv4>:<puerto>, por ejemplo 127.0.0.1:9050",
   "error_text_payment_id": "La ID de pago solo puede contener de 16 a 64 caracteres en hexadecimal",
   "error_text_xmr": "El valor XMR no puede exceder el saldo disponible.\nTEl número de dígitos de fracción debe ser menor o igual a 12",
   "error_text_fiat": "El valor de la cantidad no puede exceder el saldo disponible.\nEl número de dígitos de fracción debe ser menor o igual a 2",
