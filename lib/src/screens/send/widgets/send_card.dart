@@ -180,7 +180,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         },
                         onPushAddressBookButton: (context) async {
                           output.resetParsedAddress();
-                          await output.fetchParsedAddress(context);
+                        },
+                        onSelectedContact: (contact) {
+                          output.loadContact(contact);
                         },
                         validator: validator,
                         selectedCurrency: sendViewModel.currency,

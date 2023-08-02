@@ -269,6 +269,7 @@
   "error_text_address": "يجب أن يتوافق عنوان المحفظة مع نوع\nالعملة المشفرة",
   "error_text_node_address": "الرجاء إدخال عنوان IPv4",
   "error_text_node_port": "منفذ العقدة يمكن أن يحتوي فقط على أرقام بين 0 و 65535",
+  "error_text_node_proxy_address": "الرجاء إدخال <عنوان IPv4>: <port> ، على سبيل المثال 127.0.0.1:9050",
   "error_text_payment_id": "يمكن أن يحتوي معرّف الدفع فقط من 16 إلى 64 حرفًا hex",
   "error_text_xmr": "لا يمكن أن تتجاوز قيمة XMR الرصيد المتاح.\nيجب أن يكون عدد الكسور أقل من أو يساوي 12",
   "error_text_fiat": "لا يمكن أن تتجاوز قيمة المبلغ الرصيد المتاح.\nيجب أن يكون عدد الكسور أقل أو يساوي 2",
@@ -653,5 +654,6 @@
   "balance_page": "صفحة التوازن",
   "share": "يشارك",
   "slidable": "قابل للانزلاق",
-  "etherscan_history": "Etherscan تاريخ"
+  "etherscan_history": "Etherscan تاريخ",
+  "template_name": "اسم القالب"
 }

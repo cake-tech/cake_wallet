@@ -269,6 +269,7 @@
   "error_text_address": "Àdírẹ́sì àpamọ́wọ́ gbọ́dọ̀ báramu irú owó",
   "error_text_node_address": "Ẹ jọ̀wọ́ tẹ̀ àdírẹ́sì iPv4",
   "error_text_node_port": "Ojú ìkànpọ̀ apẹka lè ni nìkan nínú òǹkà l'áàárín òdo àti márùn-úndínlógojí lé ní ẹ̀ẹ́dẹgbẹ̀ta lé ní ọ̀kẹ́ mẹ́ta lé ní ẹ̀ẹ́dẹ́gbàta",
+  "error_text_node_proxy_address": "Jọwọ tẹ <IPv4 adirẹsi>:<port>, fun apẹẹrẹ 127.0.0.1:9050",
   "error_text_payment_id": "Iye ẹyọ ọ̀rọ̀ nínú àmì ìdánimọ̀ àránṣẹ́ gbọ́dọ̀ wà l'áàárín aárùndínlógún dé ẹẹ́rinlélọ́gọ́ta.",
   "error_text_xmr": "Iye XMR kò lè tóbi ju ìyókù.\nIye díjíìtì léyìn ẹsẹ kò gbọ́dọ̀ tóbi ju eéjìlá.",
   "error_text_fiat": "Iye àránṣẹ́ kò tóbi ju ìyókù owó.\nIye díjíìtì léyìn ẹsẹ kò gbọ́dọ̀ tóbi ju eéjì.",
@@ -651,5 +652,6 @@
   "balance_page": "Oju-iwe iwọntunwọnsi",
   "share": "Pinpin",
   "slidable": "Slidable",
-  "etherscan_history": "Etherscan itan"
+  "etherscan_history": "Etherscan itan",
+  "template_name": "Orukọ Awoṣe"
 }
