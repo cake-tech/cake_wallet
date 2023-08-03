@@ -8,7 +8,8 @@ class TemplateTile extends StatefulWidget {
     required this.amount,
     required this.from,
     required this.onTap,
-    required this.onRemove
+    required this.onRemove,
+    this.hasMultipleRecipients,
   }) : super(key: key);
 
   final String to;
@@ -16,6 +17,7 @@ class TemplateTile extends StatefulWidget {
   final String from;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+  final bool? hasMultipleRecipients;
 
   @override
   TemplateTileState createState() => TemplateTileState(
@@ -51,45 +53,47 @@ class TemplateTileState extends State<TemplateTile> {
     final toIcon = Image.asset('assets/images/to_icon.png', color: color);
 
     final content = Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(
-          amount,
-          style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: color
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 5),
-          child: Text(
-            from,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: color
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 5),
-          child: toIcon,
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 5),
-          child: Text(
-            to,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: color
-            ),
-          ),
-        ),
-      ],
-    );
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: widget.hasMultipleRecipients ?? false
+            ? [
+                Text(
+                  to,
+                  style: TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600, color: color),
+                ),
+              ]
+            : [
+                Text(
+                  amount,
+                  style: TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600, color: color),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    from,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: color),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: toIcon,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    to,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: color),
+                  ),
+                ),
+              ]);
 
     final tile = Container(
         padding: EdgeInsets.only(right: 10),
