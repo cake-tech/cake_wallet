@@ -213,112 +213,108 @@ class SendPage extends BasePage {
                       ),
                     ),
                   ),
-                  if (sendViewModel.hasMultiRecipient)
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: EdgeInsets.only(left: 24),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Observer(
-                          builder: (_) {
-                            final templates = sendViewModel.templates;
-                            final itemCount = templates.length;
+                  Container(
+                    height: 40,
+                    width: double.infinity,
+                    padding: EdgeInsets.only(left: 24),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Observer(
+                        builder: (_) {
+                          final templates = sendViewModel.templates;
+                          final itemCount = templates.length;
 
-                            return Row(
-                              children: <Widget>[
-                                AddTemplateButton(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.sendTemplate),
-                                  currentTemplatesLength: templates.length,
-                                ),
-                                ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: itemCount,
-                                  itemBuilder: (context, index) {
-                                    final template = templates[index];
-                                    return TemplateTile(
-                                      key: UniqueKey(),
-                                      to: template.name,
-                                      hasMultipleRecipients:
-                                          template.additionalRecipients != null &&
-                                              template.additionalRecipients!.length > 1,
-                                      amount: template.isCurrencySelected
-                                          ? template.amount
-                                          : template.amountFiat,
-                                      from: template.isCurrencySelected
-                                          ? template.cryptoCurrency
-                                          : template.fiatCurrency,
-                                      onTap: () async {
-                                        print("##########");
-                                        print(template.cryptoCurrency);
-                                        print(template.additionalRecipients!.first.cryptoCurrency);
-                                        if (template.additionalRecipients?.isNotEmpty ?? false) {
-                                          sendViewModel.clearOutputs();
+                          return Row(
+                            children: <Widget>[
+                              AddTemplateButton(
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed(Routes.sendTemplate),
+                                currentTemplatesLength: templates.length,
+                              ),
+                              ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: itemCount,
+                                itemBuilder: (context, index) {
+                                  final template = templates[index];
+                                  return TemplateTile(
+                                    key: UniqueKey(),
+                                    to: template.name,
+                                    hasMultipleRecipients:
+                                        template.additionalRecipients != null &&
+                                            template.additionalRecipients!.length > 1,
+                                    amount: template.isCurrencySelected
+                                        ? template.amount
+                                        : template.amountFiat,
+                                    from: template.isCurrencySelected
+                                        ? template.cryptoCurrency
+                                        : template.fiatCurrency,
+                                    onTap: () async {
+                                      if (template.additionalRecipients?.isNotEmpty ?? false) {
+                                        sendViewModel.clearOutputs();
 
-                                          for (int i = 0;i < template.additionalRecipients!.length;i++) {
-                                            Output output;
-                                            try {
-                                              output = sendViewModel.outputs[i];
-                                            } catch (e) {
-                                              sendViewModel.addOutput();
-                                              output = sendViewModel.outputs[i];
-                                            }
-
-                                            await _setInputsFromTemplate(
-                                              context,
-                                              output: output,
-                                              template: template.additionalRecipients![i],
-                                            );
+                                        for (int i = 0;i < template.additionalRecipients!.length;i++) {
+                                          Output output;
+                                          try {
+                                            output = sendViewModel.outputs[i];
+                                          } catch (e) {
+                                            sendViewModel.addOutput();
+                                            output = sendViewModel.outputs[i];
                                           }
-                                        } else {
-                                          final output = _defineCurrentOutput();
+
                                           await _setInputsFromTemplate(
                                             context,
                                             output: output,
-                                            template: template,
+                                            template: template.additionalRecipients![i],
                                           );
                                         }
-                                      },
-                                      onRemove: () {
-                                        showPopUp<void>(
-                                          context: context,
-                                          builder: (dialogContext) {
-                                            return AlertWithTwoActions(
-                                                alertTitle:
-                                                    S.of(context).template,
-                                                alertContent: S
-                                                    .of(context)
-                                                    .confirm_delete_template,
-                                                rightButtonText:
-                                                    S.of(context).delete,
-                                                leftButtonText:
-                                                    S.of(context).cancel,
-                                                actionRightButton: () {
-                                                  Navigator.of(dialogContext)
-                                                      .pop();
-                                                  sendViewModel
-                                                      .sendTemplateViewModel
-                                                      .removeTemplate(
-                                                          template: template);
-                                                },
-                                                actionLeftButton: () =>
-                                                    Navigator.of(dialogContext)
-                                                        .pop());
-                                          },
+                                      } else {
+                                        final output = _defineCurrentOutput();
+                                        await _setInputsFromTemplate(
+                                          context,
+                                          output: output,
+                                          template: template,
                                         );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                                      }
+                                    },
+                                    onRemove: () {
+                                      showPopUp<void>(
+                                        context: context,
+                                        builder: (dialogContext) {
+                                          return AlertWithTwoActions(
+                                              alertTitle:
+                                                  S.of(context).template,
+                                              alertContent: S
+                                                  .of(context)
+                                                  .confirm_delete_template,
+                                              rightButtonText:
+                                                  S.of(context).delete,
+                                              leftButtonText:
+                                                  S.of(context).cancel,
+                                              actionRightButton: () {
+                                                Navigator.of(dialogContext)
+                                                    .pop();
+                                                sendViewModel
+                                                    .sendTemplateViewModel
+                                                    .removeTemplate(
+                                                        template: template);
+                                              },
+                                              actionLeftButton: () =>
+                                                  Navigator.of(dialogContext)
+                                                      .pop());
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                    )
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -340,7 +336,7 @@ class SendPage extends BasePage {
                                 !.displaySmall!
                                 .decorationColor!,
                           ))),
-                if (sendViewModel.hasMultiRecipient)
+                if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                   Padding(
                       padding: EdgeInsets.only(bottom: 12),
                       child: PrimaryButton(
@@ -497,8 +493,6 @@ class SendPage extends BasePage {
         .singleWhere((element) => element.title == template.fiatCurrency);
 
     output.address = template.address;
-    print("@@@@@@@@@@@");
-    print(template.cryptoCurrency);
 
     if (template.isCurrencySelected) {
       sendViewModel.setSelectedCryptoCurrency(template.cryptoCurrency);

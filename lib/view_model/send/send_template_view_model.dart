@@ -21,8 +21,8 @@ abstract class SendTemplateViewModelBase with Store {
   final SendTemplateStore _sendTemplateStore;
   final FiatConversionStore _fiatConversationStore;
 
-  SendTemplateViewModelBase(this._wallet, this._settingsStore,
-      this._sendTemplateStore, this._fiatConversationStore)
+  SendTemplateViewModelBase(
+      this._wallet, this._settingsStore, this._sendTemplateStore, this._fiatConversationStore)
       : recipients = ObservableList<TemplateViewModel>() {
     addRecipient();
   }
@@ -45,10 +45,12 @@ abstract class SendTemplateViewModelBase with Store {
   AmountValidator get amountValidator =>
       AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
-  AddressValidator get addressValidator =>
-      AddressValidator(type: _wallet.currency);
+  AddressValidator get addressValidator => AddressValidator(type: _wallet.currency);
 
   TemplateValidator get templateValidator => TemplateValidator();
+
+  bool get hasMultiRecipient =>
+      _wallet.type != WalletType.haven && _wallet.type != WalletType.ethereum;
 
   @computed
   CryptoCurrency get cryptoCurrency => _wallet.currency;

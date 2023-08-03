@@ -107,22 +107,22 @@ class SendTemplatePage extends BasePage {
                 ])),
             bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Column(children: [
-              // if (sendViewModel.hasMultiRecipient)
-              Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: PrimaryButton(
-                      onPressed: () {
-                        sendTemplateViewModel.addRecipient();
-                        Future.delayed(const Duration(milliseconds: 250), () {
-                          controller.jumpToPage(sendTemplateViewModel.recipients.length - 1);
-                        });
-                      },
-                      text: S.of(context).add_receiver,
-                      color: Colors.transparent,
-                      textColor: Theme.of(context).accentTextTheme.displaySmall!.decorationColor!,
-                      isDottedBorder: true,
-                      borderColor:
-                          Theme.of(context).primaryTextTheme.displaySmall!.decorationColor!)),
+              if (sendTemplateViewModel.hasMultiRecipient)
+                Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                        onPressed: () {
+                          sendTemplateViewModel.addRecipient();
+                          Future.delayed(const Duration(milliseconds: 250), () {
+                            controller.jumpToPage(sendTemplateViewModel.recipients.length - 1);
+                          });
+                        },
+                        text: S.of(context).add_receiver,
+                        color: Colors.transparent,
+                        textColor: Theme.of(context).accentTextTheme.displaySmall!.decorationColor!,
+                        isDottedBorder: true,
+                        borderColor:
+                            Theme.of(context).primaryTextTheme.displaySmall!.decorationColor!)),
               PrimaryButton(
                   onPressed: () {
                     if (_formKey.currentState != null && _formKey.currentState!.validate()) {

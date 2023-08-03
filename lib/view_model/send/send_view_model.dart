@@ -177,8 +177,6 @@ abstract class SendViewModelBase with Store {
 
   List<CryptoCurrency> currencies;
 
-  bool get hasMultiRecipient => _wallet.type != WalletType.haven;
-
   bool get hasYat => outputs.any((out) =>
       out.isParsedAddress &&
       out.parsedAddress.parseFrom == ParseFrom.yatRecord);
