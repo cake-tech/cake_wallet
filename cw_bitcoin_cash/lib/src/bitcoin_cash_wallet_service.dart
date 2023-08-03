@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bip39/bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -13,7 +14,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredentials,
-    BitcoinCashRestoreWalletFromSeedCredentials, BitcoinCashRestoreWalletFromWIFCredentials> {
+    BitcoinCashRestoreWalletFromSeedCredentials,
+    BitcoinCashRestoreWalletFromWIFCredentials> {
   BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -43,32 +45,42 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(
       String name, String password) {
     // TODO: implement openWallet
-    throw UnimplementedError();
+    throw UnimplementedError('openWallet() is not implemented');
   }
 
   @override
   Future<void> remove(String wallet) {
     // TODO: implement remove
-    throw UnimplementedError();
+    throw UnimplementedError('remove() is not implemented');
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) {
     // TODO: implement rename
-    throw UnimplementedError();
+    throw UnimplementedError('rename() is not implemented');
   }
 
   @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromKeys(credentials) {
+  restoreFromKeys(credentials) {
     // TODO: implement restoreFromKeys
-    throw UnimplementedError();
+    throw UnimplementedError('restoreFromKeys() is not implemented');
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromSeed(credentials) {
-    // TODO: implement restoreFromSeed
-    throw UnimplementedError();
+  Future<BitcoinCashWallet> restoreFromSeed(
+      BitcoinCashRestoreWalletFromSeedCredentials credentials) async {
+    if (!validateMnemonic(credentials.mnemonic)) {
+      throw BitcoinCashMnemonicIsIncorrectException();
+    }
+
+    final wallet = await BitcoinCashWalletBase.create(
+        password: credentials.password!,
+        mnemonic: credentials.mnemonic,
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource);
+    await wallet.save();
+    await wallet.init();
+    return wallet;
   }
 }

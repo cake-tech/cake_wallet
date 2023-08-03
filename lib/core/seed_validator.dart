@@ -28,6 +28,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return haven!.getMoneroWordList(language);
       case WalletType.ethereum:
         return ethereum!.getEthereumWordList(language);
+      case WalletType.bitcoinCash:
+        return getBitcoinWordList(language);
       default:
         return [];
     }

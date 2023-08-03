@@ -26,6 +26,7 @@ abstract class BitcoinCashTransactionHistoryBase
   @override
   Future<void> save() async {
     // TODO: implement
+    UnimplementedError('save() is not implemented');
   }
 
   @override

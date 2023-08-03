@@ -15,6 +15,8 @@ abstract class BitcoinCash {
   String getMnemonic(int? strength);
   Uint8List getSeedFromMnemonic(String seed);
   WalletService createBitcoinCashWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  // WalletCredentials createBitcoinCashRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinCashNewWalletCredentials({required String name, WalletInfo? walletInfo});
 
 

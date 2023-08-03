@@ -23,27 +23,20 @@ class CWBitcoinCash extends BitcoinCash {
 // 	@override
 // 	TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 //
-// 	@override
-// 	WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
-//     required String name,
-//     required String mnemonic,
-//     required String password})
-// 		=> BitcoinRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
-//
-// 	@override
-// 	WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({
-//     required String name,
-//     required String password,
-//     required String wif,
-//     WalletInfo? walletInfo})
-// 		=> BitcoinRestoreWalletFromWIFCredentials(name: name, password: password, wif: wif, walletInfo: walletInfo);
-//
-// 	@override
-// 	WalletCredentials createBitcoinNewWalletCredentials({
-//     required String name,
-//     WalletInfo? walletInfo})
-// 		=> BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
-//
+	@override
+	WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password})
+		=> BitcoinCashRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
+
+	// @override
+	// WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({
+  //   required String name,
+  //   required String password,
+  //   required String wif,
+  //   WalletInfo? walletInfo})
+	// 	=> BitcoinRestoreWalletFromWIFCredentials(name: name, password: password, wif: wif, walletInfo: walletInfo);
 //
 // 	@override
 // 	Map<String, String> getWalletKeys(Object wallet) {
