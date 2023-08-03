@@ -4,6 +4,7 @@ const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
+const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -14,12 +15,14 @@ Future<void> main(List<String> args) async {
   final hasMonero = args.contains('${prefix}monero');
   final hasHaven = args.contains('${prefix}haven');
   final hasEthereum = args.contains('${prefix}ethereum');
+  final hasBitcoinCash = args.contains('${prefix}bitcoinCash');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
   await generateEthereum(hasEthereum);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
+  await generateBitcoinCash(hasBitcoinCash);
+  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum, hasBitcoinCash: hasBitcoinCash);
+  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum, hasBitcoinCash: hasBitcoinCash);
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
@@ -294,7 +297,7 @@ abstract class MoneroAccountList {
 }
 
 Future<void> generateHaven(bool hasImplementation) async {
-  
+
   final outputFile = File(havenOutputPath);
   const havenCommonHeaders = """
 import 'package:mobx/mobx.dart';
@@ -555,7 +558,86 @@ abstract class Ethereum {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
+Future<void> generateBitcoinCash(bool hasImplementation) async {
+
+  final outputFile = File(bitcoinCashOutputPath);
+  const bitcoinCashCommonHeaders = """
+""";
+  const bitcoinCashCWHeaders = """
+  
+  import 'dart:typed_data';
+  import 'package:cw_bitcoin_cash/src/bitcoin_cash_base.dart';
+  import 'package:cw_core/unspent_coins_info.dart';
+  import 'package:cw_core/wallet_credentials.dart';
+  import 'package:cw_core/wallet_info.dart';
+  import 'package:cw_core/wallet_service.dart';
+  import 'package:hive/hive.dart';
+""";
+
+  const bitcoinCashCwPart = "part 'cw_bitcoin_cash.dart';";
+  const bitcoinCashContent = """
+  abstract class BitcoinCash {
+  String getMnemonic(int? strength);
+  Uint8List getSeedFromMnemonic(String seed);
+  WalletService createBitcoinCashWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  // WalletCredentials createBitcoinCashRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
+  WalletCredentials createBitcoinCashNewWalletCredentials({required String name, WalletInfo? walletInfo});
+
+
+  //
+  // WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  // WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
+
+  //
+  // Map<String, String> getWalletKeys(Object wallet);
+  // List<TransactionPriority> getTransactionPriorities();
+  // List<TransactionPriority> getLitecoinTransactionPriorities();
+  // TransactionPriority deserializeBitcoinTransactionPriority(int raw);
+  // TransactionPriority deserializeLitecoinTransactionPriority(int raw);
+  // int getFeeRate(Object wallet, TransactionPriority priority);
+  // Future<void> generateNewAddress(Object wallet);
+  // Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
+  // Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
+  //
+  // List<String> getAddresses(Object wallet);
+  // String getAddress(Object wallet);
+  //
+  // String formatterBitcoinAmountToString({required int amount});
+  // double formatterBitcoinAmountToDouble({required int amount});
+  // int formatterStringDoubleToBitcoinAmount(String amount);
+  // String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
+  //
+  // void updateUnspents(Object wallet);
+
+  // WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  // TransactionPriority getBitcoinTransactionPriorityMedium();
+  // TransactionPriority getLitecoinTransactionPriorityMedium();
+  // TransactionPriority getBitcoinTransactionPrioritySlow();
+  // TransactionPriority getLitecoinTransactionPrioritySlow();
+  }
+""";
+
+
+  const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
+  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+
+  final output = '$bitcoinCashCommonHeaders\n'
+      + (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n')
+      + (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n')
+      + (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition)
+      + '\n'
+      + bitcoinCashContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+
+}
+
+Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum, required bool hasBitcoinCash}) async {
   const cwCore =  """
   cw_core:
     path: ./cw_core
@@ -579,6 +661,10 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   const cwEthereum = """
   cw_ethereum:
     path: ./cw_ethereum
+  """;
+  const cwBitcoinCash = """
+  cw_bitcoin_cash:
+    path: ./cw_bitcoin_cash
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -604,11 +690,15 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
     output += '\n$cwEthereum';
   }
 
+  if (hasBitcoinCash) {
+    output += '\n$cwBitcoinCash';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
   final outputFile = File(pubspecOutputPath);
-  
+
   if (outputFile.existsSync()) {
     await outputFile.delete();
   }
@@ -616,9 +706,9 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
+Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum, required bool hasBitcoinCash}) async {
   final walletTypesFile = File(walletTypesPath);
-  
+
   if (walletTypesFile.existsSync()) {
     await walletTypesFile.delete();
   }
@@ -645,6 +735,10 @@ Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitc
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
+  }
+
+  if (hasBitcoinCash) {
+    outputContent += '\tWalletType.bitcoinCash,\n';
   }
 
   outputContent += '];\n';

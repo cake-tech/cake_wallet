@@ -1,17 +1,18 @@
-import 'dart:typed_data';
 
-import 'package:cw_bitcoin_cash/src/bitcoin_cash_base.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:hive/hive.dart';
+  
+  import 'dart:typed_data';
+  import 'package:cw_bitcoin_cash/src/bitcoin_cash_base.dart';
+  import 'package:cw_core/unspent_coins_info.dart';
+  import 'package:cw_core/wallet_credentials.dart';
+  import 'package:cw_core/wallet_info.dart';
+  import 'package:cw_core/wallet_service.dart';
+  import 'package:hive/hive.dart';
 
 part 'cw_bitcoin_cash.dart';
 
 BitcoinCash? bitcoinCash = CWBitcoinCash();
 
-abstract class BitcoinCash {
+  abstract class BitcoinCash {
   String getMnemonic(int? strength);
   Uint8List getSeedFromMnemonic(String seed);
   WalletService createBitcoinCashWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
@@ -50,5 +51,4 @@ abstract class BitcoinCash {
   // TransactionPriority getLitecoinTransactionPriorityMedium();
   // TransactionPriority getBitcoinTransactionPrioritySlow();
   // TransactionPriority getLitecoinTransactionPrioritySlow();
-}
-  
+  }
