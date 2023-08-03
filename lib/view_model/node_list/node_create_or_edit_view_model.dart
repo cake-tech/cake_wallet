@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/node.dart';
@@ -9,10 +10,12 @@ import 'package:collection/collection.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
-class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
+class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
+    with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
+  NodeCreateOrEditViewModelBase(
+      this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -156,23 +159,36 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> scanQRCodeForNewNode() async {
-    String code = await presentQRScanner();
+    try {
+      String code = await presentQRScanner();
 
-    if (code.isEmpty) {
-      throw Exception('Unexpected scan QR code value: value is empty');
+      if (code.isEmpty) {
+        throw Exception('Unexpected scan QR code value: value is empty');
+      }
+
+      final uri = Uri.tryParse(code);
+
+      if (uri == null) {
+        throw Exception('Unexpected scan QR code value: Value is invalid');
+      }
+
+      final userInfo = uri.userInfo.split(':');
+   
+      if (userInfo.length < 2) {
+        throw Exception('Unexpected scan QR code value: Value is invalid');
+      }
+
+      final rpcUser = userInfo[0];
+      final rpcPassword = userInfo[1];
+      final ipAddress = uri.host;
+      final port = uri.port.toString();
+
+      setAddress(ipAddress);
+      setPassword(rpcPassword);
+      setLogin(rpcUser);
+      setPort(port);
+    } on Exception catch (e) {
+      connectionState = FailureState(e.toString());
     }
-
-    final uri = Uri.parse(code);
-
-    final userInfo = uri.userInfo.split(':');
-    final rpcUser = userInfo[0];
-    final rpcPassword = userInfo[1];
-    final ipAddress = uri.host;
-    final port = uri.port.toString();
-
-    setAddress(ipAddress);
-    setPassword(rpcPassword);
-    setLogin(rpcUser);
-    setPort(port);
   }
 }
