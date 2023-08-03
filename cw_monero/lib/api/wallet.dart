@@ -158,9 +158,11 @@ bool setupNodeSync(
     String? login,
     String? password,
     bool useSSL = false,
-    bool isLightWallet = false}) {
+    bool isLightWallet = false,
+    String? socksProxyAddress}) {
   final addressPointer = address.toNativeUtf8();
   Pointer<Utf8>? loginPointer;
+  Pointer<Utf8>? socksProxyAddressPointer;
   Pointer<Utf8>? passwordPointer;
 
   if (login != null) {
@@ -171,6 +173,10 @@ bool setupNodeSync(
     passwordPointer = password.toNativeUtf8();
   }
 
+  if (socksProxyAddress != null) {
+    socksProxyAddressPointer = socksProxyAddress.toNativeUtf8();
+  }
+
   final errorMessagePointer = ''.toNativeUtf8();
   final isSetupNode = setupNodeNative(
           addressPointer,
@@ -178,6 +184,7 @@ bool setupNodeSync(
           passwordPointer,
           _boolToInt(useSSL),
           _boolToInt(isLightWallet),
+      socksProxyAddressPointer,
           errorMessagePointer) !=
       0;
 
@@ -328,13 +335,15 @@ bool _setupNodeSync(Map<String, Object?> args) {
   final password = (args['password'] ?? '') as String;
   final useSSL = args['useSSL'] as bool;
   final isLightWallet = args['isLightWallet'] as bool;
+  final socksProxyAddress = (args['socksProxyAddress'] ?? '') as String;
 
   return setupNodeSync(
       address: address,
       login: login,
       password: password,
       useSSL: useSSL,
-      isLightWallet: isLightWallet);
+      isLightWallet: isLightWallet,
+      socksProxyAddress: socksProxyAddress);
 }
 
 bool _isConnected(Object _) => isConnectedSync();
@@ -348,13 +357,15 @@ Future<void> setupNode(
         String? login,
         String? password,
         bool useSSL = false,
+        String? socksProxyAddress,
         bool isLightWallet = false}) =>
     compute<Map<String, Object?>, void>(_setupNodeSync, {
       'address': address,
       'login': login ,
       'password': password,
       'useSSL': useSSL,
-      'isLightWallet': isLightWallet
+      'isLightWallet': isLightWallet,
+      'socksProxyAddress': socksProxyAddress
     });
 
 Future<void> store() => compute<int, void>(_storeSync, 0);

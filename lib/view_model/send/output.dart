@@ -18,6 +18,8 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 
+import 'package:cake_wallet/entities/contact_base.dart';
+
 part 'output.g.dart';
 
 const String cryptoNumberPattern = '0.0';
@@ -242,6 +244,13 @@ abstract class OutputBase with Store {
     final ticker = cryptoCurrencyHandler().title.toLowerCase();
     parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
+    note = parsedAddress.description;
+  }
+
+  void loadContact(ContactBase contact) {
+    address = contact.name;
+    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
+    extractedAddress = parsedAddress.addresses.first;
     note = parsedAddress.description;
   }
 }
