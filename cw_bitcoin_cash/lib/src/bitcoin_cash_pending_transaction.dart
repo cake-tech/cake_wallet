@@ -1,4 +1,3 @@
-
 import 'package:cw_core/pending_transaction.dart';
 
 class BitcoinCashPendingTransaction with PendingTransaction {

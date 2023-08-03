@@ -19,6 +19,8 @@ dependencies:
   flutter_mobx: ^2.0.6+1
   cw_core:
     path: ../cw_core
+  cw_bitcoin:
+    path: ../cw_bitcoin
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git

@@ -19,8 +19,6 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
 
-
-
   @override
   WalletType getType() => WalletType.bitcoinCash;
 
@@ -29,19 +27,21 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> create(credentials) async {
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> create(
+      credentials) async {
     final wallet = await BitcoinCashWalletBase.create(
         mnemonic: await Mnemonic.generate(),
-    password: credentials.password!,
-    walletInfo: credentials.walletInfo!,
-    unspentCoinsInfo: unspentCoinsInfoSource);
+        password: credentials.password!,
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
     return wallet;
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(String name, String password) {
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(
+      String name, String password) {
     // TODO: implement openWallet
     throw UnimplementedError();
   }
@@ -59,15 +59,16 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromKeys(credentials) {
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+      restoreFromKeys(credentials) {
     // TODO: implement restoreFromKeys
     throw UnimplementedError();
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromSeed(credentials) {
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+      restoreFromSeed(credentials) {
     // TODO: implement restoreFromSeed
     throw UnimplementedError();
   }
-
 }

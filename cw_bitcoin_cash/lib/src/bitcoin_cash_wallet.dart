@@ -1,86 +1,62 @@
-import 'package:bitbox/bitbox.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cw_bitcoin_cash/src/bitcoin_cash_transaction_history.dart';
-import 'package:cw_bitcoin_cash/src/bitcoin_cash_transaction_info.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:bip32/bip32.dart';
 
-import 'bitcoin_cash_balance.dart';
-import 'bitcoin_cash_client.dart';
-import 'bitcoin_cash_pending_transaction.dart';
-import 'bitcoin_cash_wallet_addresses.dart';
+import 'bitcoin_cash_base.dart';
 
 part 'bitcoin_cash_wallet.g.dart';
 
 class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
-abstract class BitcoinCashWalletBase extends WalletBase<BitcoinCashBalance,
-    BitcoinCashTransactionHistory, BitcoinCashTransactionInfo> with Store {
+abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   BitcoinCashWalletBase(
-      {required String password,
+      {required String mnemonic,
+      required String password,
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required this.mnemonic,
       required Uint8List seedBytes,
-      List<BitcoinCashWalletAddresses>? initialAddresses,
-      BitcoinCashClient? bitcoinCashClient,
-      BitcoinCashBalance? initialBalance,
-      CryptoCurrency? currency})
-      : hd = BIP32.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0/0"),
-        syncStatus = NotConnectedSyncStatus(),
-        _password = password,
-        _isTransactionUpdating = false,
-        balance = ObservableMap<CryptoCurrency, BitcoinCashBalance>.of(
-            {currency ?? CryptoCurrency.bch: initialBalance ?? BitcoinCashBalance(0)}),
-        this.unspentCoinsInfo = unspentCoinsInfo,
-        super(walletInfo) {
-    this.bitcoinCashClient = bitcoinCashClient ?? BitcoinCashClient();
-    this.walletInfo = walletInfo;
-    walletAddresses = BitcoinCashWalletAddresses(walletInfo, mainHd: hd);
-    transactionHistory = BitcoinCashTransactionHistory(walletInfo: walletInfo, password: password);
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0})
+      : super(
+            mnemonic: mnemonic,
+            password: password,
+            walletInfo: walletInfo,
+            unspentCoinsInfo: unspentCoinsInfo,
+            networkType: bitcoin.bitcoin,
+            initialAddresses: initialAddresses,
+            initialBalance: initialBalance,
+            seedBytes: seedBytes,
+            currency: CryptoCurrency.bch) {
+    walletAddresses = BitcoinCashWalletAddresses(walletInfo,
+        electrumClient: electrumClient,
+        initialAddresses: initialAddresses,
+        initialRegularAddressIndex: initialRegularAddressIndex,
+        initialChangeAddressIndex: initialChangeAddressIndex,
+        mainHd: hd,
+        sideHd: hd,
+        //TODO: BCH check if this is correct
+        networkType: networkType);
   }
 
-  final BIP32 hd;
-  final String mnemonic;
-
-  late BitcoinCashClient bitcoinCashClient;
-  Box<UnspentCoinsInfo> unspentCoinsInfo;
-
-  @override
-  String get seed => mnemonic;
-
-  @override
-  late BitcoinCashWalletAddresses walletAddresses;
-
-  @override
-  @observable
-  late ObservableMap<CryptoCurrency, BitcoinCashBalance> balance;
-
-  @override
-  @observable
-  SyncStatus syncStatus;
-
-  String _password;
-  bool _isTransactionUpdating;
-
-  static Future<BitcoinCashWallet> create({
-    required String mnemonic,
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    List<BitcoinCashWalletAddresses>? initialAddresses,
-    BitcoinCashBalance? initialBalance,
-  }) async {
+  static Future<BitcoinCashWallet> create(
+      {required String mnemonic,
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0}) async {
     return BitcoinCashWallet(
         mnemonic: mnemonic,
         password: password,
@@ -88,63 +64,27 @@ abstract class BitcoinCashWalletBase extends WalletBase<BitcoinCashBalance,
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: initialAddresses,
         initialBalance: initialBalance,
-        seedBytes: Mnemonic.toSeed(mnemonic));
+        seedBytes: await Mnemonic.toSeed(mnemonic),
+        initialRegularAddressIndex: initialRegularAddressIndex,
+        initialChangeAddressIndex: initialChangeAddressIndex);
   }
 
-  @override
-  Future<void> init() async {
-    UnimplementedError();
+  static Future<BitcoinCashWallet> open({
+    required String name,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required String password,
+  }) async {
+    final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
+    return BitcoinCashWallet(
+        mnemonic: snp.mnemonic,
+        password: password,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfo,
+        initialAddresses: snp.addresses,
+        initialBalance: snp.balance,
+        seedBytes: await Mnemonic.toSeed(snp.mnemonic),
+        initialRegularAddressIndex: snp.regularAddressIndex,
+        initialChangeAddressIndex: snp.changeAddressIndex);
   }
-  @override
-  Future<void> save() async {
-    UnimplementedError();
-  }
-  @override
-  Future<void> connectToNode({required Node node}) async {
-    UnimplementedError();
-  }
-  @override
-  Future<void> startSync() async {
-    UnimplementedError();
-  }
-  @override
-  Future<PendingTransaction> createTransaction(Object credentials) async {
-    return BitcoinCashPendingTransaction();
-  }
-  @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    return 1;
-  }
-
-  @override
-  Future<void> updateBalance() async {
-    UnimplementedError();
-  }
-
-  @override
-  Future<void> changePassword(String newPassword) async {
-    UnimplementedError();
-  }
-  @override
-  void close() {
-    UnimplementedError();
-  }
-
-  @override
-  Future<Map<String, BitcoinCashTransactionInfo>> fetchTransactions() async {
-    return {};
-  }
-
-  @override
-  Future<void> rescan({required int height}) async {
-    UnimplementedError();
-  }
-
-  @override
-  Future<void> renameWalletFiles(String newName) async {
-    UnimplementedError();
-  }
-
-  @override
-  Object get keys => throw UnimplementedError("keys");
 }
