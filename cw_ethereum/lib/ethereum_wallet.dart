@@ -49,7 +49,6 @@ abstract class EthereumWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _priorityFees = [],
         _isTransactionUpdating = false,
         _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
@@ -75,8 +74,8 @@ abstract class EthereumWalletBase
 
   late EthereumClient _client;
 
-  List<int> _priorityFees;
   int? _gasPrice;
+  int? _estimatedGas;
   bool _isTransactionUpdating;
 
   // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
@@ -108,7 +107,9 @@ abstract class EthereumWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     try {
       if (priority is EthereumTransactionPriority) {
-        return _gasPrice! * _priorityFees[priority.raw];
+        final priorityFee =
+            EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip).getInWei.toInt();
+        return (_gasPrice! + priorityFee) * (_estimatedGas ?? 0);
       }
 
       return 0;
@@ -175,7 +176,8 @@ abstract class EthereumWalletBase
       }
     } else {
       final output = outputs.first;
-      final BigInt allAmount = _erc20Balance.balance - BigInt.from(feeRate(_credentials.priority!));
+      final BigInt allAmount =
+          _erc20Balance.balance - BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
       final totalOriginalAmount =
           EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
       totalAmount = output.sendAll
@@ -191,7 +193,7 @@ abstract class EthereumWalletBase
       privateKey: _privateKey,
       toAddress: _credentials.outputs.first.address,
       amount: totalAmount.toString(),
-      gas: _priorityFees[_credentials.priority!.raw],
+      gas: _estimatedGas!,
       priority: _credentials.priority!,
       currency: _credentials.currency,
       exponent: exponent,
@@ -295,28 +297,16 @@ abstract class EthereumWalletBase
       await _updateBalance();
       await _updateTransactions();
       _gasPrice = await _client.getGasUnitPrice();
-      _priorityFees = await _client.getEstimatedGasForPriorities();
+      _estimatedGas = await _client.getEstimatedGas();
 
       Timer.periodic(
           const Duration(minutes: 1), (timer) async => _gasPrice = await _client.getGasUnitPrice());
-      Timer.periodic(const Duration(minutes: 1),
-          (timer) async => _priorityFees = await _client.getEstimatedGasForPriorities());
+      Timer.periodic(const Duration(seconds: 10),
+          (timer) async => _estimatedGas = await _client.getEstimatedGas());
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-    }
-  }
-
-  int feeRate(TransactionPriority priority) {
-    try {
-      if (priority is EthereumTransactionPriority) {
-        return _priorityFees[priority.raw];
-      }
-
-      return 0;
-    } catch (e) {
-      return 0;
     }
   }
 

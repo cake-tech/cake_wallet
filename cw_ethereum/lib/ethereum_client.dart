@@ -46,17 +46,9 @@ class EthereumClient {
     return gasPrice.getInWei.toInt();
   }
 
-  Future<List<int>> getEstimatedGasForPriorities() async {
-    // TODO: there is no difference, find out why
-    // [53000, 53000, 53000]
-    final result = await Future.wait(EthereumTransactionPriority.all.map(
-      (priority) => _client!.estimateGas(
-          // maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
-          // maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
-          ),
-    ));
-
-    return result.map((e) => e.toInt()).toList();
+  Future<int> getEstimatedGas() async {
+    final estimatedGas = await _client!.estimateGas();
+    return estimatedGas.toInt();
   }
 
   Future<PendingEthereumTransaction> signTransaction({
@@ -80,6 +72,7 @@ class EthereumClient {
       to: EthereumAddress.fromHex(toAddress),
       maxGas: gas,
       gasPrice: price,
+      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
       value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 

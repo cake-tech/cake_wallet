@@ -511,7 +511,6 @@ abstract class Ethereum {
   TransactionPriority getDefaultTransactionPriority();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
-  int getEstimatedFee(Object wallet, TransactionPriority priority);
 
   Object createEthereumTransactionCredentials(
     List<Output> outputs, {

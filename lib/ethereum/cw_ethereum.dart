@@ -35,12 +35,6 @@ class CWEthereum extends Ethereum {
   TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
       EthereumTransactionPriority.deserialize(raw: raw);
 
-  @override
-  int getEstimatedFee(Object wallet, TransactionPriority priority) {
-    final ethereumWallet = wallet as EthereumWallet;
-    return ethereumWallet.feeRate(priority);
-  }
-
   Object createEthereumTransactionCredentials(
     List<Output> outputs, {
     required TransactionPriority priority,
