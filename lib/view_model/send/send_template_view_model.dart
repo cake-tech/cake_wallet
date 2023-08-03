@@ -32,7 +32,6 @@ abstract class SendTemplateViewModelBase with Store {
   @action
   void addRecipient() {
     recipients.add(TemplateViewModel(
-        cryptoCurrency: cryptoCurrency,
         wallet: _wallet,
         settingsStore: _settingsStore,
         fiatConversationStore: _fiatConversationStore));
@@ -57,17 +56,8 @@ abstract class SendTemplateViewModelBase with Store {
   @computed
   String get fiatCurrency => _settingsStore.fiatCurrency.title;
 
-  @action
-  void changeSelectedCurrency(CryptoCurrency currency) {
-    isCurrencySelected = true;
-    _currency = currency;
-  }
-
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
-
-  @computed
-  List<CryptoCurrency> get walletCurrencies => _wallet.balance.keys.toList();
 
   @action
   void updateTemplate() => _sendTemplateStore.update();
@@ -76,6 +66,7 @@ abstract class SendTemplateViewModelBase with Store {
   void addTemplate(
       {required String name,
       required bool isCurrencySelected,
+      required String cryptoCurrency,
       required String address,
       required String amount,
       required String amountFiat,
@@ -84,7 +75,7 @@ abstract class SendTemplateViewModelBase with Store {
         name: name,
         isCurrencySelected: isCurrencySelected,
         address: address,
-        cryptoCurrency: cryptoCurrency.title,
+        cryptoCurrency: cryptoCurrency,
         fiatCurrency: fiatCurrency,
         amount: amount,
         amountFiat: amountFiat,
@@ -97,4 +88,7 @@ abstract class SendTemplateViewModelBase with Store {
     _sendTemplateStore.remove(template: template);
     updateTemplate();
   }
+
+  @computed
+  List<CryptoCurrency> get walletCurrencies => _wallet.balance.keys.toList();
 }

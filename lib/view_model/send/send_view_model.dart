@@ -328,4 +328,14 @@ abstract class SendViewModelBase with Store {
   @action
   void setFiatCurrency(FiatCurrency fiat) =>
       _settingsStore.fiatCurrency = fiat;
+
+  @action
+  void setSelectedCryptoCurrency(String cryptoCurrency) {
+    try {
+      selectedCryptoCurrency = _wallet.balance.keys
+          .firstWhere((e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
+    } catch (e) {
+      selectedCryptoCurrency = _wallet.currency;
+    }
+  }
 }

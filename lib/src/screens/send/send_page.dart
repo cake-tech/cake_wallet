@@ -243,10 +243,8 @@ class SendPage extends BasePage {
                                       key: UniqueKey(),
                                       to: template.name,
                                       hasMultipleRecipients:
-                                          template.additionalRecipients !=
-                                                  null &&
-                                              template.additionalRecipients!
-                                                  .length > 1,
+                                          template.additionalRecipients != null &&
+                                              template.additionalRecipients!.length > 1,
                                       amount: template.isCurrencySelected
                                           ? template.amount
                                           : template.amountFiat,
@@ -254,16 +252,13 @@ class SendPage extends BasePage {
                                           ? template.cryptoCurrency
                                           : template.fiatCurrency,
                                       onTap: () async {
-                                        if (template.additionalRecipients !=
-                                            null) {
+                                        print("##########");
+                                        print(template.cryptoCurrency);
+                                        print(template.additionalRecipients!.first.cryptoCurrency);
+                                        if (template.additionalRecipients?.isNotEmpty ?? false) {
                                           sendViewModel.clearOutputs();
 
-                                          template.additionalRecipients!
-                                              .forEach((currentElement) async {
-                                            int i = template
-                                                .additionalRecipients!
-                                                .indexOf(currentElement);
-
+                                          for (int i = 0;i < template.additionalRecipients!.length;i++) {
                                             Output output;
                                             try {
                                               output = sendViewModel.outputs[i];
@@ -273,16 +268,18 @@ class SendPage extends BasePage {
                                             }
 
                                             await _setInputsFromTemplate(
-                                                context,
-                                                output: output,
-                                                template: currentElement);
-                                          });
+                                              context,
+                                              output: output,
+                                              template: template.additionalRecipients![i],
+                                            );
+                                          }
                                         } else {
-                                            final output = _defineCurrentOutput();
-                                            await _setInputsFromTemplate(
-                                                context,
-                                                output: output,
-                                                template: template);
+                                          final output = _defineCurrentOutput();
+                                          await _setInputsFromTemplate(
+                                            context,
+                                            output: output,
+                                            template: template,
+                                          );
                                         }
                                       },
                                       onRemove: () {
@@ -500,8 +497,11 @@ class SendPage extends BasePage {
         .singleWhere((element) => element.title == template.fiatCurrency);
 
     output.address = template.address;
+    print("@@@@@@@@@@@");
+    print(template.cryptoCurrency);
 
     if (template.isCurrencySelected) {
+      sendViewModel.setSelectedCryptoCurrency(template.cryptoCurrency);
       output.setCryptoAmount(template.amount);
     } else {
       sendViewModel.setFiatCurrency(fiatFromTemplate);
