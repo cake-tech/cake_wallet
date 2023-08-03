@@ -61,8 +61,9 @@ abstract class SendViewModelBase with Store {
   ObservableList<Output> outputs;
 
   @action
-  void addOutput() {
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+  void addOutput({String? currency}) {
+    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore,
+        currency != null ? () => getCryptoCurrency(currency) : () => selectedCryptoCurrency));
   }
 
   @action
@@ -327,13 +328,17 @@ abstract class SendViewModelBase with Store {
   void setFiatCurrency(FiatCurrency fiat) =>
       _settingsStore.fiatCurrency = fiat;
 
+  CryptoCurrency getCryptoCurrency(String cryptoCurrency) {
+    try {
+      return _wallet.balance.keys.firstWhere(
+          (e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
+    } catch (e) {
+      return _wallet.currency;
+    }
+  }
+
   @action
   void setSelectedCryptoCurrency(String cryptoCurrency) {
-    try {
-      selectedCryptoCurrency = _wallet.balance.keys
-          .firstWhere((e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
-    } catch (e) {
-      selectedCryptoCurrency = _wallet.currency;
-    }
+    selectedCryptoCurrency = getCryptoCurrency(cryptoCurrency);
   }
 }

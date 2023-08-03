@@ -79,7 +79,7 @@ abstract class TemplateViewModelBase with Store {
 
   @action
   void changeSelectedCurrency(CryptoCurrency currency) {
-    isCurrencySelected = true;
+    selectCurrency();
     _currency = currency;
   }
 

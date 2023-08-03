@@ -226,7 +226,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                     ),
                                                   ),
                                                   Text(
-                                                    sendViewModel.selectedCryptoCurrency.title,
+                                                    output.cryptoCurrencyHandler().title,
                                                     style: TextStyle(
                                                         fontWeight: FontWeight.w600,
                                                         fontSize: 16,
@@ -237,13 +237,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                             ),
                                           )
                                         : Text(
-                                            sendViewModel.selectedCryptoCurrency.title,
+                                            output.cryptoCurrencyHandler().title,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16,
                                                 color: Colors.white),
                                           ),
-                                    sendViewModel.selectedCryptoCurrency.tag != null
+                                    output.cryptoCurrencyHandler().tag != null
                                         ? Padding(
                                             padding: const EdgeInsets.fromLTRB(3.0, 0, 3.0, 0),
                                             child: Container(
@@ -260,7 +260,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                 child: Padding(
                                                   padding: const EdgeInsets.all(6.0),
                                                   child: Text(
-                                                    sendViewModel.selectedCryptoCurrency.tag!,
+                                                    output.cryptoCurrencyHandler().tag!,
                                                     style: TextStyle(
                                                         fontSize: 12,
                                                         fontWeight: FontWeight.bold,
@@ -479,7 +479,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                         Text(
                                           output.estimatedFee.toString() +
                                               ' ' +
-                                              sendViewModel.selectedCryptoCurrency.toString(),
+                                              output.cryptoCurrencyHandler().toString(),
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -690,11 +690,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-        selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
+        selectedAtIndex: sendViewModel.currencies.indexOf(output.cryptoCurrencyHandler()),
         items: sendViewModel.currencies,
         hintText: S.of(context).search_currency,
         onItemSelected: (Currency cur) =>
-            sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency),
+            output.cryptoCurrencyHandler = () => (cur as CryptoCurrency),
       ),
     );
   }

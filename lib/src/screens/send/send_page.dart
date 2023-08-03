@@ -254,19 +254,25 @@ class SendPage extends BasePage {
                                       if (template.additionalRecipients?.isNotEmpty ?? false) {
                                         sendViewModel.clearOutputs();
 
-                                        for (int i = 0;i < template.additionalRecipients!.length;i++) {
+                                        for (int i = 0;
+                                              i < template.additionalRecipients!.length;
+                                              i++) {
+                                            final currentTemplate =
+                                                template.additionalRecipients![i];
                                           Output output;
                                           try {
                                             output = sendViewModel.outputs[i];
                                           } catch (e) {
-                                            sendViewModel.addOutput();
+                                            sendViewModel.addOutput(
+                                                currency: currentTemplate.cryptoCurrency,
+                                              );
                                             output = sendViewModel.outputs[i];
                                           }
 
                                           await _setInputsFromTemplate(
                                             context,
                                             output: output,
-                                            template: template.additionalRecipients![i],
+                                            template: currentTemplate,
                                           );
                                         }
                                       } else {
@@ -495,7 +501,6 @@ class SendPage extends BasePage {
     output.address = template.address;
 
     if (template.isCurrencySelected) {
-      sendViewModel.setSelectedCryptoCurrency(template.cryptoCurrency);
       output.setCryptoAmount(template.amount);
     } else {
       sendViewModel.setFiatCurrency(fiatFromTemplate);

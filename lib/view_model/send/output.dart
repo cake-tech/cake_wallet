@@ -152,7 +152,10 @@ abstract class OutputBase with Store {
   }
 
   WalletType get walletType => _wallet.type;
-  final CryptoCurrency Function() cryptoCurrencyHandler;
+
+  @observable
+  CryptoCurrency Function() cryptoCurrencyHandler;
+
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
