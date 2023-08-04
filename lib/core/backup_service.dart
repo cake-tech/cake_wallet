@@ -223,8 +223,7 @@ class BackupService {
         data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
-    final selectedCake2FAPreset =
-        data[PreferencesKey.selectedCake2FAPreset] as Cake2FAPresetsOptions?;
+    final selectedCake2FAPreset = data[PreferencesKey.selectedCake2FAPreset] as int?;
     final shouldRequireTOTP2FAForAccessingWallet =
         data[PreferencesKey.shouldRequireTOTP2FAForAccessingWallet] as bool?;
     final shouldRequireTOTP2FAForSendsToContact =
@@ -314,8 +313,7 @@ class BackupService {
           PreferencesKey.bitcoinTransactionPriority, bitcoinTransactionPriority);
 
     if (selectedCake2FAPreset != null)
-      _sharedPreferences.setInt(
-          PreferencesKey.selectedCake2FAPreset, selectedCake2FAPreset.serialize());
+      _sharedPreferences.setInt(PreferencesKey.selectedCake2FAPreset, selectedCake2FAPreset);
 
     if (shouldRequireTOTP2FAForAccessingWallet != null)
       _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet,
@@ -493,7 +491,7 @@ class BackupService {
       PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings: _sharedPreferences
           .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     };
-    
+
     return json.encode(preferences);
   }
 
