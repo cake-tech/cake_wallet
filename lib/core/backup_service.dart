@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -19,8 +20,8 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 class BackupService {
-  BackupService(this._flutterSecureStorage, this._walletInfoSource,
-      this._keyService, this._sharedPreferences)
+  BackupService(
+      this._flutterSecureStorage, this._walletInfoSource, this._keyService, this._sharedPreferences)
       : _cipher = Cryptography.instance.chacha20Poly1305Aead(),
         _correctWallets = <WalletInfo>[];
 
@@ -67,9 +68,8 @@ class BackupService {
   }
 
   @Deprecated('Use v2 instead')
-  Future<Uint8List> _exportBackupV1(String password,
-      {String nonce = secrets.backupSalt}) async
-    => throw Exception('Deprecated. Export for backups v1 is deprecated. Please use export v2.');
+  Future<Uint8List> _exportBackupV1(String password, {String nonce = secrets.backupSalt}) async =>
+      throw Exception('Deprecated. Export for backups v1 is deprecated. Please use export v2.');
 
   Future<Uint8List> _exportBackupV2(String password) async {
     final zipEncoder = ZipFileEncoder();
@@ -112,8 +112,7 @@ class BackupService {
     return await _encryptV2(content, password);
   }
 
-  Future<void> _importBackupV1(Uint8List data, String password,
-      {required String nonce}) async {
+  Future<void> _importBackupV1(Uint8List data, String password, {required String nonce}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final decryptedData = await _decryptV1(data, password, nonce);
     final zip = ZipDecoder().decodeBytes(decryptedData);
@@ -161,10 +160,8 @@ class BackupService {
 
   Future<void> _verifyWallets() async {
     final walletInfoSource = await _reloadHiveWalletInfoBox();
-    _correctWallets = walletInfoSource
-      .values
-      .where((info) => availableWalletTypes.contains(info.type))
-      .toList();
+    _correctWallets =
+        walletInfoSource.values.where((info) => availableWalletTypes.contains(info.type)).toList();
 
     if (_correctWallets.isEmpty) {
       throw Exception('Correct wallets not detected');
@@ -191,14 +188,12 @@ class BackupService {
       return;
     }
 
-    final data =
-        json.decode(preferencesFile.readAsStringSync()) as Map<String, dynamic>;
+    final data = json.decode(preferencesFile.readAsStringSync()) as Map<String, dynamic>;
     String currentWalletName = data[PreferencesKey.currentWalletName] as String;
     int currentWalletType = data[PreferencesKey.currentWalletType] as int;
 
     final isCorrentCurrentWallet = _correctWallets
-      .any((info) => info.name == currentWalletName &&
-          info.type.index == currentWalletType);
+        .any((info) => info.name == currentWalletName && info.type.index == currentWalletType);
 
     if (!isCorrentCurrentWallet) {
       currentWalletName = _correctWallets.first.name;
@@ -212,138 +207,173 @@ class BackupService {
     final isAppSecure = data[PreferencesKey.isAppSecureKey] as bool?;
     final disableBuy = data[PreferencesKey.disableBuyKey] as bool?;
     final disableSell = data[PreferencesKey.disableSellKey] as bool?;
-    final currentTransactionPriorityKeyLegacy = data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
-    final allowBiometricalAuthentication = data[PreferencesKey.allowBiometricalAuthenticationKey] as bool?;
-    final currentBitcoinElectrumSererId = data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
+    final currentTransactionPriorityKeyLegacy =
+        data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
+    final allowBiometricalAuthentication =
+        data[PreferencesKey.allowBiometricalAuthenticationKey] as bool?;
+    final currentBitcoinElectrumSererId =
+        data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
     final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
-    final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
+    final currentDefaultSettingsMigrationVersion =
+        data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
+    final selectedCake2FAPreset = data[PreferencesKey.selectedCake2FAPreset] as int?;
+    final shouldRequireTOTP2FAForAccessingWallet =
+        data[PreferencesKey.shouldRequireTOTP2FAForAccessingWallet] as bool?;
+    final shouldRequireTOTP2FAForSendsToContact =
+        data[PreferencesKey.shouldRequireTOTP2FAForSendsToContact] as bool?;
+    final shouldRequireTOTP2FAForSendsToNonContact =
+        data[PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact] as bool?;
+    final shouldRequireTOTP2FAForSendsToInternalWallets =
+        data[PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets] as bool?;
+    final shouldRequireTOTP2FAForExchangesToInternalWallets =
+        data[PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets] as bool?;
+    final shouldRequireTOTP2FAForAddingContacts =
+        data[PreferencesKey.shouldRequireTOTP2FAForAddingContacts] as bool?;
+    final shouldRequireTOTP2FAForCreatingNewWallets =
+        data[PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets] as bool?;
+    final shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
+        data[PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings] as bool?;
 
-    await _sharedPreferences.setString(PreferencesKey.currentWalletName,
-        currentWalletName);
+    await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
     if (currentNodeId != null)
-      await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey,
-        currentNodeId);
+      await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, currentNodeId);
 
     if (currentBalanceDisplayMode != null)
-      await _sharedPreferences.setInt(PreferencesKey.currentBalanceDisplayModeKey,
-        currentBalanceDisplayMode);
+      await _sharedPreferences.setInt(
+          PreferencesKey.currentBalanceDisplayModeKey, currentBalanceDisplayMode);
 
-    await _sharedPreferences.setInt(PreferencesKey.currentWalletType,
-        currentWalletType);
+    await _sharedPreferences.setInt(PreferencesKey.currentWalletType, currentWalletType);
 
     if (currentFiatCurrency != null)
-      await _sharedPreferences.setString(PreferencesKey.currentFiatCurrencyKey,
-        currentFiatCurrency);
+      await _sharedPreferences.setString(
+          PreferencesKey.currentFiatCurrencyKey, currentFiatCurrency);
 
     if (shouldSaveRecipientAddress != null)
       await _sharedPreferences.setBool(
-        PreferencesKey.shouldSaveRecipientAddressKey,
-        shouldSaveRecipientAddress);
+          PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress);
 
     if (isAppSecure != null)
-      await _sharedPreferences.setBool(
-          PreferencesKey.isAppSecureKey,
-          isAppSecure);
+      await _sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
 
     if (disableBuy != null)
-      await _sharedPreferences.setBool(
-          PreferencesKey.disableBuyKey,
-          disableBuy);
+      await _sharedPreferences.setBool(PreferencesKey.disableBuyKey, disableBuy);
 
     if (disableSell != null)
-      await _sharedPreferences.setBool(
-          PreferencesKey.disableSellKey,
-          disableSell);
+      await _sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell);
 
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(
-        PreferencesKey.currentTransactionPriorityKeyLegacy,
-        currentTransactionPriorityKeyLegacy);
+          PreferencesKey.currentTransactionPriorityKeyLegacy, currentTransactionPriorityKeyLegacy);
 
     if (allowBiometricalAuthentication != null)
       await _sharedPreferences.setBool(
-        PreferencesKey.allowBiometricalAuthenticationKey,
-        allowBiometricalAuthentication);
+          PreferencesKey.allowBiometricalAuthenticationKey, allowBiometricalAuthentication);
 
     if (currentBitcoinElectrumSererId != null)
       await _sharedPreferences.setInt(
-        PreferencesKey.currentBitcoinElectrumSererIdKey,
-        currentBitcoinElectrumSererId);
+          PreferencesKey.currentBitcoinElectrumSererIdKey, currentBitcoinElectrumSererId);
 
     if (currentLanguageCode != null)
-      await _sharedPreferences.setString(PreferencesKey.currentLanguageCode,
-        currentLanguageCode);
+      await _sharedPreferences.setString(PreferencesKey.currentLanguageCode, currentLanguageCode);
 
     if (displayActionListMode != null)
-      await _sharedPreferences.setInt(PreferencesKey.displayActionListModeKey,
-        displayActionListMode);
+      await _sharedPreferences.setInt(
+          PreferencesKey.displayActionListModeKey, displayActionListMode);
 
     if (fiatApiMode != null)
-      await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey,
-          fiatApiMode);
+      await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
 
     if (currentPinLength != null)
-      await _sharedPreferences.setInt(PreferencesKey.currentPinLength,
-        currentPinLength);
+      await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
     if (currentTheme != null)
-      await _sharedPreferences.setInt(
-        PreferencesKey.currentTheme, currentTheme);
+      await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
 
     if (exchangeStatus != null)
-      await _sharedPreferences.setInt(
-        PreferencesKey.exchangeStatusKey, exchangeStatus);
+      await _sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, exchangeStatus);
 
     if (currentDefaultSettingsMigrationVersion != null)
-      await _sharedPreferences.setInt(
-        PreferencesKey.currentDefaultSettingsMigrationVersion,
-        currentDefaultSettingsMigrationVersion);
+      await _sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion,
+          currentDefaultSettingsMigrationVersion);
 
     if (moneroTransactionPriority != null)
-      await _sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
-        moneroTransactionPriority);
+      await _sharedPreferences.setInt(
+          PreferencesKey.moneroTransactionPriority, moneroTransactionPriority);
 
     if (bitcoinTransactionPriority != null)
-      await _sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
-        bitcoinTransactionPriority);
+      await _sharedPreferences.setInt(
+          PreferencesKey.bitcoinTransactionPriority, bitcoinTransactionPriority);
+
+    if (selectedCake2FAPreset != null)
+      await _sharedPreferences.setInt(PreferencesKey.selectedCake2FAPreset, selectedCake2FAPreset);
+
+    if (shouldRequireTOTP2FAForAccessingWallet != null)
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet,
+          shouldRequireTOTP2FAForAccessingWallet);
+
+    if (shouldRequireTOTP2FAForSendsToContact != null)
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact,
+          shouldRequireTOTP2FAForSendsToContact);
+
+    if (shouldRequireTOTP2FAForSendsToNonContact != null)
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact,
+          shouldRequireTOTP2FAForSendsToNonContact);
+
+    if (shouldRequireTOTP2FAForSendsToInternalWallets != null)
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets,
+          shouldRequireTOTP2FAForSendsToInternalWallets);
+
+    if (shouldRequireTOTP2FAForExchangesToInternalWallets != null)
+      await _sharedPreferences.setBool(
+          PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
+          shouldRequireTOTP2FAForExchangesToInternalWallets);
+
+    if (shouldRequireTOTP2FAForAddingContacts != null)
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts,
+          shouldRequireTOTP2FAForAddingContacts);
+
+    if (shouldRequireTOTP2FAForCreatingNewWallets != null)
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets,
+          shouldRequireTOTP2FAForCreatingNewWallets);
+
+    if (shouldRequireTOTP2FAForAllSecurityAndBackupSettings != null)
+      await _sharedPreferences.setBool(
+          PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
 
     await preferencesFile.delete();
   }
 
   Future<void> _importKeychainDumpV1(String password,
-      {required String nonce,
-      String keychainSalt = secrets.backupKeychainSalt}) async {
+      {required String nonce, String keychainSalt = secrets.backupKeychainSalt}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
-    final decryptedKeychainDumpFileData = await _decryptV1(
-        keychainDumpFile.readAsBytesSync(), '$keychainSalt$password', nonce);
-    final keychainJSON = json.decode(utf8.decode(decryptedKeychainDumpFileData))
-        as Map<String, dynamic>;
+    final decryptedKeychainDumpFileData =
+        await _decryptV1(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password', nonce);
+    final keychainJSON =
+        json.decode(utf8.decode(decryptedKeychainDumpFileData)) as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
     final decodedPin = keychainJSON['pin'] as String;
     final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final backupPasswordKey =
-        generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+    final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
-    await _flutterSecureStorage.write(
-        key: backupPasswordKey, value: backupPassword);
+    await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
 
-    await _flutterSecureStorage.write(
-        key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }
@@ -352,27 +382,24 @@ class BackupService {
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
-    final decryptedKeychainDumpFileData = await _decryptV2(
-        keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
-    final keychainJSON = json.decode(utf8.decode(decryptedKeychainDumpFileData))
-        as Map<String, dynamic>;
+    final decryptedKeychainDumpFileData =
+        await _decryptV2(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
+    final keychainJSON =
+        json.decode(utf8.decode(decryptedKeychainDumpFileData)) as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
     final decodedPin = keychainJSON['pin'] as String;
     final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final backupPasswordKey =
-        generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+    final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
-    await _flutterSecureStorage.write(
-        key: backupPasswordKey, value: backupPassword);
+    await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
 
-    await _flutterSecureStorage.write(
-        key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }
@@ -386,35 +413,26 @@ class BackupService {
 
   @Deprecated('Use v2 instead')
   Future<Uint8List> _exportKeychainDumpV1(String password,
-      {required String nonce,
-      String keychainSalt = secrets.backupKeychainSalt}) async
-    => throw Exception('Deprecated');
+          {required String nonce, String keychainSalt = secrets.backupKeychainSalt}) async =>
+      throw Exception('Deprecated');
 
   Future<Uint8List> _exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPin = await _flutterSecureStorage.read(key: key);
     final decodedPin = decodedPinCode(pin: encodedPin!);
-    final wallets =
-        await Future.wait(_walletInfoSource.values.map((walletInfo) async {
+    final wallets = await Future.wait(_walletInfoSource.values.map((walletInfo) async {
       return {
         'name': walletInfo.name,
         'type': walletInfo.type.toString(),
-        'password':
-            await _keyService.getWalletPassword(walletName: walletInfo.name)
+        'password': await _keyService.getWalletPassword(walletName: walletInfo.name)
       };
     }));
-    final backupPasswordKey =
-        generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    final backupPassword =
-        await _flutterSecureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(json.encode({
-      'pin': decodedPin,
-      'wallets': wallets,
-      backupPasswordKey: backupPassword
-    }));
-    final encrypted = await _encryptV2(
-        Uint8List.fromList(data), '$keychainSalt$password');
+    final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+    final backupPassword = await _flutterSecureStorage.read(key: backupPasswordKey);
+    final data = utf8.encode(
+        json.encode({'pin': decodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
+    final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
   }
@@ -423,46 +441,57 @@ class BackupService {
     final preferences = <String, dynamic>{
       PreferencesKey.currentWalletName:
           _sharedPreferences.getString(PreferencesKey.currentWalletName),
-      PreferencesKey.currentNodeIdKey:
-          _sharedPreferences.getInt(PreferencesKey.currentNodeIdKey),
-      PreferencesKey.currentBalanceDisplayModeKey: _sharedPreferences
-          .getInt(PreferencesKey.currentBalanceDisplayModeKey),
-      PreferencesKey.currentWalletType:
-          _sharedPreferences.getInt(PreferencesKey.currentWalletType),
+      PreferencesKey.currentNodeIdKey: _sharedPreferences.getInt(PreferencesKey.currentNodeIdKey),
+      PreferencesKey.currentBalanceDisplayModeKey:
+          _sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey),
+      PreferencesKey.currentWalletType: _sharedPreferences.getInt(PreferencesKey.currentWalletType),
       PreferencesKey.currentFiatCurrencyKey:
           _sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
-      PreferencesKey.shouldSaveRecipientAddressKey: _sharedPreferences
-          .getBool(PreferencesKey.shouldSaveRecipientAddressKey),
-      PreferencesKey.disableBuyKey: _sharedPreferences
-          .getBool(PreferencesKey.disableBuyKey),
-      PreferencesKey.disableSellKey: _sharedPreferences
-          .getBool(PreferencesKey.disableSellKey),
+      PreferencesKey.shouldSaveRecipientAddressKey:
+          _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
+      PreferencesKey.disableBuyKey: _sharedPreferences.getBool(PreferencesKey.disableBuyKey),
+      PreferencesKey.disableSellKey: _sharedPreferences.getBool(PreferencesKey.disableSellKey),
       PreferencesKey.isDarkThemeLegacy:
           _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
-      PreferencesKey.currentPinLength:
-          _sharedPreferences.getInt(PreferencesKey.currentPinLength),
-      PreferencesKey.currentTransactionPriorityKeyLegacy: _sharedPreferences
-          .getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
-      PreferencesKey.allowBiometricalAuthenticationKey: _sharedPreferences
-          .getBool(PreferencesKey.allowBiometricalAuthenticationKey),
-      PreferencesKey.currentBitcoinElectrumSererIdKey: _sharedPreferences
-          .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey),
+      PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
+      PreferencesKey.currentTransactionPriorityKeyLegacy:
+          _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
+      PreferencesKey.allowBiometricalAuthenticationKey:
+          _sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey),
+      PreferencesKey.currentBitcoinElectrumSererIdKey:
+          _sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey),
       PreferencesKey.currentLanguageCode:
           _sharedPreferences.getString(PreferencesKey.currentLanguageCode),
       PreferencesKey.displayActionListModeKey:
           _sharedPreferences.getInt(PreferencesKey.displayActionListModeKey),
-      PreferencesKey.currentTheme:
-          _sharedPreferences.getInt(PreferencesKey.currentTheme),
-      PreferencesKey.exchangeStatusKey:
-          _sharedPreferences.getInt(PreferencesKey.exchangeStatusKey),
-      PreferencesKey.currentDefaultSettingsMigrationVersion: _sharedPreferences
-          .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
+      PreferencesKey.currentTheme: _sharedPreferences.getInt(PreferencesKey.currentTheme),
+      PreferencesKey.exchangeStatusKey: _sharedPreferences.getInt(PreferencesKey.exchangeStatusKey),
+      PreferencesKey.currentDefaultSettingsMigrationVersion:
+          _sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
       PreferencesKey.bitcoinTransactionPriority:
           _sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority),
       PreferencesKey.moneroTransactionPriority:
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
       PreferencesKey.currentFiatApiModeKey:
-      _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
+          _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
+      PreferencesKey.selectedCake2FAPreset:
+          _sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset),
+      PreferencesKey.shouldRequireTOTP2FAForAccessingWallet:
+          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet),
+      PreferencesKey.shouldRequireTOTP2FAForSendsToContact:
+          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact),
+      PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact:
+          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact),
+      PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets:
+          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets),
+      PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets: _sharedPreferences
+          .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets),
+      PreferencesKey.shouldRequireTOTP2FAForAddingContacts:
+          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts),
+      PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets:
+          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets),
+      PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings: _sharedPreferences
+          .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     };
 
     return json.encode(preferences);
@@ -476,28 +505,23 @@ class BackupService {
   }
 
   @Deprecated('Use v2 instead')
-  Future<Uint8List> _encryptV1(
-      Uint8List data, String secretKeySource, String nonceBase64) async
-    => throw Exception('Deprecated');
+  Future<Uint8List> _encryptV1(Uint8List data, String secretKeySource, String nonceBase64) async =>
+      throw Exception('Deprecated');
 
-  Future<Uint8List> _decryptV1(
-      Uint8List data, String secretKeySource, String nonceBase64, {int macLength = 16}) async {
+  Future<Uint8List> _decryptV1(Uint8List data, String secretKeySource, String nonceBase64,
+      {int macLength = 16}) async {
     final secretKeyHash = await Cryptography.instance.sha256().hash(utf8.encode(secretKeySource));
     final secretKey = SecretKey(secretKeyHash.bytes);
     final nonce = base64.decode(nonceBase64).toList();
-    final box = SecretBox(
-      Uint8List.sublistView(data, 0, data.lengthInBytes - macLength).toList(),
-      nonce: nonce,
-      mac: Mac(Uint8List.sublistView(data, data.lengthInBytes - macLength)));
+    final box = SecretBox(Uint8List.sublistView(data, 0, data.lengthInBytes - macLength).toList(),
+        nonce: nonce, mac: Mac(Uint8List.sublistView(data, data.lengthInBytes - macLength)));
     final plainData = await _cipher.decrypt(box, secretKey: secretKey);
     return Uint8List.fromList(plainData);
   }
 
-  Future<Uint8List> _encryptV2(
-      Uint8List data, String passphrase) async
-    => cake_backup.encrypt(passphrase, data, version: _v2);
+  Future<Uint8List> _encryptV2(Uint8List data, String passphrase) async =>
+      cake_backup.encrypt(passphrase, data, version: _v2);
 
-  Future<Uint8List> _decryptV2(
-      Uint8List data, String passphrase) async
-    => cake_backup.decrypt(passphrase, data);
+  Future<Uint8List> _decryptV2(Uint8List data, String passphrase) async =>
+      cake_backup.decrypt(passphrase, data);
 }

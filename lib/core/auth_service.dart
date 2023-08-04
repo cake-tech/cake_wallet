@@ -25,6 +25,10 @@ class AuthService with Store {
     Routes.setupPin,
     Routes.setup_2faPage,
     Routes.modify2FAPage,
+    Routes.newWallet,
+    Routes.newWalletType,
+    Routes.addressBookAddContact,
+    Routes.restoreOptions,
   ];
 
   final FlutterSecureStorage secureStorage;
@@ -81,21 +85,26 @@ class AuthService with Store {
   }
 
   Future<void> authenticateAction(BuildContext context,
-      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
+      {Function(bool)? onAuthSuccess,
+      String? route,
+      Object? arguments,
+      required bool conditionToDetermineIfToUse2FA}) async {
     assert(route != null || onAuthSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
 
-    if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
-      if (onAuthSuccess != null) {
-        onAuthSuccess(true);
-      } else {
-        Navigator.of(context).pushNamed(
-          route ?? '',
-          arguments: arguments,
-        );
+    if (!conditionToDetermineIfToUse2FA) {
+      if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+        if (onAuthSuccess != null) {
+          onAuthSuccess(true);
+        } else {
+          Navigator.of(context).pushNamed(
+            route ?? '',
+            arguments: arguments,
+          );
+        }
+        return;
       }
-      return;
-    }
+}
 
     
     Navigator.of(context).pushNamed(Routes.auth,
@@ -104,7 +113,7 @@ class AuthService with Store {
         onAuthSuccess?.call(false);
         return;
       } else {
-        if (settingsStore.useTOTP2FA) {
+        if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
           auth.close(
             route: Routes.totpAuthCodePage,
             arguments: TotpAuthArgumentsModel(

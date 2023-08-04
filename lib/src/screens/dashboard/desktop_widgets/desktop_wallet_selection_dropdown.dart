@@ -156,15 +156,29 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       } catch (e) {
         changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
       }
-    });
+      },
+      conditionToDetermineIfToUse2FA:
+          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
+    );
   }
 
   void _navigateToCreateWallet() {
     if (isSingleCoin) {
-      Navigator.of(context)
-          .pushNamed(Routes.newWallet, arguments: widget.walletListViewModel.currentWalletType);
+      widget._authService.authenticateAction(
+        context,
+        route: Routes.newWallet,
+        arguments: widget.walletListViewModel.currentWalletType,
+        conditionToDetermineIfToUse2FA: widget
+            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+      );
     } else {
-      Navigator.of(context).pushNamed(Routes.newWalletType);
+      widget._authService.authenticateAction(
+        context,
+        route: Routes.newWalletType,
+        conditionToDetermineIfToUse2FA: widget
+            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+      );
+     
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
@@ -32,10 +33,12 @@ import 'package:cw_core/crypto_currency.dart';
 class SendPage extends BasePage {
   SendPage({
     required this.sendViewModel,
+    required this.authService,
     this.initialPaymentRequest,
   }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
+  final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
   final PaymentRequest? initialPaymentRequest;
@@ -56,12 +59,14 @@ class SendPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    final _backButton = Icon(Icons.arrow_back_ios,
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
       color: titleColor,
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme : closeButtonImage;
+        ? closeButtonImageDarkTheme
+        : closeButtonImage;
 
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
@@ -78,7 +83,7 @@ class SendPage extends BasePage {
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.transparent),
+                    (states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -114,11 +119,13 @@ class SendPage extends BasePage {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.only(right:8.0),
-          child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),),
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Observer(
+            builder: (_) =>
+                SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),
+          ),
         ),
-        if (supMiddle != null)
-          supMiddle
+        if (supMiddle != null) supMiddle
       ],
     );
   }
@@ -200,12 +207,12 @@ class SendPage extends BasePage {
                                       dotWidth: 6.0,
                                       dotHeight: 6.0,
                                       dotColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          !.displaySmall!
+                                          .primaryTextTheme!
+                                          .displaySmall!
                                           .backgroundColor!,
                                       activeDotColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          !.displayMedium!
+                                          .primaryTextTheme!
+                                          .displayMedium!
                                           .backgroundColor!),
                                 )
                               : Offstage();
@@ -339,8 +346,8 @@ class SendPage extends BasePage {
                                 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                             color: Colors.transparent,
                             textColor: Theme.of(context)
-                                .accentTextTheme
-                                !.displaySmall!
+                                .accentTextTheme!
+                                .displaySmall!
                                 .decorationColor!,
                           ))),
                 if (sendViewModel.hasMultiRecipient)
@@ -357,13 +364,13 @@ class SendPage extends BasePage {
                         text: S.of(context).add_receiver,
                         color: Colors.transparent,
                         textColor: Theme.of(context)
-                            .accentTextTheme
-                            !.displaySmall!
+                            .accentTextTheme!
+                            .displaySmall!
                             .decorationColor!,
                         isDottedBorder: true,
                         borderColor: Theme.of(context)
-                            .primaryTextTheme
-                            !.displaySmall!
+                            .primaryTextTheme!
+                            .displaySmall!
                             .decorationColor!,
                       )),
                 Observer(
@@ -390,7 +397,16 @@ class SendPage extends BasePage {
                           return;
                         }
 
-                        await sendViewModel.createTransaction();
+                        final check = sendViewModel.shouldDisplayTotp();
+                        authService.authenticateAction(
+                          context,
+                          conditionToDetermineIfToUse2FA: check,
+                          onAuthSuccess: (value) async {
+                            if (value) {
+                              await sendViewModel.createTransaction();
+                            }
+                          },
+                        );
                       },
                       text: S.of(context).send,
                       color:

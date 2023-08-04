@@ -247,7 +247,9 @@ Future setup({
     nodeSource: _nodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
     // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
-    initialTheme: ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile ? null : ThemeList.darkTheme,
+    initialTheme: ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile
+        ? null
+        : ThemeList.darkTheme,
   );
 
   if (_isSetupFinished) {
@@ -389,7 +391,9 @@ Future setup({
         final authStore = getIt.get<AuthenticationStore>();
         final appStore = getIt.get<AppStore>();
         final useTotp = appStore.settingsStore.useTOTP2FA;
-        if (useTotp) {
+        final shouldUseTotp2FAToAccessWallets =
+            appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+        if (useTotp && shouldUseTotp2FAToAccessWallets) {
           authPageState.close(
             route: Routes.totpAuthCodePage,
             arguments: TotpAuthArgumentsModel(
@@ -525,17 +529,22 @@ Future setup({
       getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory<SendViewModel>(() => SendViewModel(
+  getIt.registerFactory<SendViewModel>(
+    () => SendViewModel(
       getIt.get<AppStore>().wallet!,
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
       getIt.get<BalanceViewModel>(),
-      _transactionDescriptionBox));
+      getIt.get<ContactListViewModel>(),
+      _transactionDescriptionBox,
+    ),
+  );
 
   getIt.registerFactoryParam<SendPage, PaymentRequest?, void>(
       (PaymentRequest? initialPaymentRequest, _) => SendPage(
             sendViewModel: getIt.get<SendViewModel>(),
+            authService: getIt.get<AuthService>(),
             initialPaymentRequest: initialPaymentRequest,
           ));
 
@@ -570,8 +579,8 @@ Future setup({
       ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
-      (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
-          walletListViewModel, getIt.get<WalletLoadingService>()));
+      (WalletListViewModel walletListViewModel, _) =>
+          WalletEditViewModel(walletListViewModel, getIt.get<WalletLoadingService>()));
 
   getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
     final walletListViewModel = args.first as WalletListViewModel;
@@ -582,7 +591,6 @@ Future setup({
         walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
         editingWallet: editingWallet);
   });
-
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
@@ -654,10 +662,11 @@ Future setup({
       (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) => ContactListViewModel(_contactSource, _walletInfoSource, cur));
+      (CryptoCurrency? cur, _) =>
+          ContactListViewModel(_contactSource, _walletInfoSource, cur, getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) => ContactListPage(getIt.get<ContactListViewModel>(param1: cur)));
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
+      ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
@@ -702,13 +711,13 @@ Future setup({
       ));
 
   getIt.registerFactory(() => ExchangeViewModel(
-        getIt.get<AppStore>().wallet!,
-        _tradesSource,
-        getIt.get<ExchangeTemplateStore>(),
-        getIt.get<TradesStore>(),
-        getIt.get<AppStore>().settingsStore,
-        getIt.get<SharedPreferences>(),
-      ));
+      getIt.get<AppStore>().wallet!,
+      _tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>()));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet!,
@@ -716,7 +725,8 @@ Future setup({
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>()));
+  getIt.registerFactory(
+      () => ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
 
@@ -890,7 +900,7 @@ Future setup({
 
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(()=> MarketPlaceViewModel(getIt.get<IoniaService>()));
+  getIt.registerFactory(() => MarketPlaceViewModel(getIt.get<IoniaService>()));
 
   getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
 
