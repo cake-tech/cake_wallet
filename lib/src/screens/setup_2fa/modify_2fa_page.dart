@@ -1,7 +1,10 @@
+import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
@@ -27,34 +30,10 @@ class Modify2FAPage extends BasePage {
   }
 }
 
-class _2FAControlsWidget extends StatefulWidget {
-  const _2FAControlsWidget({
-    required this.setup2FAViewModel,
-  });
+class _2FAControlsWidget extends StatelessWidget {
+  const _2FAControlsWidget({required this.setup2FAViewModel});
 
   final Setup2FAViewModel setup2FAViewModel;
-
-  @override
-  State<_2FAControlsWidget> createState() => _2FAControlsWidgetState();
-}
-
-class _2FAControlsWidgetState extends State<_2FAControlsWidget>
-    with SingleTickerProviderStateMixin {
-  TabController? _tabController;
-  Setup2FAViewModel get viewModel => widget.setup2FAViewModel;
-
-  @override
-  void initState() {
-    _tabController =
-        TabController(length: 3, vsync: this, initialIndex: viewModel.initialPresetTabValue);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _tabController?.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +53,7 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                   rightButtonText: S.current.disable,
                   actionLeftButton: () => Navigator.of(context).pop(),
                   actionRightButton: () {
-                    widget.setup2FAViewModel.setUseTOTP2FA(false);
+                    setup2FAViewModel.setUseTOTP2FA(false);
                     Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
                   },
                 );
@@ -83,63 +62,29 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           },
         ),
         StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        SizedBox(height: 40),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            S.current.cake_2fa_preset,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
-            ),
-          ),
-        ),
-        SizedBox(height: 8),
         Observer(
           builder: (context) {
-            return Container(
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              margin: EdgeInsets.symmetric(horizontal: 24),
-              decoration: BoxDecoration(
-                color: Color(0xffF2F0FA),
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              child: Theme(
-                data: ThemeData(
-                  primaryTextTheme:
-                      TextTheme(bodyLarge: TextStyle(backgroundColor: Colors.transparent)),
-                ),
-                child: TabBar(
-                  onTap: (value) => viewModel.selectCakePreset(value),
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25.0),
-                    color: !viewModel.unhighlightTabs
-                        ? Theme.of(context).accentTextTheme.bodyLarge!.color!
-                        : Colors.transparent,
-                  ),
-                  labelColor: Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
-                  unselectedLabelColor:
-                      Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
-                  tabs: [
-                    Tab(text: S.current.narrow, height: 30),
-                    Tab(text: S.current.normal, height: 30),
-                    Tab(text: S.current.aggressive, height: 30),
-                  ],
-                ),
+            return SettingsChoicesCell(
+              ChoicesListItem<Cake2FAPresetsOptions>(
+                title: S.current.cake_2fa_preset,
+                onItemSelected: setup2FAViewModel.selectCakePreset,
+                selectedItem: setup2FAViewModel.selectedCake2FAPreset,
+                items: [
+                  Cake2FAPresetsOptions.narrow,
+                  Cake2FAPresetsOptions.normal,
+                  Cake2FAPresetsOptions.aggressive,
+                ],
               ),
             );
           },
         ),
-        SizedBox(height: 40),
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_assessing_wallet,
-              value: viewModel.shouldRequireTOTP2FAForAccessingWallet,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForAccessingWallet,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForAccessingWallet(value),
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForAccessingWallet(value),
             );
           },
         ),
@@ -148,9 +93,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_sends_to_non_contacts,
-              value: viewModel.shouldRequireTOTP2FAForSendsToNonContact,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForSendsToNonContact,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForSendsToNonContact(value),
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForSendsToNonContact(value),
             );
           },
         ),
@@ -159,9 +104,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_sends_to_contacts,
-              value: viewModel.shouldRequireTOTP2FAForSendsToContact,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForSendsToContact,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForSendsToContact(value),
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForSendsToContact(value),
             );
           },
         ),
@@ -170,9 +115,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_sends_to_internal_wallets,
-              value: viewModel.shouldRequireTOTP2FAForSendsToInternalWallets,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForSendsToInternalWallets,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForSendsToInternalWallets(value),
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForSendsToInternalWallets(value),
             );
           },
         ),
@@ -181,9 +126,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_exchanges_to_internal_wallets,
-              value: viewModel.shouldRequireTOTP2FAForExchangesToInternalWallets,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForExchangesToInternalWallets,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForExchangesToInternalWallets(value),
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForExchangesToInternalWallets(value),
             );
           },
         ),
@@ -192,9 +137,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_adding_contacts,
-              value: viewModel.shouldRequireTOTP2FAForAddingContacts,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForAddingContacts,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForAddingContacts(value),
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForAddingContacts(value),
             );
           },
         ),
@@ -203,9 +148,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_creating_new_wallets,
-              value: viewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForCreatingNewWallet(value),
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForCreatingNewWallet(value),
             );
           },
         ),
@@ -214,9 +159,9 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.require_for_all_security_and_backup_settings,
-              value: viewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-              onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(value),
+              value: setup2FAViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              onValueChange: (context, value) async => setup2FAViewModel
+                  .switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(value),
             );
           },
         ),

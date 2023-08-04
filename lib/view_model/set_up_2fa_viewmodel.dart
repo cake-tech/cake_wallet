@@ -28,7 +28,7 @@ abstract class Setup2FAViewModelBase with Store {
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
     _getRandomBase32SecretKey();
-    selectCakePreset(initialPresetTabValue);
+    selectCakePreset(selectedCake2FAPreset);
     reaction((_) => state, _saveLastAuthTime);
   }
 
@@ -194,7 +194,7 @@ abstract class Setup2FAViewModelBase with Store {
   }
 
   @computed
-  int get initialPresetTabValue => _settingsStore.selectedCake2FAPreset.raw;
+  Cake2FAPresetsOptions get selectedCake2FAPreset => _settingsStore.selectedCake2FAPreset;
 
   @observable
   bool unhighlightTabs = false;
@@ -205,17 +205,17 @@ abstract class Setup2FAViewModelBase with Store {
   //! The code here works, but can be improved
   //! Still trying out various ways to improve it
   @action
-  void selectCakePreset(int tabValue) {
+  void selectCakePreset(Cake2FAPresetsOptions cake2FAPreset) {
     // The tabs are ordered in the format [Narrow || Normal || Verbose]
     // Where Narrow = 0, Normal = 1 and Verbose =  2
-    switch (tabValue) {
-      case 0:
+    switch (cake2FAPreset) {
+      case Cake2FAPresetsOptions.narrow:
         activateCake2FANarrowPreset();
         break;
-      case 1:
+      case Cake2FAPresetsOptions.normal:
         activateCake2FANormalPreset();
         break;
-      case 2:
+      case Cake2FAPresetsOptions.aggressive:
         activateCake2FAAggressivePreset();
         break;
       default:

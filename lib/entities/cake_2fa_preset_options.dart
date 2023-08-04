@@ -1,12 +1,11 @@
 import 'package:cw_core/enumerable_item.dart';
 
 class Cake2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> {
-  const Cake2FAPresetsOptions(
-      {required String super.title, required int super.raw});
+  const Cake2FAPresetsOptions({required String super.title, required int super.raw});
 
-  static const narrow = Cake2FAPresetsOptions(title: 'narrow', raw: 0);
-  static const normal = Cake2FAPresetsOptions(title: 'normal', raw: 1);
-  static const aggressive = Cake2FAPresetsOptions(title: 'aggressive', raw: 2);
+  static const narrow = Cake2FAPresetsOptions(title: 'Narrow', raw: 0);
+  static const normal = Cake2FAPresetsOptions(title: 'Normal', raw: 1);
+  static const aggressive = Cake2FAPresetsOptions(title: 'Aggressive', raw: 2);
 
   static Cake2FAPresetsOptions deserialize({required int raw}) {
     switch (raw) {
