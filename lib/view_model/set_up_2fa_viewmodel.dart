@@ -21,8 +21,7 @@ abstract class Setup2FAViewModelBase with Store {
   final AuthService _authService;
   final SharedPreferences _sharedPreferences;
 
-  Setup2FAViewModelBase(
-      this._settingsStore, this._sharedPreferences, this._authService)
+  Setup2FAViewModelBase(this._settingsStore, this._sharedPreferences, this._authService)
       : _failureCounter = 0,
         enteredOTPCode = '',
         unhighlightTabs = false,
@@ -239,18 +238,16 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   bool checkIfTheNormalPresetIsPresent() {
-    final hasContacts =
-        selected2FASettings.contains(VerboseControlSettings.sendsToContacts);
-    final hasNonContacts =
-        selected2FASettings.contains(VerboseControlSettings.sendsToNonContacts);
-    final hasSecurityAndBackup = selected2FASettings
-        .contains(VerboseControlSettings.securityAndBackupSettings);
+    final hasContacts = selected2FASettings.contains(VerboseControlSettings.sendsToContacts);
+    final hasNonContacts = selected2FASettings.contains(VerboseControlSettings.sendsToNonContacts);
+    final hasSecurityAndBackup =
+        selected2FASettings.contains(VerboseControlSettings.securityAndBackupSettings);
 
-    final hasSendToInternalWallet = selected2FASettings
-        .contains(VerboseControlSettings.sendsToInternalWallets);
+    final hasSendToInternalWallet =
+        selected2FASettings.contains(VerboseControlSettings.sendsToInternalWallets);
 
-    final hasExchangesToInternalWallet = selected2FASettings
-        .contains(VerboseControlSettings.exchangesToInternalWallets);
+    final hasExchangesToInternalWallet =
+        selected2FASettings.contains(VerboseControlSettings.exchangesToInternalWallets);
 
     bool isOnlyNormalPresetControlsPresent = selected2FASettings.length == 5;
 
@@ -264,28 +261,23 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   bool checkIfTheVerbosePresetIsPresent() {
-    final hasAccessWallets =
-        selected2FASettings.contains(VerboseControlSettings.accessWallet);
-    final hasSecurityAndBackup = selected2FASettings
-        .contains(VerboseControlSettings.securityAndBackupSettings);
+    final hasAccessWallets = selected2FASettings.contains(VerboseControlSettings.accessWallet);
+    final hasSecurityAndBackup =
+        selected2FASettings.contains(VerboseControlSettings.securityAndBackupSettings);
 
     bool isOnlyVerbosePresetControlsPresent = selected2FASettings.length == 2;
 
-    return (hasAccessWallets &&
-        hasSecurityAndBackup &&
-        isOnlyVerbosePresetControlsPresent);
+    return (hasAccessWallets && hasSecurityAndBackup && isOnlyVerbosePresetControlsPresent);
   }
 
   @action
   bool checkIfTheNarrowPresetIsPresent() {
-    final hasNonContacts =
-        selected2FASettings.contains(VerboseControlSettings.sendsToNonContacts);
-    final hasAddContacts =
-        selected2FASettings.contains(VerboseControlSettings.addingContacts);
+    final hasNonContacts = selected2FASettings.contains(VerboseControlSettings.sendsToNonContacts);
+    final hasAddContacts = selected2FASettings.contains(VerboseControlSettings.addingContacts);
     final hasCreateNewWallet =
         selected2FASettings.contains(VerboseControlSettings.creatingNewWallets);
-    final hasSecurityAndBackup = selected2FASettings
-        .contains(VerboseControlSettings.securityAndBackupSettings);
+    final hasSecurityAndBackup =
+        selected2FASettings.contains(VerboseControlSettings.securityAndBackupSettings);
 
     bool isOnlyNarrowPresetControlsPresent = selected2FASettings.length == 4;
 
@@ -387,11 +379,9 @@ abstract class Setup2FAViewModelBase with Store {
   void switchShouldRequireTOTP2FAForExchangesToInternalWallets(bool value) {
     _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets = value;
     if (value) {
-      selected2FASettings
-          .add(VerboseControlSettings.exchangesToInternalWallets);
+      selected2FASettings.add(VerboseControlSettings.exchangesToInternalWallets);
     } else {
-      selected2FASettings
-          .remove(VerboseControlSettings.exchangesToInternalWallets);
+      selected2FASettings.remove(VerboseControlSettings.exchangesToInternalWallets);
     }
     checkIfTheCurrentSettingMatchesAnyOfThePresets();
   }
@@ -424,8 +414,7 @@ abstract class Setup2FAViewModelBase with Store {
     if (value)
       selected2FASettings.add(VerboseControlSettings.securityAndBackupSettings);
     else {
-      selected2FASettings
-          .remove(VerboseControlSettings.securityAndBackupSettings);
+      selected2FASettings.remove(VerboseControlSettings.securityAndBackupSettings);
     }
     checkIfTheCurrentSettingMatchesAnyOfThePresets();
   }

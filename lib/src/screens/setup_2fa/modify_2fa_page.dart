@@ -45,8 +45,8 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
 
   @override
   void initState() {
-    _tabController = TabController(
-        length: 3, vsync: this, initialIndex: viewModel.initialPresetTabValue);
+    _tabController =
+        TabController(length: 3, vsync: this, initialIndex: viewModel.initialPresetTabValue);
     super.initState();
   }
 
@@ -63,27 +63,25 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SettingsCellWithArrow(
-              title: S.current.disable_cake_2fa,
-              handler: (_) async {
-                await showPopUp<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertWithTwoActions(
-                      alertTitle: S.current.disable_cake_2fa,
-                      alertContent: S.current.question_to_disable_2fa,
-                      leftButtonText: S.current.cancel,
-                      rightButtonText: S.current.disable,
-                      actionLeftButton: () {
-                        Navigator.of(context).pop();
-                      },
-                      actionRightButton: () {
+            title: S.current.disable_cake_2fa,
+            handler: (_) async {
+              await showPopUp<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertWithTwoActions(
+                    alertTitle: S.current.disable_cake_2fa,
+                    alertContent: S.current.question_to_disable_2fa,
+                    leftButtonText: S.current.cancel,
+                    rightButtonText: S.current.disable,
+                    actionLeftButton: () => Navigator.of(context).pop(),
+                    actionRightButton: () {
                       widget.setup2FAViewModel.setUseTOTP2FA(false);
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, Routes.dashboard, (route) => false);
-                      },
-                    );
-                  },
-                );
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, Routes.dashboard, (route) => false);
+                    },
+                  );
+                },
+              );
             },
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
@@ -109,9 +107,8 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
             ),
             child: Theme(
               data: ThemeData(
-                  primaryTextTheme: TextTheme(
-                      bodyLarge:
-                          TextStyle(backgroundColor: Colors.transparent))),
+                  primaryTextTheme:
+                      TextTheme(bodyLarge: TextStyle(backgroundColor: Colors.transparent))),
               child: TabBar(
                 onTap: (value) => viewModel.selectCakePreset(value),
                 controller: _tabController,
@@ -119,16 +116,11 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
                   borderRadius: BorderRadius.circular(25.0),
                   color: !viewModel.unhighlightTabs
                       ? Theme.of(context).accentTextTheme.bodyLarge!.color!
-                      : Colors.transparent, 
+                      : Colors.transparent,
                 ),
-                labelColor: Theme.of(context)
-                    .primaryTextTheme
-                    .displayLarge!
-                    .backgroundColor!,
-                unselectedLabelColor: Theme.of(context)
-                    .primaryTextTheme
-                    .displayLarge!
-                    .backgroundColor!,
+                labelColor: Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
+                unselectedLabelColor:
+                    Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
                 tabs: [
                   Tab(text: S.current.narrow, height: 30),
                   Tab(text: S.current.normal, height: 30),
@@ -141,14 +133,14 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           SettingsSwitcherCell(
               title: S.current.require_for_assessing_wallet,
               value: viewModel.shouldRequireTOTP2FAForAccessingWallet,
-              onValueChange: (context, value) async => viewModel
-                  .switchShouldRequireTOTP2FAForAccessingWallet(value)),
+              onValueChange: (context, value) async =>
+                  viewModel.switchShouldRequireTOTP2FAForAccessingWallet(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
               title: S.current.require_for_sends_to_non_contacts,
               value: viewModel.shouldRequireTOTP2FAForSendsToNonContact,
-              onValueChange: (context, value) async => viewModel
-                  .switchShouldRequireTOTP2FAForSendsToNonContact(value)),
+              onValueChange: (context, value) async =>
+                  viewModel.switchShouldRequireTOTP2FAForSendsToNonContact(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
               title: S.current.require_for_sends_to_contacts,
@@ -159,16 +151,14 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           SettingsSwitcherCell(
               title: S.current.require_for_sends_to_internal_wallets,
               value: viewModel.shouldRequireTOTP2FAForSendsToInternalWallets,
-              onValueChange: (context, value) async => viewModel
-                  .switchShouldRequireTOTP2FAForSendsToInternalWallets(value)),
+              onValueChange: (context, value) async =>
+                  viewModel.switchShouldRequireTOTP2FAForSendsToInternalWallets(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
               title: S.current.require_for_exchanges_to_internal_wallets,
-              value:
-                  viewModel.shouldRequireTOTP2FAForExchangesToInternalWallets,
-              onValueChange: (context, value) async => viewModel
-                  .switchShouldRequireTOTP2FAForExchangesToInternalWallets(
-                      value)),
+              value: viewModel.shouldRequireTOTP2FAForExchangesToInternalWallets,
+              onValueChange: (context, value) async =>
+                  viewModel.switchShouldRequireTOTP2FAForExchangesToInternalWallets(value)),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
               title: S.current.require_for_adding_contacts,
@@ -185,16 +175,13 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsSwitcherCell(
             title: S.current.require_for_all_security_and_backup_settings,
-            value:
-                viewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-            onValueChange: (context, value) async => viewModel
-                .switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(
-                    value),
+            value: viewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+            onValueChange: (context, value) async =>
+                viewModel.switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(value),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         ],
       );
-    }
-    );
+    });
   }
 }

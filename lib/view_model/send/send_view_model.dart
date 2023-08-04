@@ -54,8 +54,8 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore,
-        () => selectedCryptoCurrency));
+    outputs
+        .add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @observable
@@ -65,8 +65,8 @@ abstract class SendViewModelBase with Store {
 
   @action
   void addOutput() {
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore,
-        () => selectedCryptoCurrency));
+    outputs
+        .add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @action
@@ -136,8 +136,7 @@ abstract class SendViewModelBase with Store {
 
   Validator get allAmountValidator => AllAmountValidator();
 
-  Validator get addressValidator =>
-      AddressValidator(type: selectedCryptoCurrency);
+  Validator get addressValidator => AddressValidator(type: selectedCryptoCurrency);
 
   Validator get textValidator => TextValidator();
 
@@ -179,9 +178,8 @@ abstract class SendViewModelBase with Store {
 
   bool get hasMultiRecipient => _wallet.type != WalletType.haven;
 
-  bool get hasYat => outputs.any((out) =>
-      out.isParsedAddress &&
-      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  bool get hasYat => outputs
+      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
 
@@ -203,39 +201,31 @@ abstract class SendViewModelBase with Store {
 
   @computed
   List<ContactRecord> get contactsToShow => contactListViewModel.contacts
-      .where((element) =>
-          selectedCryptoCurrency == null ||
-          element.type == selectedCryptoCurrency)
+      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
       .toList();
 
   @computed
-  List<WalletContact> get walletContactsToShow =>
-      contactListViewModel.walletContacts
-          .where((element) =>
-              selectedCryptoCurrency == null ||
-              element.type == selectedCryptoCurrency)
-          .toList();
+  List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
+      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
+      .toList();
 
   @action
   bool checkIfAddressIsAContact(String address) {
-    final contactList =
-        contactsToShow.where((element) => element.address == address).toList();
+    final contactList = contactsToShow.where((element) => element.address == address).toList();
 
     return contactList.isNotEmpty;
   }
 
   @action
   bool checkIfWalletIsAnInternalWallet(String address) {
-    final walletContactList = walletContactsToShow
-        .where((element) => element.address == address)
-        .toList();
+    final walletContactList =
+        walletContactsToShow.where((element) => element.address == address).toList();
 
     return walletContactList.isNotEmpty;
   }
 
   @computed
-  bool get shouldDisplayTOTP2FAForContact =>
-      _settingsStore.shouldRequireTOTP2FAForSendsToContact;
+  bool get shouldDisplayTOTP2FAForContact => _settingsStore.shouldRequireTOTP2FAForSendsToContact;
 
   @computed
   bool get shouldDisplayTOTP2FAForNonContact =>
@@ -287,8 +277,7 @@ abstract class SendViewModelBase with Store {
   @action
   Future<void> commitTransaction() async {
     if (pendingTransaction == null) {
-      throw Exception(
-          "Pending transaction doesn't exist. It should not be happened.");
+      throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
     String address = outputs.fold('', (acc, value) {
@@ -312,11 +301,9 @@ abstract class SendViewModelBase with Store {
       if (pendingTransaction!.id.isNotEmpty) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id,
-                recipientAddress: address,
-                transactionNote: note))
-            : await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id, transactionNote: note));
+                id: pendingTransaction!.id, recipientAddress: address, transactionNote: note))
+            : await transactionDescriptionBox
+                .add(TransactionDescription(id: pendingTransaction!.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -338,8 +325,7 @@ abstract class SendViewModelBase with Store {
           throw Exception('Priority is null for wallet type: ${_wallet.type}');
         }
 
-        return bitcoin!
-            .createBitcoinTransactionCredentials(outputs, priority: priority);
+        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.litecoin:
         final priority = _settingsStore.priority[_wallet.type];
 
@@ -347,8 +333,7 @@ abstract class SendViewModelBase with Store {
           throw Exception('Priority is null for wallet type: ${_wallet.type}');
         }
 
-        return bitcoin!
-            .createBitcoinTransactionCredentials(outputs, priority: priority);
+        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.monero:
         final priority = _settingsStore.priority[_wallet.type];
 
@@ -356,8 +341,8 @@ abstract class SendViewModelBase with Store {
           throw Exception('Priority is null for wallet type: ${_wallet.type}');
         }
 
-        return monero!.createMoneroTransactionCreationCredentials(
-            outputs: outputs, priority: priority);
+        return monero!
+            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority);
       case WalletType.haven:
         final priority = _settingsStore.priority[_wallet.type];
 
@@ -366,9 +351,7 @@ abstract class SendViewModelBase with Store {
         }
 
         return haven!.createHavenTransactionCreationCredentials(
-            outputs: outputs,
-            priority: priority,
-            assetType: selectedCryptoCurrency.title);
+            outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type}');
     }

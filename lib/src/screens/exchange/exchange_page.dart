@@ -96,8 +96,8 @@ class ExchangePage extends BasePage {
           Padding(
               padding: const EdgeInsets.only(right: 6.0),
               child: Observer(
-                builder: (_) => SyncIndicatorIcon(
-                    isSynced: exchangeViewModel.status is SyncedSyncStatus),
+                builder: (_) =>
+                    SyncIndicatorIcon(isSynced: exchangeViewModel.status is SyncedSyncStatus),
               )),
           PresentProviderPicker(exchangeViewModel: exchangeViewModel)
         ],
@@ -118,9 +118,8 @@ class ExchangePage extends BasePage {
       color: titleColor,
       size: 16,
     );
-    final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme
-        : closeButtonImage;
+    final _closeButton =
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
@@ -131,13 +130,10 @@ class ExchangePage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView
-                ? S.of(context).close
-                : S.of(context).seed_alert_back,
+            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith(
-                    (states) => Colors.transparent),
+                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -150,23 +146,19 @@ class ExchangePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
     return KeyboardActions(
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor:
-                Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
-                  focusNode: _depositAmountFocus,
-                  toolbarButtons: [(_) => KeyboardDoneButton()]),
+                  focusNode: _depositAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]),
               KeyboardActionsItem(
-                  focusNode: _receiveAmountFocus,
-                  toolbarButtons: [(_) => KeyboardDoneButton()])
+                  focusNode: _receiveAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()])
             ]),
         child: Container(
           color: Theme.of(context).colorScheme.background,
@@ -186,8 +178,7 @@ class ExchangePage extends BasePage {
                               StandardCheckbox(
                                 value: exchangeViewModel.isFixedRateMode,
                                 caption: S.of(context).fixed_rate,
-                                onChanged: (value) =>
-                                    exchangeViewModel.isFixedRateMode = value,
+                                onChanged: (value) => exchangeViewModel.isFixedRateMode = value,
                               ),
                             ],
                           )),
@@ -196,8 +187,7 @@ class ExchangePage extends BasePage {
                     ],
                   ),
                 ),
-                bottomSectionPadding:
-                    EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: Column(children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
@@ -215,8 +205,7 @@ class ExchangePage extends BasePage {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .displayLarge!
+                                  .primaryTextTheme.displayLarge!
                                   .decorationColor!,
                               fontWeight: FontWeight.w500,
                               fontSize: 12),
@@ -230,25 +219,19 @@ class ExchangePage extends BasePage {
                           onPressed: () {
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
-                              if ((exchangeViewModel.depositCurrency ==
-                                      CryptoCurrency.xmr) &&
-                                  (!(exchangeViewModel.status
-                                      is SyncedSyncStatus))) {
+                              if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr) &&
+                                  (!(exchangeViewModel.status is SyncedSyncStatus))) {
                                 showPopUp<void>(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertWithOneAction(
                                           alertTitle: S.of(context).exchange,
-                                          alertContent: S
-                                              .of(context)
-                                              .exchange_sync_alert_content,
+                                          alertContent: S.of(context).exchange_sync_alert_content,
                                           buttonText: S.of(context).ok,
-                                          buttonAction: () =>
-                                              Navigator.of(context).pop());
+                                          buttonAction: () => Navigator.of(context).pop());
                                     });
                               } else {
-                                final check =
-                                    exchangeViewModel.shouldDisplayTOTP();
+                                final check = exchangeViewModel.shouldDisplayTOTP();
                                 authService.authenticateAction(
                                   context,
                                   conditionToDetermineIfToUse2FA: check,
@@ -261,15 +244,10 @@ class ExchangePage extends BasePage {
                               }
                             }
                           },
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
                           textColor: Colors.white,
-                          isDisabled:
-                              exchangeViewModel.selectedProviders.isEmpty,
-                          isLoading:
-                              exchangeViewModel.tradeState is TradeIsCreating)),
+                          isDisabled: exchangeViewModel.selectedProviders.isEmpty,
+                          isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
                 ]),
               )),
         ));
@@ -289,8 +267,7 @@ class ExchangePage extends BasePage {
             return Row(
               children: <Widget>[
                 AddTemplateButton(
-                  onTap: () =>
-                      Navigator.of(context).pushNamed(Routes.exchangeTemplate),
+                  onTap: () => Navigator.of(context).pushNamed(Routes.exchangeTemplate),
                   currentTemplatesLength: templates.length,
                 ),
                 ListView.builder(
@@ -315,18 +292,15 @@ class ExchangePage extends BasePage {
                             builder: (dialogContext) {
                               return AlertWithTwoActions(
                                   alertTitle: S.of(context).template,
-                                  alertContent:
-                                      S.of(context).confirm_delete_template,
+                                  alertContent: S.of(context).confirm_delete_template,
                                   rightButtonText: S.of(context).delete,
                                   leftButtonText: S.of(context).cancel,
                                   actionRightButton: () {
                                     Navigator.of(dialogContext).pop();
-                                    exchangeViewModel.removeTemplate(
-                                        template: template);
+                                    exchangeViewModel.removeTemplate(template: template);
                                     exchangeViewModel.updateTemplate();
                                   },
-                                  actionLeftButton: () =>
-                                      Navigator.of(dialogContext).pop());
+                                  actionLeftButton: () => Navigator.of(dialogContext).pop());
                             });
                       },
                     );
@@ -340,8 +314,8 @@ class ExchangePage extends BasePage {
     );
   }
 
-  void applyTemplate(BuildContext context, ExchangeViewModel exchangeViewModel,
-      ExchangeTemplate template) async {
+  void applyTemplate(
+      BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
     exchangeViewModel.changeDepositCurrency(
         currency: CryptoCurrency.fromString(template.depositCurrency));
     exchangeViewModel.changeReceiveCurrency(
@@ -355,17 +329,14 @@ class ExchangePage extends BasePage {
 
     var domain = template.depositAddress;
     var ticker = template.depositCurrency.toLowerCase();
-    exchangeViewModel.depositAddress =
-        await fetchParsedAddress(context, domain, ticker);
+    exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, ticker);
 
     domain = template.receiveAddress;
     ticker = template.receiveCurrency.toLowerCase();
-    exchangeViewModel.receiveAddress =
-        await fetchParsedAddress(context, domain, ticker);
+    exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, ticker);
   }
 
-  void _setReactions(
-      BuildContext context, ExchangeViewModel exchangeViewModel) {
+  void _setReactions(BuildContext context, ExchangeViewModel exchangeViewModel) {
     if (_isReactionsSet) {
       return;
     }
@@ -381,40 +352,30 @@ class ExchangePage extends BasePage {
     final limitsState = exchangeViewModel.limitsState;
 
     if (limitsState is LimitsLoadedSuccessfully) {
-      final min = limitsState.limits.min != null
-          ? limitsState.limits.min.toString()
-          : null;
-      final max = limitsState.limits.max != null
-          ? limitsState.limits.max.toString()
-          : null;
+      final min = limitsState.limits.min != null ? limitsState.limits.min.toString() : null;
+      final max = limitsState.limits.max != null ? limitsState.limits.max.toString() : null;
       final key = exchangeViewModel.isFixedRateMode ? receiveKey : depositKey;
       key.currentState!.changeLimits(min: min, max: max);
     }
 
-    _onCurrencyChange(
-        exchangeViewModel.receiveCurrency, exchangeViewModel, receiveKey);
-    _onCurrencyChange(
-        exchangeViewModel.depositCurrency, exchangeViewModel, depositKey);
+    _onCurrencyChange(exchangeViewModel.receiveCurrency, exchangeViewModel, receiveKey);
+    _onCurrencyChange(exchangeViewModel.depositCurrency, exchangeViewModel, depositKey);
 
     reaction(
         (_) => exchangeViewModel.wallet.name,
-        (String _) => _onWalletNameChange(
-            exchangeViewModel, exchangeViewModel.receiveCurrency, receiveKey));
+        (String _) =>
+            _onWalletNameChange(exchangeViewModel, exchangeViewModel.receiveCurrency, receiveKey));
 
     reaction(
         (_) => exchangeViewModel.wallet.name,
-        (String _) => _onWalletNameChange(
-            exchangeViewModel, exchangeViewModel.depositCurrency, depositKey));
+        (String _) =>
+            _onWalletNameChange(exchangeViewModel, exchangeViewModel.depositCurrency, depositKey));
 
-    reaction(
-        (_) => exchangeViewModel.receiveCurrency,
-        (CryptoCurrency currency) =>
-            _onCurrencyChange(currency, exchangeViewModel, receiveKey));
+    reaction((_) => exchangeViewModel.receiveCurrency,
+        (CryptoCurrency currency) => _onCurrencyChange(currency, exchangeViewModel, receiveKey));
 
-    reaction(
-        (_) => exchangeViewModel.depositCurrency,
-        (CryptoCurrency currency) =>
-            _onCurrencyChange(currency, exchangeViewModel, depositKey));
+    reaction((_) => exchangeViewModel.depositCurrency,
+        (CryptoCurrency currency) => _onCurrencyChange(currency, exchangeViewModel, depositKey));
 
     reaction((_) => exchangeViewModel.depositAmount, (String amount) {
       if (depositKey.currentState!.amountController.text != amount) {
@@ -428,8 +389,7 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.isDepositAddressEnabled,
-        (bool isEnabled) {
+    reaction((_) => exchangeViewModel.isDepositAddressEnabled, (bool isEnabled) {
       depositKey.currentState!.isAddressEditable(isEditable: isEnabled);
     });
 
@@ -445,15 +405,12 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.isReceiveAddressEnabled,
-        (bool isEnabled) {
+    reaction((_) => exchangeViewModel.isReceiveAddressEnabled, (bool isEnabled) {
       receiveKey.currentState!.isAddressEditable(isEditable: isEnabled);
     });
 
-    reaction((_) => exchangeViewModel.isReceiveAmountEditable,
-        (bool isReceiveAmountEditable) {
-      receiveKey.currentState!
-          .isAmountEditable(isEditable: isReceiveAmountEditable);
+    reaction((_) => exchangeViewModel.isReceiveAmountEditable, (bool isReceiveAmountEditable) {
+      receiveKey.currentState!.isAmountEditable(isEditable: isReceiveAmountEditable);
     });
 
     reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
@@ -504,34 +461,31 @@ class ExchangePage extends BasePage {
       }
     });
 
-    depositAddressController.addListener(
-        () => exchangeViewModel.depositAddress = depositAddressController.text);
+    depositAddressController
+        .addListener(() => exchangeViewModel.depositAddress = depositAddressController.text);
 
     depositAmountController.addListener(() {
       if (depositAmountController.text != exchangeViewModel.depositAmount) {
         _depositAmountDebounce.run(() {
-          exchangeViewModel.changeDepositAmount(
-              amount: depositAmountController.text);
+          exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
         });
       }
     });
 
-    receiveAddressController.addListener(
-        () => exchangeViewModel.receiveAddress = receiveAddressController.text);
+    receiveAddressController
+        .addListener(() => exchangeViewModel.receiveAddress = receiveAddressController.text);
 
     receiveAmountController.addListener(() {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
         _receiveAmountDebounce.run(() {
-          exchangeViewModel.changeReceiveAmount(
-              amount: receiveAmountController.text);
+          exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = true;
         });
       }
     });
 
-    reaction((_) => exchangeViewModel.wallet.walletAddresses.address,
-        (String address) {
+    reaction((_) => exchangeViewModel.wallet.walletAddresses.address, (String address) {
       if (exchangeViewModel.depositCurrency == CryptoCurrency.xmr) {
         depositKey.currentState!.changeAddress(address: address);
       }
@@ -542,22 +496,18 @@ class ExchangePage extends BasePage {
     });
 
     _depositAddressFocus.addListener(() async {
-      if (!_depositAddressFocus.hasFocus &&
-          depositAddressController.text.isNotEmpty) {
+      if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
         final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
-        exchangeViewModel.depositAddress =
-            await fetchParsedAddress(context, domain, ticker);
+        exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, ticker);
       }
     });
 
     _receiveAddressFocus.addListener(() async {
-      if (!_receiveAddressFocus.hasFocus &&
-          receiveAddressController.text.isNotEmpty) {
+      if (!_receiveAddressFocus.hasFocus && receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
         final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
-        exchangeViewModel.receiveAddress =
-            await fetchParsedAddress(context, domain, ticker);
+        exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, ticker);
       }
     });
 
@@ -577,30 +527,26 @@ class ExchangePage extends BasePage {
     _isReactionsSet = true;
   }
 
-  void _onCurrencyChange(CryptoCurrency currency,
-      ExchangeViewModel exchangeViewModel, GlobalKey<ExchangeCardState> key) {
+  void _onCurrencyChange(CryptoCurrency currency, ExchangeViewModel exchangeViewModel,
+      GlobalKey<ExchangeCardState> key) {
     final isCurrentTypeWallet = currency == exchangeViewModel.wallet.currency;
 
     key.currentState!.changeSelectedCurrency(currency);
-    key.currentState!.changeWalletName(
-        isCurrentTypeWallet ? exchangeViewModel.wallet.name : '');
+    key.currentState!.changeWalletName(isCurrentTypeWallet ? exchangeViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
-        address: isCurrentTypeWallet
-            ? exchangeViewModel.wallet.walletAddresses.address
-            : '');
+        address: isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.address : '');
 
     key.currentState!.changeAmount(amount: '');
   }
 
-  void _onWalletNameChange(ExchangeViewModel exchangeViewModel,
-      CryptoCurrency currency, GlobalKey<ExchangeCardState> key) {
+  void _onWalletNameChange(ExchangeViewModel exchangeViewModel, CryptoCurrency currency,
+      GlobalKey<ExchangeCardState> key) {
     final isCurrentTypeWallet = currency == exchangeViewModel.wallet.currency;
 
     if (isCurrentTypeWallet) {
       key.currentState!.changeWalletName(exchangeViewModel.wallet.name);
-      key.currentState!.addressController.text =
-          exchangeViewModel.wallet.walletAddresses.address;
+      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.address;
     } else if (key.currentState!.addressController.text ==
         exchangeViewModel.wallet.walletAddresses.address) {
       key.currentState!.changeWalletName('');
@@ -608,10 +554,8 @@ class ExchangePage extends BasePage {
     }
   }
 
-  Future<String> fetchParsedAddress(
-      BuildContext context, String domain, String ticker) async {
-    final parsedAddress =
-        await getIt.get<AddressResolver>().resolve(domain, ticker);
+  Future<String> fetchParsedAddress(BuildContext context, String domain, String ticker) async {
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
@@ -626,10 +570,8 @@ class ExchangePage extends BasePage {
                   alertContent: S.of(context).low_fee_alert,
                   leftButtonText: S.of(context).ignor,
                   rightButtonText: S.of(context).use_suggested,
-                  actionLeftButton: () =>
-                      Navigator.of(dialogContext).pop(false),
-                  actionRightButton: () =>
-                      Navigator.of(dialogContext).pop(true));
+                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
             }) ??
         false;
     if (confirmed) {
@@ -653,13 +595,11 @@ class ExchangePage extends BasePage {
               title: S.of(context).you_will_send,
               initialCurrency: exchangeViewModel.depositCurrency,
               initialWalletName: depositWalletName ?? '',
-              initialAddress: exchangeViewModel.depositCurrency ==
-                      exchangeViewModel.wallet.currency
+              initialAddress: exchangeViewModel.depositCurrency == exchangeViewModel.wallet.currency
                   ? exchangeViewModel.wallet.walletAddresses.address
                   : exchangeViewModel.depositAddress,
               initialIsAmountEditable: true,
-              initialIsAddressEditable:
-                  exchangeViewModel.isDepositAddressEnabled,
+              initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
               isAmountEstimated: false,
               hasRefundAddress: true,
               isMoneroWallet: exchangeViewModel.isMoneroWallet,
@@ -673,12 +613,9 @@ class ExchangePage extends BasePage {
                       builder: (dialogContext) {
                         return AlertWithOneAction(
                             alertTitle: S.of(context).error,
-                            alertContent: S
-                                .of(context)
-                                .exchange_incorrect_current_wallet_for_xmr,
+                            alertContent: S.of(context).exchange_incorrect_current_wallet_for_xmr,
                             buttonText: S.of(context).ok,
-                            buttonAction: () =>
-                                Navigator.of(dialogContext).pop());
+                            buttonAction: () => Navigator.of(dialogContext).pop());
                       });
                   return;
                 }
@@ -687,9 +624,8 @@ class ExchangePage extends BasePage {
               },
               imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).focusColor!,
-              borderColor:
-                  Theme.of(context).primaryTextTheme!.bodyLarge!.color!,
+              addressButtonsColor: Theme.of(context).focusColor,
+              borderColor: Theme.of(context).primaryTextTheme.bodyLarge!.color!,
               currencyValueValidator: (value) {
                 return !exchangeViewModel.isFixedRateMode
                     ? AmountValidator(
@@ -700,19 +636,16 @@ class ExchangePage extends BasePage {
                       ).call(value)
                     : null;
               },
-              addressTextFieldValidator:
-                  AddressValidator(type: exchangeViewModel.depositCurrency),
+              addressTextFieldValidator: AddressValidator(type: exchangeViewModel.depositCurrency),
               onPushPasteButton: (context) async {
                 final domain = exchangeViewModel.depositAddress;
-                final ticker =
-                    exchangeViewModel.depositCurrency.title.toLowerCase();
+                final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
                 exchangeViewModel.depositAddress =
                     await fetchParsedAddress(context, domain, ticker);
               },
               onPushAddressBookButton: (context) async {
                 final domain = exchangeViewModel.depositAddress;
-                final ticker =
-                    exchangeViewModel.depositCurrency.title.toLowerCase();
+                final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
                 exchangeViewModel.depositAddress =
                     await fetchParsedAddress(context, domain, ticker);
               },
@@ -727,14 +660,11 @@ class ExchangePage extends BasePage {
               title: S.of(context).you_will_get,
               initialCurrency: exchangeViewModel.receiveCurrency,
               initialWalletName: receiveWalletName ?? '',
-              initialAddress: exchangeViewModel.receiveCurrency ==
-                      exchangeViewModel.wallet.currency
+              initialAddress: exchangeViewModel.receiveCurrency == exchangeViewModel.wallet.currency
                   ? exchangeViewModel.wallet.walletAddresses.address
                   : exchangeViewModel.receiveAddress,
-              initialIsAmountEditable:
-                  exchangeViewModel.isReceiveAmountEditable,
-              initialIsAddressEditable:
-                  exchangeViewModel.isReceiveAddressEnabled,
+              initialIsAmountEditable: exchangeViewModel.isReceiveAmountEditable,
+              initialIsAddressEditable: exchangeViewModel.isReceiveAddressEnabled,
               isAmountEstimated: true,
               isMoneroWallet: exchangeViewModel.isMoneroWallet,
               currencies: exchangeViewModel.receiveCurrencies,
@@ -742,11 +672,8 @@ class ExchangePage extends BasePage {
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
               imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).focusColor!,
-              borderColor: Theme.of(context)
-                  .primaryTextTheme!
-                  .bodyLarge!
-                  .decorationColor!,
+              addressButtonsColor: Theme.of(context).focusColor,
+              borderColor: Theme.of(context).primaryTextTheme.bodyLarge!.decorationColor!,
               currencyValueValidator: (value) {
                 return exchangeViewModel.isFixedRateMode
                     ? AmountValidator(
@@ -757,19 +684,16 @@ class ExchangePage extends BasePage {
                       ).call(value)
                     : null;
               },
-              addressTextFieldValidator:
-                  AddressValidator(type: exchangeViewModel.receiveCurrency),
+              addressTextFieldValidator: AddressValidator(type: exchangeViewModel.receiveCurrency),
               onPushPasteButton: (context) async {
                 final domain = exchangeViewModel.receiveAddress;
-                final ticker =
-                    exchangeViewModel.receiveCurrency.title.toLowerCase();
+                final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
                 exchangeViewModel.receiveAddress =
                     await fetchParsedAddress(context, domain, ticker);
               },
               onPushAddressBookButton: (context) async {
                 final domain = exchangeViewModel.receiveAddress;
-                final ticker =
-                    exchangeViewModel.receiveCurrency.title.toLowerCase();
+                final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
                 exchangeViewModel.receiveAddress =
                     await fetchParsedAddress(context, domain, ticker);
               },
