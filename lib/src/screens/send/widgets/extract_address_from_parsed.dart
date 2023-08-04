@@ -68,6 +68,7 @@ Future<String> extractAddressFromParsed(
       }
 
       return address;
+    case ParseFrom.contact:
     case ParseFrom.notParsed:
       address = parsedAddress.addresses.first;
       return address;
