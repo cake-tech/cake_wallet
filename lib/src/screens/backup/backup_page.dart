@@ -1,21 +1,22 @@
 import 'dart:io';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/trail_button.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/share_util.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/backup_view_model.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class BackupPage extends BasePage {
@@ -52,7 +53,7 @@ class BackupPage extends BasePage {
                       child: Observer(
                           builder: (_) => GestureDetector(
                                 onTap: () {
-                                  Clipboard.setData(
+                                  ClipboardUtil.setSensitiveDataToClipboard(
                                       ClipboardData(text: backupViewModelBase.backupPassword));
                                   showBar<void>(
                                       context,
@@ -75,15 +76,14 @@ class BackupPage extends BasePage {
                 ]))),
         Positioned(
           child: Observer(
-              builder: (_) => LoadingPrimaryButton(
-                  isLoading: backupViewModelBase.state is IsExecutingState,
-                  onPressed: () => onExportBackup(context),
-                  text: S.of(context).export_backup,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
-                  textColor: Colors.white)),
+            builder: (_) => LoadingPrimaryButton(
+              isLoading: backupViewModelBase.state is IsExecutingState,
+              onPressed: () => onExportBackup(context),
+              text: S.of(context).export_backup,
+              color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+              textColor: Colors.white,
+            ),
+          ),
           bottom: 24,
           left: 24,
           right: 24,
