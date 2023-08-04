@@ -175,7 +175,6 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       widget._authService.authenticateAction(
         context,
         route: Routes.newWalletType,
-        arguments: widget.walletListViewModel.currentWalletType,
         conditionToDetermineIfToUse2FA: widget
             .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
