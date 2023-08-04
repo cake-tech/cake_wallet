@@ -82,6 +82,7 @@ dependencies:
   path_provider_android: 2.0.24
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
+  upgrader: ^6.5.0
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git

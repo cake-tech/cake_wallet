@@ -38,6 +38,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:upgrader/upgrader.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -285,7 +286,17 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
-            home: _Home(),
+            //Adding this to override the app theme in this alert that
+            // upgrader shows. The app theme converts the color to white
+            // so the text is not visible, this overrides that
+            // while still keeping everything else intact
+            home: Theme(
+              data: ThemeData(),
+              child: UpgradeAlert(
+                upgrader: Upgrader(debugDisplayAlways: true),
+                child: _Home(),
+              ),
+            ),
           ));
     });
   }
