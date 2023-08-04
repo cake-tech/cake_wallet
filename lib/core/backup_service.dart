@@ -224,6 +224,8 @@ class BackupService {
     final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
+    final syncAll = data[PreferencesKey.syncAllKey] as bool?;
+    final syncMode = data[PreferencesKey.syncModeKey] as int?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName,
         currentWalletName);
@@ -314,6 +316,12 @@ class BackupService {
     if (bitcoinTransactionPriority != null)
       await _sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
         bitcoinTransactionPriority);
+
+    if (syncAll != null)
+      await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+
+    if (syncMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
 
     await preferencesFile.delete();
   }
@@ -462,7 +470,11 @@ class BackupService {
       PreferencesKey.moneroTransactionPriority:
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
       PreferencesKey.currentFiatApiModeKey:
-      _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
+          _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
+      PreferencesKey.syncModeKey:
+          _sharedPreferences.getInt(PreferencesKey.syncModeKey),
+      PreferencesKey.syncAllKey:
+          _sharedPreferences.getBool(PreferencesKey.syncAllKey),
     };
 
     return json.encode(preferences);
