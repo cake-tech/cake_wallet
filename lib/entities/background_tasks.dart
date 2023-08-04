@@ -9,6 +9,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
@@ -113,8 +114,7 @@ class BackgroundTasks {
 
       await Workmanager().initialize(
         callbackDispatcher,
-        isInDebugMode: true, // TODO: remove
-        // isInDebugMode: kDebugMode,
+        isInDebugMode: kDebugMode,
       );
 
       final inputData = <String, dynamic>{"sync_all": syncAll};
