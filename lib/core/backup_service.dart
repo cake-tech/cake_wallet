@@ -313,38 +313,40 @@ class BackupService {
           PreferencesKey.bitcoinTransactionPriority, bitcoinTransactionPriority);
 
     if (selectedCake2FAPreset != null)
-      _sharedPreferences.setInt(PreferencesKey.selectedCake2FAPreset, selectedCake2FAPreset);
+      await _sharedPreferences.setInt(PreferencesKey.selectedCake2FAPreset, selectedCake2FAPreset);
 
     if (shouldRequireTOTP2FAForAccessingWallet != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet,
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet,
           shouldRequireTOTP2FAForAccessingWallet);
 
     if (shouldRequireTOTP2FAForSendsToContact != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact,
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact,
           shouldRequireTOTP2FAForSendsToContact);
 
     if (shouldRequireTOTP2FAForSendsToNonContact != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact,
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact,
           shouldRequireTOTP2FAForSendsToNonContact);
 
     if (shouldRequireTOTP2FAForSendsToInternalWallets != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets,
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets,
           shouldRequireTOTP2FAForSendsToInternalWallets);
 
     if (shouldRequireTOTP2FAForExchangesToInternalWallets != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
+      await _sharedPreferences.setBool(
+          PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
           shouldRequireTOTP2FAForExchangesToInternalWallets);
 
     if (shouldRequireTOTP2FAForAddingContacts != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts,
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts,
           shouldRequireTOTP2FAForAddingContacts);
 
     if (shouldRequireTOTP2FAForCreatingNewWallets != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets,
+      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets,
           shouldRequireTOTP2FAForCreatingNewWallets);
 
     if (shouldRequireTOTP2FAForAllSecurityAndBackupSettings != null)
-      _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+      await _sharedPreferences.setBool(
+          PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
           shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
 
     await preferencesFile.delete();
