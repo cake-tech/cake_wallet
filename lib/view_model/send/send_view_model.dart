@@ -251,7 +251,6 @@ abstract class SendViewModelBase with Store {
     }
   }
 
-  @action
   bool shouldDisplayTotp() {
     List<bool> conditionsList = [];
 

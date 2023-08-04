@@ -58,130 +58,170 @@ class _2FAControlsWidgetState extends State<_2FAControlsWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SettingsCellWithArrow(
-            title: S.current.disable_cake_2fa,
-            handler: (_) async {
-              await showPopUp<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertWithTwoActions(
-                    alertTitle: S.current.disable_cake_2fa,
-                    alertContent: S.current.question_to_disable_2fa,
-                    leftButtonText: S.current.cancel,
-                    rightButtonText: S.current.disable,
-                    actionLeftButton: () => Navigator.of(context).pop(),
-                    actionRightButton: () {
-                      widget.setup2FAViewModel.setUseTOTP2FA(false);
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, Routes.dashboard, (route) => false);
-                    },
-                  );
-                },
-              );
-            },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingsCellWithArrow(
+          title: S.current.disable_cake_2fa,
+          handler: (_) async {
+            await showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithTwoActions(
+                  alertTitle: S.current.disable_cake_2fa,
+                  alertContent: S.current.question_to_disable_2fa,
+                  leftButtonText: S.current.cancel,
+                  rightButtonText: S.current.disable,
+                  actionLeftButton: () => Navigator.of(context).pop(),
+                  actionRightButton: () {
+                    widget.setup2FAViewModel.setUseTOTP2FA(false);
+                    Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
+                  },
+                );
+              },
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        SizedBox(height: 40),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            S.current.cake_2fa_preset,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.normal,
+              color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+            ),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SizedBox(height: 40),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              'Cake 2FA Preset',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+        ),
+        SizedBox(height: 8),
+        Observer(
+          builder: (context) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              margin: EdgeInsets.symmetric(horizontal: 24),
+              decoration: BoxDecoration(
+                color: Color(0xffF2F0FA),
+                borderRadius: BorderRadius.circular(20.0),
               ),
-            ),
-          ),
-          SizedBox(height: 8),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            margin: EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: Color(0xffF2F0FA),
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Theme(
-              data: ThemeData(
+              child: Theme(
+                data: ThemeData(
                   primaryTextTheme:
-                      TextTheme(bodyLarge: TextStyle(backgroundColor: Colors.transparent))),
-              child: TabBar(
-                onTap: (value) => viewModel.selectCakePreset(value),
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25.0),
-                  color: !viewModel.unhighlightTabs
-                      ? Theme.of(context).accentTextTheme.bodyLarge!.color!
-                      : Colors.transparent,
+                      TextTheme(bodyLarge: TextStyle(backgroundColor: Colors.transparent)),
                 ),
-                labelColor: Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
-                unselectedLabelColor:
-                    Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
-                tabs: [
-                  Tab(text: S.current.narrow, height: 30),
-                  Tab(text: S.current.normal, height: 30),
-                  Tab(text: S.current.aggressive, height: 30),
-                ],
+                child: TabBar(
+                  onTap: (value) => viewModel.selectCakePreset(value),
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25.0),
+                    color: !viewModel.unhighlightTabs
+                        ? Theme.of(context).accentTextTheme.bodyLarge!.color!
+                        : Colors.transparent,
+                  ),
+                  labelColor: Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
+                  unselectedLabelColor:
+                      Theme.of(context).primaryTextTheme.displayLarge!.backgroundColor!,
+                  tabs: [
+                    Tab(text: S.current.narrow, height: 30),
+                    Tab(text: S.current.normal, height: 30),
+                    Tab(text: S.current.aggressive, height: 30),
+                  ],
+                ),
               ),
-            ),
-          ),
-          SizedBox(height: 40),
-          SettingsSwitcherCell(
+            );
+          },
+        ),
+        SizedBox(height: 40),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
               title: S.current.require_for_assessing_wallet,
               value: viewModel.shouldRequireTOTP2FAForAccessingWallet,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForAccessingWallet(value)),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsSwitcherCell(
+                  viewModel.switchShouldRequireTOTP2FAForAccessingWallet(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
               title: S.current.require_for_sends_to_non_contacts,
               value: viewModel.shouldRequireTOTP2FAForSendsToNonContact,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForSendsToNonContact(value)),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsSwitcherCell(
+                  viewModel.switchShouldRequireTOTP2FAForSendsToNonContact(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
               title: S.current.require_for_sends_to_contacts,
               value: viewModel.shouldRequireTOTP2FAForSendsToContact,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForSendsToContact(value)),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsSwitcherCell(
+                  viewModel.switchShouldRequireTOTP2FAForSendsToContact(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
               title: S.current.require_for_sends_to_internal_wallets,
               value: viewModel.shouldRequireTOTP2FAForSendsToInternalWallets,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForSendsToInternalWallets(value)),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsSwitcherCell(
+                  viewModel.switchShouldRequireTOTP2FAForSendsToInternalWallets(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
               title: S.current.require_for_exchanges_to_internal_wallets,
               value: viewModel.shouldRequireTOTP2FAForExchangesToInternalWallets,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForExchangesToInternalWallets(value)),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsSwitcherCell(
+                  viewModel.switchShouldRequireTOTP2FAForExchangesToInternalWallets(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
               title: S.current.require_for_adding_contacts,
               value: viewModel.shouldRequireTOTP2FAForAddingContacts,
               onValueChange: (context, value) async =>
-                  viewModel.switchShouldRequireTOTP2FAForAddingContacts(value)),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsSwitcherCell(
-            title: S.current.require_for_creating_new_wallets,
-            value: viewModel.shouldRequireTOTP2FAForCreatingNewWallets,
-            onValueChange: (context, value) async =>
-                viewModel.switchShouldRequireTOTP2FAForCreatingNewWallet(value),
-          ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsSwitcherCell(
-            title: S.current.require_for_all_security_and_backup_settings,
-            value: viewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-            onValueChange: (context, value) async =>
-                viewModel.switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(value),
-          ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        ],
-      );
-    });
+                  viewModel.switchShouldRequireTOTP2FAForAddingContacts(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
+              title: S.current.require_for_creating_new_wallets,
+              value: viewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+              onValueChange: (context, value) async =>
+                  viewModel.switchShouldRequireTOTP2FAForCreatingNewWallet(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
+              title: S.current.require_for_all_security_and_backup_settings,
+              value: viewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              onValueChange: (context, value) async =>
+                  viewModel.switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+      ],
+    );
   }
 }
