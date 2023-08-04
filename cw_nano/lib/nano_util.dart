@@ -23,6 +23,10 @@ class NanoUtil {
         NanoAccountType.NANO, privateKeyToPublic(seedToPrivate(seed, index)));
   }
 
+  static String seedToMnemonic(String seed) {
+    return NanoMnemomics.seedToMnemonic(seed).join(" ");
+  }
+
   // static String createPublicKey(String privateKey) {
   //   return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
   // }
@@ -207,5 +211,4 @@ class NanoUtil {
     final Decimal rawDecimal = Decimal.parse(rawPerCur.toString());
     return (asDecimal * rawDecimal).toString();
   }
-  
 }

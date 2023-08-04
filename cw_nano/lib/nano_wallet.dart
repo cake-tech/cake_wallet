@@ -59,9 +59,10 @@ abstract class NanoWalletBase
   final String _password;
   final DerivationType _derivationType;
 
-  late final String _privateKey;
-  late final String _publicAddress;
-  late final String _seedKey;
+  String? _privateKey;
+  String? _publicAddress;
+  String? _seedKey;
+
   String? _representativeAddress;
   Timer? _receiveTimer;
 
@@ -82,11 +83,10 @@ abstract class NanoWalletBase
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
     final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
-
     _seedKey = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
-    _privateKey = await NanoUtil.uniSeedToPrivate(_seedKey, 0, type);
-    _publicAddress = await NanoUtil.uniSeedToAddress(_seedKey, 0, type);
-    this.walletInfo.address = _publicAddress;
+    _privateKey = await NanoUtil.uniSeedToPrivate(_seedKey!, 0, type);
+    _publicAddress = await NanoUtil.uniSeedToAddress(_seedKey!, 0, type);
+    this.walletInfo.address = _publicAddress!;
 
     await walletAddresses.init();
     await transactionHistory.init();
@@ -158,7 +158,7 @@ abstract class NanoWalletBase
       final block = await _client.constructSendBlock(
         amountRaw: amt.toString(),
         destinationAddress: txOut.address,
-        privateKey: _privateKey,
+        privateKey: _privateKey!,
         balanceAfterTx: runningBalance,
         previousHash: previousHash,
       );
@@ -195,8 +195,8 @@ abstract class NanoWalletBase
   Future<void> _receiveAll() async {
     await _updateBalance();
     int blocksReceived = await this._client.confirmAllReceivable(
-          destinationAddress: _publicAddress,
-          privateKey: _privateKey,
+          destinationAddress: _publicAddress!,
+          privateKey: _privateKey!,
         );
 
     if (blocksReceived > 0) {
@@ -224,7 +224,7 @@ abstract class NanoWalletBase
 
   @override
   Future<Map<String, NanoTransactionInfo>> fetchTransactions() async {
-    String address = _publicAddress;
+    String address = _publicAddress!;
 
     final transactions = await _client.fetchTransactions(address);
 
@@ -249,7 +249,7 @@ abstract class NanoWalletBase
 
   @override
   NanoWalletKeys get keys {
-    return NanoWalletKeys(seedKey: _seedKey);
+    return NanoWalletKeys(seedKey: _seedKey!);
   }
 
   @override
@@ -269,7 +269,7 @@ abstract class NanoWalletBase
 
   @override
   String get seed => _mnemonic;
-  
+
   String get representative => _representativeAddress ?? "";
 
   @action
@@ -303,7 +303,8 @@ abstract class NanoWalletBase
   String toJSON() => json.encode({
         'seedKey': _seedKey,
         'mnemonic': _mnemonic,
-        // 'balance': balance[currency]!.toJSON(),
+        'currentBalance': balance[currency]?.currentBalance.toString() ?? "0",
+        'receivableBalance': balance[currency]?.receivableBalance.toString() ?? "0",
         'derivationType': _derivationType.toString()
       });
 
@@ -314,11 +315,12 @@ abstract class NanoWalletBase
   }) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
     final jsonSource = await read(path: path, password: password);
+
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
     final balance = NanoBalance.fromString(
-        formattedCurrentBalance: data['balance'] as String? ?? "0",
-        formattedReceivableBalance: "0");
+        formattedCurrentBalance: data['currentBalance'] as String? ?? "0",
+        formattedReceivableBalance: data['receivableBalance'] as String? ?? "0");
 
     DerivationType derivationType = DerivationType.bip39;
     if (data['derivationType'] == "DerivationType.nano") {
@@ -336,16 +338,17 @@ abstract class NanoWalletBase
       mnemonic: mnemonic,
       initialBalance: balance,
     );
+    // init() should always be run after this!
   }
 
   Future<void> _updateBalance() async {
-    balance[currency] = await _client.getBalance(_publicAddress);
+    balance[currency] = await _client.getBalance(_publicAddress!);
     await save();
   }
 
   Future<void> _updateRep() async {
     try {
-      final accountInfo = await _client.getAccountInfo(_publicAddress);
+      final accountInfo = await _client.getAccountInfo(_publicAddress!);
       _representativeAddress = accountInfo["representative"] as String;
     } catch (e) {
       throw Exception("Failed to get representative address $e");
@@ -355,9 +358,9 @@ abstract class NanoWalletBase
   Future<void> changeRep(String address) async {
     try {
       final String hash = await _client.changeRep(
-        privateKey: _privateKey,
+        privateKey: _privateKey!,
         repAddress: address,
-        ourAddress: _publicAddress,
+        ourAddress: _publicAddress!,
       );
       if (hash.isNotEmpty) {
         _representativeAddress = address;

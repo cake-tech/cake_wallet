@@ -9,12 +9,13 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
-import 'package:cw_nano/nano_mnemonic.dart';
+import 'package:cw_nano/nano_mnemonic.dart' as nm;
 import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:hive/hive.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:nanodart/nanodart.dart';
 
 class NanoNewWalletCredentials extends WalletCredentials {
   NanoNewWalletCredentials({required String name, String? password})
@@ -65,10 +66,18 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
-    final mnemonic = bip39.generateMnemonic();
+    // nano standard:
+    DerivationType derivationType = DerivationType.nano;
+    String seedKey = NanoSeeds.generateSeed();
+    String mnemonic = NanoUtil.seedToMnemonic(seedKey);
+
+    // bip39:
+    // derivationType derivationType = DerivationType.bip39;
+    // String mnemonic = bip39.generateMnemonic();
+
     final nanoWalletInfo = NanoWalletInfo(
       walletInfo: credentials.walletInfo!,
-      derivationType: DerivationType.nano,
+      derivationType: derivationType,
     );
 
     final wallet = NanoWallet(
@@ -76,6 +85,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       mnemonic: mnemonic,
       password: credentials.password!,
     );
+    wallet.init();
     return wallet;
   }
 
@@ -178,11 +188,11 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   @override
   Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
-      throw NanoMnemonicIsIncorrectException();
+      throw nm.NanoMnemonicIsIncorrectException();
     }
 
     if (!NanoMnemomics.validateMnemonic(credentials.mnemonic.split(' '))) {
-      throw NanoMnemonicIsIncorrectException();
+      throw nm.NanoMnemonicIsIncorrectException();
     }
 
     DerivationType derivationType = credentials.derivationType ??
