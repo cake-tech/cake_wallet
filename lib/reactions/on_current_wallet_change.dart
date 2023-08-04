@@ -99,13 +99,16 @@ void startCurrentWalletChangeReaction(AppStore appStore,
               torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
 
       if (wallet.type == WalletType.ethereum) {
-        final currencies = ethereum!.getERC20Currencies(appStore.wallet!);
+        final currencies =
+                ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
 
         for (final currency in currencies) {
-          fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-              crypto: currency,
-              fiat: settingsStore.fiatCurrency,
-              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+          () async {
+            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+                crypto: currency,
+                fiat: settingsStore.fiatCurrency,
+                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+          }.call();
         }
       }
     } catch (e) {

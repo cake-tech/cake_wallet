@@ -48,9 +48,9 @@ class EthereumTransactionInfo extends TransactionInfo {
     return EthereumTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
-      ethAmount: data['amount'] as BigInt,
+      ethAmount: BigInt.parse(data['amount']),
       exponent: data['exponent'] as int,
-      ethFee: data['fee'] as BigInt,
+      ethFee: BigInt.parse(data['fee']),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
@@ -62,9 +62,9 @@ class EthereumTransactionInfo extends TransactionInfo {
   Map<String, dynamic> toJson() => {
         'id': id,
         'height': height,
-        'amount': ethAmount,
+        'amount': ethAmount.toString(),
         'exponent': exponent,
-        'fee': ethFee,
+        'fee': ethFee.toString(),
         'direction': direction.index,
         'date': date.millisecondsSinceEpoch,
         'isPending': isPending,

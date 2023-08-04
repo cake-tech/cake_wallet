@@ -311,13 +311,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.otherSettingsPage:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<OtherSettingsPage>());
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<OtherSettingsPage>());
 
     case Routes.newNode:
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NodeCreateOrEditPage>(
-              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
+            param1: args?['editingNode'] as Node?,
+            param2: args?['isSelected'] as bool?));
+
+
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(

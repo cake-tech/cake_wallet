@@ -472,6 +472,13 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
   }
+
+  if (currentEthereumNodeServer == null) {
+    final node = Node(uri: ethereumDefaultNodeUri, type: WalletType.ethereum);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(
+        PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+  }
 }
 
 Future<void> resetBitcoinElectrumServer(
@@ -511,8 +518,8 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
     return;
   }
 
-  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey,
-      isExchangeDisabled ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
+  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled
+      ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
 
   await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
 }
@@ -527,7 +534,8 @@ Future<void> addEthereumNodeList({required Box<Node> nodes}) async {
 }
 
 Future<void> changeEthereumCurrentNodeToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+    {required SharedPreferences sharedPreferences,
+      required Box<Node> nodes}) async {
   final node = getEthereumDefaultNode(nodes: nodes);
   final nodeId = node?.key as int? ?? 0;
 

@@ -10,6 +10,7 @@ import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 
 class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
     EthereumRestoreWalletFromSeedCredentials, EthereumRestoreWalletFromWIFCredentials> {
@@ -57,8 +58,12 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   }
 
   @override
-  Future<void> remove(String wallet) async =>
-      File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+  Future<void> remove(String wallet) async {
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+            (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    await walletInfoSource.delete(walletInfo.key);
+  }
 
   @override
   Future<EthereumWallet> restoreFromKeys(credentials) {
@@ -72,7 +77,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       throw EthereumMnemonicIsIncorrectException();
     }
 
-    final wallet = await EthereumWallet(
+    final wallet = EthereumWallet(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,

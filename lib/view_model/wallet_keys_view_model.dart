@@ -136,6 +136,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'litecoin-wallet';
       case WalletType.haven:
         return 'haven-wallet';
+      case WalletType.ethereum:
+        return 'ethereum-wallet';
       case WalletType.nano:
         return 'nano-wallet';
       case WalletType.banano:

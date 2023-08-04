@@ -127,6 +127,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.haven) {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
       }
+
+      if (_wallet.type == WalletType.ethereum) {
+        return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -137,8 +141,9 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
+      final currency = _wallet.type == WalletType.ethereum ? _wallet.currency : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
+          price: _fiatConversationStore.prices[currency]!,
           cryptoAmount: estimatedFee);
       return fiat;
     } catch (_) {
@@ -230,6 +235,9 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 8;
         break;
       case WalletType.haven:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.ethereum:
         maximumFractionDigits = 12;
         break;
       default:

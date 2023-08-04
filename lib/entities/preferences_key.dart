@@ -43,16 +43,33 @@ class PreferencesKey {
   static const lastAppReviewDate = 'last_app_review_date';
   static const sortBalanceBy = 'sort_balance_by';
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
+  static const useEtherscan = 'use_etherscan';
 
-
-
-  static String moneroWalletUpdateV1Key(String name)
-    => '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
+  static String moneroWalletUpdateV1Key(String name) =>
+      '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
-  static const clearnetDonationLink = 'clearnet_donation_link'; 
+  static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const lastSeenAppVersion = 'last_seen_app_version';
-  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
+  static const shouldShowMarketPlaceInDashboard =
+      'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
+  static const shouldRequireTOTP2FAForAccessingWallet =
+      'should_require_totp_2fa_for_accessing_wallets';
+  static const shouldRequireTOTP2FAForSendsToContact =
+      'should_require_totp_2fa_for_sends_to_contact';
+  static const shouldRequireTOTP2FAForSendsToNonContact =
+      'should_require_totp_2fa_for_sends_to_non_contact';
+  static const shouldRequireTOTP2FAForSendsToInternalWallets =
+      'should_require_totp_2fa_for_sends_to_internal_wallets';
+  static const shouldRequireTOTP2FAForExchangesToInternalWallets =
+      'should_require_totp_2fa_for_exchanges_to_internal_wallets';
+  static const shouldRequireTOTP2FAForAddingContacts =
+      'should_require_totp_2fa_for_adding_contacts';
+  static const shouldRequireTOTP2FAForCreatingNewWallets =
+      'should_require_totp_2fa_for_creating_new_wallets';
+  static const shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
+      'should_require_totp_2fa_for_all_security_and_backup_settings';
+  static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
 }

@@ -2,6 +2,12 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -33,8 +39,14 @@ part 'send_view_model.g.dart';
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
-  SendViewModelBase(this._wallet, this._settingsStore, this.sendTemplateViewModel,
-      this._fiatConversationStore, this.balanceViewModel, this.transactionDescriptionBox)
+  SendViewModelBase(
+      this._wallet,
+      this._settingsStore,
+      this.sendTemplateViewModel,
+      this._fiatConversationStore,
+      this.balanceViewModel,
+      this.contactListViewModel,
+      this.transactionDescriptionBox)
       : state = InitialExecutionState(),
         currencies = _wallet.balance.keys.toList(),
         selectedCryptoCurrency = _wallet.currency,
@@ -99,8 +111,11 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
+        final currency = walletType == WalletType.ethereum
+            ? _wallet.currency
+            : selectedCryptoCurrency;
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+            price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
         return fiat;
       } else {
@@ -173,10 +188,9 @@ abstract class SendViewModelBase with Store {
 
   List<CryptoCurrency> currencies;
 
-  bool get hasMultiRecipient => _wallet.type != WalletType.haven;
-
-  bool get hasYat => outputs
-      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  bool get hasYat => outputs.any((out) =>
+      out.isParsedAddress &&
+      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
 
@@ -192,9 +206,73 @@ abstract class SendViewModelBase with Store {
   final SettingsStore _settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
+  final ContactListViewModel contactListViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
   final bool hasMultipleTokens;
+
+  @computed
+  List<ContactRecord> get contactsToShow => contactListViewModel.contacts
+      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
+      .toList();
+
+  @computed
+  List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
+      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
+      .toList();
+
+  @action
+  bool checkIfAddressIsAContact(String address) {
+    final contactList = contactsToShow.where((element) => element.address == address).toList();
+
+    return contactList.isNotEmpty;
+  }
+
+  @action
+  bool checkIfWalletIsAnInternalWallet(String address) {
+    final walletContactList =
+        walletContactsToShow.where((element) => element.address == address).toList();
+
+    return walletContactList.isNotEmpty;
+  }
+
+  @computed
+  bool get shouldDisplayTOTP2FAForContact => _settingsStore.shouldRequireTOTP2FAForSendsToContact;
+
+  @computed
+  bool get shouldDisplayTOTP2FAForNonContact =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToNonContact;
+
+  @computed
+  bool get shouldDisplayTOTP2FAForSendsToInternalWallet =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
+
+  //* Still open to further optimize these checks
+  //* It works but can be made better
+  @action
+  bool checkThroughChecksToDisplayTOTP(String address) {
+    final isContact = checkIfAddressIsAContact(address);
+    final isInternalWallet = checkIfWalletIsAnInternalWallet(address);
+
+    if (isContact) {
+      return shouldDisplayTOTP2FAForContact;
+    } else if (isInternalWallet) {
+      return shouldDisplayTOTP2FAForSendsToInternalWallet;
+    } else {
+      return shouldDisplayTOTP2FAForNonContact;
+    }
+  }
+
+  bool shouldDisplayTotp() {
+    List<bool> conditionsList = [];
+
+    for (var output in outputs) {
+      final show = checkThroughChecksToDisplayTOTP(output.address);
+      conditionsList.add(show);
+    }
+
+    return conditionsList.contains(true);
+  }
 
   @action
   Future<void> createTransaction() async {
@@ -316,11 +394,22 @@ abstract class SendViewModelBase with Store {
   }
 
   bool _isEqualCurrency(String currency) =>
-      currency.toLowerCase() == _wallet.currency.title.toLowerCase();
+      _wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
   @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
 
   @action
-  void setFiatCurrency(FiatCurrency fiat) => _settingsStore.fiatCurrency = fiat;
+  void setFiatCurrency(FiatCurrency fiat) =>
+      _settingsStore.fiatCurrency = fiat;
+
+  @action
+  void setSelectedCryptoCurrency(String cryptoCurrency) {
+    try {
+      selectedCryptoCurrency = _wallet.balance.keys
+          .firstWhere((e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
+    } catch (e) {
+      selectedCryptoCurrency = _wallet.currency;
+    }
+  }
 }

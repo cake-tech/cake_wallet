@@ -32,8 +32,9 @@ abstract class EthereumTransactionHistoryBase
       final path = '$dirPath/$transactionsHistoryFileName';
       final data = json.encode({'transactions': transactions});
       await writeData(path: path, password: _password, data: data);
-    } catch (e) {
-      print('Error while save bitcoin transaction history: ${e.toString()}');
+    } catch (e, s) {
+      print('Error while save ethereum transaction history: ${e.toString()}');
+      print(s);
     }
   }
 
@@ -48,6 +49,9 @@ abstract class EthereumTransactionHistoryBase
     final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await read(path: path, password: _password);
+    if (content.isEmpty) {
+      return {};
+    }
     return json.decode(content) as Map<String, dynamic>;
   }
 

@@ -494,6 +494,7 @@ abstract class HavenAccountList {
 }
 
 Future<void> generateEthereum(bool hasImplementation) async {
+
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 """;
@@ -530,7 +531,6 @@ abstract class Ethereum {
   TransactionPriority getDefaultTransactionPriority();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
-  int getEstimatedFee(Object wallet, TransactionPriority priority);
 
   Object createEthereumTransactionCredentials(
     List<Output> outputs, {
@@ -547,25 +547,26 @@ abstract class Ethereum {
   });
 
   int formatterEthereumParseAmount(String amount);
-  double formatterEthereumAmountToDouble({required TransactionInfo transaction});
+  double formatterEthereumAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
   Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
   Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
 }
   """;
 
   const ethereumEmptyDefinition = 'Ethereum? ethereum;\n';
   const ethereumCWDefinition = 'Ethereum? ethereum = CWEthereum();\n';
 
-  final output = '$ethereumCommonHeaders\n' +
-      (hasImplementation ? '$ethereumCWHeaders\n' : '\n') +
-      (hasImplementation ? '$ethereumCwPart\n\n' : '\n') +
-      (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition) +
-      '\n' +
-      ethereumContent;
+  final output = '$ethereumCommonHeaders\n'
+    + (hasImplementation ? '$ethereumCWHeaders\n' : '\n')
+    + (hasImplementation ? '$ethereumCwPart\n\n' : '\n')
+    + (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition)
+    + '\n'
+    + ethereumContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
