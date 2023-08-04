@@ -46,6 +46,7 @@ class MainActions {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
+        case WalletType.ethereum:
           if (viewModel.isEnabledBuyAction) {
             final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
             if (DeviceInfo.instance.isMobile) {
@@ -116,6 +117,7 @@ class MainActions {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
+        case WalletType.ethereum:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
             final uri = await moonPaySellProvider.requestUrl(

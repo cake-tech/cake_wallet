@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -14,6 +15,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.haven:
       return haven!.getTransactionPriorities();
+    case WalletType.ethereum:
+      return ethereum!.getTransactionPriorities();
     default:
       return [];
   }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
@@ -25,6 +26,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return monero!.getMoneroWordList(language);
       case WalletType.haven:
         return haven!.getMoneroWordList(language);
+      case WalletType.ethereum:
+        return ethereum!.getEthereumWordList(language);
       default:
         return [];
     }

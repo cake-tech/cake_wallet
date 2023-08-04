@@ -13,8 +13,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 
 part 'send_template_view_model.g.dart';
 
-class SendTemplateViewModel = SendTemplateViewModelBase
-    with _$SendTemplateViewModel;
+class SendTemplateViewModel = SendTemplateViewModelBase with _$SendTemplateViewModel;
 
 abstract class SendTemplateViewModelBase with Store {
   final WalletBase _wallet;
@@ -22,8 +21,8 @@ abstract class SendTemplateViewModelBase with Store {
   final SendTemplateStore _sendTemplateStore;
   final FiatConversionStore _fiatConversationStore;
 
-  SendTemplateViewModelBase(this._wallet, this._settingsStore,
-      this._sendTemplateStore, this._fiatConversationStore)
+  SendTemplateViewModelBase(
+      this._wallet, this._settingsStore, this._sendTemplateStore, this._fiatConversationStore)
       : recipients = ObservableList<TemplateViewModel>() {
     addRecipient();
   }
@@ -33,7 +32,6 @@ abstract class SendTemplateViewModelBase with Store {
   @action
   void addRecipient() {
     recipients.add(TemplateViewModel(
-        cryptoCurrency: cryptoCurrency,
         wallet: _wallet,
         settingsStore: _settingsStore,
         fiatConversationStore: _fiatConversationStore));
@@ -47,10 +45,12 @@ abstract class SendTemplateViewModelBase with Store {
   AmountValidator get amountValidator =>
       AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
-  AddressValidator get addressValidator =>
-      AddressValidator(type: _wallet.currency);
+  AddressValidator get addressValidator => AddressValidator(type: _wallet.currency);
 
   TemplateValidator get templateValidator => TemplateValidator();
+
+  bool get hasMultiRecipient =>
+      _wallet.type != WalletType.haven && _wallet.type != WalletType.ethereum;
 
   @computed
   CryptoCurrency get cryptoCurrency => _wallet.currency;
@@ -68,6 +68,7 @@ abstract class SendTemplateViewModelBase with Store {
   void addTemplate(
       {required String name,
       required bool isCurrencySelected,
+      required String cryptoCurrency,
       required String address,
       required String amount,
       required String amountFiat,
@@ -76,7 +77,7 @@ abstract class SendTemplateViewModelBase with Store {
         name: name,
         isCurrencySelected: isCurrencySelected,
         address: address,
-        cryptoCurrency: cryptoCurrency.title,
+        cryptoCurrency: cryptoCurrency,
         fiatCurrency: fiatCurrency,
         amount: amount,
         amountFiat: amountFiat,
@@ -89,4 +90,7 @@ abstract class SendTemplateViewModelBase with Store {
     _sendTemplateStore.remove(template: template);
     updateTemplate();
   }
+
+  @computed
+  List<CryptoCurrency> get walletCurrencies => _wallet.balance.keys.toList();
 }

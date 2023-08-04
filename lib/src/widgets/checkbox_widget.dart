@@ -1,13 +1,8 @@
-import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CheckboxWidget extends StatefulWidget {
-  CheckboxWidget({
-    required this.value,
-    required this.caption,
-    required this.onChanged});
+  CheckboxWidget({required this.value, required this.caption, required this.onChanged});
 
   final bool value;
   final String caption;
@@ -26,55 +21,45 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         value = !value;
         onChanged(value);
         setState(() {});
       },
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            height: 16,
-            width: 16,
+            height: 24.0,
+            width: 24.0,
+            margin: EdgeInsets.only(right: 10.0),
             decoration: BoxDecoration(
-                color: value
-                    ? Palette.blueCraiola
-                    : Theme.of(context)
-                        .accentTextTheme!
-                        .titleMedium!
-                        .decorationColor!,
-                borderRadius: BorderRadius.all(Radius.circular(2)),
-                border: Border.all(
-                    color: value
-                        ? Palette.blueCraiola
-                        : Theme.of(context)
-                            .accentTextTheme!
-                            .labelSmall!
-                            .color!,
-                    width: 1)),
-            child: value
-                ? Center(
-              child: Icon(
-                Icons.done,
-                color: Colors.white,
-                size: 14,
+              border: Border.all(
+                color: Theme.of(context).primaryTextTheme.bodySmall!.color!,
+                width: 1.0,
               ),
-            )
-                : Offstage(),
+              borderRadius: BorderRadius.all(
+                Radius.circular(8.0),
+              ),
+              color: Theme.of(context).colorScheme.background,
+            ),
+            child: value
+                ? Icon(
+                    Icons.check,
+                    color: Colors.blue,
+                    size: 20.0,
+                  )
+                : null,
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 16),
+          Expanded(
             child: Text(
               caption,
               style: TextStyle(
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
-                  fontSize: 18,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w500,
-                  decoration: TextDecoration.none
+                fontWeight: FontWeight.bold,
+                fontSize: 14.0,
+                color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
               ),
             ),
           )

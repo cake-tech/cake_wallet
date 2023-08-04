@@ -151,7 +151,7 @@ Future<void> initializeAppConfigs() async {
       transactionDescriptions: transactionDescriptions,
       secureStorage: secureStorage,
       anonpayInvoiceInfo: anonpayInvoiceInfo,
-      initialMigrationVersion: 19);
+      initialMigrationVersion: 21);
   }
 
 Future<void> initialSetup(

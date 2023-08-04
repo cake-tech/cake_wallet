@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cw_bitcoin/address_from_output.dart';
@@ -217,9 +216,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
         height: info.height,
         amount: info.amount,
         fee: info.fee,
-        direction: direction ?? info.direction,
-        date: date ?? info.date,
-        isPending: isPending ?? info.isPending,
+        direction: direction,
+        date: date,
+        isPending: isPending,
         confirmations: info.confirmations);
   }
 

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -42,6 +43,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
             name: name, language: options as String);
+      case WalletType.ethereum:
+        return ethereum!.createEthereumNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');;
     }
