@@ -144,6 +144,7 @@ class ExceptionHandler {
     "Connection closed before full header was received",
     "Connection terminated during handshake",
     "PERMISSION_NOT_GRANTED",
+    "Failed host lookup: ",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
