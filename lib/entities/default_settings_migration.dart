@@ -27,6 +27,7 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
+const bitcoinCashDefaultNodeUri = 'electrum.cakewallet.com:50002';
 
 Future defaultSettingsMigration(
     {required int version,
@@ -255,6 +256,12 @@ Node? getEthereumDefaultNode({required Box<Node> nodes}) {
           ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
 }
 
+Node? getBitcoinCashDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull(
+          (Node node) => node.uriRaw == bitcoinCashDefaultNodeUri)
+      ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoinCash);
+}
+
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
   final timeZone = DateTime.now().timeZoneOffset.inHours;
   var nodeUri = '';
@@ -453,6 +460,8 @@ Future<void> checkCurrentNodes(
       .getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences
       .getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentBitcoinCashNodeId = sharedPreferences
+      .getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
@@ -463,6 +472,8 @@ Future<void> checkCurrentNodes(
       (node) => node.key == currentHavenNodeId);
   final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentEthereumNodeId);
+  final currentBitcoinCashNodeServer = nodeSource.values.firstWhereOrNull(
+          (node) => node.key == currentBitcoinCashNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode =
@@ -502,6 +513,13 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(
         PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+  }
+
+  if (currentBitcoinCashNodeServer == null) {
+    final node = Node(uri: bitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(
+        PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
   }
 }
 

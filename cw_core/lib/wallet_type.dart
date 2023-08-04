@@ -68,7 +68,7 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.haven;
     case 4:
       return WalletType.ethereum;
-    case 4:
+    case 5:
       return WalletType.bitcoinCash;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');

@@ -11,6 +11,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
 class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredentials,
@@ -29,7 +30,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> create(
+  Future<BitcoinCashWallet> create(
       credentials) async {
     final wallet = await BitcoinCashWalletBase.create(
         mnemonic: await Mnemonic.generate(),
@@ -42,10 +43,14 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(
-      String name, String password) {
-    // TODO: implement openWallet
-    throw UnimplementedError('openWallet() is not implemented');
+  Future<BitcoinCashWallet> openWallet(String name, String password) async {
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+            (info) => info.id == WalletBase.idFor(name, getType()))!;
+    final wallet = await BitcoinCashWalletBase.open(
+        password: password, name: name, walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
+    await wallet.init();
+    return wallet;
   }
 
   @override
@@ -61,7 +66,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+  Future<BitcoinCashWallet>
   restoreFromKeys(credentials) {
     // TODO: implement restoreFromKeys
     throw UnimplementedError('restoreFromKeys() is not implemented');

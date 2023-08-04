@@ -2,6 +2,7 @@
   
   import 'dart:typed_data';
   import 'package:cw_bitcoin_cash/src/bitcoin_cash_base.dart';
+import 'package:cw_core/transaction_priority.dart';
   import 'package:cw_core/unspent_coins_info.dart';
   import 'package:cw_core/wallet_credentials.dart';
   import 'package:cw_core/wallet_info.dart';
@@ -28,8 +29,8 @@ BitcoinCash? bitcoinCash = CWBitcoinCash();
   //
   // Map<String, String> getWalletKeys(Object wallet);
   // List<TransactionPriority> getTransactionPriorities();
-  // List<TransactionPriority> getLitecoinTransactionPriorities();
-  // TransactionPriority deserializeBitcoinTransactionPriority(int raw);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
   // TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   // int getFeeRate(Object wallet, TransactionPriority priority);
   // Future<void> generateNewAddress(Object wallet);
@@ -46,7 +47,6 @@ BitcoinCash? bitcoinCash = CWBitcoinCash();
   //
   // void updateUnspents(Object wallet);
 
-  // WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   // TransactionPriority getBitcoinTransactionPriorityMedium();
   // TransactionPriority getLitecoinTransactionPriorityMedium();
   // TransactionPriority getBitcoinTransactionPrioritySlow();
