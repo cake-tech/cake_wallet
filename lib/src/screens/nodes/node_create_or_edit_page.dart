@@ -66,6 +66,19 @@ class NodeCreateOrEditPage extends BasePage {
   @override
   String get title => editingNode != null ? S.current.edit_node : S.current.node_new;
 
+  @override
+  Widget trailing(BuildContext context) => IconButton(
+        onPressed: () async {
+          await nodeCreateOrEditViewModel.scanQRCodeForNewNode();
+        },
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        icon: Image.asset(
+          'assets/images/qr_code_icon.png',
+        ),
+      );
+      
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
   final bool? isSelected;
