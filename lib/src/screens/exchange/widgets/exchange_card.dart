@@ -511,17 +511,16 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   void _presentPicker(BuildContext context) {
     showPopUp<void>(
-        builder: (_) => CurrencyPicker(
-            selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
-            items: widget.currencies,
-            hintText: S.of(context).search_currency,
-            isMoneroWallet: _isMoneroWallet,
-            isConvertFrom: widget.hasRefundAddress,
-            onItemSelected: (Currency item) =>
-                widget.onCurrencySelected != null
-                    ? widget.onCurrencySelected(item as CryptoCurrency)
-                    : null),
-        context: context);
+      context: context,
+      builder: (_) => CurrencyPicker(
+        selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
+        items: widget.currencies,
+        hintText: S.of(context).search_currency,
+        isMoneroWallet: _isMoneroWallet,
+        isConvertFrom: widget.hasRefundAddress,
+        onItemSelected: (Currency item) => widget.onCurrencySelected(item as CryptoCurrency),
+      ),
+    );
   }
 
   void _showAmountPopup(BuildContext context, PaymentRequest paymentRequest) {

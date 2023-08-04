@@ -5,7 +5,9 @@ import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -66,10 +68,14 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldRequireTOTP2FAForAddingContacts,
       required bool initialShouldRequireTOTP2FAForCreatingNewWallets,
       required bool initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+      required this.sortBalanceBy,
+      required this.pinNativeTokenAtTop,
+      required this.useEtherscan,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
-      TransactionPriority? initialLitecoinTransactionPriority})
+      TransactionPriority? initialLitecoinTransactionPriority,
+      TransactionPriority? initialEthereumTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         _sharedPreferences = sharedPreferences,
         fiatCurrency = initialFiatCurrency,
@@ -120,6 +126,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.litecoin] = initialLitecoinTransactionPriority;
     }
 
+    if (initialEthereumTransactionPriority != null) {
+      priority[WalletType.ethereum] = initialEthereumTransactionPriority;
+    }
+
     reaction(
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
@@ -144,6 +154,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.haven:
           key = PreferencesKey.havenTransactionPriority;
+          break;
+        case WalletType.ethereum:
+          key = PreferencesKey.ethereumTransactionPriority;
           break;
         default:
           key = null;
@@ -279,6 +292,21 @@ abstract class SettingsStoreBase with Store {
         (ExchangeApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, mode.serialize()));
 
+    reaction(
+        (_) => sortBalanceBy,
+        (SortBalanceBy sortBalanceBy) =>
+            _sharedPreferences.setInt(PreferencesKey.sortBalanceBy, sortBalanceBy.index));
+
+    reaction(
+        (_) => pinNativeTokenAtTop,
+        (bool pinNativeTokenAtTop) =>
+            _sharedPreferences.setBool(PreferencesKey.pinNativeTokenAtTop, pinNativeTokenAtTop));
+
+    reaction(
+        (_) => useEtherscan,
+        (bool useEtherscan) =>
+            _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -385,6 +413,15 @@ abstract class SettingsStoreBase with Store {
   @observable
   ObservableMap<WalletType, TransactionPriority> priority;
 
+  @observable
+  SortBalanceBy sortBalanceBy;
+
+  @observable
+  bool pinNativeTokenAtTop;
+
+  @observable
+  bool useEtherscan;
+
   String appVersion;
 
   String deviceName;
@@ -429,6 +466,7 @@ abstract class SettingsStoreBase with Store {
 
     TransactionPriority? havenTransactionPriority;
     TransactionPriority? litecoinTransactionPriority;
+    TransactionPriority? ethereumTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -438,11 +476,16 @@ abstract class SettingsStoreBase with Store {
       litecoinTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
+      ethereumTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
     havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
+    ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -502,6 +545,12 @@ abstract class SettingsStoreBase with Store {
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
+    final sortBalanceBy =
+        SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
+    final pinNativeTokenAtTop =
+        sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
+    final useEtherscan =
+        sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -516,10 +565,12 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+    final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
+    final ethereumNode = nodeSource.get(ethereumNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -540,6 +591,10 @@ abstract class SettingsStoreBase with Store {
 
     if (havenNode != null) {
       nodes[WalletType.haven] = havenNode;
+    }
+
+    if (ethereumNode != null) {
+      nodes[WalletType.ethereum] = ethereumNode;
     }
 
     return SettingsStore(
@@ -567,6 +622,9 @@ abstract class SettingsStoreBase with Store {
         initialPinLength: pinLength,
         pinTimeOutDuration: pinCodeTimeOutDuration,
         initialLanguageCode: savedLanguageCode,
+        sortBalanceBy: sortBalanceBy,
+        pinNativeTokenAtTop: pinNativeTokenAtTop,
+        useEtherscan: useEtherscan,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
@@ -582,6 +640,7 @@ abstract class SettingsStoreBase with Store {
         initialShouldRequireTOTP2FAForCreatingNewWallets: shouldRequireTOTP2FAForCreatingNewWallets,
         initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
             shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+        initialEthereumTransactionPriority: ethereumTransactionPriority,
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
@@ -608,6 +667,11 @@ abstract class SettingsStoreBase with Store {
               sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!) ??
           priority[WalletType.litecoin]!;
     }
+    if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
+      priority[WalletType.ethereum] = ethereum?.deserializeEthereumTransactionPriority(
+              sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
+          priority[WalletType.ethereum]!;
+    }
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -616,7 +680,7 @@ abstract class SettingsStoreBase with Store {
             shouldSaveRecipientAddress;
     totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
-    
+
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
@@ -677,6 +741,10 @@ abstract class SettingsStoreBase with Store {
     languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
     shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
+    sortBalanceBy = SortBalanceBy
+        .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
+    pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
+    useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
@@ -684,10 +752,12 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+    final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
+    final ethereumNode = nodeSource.get(ethereumNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -703,6 +773,10 @@ abstract class SettingsStoreBase with Store {
 
     if (havenNode != null) {
       nodes[WalletType.haven] = havenNode;
+    }
+
+    if (ethereumNode != null) {
+      nodes[WalletType.ethereum] = ethereumNode;
     }
   }
 
@@ -721,6 +795,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.haven:
         await _sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
+        break;
+      case WalletType.ethereum:
+        await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
         break;
       default:
         break;

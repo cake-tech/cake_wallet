@@ -118,6 +118,7 @@ flutter:
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
     - assets/litecoin_electrum_server_list.yml
+    - assets/ethereum_server_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

@@ -55,5 +55,5 @@ class Template extends HiveObject {
 
   String get amount => amountRaw ?? '';
 
-  List<Template>? get additionalRecipients => additionalRecipientsRaw ?? null;
+  List<Template>? get additionalRecipients => additionalRecipientsRaw;
 }

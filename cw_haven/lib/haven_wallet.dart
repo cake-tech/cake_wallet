@@ -254,6 +254,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     await haven_wallet.store();
   }
 
+  @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletPath = await pathForWallet(name: name, type: type);
     final currentCacheFile = File(currentWalletPath);

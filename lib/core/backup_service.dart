@@ -240,6 +240,9 @@ class BackupService {
         data[PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets] as bool?;
     final shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
         data[PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings] as bool?;
+    final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
+    final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
+    final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
@@ -348,6 +351,15 @@ class BackupService {
       await _sharedPreferences.setBool(
           PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
           shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
+
+    if (sortBalanceTokensBy != null)
+      await _sharedPreferences.setInt(PreferencesKey.sortBalanceBy, sortBalanceTokensBy);
+
+    if (pinNativeTokenAtTop != null)
+      await _sharedPreferences.setBool(PreferencesKey.pinNativeTokenAtTop, pinNativeTokenAtTop);
+
+    if (useEtherscan != null)
+      await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
 
     await preferencesFile.delete();
   }
@@ -492,6 +504,12 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets),
       PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings: _sharedPreferences
           .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
+      PreferencesKey.sortBalanceBy:
+          _sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
+      PreferencesKey.pinNativeTokenAtTop:
+          _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
+      PreferencesKey.useEtherscan:
+          _sharedPreferences.getBool(PreferencesKey.useEtherscan),
     };
 
     return json.encode(preferences);

@@ -141,7 +141,7 @@ Future<void> main() async {
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
         anonpayInvoiceInfo: anonpayInvoiceInfo,
-        initialMigrationVersion: 19);
+        initialMigrationVersion: 21);
     runApp(App());
   }, (error, stackTrace) async {
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
