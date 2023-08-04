@@ -538,6 +538,8 @@
   "open_gift_card": "Apri carta regalo",
   "contact_support": "Contatta l'assistenza",
   "gift_cards_unavailable": "Le carte regalo sono disponibili per l'acquisto solo tramite Monero, Bitcoin e Litecoin in questo momento",
+  "background_sync_mode": "Modalità di sincronizzazione in background",
+  "sync_all_wallets": "Sincronizza tutti i portafogli",
   "introducing_cake_pay": "Presentazione di Cake Pay!",
   "cake_pay_learn_more": "Acquista e riscatta istantaneamente carte regalo nell'app!\nScorri da sinistra a destra per saperne di più.",
   "automatic": "Automatico",
@@ -668,6 +670,7 @@
   "balance_page": "Pagina di equilibrio",
   "share": "Condividere",
   "slidable": "Scorrevole",
+  "manage_nodes": "Gestisci i nodi",
   "etherscan_history": "Storia Etherscan",
   "template_name": "Nome modello"
 }

@@ -1,6 +1,5 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -58,8 +57,8 @@ abstract class WalletListViewModelBase with Store {
           name: info.name,
           type: info.type,
           key: info.key,
-          isCurrent: info.name == _appStore.wallet!.name &&
-              info.type == _appStore.wallet!.type,
+          isCurrent: info.name == _appStore.wallet?.name &&
+              info.type == _appStore.wallet?.type,
           isEnabled: availableWalletTypes.contains(info.type),
         ),
       ),

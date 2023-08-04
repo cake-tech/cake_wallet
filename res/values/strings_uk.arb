@@ -538,6 +538,8 @@
   "open_gift_card": "Відкрити подарункову картку",
   "contact_support": "Звернутися до служби підтримки",
   "gift_cards_unavailable": "Наразі подарункові картки можна придбати лише через Monero, Bitcoin і Litecoin",
+  "background_sync_mode": "Фоновий режим синхронізації",
+  "sync_all_wallets": "Синхронізувати всі гаманці",
   "introducing_cake_pay": "Представляємо Cake Pay!",
   "cake_pay_learn_more": "Миттєво купуйте та активуйте подарункові картки в додатку!\nПроведіть пальцем зліва направо, щоб дізнатися більше.",
   "automatic": "Автоматичний",
@@ -668,6 +670,7 @@
   "balance_page": "Сторінка балансу",
   "share": "Поділіться",
   "slidable": "Розсувний",
+  "manage_nodes": "Керуйте вузлами",
   "etherscan_history": "Історія Etherscan",
   "template_name": "Назва шаблону"
 }

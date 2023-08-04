@@ -538,6 +538,8 @@
   "open_gift_card": "Open Gift Card",
   "contact_support": "Contact Support",
   "gift_cards_unavailable": "Gift cards are available for purchase only with Monero, Bitcoin, and Litecoin at this time",
+  "background_sync_mode": "Background sync mode",
+  "sync_all_wallets": "Sync all wallets",
   "introducing_cake_pay": "Introducing Cake Pay!",
   "cake_pay_learn_more": "Instantly purchase and redeem gift cards in the app!\nSwipe left to right to learn more.",
   "automatic": "Automatic",
@@ -668,6 +670,7 @@
   "balance_page": "Balance Page",
   "share": "Share",
   "slidable": "Slidable",
+  "manage_nodes": "Manage nodes",
   "etherscan_history": "Etherscan history",
   "template_name": "Template Name"
 }

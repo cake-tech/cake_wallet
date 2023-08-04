@@ -662,6 +662,7 @@
   "balance_page": "Stránka zůstatku",
   "share": "Podíl",
   "slidable": "Posuvné",
+  "manage_nodes": "Spravovat uzly",
   "etherscan_history": "Historie Etherscanu",
   "template_name": "Název šablony"
 }

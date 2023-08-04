@@ -538,6 +538,8 @@
   "open_gift_card": "Otwórz kartę podarunkową",
   "contact_support": "Skontaktuj się z pomocą techniczną",
   "gift_cards_unavailable": "Karty podarunkowe można obecnie kupić tylko za pośrednictwem Monero, Bitcoin i Litecoin",
+  "background_sync_mode": "Tryb synchronizacji w tle",
+  "sync_all_wallets": "Synchronizuj wszystkie portfele",
   "introducing_cake_pay": "Przedstawiamy Cake Pay!",
   "cake_pay_learn_more": "Kupuj i wykorzystuj karty podarunkowe od razu w aplikacji!\nPrzesuń od lewej do prawej, aby dowiedzieć się więcej.",
   "automatic": "Automatyczny",
@@ -668,6 +670,7 @@
   "balance_page": "Strona salda",
   "share": "Udział",
   "slidable": "Przesuwne",
+  "manage_nodes": "Zarządzaj węzłami",
   "etherscan_history": "Historia Etherscanu",
   "template_name": "Nazwa szablonu"
 }

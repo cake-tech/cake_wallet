@@ -538,6 +538,8 @@
   "open_gift_card": "オープンギフトカード",
   "contact_support": "サポートに連絡する",
   "gift_cards_unavailable": "現時点では、ギフトカードはMonero、Bitcoin、Litecoinからのみ購入できます。",
+  "background_sync_mode": "バックグラウンド同期モード",
+  "sync_all_wallets": "すべてのウォレットを同期",
   "introducing_cake_pay": "序章Cake Pay！",
   "cake_pay_learn_more": "アプリですぐにギフトカードを購入して引き換えましょう!\n左から右にスワイプして詳細をご覧ください。",
   "automatic": "自動",
@@ -668,6 +670,7 @@
   "balance_page": "残高ページ",
   "share": "共有",
   "slidable": "スライド可能",
+  "manage_nodes": "ノードの管理",
   "etherscan_history": "イーサスキャンの歴史",
   "template_name": "テンプレート名"
 }

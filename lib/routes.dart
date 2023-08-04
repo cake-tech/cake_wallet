@@ -90,4 +90,5 @@ class Routes {
   static const modify2FAPage = '/modify_2fa_page';
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
+  static const manageNodes = '/manage_nodes';
 }

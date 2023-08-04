@@ -538,6 +538,8 @@
   "open_gift_card": "Otvori darovnu karticu",
   "contact_support": "Kontaktirajte podršku",
   "gift_cards_unavailable": "Poklon kartice trenutno su dostupne za kupnju samo putem Monera, Bitcoina i Litecoina",
+  "background_sync_mode": "Sinkronizacija u pozadini",
+  "sync_all_wallets": "Sinkronizirajte sve novčanike",
   "introducing_cake_pay": "Predstavljamo Cake Pay!",
   "cake_pay_learn_more": "Azonnal vásárolhat és válthat be ajándékutalványokat az alkalmazásban!\nTovábbi információért csúsztassa balról jobbra az ujját.",
   "automatic": "Automatski",
@@ -668,6 +670,7 @@
   "balance_page": "Stranica sa stanjem",
   "share": "Udio",
   "slidable": "Klizna",
+  "manage_nodes": "Upravljanje čvorovima",
   "etherscan_history": "Etherscan povijest",
   "template_name": "Naziv predloška"
 }

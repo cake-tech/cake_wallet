@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -34,7 +36,8 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
-      {required SharedPreferences sharedPreferences,
+      {required BackgroundTasks backgroundTasks,
+      required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
@@ -51,6 +54,8 @@ abstract class SettingsStoreBase with Store {
       required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
+      required SyncMode initialSyncMode,
+      required bool initialSyncAll,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -78,6 +83,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialEthereumTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         _sharedPreferences = sharedPreferences,
+        _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
         balanceDisplayMode = initialBalanceDisplayMode,
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
@@ -107,6 +113,8 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForCreatingNewWallets,
         shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+        currentSyncMode = initialSyncMode,
+        currentSyncAll = initialSyncAll,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -287,6 +295,18 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction((_) => currentSyncMode, (SyncMode syncMode) {
+      sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
+
+      _backgroundTasks.registerSyncTask(changeExisting: true);
+    });
+
+    reaction((_) => currentSyncAll, (bool syncAll) {
+      sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+
+      _backgroundTasks.registerSyncTask(changeExisting: true);
+    });
+
     reaction(
         (_) => exchangeStatus,
         (ExchangeApiMode mode) =>
@@ -422,11 +442,18 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool useEtherscan;
 
+  @observable
+  SyncMode currentSyncMode;
+
+  @observable
+  bool currentSyncAll;
+
   String appVersion;
 
   String deviceName;
 
-  SharedPreferences _sharedPreferences;
+  final SharedPreferences _sharedPreferences;
+  final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
 
@@ -455,6 +482,7 @@ abstract class SettingsStoreBase with Store {
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
       ThemeBase? initialTheme}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
+    final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
 
@@ -597,6 +625,11 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.ethereum] = ethereumNode;
     }
 
+    final savedSyncMode = SyncMode.all.firstWhere((element) {
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
+    });
+    final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
+
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
@@ -641,6 +674,9 @@ abstract class SettingsStoreBase with Store {
         initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
             shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         initialEthereumTransactionPriority: ethereumTransactionPriority,
+        backgroundTasks: backgroundTasks,
+        initialSyncMode: savedSyncMode,
+        initialSyncAll: savedSyncAll,
         shouldShowYatPopup: shouldShowYatPopup);
   }
 

@@ -538,6 +538,8 @@
   "open_gift_card": "Geschenkkaart openen",
   "contact_support": "Contact opnemen met ondersteuning",
   "gift_cards_unavailable": "Cadeaubonnen kunnen momenteel alleen worden gekocht via Monero, Bitcoin en Litecoin",
+  "background_sync_mode": "Achtergrondsynchronisatiemodus",
+  "sync_all_wallets": "Alle portemonnees synchroniseren",
   "introducing_cake_pay": "Introductie van Cake Pay!",
   "cake_pay_learn_more": "Koop en wissel cadeaubonnen direct in de app in!\nSwipe van links naar rechts voor meer informatie.",
   "automatic": "automatisch",
@@ -668,6 +670,7 @@
   "balance_page": "Saldo pagina",
   "share": "Deel",
   "slidable": "Verschuifbaar",
+  "manage_nodes": "Beheer knooppunten",
   "etherscan_history": "Etherscan-geschiedenis",
   "template_name": "Sjabloonnaam"
 }

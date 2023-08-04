@@ -658,6 +658,7 @@
   "balance_page": "Halaman Saldo",
   "share": "Membagikan",
   "slidable": "Dapat digeser",
+  "manage_nodes": "Kelola node",
   "etherscan_history": "Sejarah Etherscan",
   "template_name": "Nama Templat"
 }

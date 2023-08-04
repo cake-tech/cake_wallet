@@ -537,6 +537,8 @@
   "open_gift_card": "Abrir vale-presente",
   "contact_support": "Contatar Suporte",
   "gift_cards_unavailable": "Os cartões-presente estão disponíveis para compra apenas através do Monero, Bitcoin e Litecoin no momento",
+  "background_sync_mode": "Modo de sincronização em segundo plano",
+  "sync_all_wallets": "Sincronize todas as carteiras",
   "introducing_cake_pay": "Apresentando o Cake Pay!",
   "cake_pay_learn_more": "Compre e resgate vales-presente instantaneamente no app!\nDeslize da esquerda para a direita para saber mais.",
   "automatic": "Automático",
@@ -667,6 +669,7 @@
   "balance_page": "Página de saldo",
   "share": "Compartilhar",
   "slidable": "Deslizável",
+  "manage_nodes": "Gerenciar nós",
   "etherscan_history": "história Etherscan",
   "template_name": "Nome do modelo"
 }

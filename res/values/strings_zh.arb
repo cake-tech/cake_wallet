@@ -537,6 +537,8 @@
   "open_gift_card": "打开礼品卡",
   "contact_support": "联系支持",
   "gift_cards_unavailable": "目前只能通过门罗币、比特币和莱特币购买礼品卡",
+  "background_sync_mode": "后台同步模式",
+  "sync_all_wallets": "同步所有钱包",
   "introducing_cake_pay": "介绍 Cake Pay!",
   "cake_pay_learn_more": "立即在应用中购买和兑换礼品卡！\n从左向右滑动以了解详情。",
   "automatic": "自动的",
@@ -667,6 +669,7 @@
   "balance_page": "余额页",
   "share": "分享",
   "slidable": "可滑动",
+  "manage_nodes": "管理节点",
   "etherscan_history": "以太扫描历史",
   "template_name": "模板名称"
 }

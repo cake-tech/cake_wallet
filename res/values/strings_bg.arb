@@ -663,5 +663,6 @@
   "share": "Дял",
   "slidable": "Плъзгащ се",
   "etherscan_history": "История на Etherscan",
+  "manage_nodes": "Управление на възли",
   "template_name": "Име на шаблон"
 }

@@ -19,6 +19,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashbo
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -604,6 +605,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
           },
         ),
       );
+
+    case Routes.manageNodes:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>());
 
     default:
       return MaterialPageRoute<void>(
