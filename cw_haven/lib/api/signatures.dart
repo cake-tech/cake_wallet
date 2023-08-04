@@ -39,7 +39,7 @@ typedef get_node_height = Int64 Function();
 typedef is_connected = Int8 Function();
 
 typedef setup_node = Int8 Function(
-    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, Int8, Int8, Pointer<Utf8>);
+    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, Int8, Int8, Pointer<Utf8>?, Pointer<Utf8>);
 
 typedef start_refresh = Void Function();
 

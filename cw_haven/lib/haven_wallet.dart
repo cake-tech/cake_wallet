@@ -125,7 +125,8 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           login: node.login,
           password: node.password,
           useSSL: node.useSSL ?? false,
-          isLightWallet: false); // FIXME: hardcoded value
+          isLightWallet: false, // FIXME: hardcoded value
+          socksProxyAddress: node.socksProxyAddress);
 
       haven_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
