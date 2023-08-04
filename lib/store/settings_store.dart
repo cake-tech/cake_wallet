@@ -455,11 +455,11 @@ abstract class SettingsStoreBase with Store {
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
+    final allowBiometricalAuthentication =
+        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
             Cake2FAPresetsOptions.normal.raw);
-    final allowBiometricalAuthentication =
-        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
     final shouldRequireTOTP2FAForAccessingWallet =
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ?? false;
     final shouldRequireTOTP2FAForSendsToContact =
@@ -480,7 +480,6 @@ abstract class SettingsStoreBase with Store {
     final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
             .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
         false;
-
     final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
@@ -617,6 +616,7 @@ abstract class SettingsStoreBase with Store {
             shouldSaveRecipientAddress;
     totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
+    
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
@@ -627,6 +627,29 @@ abstract class SettingsStoreBase with Store {
     allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
             allowBiometricalAuthentication;
+    selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
+            Cake2FAPresetsOptions.normal.raw);
+    shouldRequireTOTP2FAForAccessingWallet =
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ?? false;
+    shouldRequireTOTP2FAForSendsToContact =
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact) ?? false;
+    shouldRequireTOTP2FAForSendsToNonContact =
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact) ?? false;
+    shouldRequireTOTP2FAForSendsToInternalWallets =
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets) ??
+            false;
+    shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
+        false;
+    shouldRequireTOTP2FAForAddingContacts =
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ?? false;
+    shouldRequireTOTP2FAForCreatingNewWallets =
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets) ??
+            false;
+    shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
+        false;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
