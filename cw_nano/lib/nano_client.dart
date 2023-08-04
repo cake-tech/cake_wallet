@@ -72,6 +72,48 @@ class NanoClient {
     }
   }
 
+  Future<String> changeRep({
+    required String privateKey,
+    required String repAddress,
+    required String ourAddress,
+  }) async {
+    try {
+      final accountInfo = await getAccountInfo(ourAddress);
+
+      // construct the change block:
+      Map<String, String> changeBlock = {
+        "type": "state",
+        "account": ourAddress,
+        "previous": accountInfo["frontier"] as String,
+        "representative": repAddress,
+        "balance": accountInfo["balance"] as String,
+        "link": "0000000000000000000000000000000000000000000000000000000000000000",
+        "link_as_account": "nano_1111111111111111111111111111111111111111111111111111hifc8npp",
+      };
+
+      // sign the change block:
+      final String hash = NanoBlocks.computeStateHash(
+        NanoAccountType.NANO,
+        changeBlock["account"]!,
+        changeBlock["previous"]!,
+        changeBlock["representative"]!,
+        BigInt.parse(changeBlock["balance"]!),
+        changeBlock["link"]!,
+      );
+      final String signature = NanoSignatures.signBlock(hash, privateKey);
+
+      // get PoW for the send block:
+      final String work = await requestWork(accountInfo["frontier"] as String);
+
+      changeBlock["signature"] = signature;
+      changeBlock["work"] = work;
+
+      return await processBlock(changeBlock, "change");
+    } catch (e) {
+      throw Exception("error while changing representative");
+    }
+  }
+
   Future<String> requestWork(String hash) async {
     return http
         .post(

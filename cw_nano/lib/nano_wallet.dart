@@ -269,6 +269,8 @@ abstract class NanoWalletBase
 
   @override
   String get seed => _mnemonic;
+  
+  String get representative => _representativeAddress ?? "";
 
   @action
   @override
@@ -347,6 +349,21 @@ abstract class NanoWalletBase
       _representativeAddress = accountInfo["representative"] as String;
     } catch (e) {
       throw Exception("Failed to get representative address $e");
+    }
+  }
+
+  Future<void> changeRep(String address) async {
+    try {
+      final String hash = await _client.changeRep(
+        privateKey: _privateKey,
+        repAddress: address,
+        ourAddress: _publicAddress,
+      );
+      if (hash.isNotEmpty) {
+        _representativeAddress = address;
+      }
+    } catch (e) {
+      throw Exception("Failed to change representative address $e");
     }
   }
 
