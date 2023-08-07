@@ -298,24 +298,7 @@ class _DashboardPageView extends BasePage {
       }
     });
 
-    final sharedPrefs = await SharedPreferences.getInstance();
-    final currentAppVersion =
-        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
-    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
-    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
-
-    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
-      await Future<void>.delayed(Duration(seconds: 1));
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return ReleaseNotesScreen(
-                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
-          });
-      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
-    } else if (isNewInstall!) {
-      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
-    }
+    _showReleaseNotesPopup(context);
 
     var needToPresentYat = false;
     var isInactive = false;
@@ -340,5 +323,28 @@ class _DashboardPageView extends BasePage {
 
       needToPresentYat = true;
     });
+  }
+
+  void _showReleaseNotesPopup(BuildContext context) async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final currentAppVersion =
+          VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+      Future<void>.delayed(Duration(seconds: 1), () {
+        showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return ReleaseNotesScreen(
+                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
+          });
+      });
+
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    } else if (isNewInstall!) {
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
   }
 }

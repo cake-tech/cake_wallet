@@ -32,7 +32,7 @@ dependencies:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
       version: 1.0.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

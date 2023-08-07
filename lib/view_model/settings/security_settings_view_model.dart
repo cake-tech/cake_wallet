@@ -25,6 +25,10 @@ abstract class SecuritySettingsViewModelBase with Store {
   bool get useTotp2FA => _settingsStore.useTOTP2FA;
 
   @computed
+  bool get shouldRequireTOTP2FAForAllSecurityAndBackupSettings =>
+      _settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings;
+
+  @computed
   PinCodeRequiredDuration get pinCodeRequiredDuration => _settingsStore.pinTimeOutDuration;
 
   @action

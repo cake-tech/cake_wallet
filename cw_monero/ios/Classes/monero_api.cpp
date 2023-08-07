@@ -3,6 +3,7 @@
 #include <chrono>
 #include <functional>
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <mutex>
 #include "thread"
@@ -431,13 +432,14 @@ extern "C"
     }
 
     FUNCTION_VISABILITY_ATTRIBUTE
-    bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
+    bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *socksProxyAddress, char *error)
     {
         nice(19);
         Monero::Wallet *wallet = get_current_wallet();
         
         std::string _login = "";
         std::string _password = "";
+        std::string _socksProxyAddress = "";
 
         if (login != nullptr)
         {
@@ -449,7 +451,12 @@ extern "C"
             _password = std::string(password);
         }
 
-        bool inited = wallet->init(std::string(address), 0, _login, _password, use_ssl, is_light_wallet);
+        if (socksProxyAddress != nullptr)
+        {
+            _socksProxyAddress = std::string(socksProxyAddress);
+        }
+
+        bool inited = wallet->init(std::string(address), 0, _login, _password, use_ssl, is_light_wallet, _socksProxyAddress);
 
         if (!inited)
         {

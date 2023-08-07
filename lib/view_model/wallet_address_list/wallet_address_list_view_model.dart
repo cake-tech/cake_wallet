@@ -1,3 +1,4 @@
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
@@ -93,6 +94,22 @@ class LitecoinURI extends PaymentURI {
   }
 }
 
+class EthereumURI extends PaymentURI {
+  EthereumURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'ethereum:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -151,6 +168,10 @@ abstract class WalletAddressListViewModelBase with Store {
       return LitecoinURI(amount: amount, address: address.address);
     }
 
+    if (_wallet.type == WalletType.ethereum) {
+      return EthereumURI(amount: amount, address: address.address);
+    }
+
     throw Exception('Unexpected type: ${type.toString()}');
   }
 
@@ -202,6 +223,12 @@ abstract class WalletAddressListViewModelBase with Store {
       addressList.addAll(bitcoinAddresses);
     }
 
+    if (wallet.type == WalletType.ethereum) {
+      final primaryAddress = ethereum!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
     return addressList;
   }
 
@@ -225,6 +252,10 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
+
+  @computed
+  bool get showElectrumAddressDisclaimer =>
+      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;

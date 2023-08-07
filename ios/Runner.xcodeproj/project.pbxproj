@@ -606,4 +606,9 @@
 /* End XCConfigurationList section */
 	};
 	rootObject = 97C146E61CF9000F007C117D /* Project object */;
+	SystemCapabilities = {
+    	com.apple.BackgroundModes = {
+    		enabled = 1;
+    	};
+    };
 }

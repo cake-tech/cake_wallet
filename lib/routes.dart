@@ -91,4 +91,7 @@ class Routes {
   static const setup_2faQRPage = '/setup_2fa_qr_page';
   static const totpAuthCodePage = '/totp_auth_code_page';
   static const modify2FAPage = '/modify_2fa_page';
+  static const homeSettings = '/home_settings';
+  static const editToken = '/edit_token';
+  static const manageNodes = '/manage_nodes';
 }

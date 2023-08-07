@@ -10,6 +10,8 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
@@ -17,6 +19,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashbo
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -342,7 +345,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<SecurityBackupPage>());
-    
+
      case Routes.privacyPage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
@@ -357,7 +360,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<OtherSettingsPage>());
-    
+
     case Routes.newNode:
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
@@ -504,7 +507,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         fullscreenDialog: true,
         builder: (_) => getIt.get<IoniaWelcomePage>(),
       );
-    
+
     case Routes.ioniaLoginPage:
       return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaLoginPage>());
 
@@ -517,7 +520,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaBuyGiftCardPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardPage>(param1: args));
-    
+
     case Routes.ioniaBuyGiftCardDetailPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardDetailPage>(param1: args));
@@ -534,7 +537,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.ioniaAccountPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountPage>());
-    
+
     case Routes.ioniaAccountCardsPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());
 
@@ -545,11 +548,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaGiftCardDetailPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
-    
+
     case Routes.ioniaCustomRedeemPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCustomRedeemPage>(param1: args));
- 
+
     case Routes.ioniaMoreOptionsPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaMoreOptionsPage>(param1: args));
@@ -621,6 +624,28 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.modify2FAPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
+
+    case Routes.homeSettings:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<HomeSettingsPage>(param1: settings.arguments),
+      );
+
+    case Routes.editToken:
+      final args = settings.arguments as Map<String, dynamic>;
+
+      return CupertinoPageRoute<void>(
+        settings: RouteSettings(name: Routes.editToken),
+        builder: (_) => getIt.get<EditTokenPage>(
+          param1: args['homeSettingsViewModel'],
+          param2: {
+            'token': args['token'],
+            'contractAddress': args['contractAddress'],
+          },
+        ),
+      );
+
+    case Routes.manageNodes:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>());
 
     default:
       return MaterialPageRoute<void>(

@@ -2,6 +2,7 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 
 class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
@@ -14,6 +15,9 @@ class AddressValidator extends TextValidator {
             length: getLength(type));
 
   static String getPattern(CryptoCurrency type) {
+    if (type is Erc20Token) {
+      return '0x[0-9a-zA-Z]';
+    }
     switch (type) {
       case CryptoCurrency.xmr:
         return '^4[0-9a-zA-Z]{94}\$|^8[0-9a-zA-Z]{94}\$|^[0-9a-zA-Z]{106}\$';
@@ -56,6 +60,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zrx:
       case CryptoCurrency.dydx:
       case CryptoCurrency.steth:
+      case CryptoCurrency.shib:
         return '0x[0-9a-zA-Z]';
       case CryptoCurrency.xrp:
         return '^[0-9a-zA-Z]{34}\$|^X[0-9a-zA-Z]{46}\$';
@@ -116,17 +121,14 @@ class AddressValidator extends TextValidator {
   }
 
   static List<int>? getLength(CryptoCurrency type) {
+    if (type is Erc20Token) {
+      return [42];
+    }
     switch (type) {
       case CryptoCurrency.xmr:
         return null;
       case CryptoCurrency.ada:
         return null;
-      case CryptoCurrency.avaxc:
-        return [42];
-      case CryptoCurrency.bch:
-        return [42];
-      case CryptoCurrency.bnb:
-        return [42];
       case CryptoCurrency.btc:
         return null;
       case CryptoCurrency.dash:
@@ -166,6 +168,10 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zrx:
       case CryptoCurrency.dydx:
       case CryptoCurrency.steth:
+      case CryptoCurrency.shib:
+      case CryptoCurrency.avaxc:
+      case CryptoCurrency.bch:
+      case CryptoCurrency.bnb:
         return [42];
       case CryptoCurrency.ltc:
         return [34, 43, 63];
@@ -203,11 +209,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xusd:
         return [98, 99, 106];
       case CryptoCurrency.btt:
-        return [34];
       case CryptoCurrency.bttc:
-        return [34];
       case CryptoCurrency.doge:
-        return [34];
       case CryptoCurrency.firo:
         return [34];
       case CryptoCurrency.hbar:
@@ -258,6 +261,8 @@ class AddressValidator extends TextValidator {
         return '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.eth:
+        return '0x[0-9a-zA-Z]{42}';
       default:
         return null;
     }

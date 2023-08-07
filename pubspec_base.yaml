@@ -3,7 +3,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_cupertino_localizations: ^1.0.1
   intl: ^0.17.0
   url_launcher: ^6.1.4
   qr_flutter:
@@ -60,6 +59,7 @@ dependencies:
   # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
   device_display_brightness: ^0.0.6
+  workmanager: ^0.5.1
   platform_device_id: ^1.0.1
   wakelock: ^0.6.2
   flutter_mailer: ^2.0.2
@@ -75,6 +75,7 @@ dependencies:
   path_provider_android: 2.0.24
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
+  sensitive_clipboard: ^1.0.0
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
@@ -111,6 +112,7 @@ flutter:
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
     - assets/litecoin_electrum_server_list.yml
+    - assets/ethereum_server_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

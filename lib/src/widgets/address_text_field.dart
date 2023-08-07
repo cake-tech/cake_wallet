@@ -31,6 +31,7 @@ class AddressTextField extends StatelessWidget {
       this.validator,
       this.onPushPasteButton,
       this.onPushAddressBookButton,
+      this.onSelectedContact,
       this.selectedCurrency});
 
   static const prefixIconWidth = 34.0;
@@ -52,6 +53,7 @@ class AddressTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
+  final Function(ContactBase contact)? onSelectedContact;
   final CryptoCurrency? selectedCurrency;
 
   @override
@@ -66,34 +68,27 @@ class AddressTextField extends StatelessWidget {
           controller: controller,
           focusNode: focusNode,
           style: textStyle ??
-              TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+              TextStyle(fontSize: 16, color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
           decoration: InputDecoration(
             suffixIcon: SizedBox(
-              width: prefixIconWidth * options.length +
-                  (spaceBetweenPrefixIcons * options.length),
+              width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
             ),
-            hintStyle: hintStyle ??
-                TextStyle(fontSize: 16, color: Theme.of(context).hintColor),
+            hintStyle: hintStyle ?? TextStyle(fontSize: 16, color: Theme.of(context).hintColor),
             hintText: placeholder ?? S.current.widgets_address,
             focusedBorder: isBorderExist
                 ? UnderlineInputBorder(
                     borderSide: BorderSide(
-                        color: borderColor ?? Theme.of(context).dividerColor,
-                        width: 1.0))
+                        color: borderColor ?? Theme.of(context).dividerColor, width: 1.0))
                 : InputBorder.none,
             disabledBorder: isBorderExist
                 ? UnderlineInputBorder(
                     borderSide: BorderSide(
-                        color: borderColor ?? Theme.of(context).dividerColor,
-                        width: 1.0))
+                        color: borderColor ?? Theme.of(context).dividerColor, width: 1.0))
                 : InputBorder.none,
             enabledBorder: isBorderExist
                 ? UnderlineInputBorder(
                     borderSide: BorderSide(
-                        color: borderColor ?? Theme.of(context).dividerColor,
-                        width: 1.0))
+                        color: borderColor ?? Theme.of(context).dividerColor, width: 1.0))
                 : InputBorder.none,
           ),
           validator: validator,
@@ -102,11 +97,11 @@ class AddressTextField extends StatelessWidget {
             top: 2,
             right: 0,
             child: SizedBox(
-              width: prefixIconWidth * options.length +
-                  (spaceBetweenPrefixIcons * options.length),
+              width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
               child: Row(
-                mainAxisAlignment: DeviceInfo.instance.isMobile 
-                  ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
+                mainAxisAlignment: ResponsiveLayoutUtil.instance.isMobile
+                    ? MainAxisAlignment.spaceBetween
+                    : MainAxisAlignment.end,
                 children: [
                   SizedBox(width: 5),
                   if (this.options.contains(AddressTextFieldOption.paste)) ...[
@@ -122,20 +117,14 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context)
-                                            .accentTextTheme
-                                            !
-                                          .titleLarge!
-                                            .color!,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(6))),
+                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                    borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/paste_ios.png',
                                   color: iconColor ??
                                       Theme.of(context)
                                           .primaryTextTheme
-                                          !
-                                        .headlineMedium!
+                                          .headlineMedium!
                                           .decorationColor!,
                                 )),
                           ),
@@ -155,28 +144,21 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context)
-                                            .accentTextTheme
-                                            
-                                          .titleLarge!
-                                            .color!,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(6))),
+                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                    borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/qr_code_icon.png',
                                   color: iconColor ??
                                       Theme.of(context)
                                           .primaryTextTheme
-                                          !.headlineMedium!
+                                          .headlineMedium!
                                           .decorationColor!,
                                 )),
                           ),
                         ))
                   ] else
                     SizedBox(width: 5),
-                  if (this
-                      .options
-                      .contains(AddressTextFieldOption.addressBook)) ...[
+                  if (this.options.contains(AddressTextFieldOption.addressBook)) ...[
                     Container(
                         width: prefixIconWidth,
                         height: prefixIconHeight,
@@ -184,26 +166,19 @@ class AddressTextField extends StatelessWidget {
                         child: Semantics(
                           label: S.of(context).address_book,
                           child: InkWell(
-                            onTap: () async =>
-                                _presetAddressBookPicker(context),
+                            onTap: () async => _presetAddressBookPicker(context),
                             child: Container(
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context)
-                                            .accentTextTheme
-                                            !
-                                          .titleLarge!
-                                            .color!,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(6))),
+                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                    borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/open_book.png',
                                   color: iconColor ??
                                       Theme.of(context)
                                           .primaryTextTheme
-                                          !
-                                        .headlineMedium!
+                                          .headlineMedium!
                                           .decorationColor!,
                                 )),
                           ),
@@ -221,30 +196,31 @@ class AddressTextField extends StatelessWidget {
     if (code.isEmpty) {
       return;
     }
-    
+
     try {
       final uri = Uri.parse(code);
       controller?.text = uri.path;
       onURIScanned?.call(uri);
-    } catch(_){
+    } catch (_) {
       controller?.text = code;
     }
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
     final contact = await Navigator.of(context)
-        .pushNamed(Routes.pickerAddressBook,arguments: selectedCurrency);
+        .pushNamed(Routes.pickerAddressBook, arguments: selectedCurrency);
 
-    if (contact is ContactBase && contact.address != null) {
+    if (contact is ContactBase) {
       controller?.text = contact.address;
       onPushAddressBookButton?.call(context);
+      onSelectedContact?.call(contact);
     }
   }
 
   Future<void> _pasteAddress(BuildContext context) async {
     final clipboard = await Clipboard.getData('text/plain');
     final address = clipboard?.text ?? '';
-    
+
     if (address.isNotEmpty) {
       controller?.text = address;
     }

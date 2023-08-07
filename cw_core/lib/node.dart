@@ -18,6 +18,7 @@ class Node extends HiveObject with Keyable {
       this.password,
       this.useSSL,
       this.trusted = false,
+      this.socksProxyAddress,
       String? uri,
       WalletType? type,}) {
     if (uri != null) {
@@ -33,7 +34,8 @@ class Node extends HiveObject with Keyable {
         login = map['login'] as String?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
-        trusted = map['trusted'] as bool? ?? false;
+        trusted = map['trusted'] as bool? ?? false,
+        socksProxyAddress = map['socksProxyPort'] as String?;
 
   static const typeId = 1;
   static const boxName = 'Nodes';
@@ -56,7 +58,12 @@ class Node extends HiveObject with Keyable {
   @HiveField(5, defaultValue: false)
   bool trusted;
 
+  @HiveField(6)
+  String? socksProxyAddress;
+
   bool get isSSL => useSSL ?? false;
+
+  bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
 
   Uri get uri {
     switch (type) {
@@ -68,6 +75,8 @@ class Node extends HiveObject with Keyable {
         return createUriFromElectrumAddress(uriRaw);
       case WalletType.haven:
         return Uri.http(uriRaw, '');
+      case WalletType.ethereum:
+        return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -81,7 +90,8 @@ class Node extends HiveObject with Keyable {
               other.password == password &&
               other.typeRaw == typeRaw &&
               other.useSSL == useSSL &&
-              other.trusted == trusted);
+              other.trusted == trusted &&
+              other.socksProxyAddress == socksProxyAddress);
 
   @override
   int get hashCode =>
@@ -90,7 +100,8 @@ class Node extends HiveObject with Keyable {
       password.hashCode ^
       typeRaw.hashCode ^
       useSSL.hashCode ^
-      trusted.hashCode;
+      trusted.hashCode ^
+      socksProxyAddress.hashCode;
 
   @override
   dynamic get keyIndex {
@@ -108,13 +119,15 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return requestMoneroNode();
+          return useSocksProxy ? requestNodeWithProxy(socksProxyAddress ?? '') : requestMoneroNode();
         case WalletType.bitcoin:
           return requestElectrumServer();
         case WalletType.litecoin:
           return requestElectrumServer();
         case WalletType.haven:
           return requestMoneroNode();
+        case WalletType.ethereum:
+          return requestElectrumServer();
         default:
           return false;
       }
@@ -157,13 +170,42 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
-}
+  }
+
+  Future<bool> requestNodeWithProxy(String proxy) async {
+
+    if (proxy.isEmpty || !proxy.contains(':')) {
+      return false;
+    }
+    final proxyAddress = proxy.split(':')[0];
+    final proxyPort = int.parse(proxy.split(':')[1]);
+    try {
+      final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
+      socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Future<bool> requestElectrumServer() async {
     try {
       await SecureSocket.connect(uri.host, uri.port,
           timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
       return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestEthereumServer() async {
+    try {
+      final response = await http.get(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
     } catch (_) {
       return false;
     }

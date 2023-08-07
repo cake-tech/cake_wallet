@@ -11,6 +11,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
+    case WalletType.ethereum:
+      return CryptoCurrency.eth;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }

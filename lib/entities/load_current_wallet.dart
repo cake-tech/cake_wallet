@@ -1,8 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/core/key_service.dart';
-import 'package:cw_core/wallet_service.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
@@ -27,4 +26,6 @@ Future<void> loadCurrentWallet({String? password}) async {
     name,
     password: password);
   appStore.changeCurrentWallet(wallet);
+
+  getIt.get<BackgroundTasks>().registerSyncTask();
 }
