@@ -88,7 +88,7 @@ String walletTypeToString(WalletType type) {
     case WalletType.ethereum:
       return 'Ethereum';
     case WalletType.bitcoinCash:
-      return 'Bitcoin Cash';
+      return 'BitcoinCash';
     default:
       return '';
   }

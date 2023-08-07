@@ -564,16 +564,15 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   const bitcoinCashCommonHeaders = """
 """;
   const bitcoinCashCWHeaders = """
-  
-  import 'dart:typed_data';
-  import 'package:cw_bitcoin_cash/src/bitcoin_cash_base.dart';
-  import 'package:cw_core/unspent_coins_info.dart';
-  import 'package:cw_core/wallet_credentials.dart';
-  import 'package:cw_core/wallet_info.dart';
-  import 'package:cw_core/wallet_service.dart';
-  import 'package:hive/hive.dart';
+ import 'dart:typed_data';
+ import 'package:cw_bitcoin_cash/src/bitcoin_cash_base.dart';
+ import 'package:cw_core/transaction_priority.dart';
+ import 'package:cw_core/unspent_coins_info.dart';
+ import 'package:cw_core/wallet_credentials.dart';
+ import 'package:cw_core/wallet_info.dart';
+ import 'package:cw_core/wallet_service.dart';
+ import 'package:hive/hive.dart';
 """;
-
   const bitcoinCashCwPart = "part 'cw_bitcoin_cash.dart';";
   const bitcoinCashContent = """
   abstract class BitcoinCash {
@@ -593,7 +592,7 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   // Map<String, String> getWalletKeys(Object wallet);
   // List<TransactionPriority> getTransactionPriorities();
   // List<TransactionPriority> getLitecoinTransactionPriorities();
-  // TransactionPriority deserializeBitcoinTransactionPriority(int raw);
+  TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
   // TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   // int getFeeRate(Object wallet, TransactionPriority priority);
   // Future<void> generateNewAddress(Object wallet);
@@ -611,6 +610,7 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   // void updateUnspents(Object wallet);
 
   // WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  TransactionPriority getDefaultTransactionPriority() => throw UnimplementedError('getDefaultTransactionPriority');
   // TransactionPriority getBitcoinTransactionPriorityMedium();
   // TransactionPriority getLitecoinTransactionPriorityMedium();
   // TransactionPriority getBitcoinTransactionPrioritySlow();

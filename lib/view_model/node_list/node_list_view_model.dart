@@ -64,7 +64,7 @@ abstract class NodeListViewModelBase with Store {
         node = getHavenDefaultNode(nodes: _nodeSource)!;
         break;
       case WalletType.bitcoinCash:
-        node = getHavenDefaultNode(nodes: _nodeSource)!;
+        node = getBitcoinCashDefaultElectrumServer(nodes: _nodeSource)!;
         break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');

@@ -30,5 +30,5 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
 
   @override
   String getAddress({required int index, required bitcoin.HDWallet hd}) =>
-      Bitbox.Address.toCashAddress(hd.address!);
+      hd.address!;
 }

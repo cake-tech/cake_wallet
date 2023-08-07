@@ -453,7 +453,7 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
-    final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
+    final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -480,8 +480,8 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.ethereum] = ethereumNode;
     }
 
-    if (bitcoinCashNode != null) {
-      nodes[WalletType.bitcoinCash] = bitcoinCashNode;
+    if (bitcoinCashElectrumServer != null) {
+      nodes[WalletType.bitcoinCash] = bitcoinCashElectrumServer;
     }
 
     return SettingsStore(
