@@ -20,7 +20,7 @@ MONERO_COM_BUNDLE_ID="com.monero.app"
 MONERO_COM_PACKAGE="com.monero.app"
 
 CAKEWALLET_NAME="Cake Wallet"
-CAKEWALLET_VERSION="4.7.0"
+CAKEWALLET_VERSION="4.6.0"
 CAKEWALLET_BUILD_NUMBER=162
 CAKEWALLET_BUNDLE_ID="com.cakewallet.cake_wallet"
 CAKEWALLET_PACKAGE="com.cakewallet.cake_wallet"
