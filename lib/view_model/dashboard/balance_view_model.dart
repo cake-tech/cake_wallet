@@ -275,6 +275,9 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
+  bool get hasAdditionalBalance => wallet.type != WalletType.ethereum;
+
+  @computed
   List<BalanceRecord> get formattedBalances {
     final balance = balances.values.toList();
 
@@ -310,15 +313,16 @@ abstract class BalanceViewModelBase with Store {
 
       switch (sortBalanceBy) {
         case SortBalanceBy.FiatBalance:
-          return double.parse(_getFiatBalance(
-              price: fiatConvertationStore.prices[b.asset] ?? 0,
-              cryptoAmount: b.availableBalance))
-              .compareTo(double.parse(_getFiatBalance(
-              price: fiatConvertationStore.prices[a.asset] ?? 0,
-              cryptoAmount: a.availableBalance)));
+          final aFiatBalance = _getFiatBalance(
+              price: fiatConvertationStore.prices[a.asset] ?? 0, cryptoAmount: a.availableBalance);
+          final bFiatBalance = _getFiatBalance(
+              price: fiatConvertationStore.prices[b.asset] ?? 0, cryptoAmount: b.availableBalance);
+
+          return (double.tryParse(bFiatBalance) ?? 0)
+              .compareTo((double.tryParse(aFiatBalance)) ?? 0);
         case SortBalanceBy.GrossBalance:
-          return double.parse(b.availableBalance)
-              .compareTo(double.parse(a.availableBalance));
+          return (double.tryParse(b.availableBalance) ?? 0)
+              .compareTo(double.tryParse(a.availableBalance) ?? 0);
         case SortBalanceBy.Alphabetical:
           return a.asset.title.compareTo(b.asset.title);
       }
@@ -369,7 +373,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
-    if (cryptoAmount == null || cryptoAmount.isEmpty) {
+    if (cryptoAmount == null || cryptoAmount.isEmpty || double.tryParse(cryptoAmount) == null) {
       return '0.00';
     }
 

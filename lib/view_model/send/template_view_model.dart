@@ -11,23 +11,20 @@ part 'template_view_model.g.dart';
 class TemplateViewModel = TemplateViewModelBase with _$TemplateViewModel;
 
 abstract class TemplateViewModelBase with Store {
-  final CryptoCurrency cryptoCurrency;
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
 
-  TemplateViewModelBase(
-      {required this.cryptoCurrency,
-      required WalletBase wallet,
-      required SettingsStore settingsStore,
-      required FiatConversionStore fiatConversationStore})
-      : _wallet = wallet,
+  TemplateViewModelBase({
+    required WalletBase wallet,
+    required SettingsStore settingsStore,
+    required FiatConversionStore fiatConversationStore,
+  })  : _wallet = wallet,
         _settingsStore = settingsStore,
         _fiatConversationStore = fiatConversationStore,
-        output = Output(wallet, settingsStore, fiatConversationStore,
-            () => wallet.currency) {
-    output = Output(
-        _wallet, _settingsStore, _fiatConversationStore, () => cryptoCurrency);
+        _currency = wallet.currency,
+        output = Output(wallet, settingsStore, fiatConversationStore, () => wallet.currency) {
+    output = Output(_wallet, _settingsStore, _fiatConversationStore, () => _currency);
   }
 
   @observable
@@ -38,6 +35,9 @@ abstract class TemplateViewModelBase with Store {
 
   @observable
   String address = '';
+
+  @observable
+  CryptoCurrency _currency;
 
   @observable
   bool isCurrencySelected = true;
@@ -66,8 +66,7 @@ abstract class TemplateViewModelBase with Store {
     output.reset();
   }
 
-  Template toTemplate(
-      {required String cryptoCurrency, required String fiatCurrency}) {
+  Template toTemplate({required String cryptoCurrency, required String fiatCurrency}) {
     return Template(
         isCurrencySelectedRaw: isCurrencySelected,
         nameRaw: name,
@@ -77,4 +76,13 @@ abstract class TemplateViewModelBase with Store {
         amountRaw: output.cryptoAmount,
         amountFiatRaw: output.fiatAmount);
   }
+
+  @action
+  void changeSelectedCurrency(CryptoCurrency currency) {
+    isCurrencySelected = true;
+    _currency = currency;
+  }
+
+  @computed
+  CryptoCurrency get selectedCurrency => _currency;
 }

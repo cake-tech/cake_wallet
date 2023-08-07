@@ -114,6 +114,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
+      case WalletType.ethereum:
+        return 'https://etherscan.io/tx/${txId}';
       default:
         return '';
     }
@@ -129,6 +131,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
+      case WalletType.ethereum:
+        return S.current.view_transaction_on + 'etherscan.io';
       default:
         return '';
     }

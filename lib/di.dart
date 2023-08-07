@@ -5,6 +5,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -245,6 +247,8 @@ Future setup({
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   }
 
+  getIt.registerFactory(() => BackgroundTasks());
+
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
       (secrets.wyreApiKey.isNotEmpty) &&
       (secrets.wyreAccountId.isNotEmpty);
@@ -397,7 +401,9 @@ Future setup({
         final authStore = getIt.get<AuthenticationStore>();
         final appStore = getIt.get<AppStore>();
         final useTotp = appStore.settingsStore.useTOTP2FA;
-        if (useTotp) {
+        final shouldUseTotp2FAToAccessWallets =
+            appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+        if (useTotp && shouldUseTotp2FAToAccessWallets) {
           authPageState.close(
             route: Routes.totpAuthCodePage,
             arguments: TotpAuthArgumentsModel(
@@ -533,17 +539,22 @@ Future setup({
       getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory<SendViewModel>(() => SendViewModel(
+  getIt.registerFactory<SendViewModel>(
+    () => SendViewModel(
       getIt.get<AppStore>().wallet!,
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
       getIt.get<BalanceViewModel>(),
-      _transactionDescriptionBox));
+      getIt.get<ContactListViewModel>(),
+      _transactionDescriptionBox,
+    ),
+  );
 
   getIt.registerFactoryParam<SendPage, PaymentRequest?, void>(
       (PaymentRequest? initialPaymentRequest, _) => SendPage(
             sendViewModel: getIt.get<SendViewModel>(),
+            authService: getIt.get<AuthService>(),
             initialPaymentRequest: initialPaymentRequest,
           ));
 
@@ -578,8 +589,8 @@ Future setup({
       ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
-      (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
-          walletListViewModel, getIt.get<WalletLoadingService>()));
+      (WalletListViewModel walletListViewModel, _) =>
+          WalletEditViewModel(walletListViewModel, getIt.get<WalletLoadingService>()));
 
   getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
     final walletListViewModel = args.first as WalletListViewModel;
@@ -590,7 +601,6 @@ Future setup({
         walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
         editingWallet: editingWallet);
   });
-
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
@@ -638,7 +648,7 @@ Future setup({
   });
 
   getIt.registerFactory(() {
-    return PrivacySettingsViewModel(getIt.get<SettingsStore>());
+    return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
   getIt.registerFactory(() {
@@ -662,10 +672,11 @@ Future setup({
       (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) => ContactListViewModel(_contactSource, _walletInfoSource, cur));
+      (CryptoCurrency? cur, _) =>
+          ContactListViewModel(_contactSource, _walletInfoSource, cur, getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) => ContactListPage(getIt.get<ContactListViewModel>(param1: cur)));
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
+      ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
@@ -675,8 +686,7 @@ Future setup({
     return NodeListViewModel(_nodeSource, appStore);
   });
 
-  getIt.registerFactory(
-      () => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
+  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
@@ -710,13 +720,13 @@ Future setup({
       ));
 
   getIt.registerFactory(() => ExchangeViewModel(
-        getIt.get<AppStore>().wallet!,
-        _tradesSource,
-        getIt.get<ExchangeTemplateStore>(),
-        getIt.get<TradesStore>(),
-        getIt.get<AppStore>().settingsStore,
-        getIt.get<SharedPreferences>(),
-      ));
+      getIt.get<AppStore>().wallet!,
+      _tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>()));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet!,
@@ -724,7 +734,8 @@ Future setup({
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>()));
+  getIt.registerFactory(
+      () => ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
 
@@ -789,8 +800,8 @@ Future setup({
           transactionDetailsViewModel:
               getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
-  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), void>(
-      (param1, _) => NewWalletTypePage(onTypeSelected: param1));
+  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
+      (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
   getIt.registerFactoryParam<PreSeedPage, WalletType, void>(
       (WalletType type, _) => PreSeedPage(type));
@@ -1049,6 +1060,8 @@ Future setup({
       initialContractAddress: arguments['contractAddress'] as String?,
     ),
   );
+
+  getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
 
   _isSetupFinished = true;
 }

@@ -498,7 +498,6 @@ Future<void> checkCurrentNodes(
       (node) => node.key == currentEthereumNodeId);
   final currentBitcoinCashNodeServer = nodeSource.values.firstWhereOrNull(
           (node) => node.key == currentBitcoinCashNodeId);
-
   if (currentMoneroNode == null) {
     final newCakeWalletNode =
         Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);

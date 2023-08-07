@@ -120,6 +120,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'haven-wallet';
       case WalletType.bitcoinCash:
         return 'bitcoinCash-wallet';
+      case WalletType.ethereum:
+        return 'ethereum-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

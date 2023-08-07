@@ -35,12 +35,6 @@ class CWEthereum extends Ethereum {
   TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
       EthereumTransactionPriority.deserialize(raw: raw);
 
-  @override
-  int getEstimatedFee(Object wallet, TransactionPriority priority) {
-    final ethereumWallet = wallet as EthereumWallet;
-    return ethereumWallet.feeRate(priority);
-  }
-
   Object createEthereumTransactionCredentials(
     List<Output> outputs, {
     required TransactionPriority priority,
@@ -81,10 +75,16 @@ class CWEthereum extends Ethereum {
   int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
 
   @override
-  double formatterEthereumAmountToDouble({required TransactionInfo transaction}) {
-    transaction as EthereumTransactionInfo;
-    return cryptoAmountToDouble(
-        amount: transaction.amount, divider: BigInt.from(10).pow(transaction.exponent).toInt());
+  double formatterEthereumAmountToDouble(
+      {TransactionInfo? transaction, BigInt? amount, int exponent = 18}) {
+    assert(transaction != null || amount != null);
+
+    if (transaction != null) {
+      transaction as EthereumTransactionInfo;
+      return transaction.ethAmount / BigInt.from(10).pow(transaction.exponent);
+    } else {
+      return (amount!) / BigInt.from(10).pow(exponent);
+    }
   }
 
   @override
@@ -117,5 +117,10 @@ class CWEthereum extends Ethereum {
     wallet as EthereumWallet;
     return wallet.erc20Currencies
         .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+  }
+
+  @override
+  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
+    (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
   }
 }

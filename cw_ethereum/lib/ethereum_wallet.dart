@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -16,9 +17,11 @@ import 'package:cw_ethereum/default_erc20_tokens.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_exceptions.dart';
+import 'package:cw_ethereum/ethereum_formatter.dart';
 import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
 import 'package:cw_ethereum/ethereum_transaction_info.dart';
+import 'package:cw_ethereum/ethereum_transaction_model.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
 import 'package:cw_ethereum/file.dart';
@@ -26,6 +29,7 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
@@ -45,7 +49,6 @@ abstract class EthereumWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _priorityFees = [],
         _isTransactionUpdating = false,
         _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
@@ -53,10 +56,13 @@ abstract class EthereumWalletBase
             {CryptoCurrency.eth: initialBalance ?? ERC20Balance(BigInt.zero)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
+    transactionHistory = EthereumTransactionHistory(walletInfo: walletInfo, password: password);
 
     if (!Hive.isAdapterRegistered(Erc20Token.typeId)) {
       Hive.registerAdapter(Erc20TokenAdapter());
     }
+
+    _sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
   final String _mnemonic;
@@ -68,9 +74,12 @@ abstract class EthereumWalletBase
 
   late EthereumClient _client;
 
-  List<int> _priorityFees;
   int? _gasPrice;
+  int? _estimatedGas;
   bool _isTransactionUpdating;
+
+  // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
+  Timer? _transactionsUpdateTimer;
 
   @override
   WalletAddresses walletAddresses;
@@ -83,19 +92,24 @@ abstract class EthereumWalletBase
   @observable
   late ObservableMap<CryptoCurrency, ERC20Balance> balance;
 
+  Completer<SharedPreferences> _sharedPrefs = Completer();
+
   Future<void> init() async {
     erc20TokensBox = await Hive.openBox<Erc20Token>(Erc20Token.boxName);
     await walletAddresses.init();
+    await transactionHistory.init();
     _privateKey = await getPrivateKey(_mnemonic, _password);
-    transactionHistory = EthereumTransactionHistory();
     walletAddresses.address = _privateKey.address.toString();
+    await save();
   }
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     try {
       if (priority is EthereumTransactionPriority) {
-        return _gasPrice! * _priorityFees[priority.raw];
+        final priorityFee =
+            EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip).getInWei.toInt();
+        return (_gasPrice! + priorityFee) * (_estimatedGas ?? 0);
       }
 
       return 0;
@@ -112,6 +126,7 @@ abstract class EthereumWalletBase
   @override
   void close() {
     _client.stop();
+    _transactionsUpdateTimer?.cancel();
   }
 
   @action
@@ -127,7 +142,8 @@ abstract class EthereumWalletBase
       }
 
       _client.setListeners(_privateKey.address, _onNewTransaction);
-      _updateBalance();
+
+      _setTransactionUpdateTimer();
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
@@ -141,27 +157,35 @@ abstract class EthereumWalletBase
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
     final _erc20Balance = balance[_credentials.currency]!;
-    int totalAmount = 0;
+    BigInt totalAmount = BigInt.zero;
+    int exponent =
+        _credentials.currency is Erc20Token ? (_credentials.currency as Erc20Token).decimal : 18;
+    num amountToEthereumMultiplier = pow(10, exponent);
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw EthereumTransactionCreationException();
+        throw EthereumTransactionCreationException(_credentials.currency);
       }
 
-      totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
+          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
+      totalAmount = BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
-      if (_erc20Balance.balance < EtherAmount.inWei(totalAmount as BigInt).getInWei) {
-        throw EthereumTransactionCreationException();
+      if (_erc20Balance.balance < totalAmount) {
+        throw EthereumTransactionCreationException(_credentials.currency);
       }
     } else {
       final output = outputs.first;
-      final int allAmount = _erc20Balance.balance.toInt() - feeRate(_credentials.priority!);
-      totalAmount = output.sendAll ? allAmount : output.formattedCryptoAmount ?? 0;
+      final BigInt allAmount =
+          _erc20Balance.balance - BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
+      final totalOriginalAmount =
+          EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
+      totalAmount = output.sendAll
+          ? allAmount
+          : BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
-      if ((output.sendAll &&
-              _erc20Balance.balance < EtherAmount.inWei(totalAmount as BigInt).getInWei) ||
-          (!output.sendAll && _erc20Balance.balance.toInt() <= 0)) {
-        throw EthereumTransactionCreationException();
+      if (_erc20Balance.balance < totalAmount) {
+        throw EthereumTransactionCreationException(_credentials.currency);
       }
     }
 
@@ -169,17 +193,25 @@ abstract class EthereumWalletBase
       privateKey: _privateKey,
       toAddress: _credentials.outputs.first.address,
       amount: totalAmount.toString(),
-      gas: _priorityFees[_credentials.priority!.raw],
+      gas: _estimatedGas!,
       priority: _credentials.priority!,
       currency: _credentials.currency,
+      exponent: exponent,
+      contractAddress: _credentials.currency is Erc20Token
+          ? (_credentials.currency as Erc20Token).contractAddress
+          : null,
     );
 
     return pendingEthereumTransaction;
   }
 
-  Future<void> updateTransactions() async {
+  Future<void> _updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
+        return;
+      }
+      bool isEtherscanEnabled = (await _sharedPrefs.future).getBool("use_etherscan") ?? true;
+      if (!isEtherscanEnabled) {
         return;
       }
 
@@ -198,14 +230,19 @@ abstract class EthereumWalletBase
     final address = _privateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
 
+    final List<Future<List<EthereumTransactionModel>>> erc20TokensTransactions = [];
+
     for (var token in balance.keys) {
       if (token is Erc20Token) {
-        transactions.addAll(await _client.fetchTransactions(
+        erc20TokensTransactions.add(_client.fetchTransactions(
           address,
           contractAddress: token.contractAddress,
         ));
       }
     }
+
+    final tokensTransaction = await Future.wait(erc20TokensTransactions);
+    transactions.addAll(tokensTransaction.expand((element) => element));
 
     final Map<String, EthereumTransactionInfo> result = {};
 
@@ -217,14 +254,14 @@ abstract class EthereumWalletBase
       result[transactionModel.hash] = EthereumTransactionInfo(
         id: transactionModel.hash,
         height: transactionModel.blockNumber,
-        amount: transactionModel.amount.toInt(),
+        ethAmount: transactionModel.amount,
         direction: transactionModel.from == address
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         isPending: false,
         date: transactionModel.date,
         confirmations: transactionModel.confirmations,
-        fee: transactionModel.gasUsed * transactionModel.gasPrice.toInt(),
+        ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
         exponent: transactionModel.tokenDecimal ?? 18,
         tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
       );
@@ -258,30 +295,18 @@ abstract class EthereumWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
-      await updateTransactions();
+      await _updateTransactions();
       _gasPrice = await _client.getGasUnitPrice();
-      _priorityFees = await _client.getEstimatedGasForPriorities();
+      _estimatedGas = await _client.getEstimatedGas();
 
       Timer.periodic(
           const Duration(minutes: 1), (timer) async => _gasPrice = await _client.getGasUnitPrice());
-      Timer.periodic(const Duration(minutes: 1),
-          (timer) async => _priorityFees = await _client.getEstimatedGasForPriorities());
+      Timer.periodic(const Duration(seconds: 10),
+          (timer) async => _estimatedGas = await _client.getEstimatedGas());
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-    }
-  }
-
-  int feeRate(TransactionPriority priority) {
-    try {
-      if (priority is EthereumTransactionPriority) {
-        return _priorityFees[priority.raw];
-      }
-
-      return 0;
-    } catch (e) {
-      return 0;
     }
   }
 
@@ -393,9 +418,9 @@ abstract class EthereumWalletBase
   Future<Erc20Token?> getErc20Token(String contractAddress) async =>
       await _client.getErc20Token(contractAddress);
 
-  void _onNewTransaction(FilterEvent event) {
+  void _onNewTransaction() {
     _updateBalance();
-    // TODO: Add in transaction history
+    _updateTransactions();
   }
 
   void addInitialTokens() {
@@ -410,21 +435,39 @@ abstract class EthereumWalletBase
     final currentWalletFile = File(currentWalletPath);
 
     final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    // TODO: un-hash when transactions flow is implemented
-    // final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
       final newWalletPath = await pathForWallet(name: newWalletName, type: type);
       await currentWalletFile.copy(newWalletPath);
     }
-    // TODO: un-hash when transactions flow is implemented
-    // if (currentTransactionsFile.existsSync()) {
-    //   final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-    //   await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    // }
+    if (currentTransactionsFile.existsSync()) {
+      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
+    }
 
     // Delete old name's dir and files
     await Directory(currentDirPath).delete(recursive: true);
+  }
+
+  void _setTransactionUpdateTimer() {
+    if (_transactionsUpdateTimer?.isActive ?? false) {
+      _transactionsUpdateTimer!.cancel();
+    }
+
+    _transactionsUpdateTimer = Timer.periodic(Duration(seconds: 10), (_) {
+      _updateTransactions();
+      _updateBalance();
+    });
+  }
+
+  void updateEtherscanUsageState(bool isEnabled) {
+    if (isEnabled) {
+      _updateTransactions();
+      _setTransactionUpdateTimer();
+    } else {
+      _transactionsUpdateTimer?.cancel();
+    }
   }
 }
