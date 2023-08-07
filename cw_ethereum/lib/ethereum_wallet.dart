@@ -502,4 +502,7 @@ abstract class EthereumWalletBase
       _transactionsUpdateTimer?.cancel();
     }
   }
+
+  @override
+  String get password => _password;
 }

@@ -497,7 +497,7 @@ import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
-  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
