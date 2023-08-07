@@ -14,18 +14,18 @@ class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo.fromMap(Map<String, Object?> map)
       : id = (map['hash'] ?? '') as String,
         height = (map['height'] ?? 0) as int,
-        direction =
-            parseTransactionDirectionFromNumber(map['direction'] as String) ??
-                TransactionDirection.incoming,
+        direction = map['direction'] != null
+            ? parseTransactionDirectionFromNumber(map['direction'] as String)
+            : TransactionDirection.incoming,
         date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
+            (int.tryParse(map['timestamp'] as String? ?? '') ?? 0) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
         confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int ?? 0 {
+        fee = map['fee'] as int? ?? 0 {
           additionalInfo = <String, dynamic>{
             'key': key,
             'accountIndex': accountIndex,
@@ -36,8 +36,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
         height = row.blockHeight,
-        direction = parseTransactionDirectionFromInt(row.direction) ??
-            TransactionDirection.incoming,
+        direction = parseTransactionDirectionFromInt(row.direction),
         date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
         isPending = row.isPending != 0,
         amount = row.getAmount(),

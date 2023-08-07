@@ -269,6 +269,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await monero_wallet.store();
   }
 
+  @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
 

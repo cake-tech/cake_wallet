@@ -67,8 +67,7 @@ class SendTemplatePage extends BasePage {
                             controller: controller,
                             itemCount: sendTemplateViewModel.recipients.length,
                             itemBuilder: (_, index) {
-                              final template =
-                                  sendTemplateViewModel.recipients[index];
+                              final template = sendTemplateViewModel.recipients[index];
                               return SendTemplateCard(
                                   template: template,
                                   index: index,
@@ -76,8 +75,7 @@ class SendTemplatePage extends BasePage {
                             });
                       })),
                   Padding(
-                    padding: EdgeInsets.only(
-                        top: 10, left: 24, right: 24, bottom: 10),
+                    padding: EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
                     child: Container(
                       height: 10,
                       child: Observer(
@@ -107,55 +105,42 @@ class SendTemplatePage extends BasePage {
                     ),
                   ),
                 ])),
-            bottomSectionPadding:
-                EdgeInsets.only(left: 24, right: 24, bottom: 24),
+            bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Column(children: [
-              // if (sendViewModel.hasMultiRecipient)
-              Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: PrimaryButton(
-                      onPressed: () {
-                        sendTemplateViewModel.addRecipient();
-                        Future.delayed(const Duration(milliseconds: 250), () {
-                          controller.jumpToPage(
-                              sendTemplateViewModel.recipients.length - 1);
-                        });
-                      },
-                      text: S.of(context).add_receiver,
-                      color: Colors.transparent,
-                      textColor: Theme.of(context)
-                          .accentTextTheme
-                          .displaySmall!
-                          .decorationColor!,
-                      isDottedBorder: true,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .displaySmall!
-                          .decorationColor!)),
+              if (sendTemplateViewModel.hasMultiRecipient)
+                Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                        onPressed: () {
+                          sendTemplateViewModel.addRecipient();
+                          Future.delayed(const Duration(milliseconds: 250), () {
+                            controller.jumpToPage(sendTemplateViewModel.recipients.length - 1);
+                          });
+                        },
+                        text: S.of(context).add_receiver,
+                        color: Colors.transparent,
+                        textColor: Theme.of(context).accentTextTheme.displaySmall!.decorationColor!,
+                        isDottedBorder: true,
+                        borderColor:
+                            Theme.of(context).primaryTextTheme.displaySmall!.decorationColor!)),
               PrimaryButton(
                   onPressed: () {
-                    if (_formKey.currentState != null &&
-                        _formKey.currentState!.validate()) {
+                    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                       final mainTemplate = sendTemplateViewModel.recipients[0];
-                      print(sendTemplateViewModel.recipients.map((element) =>
-                          element.toTemplate(
-                              cryptoCurrency:
-                                  sendTemplateViewModel.cryptoCurrency.title,
-                              fiatCurrency:
-                                  sendTemplateViewModel.fiatCurrency)));
+                      final additionalRecipients = sendTemplateViewModel.recipients
+                          .map((element) => element.toTemplate(
+                              cryptoCurrency: element.selectedCurrency.title,
+                              fiatCurrency: sendTemplateViewModel.fiatCurrency))
+                          .toList();
+
                       sendTemplateViewModel.addTemplate(
                           isCurrencySelected: mainTemplate.isCurrencySelected,
                           name: mainTemplate.name,
                           address: mainTemplate.address,
+                          cryptoCurrency: mainTemplate.selectedCurrency.title,
                           amount: mainTemplate.output.cryptoAmount,
                           amountFiat: mainTemplate.output.fiatAmount,
-                          additionalRecipients: sendTemplateViewModel.recipients
-                              .map((element) => element.toTemplate(
-                                  cryptoCurrency: sendTemplateViewModel
-                                      .cryptoCurrency.title,
-                                  fiatCurrency:
-                                      sendTemplateViewModel.fiatCurrency))
-                              .toList());
+                          additionalRecipients: additionalRecipients);
                       Navigator.of(context).pop();
                     }
                   },

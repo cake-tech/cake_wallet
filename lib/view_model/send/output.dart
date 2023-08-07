@@ -2,6 +2,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -90,6 +91,9 @@ abstract class OutputBase with Store {
           case WalletType.haven:
             _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
+          case WalletType.ethereum:
+            _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
+            break;
           default:
             break;
         }
@@ -123,6 +127,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.haven) {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
       }
+
+      if (_wallet.type == WalletType.ethereum) {
+        return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -133,8 +141,9 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
+      final currency = _wallet.type == WalletType.ethereum ? _wallet.currency : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
+          price: _fiatConversationStore.prices[currency]!,
           cryptoAmount: estimatedFee);
       return fiat;
     } catch (_) {
@@ -226,6 +235,9 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 8;
         break;
       case WalletType.haven:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.ethereum:
         maximumFractionDigits = 12;
         break;
       default:

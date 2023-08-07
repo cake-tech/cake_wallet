@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
@@ -403,4 +404,16 @@ abstract class DashboardViewModelBase with Store {
     hasBuyAction = !isHaven;
     hasSellAction = !isHaven;
   }
+
+  @computed
+  SyncMode get syncMode => settingsStore.currentSyncMode;
+
+  @action
+  void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
+
+  @computed
+  bool get syncAll => settingsStore.currentSyncAll;
+
+  @action
+  void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 }

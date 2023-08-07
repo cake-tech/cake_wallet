@@ -75,6 +75,8 @@ class Node extends HiveObject with Keyable {
         return createUriFromElectrumAddress(uriRaw);
       case WalletType.haven:
         return Uri.http(uriRaw, '');
+      case WalletType.ethereum:
+        return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -124,6 +126,8 @@ class Node extends HiveObject with Keyable {
           return requestElectrumServer();
         case WalletType.haven:
           return requestMoneroNode();
+        case WalletType.ethereum:
+          return requestElectrumServer();
         default:
           return false;
       }
@@ -166,7 +170,7 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
-}
+  }
 
   Future<bool> requestNodeWithProxy(String proxy) async {
 
@@ -189,6 +193,19 @@ class Node extends HiveObject with Keyable {
       await SecureSocket.connect(uri.host, uri.port,
           timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
       return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestEthereumServer() async {
+    try {
+      final response = await http.get(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
     } catch (_) {
       return false;
     }

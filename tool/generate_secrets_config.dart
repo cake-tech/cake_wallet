@@ -4,12 +4,12 @@ import 'utils/secret_key.dart';
 import 'utils/utils.dart';
 
 const configPath = 'tool/.secrets-config.json';
+const ethereumConfigPath = 'tool/.ethereum-secrets-config.json';
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
 
 Future<void> generateSecretsConfig(List<String> args) async {
-  final extraInfo =
-      args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
+  final extraInfo = args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
     final parts = arg.split('=');
     final key = normalizeKeyName(parts[0]);
     acc[key] = acc[key] = parts.length > 1 ? parts[1] : 1;
@@ -17,6 +17,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
   });
 
   final configFile = File(configPath);
+  final ethereumConfigFile = File(ethereumConfigPath);
   final secrets = <String, dynamic>{};
 
   secrets.addAll(extraInfo);
@@ -44,6 +45,19 @@ Future<void> generateSecretsConfig(List<String> args) async {
     secrets[sec.name] = sec.generate();
   });
 
-  final secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
+  var secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
   await configFile.writeAsString(secretsJson);
+
+  secrets.clear();
+  SecretKey.ethereumSecrets.forEach((sec) {
+    if (secrets[sec.name] != null) {
+      return;
+    }
+
+    secrets[sec.name] = sec.generate();
+  });
+
+  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
+
+  await ethereumConfigFile.writeAsString(secretsJson);
 }

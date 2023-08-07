@@ -5,21 +5,20 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
 const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion';
 const _fiatApiPath = '/v2/rates';
 
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
-  final crypto = args['crypto'] as CryptoCurrency;
-  final fiat = args['fiat'] as FiatCurrency;
+  final crypto = args['crypto'] as String;
+  final fiat = args['fiat'] as String;
   final torOnly = args['torOnly'] as bool;
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
-    'base': crypto.toString(),
-    'quote': fiat.toString(),
-    'key' : secrets.fiatApiKey,
+    'base': crypto,
+    'quote': fiat,
+    'key': secrets.fiatApiKey,
   };
 
   double price = 0.0;
@@ -52,7 +51,11 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 }
 
 Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
-    compute(_fetchPrice, {'fiat': fiat, 'crypto': crypto, 'torOnly': torOnly});
+    compute(_fetchPrice, {
+      'fiat': fiat.toString(),
+      'crypto': crypto.toString(),
+      'torOnly': torOnly,
+    });
 
 class FiatConversionService {
   static Future<double> fetchPrice({
