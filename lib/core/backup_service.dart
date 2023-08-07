@@ -243,6 +243,8 @@ class BackupService {
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
+    final syncAll = data[PreferencesKey.syncAllKey] as bool?;
+    final syncMode = data[PreferencesKey.syncModeKey] as int?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
@@ -361,11 +363,11 @@ class BackupService {
     if (useEtherscan != null)
       await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
 
-    if (sortBalanceTokensBy != null)
-      await _sharedPreferences.setInt(PreferencesKey.sortBalanceBy, sortBalanceTokensBy);
+    if (syncAll != null)
+      await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
-    if (pinNativeTokenAtTop != null)
-      await _sharedPreferences.setBool(PreferencesKey.pinNativeTokenAtTop, pinNativeTokenAtTop);
+    if (syncMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
 
     await preferencesFile.delete();
   }
@@ -516,6 +518,10 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
       PreferencesKey.useEtherscan:
           _sharedPreferences.getBool(PreferencesKey.useEtherscan),
+      PreferencesKey.syncModeKey:
+          _sharedPreferences.getInt(PreferencesKey.syncModeKey),
+      PreferencesKey.syncAllKey:
+          _sharedPreferences.getBool(PreferencesKey.syncAllKey),
     };
 
     return json.encode(preferences);

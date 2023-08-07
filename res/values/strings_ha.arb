@@ -651,5 +651,6 @@
   "etherscan_history": "Etherscan tarihin kowane zamani",
   "template_name": "Sunan Samfura",
   "change_rep": "Canza Wakili",
-  "change_rep_message": "Shin kun tabbata kuna son canza wakilai?"
+  "change_rep_message": "Shin kun tabbata kuna son canza wakilai?",
+  "manage_nodes": "Sarrafa nodes"
 }

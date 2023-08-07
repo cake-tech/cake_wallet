@@ -78,7 +78,7 @@ class SectionHeaderListRow extends StatelessWidget {
 
 class StandardListSeparator extends StatelessWidget {
 
-  StandardListSeparator({this.padding, this.height = 1});
+  const StandardListSeparator({this.padding, this.height = 1});
 
   final EdgeInsets? padding;
   final double height;

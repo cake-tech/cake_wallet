@@ -669,5 +669,6 @@
   "etherscan_history": "Etherscan تاريخ",
   "template_name": "اسم القالب",
   "change_rep": "ﺏﻭﺪﻨﻣ ﺮﻴﻴﻐﺗ",
-  "change_rep_message": "؟ﻦﻴﻠﺜﻤﻤﻟﺍ ﺮﻴﻴﻐﺗ ﺪﻳﺮﺗ ﻚﻧﺃ ﺪﻛﺄﺘﻣ ﺖﻧﺃ ﻞﻫ"
+  "change_rep_message": "؟ﻦﻴﻠﺜﻤﻤﻟﺍ ﺮﻴﻴﻐﺗ ﺪﻳﺮﺗ ﻚﻧﺃ ﺪﻛﺄﺘﻣ ﺖﻧﺃ ﻞﻫ",
+  "manage_nodes": "ﺪﻘﻌﻟﺍ ﺓﺭﺍﺩﺇ"
 }

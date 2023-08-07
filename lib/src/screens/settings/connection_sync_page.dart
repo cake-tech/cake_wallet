@@ -1,25 +1,25 @@
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/node.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/nodes/widgets/node_list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ConnectionSyncPage extends BasePage {
-  ConnectionSyncPage(this.nodeListViewModel, this.dashboardViewModel);
+  ConnectionSyncPage(this.dashboardViewModel);
 
   @override
   String get title => S.current.connection_sync;
 
-  final NodeListViewModel nodeListViewModel;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -33,72 +33,39 @@ class ConnectionSyncPage extends BasePage {
             title: S.current.reconnect,
             handler: (context) => _presentReconnectAlert(context),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          if (dashboardViewModel.hasRescan)
+          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          if (dashboardViewModel.hasRescan) ...[
             SettingsCellWithArrow(
               title: S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          Semantics(
-            button: true,
-            child: NodeHeaderListRow(
-              title: S.of(context).add_new_node,
-              onTap: (_) async =>
-                  await Navigator.of(context).pushNamed(Routes.newNode),
-            ),
+            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+            if (DeviceInfo.instance.isMobile) ...[
+              Observer(builder: (context) {
+                return SettingsPickerCell<SyncMode>(
+                  title: S.current.background_sync_mode,
+                  items: SyncMode.all,
+                  displayItem: (SyncMode syncMode) => syncMode.name,
+                  selectedItem: dashboardViewModel.syncMode,
+                  onItemSelected: dashboardViewModel.setSyncMode,
+                );
+              }),
+              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+              Observer(builder: (context) {
+                return SettingsSwitcherCell(
+                  title: S.current.sync_all_wallets,
+                  value: dashboardViewModel.syncAll,
+                  onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
+                );
+              }),
+              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+            ],
+          ],
+          SettingsCellWithArrow(
+            title: S.current.manage_nodes,
+            handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SizedBox(height: 100),
-          Observer(
-            builder: (BuildContext context) {
-              return Flexible(
-                child: SectionStandardList(
-                  sectionCount: 1,
-                  context: context,
-                  dividerPadding: EdgeInsets.symmetric(horizontal: 24),
-                  itemCounter: (int sectionIndex) {
-                    return nodeListViewModel.nodes.length;
-                  },
-                  itemBuilder: (_, sectionIndex, index) {
-                    final node = nodeListViewModel.nodes[index];
-                    final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
-                    final nodeListRow = NodeListRow(
-                      title: node.uriRaw,
-                      node: node,
-                      isSelected: isSelected,
-                      onTap: (_) async {
-                        if (isSelected) {
-                          return;
-                        }
-
-                        await showPopUp<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertWithTwoActions(
-                                alertTitle:
-                                    S.of(context).change_current_node_title,
-                                alertContent: nodeListViewModel
-                                    .getAlertContent(node.uriRaw),
-                                leftButtonText: S.of(context).cancel,
-                                rightButtonText: S.of(context).change,
-                                actionLeftButton: () =>
-                                    Navigator.of(context).pop(),
-                                actionRightButton: () async {
-                                  await nodeListViewModel.setAsCurrent(node);
-                                  Navigator.of(context).pop();
-                                },
-                              );
-                            });
-                      },
-                    );
-
-                    return nodeListRow;
-                  },
-                ),
-              );
-            },
-          ),
+          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         ],
       ),
     );

@@ -4,6 +4,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -243,6 +245,10 @@ Future setup({
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
+  }
+
+  if (!_isSetupFinished) {
+    getIt.registerFactory(() => BackgroundTasks());
   }
 
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
@@ -682,8 +688,7 @@ Future setup({
     return NodeListViewModel(_nodeSource, appStore);
   });
 
-  getIt.registerFactory(
-      () => ConnectionSyncPage(getIt.get<NodeListViewModel>(), getIt.get<DashboardViewModel>()));
+  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
@@ -1057,6 +1062,8 @@ Future setup({
       initialContractAddress: arguments['contractAddress'] as String?,
     ),
   );
+
+  getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
 
   _isSetupFinished = true;
 }
