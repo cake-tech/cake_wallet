@@ -299,6 +299,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             home: Theme(
               data: ThemeData(),
               child: UpgradeAlert(
+                upgrader: Upgrader(),
                 child: _Home(),
               ),
             ),
