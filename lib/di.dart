@@ -247,7 +247,9 @@ Future setup({
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   }
 
-  getIt.registerFactory(() => BackgroundTasks());
+  if (!_isSetupFinished) {
+    getIt.registerFactory(() => BackgroundTasks());
+  }
 
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
       (secrets.wyreApiKey.isNotEmpty) &&
