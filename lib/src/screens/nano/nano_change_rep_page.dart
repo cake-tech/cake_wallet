@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/settings/change_rep_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,6 @@ class NanoChangeRepPage extends BasePage {
         _addressController = TextEditingController() {
     var wallet = getIt.get<AppStore>().wallet!;
     if (wallet is NanoWallet /*|| wallet is BananoWallet*/) {
-      print(wallet.representative);
       _addressController.text = wallet.representative;
     }
   }
