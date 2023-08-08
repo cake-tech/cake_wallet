@@ -21,14 +21,14 @@ class ScanScreenState extends State<ScanScreen> {
   }
 
   Future<void> scanImage() async {
-    // final ImagePicker imagePicker = ImagePicker();
-    // final XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
-    // if (file?.path != null) {
-    //   final bool qrCodeFound = await cameraController.analyzeImage(file!.path);
-    //   if (!qrCodeFound && mounted && !popped) {
-    //     UIUtil.showSnackbar(Z.of(context).qrUnknownError, context);
-    //   }
-    // }
+    final ImagePicker imagePicker = ImagePicker();
+    final XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (file?.path != null) {
+      final bool qrCodeFound = await cameraController.analyzeImage(file!.path);
+      if (!qrCodeFound && mounted && !popped) {
+        throw Exception("No QR code found");
+      }
+    }
   }
 
   @override
@@ -123,9 +123,11 @@ class ScanScreenState extends State<ScanScreen> {
                             builder: (BuildContext context, TorchState state, Widget? child) {
                               switch (state) {
                                 case TorchState.off:
-                                  return const Icon(Icons.flashlight_off_rounded, color: Colors.white);
+                                  return const Icon(Icons.flashlight_off_rounded,
+                                      color: Colors.white);
                                 case TorchState.on:
-                                  return const Icon(Icons.flashlight_on_rounded, color: Colors.yellow);
+                                  return const Icon(Icons.flashlight_on_rounded,
+                                      color: Colors.yellow);
                               }
                             },
                           ),
