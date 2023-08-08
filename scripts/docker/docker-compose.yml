@@ -1,0 +1,9 @@
+version: '3.6'
+
+services:
+  build_deps:
+    image: build_monero_deps
+    environment:
+      MONERO_BRANCH: add-coin-to-monero
+    volumes:
+      - ./output:/opt/android/output

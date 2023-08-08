@@ -1,4 +1,3 @@
-import 'package:cw_monero/api/structs/subaddress_row.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/api/coins_info.dart';

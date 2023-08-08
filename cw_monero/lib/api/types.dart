@@ -134,4 +134,4 @@ typedef RefreshCoins = void Function(int);
 
 typedef CoinsCount = int Function();
 
-typedef GetCoin = Pointer<CoinsInfoRow> Function(Int32);
+typedef GetCoin = Pointer<CoinsInfoRow> Function(int);

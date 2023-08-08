@@ -134,4 +134,4 @@ typedef coins_count = Int64 Function();
 
 // typedef coins_from_txid = Pointer<CoinsInfoRow> Function(Pointer<Utf8> txid);
 
-typedef get_coin = Pointer<CoinsInfoRow> Function(Int32 index);
+typedef coin = Pointer<CoinsInfoRow> Function(Int32 index);

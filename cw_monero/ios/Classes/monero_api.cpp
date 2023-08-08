@@ -864,32 +864,28 @@ extern "C"
 
     CoinsInfoRow* coin(int index)
     {
-      if (index >= 0 && index < m_coins_info.size()) {
-        std::list<Monero::CoinsInfo*>::iterator it = m_coins_info.begin();
-        std::advance(it, index);
-        Monero::CoinsInfo* element = *it;
-        std::cout << "Element at index " << index << ": " << element << std::endl;
-        return new CoinsInfoRow(element);
-    } else {
-        std::cout << "Invalid index." << std::endl;
-        return nullptr; // Return a default value (nullptr) for invalid index
-    }
+        if (index >= 0 && index < m_coins_info.size()) {
+            std::list<Monero::CoinsInfo*>::iterator it = m_coins_info.begin();
+            std::advance(it, index);
+            Monero::CoinsInfo* element = *it;
+            std::cout << "Element at index " << index << ": " << element << std::endl;
+            return new CoinsInfoRow(element);
+        } else {
+            std::cout << "Invalid index." << std::endl;
+            return nullptr; // Return a default value (nullptr) for invalid index
+        }
     }
 
     void refresh_coins(uint32_t accountIndex)
     {
+        m_coins_info.clear();
 
-            m_coins_info.clear();
-
-            m_coins->refresh();
-            for (const auto i : m_coins->getAll()) {
-                if (i->subaddrAccount() != accountIndex) {
-                    continue;
-                }
-
+        m_coins->refresh();
+        for (const auto i : m_coins->getAll()) {
+            if (i->subaddrAccount() == accountIndex) {
                 m_coins_info.push_back(i);
             }
-
+        }
     }
 
     uint64_t coins_count()
@@ -897,8 +893,25 @@ extern "C"
         return m_coins_info.size();
     }
 
-    CoinsInfoRow** coins_from_txid(const char* txid, size_t* count) {
+    CoinsInfoRow** coins_from_account(uint32_t accountIndex)
+    {
         std::vector<CoinsInfoRow*> matchingCoins;
+
+        for (int i = 0; i < coins_count(); i++) {
+            CoinsInfoRow* coinInfo = coin(i);
+            if (coinInfo->subaddrAccount == accountIndex) {
+                matchingCoins.push_back(coinInfo);
+            }
+        }
+
+        CoinsInfoRow** result = new CoinsInfoRow*[matchingCoins.size()];
+        std::copy(matchingCoins.begin(), matchingCoins.end(), result);
+        return result;
+    }
+
+    CoinsInfoRow** coins_from_txid(const char* txid, size_t* count)
+    {
+        td::vector<CoinsInfoRow*> matchingCoins;
 
         for (int i = 0; i < coins_count(); i++) {
             CoinsInfoRow* coinInfo = coin(i);
@@ -913,24 +926,25 @@ extern "C"
         return result;
     }
 
-    CoinsInfoRow** coins_from_key_image(const char** keyimages, size_t keyimageCount, size_t* count) {
-    std::vector<CoinsInfoRow*> matchingCoins;
+    CoinsInfoRow** coins_from_key_image(const char** keyimages, size_t keyimageCount, size_t* count)
+    {
+        std::vector<CoinsInfoRow*> matchingCoins;
 
-    for (int i = 0; i < coins_count(); i++) {
-        CoinsInfoRow* coinsInfoRow = coin(i);
-        for (size_t j = 0; j < keyimageCount; j++) {
-            if (coinsInfoRow->keyImageKnown && std::string(coinsInfoRow->keyImage) == keyimages[j]) {
-                matchingCoins.push_back(coinsInfoRow);
-                break;
+        for (int i = 0; i < coins_count(); i++) {
+            CoinsInfoRow* coinsInfoRow = coin(i);
+            for (size_t j = 0; j < keyimageCount; j++) {
+                if (coinsInfoRow->keyImageKnown && std::string(coinsInfoRow->keyImage) == keyimages[j]) {
+                    matchingCoins.push_back(coinsInfoRow);
+                    break;
+                }
             }
         }
-    }
 
-    *count = matchingCoins.size();
-    CoinsInfoRow** result = new CoinsInfoRow*[*count];
-    std::copy(matchingCoins.begin(), matchingCoins.end(), result);
-    return result;
-}
+        *count = matchingCoins.size();
+        CoinsInfoRow** result = new CoinsInfoRow*[*count];
+        std::copy(matchingCoins.begin(), matchingCoins.end(), result);
+        return result;
+    }
 
 
 #ifdef __cplusplus
