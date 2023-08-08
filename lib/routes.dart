@@ -91,4 +91,5 @@ class Routes {
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
+  static const scanQr = '/scan_qr';
 }

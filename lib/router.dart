@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
+import 'package:cake_wallet/src/screens/qr/scan_screen.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
@@ -608,6 +609,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.manageNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>());
+
+    case Routes.scanQr:
+        return MaterialPageRoute<void>(builder: (_) => getIt.get<ScanScreen>());
 
     default:
       return MaterialPageRoute<void>(

@@ -1,15 +1,12 @@
-import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:flutter/widgets.dart';
 
 var isQrScannerShown = false;
 
-Future<String> presentQRScanner() async {
-  isQrScannerShown = true;
+Future<String> presentQRScanner(BuildContext context) async {
   try {
-    final result = await BarcodeScanner.scan();
-    isQrScannerShown = false;
-    return result.rawContent.trim();
+    return await Navigator.pushNamed(context, Routes.scanQr) as String;
   } catch (e) {
-    isQrScannerShown = false;
-    rethrow;
+    return "";
   }
 }

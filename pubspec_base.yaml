@@ -21,8 +21,10 @@ dependencies:
   # provider: ^6.0.3
   rxdart: ^0.27.4
   yaml: ^3.1.1
-  #barcode_scan: any
-  barcode_scan2: ^4.2.1
+  # qr code scanning:
+  image_picker: ^1.0.2
+  # mobile_scanner: ^3.4.1
+  mobile_scanner: 3.0.0-beta.4
   http: ^0.13.4
   path_provider: ^2.0.11
   mobx: ^2.1.4
