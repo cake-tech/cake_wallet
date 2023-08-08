@@ -33,6 +33,10 @@ class SecretKey {
     SecretKey('payfuraApiKey', () => ''),
   ];
 
+  static final ethereumSecrets = [
+    SecretKey('etherScanApiKey', () => ''),
+  ];
+
   final String name;
   final String Function() generate;
 }

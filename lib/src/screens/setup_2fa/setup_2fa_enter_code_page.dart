@@ -18,7 +18,8 @@ import 'package:mobx/mobx.dart';
 import '../../../palette.dart';
 import '../../../routes.dart';
 
-typedef OnTotpAuthenticationFinished = void Function(bool, TotpAuthCodePageState);
+typedef OnTotpAuthenticationFinished = void Function(
+    bool, TotpAuthCodePageState);
 
 class TotpAuthCodePage extends StatefulWidget {
   TotpAuthCodePage(
@@ -43,8 +44,9 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
 
   @override
   void initState() {
-    if(widget.totpArguments.onTotpAuthenticationFinished != null) {
-      _reaction ??= reaction((_) => widget.setup2FAViewModel.state, (ExecutionState state) {
+    if (widget.totpArguments.onTotpAuthenticationFinished != null) {
+      _reaction ??= reaction((_) => widget.setup2FAViewModel.state,
+          (ExecutionState state) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (state is ExecutedSuccessfullyState) {
             widget.totpArguments.onTotpAuthenticationFinished!(true, this);
@@ -57,9 +59,9 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
 
           if (state is AuthenticationBanned) {
             widget.totpArguments.onTotpAuthenticationFinished!(false, this);
-          } 
-          });
-    });
+          }
+        });
+      });
     }
 
     super.initState();
@@ -73,7 +75,8 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
 
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
-    _progressBar = createBar<void>(text, duration: null)..show(_key.currentContext!);
+    _progressBar = createBar<void>(text, duration: null)
+      ..show(_key.currentContext!);
   }
 
   Future<void> close({String? route, dynamic arguments}) async {
@@ -82,7 +85,8 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
     }
     await Future<void>.delayed(Duration(milliseconds: 50));
     if (route != null) {
-      Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
+      Navigator.of(_key.currentContext!)
+          .pushReplacementNamed(route, arguments: arguments);
     } else {
       Navigator.of(_key.currentContext!).pop();
     }
@@ -120,7 +124,8 @@ class TOTPEnterCode extends BasePage {
   }
 
   @override
-  String get title => isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa;
+  String get title =>
+      isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa;
 
   Widget? leading(BuildContext context) {
     return isClosable ? super.leading(context) : null;
@@ -166,21 +171,24 @@ class TOTPEnterCode extends BasePage {
               return PrimaryButton(
                 isDisabled: setup2FAViewModel.enteredOTPCode.length != 8,
                 onPressed: () async {
-                  final result =
-                      await setup2FAViewModel.totp2FAAuth(totpController.text, isForSetup);
-                  final bannedState = setup2FAViewModel.state is AuthenticationBanned;
+                  final result = await setup2FAViewModel.totp2FAAuth(
+                      totpController.text, isForSetup);
+                  final bannedState =
+                      setup2FAViewModel.state is AuthenticationBanned;
 
                   await showPopUp<void>(
                     context: context,
                     builder: (BuildContext context) {
                       return PopUpCancellableAlertDialog(
-                        contentText: _textDisplayedInPopupOnResult(result, bannedState, context),
+                        contentText: _textDisplayedInPopupOnResult(
+                            result, bannedState, context),
                         actionButtonText: S.of(context).ok,
                         buttonAction: () {
                           result ? setup2FAViewModel.success() : null;
                           if (isForSetup && result) {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, Routes.dashboard, (route) => false);
+                            Navigator.pop(context);
+                            // Navigator.of(context)
+                            //     .popAndPushNamed(Routes.modify2FAPage);
                           } else {
                             Navigator.of(context).pop(result);
                           }
@@ -188,6 +196,11 @@ class TOTPEnterCode extends BasePage {
                       );
                     },
                   );
+                  if (isForSetup && result) {
+                    Navigator.pushReplacementNamed(
+                        context, Routes.modify2FAPage);
+                  }
+               
                 },
                 text: S.of(context).continue_text,
                 color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
@@ -201,10 +214,13 @@ class TOTPEnterCode extends BasePage {
     );
   }
 
-  String _textDisplayedInPopupOnResult(bool result, bool bannedState, BuildContext context) {
+  String _textDisplayedInPopupOnResult(
+      bool result, bool bannedState, BuildContext context) {
     switch (result) {
       case true:
-        return isForSetup ? S.current.totp_2fa_success : S.current.totp_verification_success;
+        return isForSetup
+            ? S.current.totp_2fa_success
+            : S.current.totp_verification_success;
       case false:
         if (bannedState) {
           final state = setup2FAViewModel.state as AuthenticationBanned;

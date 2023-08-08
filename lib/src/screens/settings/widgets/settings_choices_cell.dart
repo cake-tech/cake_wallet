@@ -22,7 +22,7 @@ class SettingsChoicesCell extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
                 ),
               ),
             ],
@@ -34,10 +34,7 @@ class SettingsChoicesCell extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .displaySmall!
-                      .color!,
+                  color: Theme.of(context).accentTextTheme.displaySmall!.color!,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -52,10 +49,7 @@ class SettingsChoicesCell extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
                           color: isSelected
-                              ? Theme.of(context)
-                                  .accentTextTheme!
-                                  .bodyLarge!
-                                  .color!
+                              ? Theme.of(context).accentTextTheme.bodyLarge!.color!
                               : null,
                         ),
                         child: Text(
@@ -63,10 +57,7 @@ class SettingsChoicesCell extends StatelessWidget {
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : Theme.of(context)
-                                    .primaryTextTheme!
-                                    .bodySmall!
-                                    .color!,
+                                : Theme.of(context).primaryTextTheme.bodySmall!.color!,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                           ),
                         ),

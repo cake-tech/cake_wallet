@@ -134,6 +134,8 @@ PODS:
   - SDWebImage (5.16.0):
     - SDWebImage/Core (= 5.16.0)
   - SDWebImage/Core (5.16.0)
+  - sensitive_clipboard (0.0.1):
+    - Flutter
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -149,6 +151,8 @@ PODS:
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock (0.0.1):
+    - Flutter
+  - workmanager (0.0.1):
     - Flutter
 
 DEPENDENCIES:
@@ -173,12 +177,14 @@ DEPENDENCIES:
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - platform_device_id (from `.symlinks/plugins/platform_device_id/ios`)
+  - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - UnstoppableDomainsResolution (~> 4.0.0)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock (from `.symlinks/plugins/wakelock/ios`)
+  - workmanager (from `.symlinks/plugins/workmanager/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -235,6 +241,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   platform_device_id:
     :path: ".symlinks/plugins/platform_device_id/ios"
+  sensitive_clipboard:
+    :path: ".symlinks/plugins/sensitive_clipboard/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
@@ -245,6 +253,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock:
     :path: ".symlinks/plugins/wakelock/ios"
+  workmanager:
+    :path: ".symlinks/plugins/workmanager/ios"
 
 SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
@@ -270,11 +280,12 @@ SPEC CHECKSUMS:
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
-  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
+  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
+  sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   SwiftProtobuf: 40bd808372cb8706108f22d28f8ab4a6b9bc6989
@@ -283,6 +294,7 @@ SPEC CHECKSUMS:
   UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
+  workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6
 
 PODFILE CHECKSUM: 09df1114e7c360f55770d35a79356bf5446e0100
 

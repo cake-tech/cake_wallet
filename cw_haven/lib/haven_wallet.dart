@@ -125,7 +125,8 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           login: node.login,
           password: node.password,
           useSSL: node.useSSL ?? false,
-          isLightWallet: false); // FIXME: hardcoded value
+          isLightWallet: false, // FIXME: hardcoded value
+          socksProxyAddress: node.socksProxyAddress);
 
       haven_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
@@ -253,6 +254,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     await haven_wallet.store();
   }
 
+  @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletPath = await pathForWallet(name: name, type: type);
     final currentCacheFile = File(currentWalletPath);

@@ -4,14 +4,15 @@ part 'template.g.dart';
 
 @HiveType(typeId: Template.typeId)
 class Template extends HiveObject {
-  Template({
-    required this.nameRaw,
-    required this.isCurrencySelectedRaw,
-    required this.addressRaw,
-    required this.cryptoCurrencyRaw,
-    required this.amountRaw,
-    required this.fiatCurrencyRaw,
-    required this.amountFiatRaw});
+  Template(
+      {required this.nameRaw,
+      required this.isCurrencySelectedRaw,
+      required this.addressRaw,
+      required this.cryptoCurrencyRaw,
+      required this.amountRaw,
+      required this.fiatCurrencyRaw,
+      required this.amountFiatRaw,
+      this.additionalRecipientsRaw});
 
   static const typeId = 6;
   static const boxName = 'Template';
@@ -37,6 +38,9 @@ class Template extends HiveObject {
   @HiveField(6)
   String? amountFiatRaw;
 
+  @HiveField(7)
+  List<Template>? additionalRecipientsRaw;
+
   bool get isCurrencySelected => isCurrencySelectedRaw ?? false;
 
   String get fiatCurrency => fiatCurrencyRaw ?? '';
@@ -50,5 +54,6 @@ class Template extends HiveObject {
   String get cryptoCurrency => cryptoCurrencyRaw ?? '';
 
   String get amount => amountRaw ?? '';
-}
 
+  List<Template>? get additionalRecipients => additionalRecipientsRaw;
+}

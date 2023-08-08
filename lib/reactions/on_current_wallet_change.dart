@@ -1,6 +1,6 @@
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -97,6 +97,20 @@ void startCurrentWalletChangeReaction(AppStore appStore,
               crypto: wallet.currency,
               fiat: settingsStore.fiatCurrency,
               torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+
+      if (wallet.type == WalletType.ethereum) {
+        final currencies =
+                ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+
+        for (final currency in currencies) {
+          () async {
+            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+                crypto: currency,
+                fiat: settingsStore.fiatCurrency,
+                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+          }.call();
+        }
+      }
     } catch (e) {
       print(e.toString());
     }

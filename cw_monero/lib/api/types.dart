@@ -36,7 +36,7 @@ typedef GetNodeHeight = int Function();
 typedef IsConnected = int Function();
 
 typedef SetupNode = int Function(
-    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, int, int, Pointer<Utf8>);
+    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, int, int, Pointer<Utf8>?, Pointer<Utf8>);
 
 typedef StartRefresh = void Function();
 
