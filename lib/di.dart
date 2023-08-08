@@ -748,11 +748,9 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletService, WalletType, void>((WalletType param1, __) {
     switch (param1) {
       case WalletType.haven:
-        return haven!.createHavenWalletService(
-            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return haven!.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource,
-            SettingsStoreBase.walletPasswordDirectInput);
+        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!,
             SettingsStoreBase.walletPasswordDirectInput);
