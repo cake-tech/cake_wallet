@@ -106,17 +106,26 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    // final currentWalletInfo = walletInfoSource.values
-    //     .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    // final currentWallet = NanoWallet(walletInfo: currentWalletInfo);
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
 
-    // await currentWallet.renameWalletFiles(newName);
+    final NanoWalletInfo nanoWalletInfo = NanoWalletInfo(
+      walletInfo: currentWalletInfo,
+      derivationType: DerivationType.nano, // doesn't matter for rename
+    );
 
-    // final newWalletInfo = currentWalletInfo;
-    // newWalletInfo.id = WalletBase.idFor(newName, getType());
-    // newWalletInfo.name = newName;
+    String randomWords =
+        (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
+    final currentWallet =
+        NanoWallet(walletInfo: nanoWalletInfo, password: password, mnemonic: randomWords);
 
-    // await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await currentWallet.renameWalletFiles(newName);
+
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
   Future<DerivationType> compareDerivationMethods({String? mnemonic, String? seedKey}) async {

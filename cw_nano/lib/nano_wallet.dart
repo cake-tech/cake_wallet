@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -26,7 +27,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:nanodart/nanodart.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:bip32/bip32.dart' as bip32;
 
 part 'nano_wallet.g.dart';
 
@@ -117,10 +117,6 @@ abstract class NanoWalletBase
       final isConnected = _client.connect(node);
       if (!isConnected) {
         throw Exception("Nano Node connection failed");
-      }
-
-      if (_publicAddress == null) {
-        await Future.delayed(Duration(seconds: 1));
       }
 
       try {
@@ -389,7 +385,23 @@ abstract class NanoWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    print("rename");
-    throw UnimplementedError();
+    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletFile = File(currentWalletPath);
+
+    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+
+    // Copies current wallet files into new wallet name's dir and files
+    if (currentWalletFile.existsSync()) {
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      await currentWalletFile.copy(newWalletPath);
+    }
+    if (currentTransactionsFile.existsSync()) {
+      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
+    }
+
+    // Delete old name's dir and files
+    await Directory(currentDirPath).delete(recursive: true);
   }
 }
