@@ -119,11 +119,17 @@ abstract class NanoWalletBase
         throw Exception("Nano Node connection failed");
       }
 
+      if (_publicAddress == null) {
+        await Future.delayed(Duration(seconds: 1));
+      }
+
       try {
         await _updateBalance();
         await _updateRep();
         await _receiveAll();
-      } catch (e) {}
+      } catch (e) {
+        print(e);
+      }
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
@@ -349,7 +355,12 @@ abstract class NanoWalletBase
   Future<void> _updateRep() async {
     try {
       final accountInfo = await _client.getAccountInfo(_publicAddress!);
-      _representativeAddress = accountInfo["representative"] as String;
+      if (accountInfo["error"] != null) {
+        // account not found:
+        _representativeAddress = NanoClient.DEFAULT_REPRESENTATIVE;
+      } else {
+        _representativeAddress = accountInfo["representative"] as String;
+      }
     } catch (e) {
       throw Exception("Failed to get representative address $e");
     }
