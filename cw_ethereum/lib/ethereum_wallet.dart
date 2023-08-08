@@ -14,6 +14,7 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_ethereum/default_erc20_tokens.dart';
+import 'package:cw_ethereum/encryption_file_utils.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_exceptions.dart';
@@ -45,18 +46,24 @@ abstract class EthereumWalletBase
     required WalletInfo walletInfo,
     required String mnemonic,
     required String password,
+    required EncryptionFileUtils encryptionFileUtils,
     ERC20Balance? initialBalance,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _isTransactionUpdating = false,
+        _encryptionFileUtils = encryptionFileUtils,
         _client = EthereumClient(),
         walletAddresses = EthereumWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, ERC20Balance>.of(
             {CryptoCurrency.eth: initialBalance ?? ERC20Balance(BigInt.zero)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = EthereumTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = EthereumTransactionHistory(
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
 
     if (!Hive.isAdapterRegistered(Erc20Token.typeId)) {
       Hive.registerAdapter(Erc20TokenAdapter());
@@ -67,6 +74,8 @@ abstract class EthereumWalletBase
 
   final String _mnemonic;
   final String _password;
+
+  final EncryptionFileUtils _encryptionFileUtils;
 
   late final Box<Erc20Token> erc20TokensBox;
 
@@ -282,7 +291,7 @@ abstract class EthereumWalletBase
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await _encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
@@ -321,9 +330,10 @@ abstract class EthereumWalletBase
     required String name,
     required String password,
     required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
     final balance = ERC20Balance.fromJSON(data['balance'] as String) ?? ERC20Balance(BigInt.zero);
@@ -333,6 +343,7 @@ abstract class EthereumWalletBase
       password: password,
       mnemonic: mnemonic,
       initialBalance: balance,
+      encryptionFileUtils: encryptionFileUtils,
     );
   }
 

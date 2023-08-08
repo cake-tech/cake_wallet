@@ -22,6 +22,11 @@ dependencies:
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
+  cake_backup:
+    git:
+      url: https://github.com/cake-tech/cake_backup.git
+      ref: main
+      version: 1.0.0
 
 dev_dependencies:
   flutter_test:
