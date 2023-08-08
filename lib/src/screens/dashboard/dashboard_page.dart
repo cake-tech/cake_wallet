@@ -29,6 +29,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
+import 'package:upgrader/upgrader.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
@@ -160,102 +161,93 @@ class _DashboardPageView extends BasePage {
 
     return SafeArea(
         minimum: EdgeInsets.only(bottom: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Expanded(
-                child: Observer(builder: (context) {
-              return PageView.builder(
-                  controller: controller,
-                  itemCount: pages.length,
-                  itemBuilder: (context, index) => pages[index]);
-            })),
-            Padding(
-                padding: EdgeInsets.only(bottom: 24, top: 10),
-                child: Observer(builder: (context) {
-                  return ExcludeSemantics(
-                    child: SmoothPageIndicator(
-                      controller: controller,
-                      count: pages.length,
-                      effect: ColorTransitionEffect(
-                          spacing: 6.0,
-                          radius: 6.0,
-                          dotWidth: 6.0,
-                          dotHeight: 6.0,
-                          dotColor: Theme.of(context).indicatorColor,
-                          activeDotColor: Theme.of(context)
-                              .accentTextTheme!
-                              .headlineMedium!
-                              .backgroundColor!),
-                    ),
-                  );
-                }
-                )),
-            Observer(builder: (_) {
-              return ClipRect(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 16, right: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50.0),
-                      border: Border.all(
-                        color: currentTheme.type == ThemeType.bright
-                            ? Color.fromRGBO(255, 255, 255, 0.2)
-                            : Colors.transparent,
-                        width: 1,
+        child: UpgradeAlert(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Expanded(child: Observer(builder: (context) {
+                return PageView.builder(
+                    controller: controller,
+                    itemCount: pages.length,
+                    itemBuilder: (context, index) => pages[index]);
+              })),
+              Padding(
+                  padding: EdgeInsets.only(bottom: 24, top: 10),
+                  child: Observer(builder: (context) {
+                    return ExcludeSemantics(
+                      child: SmoothPageIndicator(
+                        controller: controller,
+                        count: pages.length,
+                        effect: ColorTransitionEffect(
+                            spacing: 6.0,
+                            radius: 6.0,
+                            dotWidth: 6.0,
+                            dotHeight: 6.0,
+                            dotColor: Theme.of(context).indicatorColor,
+                            activeDotColor: Theme.of(context)
+                                .accentTextTheme!
+                                .headlineMedium!
+                                .backgroundColor!),
                       ),
-                      color: Theme.of(context)
-                          .textTheme!
-                          .titleLarge!
-                          .backgroundColor!,
-                    ),
+                    );
+                  })),
+              Observer(builder: (_) {
+                return ClipRect(
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 16, right: 16),
                     child: Container(
-                      padding: EdgeInsets.only(left: 32, right: 32),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: MainActions.all
-                            .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
-                            .map((action) => Semantics(
-                                  button: true,
-                                  enabled: (action.isEnabled
-                                          ?.call(dashboardViewModel) ??
-                                      true),
-                                  child: ActionButton(
-                                    image: Image.asset(action.image,
-                                        height: 24,
-                                        width: 24,
-                                        color: action.isEnabled?.call(
-                                                    dashboardViewModel) ??
-                                                true
-                                            ? Theme.of(context)
-                                                .accentTextTheme!
-                                                .displayMedium!
-                                                .backgroundColor!
-                                            : Theme.of(context)
-                                                .accentTextTheme!
-                                                .displaySmall!
-                                                .backgroundColor!),
-                                    title: action.name(context),
-                                    onClick: () async => await action.onTap(
-                                        context, dashboardViewModel),
-                                    textColor: action.isEnabled
-                                                ?.call(dashboardViewModel) ??
-                                            true
-                                        ? null
-                                        : Theme.of(context)
-                                            .accentTextTheme!
-                                            .displaySmall!
-                                            .backgroundColor!,
-                                  ),
-                                ))
-                            .toList(),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.0),
+                        border: Border.all(
+                          color: currentTheme.type == ThemeType.bright
+                              ? Color.fromRGBO(255, 255, 255, 0.2)
+                              : Colors.transparent,
+                          width: 1,
+                        ),
+                        color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.only(left: 32, right: 32),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: MainActions.all
+                              .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
+                              .map((action) => Semantics(
+                                    button: true,
+                                    enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
+                                    child: ActionButton(
+                                      image: Image.asset(action.image,
+                                          height: 24,
+                                          width: 24,
+                                          color: action.isEnabled?.call(dashboardViewModel) ?? true
+                                              ? Theme.of(context)
+                                                  .accentTextTheme!
+                                                  .displayMedium!
+                                                  .backgroundColor!
+                                              : Theme.of(context)
+                                                  .accentTextTheme!
+                                                  .displaySmall!
+                                                  .backgroundColor!),
+                                      title: action.name(context),
+                                      onClick: () async =>
+                                          await action.onTap(context, dashboardViewModel),
+                                      textColor: action.isEnabled?.call(dashboardViewModel) ?? true
+                                          ? null
+                                          : Theme.of(context)
+                                              .accentTextTheme!
+                                              .displaySmall!
+                                              .backgroundColor!,
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
-          ],
+                );
+              }),
+            ],
+          ),
         ));
   }
 
@@ -347,4 +339,6 @@ class _DashboardPageView extends BasePage {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     }
   }
+
+  
 }

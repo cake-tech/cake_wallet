@@ -296,13 +296,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             // upgrader shows. The app theme converts the color to white
             // so the text is not visible, this overrides that
             // while still keeping everything else intact
-            home: Theme(
-              data: ThemeData(),
-              child: UpgradeAlert(
-                upgrader: Upgrader(),
-                child: _Home(),
-              ),
-            ),
+            home: _Home(),
           ));
     });
   }
