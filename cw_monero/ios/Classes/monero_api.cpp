@@ -918,7 +918,7 @@ extern "C"
 
     CoinsInfoRow** coins_from_txid(const char* txid, size_t* count)
     {
-        td::vector<CoinsInfoRow*> matchingCoins;
+        std::vector<CoinsInfoRow*> matchingCoins;
 
         for (int i = 0; i < coins_count(); i++) {
             CoinsInfoRow* coinInfo = coin(i);
