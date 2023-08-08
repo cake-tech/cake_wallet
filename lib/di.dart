@@ -768,7 +768,9 @@ Future setup({
             _walletInfoSource, _unspentCoinsInfoSource!,
             SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.ethereum:
-        return ethereum!.createEthereumWalletService(_walletInfoSource);
+        return ethereum!.createEthereumWalletService(
+            _walletInfoSource,
+            SettingsStoreBase.walletPasswordDirectInput);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
