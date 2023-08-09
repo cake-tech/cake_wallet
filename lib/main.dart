@@ -39,7 +39,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/cake_hive.dart';
+import 'package:cw_core/cake_hive.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();

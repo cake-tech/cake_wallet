@@ -1,5 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:cake_wallet/cake_hive.dart';
+import 'package:cw_core/cake_hive.dart';
 
 Future<List<int>> getEncryptionKey(
     {required String forKey, required FlutterSecureStorage secureStorage}) async {
