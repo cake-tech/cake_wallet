@@ -200,12 +200,6 @@ abstract class EthereumWalletBase
       }
     }
 
-    print("@@@@@@@@@@@@");
-    print(totalAmount);
-    print(transactionCurrency);
-    print(_erc20Balance.balance);
-    print(BigInt.from(calculateEstimatedFee(_credentials.priority!, null)));
-
     final pendingEthereumTransaction = await _client.signTransaction(
       privateKey: _privateKey,
       toAddress: _credentials.outputs.first.isParsedAddress
