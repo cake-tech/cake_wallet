@@ -35,7 +35,10 @@ void appendArbFile(String fileName, String name, String text) {
   final inputContent = file.readAsStringSync();
   final arbObj = json.decode(inputContent) as Map<String, dynamic>;
 
-  if (arbObj.containsKey(name)) throw Exception("String $name already exists!");
+  if (arbObj.containsKey(name)) {
+    print("String $name already exists in $fileName!");
+    return;
+  }
 
   arbObj.addAll({name: text});
 
@@ -49,12 +52,15 @@ void appendArbFile(String fileName, String name, String text) {
   file.writeAsStringSync(outputContent);
 }
 
+
 Future<String> getTranslation(String text, String lang) async {
   if (lang == defaultLang) return text;
   return (await translator.translate(text, from: defaultLang, to: lang)).text;
 }
 
 String getFileName(String lang) {
-  final shortLang = lang.split("-").first;
+  final shortLang = lang
+      .split("-")
+      .first;
   return "./res/values/strings_$shortLang.arb";
 }
