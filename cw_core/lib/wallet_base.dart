@@ -75,4 +75,6 @@ abstract class WalletBase<
   Future<void>? updateBalance();
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
+
+  Future<void> renameWalletFiles(String newWalletName);
 }

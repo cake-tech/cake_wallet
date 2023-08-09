@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
   StandardListRow(
-      {required this.title, required this.isSelected, this.onTap});
+      {required this.title, required this.isSelected, this.onTap, this.decoration});
 
   final String title;
   final bool isSelected;
   final void Function(BuildContext context)? onTap;
+  final Decoration? decoration;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +20,11 @@ class StandardListRow extends StatelessWidget {
     return InkWell(
         onTap: () => onTap?.call(context),
         child: Container(
-            color: _backgroundColor(context),
             height: 56,
             padding: EdgeInsets.only(left: 24, right: 24),
+            decoration: decoration ?? BoxDecoration(
+              color: _backgroundColor(context),
+            ),
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -54,7 +57,7 @@ class StandardListRow extends StatelessWidget {
 
   Color titleColor(BuildContext context) => isSelected
       ? Palette.blueCraiola
-      : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      : Theme.of(context).primaryTextTheme.titleLarge!.color!;
 
   Color _backgroundColor(BuildContext context) {
     return Theme.of(context).colorScheme.background;
@@ -75,7 +78,7 @@ class SectionHeaderListRow extends StatelessWidget {
 
 class StandardListSeparator extends StatelessWidget {
 
-  StandardListSeparator({this.padding, this.height = 1});
+  const StandardListSeparator({this.padding, this.height = 1});
 
   final EdgeInsets? padding;
   final double height;
@@ -89,7 +92,7 @@ class StandardListSeparator extends StatelessWidget {
         child: Container(
             height: height,
             color: Theme.of(context)
-                .primaryTextTheme!
+                .primaryTextTheme
                 .titleLarge
                 ?.backgroundColor));
   }

@@ -30,12 +30,22 @@ class SecurityBackupPage extends BasePage {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           SettingsCellWithArrow(
             title: S.current.show_keys,
-            handler: (_) => _authService.authenticateAction(context, route: Routes.showKeys),
+            handler: (_) => _authService.authenticateAction(
+              context,
+              route: Routes.showKeys,
+              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+            ),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsCellWithArrow(
             title: S.current.create_backup,
-            handler: (_) => _authService.authenticateAction(context, route: Routes.backup),
+            handler: (_) => _authService.authenticateAction(
+              context,
+              route: Routes.backup,
+              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+            ),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsCellWithArrow(
@@ -46,6 +56,8 @@ class SecurityBackupPage extends BasePage {
               arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
                 setupPinContext.close();
               },
+              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
@@ -67,7 +79,10 @@ class SecurityBackupPage extends BasePage {
                           _securitySettingsViewModel
                               .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                         }
-                      });
+                        },
+                        conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                            .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                      );
                     } else {
                       _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
                     }
@@ -94,6 +109,8 @@ class SecurityBackupPage extends BasePage {
               route: _securitySettingsViewModel.useTotp2FA
                   ? Routes.modify2FAPage
                   : Routes.setup_2faPage,
+                  conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                      .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                 ),
               );
             },

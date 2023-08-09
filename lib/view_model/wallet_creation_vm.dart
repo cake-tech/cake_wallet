@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -71,6 +73,7 @@ abstract class WalletCreationVMBase with Store {
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       _appStore.changeCurrentWallet(wallet);
+      getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
     } catch (e) {

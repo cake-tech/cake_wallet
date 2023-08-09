@@ -59,96 +59,102 @@ Future<void> main() async {
       return true;
     };
 
-    final appDir = await getApplicationDocumentsDirectory();
     await CakeHive.close();
-    CakeHive.init(appDir.path);
 
-    if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
-      CakeHive.registerAdapter(ContactAdapter());
-    }
+    await initializeAppConfigs();
 
-    if (!CakeHive.isAdapterRegistered(Node.typeId)) {
-      CakeHive.registerAdapter(NodeAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
-      CakeHive.registerAdapter(TransactionDescriptionAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
-      CakeHive.registerAdapter(TradeAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
-      CakeHive.registerAdapter(WalletInfoAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
-      CakeHive.registerAdapter(WalletTypeAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(Template.typeId)) {
-      CakeHive.registerAdapter(TemplateAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(ExchangeTemplate.typeId)) {
-      CakeHive.registerAdapter(ExchangeTemplateAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(Order.typeId)) {
-      CakeHive.registerAdapter(OrderAdapter());
-    }
-
-    if (!isMoneroOnly && !CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
-      CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
-    }
-
-    if (!CakeHive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
-      CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
-    }
-
-    final secureStorage = FlutterSecureStorage();
-    final transactionDescriptionsBoxKey =
-        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
-    final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
-    final nodes = await CakeHive.openBox<Node>(Node.boxName);
-    final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-    final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-    final templates = await CakeHive.openBox<Template>(Template.boxName);
-    final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-
-    if (!isMoneroOnly) {
-      unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-    }
-
-    await initialSetup(
-        sharedPreferences: await SharedPreferences.getInstance(),
-        nodes: nodes,
-        walletInfoSource: walletInfoSource,
-        contactSource: contacts,
-        tradesSource: trades,
-        ordersSource: orders,
-        unspentCoinsInfoSource: unspentCoinsInfoSource,
-        // fiatConvertationService: fiatConvertationService,
-        templates: templates,
-        exchangeTemplates: exchangeTemplates,
-        transactionDescriptions: transactionDescriptions,
-        secureStorage: secureStorage,
-        anonpayInvoiceInfo: anonpayInvoiceInfo,
-        initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
+
+Future<void> initializeAppConfigs() async {
+  final appDir = await getApplicationDocumentsDirectory();
+  CakeHive.init(appDir.path);
+
+  if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
+    CakeHive.registerAdapter(ContactAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
+    CakeHive.registerAdapter(NodeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
+    CakeHive.registerAdapter(TransactionDescriptionAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
+    CakeHive.registerAdapter(TradeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
+    CakeHive.registerAdapter(WalletInfoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(WalletTypeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Template.typeId)) {
+    CakeHive.registerAdapter(TemplateAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(ExchangeTemplate.typeId)) {
+    CakeHive.registerAdapter(ExchangeTemplateAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Order.typeId)) {
+    CakeHive.registerAdapter(OrderAdapter());
+  }
+
+  if (!isMoneroOnly && !CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+    CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
+    CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
+  }
+
+  final secureStorage = FlutterSecureStorage();
+  final transactionDescriptionsBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
+  final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
+  final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
+  final nodes = await CakeHive.openBox<Node>(Node.boxName);
+  final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
+      TransactionDescription.boxName,
+      encryptionKey: transactionDescriptionsBoxKey);
+  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  final templates = await CakeHive.openBox<Template>(Template.boxName);
+  final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+  Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
+
+  if (!isMoneroOnly) {
+    unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+  }
+
+  await initialSetup(
+      sharedPreferences: await SharedPreferences.getInstance(),
+      nodes: nodes,
+      walletInfoSource: walletInfoSource,
+      contactSource: contacts,
+      tradesSource: trades,
+      ordersSource: orders,
+      unspentCoinsInfoSource: unspentCoinsInfoSource,
+      // fiatConvertationService: fiatConvertationService,
+      templates: templates,
+      exchangeTemplates: exchangeTemplates,
+      transactionDescriptions: transactionDescriptions,
+      secureStorage: secureStorage,
+      anonpayInvoiceInfo: anonpayInvoiceInfo,
+      initialMigrationVersion: 21);
+  }
 
 Future<void> initialSetup(
     {required SharedPreferences sharedPreferences,
@@ -321,7 +327,7 @@ class _HomeState extends State<_Home> {
     }
 
  }
- 
+
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();

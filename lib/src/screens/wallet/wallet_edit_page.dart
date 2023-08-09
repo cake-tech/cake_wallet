@@ -125,7 +125,9 @@ class WalletEditPage extends BasePage {
       }
 
       _onSuccessfulAuth(context);
-    });
+      },
+      conditionToDetermineIfToUse2FA: false,
+    );
   }
 
   void _onSuccessfulAuth(BuildContext context) async {
