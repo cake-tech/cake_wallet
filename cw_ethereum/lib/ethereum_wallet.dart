@@ -180,8 +180,15 @@ abstract class EthereumWalletBase
       }
     } else {
       final output = outputs.first;
-      final BigInt allAmount =
-          _erc20Balance.balance - BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
+      // since the fees are taken from Ethereum
+      // then no need to subtract the fees from the amount if send all
+      final BigInt allAmount;
+      if (transactionCurrency is Erc20Token) {
+        allAmount = _erc20Balance.balance;
+      } else {
+        allAmount = _erc20Balance.balance -
+            BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
+      }
       final totalOriginalAmount =
           EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
       totalAmount = output.sendAll
@@ -193,9 +200,17 @@ abstract class EthereumWalletBase
       }
     }
 
+    print("@@@@@@@@@@@@");
+    print(totalAmount);
+    print(transactionCurrency);
+    print(_erc20Balance.balance);
+    print(BigInt.from(calculateEstimatedFee(_credentials.priority!, null)));
+
     final pendingEthereumTransaction = await _client.signTransaction(
       privateKey: _privateKey,
-      toAddress: _credentials.outputs.first.address,
+      toAddress: _credentials.outputs.first.isParsedAddress
+          ? _credentials.outputs.first.extractedAddress!
+          : _credentials.outputs.first.address,
       amount: totalAmount.toString(),
       gas: _estimatedGas!,
       priority: _credentials.priority!,
