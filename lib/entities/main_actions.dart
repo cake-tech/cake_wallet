@@ -47,6 +47,8 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.nano:
+        case WalletType.banano:
           if (viewModel.isEnabledBuyAction) {
             final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
             if (DeviceInfo.instance.isMobile) {
@@ -70,7 +72,7 @@ class MainActions {
               builder: (BuildContext context) {
                 return AlertWithOneAction(
                     alertTitle: S.of(context).buy,
-                    alertContent: S.of(context).buy_alert_content,
+                    alertContent: S.of(context).unsupported_asset,
                     buttonText: S.of(context).ok,
                     buttonAction: () => Navigator.of(context).pop());
               });
@@ -140,7 +142,7 @@ class MainActions {
             builder: (BuildContext context) {
               return AlertWithOneAction(
                   alertTitle: S.of(context).sell,
-                  alertContent: S.of(context).sell_alert_content,
+                  alertContent: S.of(context).unsupported_asset,
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop());
             },

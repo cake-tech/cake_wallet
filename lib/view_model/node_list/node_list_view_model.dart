@@ -15,8 +15,9 @@ part 'node_list_view_model.g.dart';
 class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 
 abstract class NodeListViewModelBase with Store {
-  NodeListViewModelBase(this._nodeSource, this._appStore)
+  NodeListViewModelBase(this._nodeSource, this._powNodeSource, this._appStore)
       : nodes = ObservableList<Node>(),
+        powNodes = ObservableList<Node>(),
         settingsStore = _appStore.settingsStore {
     _bindNodes();
 
@@ -40,9 +41,11 @@ abstract class NodeListViewModelBase with Store {
       S.current.change_current_node(uri) +
       '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
 
-  final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
+  final ObservableList<Node> nodes;
+  final ObservableList<Node> powNodes;
   final Box<Node> _nodeSource;
+  final Box<Node> _powNodeSource;
   final AppStore _appStore;
 
   Future<void> reset() async {

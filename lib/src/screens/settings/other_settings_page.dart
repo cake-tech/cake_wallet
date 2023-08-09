@@ -26,13 +26,14 @@ class OtherSettingsPage extends BasePage {
           padding: EdgeInsets.only(top: 10),
           child: Column(
             children: [
-              SettingsPickerCell(
-                title: S.current.settings_fee_priority,
-                items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                displayItem: _otherSettingsViewModel.getDisplayPriority,
-                selectedItem: _otherSettingsViewModel.transactionPriority,
-                onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
-              ),
+              if (!_otherSettingsViewModel.changeRepresentativeEnabled)
+                SettingsPickerCell(
+                  title: S.current.settings_fee_priority,
+                  items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                  displayItem: _otherSettingsViewModel.getDisplayPriority,
+                  selectedItem: _otherSettingsViewModel.transactionPriority,
+                  onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                ),
               if (_otherSettingsViewModel.changeRepresentativeEnabled)
                 SettingsCellWithArrow(
                   title: S.current.change_rep,

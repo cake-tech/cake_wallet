@@ -2,7 +2,6 @@ import 'package:cw_core/monero_amount_format.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_nano/api/account_list.dart' as account_list;
-import 'package:cw_nano/api/wallet.dart' as monero_wallet;
 
 part 'nano_account_list.g.dart';
 
@@ -45,12 +44,11 @@ abstract class NanoAccountListBase with Store {
 
   List<Account> getAll() => account_list.getAllAccount().map((accountRow) {
         final accountIndex = accountRow.getId();
-        final balance = monero_wallet.getFullBalance(accountIndex: accountIndex);
 
         return Account(
           id: accountRow.getId(),
           label: accountRow.getLabel(),
-          balance: moneroAmountToString(amount: balance),
+          balance: "01",
         );
       }).toList();
 

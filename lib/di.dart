@@ -212,6 +212,7 @@ final getIt = GetIt.instance;
 var _isSetupFinished = false;
 late Box<WalletInfo> _walletInfoSource;
 late Box<Node> _nodeSource;
+late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
 late Box<Trade> _tradesSource;
 late Box<Template> _templates;
@@ -686,7 +687,7 @@ Future setup({
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(_nodeSource, appStore);
+    return NodeListViewModel(_nodeSource, _powNodeSource, appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));

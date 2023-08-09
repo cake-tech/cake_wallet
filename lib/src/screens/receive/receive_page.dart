@@ -53,8 +53,7 @@ class ReceivePage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Color? get titleColor =>
-      currentTheme.type == ThemeType.bright ? Colors.white : null;
+  Color? get titleColor => currentTheme.type == ThemeType.bright ? Colors.white : null;
 
   @override
   Widget middle(BuildContext context) {
@@ -64,10 +63,7 @@ class ReceivePage extends BasePage {
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: Theme.of(context)
-              .accentTextTheme!
-              .displayMedium!
-              .backgroundColor!),
+          color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!),
     );
   }
 
@@ -103,10 +99,7 @@ class ReceivePage extends BasePage {
             icon: Icon(
               Icons.share,
               size: 20,
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayMedium!
-                  .backgroundColor!,
+              color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
             ),
           ),
         ));
@@ -115,14 +108,13 @@ class ReceivePage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return (addressListViewModel.type == WalletType.monero ||
-            addressListViewModel.type == WalletType.haven)
+            addressListViewModel.type == WalletType.haven ||
+            addressListViewModel.type == WalletType.nano ||
+            addressListViewModel.type == WalletType.banano)
         ? KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-                keyboardBarColor: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .backgroundColor!,
+                keyboardBarColor: Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
                 nextFocus: false,
                 actions: [
                   KeyboardActionsItem(
@@ -163,10 +155,7 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.arrow_forward_ios,
                                     size: 14,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .headlineMedium!
-                                        .color!,
+                                    color: Theme.of(context).textTheme!.headlineMedium!.color!,
                                   ));
                             }
 
@@ -178,10 +167,7 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.add,
                                     size: 20,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .headlineMedium!
-                                        .color!,
+                                    color: Theme.of(context).textTheme!.headlineMedium!.color!,
                                   ));
                             }
 
@@ -190,23 +176,11 @@ class ReceivePage extends BasePage {
                                 final isCurrent =
                                     item.address == addressListViewModel.address.address;
                                 final backgroundColor = isCurrent
-                                    ? Theme.of(context)
-                                        .textTheme!
-                                        .displayMedium!
-                                        .decorationColor!
-                                    : Theme.of(context)
-                                        .textTheme!
-                                        .displaySmall!
-                                        .decorationColor!;
+                                    ? Theme.of(context).textTheme!.displayMedium!.decorationColor!
+                                    : Theme.of(context).textTheme!.displaySmall!.decorationColor!;
                                 final textColor = isCurrent
-                                    ? Theme.of(context)
-                                        .textTheme!
-                                        .displayMedium!
-                                        .color!
-                                    : Theme.of(context)
-                                        .textTheme!
-                                        .displaySmall!
-                                        .color!;
+                                    ? Theme.of(context).textTheme!.displayMedium!.color!
+                                    : Theme.of(context).textTheme!.displaySmall!.color!;
 
                                 return AddressCell.fromItem(item,
                                     isCurrent: isCurrent,
@@ -252,10 +226,7 @@ class ReceivePage extends BasePage {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .displaySmall!
-                            .backgroundColor!)),
+                        color: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!)),
               ],
             ),
           );

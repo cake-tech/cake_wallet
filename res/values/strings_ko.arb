@@ -674,6 +674,5 @@
   "manage_nodes": "노드 관리",
   "etherscan_history": "이더스캔 역사",
   "template_name": "템플릿 이름",
-  "change_rep": "대표자 변경",
-  "change_rep_message": "담당자를 변경하시겠습니까?"
+  "unsupported_asset": "이 저작물에 대해 이 작업을 지원하지 않습니다. 지원되는 자산 유형의 지갑을 생성하거나 전환하십시오."
 }

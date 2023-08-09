@@ -136,8 +136,10 @@ abstract class WalletAddressListViewModelBase with Store {
         _wallet = appStore.wallet!,
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts =
-            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+        hasAccounts = appStore.wallet!.type == WalletType.monero ||
+            appStore.wallet!.type == WalletType.haven ||
+            appStore.wallet!.type == WalletType.nano ||
+            appStore.wallet!.type == WalletType.banano,
         amount = '' {
     _init();
   }
@@ -271,7 +273,11 @@ abstract class WalletAddressListViewModelBase with Store {
   }
 
   @computed
-  bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
+  bool get hasAddressList =>
+      _wallet.type == WalletType.monero ||
+      _wallet.type == WalletType.haven ||
+      _wallet.type == WalletType.nano ||
+      _wallet.type == WalletType.banano;
 
   @computed
   bool get showElectrumAddressDisclaimer =>
