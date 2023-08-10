@@ -3,12 +3,15 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/support/widgets/support_tiles.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/support_urls.dart';
+import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class SupportPage extends BasePage {
+  SupportPage(this.supportViewModel);
+
+  final SupportViewModel supportViewModel;
+
   final imageLiveSupport = Image.asset('assets/images/live_support.png');
   final imageWalletGuides = Image.asset('assets/images/wallet_guides.png');
   final imageMoreLinks = Image.asset('assets/images/more_links.png');
@@ -35,8 +38,7 @@ class SupportPage extends BasePage {
                   description: S.of(context).support_description_live_chat,
                   onPressed: () {
                     if (DeviceInfo.instance.isDesktop) {
-                      _launchUrl(
-                          "$CHATWOOT_BASE_URL/widget?website_token=${secrets.chatwootWebsiteToken}");
+                      _launchUrl(supportViewModel.fetchUrl());
                     } else {
                       Navigator.pushNamed(context, Routes.supportLiveChat);
                     }
@@ -49,7 +51,7 @@ class SupportPage extends BasePage {
                   image: imageWalletGuides,
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
-                  onPressed: () => _launchUrl(SUPPORT_GUIDES_URL),
+                  onPressed: () => _launchUrl(supportViewModel.guidesUrl),
                 ),
               ),
               Padding(

@@ -869,9 +869,11 @@ Future setup({
 
   getIt.registerFactory(() => SupportViewModel());
 
-  getIt.registerFactory(() => SupportPage());
+  getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() => SupportChatPage(secureStorage: getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory(() =>
+      SupportChatPage(
+          getIt.get<SupportViewModel>(), secureStorage: getIt.get<FlutterSecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
