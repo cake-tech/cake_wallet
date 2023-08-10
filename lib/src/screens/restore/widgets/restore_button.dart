@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CardButton extends StatelessWidget {
-  const CardButton(
+class RestoreButton extends StatelessWidget {
+  const RestoreButton(
       {required this.onPressed,
       required this.image,
       required this.title,
