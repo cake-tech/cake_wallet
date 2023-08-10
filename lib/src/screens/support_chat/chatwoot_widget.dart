@@ -24,15 +24,7 @@ class ChatwootWidget extends StatefulWidget {
 }
 
 class ChatwootWidgetState extends State<ChatwootWidget> {
-  ChatwootWidgetState() : _webViewkey = GlobalKey();
-
-  GlobalKey _webViewkey;
-
-  @override
-  void initState() {
-    super.initState();
-    _webViewkey = GlobalKey();
-  }
+  final GlobalKey _webViewkey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
