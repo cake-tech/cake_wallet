@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -148,9 +149,18 @@ class ReceivePage extends BasePage {
 
                             if (item is WalletAccountListHeader) {
                               cell = HeaderTile(
-                                  onTap: () async => await showPopUp<void>(
-                                      context: context,
-                                      builder: (_) => getIt.get<MoneroAccountListPage>()),
+                                  onTap: () async {
+                                    if (addressListViewModel.type == WalletType.monero ||
+                                        addressListViewModel.type == WalletType.haven) {
+                                      await showPopUp<void>(
+                                          context: context,
+                                          builder: (_) => getIt.get<MoneroAccountListPage>());
+                                    } else {
+                                      await showPopUp<void>(
+                                          context: context,
+                                          builder: (_) => getIt.get<NanoAccountListPage>());
+                                    }
+                                  },
                                   title: S.of(context).accounts,
                                   icon: Icon(
                                     Icons.arrow_forward_ios,

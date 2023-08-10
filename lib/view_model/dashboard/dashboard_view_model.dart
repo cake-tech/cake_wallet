@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -142,6 +143,10 @@ abstract class DashboardViewModelBase with Store {
               transaction: transaction,
               balanceViewModel: balanceViewModel,
               settingsStore: appStore.settingsStore)));
+    }
+
+    if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
+      subname = nano!.getCurrentAccount(_wallet).label;
     }
 
     reaction((_) => appStore.wallet, _onWalletChange);

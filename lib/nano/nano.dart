@@ -1,4 +1,4 @@
-
+import 'package:cw_core/nano_account.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
@@ -12,9 +12,6 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_nano/api/wallet.dart' as nano_wallet_api;
-import 'package:cw_nano/nano_balance.dart';
-import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 
 part 'cw_nano.dart';
@@ -22,7 +19,11 @@ part 'cw_nano.dart';
 Nano? nano = CWNano();
 
 abstract class Nano {
-  // NanoAccountList getAccountList(Object wallet);
+  NanoAccountList getAccountList(Object wallet);
+
+  Account getCurrentAccount(Object wallet);
+
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
 
   WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
 
@@ -32,7 +33,7 @@ abstract class Nano {
     required String name,
     String password,
   });
-  
+
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
     required String name,
     required String password,
@@ -50,11 +51,10 @@ abstract class Nano {
 }
 
 abstract class NanoAccountList {
-  ObservableList<Account> get accounts;
+  ObservableList<NanoAccount> get accounts;
   void update(Object wallet);
   void refresh(Object wallet);
-  List<Account> getAll(Object wallet);
+  Future<List<NanoAccount>> getAll(Object wallet);
   Future<void> addAccount(Object wallet, {required String label});
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
 }
-  

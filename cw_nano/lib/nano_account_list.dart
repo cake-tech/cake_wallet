@@ -1,34 +1,36 @@
-import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/nano_account.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/account.dart';
-import 'package:cw_nano/api/account_list.dart' as account_list;
+import 'package:hive/hive.dart';
 
 part 'nano_account_list.g.dart';
 
 class NanoAccountList = NanoAccountListBase with _$NanoAccountList;
 
 abstract class NanoAccountListBase with Store {
-  NanoAccountListBase()
-      : accounts = ObservableList<Account>(),
+  NanoAccountListBase(this.address)
+      : accounts = ObservableList<NanoAccount>(),
         _isRefreshing = false,
         _isUpdating = false {
-    // refresh();
+    refresh();
   }
 
   @observable
-  ObservableList<Account> accounts;
+  ObservableList<NanoAccount> accounts;
   bool _isRefreshing;
   bool _isUpdating;
 
-  void update() async {
+  String address;
+
+  Future<void> update() async {
     if (_isUpdating) {
       return;
     }
 
     try {
       _isUpdating = true;
-      refresh();
-      final accounts = getAll();
+      // refresh();
+      print(this.address);
+      final accounts = await getAll();
 
       if (accounts.isNotEmpty) {
         this.accounts.clear();
@@ -42,39 +44,26 @@ abstract class NanoAccountListBase with Store {
     }
   }
 
-  List<Account> getAll() => account_list.getAllAccount().map((accountRow) {
-        final accountIndex = accountRow.getId();
+  Future<List<NanoAccount>> getAll() async {
+    final box = await Hive.openBox<NanoAccount>(address);
 
-        return Account(
-          id: accountRow.getId(),
-          label: accountRow.getLabel(),
-          balance: "01",
-        );
-      }).toList();
+    // get all accounts in box:
+    return box.values.toList();
+  }
 
   Future<void> addAccount({required String label}) async {
-    await account_list.addAccount(label: label);
-    update();
+    final box = await Hive.openBox<NanoAccount>(address);
+    final account = NanoAccount(id: box.length, label: label, balance: "0.00", isSelected: false);
+    await box.add(account);
+    await account.save();
   }
 
   Future<void> setLabelAccount({required int accountIndex, required String label}) async {
-    await account_list.setLabelForAccount(accountIndex: accountIndex, label: label);
-    update();
+    final box = await Hive.openBox<NanoAccount>(address);
+    final account = box.getAt(accountIndex);
+    account!.label = label;
+    await account.save();
   }
 
-  void refresh() {
-    if (_isRefreshing) {
-      return;
-    }
-
-    try {
-      _isRefreshing = true;
-      account_list.refreshAccounts();
-      _isRefreshing = false;
-    } catch (e) {
-      _isRefreshing = false;
-      print(e);
-      rethrow;
-    }
-  }
+  void refresh() {}
 }

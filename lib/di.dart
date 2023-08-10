@@ -23,6 +23,8 @@ import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
+import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -69,6 +71,8 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
@@ -82,6 +86,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -207,6 +212,7 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/nano/nano.dart' as nanoNano;
 
 import 'core/totp_request_details.dart';
 
@@ -609,19 +615,44 @@ Future setup({
         editingWallet: editingWallet);
   });
 
+  // getIt.registerFactory(() {
+  //   final wallet = getIt.get<AppStore>().wallet!;
+
+  //   if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+  //     return MoneroAccountListViewModel(wallet);
+  //   }
+
+  //   if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
+  //     return NanoAccountListViewModel(wallet);
+  //   }
+
+  //   throw Exception(
+  //       'Unexpected wallet type: ${wallet.type} for generate Nano/Monero AccountListViewModel');
+  // });
+
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
+    if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
+      return NanoAccountListViewModel(wallet);
+    }
+    throw Exception(
+        'Unexpected wallet type: ${wallet.type} for generate Nano/Monero AccountListViewModel');
+  });
 
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }
-
     throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate MoneroAccountListViewModel');
+        'Unexpected wallet type: ${wallet.type} for generate Nano/Monero AccountListViewModel');
   });
 
   getIt.registerFactory(
       () => MoneroAccountListPage(accountListViewModel: getIt.get<MoneroAccountListViewModel>()));
+
+  getIt.registerFactory(
+      () => NanoAccountListPage(accountListViewModel: getIt.get<NanoAccountListViewModel>()));
 
   /*getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
@@ -649,6 +680,18 @@ Future setup({
       (AccountListItem? account, _) => MoneroAccountEditOrCreatePage(
           moneroAccountCreationViewModel:
               getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
+
+  getIt.registerFactoryParam<NanoAccountEditOrCreateViewModel, NanoAccount?, void>(
+      (NanoAccount? account, _) =>
+          NanoAccountEditOrCreateViewModel(nano!.getAccountList(getIt.get<AppStore>().wallet!),
+              // banano?.getAccountList(getIt.get<AppStore>().wallet!),
+              wallet: getIt.get<AppStore>().wallet!,
+              accountListItem: account));
+
+  getIt.registerFactoryParam<NanoAccountEditOrCreatePage, NanoAccount?, void>(
+      (NanoAccount? account, _) => NanoAccountEditOrCreatePage(
+          nanoAccountCreationViewModel:
+              getIt.get<NanoAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() {
     return DisplaySettingsViewModel(getIt.get<SettingsStore>());

@@ -24,7 +24,7 @@ Future<void> main(List<String> args) async {
   await generateEthereum(hasEthereum);
   await generateNano(hasNano);
   // await generateBanano(hasEthereum);
-  
+
   await generatePubspec(
     hasMonero: hasMonero,
     hasBitcoin: hasBitcoin,
@@ -494,7 +494,6 @@ abstract class HavenAccountList {
 }
 
 Future<void> generateEthereum(bool hasImplementation) async {
-
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -561,12 +560,12 @@ abstract class Ethereum {
   const ethereumEmptyDefinition = 'Ethereum? ethereum;\n';
   const ethereumCWDefinition = 'Ethereum? ethereum = CWEthereum();\n';
 
-  final output = '$ethereumCommonHeaders\n'
-    + (hasImplementation ? '$ethereumCWHeaders\n' : '\n')
-    + (hasImplementation ? '$ethereumCwPart\n\n' : '\n')
-    + (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition)
-    + '\n'
-    + ethereumContent;
+  final output = '$ethereumCommonHeaders\n' +
+      (hasImplementation ? '$ethereumCWHeaders\n' : '\n') +
+      (hasImplementation ? '$ethereumCwPart\n\n' : '\n') +
+      (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition) +
+      '\n' +
+      ethereumContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -580,6 +579,7 @@ Future<void> generateNano(bool hasImplementation) async {
   const nanoCommonHeaders = """
 """;
   const nanoCWHeaders = """
+import 'package:cw_core/nano_account.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
@@ -601,7 +601,11 @@ import 'package:cw_nano/nano_transaction_credentials.dart';
   const nanoCwPart = "part 'cw_nano.dart';";
   const nanoContent = """
 abstract class Nano {
-  // NanoAccountList getAccountList(Object wallet);
+  NanoAccountList getAccountList(Object wallet);
+
+  Account getCurrentAccount(Object wallet);
+
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
 
   WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
 
@@ -629,10 +633,10 @@ abstract class Nano {
 }
 
 abstract class NanoAccountList {
-  ObservableList<Account> get accounts;
+  ObservableList<NanoAccount> get accounts;
   void update(Object wallet);
   void refresh(Object wallet);
-  List<Account> getAll(Object wallet);
+  Future<List<NanoAccount>> getAll(Object wallet);
   Future<void> addAccount(Object wallet, {required String label});
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
 }

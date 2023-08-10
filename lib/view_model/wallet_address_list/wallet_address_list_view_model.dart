@@ -299,11 +299,13 @@ abstract class WalletAddressListViewModelBase with Store {
   void _init() {
     _baseItems = [];
 
-    if (_wallet.type == WalletType.monero || _wallet.type == WalletType.haven) {
+    if (_wallet.type == WalletType.monero || _wallet.type == WalletType.haven || _wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
       _baseItems.add(WalletAccountListHeader());
     }
 
-    _baseItems.add(WalletAddressListHeader());
+    if (_wallet.type != WalletType.nano && _wallet.type != WalletType.banano) {
+      _baseItems.add(WalletAddressListHeader());
+    }
   }
 
   @action

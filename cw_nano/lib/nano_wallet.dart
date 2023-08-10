@@ -11,6 +11,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/file.dart';
+import 'package:cw_core/nano_account.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
@@ -21,6 +22,7 @@ import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
+import 'package:hive/hive.dart';
 import 'dart:async';
 import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -53,6 +55,9 @@ abstract class NanoWalletBase
         super(walletInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = NanoTransactionHistory(walletInfo: walletInfo, password: password);
+    if (!Hive.isAdapterRegistered(NanoAccount.typeId)) {
+      Hive.registerAdapter(NanoAccountAdapter());
+    }
   }
 
   final String _mnemonic;
@@ -70,7 +75,7 @@ abstract class NanoWalletBase
   bool _isTransactionUpdating;
 
   @override
-  WalletAddresses walletAddresses;
+  NanoWalletAddresses walletAddresses;
 
   @override
   @observable
@@ -134,7 +139,7 @@ abstract class NanoWalletBase
     }
   }
 
-    @override
+  @override
   Future<void> connectToPowNode({required Node node}) async {
     _client.connectPow(node);
   }
@@ -242,7 +247,9 @@ abstract class NanoWalletBase
         id: transactionModel.hash,
         amountRaw: transactionModel.amount,
         height: transactionModel.height,
-        direction: transactionModel.type == "send" ? TransactionDirection.outgoing : TransactionDirection.incoming,
+        direction: transactionModel.type == "send"
+            ? TransactionDirection.outgoing
+            : TransactionDirection.incoming,
         confirmed: transactionModel.confirmed,
         date: transactionModel.date ?? DateTime.now(),
         confirmations: transactionModel.confirmed ? 1 : 0,
@@ -363,6 +370,17 @@ abstract class NanoWalletBase
     } catch (e) {
       throw Exception("Failed to get representative address $e");
     }
+  }
+
+  Future<void> regenerateAddress() async {
+    final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
+    _privateKey =
+        await NanoUtil.uniSeedToPrivate(_seedKey!, this.walletAddresses.account!.id, type);
+    _publicAddress =
+        await NanoUtil.uniSeedToAddress(_seedKey!, this.walletAddresses.account!.id, type);
+
+    this.walletInfo.address = _publicAddress!;
+    this.walletAddresses.address = _publicAddress!;
   }
 
   Future<void> changeRep(String address) async {

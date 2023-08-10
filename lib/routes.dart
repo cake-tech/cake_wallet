@@ -22,6 +22,7 @@ class Routes {
   static const login = '/login';
   static const splash = '/splash';
   static const accountCreation = '/account_new';
+  static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
   static const addressBookAddContact = '/address_book_add_contact';
