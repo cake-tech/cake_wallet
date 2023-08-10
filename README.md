@@ -1,4 +1,4 @@
-# Cake Wallet for Android and iOS
+# Cake Wallet for Mobile and Desktop
 
 ## Open Source Multi-Currency Wallet
 
