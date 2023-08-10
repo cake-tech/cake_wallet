@@ -57,7 +57,8 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   static const boxName = 'Erc20Tokens';
 
   @override
-  bool operator ==(other) => other is Erc20Token && other.contractAddress == contractAddress;
+  bool operator ==(other) => (other is Erc20Token && other.contractAddress == contractAddress) ||
+      (other is CryptoCurrency && other.title == title);
 
   @override
   int get hashCode => contractAddress.hashCode;

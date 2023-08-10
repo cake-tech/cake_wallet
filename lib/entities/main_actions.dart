@@ -49,6 +49,7 @@ class MainActions {
         case WalletType.ethereum:
         case WalletType.nano:
         case WalletType.banano:
+        case WalletType.monero:
           if (viewModel.isEnabledBuyAction) {
             final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
             if (DeviceInfo.instance.isMobile) {
@@ -57,13 +58,6 @@ class MainActions {
             } else {
               await launchUrl(uri);
             }
-          }
-          break;
-        case WalletType.monero:
-          if (viewModel.isEnabledBuyAction) {
-            // final uri = getIt.get<PayfuraBuyProvider>().requestUrl();
-            final uri = Uri.parse("https://monero.com/trade");
-            await launchUrl(uri);
           }
           break;
         default:
