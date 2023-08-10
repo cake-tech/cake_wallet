@@ -672,5 +672,11 @@
   "slidable": "फिसलने लायक",
   "manage_nodes": "नोड्स प्रबंधित करें",
   "etherscan_history": "इथरस्कैन इतिहास",
-  "template_name": "टेम्पलेट नाम"
+  "template_name": "टेम्पलेट नाम",
+  "support_title_live_chat": "लाइव सहायता",
+  "support_description_live_chat": "मुक्त और तेजी से! प्रशिक्षित सहायता प्रतिनिधि सहायता के लिए उपलब्ध हैं",
+  "support_title_guides": "केक वॉलेट गाइड",
+  "support_description_guides": "सामान्य मुद्दों के लिए प्रलेखन और समर्थन",
+  "support_title_other_links": "अन्य समर्थन लिंक",
+  "support_description_other_links": "हमारे समुदायों में शामिल हों या अन्य तरीकों के माध्यम से हमारे साथी तक पहुंचें"
 }

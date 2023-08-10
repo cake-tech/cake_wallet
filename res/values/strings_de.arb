@@ -211,7 +211,7 @@
   "settings_only_trades": "Nur Handel",
   "settings_only_transactions": "Nur Transaktionen",
   "settings_none": "Keiner",
-  "settings_support": "Unterstützen",
+  "settings_support": "Hilfe",
   "settings_terms_and_conditions": "Geschäftsbedingungen",
   "pin_is_incorrect": "PIN ist falsch",
   "setup_pin": "PIN einrichten",
@@ -672,5 +672,11 @@
   "slidable": "Verschiebbar",
   "manage_nodes": "Knoten verwalten",
   "etherscan_history": "Etherscan-Geschichte",
-  "template_name": "Vorlagenname"
+  "template_name": "Vorlagenname",
+  "support_title_live_chat": "Live Support",
+  "support_description_live_chat": "Kostenlos und schnell! Ausgebildete Mitarbeiter stehen zur Unterstützung bereit, um zu helfen",
+  "support_title_guides": "Cake Wallet Guides",
+  "support_description_guides": "Dokumentation und Hilfe für bekannte Probleme",
+  "support_title_other_links": "Andere Support-Links",
+  "support_description_other_links": "Treten Sie unseren Communities bei oder erreichen Sie uns oder unsere Partner über andere Methoden"
 }

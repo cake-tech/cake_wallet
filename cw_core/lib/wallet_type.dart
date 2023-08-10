@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'wallet_type.g.dart';
@@ -10,9 +11,8 @@ const walletTypes = [
   WalletType.haven,
   WalletType.ethereum,
 ];
-const walletTypeTypeId = 5;
 
-@HiveType(typeId: walletTypeTypeId)
+@HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
   @HiveField(0)
   monero,
