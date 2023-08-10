@@ -24,6 +24,16 @@ abstract class MoneroSubaddressListBase with Store {
   void update({required int accountIndex}) {
     refreshCoins(accountIndex);
     final val = countOfCoins();
+
+    for (var i = 0; i < val; i++) {
+      final coin = getCoin(i);
+      print(coin.getHash());
+      print(coin.globalOutputIndex);
+      print(coin.internalOutputIndex);
+      print("Coin is frozen: ${coin.frozen}");
+      print("Coin is spent: ${coin.spent}");
+    }
+
     print(val);
     if (_isUpdating) {
       return;

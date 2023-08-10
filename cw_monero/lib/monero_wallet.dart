@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
@@ -47,6 +48,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         _hasSyncAfterStartup = false,
         walletAddresses = MoneroWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
+        unspentCoins = [],
         super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
     _onAccountChangeReaction = reaction((_) => walletAddresses.account,
@@ -94,6 +96,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
+  List unspentCoins;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -352,6 +355,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await _askForUpdateTransactionHistory();
     await save();
     await walletInfo.save();
+  }
+
+  Future<void> updateUnspend(int accountIndex) async {
+    refreshCoins(accountIndex);
+
+    final coinCount = countOfCoins();
+    for (var i = 0; i < coinCount; i++) {
+      final coin = getCoin(i);
+      if (coin.spent == 0) {
+        unspentCoins.add(coin);
+      }
+    }
   }
 
   String getTransactionAddress(int accountIndex, int addressIndex) =>
