@@ -7,6 +7,7 @@
 * Website: https://cakewallet.com
 * App Store (iOS / MacOS): https://cakewallet.com/ios
 * Google Play: https://cakewallet.com/gp
+* F-Droid: https://fdroid.cakelabs.com
 * APK: https://github.com/cake-tech/cake_wallet/releases
 * Linux: https://github.com/cake-tech/cake_wallet/releases
 
@@ -17,9 +18,8 @@
 * Completely noncustodial. *Your keys, your coins.*
 * Built-in exchange for dozens of pairs
 * Easily pay cryptocurrency invoices with fixed rate exchanges
-* Buy cryptocurrency (BTC/LTC/XMR) with credit/debit/bank
+* Buy cryptocurrency (BTC/LTC/XMR/ETH) with credit/debit/bank
 * Sell cryptocurrency by bank transfer
-* Purchase gift cards at a discount using only an email with [Cake Pay](https://cakepay.com), available in-app
 * Scan QR codes for easy cryptocurrency transfers
 * Create several wallets
 * Select your own custom nodes/servers
@@ -32,6 +32,7 @@
 * Convenient exchange and sending templates for recurring payments
 * Create donation links and invoices in the receive screen
 * Robust privacy settings (eg: Tor-only connections)
+* Robust security settings (eg: Cake 2FA)
 
 ### Monero Specific Features
 
@@ -40,13 +41,19 @@
 * Specify restore height for faster syncing
 * Specify multiple recipients for batch sending
 * Optionally set Monero nodes as trusted for faster syncing
+* Specify a proxy for Monero nodes, compatible with Tor and i2p
 
 ### Bitcoin Specific Features
 
 * Bitcoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
-* Sell BTC for USD
+
+### Ethereum Specific Features
+
+* Store ETH and all ERc-20 tokens
+* Add custom tokens by contract address
+* Enable or disable Etherscan for transaction history
 
 ### Litecoin Specific Features
 
@@ -69,6 +76,7 @@
 * Website: https://monero.com
 * App Store (iOS): https://apps.apple.com/app/id1601990386
 * Google Play: https://play.google.com/store/apps/details?id=com.monero.app
+* F-Droid: https://fdroid.cakelabs.com
 * APK: https://github.com/cake-tech/cake_wallet/releases
 
 # Support
@@ -123,7 +131,7 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 
 2. Edit the strings in this file, replacing XXX below with the translation for each string.
 
-`"welcome" : "Welcome to",` -> `"welcome" : "XXX",`
+`"welcome": "Welcome to",` -> `"welcome": "XXX",`
 
 3. For strings where there is a variable, denoted by a $ symbol and braces, such as ${status}, the string in braces should not be translated. For example, when editing line 106:
 
