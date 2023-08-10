@@ -52,6 +52,9 @@ abstract class WalletBase<
 
   Future<void> connectToNode({required Node node});
 
+  // there is a default definition here because only coins with a pow node (nano based) need to override this
+  Future<void> connectToPowNode({required Node node}) async {}
+
   Future<void> startSync();
 
   Future<PendingTransaction> createTransaction(Object credentials);
