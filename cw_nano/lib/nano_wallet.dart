@@ -134,6 +134,11 @@ abstract class NanoWalletBase
     }
   }
 
+    @override
+  Future<void> connectToPowNode({required Node node}) async {
+    _client.connectPow(node);
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as NanoTransactionCredentials;
@@ -237,9 +242,7 @@ abstract class NanoWalletBase
         id: transactionModel.hash,
         amountRaw: transactionModel.amount,
         height: transactionModel.height,
-        direction: transactionModel.account == address
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
+        direction: transactionModel.type == "send" ? TransactionDirection.outgoing : TransactionDirection.incoming,
         confirmed: transactionModel.confirmed,
         date: transactionModel.date ?? DateTime.now(),
         confirmations: transactionModel.confirmed ? 1 : 0,

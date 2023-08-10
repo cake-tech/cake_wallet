@@ -27,6 +27,7 @@ import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_pow_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -68,6 +69,8 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/pow_node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -212,7 +215,6 @@ final getIt = GetIt.instance;
 var _isSetupFinished = false;
 late Box<WalletInfo> _walletInfoSource;
 late Box<Node> _nodeSource;
-late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
 late Box<Trade> _tradesSource;
 late Box<Template> _templates;
@@ -259,6 +261,7 @@ Future setup({
 
   final settingsStore = await SettingsStoreBase.load(
     nodeSource: _nodeSource,
+    powNodeSource: _nodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
     // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
     initialTheme: ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile
@@ -687,7 +690,12 @@ Future setup({
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(_nodeSource, _powNodeSource, appStore);
+    return NodeListViewModel(_nodeSource, appStore);
+  });
+
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return PowNodeListViewModel(_nodeSource, appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
@@ -705,6 +713,10 @@ Future setup({
 
   getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, void>((WalletType? type, _) =>
       NodeCreateOrEditViewModel(
+          _nodeSource, type ?? getIt.get<AppStore>().wallet!.type, getIt.get<SettingsStore>()));
+
+  getIt.registerFactoryParam<PowNodeCreateOrEditViewModel, WalletType?, void>(
+      (WalletType? type, _) => PowNodeCreateOrEditViewModel(
           _nodeSource, type ?? getIt.get<AppStore>().wallet!.type, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
@@ -1068,6 +1080,8 @@ Future setup({
   );
 
   getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
+  getIt.registerFactory<ManagePowNodesPage>(
+      () => ManagePowNodesPage(getIt.get<PowNodeListViewModel>()));
 
   _isSetupFinished = true;
 }

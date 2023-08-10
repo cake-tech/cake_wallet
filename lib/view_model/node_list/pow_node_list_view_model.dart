@@ -10,12 +10,12 @@ import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cw_core/wallet_type.dart';
 
-part 'node_list_view_model.g.dart';
+part 'pow_node_list_view_model.g.dart';
 
-class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
+class PowNodeListViewModel = PowNodeListViewModelBase with _$PowNodeListViewModel;
 
-abstract class NodeListViewModelBase with Store {
-  NodeListViewModelBase(this._nodeSource, this._appStore)
+abstract class PowNodeListViewModelBase with Store {
+  PowNodeListViewModelBase(this._nodeSource, this._appStore)
       : nodes = ObservableList<Node>(),
         settingsStore = _appStore.settingsStore {
     _bindNodes();

@@ -82,6 +82,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
+        powNodes = ObservableMap<WalletType, Node>.of(nodes),
         _sharedPreferences = sharedPreferences,
         _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
@@ -456,12 +457,23 @@ abstract class SettingsStoreBase with Store {
   final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
+  ObservableMap<WalletType, Node> powNodes;
 
   Node getCurrentNode(WalletType walletType) {
     final node = nodes[walletType];
 
     if (node == null) {
       throw Exception('No node found for wallet type: ${walletType.toString()}');
+    }
+
+    return node;
+  }
+
+  Node getCurrentPowNode(WalletType walletType) {
+    final node = powNodes[walletType];
+
+    if (node == null) {
+      throw Exception('No pow node found for wallet type: ${walletType.toString()}');
     }
 
     return node;
@@ -477,6 +489,7 @@ abstract class SettingsStoreBase with Store {
 
   static Future<SettingsStore> load(
       {required Box<Node> nodeSource,
+      required Box<Node> powNodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
@@ -577,8 +590,7 @@ abstract class SettingsStoreBase with Store {
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
-    final useEtherscan =
-        sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -601,11 +613,13 @@ abstract class SettingsStoreBase with Store {
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final nanoNode = nodeSource.get(nanoNodeId);
+    final nanoPowNode = powNodeSource.get(nanoNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
 
     final nodes = <WalletType, Node>{};
+    final powNodes = <WalletType, Node>{};
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -630,7 +644,10 @@ abstract class SettingsStoreBase with Store {
     if (nanoNode != null) {
       nodes[WalletType.nano] = nanoNode;
     }
-    
+    if (nanoPowNode != null) {
+      powNodes[WalletType.nano] = nanoPowNode;
+    }
+
     final savedSyncMode = SyncMode.all.firstWhere((element) {
       return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
     });

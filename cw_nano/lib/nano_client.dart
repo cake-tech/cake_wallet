@@ -22,10 +22,20 @@ class NanoClient {
 
   StreamSubscription<Transfer>? subscription;
   Node? _node;
+  Node? _powNode;
 
   bool connect(Node node) {
     try {
       _node = node;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  bool connectPow(Node node) {
+    try {
+      _powNode = node;
       return true;
     } catch (e) {
       return false;
@@ -117,7 +127,7 @@ class NanoClient {
   Future<String> requestWork(String hash) async {
     return http
         .post(
-      Uri.parse("https://rpc.nano.to"), // TODO: make a setting
+      _powNode!.uri,
       headers: {'Content-type': 'application/json'},
       body: json.encode(
         {
