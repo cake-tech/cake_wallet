@@ -20,8 +20,6 @@ class NanoAccountListPage extends StatelessWidget {
 
     return Observer(builder: (_) {
       final accounts = accountListViewModel.accounts;
-      print(accounts);
-
       return PickerInnerWrapperWidget(
         title: S.of(context).choose_account,
         itemsHeight: (itemHeight * accounts.length) + buttonHeight,

@@ -21,16 +21,15 @@ abstract class NanoAccountListBase with Store {
 
   String address;
 
-  Future<void> update() async {
+  Future<void> update(String? address) async {
     if (_isUpdating) {
       return;
     }
 
     try {
       _isUpdating = true;
-      // refresh();
-      print(this.address);
-      final accounts = await getAll();
+
+      final accounts = await getAll(address: address ?? this.address);
 
       if (accounts.isNotEmpty) {
         this.accounts.clear();
@@ -44,8 +43,8 @@ abstract class NanoAccountListBase with Store {
     }
   }
 
-  Future<List<NanoAccount>> getAll() async {
-    final box = await Hive.openBox<NanoAccount>(address);
+  Future<List<NanoAccount>> getAll({String? address}) async {
+    final box = await Hive.openBox<NanoAccount>(address ?? this.address);
 
     // get all accounts in box:
     return box.values.toList();

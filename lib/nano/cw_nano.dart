@@ -17,7 +17,7 @@ class CWNanoAccountList extends NanoAccountList {
   @override
   void update(Object wallet) {
     final nanoWallet = wallet as NanoWallet;
-    nanoWallet.walletAddresses.accountList.update();
+    nanoWallet.walletAddresses.accountList.update(null);
   }
 
   @override
