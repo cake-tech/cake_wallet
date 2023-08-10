@@ -32,7 +32,7 @@
 * Convenient exchange and sending templates for recurring payments
 * Create donation links and invoices in the receive screen
 * Robust privacy settings (eg: Tor-only connections)
-* Rbust security settings (eg: Cake 2FA)
+* Robust security settings (eg: Cake 2FA)
 
 ### Monero Specific Features
 
@@ -41,7 +41,7 @@
 * Specify restore height for faster syncing
 * Specify multiple recipients for batch sending
 * Optionally set Monero nodes as trusted for faster syncing
-* specify a proxy for Monero nodes, compatible with Tor and i2p
+* Specify a proxy for Monero nodes, compatible with Tor and i2p
 
 ### Bitcoin Specific Features
 
@@ -131,7 +131,7 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 
 2. Edit the strings in this file, replacing XXX below with the translation for each string.
 
-`"welcome" : "Welcome to",` -> `"welcome" : "XXX",`
+`"welcome": "Welcome to",` -> `"welcome": "XXX",`
 
 3. For strings where there is a variable, denoted by a $ symbol and braces, such as ${status}, the string in braces should not be translated. For example, when editing line 106:
 
