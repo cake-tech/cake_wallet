@@ -663,5 +663,6 @@
   "template_name": "Nama Templat",
   "change_rep": "Ubah Perwakilan",
   "change_rep_message": "Apakah Anda yakin ingin mengubah perwakilan?",
-  "unsupported_asset": "Kami tidak mendukung tindakan ini untuk aset ini. Harap buat atau alihkan ke dompet dari jenis aset yang didukung."
+  "unsupported_asset": "Kami tidak mendukung tindakan ini untuk aset ini. Harap buat atau alihkan ke dompet dari jenis aset yang didukung.",
+  "manage_pow_nodes": "Kelola Node PoW"
 }

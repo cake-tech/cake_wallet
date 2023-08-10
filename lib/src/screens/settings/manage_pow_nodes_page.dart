@@ -16,7 +16,7 @@ class ManagePowNodesPage extends BasePage {
   final PowNodeListViewModel nodeListViewModel;
 
   @override
-  String get title => S.current.manage_nodes;
+  String get title => S.current.manage_pow_nodes;
 
   @override
   Widget body(BuildContext context) {

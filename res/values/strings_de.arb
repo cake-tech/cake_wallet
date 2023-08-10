@@ -675,5 +675,6 @@
   "template_name": "Vorlagenname",
   "change_rep": "Change-Beauftragter",
   "change_rep_message": "Sind Sie sicher, dass Sie den Vertreter wechseln möchten?",
-  "unsupported_asset": "Wir unterstützen diese Aktion für dieses Asset nicht. Bitte erstellen Sie eine Wallet eines unterstützten Asset-Typs oder wechseln Sie zu einer Wallet."
+  "unsupported_asset": "Wir unterstützen diese Aktion für dieses Asset nicht. Bitte erstellen Sie eine Wallet eines unterstützten Asset-Typs oder wechseln Sie zu einer Wallet.",
+  "manage_pow_nodes": "PoW-Knoten verwalten"
 }

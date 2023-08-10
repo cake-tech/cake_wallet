@@ -667,5 +667,6 @@
   "template_name": "Název šablony",
   "change_rep": "Změna zástupce",
   "change_rep_message": "Jste si jisti, že chcete změnit zástupce?",
-  "unsupported_asset": "Tuto akci u tohoto díla nepodporujeme. Vytvořte nebo přepněte na peněženku podporovaného typu aktiv."
+  "unsupported_asset": "Tuto akci u tohoto díla nepodporujeme. Vytvořte nebo přepněte na peněženku podporovaného typu aktiv.",
+  "manage_pow_nodes": "Správa uzlů PoW"
 }

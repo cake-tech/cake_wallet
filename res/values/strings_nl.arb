@@ -675,5 +675,6 @@
   "template_name": "Sjabloonnaam",
   "change_rep": "Vertegenwoordiger wijzigen",
   "change_rep_message": "Weet u zeker dat u van vertegenwoordiger wilt veranderen?",
-  "unsupported_asset": "We ondersteunen deze actie niet voor dit item. Maak of schakel over naar een portemonnee van een ondersteund activatype."
+  "unsupported_asset": "We ondersteunen deze actie niet voor dit item. Maak of schakel over naar een portemonnee van een ondersteund activatype.",
+  "manage_pow_nodes": "PoW-knooppunten beheren"
 }

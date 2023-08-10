@@ -675,5 +675,6 @@
   "template_name": "Naziv predloška",
   "change_rep": "Promjena predstavnika",
   "change_rep_message": "Jeste li sigurni da želite promijeniti predstavnika?",
-  "unsupported_asset": "Ne podržavamo ovu radnju za ovaj materijal. Izradite ili prijeđite na novčanik podržane vrste sredstava."
+  "unsupported_asset": "Ne podržavamo ovu radnju za ovaj materijal. Izradite ili prijeđite na novčanik podržane vrste sredstava.",
+  "manage_pow_nodes": "Upravljanje PoW čvorovima"
 }

@@ -675,5 +675,6 @@
   "template_name": "Nome modello",
   "change_rep": "Cambia rappresentante",
   "change_rep_message": "Sei sicuro di voler cambiare rappresentante?",
-  "unsupported_asset": "Non supportiamo questa azione per questa risorsa. Crea o passa a un portafoglio di un tipo di asset supportato."
+  "unsupported_asset": "Non supportiamo questa azione per questa risorsa. Crea o passa a un portafoglio di un tipo di asset supportato.",
+  "manage_pow_nodes": "Gestisci i nodi PoW"
 }

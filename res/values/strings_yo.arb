@@ -669,5 +669,6 @@
   "template_name": "Orukọ Awoṣe",
   "change_rep": "Yi Aṣoju",
   "change_rep_message": "Ṣe o da ọ loju pe o fẹ yi awọn aṣoju pada?",
-  "unsupported_asset": "A ko ṣe atilẹyin iṣẹ yii fun dukia yii. Jọwọ ṣẹda tabi yipada si apamọwọ iru dukia atilẹyin."
+  "unsupported_asset": "A ko ṣe atilẹyin iṣẹ yii fun dukia yii. Jọwọ ṣẹda tabi yipada si apamọwọ iru dukia atilẹyin.",
+  "manage_pow_nodes": "Ṣakoso awọn Nodes PoW"
 }

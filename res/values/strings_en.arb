@@ -675,5 +675,6 @@
   "template_name": "Template Name",
   "change_rep": "Change Representative",
   "change_rep_message": "Are you sure that you want to change representatives?",
-  "unsupported_asset": "We don't support this action for this asset. Please create or switch to a wallet of a supported asset type."
+  "unsupported_asset": "We don't support this action for this asset. Please create or switch to a wallet of a supported asset type.",
+  "manage_pow_nodes": "Manage PoW nodes"
 }

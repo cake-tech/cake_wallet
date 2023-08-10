@@ -674,5 +674,6 @@
   "template_name": "Nome do modelo",
   "change_rep": "Alterar representante",
   "change_rep_message": "Tem certeza de que deseja alterar os representantes?",
-  "unsupported_asset": "Não oferecemos suporte a esta ação para este recurso. Crie ou mude para uma carteira de um tipo de ativo compatível."
+  "unsupported_asset": "Não oferecemos suporte a esta ação para este recurso. Crie ou mude para uma carteira de um tipo de ativo compatível.",
+  "manage_pow_nodes": "Gerenciar nós PoW"
 }

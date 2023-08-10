@@ -653,5 +653,6 @@
   "change_rep": "Canza Wakili",
   "change_rep_message": "Shin kun tabbata kuna son canza wakilai?",
   "manage_nodes": "Sarrafa nodes",
-  "unsupported_asset": "Ba mu goyi bayan wannan aikin don wannan kadara. Da fatan za a ƙirƙira ko canza zuwa walat na nau'in kadara mai tallafi."
+  "unsupported_asset": "Ba mu goyi bayan wannan aikin don wannan kadara. Da fatan za a ƙirƙira ko canza zuwa walat na nau'in kadara mai tallafi.",
+  "manage_pow_nodes": "Sarrafa PoW Nodes"
 }

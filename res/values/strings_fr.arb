@@ -675,5 +675,6 @@
   "template_name": "Nom du modèle",
   "change_rep": "Changer de représentant",
   "change_rep_message": "Êtes-vous sûr de vouloir changer de représentant ?",
-  "unsupported_asset": "Nous ne prenons pas en charge cette action pour cet élément. Veuillez créer ou passer à un portefeuille d'un type d'actif pris en charge."
+  "unsupported_asset": "Nous ne prenons pas en charge cette action pour cet élément. Veuillez créer ou passer à un portefeuille d'un type d'actif pris en charge.",
+  "manage_pow_nodes": "Gérer les nœuds PoW"
 }

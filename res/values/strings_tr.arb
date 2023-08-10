@@ -673,5 +673,6 @@
   "template_name": "şablon adı",
   "change_rep": "Temsilciyi Değiştir",
   "change_rep_message": "Temsilcileri değiştirmek istediğinizden emin misiniz?",
-  "unsupported_asset": "Bu öğe için bu eylemi desteklemiyoruz. Lütfen desteklenen bir varlık türünde bir cüzdan oluşturun veya cüzdana geçiş yapın."
+  "unsupported_asset": "Bu öğe için bu eylemi desteklemiyoruz. Lütfen desteklenen bir varlık türünde bir cüzdan oluşturun veya cüzdana geçiş yapın.",
+  "manage_pow_nodes": "PoW Düğümlerini Yönet"
 }

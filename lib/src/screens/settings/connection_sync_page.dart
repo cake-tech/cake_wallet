@@ -71,7 +71,7 @@ class ConnectionSyncPage extends BasePage {
                 return const SizedBox();
               
               return SettingsCellWithArrow(
-                title: S.current.manage_nodes,
+                title: S.current.manage_pow_nodes,
                 handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
               );
             },

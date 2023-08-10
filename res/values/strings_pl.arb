@@ -675,5 +675,6 @@
   "template_name": "Nazwa szablonu",
   "change_rep": "Zmień przedstawiciela",
   "change_rep_message": "Czy na pewno chcesz zmienić przedstawiciela?",
-  "unsupported_asset": "Nie obsługujemy tego działania w przypadku tego zasobu. Utwórz lub przełącz się na portfel obsługiwanego typu aktywów."
+  "unsupported_asset": "Nie obsługujemy tego działania w przypadku tego zasobu. Utwórz lub przełącz się na portfel obsługiwanego typu aktywów.",
+  "manage_pow_nodes": "Zarządzaj węzłami PoW"
 }
