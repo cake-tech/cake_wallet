@@ -107,11 +107,13 @@ Future resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
   final litecoinElectrumServerList = await loadLitecoinElectrumServerList();
+  final bitcoinCashElectrumServerList = await loadBitcoinCashElectrumServerList();
   final havenNodes = await loadDefaultHavenNodes();
   final nodes =
       moneroNodes +
       bitcoinElectrumServerList +
       litecoinElectrumServerList +
+      bitcoinCashElectrumServerList +
       havenNodes;
 
   await nodeSource.clear();
