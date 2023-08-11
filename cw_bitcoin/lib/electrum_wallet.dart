@@ -151,10 +151,10 @@ abstract class ElectrumWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-     // await walletAddresses.discoverAddresses();
-      //await updateTransactions();
-      //_subscribeForUpdates();
-      //await updateUnspent();
+      await walletAddresses.discoverAddresses();
+      await updateTransactions();
+      _subscribeForUpdates();
+      await updateUnspent();
       await updateBalance();
       _feeRates = await electrumClient.feeRates();
 
@@ -663,15 +663,12 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumBalance> _fetchBalances() async {
     final addresses = walletAddresses.addresses.toList();
-    print('_fetchBalances addresses: $addresses');
     final balanceFutures = <Future<Map<String, dynamic>>>[];
 
-    for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < addresses.length; i++) {
       final addressRecord = addresses[i];
       final sh = scriptHash(addressRecord.address, networkType: networkType);
-      print('_fetchBalances sh: $sh');
       final balanceFuture = electrumClient.getBalance(sh);
-      print('_fetchBalances balanceFuture: $balanceFuture');
       balanceFutures.add(balanceFuture);
     }
 
