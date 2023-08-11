@@ -63,83 +63,6 @@ Future<void> main() async {
 
     await initializeAppConfigs();
 
-    if (!Hive.isAdapterRegistered(Node.typeId)) {
-      Hive.registerAdapter(NodeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(TransactionDescription.typeId)) {
-      Hive.registerAdapter(TransactionDescriptionAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Trade.typeId)) {
-      Hive.registerAdapter(TradeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
-      Hive.registerAdapter(WalletInfoAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
-      Hive.registerAdapter(WalletTypeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Template.typeId)) {
-      Hive.registerAdapter(TemplateAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(ExchangeTemplate.typeId)) {
-      Hive.registerAdapter(ExchangeTemplateAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Order.typeId)) {
-      Hive.registerAdapter(OrderAdapter());
-    }
-
-    if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
-      Hive.registerAdapter(UnspentCoinsInfoAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
-      Hive.registerAdapter(AnonpayInvoiceInfoAdapter());
-    }
-
-    final secureStorage = FlutterSecureStorage();
-    final transactionDescriptionsBoxKey =
-        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
-    final contacts = await Hive.openBox<Contact>(Contact.boxName);
-    final nodes = await Hive.openBox<Node>(Node.boxName);
-    final transactionDescriptions = await Hive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-    final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-    final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
-    final templates = await Hive.openBox<Template>(Template.boxName);
-    final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-
-    if (!isMoneroOnly) {
-      unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-    }
-
-    await initialSetup(
-        sharedPreferences: await SharedPreferences.getInstance(),
-        nodes: nodes,
-        walletInfoSource: walletInfoSource,
-        contactSource: contacts,
-        tradesSource: trades,
-        ordersSource: orders,
-        unspentCoinsInfoSource: unspentCoinsInfoSource,
-        // fiatConvertationService: fiatConvertationService,
-        templates: templates,
-        exchangeTemplates: exchangeTemplates,
-        transactionDescriptions: transactionDescriptions,
-        secureStorage: secureStorage,
-        anonpayInvoiceInfo: anonpayInvoiceInfo,
-        initialMigrationVersion: 22);
     runApp(App());
   }, (error, stackTrace) async {
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
@@ -196,7 +119,7 @@ Future<void> initializeAppConfigs() async {
 
   final secureStorage = FlutterSecureStorage();
   final transactionDescriptionsBoxKey =
-      await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
@@ -231,23 +154,23 @@ Future<void> initializeAppConfigs() async {
       secureStorage: secureStorage,
       anonpayInvoiceInfo: anonpayInvoiceInfo,
       initialMigrationVersion: 21);
-  }
+}
 
 Future<void> initialSetup(
     {required SharedPreferences sharedPreferences,
-    required Box<Node> nodes,
-    required Box<WalletInfo> walletInfoSource,
-    required Box<Contact> contactSource,
-    required Box<Trade> tradesSource,
-    required Box<Order> ordersSource,
-    // required FiatConvertationService fiatConvertationService,
-    required Box<Template> templates,
-    required Box<ExchangeTemplate> exchangeTemplates,
-    required Box<TransactionDescription> transactionDescriptions,
-    required FlutterSecureStorage secureStorage,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    int initialMigrationVersion = 15}) async {
+      required Box<Node> nodes,
+      required Box<WalletInfo> walletInfoSource,
+      required Box<Contact> contactSource,
+      required Box<Trade> tradesSource,
+      required Box<Order> ordersSource,
+      // required FiatConvertationService fiatConvertationService,
+      required Box<Template> templates,
+      required Box<ExchangeTemplate> exchangeTemplates,
+      required Box<TransactionDescription> transactionDescriptions,
+      required FlutterSecureStorage secureStorage,
+      required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
+      Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+      int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -346,9 +269,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           : Routes.login;
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
       final statusBarIconBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: statusBarColor,
           statusBarBrightness: statusBarBrightness,
@@ -384,16 +307,16 @@ class _Home extends StatefulWidget {
 }
 
 class _HomeState extends State<_Home> {
- @override
+  @override
   void didChangeDependencies() {
     if(!ResponsiveLayoutUtil.instance.isMobile){
-    _setOrientation(context);
+      _setOrientation(context);
     }
     super.didChangeDependencies();
   }
 
 
- void _setOrientation(BuildContext context){
+  void _setOrientation(BuildContext context){
     final orientation = MediaQuery.of(context).orientation;
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
@@ -403,7 +326,7 @@ class _HomeState extends State<_Home> {
       SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     }
 
- }
+  }
 
   @override
   Widget build(BuildContext context) {
