@@ -1,3 +1,4 @@
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'unspent_coins_info.g.dart';
@@ -14,7 +15,7 @@ class UnspentCoinsInfo extends HiveObject {
     required this.vout,
     required this.value});
 
-  static const typeId = 9;
+  static const typeId = UNSPENT_COINS_INFO_TYPE_ID;
   static const boxName = 'Unspent';
   static const boxKey = 'unspentBoxKey';
 

@@ -48,6 +48,8 @@ class Routes {
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
   static const support = '/support';
+  static const supportLiveChat = '/support/live_chat';
+  static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
   static const preOrder = '/pre_order';
   static const buyWebView = '/buy_web_view';
