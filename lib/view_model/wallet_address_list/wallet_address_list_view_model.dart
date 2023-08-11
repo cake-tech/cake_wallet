@@ -136,10 +136,11 @@ abstract class WalletAddressListViewModelBase with Store {
         _wallet = appStore.wallet!,
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts = appStore.wallet!.type == WalletType.monero ||
-            appStore.wallet!.type == WalletType.haven ||
+        hasAccounts =
+            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+        /* ||
             appStore.wallet!.type == WalletType.nano ||
-            appStore.wallet!.type == WalletType.banano,
+            appStore.wallet!.type == WalletType.banano,*/ // TODO: nano additional accounts disabled for now
         amount = '' {
     _init();
   }
@@ -275,9 +276,9 @@ abstract class WalletAddressListViewModelBase with Store {
   @computed
   bool get hasAddressList =>
       _wallet.type == WalletType.monero ||
-      _wallet.type == WalletType.haven ||
+      _wallet.type == WalletType.haven;/* ||
       _wallet.type == WalletType.nano ||
-      _wallet.type == WalletType.banano;
+      _wallet.type == WalletType.banano;*/// TODO: nano accounts are disabled for now
 
   @computed
   bool get showElectrumAddressDisclaimer =>
@@ -299,7 +300,10 @@ abstract class WalletAddressListViewModelBase with Store {
   void _init() {
     _baseItems = [];
 
-    if (_wallet.type == WalletType.monero || _wallet.type == WalletType.haven || _wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
+    if (_wallet.type == WalletType.monero ||
+        _wallet.type == WalletType.haven ||
+        _wallet.type == WalletType.nano ||
+        _wallet.type == WalletType.banano) {
       _baseItems.add(WalletAccountListHeader());
     }
 
