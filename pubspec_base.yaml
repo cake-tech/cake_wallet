@@ -23,8 +23,7 @@ dependencies:
   yaml: ^3.1.1
   # qr code scanning:
   image_picker: ^1.0.2
-  # mobile_scanner: ^3.4.1
-  mobile_scanner: 3.0.0-beta.4
+  mobile_scanner: 3.2.0
   http: ^0.13.4
   path_provider: ^2.0.11
   mobx: ^2.1.4
