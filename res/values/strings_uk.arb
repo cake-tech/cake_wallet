@@ -672,5 +672,11 @@
   "slidable": "Розсувний",
   "manage_nodes": "Керуйте вузлами",
   "etherscan_history": "Історія Etherscan",
-  "template_name": "Назва шаблону"
+  "template_name": "Назва шаблону",
+  "support_title_live_chat": "Жива підтримка",
+  "support_description_live_chat": "Безкоштовно і швидко! Навчені представники підтримки доступні для надання допомоги",
+  "support_title_guides": "Поклики для гаманців тортів",
+  "support_description_guides": "Документація та підтримка загальних питань",
+  "support_title_other_links": "Інші посилання на підтримку",
+  "support_description_other_links": "Приєднуйтесь до наших спільнот або досягайте нас нашими партнерами іншими методами"
 }

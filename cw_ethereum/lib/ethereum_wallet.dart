@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -58,8 +59,8 @@ abstract class EthereumWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = EthereumTransactionHistory(walletInfo: walletInfo, password: password);
 
-    if (!Hive.isAdapterRegistered(Erc20Token.typeId)) {
-      Hive.registerAdapter(Erc20TokenAdapter());
+    if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
+      CakeHive.registerAdapter(Erc20TokenAdapter());
     }
 
     _sharedPrefs.complete(SharedPreferences.getInstance());
@@ -95,7 +96,7 @@ abstract class EthereumWalletBase
   Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
-    erc20TokensBox = await Hive.openBox<Erc20Token>(Erc20Token.boxName);
+    erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
     await walletAddresses.init();
     await transactionHistory.init();
     _privateKey = await getPrivateKey(_mnemonic, _password);
@@ -156,15 +157,19 @@ abstract class EthereumWalletBase
     final _credentials = credentials as EthereumTransactionCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final _erc20Balance = balance[_credentials.currency]!;
+
+    final CryptoCurrency transactionCurrency =
+        balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
+
+    final _erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
-    int exponent =
-        _credentials.currency is Erc20Token ? (_credentials.currency as Erc20Token).decimal : 18;
+    int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToEthereumMultiplier = pow(10, exponent);
 
+    // so far this can not be made with Ethereum as Ethereum does not support multiple recipients
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw EthereumTransactionCreationException(_credentials.currency);
+        throw EthereumTransactionCreationException(transactionCurrency);
       }
 
       final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
@@ -172,7 +177,7 @@ abstract class EthereumWalletBase
       totalAmount = BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
-        throw EthereumTransactionCreationException(_credentials.currency);
+        throw EthereumTransactionCreationException(transactionCurrency);
       }
     } else {
       final output = outputs.first;
@@ -185,7 +190,7 @@ abstract class EthereumWalletBase
           : BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
-        throw EthereumTransactionCreationException(_credentials.currency);
+        throw EthereumTransactionCreationException(transactionCurrency);
       }
     }
 
@@ -195,11 +200,10 @@ abstract class EthereumWalletBase
       amount: totalAmount.toString(),
       gas: _estimatedGas!,
       priority: _credentials.priority!,
-      currency: _credentials.currency,
+      currency: transactionCurrency,
       exponent: exponent,
-      contractAddress: _credentials.currency is Erc20Token
-          ? (_credentials.currency as Erc20Token).contractAddress
-          : null,
+      contractAddress:
+          transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
     );
 
     return pendingEthereumTransaction;
