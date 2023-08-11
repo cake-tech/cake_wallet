@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
@@ -151,7 +152,9 @@ abstract class ElectrumWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      await walletAddresses.discoverAddresses();
+      if (walletInfo.type != WalletType.bitcoinCash) { //TODO: BCH: remove this check when supported
+        await walletAddresses.discoverAddresses();
+      }
       await updateTransactions();
       _subscribeForUpdates();
       await updateUnspent();
