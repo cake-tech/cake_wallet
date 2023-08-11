@@ -671,11 +671,5 @@
   "slidable": "kaydırılabilir",
   "manage_nodes": "Düğümleri yönet",
   "etherscan_history": "Etherscan geçmişi",
-  "template_name": "şablon adı",
-  "support_title_live_chat": "Canlı destek",
-  "support_description_live_chat": "Ücretsiz ve hızlı! Eğitimli destek temsilcileri yardımcı olmak için mevcuttur",
-  "support_title_guides": "Kek Cüzdan Kılavuzları",
-  "support_description_guides": "Ortak sorunlara belge ve destek",
-  "support_title_other_links": "Diğer destek bağlantıları",
-  "support_description_other_links": "Topluluklarımıza katılın veya ortaklarımıza diğer yöntemlerle bize ulaşın"
+  "template_name": "şablon adı"
 }

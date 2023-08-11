@@ -100,7 +100,6 @@ dev_dependencies:
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
   # replace https://github.com/dart-lang/lints#migrating-from-packagepedantic
-  translator: ^0.1.7
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

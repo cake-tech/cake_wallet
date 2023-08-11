@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -9,7 +10,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:archive/archive_io.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -17,7 +17,6 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
-
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 class BackupService {
@@ -171,14 +170,14 @@ class BackupService {
 
   Future<Box<WalletInfo>> _reloadHiveWalletInfoBox() async {
     final appDir = await getApplicationDocumentsDirectory();
-    await CakeHive.close();
-    CakeHive.init(appDir.path);
+    await Hive.close();
+    Hive.init(appDir.path);
 
-    if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
-      CakeHive.registerAdapter(WalletInfoAdapter());
+    if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
+      Hive.registerAdapter(WalletInfoAdapter());
     }
 
-    return await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    return await Hive.openBox<WalletInfo>(WalletInfo.boxName);
   }
 
   Future<void> _importPreferencesDump() async {
