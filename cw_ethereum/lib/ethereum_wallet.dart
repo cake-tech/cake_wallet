@@ -165,15 +165,19 @@ abstract class EthereumWalletBase
     final _credentials = credentials as EthereumTransactionCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final _erc20Balance = balance[_credentials.currency]!;
+
+    final CryptoCurrency transactionCurrency =
+        balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
+
+    final _erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
-    int exponent =
-        _credentials.currency is Erc20Token ? (_credentials.currency as Erc20Token).decimal : 18;
+    int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToEthereumMultiplier = pow(10, exponent);
 
+    // so far this can not be made with Ethereum as Ethereum does not support multiple recipients
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw EthereumTransactionCreationException(_credentials.currency);
+        throw EthereumTransactionCreationException(transactionCurrency);
       }
 
       final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
@@ -181,12 +185,19 @@ abstract class EthereumWalletBase
       totalAmount = BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
-        throw EthereumTransactionCreationException(_credentials.currency);
+        throw EthereumTransactionCreationException(transactionCurrency);
       }
     } else {
       final output = outputs.first;
-      final BigInt allAmount =
-          _erc20Balance.balance - BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
+      // since the fees are taken from Ethereum
+      // then no need to subtract the fees from the amount if send all
+      final BigInt allAmount;
+      if (transactionCurrency is Erc20Token) {
+        allAmount = _erc20Balance.balance;
+      } else {
+        allAmount = _erc20Balance.balance -
+            BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
+      }
       final totalOriginalAmount =
           EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
       totalAmount = output.sendAll
@@ -194,21 +205,22 @@ abstract class EthereumWalletBase
           : BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
-        throw EthereumTransactionCreationException(_credentials.currency);
+        throw EthereumTransactionCreationException(transactionCurrency);
       }
     }
 
     final pendingEthereumTransaction = await _client.signTransaction(
       privateKey: _privateKey,
-      toAddress: _credentials.outputs.first.address,
+      toAddress: _credentials.outputs.first.isParsedAddress
+          ? _credentials.outputs.first.extractedAddress!
+          : _credentials.outputs.first.address,
       amount: totalAmount.toString(),
       gas: _estimatedGas!,
       priority: _credentials.priority!,
-      currency: _credentials.currency,
+      currency: transactionCurrency,
       exponent: exponent,
-      contractAddress: _credentials.currency is Erc20Token
-          ? (_credentials.currency as Erc20Token).contractAddress
-          : null,
+      contractAddress:
+          transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
     );
 
     return pendingEthereumTransaction;
