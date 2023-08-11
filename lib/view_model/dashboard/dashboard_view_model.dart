@@ -145,9 +145,10 @@ abstract class DashboardViewModelBase with Store {
               settingsStore: appStore.settingsStore)));
     }
 
-    if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
-      subname = nano!.getCurrentAccount(_wallet).label;
-    }
+    // TODO: nano sub-account generation is disabled:
+    // if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
+    //   subname = nano!.getCurrentAccount(_wallet).label;
+    // }
 
     reaction((_) => appStore.wallet, _onWalletChange);
 
