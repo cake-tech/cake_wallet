@@ -668,7 +668,7 @@ abstract class ElectrumWalletBase
     final addresses = walletAddresses.addresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
 
-    for (var i = 0; i < addresses.length; i++) {
+    for (var i = 0; i < (walletInfo.type != WalletType.bitcoinCash ? addresses.length : 1) ; i++) { //TODO: BCH: remove this check when supported
       final addressRecord = addresses[i];
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       final balanceFuture = electrumClient.getBalance(sh);
