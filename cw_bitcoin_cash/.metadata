@@ -7,4 +7,4 @@ version:
   revision: b06b8b2710955028a6b562f5aa6fe62941d6febf
   channel: stable
 
-project_type: module
+project_type: package
