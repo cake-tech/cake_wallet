@@ -13,6 +13,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.bitcoinCash:
+      return CryptoCurrency.bch;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }

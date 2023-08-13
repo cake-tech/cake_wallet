@@ -23,9 +23,11 @@ case $APP_IOS_TYPE in
 		CONFIG_ARGS="--monero"
 		;;
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --haven --ethereum"
+		CONFIG_ARGS="--monero --bitcoin --haven --ethereum --bitcoinCash"
 		;;
 	$HAVEN)
+
+
 		CONFIG_ARGS="--haven"
 		;;
 esac
