@@ -1,6 +1,6 @@
 Privacy Policy
 
-Last modified: July 21, 2022
+Last modified: August 9, 2023
 
 Introduction
 ============
@@ -13,7 +13,7 @@ Introduction
 		- On this App.
 		- In email, text, and other electronic messages between you and this App.
 	It does not apply to information collected by:
-		- Us offline or through any other means, including on any other App operated by Company or any third party (including our affiliates and subsidiaries)]; or 
+		- Us offline or through any other means, including on any other App operated by Company or any third party (including our affiliates and subsidiaries); or 
 		- Any third party (including our affiliates and subsidiaries), including through any application or content (including advertising) that may link to or be accessible from or on the App.
 	Please read this policy carefully to understand our policies and practices regarding your information and how we will treat it. If you do not agree with our policies and practices, you have the choice to not use the App. By accessing or using this App, you agree to this privacy policy. This policy may change from time to time. Your continued use of this App after we make changes is deemed to be acceptance of those changes, so please check the policy periodically for updates.
 
@@ -25,7 +25,7 @@ Definitions
 	- "Node" means a server on a supported cryptocurrency network which transmits data to your App for processing and synchronization, and to which your Device transmits transactions which you would like to submit to the supported cryptocurrency networks. This includes full nodes, Electrum servers, and lightning network nodes.
 	- "Cake Labs Nodes" refers to the set of cryptocurrency nodes operated and maintained by Cake Labs LLC.
 	- "Service" refers to the App.
-	- "Third-party Service" refers to any service integrated into the App. This includes but is not limited to ChangeNOW, Wyre, MoonPay, and BlockBuy.
+	- "Third-party Service" refers to any service integrated into the App. This includes but is not limited to ChangeNOW, Onramper, and MoonPay.
 	- "Usage Data" refers to data collected automatically about your usage of an App.
 	- "You" means the individual, group, corporation, or any other entity accessing or using the Service.
 
@@ -40,26 +40,29 @@ Information We Never Receive Nor Collect
 Information We May Receive But Do Not Retain
 --------------------------------------------
 
-	We receive but do NOT store information from and about users of our App, including:
+	We may receive but do NOT store information from and about users of our App, including:
 		- The device IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to supported cryptocurrency networks.
 	We receive this information:
-		- Automatically as you use the App.
+		- Automatically as you use the App, unless you turn certain features off in your App privacy settings.
 
-	This data is provided by connecting to the Nodes and price API maintained by Cake Labs. You have the right to choose not to provide synchronization data to Cake Labs by choosing a different Node. We provide a list of Nodes in the app that include our own and third party Nodes, or you can use your own Node (which we recommend).
+	This data is provided by connecting to the Nodes and price API maintained by Cake Labs. You have the right to choose not to provide synchronization data to Cake Labs by choosing a different Node. We provide a list of Nodes in the app that include our own and third party Nodes, or you can use your own Node (which we recommend). You have the right to choose not to connect to our Fiat API service by disabling this Fiat API in App privacy settings.
 	
-	Personal Data sent through the Cake Labs Nodes is limited to your device's IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to the supported cryptocurrency networks. Personal Data received by Cake Labs in this manner is not stored for any length of time, and thus Cake Labs is both unwilling to and incapable of sharing this data, or using it for any purpose beyond ensuring your appropriate connection to our Nodes.
+	Personal Data that may be sent through the Cake Labs Nodes is limited to your device's IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to the supported cryptocurrency networks. Personal Data received by Cake Labs in this manner is not stored for any length of time, and thus Cake Labs is incapable of sharing this data and will not use it for any purpose beyond ensuring your appropriate connection to our Nodes.
 	
 	If you decide to use a Node offered by any third party, some of which we include in our Apps, said third party will receive this Personal Data instead of Cake Labs. We take no responsibility for the actions of any third-party Node offered within the Application. We recommend connecting to your own Node to limit third party sharing of your Personal Information.
+
+	If you use our Fiat API service, you will share your IP address and the cryptocurrency and fiat currency exchange pair for which your wallet requests a spot price quote. You can disable this Fiat API in App privacy settings.
 
 Information We May Collect About You and How We Collect It
 ----------------------------------------------------------
 
 	We collect several types of information from and about users of our App, including information:
-		- By which you may be personally identified, such as name, e-mail address, or and a/any other identifier by which you may be contacted online or offline ("personal information" or "Personal Data”), ONLY when you provide it to us;
+		- By which you may be personally identified, such as name, e-mail address, or and a/any other identifier by which you may be contacted online or offline ("personal information" or "Personal Data”);
+		- Device data and error log data;
 	We collect this information:
-		- Directly from you when you provide it to us.
+		- Directly from you ONLY when you provide it to us.
 
-	Personal information is received by Cake Labs ONLY in the event that you choose to provide it to us by voluntarily contacting Cake Labs regarding support, questions or suggestions.
+	Personal information is received by Cake Labs ONLY in the event that you choose to provide it to us by voluntarily contacting Cake Labs regarding support, questions or suggestions. You may optionally send us Error reports to help us improve the App. These Error reports contain error logs and basic device data. You can review and make modifications to these Error reports before sending them to us, or you may choose not to send them to us at all.
 
 How We Use Your Information
 ---------------------------
@@ -112,7 +115,9 @@ Data Security
 Links to Other Websites
 -----------------------
 
-	The App may contain links to other websites that are not operated by us. If you click on a third-party link, you will be directed to that third party's site. We strongly advise you to review the Privacy Policy of every site you visit. We have no control over and assume no responsibility for the content, privacy policies or practices of any third-party sites or services.
+	The App may contain links to other websites that are not operated by us. If you click on a Third-Party Service link, you will be directed to that third party's site. We strongly advise you to review the Privacy Policy of every site you visit. We have no control over and assume no responsibility for the content, privacy policies or practices of any third-party sites or services.
+
+	The App includes several optional Third-Party Services, which may not be available to all users. If you use Third-Party Services, you must agree to their respective Privacy Policies.
 
 Changes to Our Privacy Policy
 -----------------------------
