@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -91,8 +92,7 @@ class WalletRestorePage extends BasePage {
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
-                color: titleColor ??
-                    Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                color: titleColor ?? Theme.of(context).primaryTextTheme!.titleLarge!.color!),
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
@@ -139,10 +139,7 @@ class WalletRestorePage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-        keyboardBarColor: Theme.of(context)
-            .accentTextTheme!
-            .bodyLarge!
-            .backgroundColor!,
+        keyboardBarColor: Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
         nextFocus: false,
         actions: [
           KeyboardActionsItem(
@@ -192,16 +189,13 @@ class WalletRestorePage extends BasePage {
                   child: Observer(
                     builder: (context) {
                       return LoadingPrimaryButton(
-                        onPressed: _confirmForm,
+                        onPressed: () async {
+                          _confirmForm(context);
+                        },
                         text: S.of(context).restore_recover,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .titleSmall!
-                            .decorationColor!,
-                        textColor: Theme.of(context)
-                            .accentTextTheme!
-                            .headlineSmall!
-                            .decorationColor!,
+                        color: Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!,
+                        textColor:
+                            Theme.of(context).accentTextTheme!.headlineSmall!.decorationColor!,
                         isLoading: walletRestoreViewModel.state is IsExecutingState,
                         isDisabled: !walletRestoreViewModel.isButtonEnabled,
                       );
@@ -265,7 +259,7 @@ class WalletRestorePage extends BasePage {
     return credentials;
   }
 
-  void _confirmForm() {
+  void _confirmForm(BuildContext context) {
     // Dismissing all visible keyboard to provide context for navigation
     FocusManager.instance.primaryFocus?.unfocus();
     final formContext = walletRestoreViewModel.mode == WalletRestoreMode.seed
@@ -287,6 +281,11 @@ class WalletRestorePage extends BasePage {
     if (walletRestoreViewModel.nameExists(name)) {
       showNameExistsAlert(formContext!);
       return;
+    }
+
+    var credentials = walletRestoreViewModel.getCredentials(_credentials());
+    if (credentials.walletInfo?.derivationType == DerivationType.unknown) {
+      
     }
 
     walletRestoreViewModel.create(options: _credentials());

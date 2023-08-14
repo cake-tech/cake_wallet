@@ -18,7 +18,6 @@ import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_util.dart';
-import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
@@ -37,14 +36,14 @@ class NanoWallet = NanoWalletBase with _$NanoWallet;
 abstract class NanoWalletBase
     extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo> with Store {
   NanoWalletBase({
-    required NanoWalletInfo walletInfo,
+    required WalletInfo walletInfo,
     required String mnemonic,
     required String password,
     NanoBalance? initialBalance,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _derivationType = walletInfo.derivationType,
+        _derivationType = walletInfo.derivationType!,
         _isTransactionUpdating = false,
         _client = NanoClient(),
         walletAddresses = NanoWalletAddresses(walletInfo),
@@ -88,7 +87,14 @@ abstract class NanoWalletBase
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
     final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
-    _seedKey = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
+
+    if (_seedKey == null) {
+      if (_derivationType == DerivationType.nano) {
+        _seedKey = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
+      } else {
+        _seedKey = await NanoUtil.hdMnemonicListToSeed(_mnemonic.split(' '));
+      }
+    }
     _privateKey = await NanoUtil.uniSeedToPrivate(_seedKey!, 0, type);
     _publicAddress = await NanoUtil.uniSeedToAddress(_seedKey!, 0, type);
     this.walletInfo.address = _publicAddress!;
@@ -339,13 +345,10 @@ abstract class NanoWalletBase
       derivationType = DerivationType.nano;
     }
 
-    final nanoWalletInfo = NanoWalletInfo(
-      walletInfo: walletInfo,
-      derivationType: derivationType,
-    );
+    walletInfo.derivationType = derivationType;
 
     return NanoWallet(
-      walletInfo: nanoWalletInfo,
+      walletInfo: walletInfo,
       password: password,
       mnemonic: mnemonic,
       initialBalance: balance,

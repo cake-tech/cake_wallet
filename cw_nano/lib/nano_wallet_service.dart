@@ -12,7 +12,6 @@ import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart' as nm;
 import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet.dart';
-import 'package:cw_nano/nano_wallet_info.dart';
 import 'package:hive/hive.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:nanodart/nanodart.dart';
@@ -75,13 +74,10 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     // derivationType derivationType = DerivationType.bip39;
     // String mnemonic = bip39.generateMnemonic();
 
-    final nanoWalletInfo = NanoWalletInfo(
-      walletInfo: credentials.walletInfo!,
-      derivationType: derivationType,
-    );
+    credentials.walletInfo!.derivationType = derivationType;
 
     final wallet = NanoWallet(
-      walletInfo: nanoWalletInfo,
+      walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
     );
@@ -109,15 +105,12 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
 
-    final NanoWalletInfo nanoWalletInfo = NanoWalletInfo(
-      walletInfo: currentWalletInfo,
-      derivationType: DerivationType.nano, // doesn't matter for rename
-    );
+    currentWalletInfo.derivationType = DerivationType.nano;// doesn't matter for the rename action
 
     String randomWords =
         (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
     final currentWallet =
-        NanoWallet(walletInfo: nanoWalletInfo, password: password, mnemonic: randomWords);
+        NanoWallet(walletInfo: currentWalletInfo, password: password, mnemonic: randomWords);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -128,13 +121,18 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
-  Future<DerivationType> compareDerivationMethods({String? mnemonic, String? seedKey}) async {
-    if (seedKey?.length == 128) {
-      return DerivationType.bip39;
-    }
+  static Future<DerivationType> compareDerivationMethods({String? mnemonic, String? seedKey}) async {
     if (mnemonic?.split(' ').length == 12) {
       return DerivationType.bip39;
     }
+    if (seedKey?.length == 128) {
+      return DerivationType.bip39;
+    } else if (seedKey?.length == 64) {
+      return DerivationType.nano;
+    }
+
+    late String publicAddressStandard;
+    late String publicAddressBip39;
 
     try {
       NanoClient nanoClient = NanoClient();
@@ -144,24 +142,68 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
         type: WalletType.nano,
       ));
 
-      late String publicAddressStandard;
-      late String publicAddressBip39;
+      if (mnemonic != null) {
+        seedKey = await NanoUtil.hdMnemonicListToSeed(mnemonic.split(' '));
+        publicAddressBip39 = await NanoUtil.hdSeedToAddress(seedKey, 0);
 
-      if (seedKey == null) {
-        seedKey = bip39.mnemonicToEntropy(mnemonic).toUpperCase();
+        seedKey = await NanoUtil.mnemonicToSeed(mnemonic);
+        publicAddressStandard = await NanoUtil.seedToAddress(seedKey, 0);
+      } else if (seedKey != null) {
+        try {
+          publicAddressBip39 = await NanoUtil.hdSeedToAddress(seedKey, 0);
+        } catch (e) {
+          return DerivationType.nano;
+        }
+        try {
+          publicAddressStandard = await NanoUtil.seedToAddress(seedKey, 0);
+        } catch (e) {
+          return DerivationType.bip39;
+        }
+      }
+      // check if either has a balance:
+      // NanoBalance bip39Balance = await nanoClient.getBalance(publicAddressBip39);
+      // NanoBalance standardBalance = await nanoClient.getBalance(publicAddressStandard);
+      // // TODO: this is a super basic implementation, and if both addresses have balances
+      // // it might not be the one that the user wants, though it is unlikely
+      // if (bip39Balance.currentBalance > standardBalance.currentBalance) {
+      //   return DerivationType.bip39;
+      // } else {
+      //   return DerivationType.nano;
+      // }
+
+      // check if account has a history:
+      var bip39Info;
+      var standardInfo;
+
+      print(publicAddressBip39);
+      print(publicAddressStandard);
+
+      try {
+        bip39Info = await nanoClient.getAccountInfo(publicAddressBip39);
+      } catch (e) {
+        bip39Info = null;
+      }
+      try {
+        standardInfo = await nanoClient.getAccountInfo(publicAddressStandard);
+      } catch (e) {
+        standardInfo = null;
       }
 
-      publicAddressBip39 = await NanoUtil.hdSeedToAddress(seedKey, 0);
-      publicAddressStandard = await NanoUtil.seedToAddress(seedKey, 0);
+      // one of these is *probably* null:
+      if (bip39Info == null || bip39Info["error"] != null) {
+        return DerivationType.nano;
+      } else if (standardInfo == null || standardInfo["error"] != null) {
+        return DerivationType.bip39;
+      }
 
-      // check if either has a balance:
+      // both are non-null:
+      var bip39Height = int.parse(bip39Info['confirmation_height'] as String);
+      var standardHeight = int.parse(standardInfo['confirmation_height'] as String);
 
-      NanoBalance bip39Balance = await nanoClient.getBalance(publicAddressBip39);
-      NanoBalance standardBalance = await nanoClient.getBalance(publicAddressStandard);
+      print(bip39Height);
+      print(standardHeight);
 
-      // TODO: this is a super basic implementation, and if both addresses have balances
-      // it might not be the one that the user wants, though it is unlikely
-      if (bip39Balance.currentBalance > standardBalance.currentBalance) {
+      if (bip39Height > standardHeight) {
         return DerivationType.bip39;
       } else {
         return DerivationType.nano;
@@ -207,15 +249,12 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     DerivationType derivationType = credentials.derivationType ??
         await compareDerivationMethods(mnemonic: credentials.mnemonic);
 
-    final nanoWalletInfo = NanoWalletInfo(
-      walletInfo: credentials.walletInfo!,
-      derivationType: derivationType,
-    );
+    credentials.walletInfo!.derivationType = derivationType;
 
     final wallet = await NanoWallet(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
-      walletInfo: nanoWalletInfo,
+      walletInfo: credentials.walletInfo!,
     );
 
     await wallet.init();

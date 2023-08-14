@@ -108,13 +108,24 @@ class CWNano extends Nano {
     required String password,
     required String mnemonic,
     DerivationType? derivationType,
-  }) =>
-      NanoRestoreWalletFromSeedCredentials(
-        name: name,
-        password: password,
-        mnemonic: mnemonic,
-        derivationType: derivationType,
-      );
+  }) {
+
+    if (derivationType == null) {
+      // figure out the derivation type as best we can, otherwise set it to "unknown"
+      if (mnemonic.split(" ").length == 12) {
+        derivationType = DerivationType.bip39;
+      } else {
+        derivationType = DerivationType.unknown;
+      }
+    }
+
+    return NanoRestoreWalletFromSeedCredentials(
+      name: name,
+      password: password,
+      mnemonic: mnemonic,
+      derivationType: derivationType,
+    );
+  }
 
   @override
   TransactionHistoryBase getTransactionHistory(Object wallet) {

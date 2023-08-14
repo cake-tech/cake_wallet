@@ -91,6 +91,10 @@ Future<void> initializeAppConfigs() async {
     Hive.registerAdapter(WalletInfoAdapter());
   }
 
+  if (!Hive.isAdapterRegistered(derivationTypeTypeId)) {
+    Hive.registerAdapter(DerivationTypeAdapter());
+  }
+
   if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
     Hive.registerAdapter(WalletTypeAdapter());
   }

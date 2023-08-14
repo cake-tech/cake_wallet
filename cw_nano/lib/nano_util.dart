@@ -27,6 +27,10 @@ class NanoUtil {
     return NanoMnemomics.seedToMnemonic(seed).join(" ");
   }
 
+  static Future<String> mnemonicToSeed(String mnemonic) async {
+    return NanoMnemomics.mnemonicListToSeed(mnemonic.split(' '));
+  }
+
   // static String createPublicKey(String privateKey) {
   //   return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
   // }
@@ -60,15 +64,15 @@ class NanoUtil {
   }
 
   // // hd:
-  // static Future<String> hdMnemonicListToSeed(List<String> words) async {
-  //   // if (words.length != 24) {
-  //   //   throw Exception('Expected a 24-word list, got a ${words.length} list');
-  //   // }
-  //   final Uint8List salt = Uint8List.fromList(utf8.encode('mnemonic'));
-  //   final Pbkdf2 hasher = Pbkdf2(iterations: 2048);
-  //   final String seed = await hasher.sha512(words.join(' '), salt);
-  //   return seed;
-  // }
+  static Future<String> hdMnemonicListToSeed(List<String> words) async {
+    // if (words.length != 24) {
+    //   throw Exception('Expected a 24-word list, got a ${words.length} list');
+    // }
+    final Uint8List salt = Uint8List.fromList(utf8.encode('mnemonic'));
+    final Pbkdf2 hasher = Pbkdf2(iterations: 2048);
+    final String seed = await hasher.sha512(words.join(' '), salt);
+    return seed;
+  }
 
   static Future<String> hdSeedToPrivate(String seed, int index) async {
     List<int> seedBytes = hex.decode(seed);
@@ -100,6 +104,8 @@ class NanoUtil {
       throw Exception('Unknown seed type');
     }
   }
+
+
 
   // static String hdSeedToPrivate(String seed, int index) {
   //   // List<int> seedBytes = hex.decode(seed);

@@ -16,7 +16,7 @@ import 'package:cw_core/node.dart';
 
 class NanoClient {
   // bit of a hack since we need access to a node in a weird location:
-  static const String BACKUP_NODE_URI = "rpc.nano.to";
+  static const String BACKUP_NODE_URI = "rpc.nano.to:443";
   static const String DEFAULT_REPRESENTATIVE =
       "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
