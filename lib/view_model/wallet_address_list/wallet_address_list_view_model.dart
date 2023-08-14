@@ -110,6 +110,24 @@ class EthereumURI extends PaymentURI {
   }
 }
 
+class BitcoinCashURI extends PaymentURI {
+  BitcoinCashURI({
+    required String amount,
+    required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -170,6 +188,10 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (_wallet.type == WalletType.ethereum) {
       return EthereumURI(amount: amount, address: address.address);
+    }
+
+    if (_wallet.type == WalletType.bitcoinCash) {
+      return BitcoinCashURI(amount: amount, address: address.address);
     }
 
     throw Exception('Unexpected type: ${type.toString()}');

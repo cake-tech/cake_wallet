@@ -78,6 +78,8 @@ class Node extends HiveObject with Keyable {
         return Uri.http(uriRaw, '');
       case WalletType.ethereum:
         return Uri.https(uriRaw, '');
+      case WalletType.bitcoinCash:
+        return createUriFromElectrumAddress(uriRaw);
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -128,6 +130,8 @@ class Node extends HiveObject with Keyable {
         case WalletType.haven:
           return requestMoneroNode();
         case WalletType.ethereum:
+          return requestElectrumServer();
+        case WalletType.bitcoinCash:
           return requestElectrumServer();
         default:
           return false;

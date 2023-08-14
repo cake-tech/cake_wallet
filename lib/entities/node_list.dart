@@ -66,7 +66,7 @@ Future<List<Node>> loadDefaultHavenNodes() async {
       nodes.add(node);
     }
   }
-  
+
   return nodes;
 }
 
@@ -86,15 +86,33 @@ Future<List<Node>> loadDefaultEthereumNodes() async {
   return nodes;
 }
 
+Future<List<Node>> loadBitcoinCashElectrumServerList() async {
+  final serverListRaw =
+  await rootBundle.loadString('assets/bitcoin_cash_electrum_server_list.yml');
+  final loadedServerList = loadYaml(serverListRaw) as YamlList;
+  final serverList = <Node>[];
+
+  for (final raw in loadedServerList) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+      node.type = WalletType.bitcoinCash;
+      serverList.add(node);
+    }
+  }
+
+  return serverList;
+}
+
 Future resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
   final litecoinElectrumServerList = await loadLitecoinElectrumServerList();
+  final bitcoinCashElectrumServerList = await loadBitcoinCashElectrumServerList();
   final havenNodes = await loadDefaultHavenNodes();
-  final nodes =
-      moneroNodes +
+  final nodes = moneroNodes +
       bitcoinElectrumServerList +
       litecoinElectrumServerList +
+      bitcoinCashElectrumServerList +
       havenNodes;
 
   await nodeSource.clear();

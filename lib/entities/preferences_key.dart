@@ -7,6 +7,7 @@ class PreferencesKey {
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
+  static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';

@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/mnemonic_length.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -88,6 +89,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              password: password);
+        case WalletType.bitcoinCash:
+          return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
               name: name,
               mnemonic: seed,
               password: password);

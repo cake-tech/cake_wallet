@@ -564,6 +564,8 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   const bitcoinCashCommonHeaders = """
 import 'dart:typed_data';
 
+import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -577,9 +579,21 @@ import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
   const bitcoinCashContent = """
 abstract class BitcoinCash {
   String getMnemonic(int? strength);
+
   Uint8List getSeedFromMnemonic(String seed);
-  WalletService createBitcoinCashWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
-  WalletCredentials createBitcoinCashNewWalletCredentials({required String name, WalletInfo? walletInfo});
+
+  WalletService createBitcoinCashWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+
+  WalletCredentials createBitcoinCashNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo});
+
+  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password});
+
+  TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
+
+  TransactionPriority getDefaultTransactionPriority();
 }
   """;
 

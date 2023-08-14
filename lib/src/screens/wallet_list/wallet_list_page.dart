@@ -41,15 +41,19 @@ class WalletListBody extends StatefulWidget {
 }
 
 class WalletListBodyState extends State<WalletListBody> {
-  final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
-  final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
-  final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
-  final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
-  final scrollController = ScrollController();
+  final nonWalletTypeIconPath = 'assets/images/close.png';
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
+
+  Image getIconByWalletType(WalletType type, bool isEnabled) {
+    if (!isEnabled) {
+      return Image.asset(nonWalletTypeIconPath, height: 24, width: 24);
+    }
+
+    final path = walletTypeToCryptoCurrency(type).iconPath ?? nonWalletTypeIconPath;
+    print('path: $path type: $type');
+    return Image.asset(path, height: 24, width: 24);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,9 +104,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: <Widget>[
-                                      wallet.isEnabled
-                                          ? _imageFor(type: wallet.type)
-                                          : nonWalletTypeIcon,
+                                      getIconByWalletType(wallet.type, wallet.isEnabled),
                                       SizedBox(width: 10),
                                       Flexible(
                                         child: Text(
@@ -219,23 +221,6 @@ class WalletListBodyState extends State<WalletListBody> {
                 textColor: Theme.of(context).primaryTextTheme.titleLarge!.color!)
           ])),
     );
-  }
-
-  Image _imageFor({required WalletType type}) {
-    switch (type) {
-      case WalletType.bitcoin:
-        return bitcoinIcon;
-      case WalletType.monero:
-        return moneroIcon;
-      case WalletType.litecoin:
-        return litecoinIcon;
-      case WalletType.haven:
-        return havenIcon;
-      case WalletType.ethereum:
-        return ethereumIcon;
-      default:
-        return nonWalletTypeIcon;
-    }
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
