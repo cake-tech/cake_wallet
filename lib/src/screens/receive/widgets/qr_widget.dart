@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dar
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';

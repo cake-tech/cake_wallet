@@ -8,7 +8,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';

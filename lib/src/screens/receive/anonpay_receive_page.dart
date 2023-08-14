@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/screens/receive/widgets/anonpay_status_section.d
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/copy_link_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 import 'package:screen_brightness/screen_brightness.dart';

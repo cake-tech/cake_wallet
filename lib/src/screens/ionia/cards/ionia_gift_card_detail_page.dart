@@ -13,12 +13,12 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/route_aware.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 
 class IoniaGiftCardDetailPage extends BasePage {
   IoniaGiftCardDetailPage(this.viewModel);
@@ -87,9 +87,9 @@ class IoniaGiftCardDetailPage extends BasePage {
 
     return RouteAwareWidget(
         pushToWidget: ()=> viewModel.increaseBrightness(),
-        pushToNextWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+        pushToNextWidget: ()=> ScreenBrightness().setScreenBrightness(viewModel.brightness),
         popNextWidget: ()=> viewModel.increaseBrightness(),
-        popWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+        popWidget: ()=> ScreenBrightness().setScreenBrightness(viewModel.brightness),
       child: ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Column(
