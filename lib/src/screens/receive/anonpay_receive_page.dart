@@ -12,6 +12,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
+import 'package:screen_brightness/screen_brightness.dart';
 
 class AnonPayReceivePage extends BasePage {
   final AnonpayInfoBase invoiceInfo;
@@ -44,10 +45,7 @@ class AnonPayReceivePage extends BasePage {
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
               fontFamily: 'Lato',
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayMedium!
-                  .backgroundColor!),
+              color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!),
         ),
         Text(
           invoiceInfo is AnonpayInvoiceInfo
@@ -78,10 +76,7 @@ class AnonPayReceivePage extends BasePage {
         ),
         icon: Icon(
           Icons.edit,
-          color: Theme.of(context)
-              .accentTextTheme!
-              .bodySmall!
-              .color!,
+          color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
           size: 22.0,
         ),
       ),
@@ -115,19 +110,17 @@ class AnonPayReceivePage extends BasePage {
               ),
               child: GestureDetector(
                 onTap: () async {
-                  final double brightness = await DeviceDisplayBrightness.getBrightness();
+                  final double brightness = await ScreenBrightness().current;
 
                   // ignore: unawaited_futures
-                  DeviceDisplayBrightness.setBrightness(1.0);
-                  await Navigator.pushNamed(
-                    context,
-                    Routes.fullscreenQR,
-                    arguments: QrViewData(data: invoiceInfo.clearnetUrl,
-                      version: qr.QrVersions.auto,
-                    )
-                  );
+                  await ScreenBrightness().setScreenBrightness(1.0);
+                  await Navigator.pushNamed(context, Routes.fullscreenQR,
+                      arguments: QrViewData(
+                        data: invoiceInfo.clearnetUrl,
+                        version: qr.QrVersions.auto,
+                      ));
                   // ignore: unawaited_futures
-                  DeviceDisplayBrightness.setBrightness(brightness);
+                  await ScreenBrightness().setScreenBrightness(brightness);
                 },
                 child: Hero(
                   tag: Key(invoiceInfo.clearnetUrl),
@@ -139,10 +132,8 @@ class AnonPayReceivePage extends BasePage {
                         decoration: BoxDecoration(
                           border: Border.all(
                             width: 3,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .displayMedium!
-                                .backgroundColor!,
+                            color:
+                                Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
                           ),
                         ),
                         child: QrImage(

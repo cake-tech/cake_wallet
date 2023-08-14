@@ -66,7 +66,8 @@ dependencies:
   unorm_dart: ^0.2.0
   # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
-  device_display_brightness: ^0.0.6
+  # device_display_brightness: ^0.0.6
+  screen_brightness: ^0.2.2
   workmanager: ^0.5.1
   platform_device_id: ^1.0.1
   wakelock: ^0.6.2

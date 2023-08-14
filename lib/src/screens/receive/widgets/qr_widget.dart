@@ -12,6 +12,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget({
@@ -194,14 +195,14 @@ class QRWidget extends StatelessWidget {
     }
 
     // Get the current brightness:
-    final brightness = await DeviceDisplayBrightness.getBrightness();
+    final brightness = await ScreenBrightness().current;
 
     // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(1.0);
+    await ScreenBrightness().setScreenBrightness(1.0);
 
     await navigation();
 
     // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(brightness);
+    await ScreenBrightness().setScreenBrightness(brightness);
   }
 }
