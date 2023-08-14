@@ -672,5 +672,11 @@
   "slidable": "deslizable",
   "manage_nodes": "Administrar nodos",
   "etherscan_history": "historia de etherscan",
-  "template_name": "Nombre de la plantilla"
+  "template_name": "Nombre de la plantilla",
+  "support_title_live_chat": "Soporte vital",
+  "support_description_live_chat": "¡GRATIS y RÁPIDO! Los representantes de apoyo capacitado están disponibles para ayudar",
+  "support_title_guides": "Guías de billetera para pastel",
+  "support_description_guides": "Documentación y apoyo para problemas comunes",
+  "support_title_other_links": "Otros enlaces de soporte",
+  "support_description_other_links": "Únase a nuestras comunidades o comuníquese con nosotros nuestros socios a través de otros métodos"
 }
