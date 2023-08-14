@@ -227,13 +227,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.zec:
         return 'zec';
       case CryptoCurrency.bnb:
-        return currency.tag!.toLowerCase();
-      case CryptoCurrency.usdterc20:
-        return 'usdterc20';
-      case CryptoCurrency.usdttrc20:
-        return 'usdttrc20';
-      case CryptoCurrency.usdcpoly:
-        return 'usdcpoly';
+        return 'bnb-bsc';
       case CryptoCurrency.usdcsol:
         return 'usdcspl';
       case CryptoCurrency.matic:

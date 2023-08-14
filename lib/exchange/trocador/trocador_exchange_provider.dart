@@ -270,8 +270,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'ERC20';
       case CryptoCurrency.maticpoly:
         return 'Mainnet';
-      case CryptoCurrency.usdcpoly:
-        return 'MATIC';
       case CryptoCurrency.zec:
         return 'Mainnet';
       default:
@@ -287,6 +285,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'TRC20';
       case 'LN':
         return 'Lightning';
+      case 'POLY':
+        return 'MATIC',
       default:
         return tag.toLowerCase();
     }

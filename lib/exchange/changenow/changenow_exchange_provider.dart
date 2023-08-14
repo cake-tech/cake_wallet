@@ -291,6 +291,8 @@ String normalizeCryptoCurrency(CryptoCurrency currency) {
       return 'usdcmatic';
     case CryptoCurrency.maticpoly:
       return 'maticmainnet';
+    case CryptoCurrency.usdtpoly:
+      return 'usdtmatic';
     default:
       return currency.title.toLowerCase();
   }
