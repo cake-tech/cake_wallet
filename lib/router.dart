@@ -41,8 +41,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
-import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
-import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -50,6 +48,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -443,16 +442,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.support:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportPage>());
-
-    case Routes.supportLiveChat:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportChatPage>());
-
-    case Routes.supportOtherLinks:
-      return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<SupportOtherLinksPage>());
+          builder: (_) => getIt.get<SupportPage>());
 
     case Routes.unspentCoinsList:
       return MaterialPageRoute<void>(

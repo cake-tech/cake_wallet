@@ -1,9 +1,12 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
+import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'support_view_model.g.dart';
 
@@ -12,6 +15,14 @@ class SupportViewModel = SupportViewModelBase with _$SupportViewModel;
 abstract class SupportViewModelBase with Store {
   SupportViewModelBase()
   : items = [
+      RegularListItem(
+        title: S.current.faq,
+        handler: (BuildContext context) async {
+          try {
+            await launch(url);
+          } catch (e) {}
+        },
+      ),
       LinkListItem(
           title: 'Email',
           linkTitle: 'support@cakewallet.com',
@@ -74,17 +85,7 @@ abstract class SupportViewModelBase with Store {
       //    link: 'mailto:support@y.at')
   ];
 
-  final guidesUrl = 'https://guides.cakewallet.com';
-
-  String fetchUrl({String locale = "en", String authToken = ""}) {
-    var supportUrl =
-        "https://support.cakewallet.com/widget?website_token=${secrets.chatwootWebsiteToken}&locale=${locale}";
-
-    if (authToken.isNotEmpty)
-      supportUrl += "&cw_conversation=$authToken";
-
-    return supportUrl;
-  }
+  static const url = 'https://guides.cakewallet.com';
 
   List<SettingsListItem> items;
 }

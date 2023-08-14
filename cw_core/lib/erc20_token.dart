@@ -1,5 +1,4 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'erc20_token.g.dart';
@@ -54,7 +53,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           iconPath: icon,
         );
 
-  static const typeId = ERC20_TOKEN_TYPE_ID;
+  static const typeId = 12;
   static const boxName = 'Erc20Tokens';
 
   @override

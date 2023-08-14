@@ -664,11 +664,5 @@
   "slidable": "Posuvné",
   "manage_nodes": "Spravovat uzly",
   "etherscan_history": "Historie Etherscanu",
-  "template_name": "Název šablony",
-  "support_title_live_chat": "Živá podpora",
-  "support_description_live_chat": "Zdarma a rychle! K dispozici jsou zástupci vyškolených podpůrných podpory",
-  "support_title_guides": "Průvodce peněženkami dortu",
-  "support_description_guides": "Dokumentace a podpora běžných otázek",
-  "support_title_other_links": "Další odkazy na podporu",
-  "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody"
+  "template_name": "Název šablony"
 }
