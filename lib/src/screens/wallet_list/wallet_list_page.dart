@@ -51,7 +51,6 @@ class WalletListBodyState extends State<WalletListBody> {
     }
 
     final path = walletTypeToCryptoCurrency(type).iconPath ?? nonWalletTypeIconPath;
-    print('path: $path type: $type');
     return Image.asset(path, height: 24, width: 24);
   }
 

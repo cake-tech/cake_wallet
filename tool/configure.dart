@@ -594,6 +594,8 @@ abstract class BitcoinCash {
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
 
   TransactionPriority getDefaultTransactionPriority();
+
+  List<TransactionPriority> getTransactionPriorities();
 }
   """;
 

@@ -31,6 +31,8 @@ class CWBitcoinCash extends BitcoinCash {
       BitcoinCashTransactionPriority.deserialize(raw: raw);
 
   @override
-  TransactionPriority getDefaultTransactionPriority() =>
-      throw UnimplementedError('getDefaultTransactionPriority');
+  TransactionPriority getDefaultTransactionPriority() => BitcoinCashTransactionPriority.medium;
+
+  @override
+  List<TransactionPriority> getTransactionPriorities() => BitcoinCashTransactionPriority.all;
 }
