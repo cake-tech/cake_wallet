@@ -672,11 +672,5 @@
   "slidable": "Klizna",
   "manage_nodes": "Upravljanje čvorovima",
   "etherscan_history": "Etherscan povijest",
-  "template_name": "Naziv predloška",
-  "support_title_live_chat": "Podrška uživo",
-  "support_description_live_chat": "Besplatno i brzo! Obučeni predstavnici podrške dostupni su za pomoć",
-  "support_title_guides": "Vodiči za torte",
-  "support_description_guides": "Dokumentacija i podrška za uobičajena pitanja",
-  "support_title_other_links": "Ostale veze za podršku",
-  "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama"
+  "template_name": "Naziv predloška"
 }

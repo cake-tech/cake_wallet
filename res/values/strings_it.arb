@@ -672,11 +672,5 @@
   "slidable": "Scorrevole",
   "manage_nodes": "Gestisci i nodi",
   "etherscan_history": "Storia Etherscan",
-  "template_name": "Nome modello",
-  "support_title_live_chat": "Supporto dal vivo",
-  "support_description_live_chat": "Gratuito e veloce! I rappresentanti di supporto qualificati sono disponibili per assistere",
-  "support_title_guides": "Guide del portafoglio per torte",
-  "support_description_guides": "Documentazione e supporto per problemi comuni",
-  "support_title_other_links": "Altri collegamenti di supporto",
-  "support_description_other_links": "Unisciti alle nostre comunità o raggiungici i nostri partner attraverso altri metodi"
+  "template_name": "Nome modello"
 }

@@ -1,4 +1,3 @@
-import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'exchange_template.g.dart';
@@ -15,7 +14,7 @@ class ExchangeTemplate extends HiveObject {
       required this.depositCurrencyTitleRaw,
       required this.receiveCurrencyTitleRaw});
 
-  static const typeId = EXCHANGE_TEMPLATE_TYPE_ID;
+  static const typeId = 7;
   static const boxName = 'ExchangeTemplate';
 
   @HiveField(0)

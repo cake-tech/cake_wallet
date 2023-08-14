@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -59,8 +58,8 @@ abstract class EthereumWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = EthereumTransactionHistory(walletInfo: walletInfo, password: password);
 
-    if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
-      CakeHive.registerAdapter(Erc20TokenAdapter());
+    if (!Hive.isAdapterRegistered(Erc20Token.typeId)) {
+      Hive.registerAdapter(Erc20TokenAdapter());
     }
 
     _sharedPrefs.complete(SharedPreferences.getInstance());
@@ -96,7 +95,7 @@ abstract class EthereumWalletBase
   Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
-    erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
+    erc20TokensBox = await Hive.openBox<Erc20Token>(Erc20Token.boxName);
     await walletAddresses.init();
     await transactionHistory.init();
     _privateKey = await getPrivateKey(_mnemonic, _password);
