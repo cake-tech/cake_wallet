@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -54,8 +55,8 @@ abstract class NanoWalletBase
         super(walletInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = NanoTransactionHistory(walletInfo: walletInfo, password: password);
-    if (!Hive.isAdapterRegistered(NanoAccount.typeId)) {
-      Hive.registerAdapter(NanoAccountAdapter());
+    if (!CakeHive.isAdapterRegistered(NanoAccount.typeId)) {
+      CakeHive.registerAdapter(NanoAccountAdapter());
     }
   }
 

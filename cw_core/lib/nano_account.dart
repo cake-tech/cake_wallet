@@ -1,3 +1,4 @@
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'nano_account.g.dart';
@@ -6,7 +7,7 @@ part 'nano_account.g.dart';
 class NanoAccount extends HiveObject {
   NanoAccount({required this.label, required this.id, this.balance, this.isSelected = false});
 
-  static const typeId = 13;
+  static const typeId = NANO_ACCOUNT_TYPE_ID;
 
   @HiveField(0)
   String label;

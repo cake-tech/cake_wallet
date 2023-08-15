@@ -45,46 +45,51 @@ class WalletRestoreChooseDerivationPage extends BasePage {
               itemCount: snapshot.data!.length,
               itemBuilder: (__, index) {
                 final derivation = snapshot.data![index];
-                return Container(
-                  margin: const EdgeInsets.only(left: 16, right: 16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30.0),
-                    border: Border.all(
-                      color: getIt.get<SettingsStore>().currentTheme.type == ThemeType.bright
-                          ? Color.fromRGBO(255, 255, 255, 0.2)
-                          : Colors.transparent,
-                      width: 1,
-                    ),
-                    color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
-                  ),
+                return InkWell(
+                  onTap: () async {
+                    Navigator.pop(context, derivation.derivationType);
+                  },
                   child: Container(
-                    margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          derivation.address,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color:
-                                Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-                            height: 1,
+                    margin: const EdgeInsets.only(left: 16, right: 16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30.0),
+                      border: Border.all(
+                        color: getIt.get<SettingsStore>().currentTheme.type == ThemeType.bright
+                            ? Color.fromRGBO(255, 255, 255, 0.2)
+                            : Colors.transparent,
+                        width: 1,
+                      ),
+                      color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            derivation.address,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w400,
+                              color:
+                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                              height: 1,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "${S.current.confirmed}: ${derivation.balance}",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color:
-                                Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-                            height: 2,
+                          Text(
+                            "${S.current.confirmed}: ${derivation.balance}",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w400,
+                              color:
+                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                              height: 2,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );

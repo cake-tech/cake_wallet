@@ -1,3 +1,4 @@
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/nano_account.dart';
@@ -27,7 +28,7 @@ abstract class NanoWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> init() async {
-    var box = await Hive.openBox<NanoAccount>(walletInfo.address);
+    var box = await CakeHive.openBox<NanoAccount>(walletInfo.address);
     try {
       box.getAt(0);
     } catch (e) {

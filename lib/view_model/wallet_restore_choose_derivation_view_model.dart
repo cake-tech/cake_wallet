@@ -1,3 +1,5 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_util.dart';
@@ -21,20 +23,19 @@ class Derivation {
 }
 
 abstract class WalletRestoreChooseDerivationViewModelBase with Store {
-  WalletRestoreChooseDerivationViewModelBase({required this.credentials, required this.type})
+  WalletRestoreChooseDerivationViewModelBase({required this.credentials})
       : mode = WalletRestoreMode.seed {}
 
-  WalletType type;
+  
   dynamic credentials;
 
   @observable
   WalletRestoreMode mode;
 
-  @observable
   Future<List<Derivation>> get derivations async {
     var list = <Derivation>[];
 
-    switch (type) {
+    switch (getIt.get<AppStore>().wallet!.type) {
       case WalletType.nano:
         var seed = credentials['seed'] as String;
         var bip39Info =

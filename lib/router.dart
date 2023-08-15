@@ -201,9 +201,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletRestoreChooseDerivationPage>(
-              param1: (settings.arguments as dynamic)!["walletType"] as WalletType,
-              param2: (settings.arguments as dynamic)!["credentials"]));
+          builder: (_) =>
+              getIt.get<WalletRestoreChooseDerivationPage>(param1: settings.arguments as dynamic));
 
     case Routes.sweepingWalletPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
@@ -420,17 +419,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportPage>());
 
     case Routes.supportLiveChat:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportChatPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportChatPage>());
 
     case Routes.supportOtherLinks:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<SupportOtherLinksPage>());
+          fullscreenDialog: true, builder: (_) => getIt.get<SupportOtherLinksPage>());
 
     case Routes.unspentCoinsList:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<UnspentCoinsListPage>());

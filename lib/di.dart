@@ -851,14 +851,13 @@ Future setup({
       (type, _) => WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, WalletType, dynamic>(
-      (type, credentials) =>
-          WalletRestoreChooseDerivationViewModel(type: type, credentials: credentials));
+      (credentials, _) =>
+          WalletRestoreChooseDerivationViewModel(credentials: credentials));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, WalletType, dynamic>(
-      (type, credentials) =>
+      (credentials, _) =>
           WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
-            param1: type,
-            param2: credentials,
+            param1: credentials,
           )));
 
   getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
