@@ -5,9 +5,7 @@ import 'package:hive/hive.dart';
 
 part 'wallet_info.g.dart';
 
-
-const derivationTypeTypeId = 15;
-@HiveType(typeId: derivationTypeTypeId)
+@HiveType(typeId: DERIVATION_TYPE_TYPE_ID)
 enum DerivationType {
   @HiveField(0)
   unknown,
