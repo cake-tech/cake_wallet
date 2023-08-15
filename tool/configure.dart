@@ -25,6 +25,7 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'package:cake_wallet/entities/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -104,6 +105,9 @@ abstract class Bitcoin {
 Future<void> generateMonero(bool hasImplementation) async {
   final outputFile = File(moneroOutputPath);
   const moneroCommonHeaders = """
+import 'package:cake_wallet/entities/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_monero/monero_unspent.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';
