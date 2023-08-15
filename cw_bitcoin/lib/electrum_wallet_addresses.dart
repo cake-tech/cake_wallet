@@ -4,6 +4,7 @@ import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
@@ -108,7 +109,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     
     if (changeAddresses.isEmpty) {
       final newAddresses = await _createNewAddresses(
-        gap,
+          (walletInfo.type != WalletType.bitcoinCash ? gap : 0), //TODO: BCH: Fix this
         hd: sideHd,
         startIndex: totalCountOfChangeAddresses > 0
           ? totalCountOfChangeAddresses -  1
@@ -179,8 +180,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     } else {
       addrs = await _createNewAddresses(
           isHidden
-            ? defaultChangeAddressesCount
-            : defaultReceiveAddressesCount,
+            ? walletInfo.type != WalletType.bitcoinCash ? defaultChangeAddressesCount : 0 //TODO: BCH: Fix this
+            : walletInfo.type != WalletType.bitcoinCash ? defaultReceiveAddressesCount : 1, //TODO: BCH: Fix this
           startIndex: 0,
           hd: hd,
           isHidden: isHidden);
@@ -195,7 +196,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
 
       final start = addrs.length;
-      final count = start + gap;
+      final count = start + (walletInfo.type != WalletType.bitcoinCash ? gap : 0); //TODO: BCH: Fix this
       final batch = await _createNewAddresses(
         count,
         startIndex: start,
@@ -222,8 +223,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       countOfReceiveAddresses += 1;
     });
 
-    if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
-      final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
+    if (countOfReceiveAddresses < (walletInfo.type != WalletType.bitcoinCash ? defaultReceiveAddressesCount : 1)) { //TODO: BCH: Fix this
+      final addressesCount = (walletInfo.type != WalletType.bitcoinCash ? defaultReceiveAddressesCount : 1) - countOfReceiveAddresses;
       final newAddresses = await _createNewAddresses(
           addressesCount,
           startIndex: countOfReceiveAddresses,
@@ -232,8 +233,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       addresses.addAll(newAddresses);
     }
 
-    if (countOfHiddenAddresses < defaultChangeAddressesCount) {
-      final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
+    if (countOfHiddenAddresses < (walletInfo.type != WalletType.bitcoinCash ? defaultChangeAddressesCount : 0)) { //TODO: BCH: Fix this
+      final addressesCount = (walletInfo.type != WalletType.bitcoinCash ? defaultChangeAddressesCount : 0) - countOfHiddenAddresses;
       final newAddresses = await _createNewAddresses(
           addressesCount,
           startIndex: countOfHiddenAddresses,

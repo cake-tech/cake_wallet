@@ -667,11 +667,7 @@ abstract class ElectrumWalletBase
   Future<ElectrumBalance> _fetchBalances() async {
     final addresses = walletAddresses.addresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
-    var counter = addresses.length;
-
-    if (walletInfo.type == WalletType.bitcoinCash) counter = 1; //TODO: BCH: remove this check when supported
-
-    for (var i = 0; i < counter; i++) {
+    for (var i = 0; i < addresses.length; i++) {
       final addressRecord = addresses[i];
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       final balanceFuture = electrumClient.getBalance(sh);
