@@ -650,5 +650,11 @@
   "slidable": "Mai iya zamewa",
   "etherscan_history": "Etherscan tarihin kowane zamani",
   "manage_nodes": "Sarrafa nodes",
-  "template_name": "Sunan Samfura"
+  "template_name": "Sunan Samfura",
+  "support_title_live_chat": "Tallafi na Live",
+  "support_description_live_chat": "Kyauta da sauri! An horar da wakilan tallafi na tallafi don taimakawa",
+  "support_title_guides": "Jagorar Cake",
+  "support_description_guides": "Tallafi da tallafi don batutuwa na yau da kullun",
+  "support_title_other_links": "Sauran hanyoyin tallafi",
+  "support_description_other_links": "Kasance tare da al'ummominmu ko kuma ka kai mu abokanmu ta hanyar wasu hanyoyi"
 }

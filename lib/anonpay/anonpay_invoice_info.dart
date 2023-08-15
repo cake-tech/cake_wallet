@@ -1,4 +1,5 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:hive/hive.dart';
 
@@ -35,7 +36,7 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoB
   @HiveField(13)
   final String provider;
 
-  static const typeId = 10;
+  static const typeId = ANONPAY_INVOICE_INFO_TYPE_ID;
   static const boxName = 'AnonpayInvoiceInfo';
 
   AnonpayInvoiceInfo({

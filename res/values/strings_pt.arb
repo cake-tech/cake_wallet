@@ -671,5 +671,11 @@
   "slidable": "Deslizável",
   "manage_nodes": "Gerenciar nós",
   "etherscan_history": "história Etherscan",
-  "template_name": "Nome do modelo"
+  "template_name": "Nome do modelo",
+  "support_title_live_chat": "Apoio ao vivo",
+  "support_description_live_chat": "Livre e rápido! Representantes de suporte treinado estão disponíveis para ajudar",
+  "support_title_guides": "Guias da carteira de bolo",
+  "support_description_guides": "Documentação e suporte para problemas comuns",
+  "support_title_other_links": "Outros links de suporte",
+  "support_description_other_links": "Junte -se às nossas comunidades ou chegue a nós nossos parceiros por meio de outros métodos"
 }

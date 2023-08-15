@@ -1,3 +1,4 @@
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'template.g.dart';
@@ -14,7 +15,7 @@ class Template extends HiveObject {
       required this.amountFiatRaw,
       this.additionalRecipientsRaw});
 
-  static const typeId = 6;
+  static const typeId = TEMPLATE_TYPE_ID;
   static const boxName = 'Template';
 
   @HiveField(0)

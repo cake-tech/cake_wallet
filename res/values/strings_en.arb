@@ -672,5 +672,11 @@
   "slidable": "Slidable",
   "manage_nodes": "Manage nodes",
   "etherscan_history": "Etherscan history",
-  "template_name": "Template Name"
+  "template_name": "Template Name",
+  "support_title_live_chat": "Live support",
+  "support_description_live_chat": "Free and fast! Trained support representatives are available to assist",
+  "support_title_guides": "Cake Wallet guides",
+  "support_description_guides": "Documentation and support for common issues",
+  "support_title_other_links": "Other support links",
+  "support_description_other_links": "Join our communities or reach us our our partners through other methods"
 }
