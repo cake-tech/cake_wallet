@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_nano/nano_wallet.dart';
+import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -116,6 +117,27 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
 
     throw Exception('Unexpected type: ${type.toString()}');
+  }
+
+  @override
+  Future<List<DerivationType>> getDerivationType(dynamic options) async {
+    final seed = options['seed'] as String?;
+
+    switch (type) {
+      // case WalletType.bitcoin:
+      //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+      //       name: name, mnemonic: seed, password: password);
+      // case WalletType.litecoin:
+      //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+      //       name: name, mnemonic: seed, password: password);
+      case WalletType.nano:
+        return await NanoWalletService.compareDerivationMethods(mnemonic: seed, seedKey: null);
+      default:
+        break;
+    }
+
+    // throw Exception('Unexpected type: ${type.toString()}');
+    return [DerivationType.def];
   }
 
   @override

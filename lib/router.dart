@@ -19,6 +19,7 @@ import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
@@ -197,6 +198,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<WalletRestorePage>(param1: settings.arguments as WalletType));
 
+    case Routes.restoreWalletChooseDerivation:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<WalletRestoreChooseDerivationPage>(
+              param1: (settings.arguments as dynamic)!["walletType"] as WalletType,
+              param2: (settings.arguments as dynamic)!["credentials"]));
+
     case Routes.sweepingWalletPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
 
@@ -315,17 +322,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.otherSettingsPage:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<OtherSettingsPage>());
+          fullscreenDialog: true, builder: (_) => getIt.get<OtherSettingsPage>());
 
     case Routes.newNode:
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NodeCreateOrEditPage>(
-            param1: args?['editingNode'] as Node?,
-            param2: args?['isSelected'] as bool?));
-
-
+              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
@@ -334,8 +337,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.nanoAccountCreation:
       return CupertinoPageRoute<String>(
-          builder: (_) => getIt.get<NanoAccountEditOrCreatePage>(
-              param1: settings.arguments as NanoAccount?));
+          builder: (_) =>
+              getIt.get<NanoAccountEditOrCreatePage>(param1: settings.arguments as NanoAccount?));
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(

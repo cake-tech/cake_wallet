@@ -27,6 +27,7 @@ import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_creat
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_pow_nodes_page.dart';
@@ -85,6 +86,7 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -845,6 +847,17 @@ Future setup({
 
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>(
       (type, _) => WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
+
+  getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, WalletType, dynamic>(
+      (type, credentials) =>
+          WalletRestoreChooseDerivationViewModel(type: type, credentials: credentials));
+
+  getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, WalletType, dynamic>(
+      (type, credentials) =>
+          WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
+            param1: type,
+            param2: credentials,
+          )));
 
   getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) {

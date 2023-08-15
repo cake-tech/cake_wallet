@@ -105,7 +105,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
 
-    currentWalletInfo.derivationType = DerivationType.nano;// doesn't matter for the rename action
+    currentWalletInfo.derivationType = DerivationType.nano; // doesn't matter for the rename action
 
     String randomWords =
         (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
@@ -121,14 +121,52 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
-  static Future<DerivationType> compareDerivationMethods({String? mnemonic, String? seedKey}) async {
+  static Future<dynamic> getInfoFromSeedOrMnemonic(DerivationType derivationType,
+      {String? seedKey, String? mnemonic}) async {
+    NanoClient nanoClient = NanoClient();
+    // TODO: figure out how to load the current node uri in this context:
+    nanoClient.connect(Node(
+      uri: NanoClient.BACKUP_NODE_URI,
+      type: WalletType.nano,
+    ));
+    late String publicAddress;
+
+    if (seedKey != null) {
+      if (derivationType == DerivationType.bip39) {
+        publicAddress = await NanoUtil.hdSeedToAddress(seedKey, 0);
+      } else if (derivationType == DerivationType.nano) {
+        publicAddress = await NanoUtil.seedToAddress(seedKey, 0);
+      }
+    }
+
+    if (derivationType == DerivationType.bip39) {
+      if (mnemonic != null) {
+        seedKey = await NanoUtil.hdMnemonicListToSeed(mnemonic.split(' '));
+        publicAddress = await NanoUtil.hdSeedToAddress(seedKey, 0);
+      }
+    }
+
+    if (derivationType == DerivationType.nano) {
+      if (mnemonic != null) {
+        seedKey = await NanoUtil.mnemonicToSeed(mnemonic);
+        publicAddress = await NanoUtil.seedToAddress(seedKey, 0);
+      }
+    }
+
+    var accountInfo = await nanoClient.getAccountInfo(publicAddress);
+    accountInfo["address"] = publicAddress;
+    return accountInfo;
+  }
+
+  static Future<List<DerivationType>> compareDerivationMethods(
+      {String? mnemonic, String? seedKey}) async {
     if (mnemonic?.split(' ').length == 12) {
-      return DerivationType.bip39;
+      return [DerivationType.bip39];
     }
     if (seedKey?.length == 128) {
-      return DerivationType.bip39;
+      return [DerivationType.bip39];
     } else if (seedKey?.length == 64) {
-      return DerivationType.nano;
+      return [DerivationType.nano];
     }
 
     late String publicAddressStandard;
@@ -152,31 +190,18 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
         try {
           publicAddressBip39 = await NanoUtil.hdSeedToAddress(seedKey, 0);
         } catch (e) {
-          return DerivationType.nano;
+          return [DerivationType.nano];
         }
         try {
           publicAddressStandard = await NanoUtil.seedToAddress(seedKey, 0);
         } catch (e) {
-          return DerivationType.bip39;
+          return [DerivationType.bip39];
         }
       }
-      // check if either has a balance:
-      // NanoBalance bip39Balance = await nanoClient.getBalance(publicAddressBip39);
-      // NanoBalance standardBalance = await nanoClient.getBalance(publicAddressStandard);
-      // // TODO: this is a super basic implementation, and if both addresses have balances
-      // // it might not be the one that the user wants, though it is unlikely
-      // if (bip39Balance.currentBalance > standardBalance.currentBalance) {
-      //   return DerivationType.bip39;
-      // } else {
-      //   return DerivationType.nano;
-      // }
 
       // check if account has a history:
       var bip39Info;
       var standardInfo;
-
-      print(publicAddressBip39);
-      print(publicAddressStandard);
 
       try {
         bip39Info = await nanoClient.getAccountInfo(publicAddressBip39);
@@ -190,26 +215,18 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       }
 
       // one of these is *probably* null:
-      if (bip39Info == null || bip39Info["error"] != null) {
-        return DerivationType.nano;
-      } else if (standardInfo == null || standardInfo["error"] != null) {
-        return DerivationType.bip39;
+      if ((bip39Info == null || bip39Info["error"] != null) &&
+          (standardInfo != null && standardInfo["error"] == null)) {
+        return [DerivationType.nano];
+      } else if ((standardInfo == null || standardInfo["error"] != null) &&
+          (bip39Info != null && bip39Info["error"] == null)) {
+        return [DerivationType.bip39];
       }
 
-      // both are non-null:
-      var bip39Height = int.parse(bip39Info['confirmation_height'] as String);
-      var standardHeight = int.parse(standardInfo['confirmation_height'] as String);
-
-      print(bip39Height);
-      print(standardHeight);
-
-      if (bip39Height > standardHeight) {
-        return DerivationType.bip39;
-      } else {
-        return DerivationType.nano;
-      }
+      // we don't know for sure:
+      return [DerivationType.nano, DerivationType.bip39];
     } catch (e) {
-      return DerivationType.nano;
+      return [DerivationType.unknown];
     }
   }
 
@@ -246,8 +263,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       throw nm.NanoMnemonicIsIncorrectException();
     }
 
-    DerivationType derivationType = credentials.derivationType ??
-        await compareDerivationMethods(mnemonic: credentials.mnemonic);
+    DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;
 
     credentials.walletInfo!.derivationType = derivationType;
 

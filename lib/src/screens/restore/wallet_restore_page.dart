@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -101,6 +102,7 @@ class WalletRestorePage extends BasePage {
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
+  DerivationType derivationType = DerivationType.unknown;
 
   @override
   Widget body(BuildContext context) {
@@ -256,10 +258,12 @@ class WalletRestorePage extends BasePage {
           walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
     }
 
+    credentials['derivationType'] = this.derivationType;
+
     return credentials;
   }
 
-  void _confirmForm(BuildContext context) {
+  void _confirmForm(BuildContext context) async {
     // Dismissing all visible keyboard to provide context for navigation
     FocusManager.instance.primaryFocus?.unfocus();
     final formContext = walletRestoreViewModel.mode == WalletRestoreMode.seed
@@ -283,12 +287,25 @@ class WalletRestorePage extends BasePage {
       return;
     }
 
-    var credentials = walletRestoreViewModel.getCredentials(_credentials());
-    if (credentials.walletInfo?.derivationType == DerivationType.unknown) {
-      
+    List<DerivationType> derivationTypes =
+        await walletRestoreViewModel.getDerivationType(_credentials());
+    if (derivationTypes[0] == DerivationType.unknown || derivationTypes.length > 0) {
+      // push screen to choose the derivation type:
+      var derivationType =
+          await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation, arguments: {
+        "walletType": walletRestoreViewModel.type,
+        "credentials": _credentials(),
+      }) as DerivationType?;
+      if (derivationType == null) {
+        return;
+      }
+      this.derivationType = derivationType;
     }
 
-    walletRestoreViewModel.create(options: _credentials());
+    print(this.derivationType);
+
+    // todo: re-enable
+    // walletRestoreViewModel.create(options: _credentials());
   }
 
   Future<void> showNameExistsAlert(BuildContext context) {
