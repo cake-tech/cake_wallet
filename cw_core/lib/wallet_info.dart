@@ -5,11 +5,25 @@ import 'dart:async';
 
 part 'wallet_info.g.dart';
 
+
+const derivationTypeTypeId = 15;
+@HiveType(typeId: derivationTypeTypeId)
+enum DerivationType {
+  @HiveField(0)
+  unknown,
+  @HiveField(1)
+  def,// default is a reserved word
+  @HiveField(2)
+  nano,
+  @HiveField(3)
+  bip39,
+}
+
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
       this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
-        this.yatLastUsedAddressRaw, this.showIntroCakePayCard)
+        this.yatLastUsedAddressRaw, this.showIntroCakePayCard, this.derivationType)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
@@ -23,11 +37,12 @@ class WalletInfo extends HiveObject {
       required String path,
       required String address,
       bool? showIntroCakePayCard,
-      String yatEid ='',
-      String yatLastUsedAddressRaw = ''}) {
+      String yatEid = '',
+      String yatLastUsedAddressRaw = '',
+      DerivationType? derivationType}) {
     return WalletInfo(id, name, type, isRecovery, restoreHeight,
         date.millisecondsSinceEpoch, dirPath, path, address,
-        yatEid, yatLastUsedAddressRaw, showIntroCakePayCard);
+        yatEid, yatLastUsedAddressRaw, showIntroCakePayCard, derivationType);
   }
 
   static const typeId = 4;
@@ -71,6 +86,9 @@ class WalletInfo extends HiveObject {
 
   @HiveField(13)
   bool? showIntroCakePayCard;
+
+  @HiveField(14)
+  DerivationType? derivationType;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
