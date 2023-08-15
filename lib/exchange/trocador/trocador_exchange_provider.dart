@@ -286,7 +286,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       case 'LN':
         return 'Lightning';
       case 'POLY':
-        return 'MATIC',
+        return 'MATIC';
       default:
         return tag.toLowerCase();
     }
