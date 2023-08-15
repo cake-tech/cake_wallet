@@ -676,5 +676,11 @@
   "change_rep": "Changer de représentant",
   "change_rep_message": "Êtes-vous sûr de vouloir changer de représentant ?",
   "unsupported_asset": "Nous ne prenons pas en charge cette action pour cet élément. Veuillez créer ou passer à un portefeuille d'un type d'actif pris en charge.",
-  "manage_pow_nodes": "Gérer les nœuds PoW"
+  "manage_pow_nodes": "Gérer les nœuds PoW",
+  "support_title_live_chat": "Support en direct",
+  "support_description_live_chat": "GRATUIT ET RAPIDE! Des représentants de soutien formé sont disponibles pour aider",
+  "support_title_guides": "Guides de portefeuille à gâteau",
+  "support_description_guides": "Documentation et soutien aux problèmes communs",
+  "support_title_other_links": "Autres liens d'assistance",
+  "support_description_other_links": "Rejoignez nos communautés ou contactez-nous nos partenaires à travers d'autres méthodes"
 }

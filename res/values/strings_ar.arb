@@ -671,6 +671,12 @@
   "change_rep": "ﺏﻭﺪﻨﻣ ﺮﻴﻴﻐﺗ",
   "change_rep_message": "؟ﻦﻴﻠﺜﻤﻤﻟﺍ ﺮﻴﻴﻐﺗ ﺪﻳﺮﺗ ﻚﻧﺃ ﺪﻛﺄﺘﻣ ﺖﻧﺃ ﻞﻫ",
   "manage_nodes": "ﺪﻘﻌﻟﺍ ﺓﺭﺍﺩﺇ",
-  "unsupported_asset": "                                                                                                                        .ﻡﻮﻋﺪﻣ ﻞﺻﺃ ﻉﻮﻧ ﻦﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻭﺃ ءﺎﺸﻧﺇ ﻰﺟﺮﻳ .ﻞﺻﻷ﻿ﺍ ﺍﺬﻬﻟ ءﺍﺮﺟﻹ﻿ﺍ ﺍﺬﻫ ﻢﻋﺪﻧ ﻻ﻿ ﻦﺤﻧ",
-  "manage_pow_nodes": "                                                                                                                                                                                            PoW ﻁﺎﻘﻧ ﺓﺭﺍﺩﺇ"
+  "unsupported_asset": ".ﻡﻮﻋﺪﻣ ﻞﺻﺃ ﻉﻮﻧ ﻦﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻭﺃ ءﺎﺸﻧﺇ ﻰﺟﺮﻳ .ﻞﺻﻷ﻿ﺍ ﺍﺬﻬﻟ ءﺍﺮﺟﻹ﻿ﺍ ﺍﺬﻫ ﻢﻋﺪﻧ ﻻ﻿ ﻦﺤﻧ",
+  "manage_pow_nodes": "PoW ﻁﺎﻘﻧ ﺓﺭﺍﺩﺇ",
+  "support_title_live_chat": "الدعم المباشر",
+  "support_description_live_chat": "حرة وسريعة! ممثلو الدعم المدربين متاحون للمساعدة",
+  "support_title_guides": "أدلة محفظة كعكة",
+  "support_description_guides": "توثيق ودعم القضايا المشتركة",
+  "support_title_other_links": "روابط دعم أخرى",
+  "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى"
 }

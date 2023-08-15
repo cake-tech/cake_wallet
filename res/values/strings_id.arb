@@ -664,5 +664,11 @@
   "change_rep": "Ubah Perwakilan",
   "change_rep_message": "Apakah Anda yakin ingin mengubah perwakilan?",
   "unsupported_asset": "Kami tidak mendukung tindakan ini untuk aset ini. Harap buat atau alihkan ke dompet dari jenis aset yang didukung.",
-  "manage_pow_nodes": "Kelola Node PoW"
+  "manage_pow_nodes": "Kelola Node PoW",
+  "support_title_live_chat": "Dukungan langsung",
+  "support_description_live_chat": "Gratis dan Cepat! Perwakilan dukungan terlatih tersedia untuk membantu",
+  "support_title_guides": "Panduan Dompet Kue",
+  "support_description_guides": "Dokumentasi dan dukungan untuk masalah umum",
+  "support_title_other_links": "Tautan dukungan lainnya",
+  "support_description_other_links": "Bergabunglah dengan komunitas kami atau hubungi kami mitra kami melalui metode lain"
 }

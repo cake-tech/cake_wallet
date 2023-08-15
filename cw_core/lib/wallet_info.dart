@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'dart:async';
+import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
 
 part 'wallet_info.g.dart';
 
@@ -45,7 +45,7 @@ class WalletInfo extends HiveObject {
         yatEid, yatLastUsedAddressRaw, showIntroCakePayCard, derivationType);
   }
 
-  static const typeId = 4;
+  static const typeId = WALLET_INFO_TYPE_ID;
   static const boxName = 'WalletInfo';
 
   @HiveField(0, defaultValue: '')

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class RestoreButton extends StatelessWidget {
-  const RestoreButton(
+class SupportTile extends StatelessWidget {
+  const SupportTile(
       {required this.onPressed,
       required this.image,
       required this.title,
@@ -18,16 +18,15 @@ class RestoreButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        height: 170,
         padding: EdgeInsets.all(24),
-        alignment: Alignment.topLeft,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
           color: Theme.of(context).accentTextTheme.bodySmall!.color!,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             image,
@@ -42,24 +41,20 @@ class RestoreButton extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .titleLarge!
-                              .color!),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                      ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
                         description,
                         style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .labelSmall!
-                                .color!),
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).primaryTextTheme.labelSmall!.color!,
+                        ),
                       ),
                     )
                   ],

@@ -676,5 +676,11 @@
   "change_rep": "Vertegenwoordiger wijzigen",
   "change_rep_message": "Weet u zeker dat u van vertegenwoordiger wilt veranderen?",
   "unsupported_asset": "We ondersteunen deze actie niet voor dit item. Maak of schakel over naar een portemonnee van een ondersteund activatype.",
-  "manage_pow_nodes": "PoW-knooppunten beheren"
+  "manage_pow_nodes": "PoW-knooppunten beheren",
+  "support_title_live_chat": "Live ondersteuning",
+  "support_description_live_chat": "Gratis en snel! Getrainde ondersteuningsvertegenwoordigers zijn beschikbaar om te helpen",
+  "support_title_guides": "Cake -portemonnee gidsen",
+  "support_description_guides": "Documentatie en ondersteuning voor gemeenschappelijke problemen",
+  "support_title_other_links": "Andere ondersteuningslinks",
+  "support_description_other_links": "Word lid van onze gemeenschappen of bereik ons ​​onze partners via andere methoden"
 }

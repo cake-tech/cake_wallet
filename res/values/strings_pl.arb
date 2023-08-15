@@ -676,5 +676,11 @@
   "change_rep": "Zmień przedstawiciela",
   "change_rep_message": "Czy na pewno chcesz zmienić przedstawiciela?",
   "unsupported_asset": "Nie obsługujemy tego działania w przypadku tego zasobu. Utwórz lub przełącz się na portfel obsługiwanego typu aktywów.",
-  "manage_pow_nodes": "Zarządzaj węzłami PoW"
+  "manage_pow_nodes": "Zarządzaj węzłami PoW",
+  "support_title_live_chat": "Wsparcie na żywo",
+  "support_description_live_chat": "Darmowe i szybkie! Do pomocy są dostępni przeszkoleni przedstawiciele wsparcia",
+  "support_title_guides": "Przewodniki portfela ciasta",
+  "support_description_guides": "Dokumentacja i wsparcie dla typowych problemów",
+  "support_title_other_links": "Inne linki wsparcia",
+  "support_description_other_links": "Dołącz do naszych społeczności lub skontaktuj się z nami naszymi partnerami za pomocą innych metod"
 }

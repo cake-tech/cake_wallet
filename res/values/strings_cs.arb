@@ -668,5 +668,11 @@
   "change_rep": "Změna zástupce",
   "change_rep_message": "Jste si jisti, že chcete změnit zástupce?",
   "unsupported_asset": "Tuto akci u tohoto díla nepodporujeme. Vytvořte nebo přepněte na peněženku podporovaného typu aktiv.",
-  "manage_pow_nodes": "Správa uzlů PoW"
+  "manage_pow_nodes": "Správa uzlů PoW",
+  "support_title_live_chat": "Živá podpora",
+  "support_description_live_chat": "Zdarma a rychle! K dispozici jsou zástupci vyškolených podpůrných podpory",
+  "support_title_guides": "Průvodce peněženkami dortu",
+  "support_description_guides": "Dokumentace a podpora běžných otázek",
+  "support_title_other_links": "Další odkazy na podporu",
+  "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody"
 }

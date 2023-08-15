@@ -654,5 +654,11 @@
   "change_rep_message": "Shin kun tabbata kuna son canza wakilai?",
   "manage_nodes": "Sarrafa nodes",
   "unsupported_asset": "Ba mu goyi bayan wannan aikin don wannan kadara. Da fatan za a ƙirƙira ko canza zuwa walat na nau'in kadara mai tallafi.",
-  "manage_pow_nodes": "Sarrafa PoW Nodes"
+  "manage_pow_nodes": "Sarrafa PoW Nodes",
+  "support_title_live_chat": "Tallafi na Live",
+  "support_description_live_chat": "Kyauta da sauri! An horar da wakilan tallafi na tallafi don taimakawa",
+  "support_title_guides": "Jagorar Cake",
+  "support_description_guides": "Tallafi da tallafi don batutuwa na yau da kullun",
+  "support_title_other_links": "Sauran hanyoyin tallafi",
+  "support_description_other_links": "Kasance tare da al'ummominmu ko kuma ka kai mu abokanmu ta hanyar wasu hanyoyi"
 }
