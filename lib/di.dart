@@ -750,7 +750,7 @@ Future setup({
       case WalletType.haven:
         return haven!.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_walletInfoSource);
+        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
       case WalletType.litecoin:

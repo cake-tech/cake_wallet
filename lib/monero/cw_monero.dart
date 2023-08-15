@@ -337,8 +337,8 @@ class CWMonero extends Monero {
 	}
 
 	@override
-	WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource) {
-		return MoneroWalletService(walletInfoSource);
+	WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
+		return MoneroWalletService(walletInfoSource, unspentCoinSource);
 	}
 
 	@override
@@ -357,5 +357,20 @@ class CWMonero extends Monero {
 	Map<String, String> pendingTransactionInfo(Object transaction) {
 		final ptx = transaction as PendingMoneroTransaction;
 		return {'id': ptx.id, 'hex': ptx.hex, 'key': ptx.txKey};
+	}
+
+  @override
+  List<Unspent> getUnspents(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.unspentCoins
+        .map((MoneroUnspent moneroUnspent) => Unspent(moneroUnspent.address, moneroUnspent.hash,
+            moneroUnspent.value, 0, moneroUnspent.keyImage))
+        .toList();
+  }
+
+	@override
+  void updateUnspents(Object wallet) async {
+		final moneroWallet = wallet as MoneroWallet;
+		await moneroWallet.updateUnspent();
 	}
 }

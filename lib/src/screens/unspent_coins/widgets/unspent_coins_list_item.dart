@@ -88,7 +88,7 @@ class UnspentCoinsListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         AutoSizeText(
-                          address,
+                          '${address.substring(0, 5)}...${address.substring(address.length-5)}',
                           style: TextStyle(
                             color: addressColor,
                             fontSize: 12,

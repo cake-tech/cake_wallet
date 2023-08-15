@@ -93,6 +93,8 @@ typedef TransactionCreate = int Function(
     Pointer<Utf8> amount,
     int priorityRaw,
     int subaddrAccount,
+    Pointer<Pointer<Utf8>> preferredInputs,
+    int preferredInputsSize,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
@@ -103,6 +105,8 @@ typedef TransactionCreateMultDest = int Function(
     int size,
     int priorityRaw,
     int subaddrAccount,
+    Pointer<Pointer<Utf8>> preferredInputs,
+    int preferredInputsSize,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 

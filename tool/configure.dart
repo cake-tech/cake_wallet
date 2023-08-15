@@ -48,24 +48,6 @@ import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-class Unspent {
-  Unspent(this.address, this.hash, this.value, this.vout)
-      : isSending = true,
-        isFrozen = false,
-        note = '';
-
-  final String address;
-  final String hash;
-  final int value;
-  final int vout;
-  
-  bool isSending;
-  bool isFrozen;
-  String note;
-
-  bool get isP2wpkh => address.startsWith('bc') || address.startsWith('ltc');
-}
-
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
@@ -231,6 +213,9 @@ abstract class Monero {
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
+  
+  List<Unspent> getUnspents(Object wallet);
+  void updateUnspents(Object wallet);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
@@ -252,7 +237,7 @@ abstract class Monero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
 }
 

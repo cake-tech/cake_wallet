@@ -556,9 +556,18 @@ extern "C"
     }
 
     bool transaction_create(char *address, char *payment_id, char *amount,
-                                              uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
+                            uint8_t priority_raw, uint32_t subaddr_account,
+                            char **preferred_inputs, uint32_t preferred_inputs_size,
+                            Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         nice(19);
+
+        std::set<std::string> _preferred_inputs;
+
+        for (int i = 0; i < preferred_inputs_size; i++) {
+            _preferred_inputs.insert(std::string(*preferred_inputs));
+            preferred_inputs++;
+        }
         
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
         std::string _payment_id;
@@ -572,11 +581,11 @@ extern "C"
         if (amount != nullptr)
         {
             uint64_t _amount = Monero::Wallet::amountFromString(std::string(amount));
-            transaction = m_wallet->createTransaction(std::string(address), _payment_id, _amount, m_wallet->defaultMixin(), priority, subaddr_account);
+            transaction = m_wallet->createTransaction(std::string(address), _payment_id, _amount, m_wallet->defaultMixin(), priority, subaddr_account, {}, _preferred_inputs);
         }
         else
         {
-            transaction = m_wallet->createTransaction(std::string(address), _payment_id, Monero::optional<uint64_t>(), m_wallet->defaultMixin(), priority, subaddr_account);
+            transaction = m_wallet->createTransaction(std::string(address), _payment_id, Monero::optional<uint64_t>(), m_wallet->defaultMixin(), priority, subaddr_account, {}, _preferred_inputs);
         }
         
         int status = transaction->status();
@@ -596,7 +605,9 @@ extern "C"
     }
 
     bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
-                                                  uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
+                                      uint8_t priority_raw, uint32_t subaddr_account,
+                                      char **preferred_inputs, uint32_t preferred_inputs_size,
+                                      Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         nice(19);
 
@@ -608,6 +619,13 @@ extern "C"
             _amounts.push_back(Monero::Wallet::amountFromString(std::string(*amounts)));
             addresses++;
             amounts++;
+        }
+
+        std::set<std::string> _preferred_inputs;
+
+        for (int i = 0; i < preferred_inputs_size; i++) {
+            _preferred_inputs.insert(std::string(*preferred_inputs));
+            preferred_inputs++;
         }
 
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
@@ -889,7 +907,7 @@ extern "C"
 
         m_coins->refresh();
         for (const auto i : m_coins->getAll()) {
-            if (i->subaddrAccount() == accountIndex) {
+            if (i->subaddrAccount() == accountIndex && !(i->spent())) {
                 m_coins_info.push_back(i);
             }
         }
