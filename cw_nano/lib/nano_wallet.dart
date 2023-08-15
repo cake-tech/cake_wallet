@@ -89,6 +89,11 @@ abstract class NanoWalletBase
   Future<void> init() async {
     final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
 
+    // our "mnemonic" is actually a seedkey:
+    if (!_mnemonic.contains(' ')) {
+      _seedKey = _mnemonic;
+    }
+
     if (_seedKey == null) {
       if (_derivationType == DerivationType.nano) {
         _seedKey = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();

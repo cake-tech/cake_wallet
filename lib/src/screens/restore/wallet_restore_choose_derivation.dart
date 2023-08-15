@@ -14,7 +14,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
   @override
   Widget middle(BuildContext context) => Observer(
       builder: (_) => Text(
-            "change me",
+            S.current.choose_derivation,
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -32,61 +32,63 @@ class WalletRestoreChooseDerivationPage extends BasePage {
         future: walletRestoreChooseDerivationViewModel.derivations,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Show loading spinner while waiting
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}'); // Show error if any
+            return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Text('No derivations available'); // Show message if no derivations are available
+            return Text('No derivations available');
           } else {
             return ListView.separated(
-              physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 8)),
+              separatorBuilder: (_, __) => SizedBox(),
               itemCount: snapshot.data!.length,
               itemBuilder: (__, index) {
                 final derivation = snapshot.data![index];
-                return InkWell(
-                  onTap: () async {
-                    Navigator.pop(context, derivation.derivationType);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 16, right: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30.0),
-                      border: Border.all(
-                        color: getIt.get<SettingsStore>().currentTheme.type == ThemeType.bright
-                            ? Color.fromRGBO(255, 255, 255, 0.2)
-                            : Colors.transparent,
-                        width: 1,
+                return Card(
+                  margin: const EdgeInsets.all(8),
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(15),
+                    onTap: () async {
+                      Navigator.pop(context, derivation.derivationType);
+                    },
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(16),
+                      title: Center(
+                        child: Text(
+                          "${derivation.derivationType.toString().split('.').last}",
+                          style:
+                              Theme.of(context).primaryTextTheme.labelMedium!.copyWith(fontSize: 18),
+                        ),
                       ),
-                      color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
-                      child: Column(
+                      subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             derivation.address,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                              color:
-                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-                              height: 1,
-                            ),
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .labelMedium!
+                                .copyWith(fontSize: 16),
                           ),
                           Text(
                             "${S.current.confirmed}: ${derivation.balance}",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                              color:
-                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-                              height: 2,
-                            ),
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .labelMedium!
+                                .copyWith(fontSize: 16),
+                          ),
+                          Text(
+                            "${S.current.transactions}: ${derivation.height}",
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .labelMedium!
+                                .copyWith(fontSize: 16),
                           ),
                         ],
                       ),

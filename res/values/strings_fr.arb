@@ -682,5 +682,6 @@
   "support_title_guides": "Guides de portefeuille à gâteau",
   "support_description_guides": "Documentation et soutien aux problèmes communs",
   "support_title_other_links": "Autres liens d'assistance",
-  "support_description_other_links": "Rejoignez nos communautés ou contactez-nous nos partenaires à travers d'autres méthodes"
+  "support_description_other_links": "Rejoignez nos communautés ou contactez-nous nos partenaires à travers d'autres méthodes",
+  "choose_derivation": "Choisissez la dérivation du portefeuille"
 }

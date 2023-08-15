@@ -26,8 +26,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
       : availableModes = (type == WalletType.monero || type == WalletType.haven)
-            ? WalletRestoreMode.values
-            : [WalletRestoreMode.seed],
+            ? [WalletRestoreMode.seed, WalletRestoreMode.keys, WalletRestoreMode.txids]
+            : (type == WalletType.nano || type == WalletType.banano)
+                ? [WalletRestoreMode.seed, WalletRestoreMode.seedKey]
+                : [WalletRestoreMode.seed],
         hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         isButtonEnabled = false,
@@ -121,7 +123,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @override
   Future<List<DerivationType>> getDerivationType(dynamic options) async {
-    final seed = options['seed'] as String?;
+    final seedKey = options['seedKey'] as String?;
+    final mnemonic = options['seed'] as String?;
 
     switch (type) {
       // case WalletType.bitcoin:
@@ -131,7 +134,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
       //       name: name, mnemonic: seed, password: password);
       case WalletType.nano:
-        return await NanoWalletService.compareDerivationMethods(mnemonic: seed, seedKey: null);
+        return await NanoWalletService.compareDerivationMethods(mnemonic: mnemonic, seedKey: seedKey);
       default:
         break;
     }

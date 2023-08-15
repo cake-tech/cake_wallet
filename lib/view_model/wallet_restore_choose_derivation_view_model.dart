@@ -26,7 +26,6 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
   WalletRestoreChooseDerivationViewModelBase({required this.credentials})
       : mode = WalletRestoreMode.seed {}
 
-  
   dynamic credentials;
 
   @observable
@@ -35,7 +34,7 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
   Future<List<Derivation>> get derivations async {
     var list = <Derivation>[];
 
-    switch (getIt.get<AppStore>().wallet!.type) {
+    switch ((await getIt.get<AppStore>().wallet!.type)) {
       case WalletType.nano:
         var seed = credentials['seed'] as String;
         var bip39Info =
@@ -44,14 +43,6 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
             await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.nano, mnemonic: seed);
 
         list.add(Derivation(
-          NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
-          bip39Info["address"] as String,
-          DerivationType.bip39,
-          int.parse(
-            bip39Info["confirmation_height"] as String,
-          ),
-        ));
-        list.add(Derivation(
           NanoUtil.getRawAsUsableString(standardInfo["balance"] as String, NanoUtil.rawPerNano),
           standardInfo["address"] as String,
           DerivationType.nano,
@@ -59,6 +50,16 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
             standardInfo["confirmation_height"] as String,
           ),
         ));
+        
+        list.add(Derivation(
+          NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
+          bip39Info["address"] as String,
+          DerivationType.bip39,
+          int.parse(
+            bip39Info["confirmation_height"] as String,
+          ),
+        ));
+
 
         break;
       default:

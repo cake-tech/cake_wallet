@@ -255,12 +255,18 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials) async {
-    if (!bip39.validateMnemonic(credentials.mnemonic)) {
-      throw nm.NanoMnemonicIsIncorrectException();
-    }
+    if (credentials.mnemonic.contains(' ')) {
+      if (!bip39.validateMnemonic(credentials.mnemonic)) {
+        throw nm.NanoMnemonicIsIncorrectException();
+      }
 
-    if (!NanoMnemomics.validateMnemonic(credentials.mnemonic.split(' '))) {
-      throw nm.NanoMnemonicIsIncorrectException();
+      if (!NanoMnemomics.validateMnemonic(credentials.mnemonic.split(' '))) {
+        throw nm.NanoMnemonicIsIncorrectException();
+      }
+    } else {
+      if (credentials.mnemonic.length != 64 && credentials.mnemonic.length != 128) {
+        throw Exception("Invalid seed length");
+      }
     }
 
     DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;

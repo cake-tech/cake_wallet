@@ -1,4 +1,5 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_key_form.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -29,6 +30,7 @@ class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
         walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
+        walletRestoreFromSeedKeyFormKey = GlobalKey<WalletRestoreFromSeedKeyFormState>(),
         _pages = [],
         _blockHeightFocusNode = FocusNode(),
         _controller = PageController(initialPage: 0) {
@@ -71,6 +73,17 @@ class WalletRestorePage extends BasePage {
                 }
               }));
           break;
+        case WalletRestoreMode.seedKey:
+          _pages.add(WalletRestoreFromSeedKeyForm(
+            displayBlockHeightSelector: walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
+            displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
+            type: walletRestoreViewModel.type,
+            key: walletRestoreFromSeedKeyFormKey,
+            onSeedChange: (String seed) {
+              walletRestoreViewModel.isButtonEnabled = _isValidSeedKey();
+            },
+          ));
+          break;
         case WalletRestoreMode.keys:
           _pages.add(WalletRestoreFromKeysFrom(
               key: walletRestoreFromKeysFormKey,
@@ -101,6 +114,7 @@ class WalletRestorePage extends BasePage {
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
+  final GlobalKey<WalletRestoreFromSeedKeyFormState> walletRestoreFromSeedKeyFormKey;
   final FocusNode _blockHeightFocusNode;
   DerivationType derivationType = DerivationType.unknown;
 
@@ -162,8 +176,14 @@ class WalletRestorePage extends BasePage {
                 Expanded(
                   child: PageView.builder(
                     onPageChanged: (page) {
-                      walletRestoreViewModel.mode =
-                          page == 0 ? WalletRestoreMode.seed : WalletRestoreMode.keys;
+                      if (walletRestoreViewModel.type == WalletType.nano ||
+                          walletRestoreViewModel.type == WalletType.banano) {
+                        walletRestoreViewModel.mode =
+                            page == 0 ? WalletRestoreMode.seed : WalletRestoreMode.seedKey;
+                      } else {
+                        walletRestoreViewModel.mode =
+                            page == 0 ? WalletRestoreMode.seed : WalletRestoreMode.keys;
+                      }
                     },
                     controller: _controller,
                     itemCount: _pages.length,
@@ -192,7 +212,7 @@ class WalletRestorePage extends BasePage {
                     builder: (context) {
                       return LoadingPrimaryButton(
                         onPressed: () async {
-                          _confirmForm(context);
+                          await _confirmForm(context);
                         },
                         text: S.of(context).restore_recover,
                         color: Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!,
@@ -228,10 +248,20 @@ class WalletRestorePage extends BasePage {
             seedWords.length != WalletRestoreViewModelBase.electrumShortSeedMnemonicLength)) {
       return false;
     }
-
     final words =
         walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.words.toSet();
     return seedWords.toSet().difference(words).toSet().isEmpty;
+  }
+
+  bool _isValidSeedKey() {
+    final seedKey =
+        walletRestoreFromSeedKeyFormKey.currentState!.seedWidgetStateKey.currentState!.text;
+
+    if (seedKey.length != 64 && seedKey.length != 128) {
+      return false;
+    }
+
+    return true;
   }
 
   Map<String, dynamic> _credentials() {
@@ -248,7 +278,7 @@ class WalletRestorePage extends BasePage {
 
       credentials['name'] =
           walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;
-    } else {
+    } else if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
       credentials['address'] = walletRestoreFromKeysFormKey.currentState!.addressController.text;
       credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
       credentials['spendKey'] = walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
@@ -256,6 +286,9 @@ class WalletRestorePage extends BasePage {
           walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
       credentials['name'] =
           walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
+    } else if (walletRestoreViewModel.mode == WalletRestoreMode.seedKey) {
+      credentials['seedKey'] =
+          walletRestoreFromSeedKeyFormKey.currentState!.seedWidgetStateKey.currentState!.text;
     }
 
     credentials['derivationType'] = this.derivationType;
@@ -263,22 +296,28 @@ class WalletRestorePage extends BasePage {
     return credentials;
   }
 
-  void _confirmForm(BuildContext context) async {
+  Future<void> _confirmForm(BuildContext context) async {
     // Dismissing all visible keyboard to provide context for navigation
     FocusManager.instance.primaryFocus?.unfocus();
-    final formContext = walletRestoreViewModel.mode == WalletRestoreMode.seed
-        ? walletRestoreFromSeedFormKey.currentContext
-        : walletRestoreFromKeysFormKey.currentContext;
+    
+    late BuildContext? formContext;
+    late GlobalKey<FormState>? formKey;
+    late String name;
+    if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
+      formContext = walletRestoreFromSeedFormKey.currentContext;
+      formKey = walletRestoreFromSeedFormKey.currentState!.formKey;
+      name = walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.value.text;
+    } else if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
+      formContext = walletRestoreFromKeysFormKey.currentContext;
+      formKey = walletRestoreFromKeysFormKey.currentState!.formKey;
+      name = walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.value.text;
+    } else if (walletRestoreViewModel.mode == WalletRestoreMode.seedKey) {
+      formContext = walletRestoreFromSeedKeyFormKey.currentContext;
+      formKey = walletRestoreFromSeedKeyFormKey.currentState!.formKey;
+      name = walletRestoreFromSeedKeyFormKey.currentState!.nameTextEditingController.value.text;
+    }
 
-    final formKey = walletRestoreViewModel.mode == WalletRestoreMode.seed
-        ? walletRestoreFromSeedFormKey.currentState!.formKey
-        : walletRestoreFromKeysFormKey.currentState!.formKey;
-
-    final name = walletRestoreViewModel.mode == WalletRestoreMode.seed
-        ? walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.value.text
-        : walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.value.text;
-
-    if (!formKey.currentState!.validate()) {
+    if (!formKey!.currentState!.validate()) {
       return;
     }
 
@@ -287,25 +326,26 @@ class WalletRestorePage extends BasePage {
       return;
     }
 
+    walletRestoreViewModel.state = IsExecutingState();
+
     List<DerivationType> derivationTypes =
         await walletRestoreViewModel.getDerivationType(_credentials());
     if (derivationTypes[0] == DerivationType.unknown || derivationTypes.length > 0) {
       // push screen to choose the derivation type:
-      var derivationType =
-          await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation, arguments: {
-        "walletType": walletRestoreViewModel.type,
-        "credentials": _credentials(),
-      }) as DerivationType?;
+      var derivationType = await Navigator.of(context)
+              .pushNamed(Routes.restoreWalletChooseDerivation, arguments: _credentials())
+          as DerivationType?;
       if (derivationType == null) {
+        walletRestoreViewModel.state = InitialExecutionState();
         return;
       }
       this.derivationType = derivationType;
     }
 
-    print(this.derivationType);
+    walletRestoreViewModel.state = InitialExecutionState();
 
     // todo: re-enable
-    // walletRestoreViewModel.create(options: _credentials());
+    walletRestoreViewModel.create(options: _credentials());
   }
 
   Future<void> showNameExistsAlert(BuildContext context) {
