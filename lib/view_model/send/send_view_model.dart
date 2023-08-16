@@ -1,3 +1,4 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -6,12 +7,14 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cw_nano/nano_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -111,9 +114,8 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
-        final currency = walletType == WalletType.ethereum
-            ? _wallet.currency
-            : selectedCryptoCurrency;
+        final currency =
+            walletType == WalletType.ethereum ? _wallet.currency : selectedCryptoCurrency;
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
@@ -188,9 +190,8 @@ abstract class SendViewModelBase with Store {
 
   List<CryptoCurrency> currencies;
 
-  bool get hasYat => outputs.any((out) =>
-      out.isParsedAddress &&
-      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  bool get hasYat => outputs
+      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
 
@@ -309,6 +310,11 @@ abstract class SendViewModelBase with Store {
       state = TransactionCommitting();
       await pendingTransaction!.commit();
 
+      if (walletType == WalletType.nano) {
+        var wallet = getIt.get<AppStore>().wallet as NanoWallet?;
+        wallet?.updateTransactions();
+      }
+
       if (pendingTransaction!.id.isNotEmpty) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
@@ -400,8 +406,7 @@ abstract class SendViewModelBase with Store {
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
 
   @action
-  void setFiatCurrency(FiatCurrency fiat) =>
-      _settingsStore.fiatCurrency = fiat;
+  void setFiatCurrency(FiatCurrency fiat) => _settingsStore.fiatCurrency = fiat;
 
   @action
   void setSelectedCryptoCurrency(String cryptoCurrency) {
