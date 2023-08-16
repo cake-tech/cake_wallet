@@ -675,5 +675,6 @@
   "support_description_guides": "Dokumentace a podpora běžných otázek",
   "support_title_other_links": "Další odkazy na podporu",
   "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody",
-  "choose_derivation": "Vyberte derivaci peněženky"
+  "choose_derivation": "Vyberte derivaci peněženky",
+  "new_first_wallet_text": "Snadno udržujte svou kryptoměnu v bezpečí"
 }

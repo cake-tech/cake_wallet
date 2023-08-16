@@ -679,5 +679,6 @@
   "support_description_guides": "توثيق ودعم القضايا المشتركة",
   "support_title_other_links": "روابط دعم أخرى",
   "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى",
-  "choose_derivation": "اختر اشتقاق المحفظة"
+  "choose_derivation": "اختر اشتقاق المحفظة",
+  "new_first_wallet_text": "حافظ بسهولة على أمان العملة المشفرة"
 }

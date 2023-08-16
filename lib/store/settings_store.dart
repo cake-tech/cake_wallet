@@ -607,13 +607,14 @@ abstract class SettingsStoreBase with Store {
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final nanoNode = nodeSource.get(nanoNodeId);
-    final nanoPowNode = powNodeSource.get(nanoNodeId);
+    final nanoPowNode = powNodeSource.get(nanoPowNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;

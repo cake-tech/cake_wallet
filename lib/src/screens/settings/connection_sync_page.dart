@@ -65,6 +65,7 @@ class ConnectionSyncPage extends BasePage {
             title: S.current.manage_nodes,
             handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
           ),
+          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           Observer(
             builder: (context) {
               if (!dashboardViewModel.hasPowNodes)

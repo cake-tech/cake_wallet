@@ -681,5 +681,6 @@
   "support_description_guides": "เอกสารและการสนับสนุนสำหรับปัญหาทั่วไป",
   "support_title_other_links": "ลิงค์สนับสนุนอื่น ๆ",
   "support_description_other_links": "เข้าร่วมชุมชนของเราหรือเข้าถึงเราพันธมิตรของเราผ่านวิธีการอื่น ๆ",
-  "choose_derivation": "เลือก Wallet Derivation"
+  "choose_derivation": "เลือก Wallet Derivation",
+  "new_first_wallet_text": "ทำให้สกุลเงินดิจิตอลของคุณปลอดภัยได้อย่างง่ายดาย"
 }

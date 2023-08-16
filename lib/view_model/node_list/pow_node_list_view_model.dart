@@ -51,23 +51,8 @@ abstract class PowNodeListViewModelBase with Store {
     Node node;
 
     switch (_appStore.wallet!.type) {
-      case WalletType.bitcoin:
-        node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
-        break;
-      case WalletType.monero:
-        node = getMoneroDefaultNode(nodes: _nodeSource);
-        break;
-      case WalletType.litecoin:
-        node = getLitecoinDefaultElectrumServer(nodes: _nodeSource)!;
-        break;
-      case WalletType.haven:
-        node = getHavenDefaultNode(nodes: _nodeSource)!;
-        break;
-      case WalletType.ethereum:
-        node = getEthereumDefaultNode(nodes: _nodeSource)!;
-        break;
       case WalletType.nano:
-        node = getNanoDefaultNode(nodes: _nodeSource)!;
+        node = getNanoDefaultPowNode(nodes: _nodeSource)!;
         break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
@@ -79,11 +64,14 @@ abstract class PowNodeListViewModelBase with Store {
   @action
   Future<void> delete(Node node) async => node.delete();
 
-  Future<void> setAsCurrent(Node node) async => settingsStore.powNodes[_appStore.wallet!.type] = node;
+  Future<void> setAsCurrent(Node node) async =>
+      settingsStore.powNodes[_appStore.wallet!.type] = node;
 
   @action
   void _bindNodes() {
     nodes.clear();
+    _nodeSource.values.forEach((node) {
+    });
     _nodeSource.bindToList(
       nodes,
       filter: (val) => (val.type == _appStore.wallet!.type && val.isPowNode == true),

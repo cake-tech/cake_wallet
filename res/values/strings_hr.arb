@@ -681,5 +681,6 @@
   "support_description_guides": "Dokumentacija i podrška za uobičajena pitanja",
   "support_title_other_links": "Ostale veze za podršku",
   "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama",
-  "choose_derivation": "Odaberite izvedbu novčanika"
+  "choose_derivation": "Odaberite izvedbu novčanika",
+  "new_first_wallet_text": "Jednostavno čuvajte svoju kripto valutu"
 }

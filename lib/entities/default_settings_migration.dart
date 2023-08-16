@@ -28,6 +28,7 @@ const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 const nanoDefaultNodeUri = 'rpc.nano.to:443';
+const nanoDefaultPowNodeUri = 'rpc.nano.to:443';
 
 Future defaultSettingsMigration(
     {required int version,
@@ -49,9 +50,8 @@ Future defaultSettingsMigration(
 
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
-  final currentVersion = sharedPreferences
-          .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ??
-      0;
+  final currentVersion =
+      sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ?? 0;
 
   if (currentVersion >= version) {
     return;
@@ -253,6 +253,11 @@ Node? getNanoDefaultNode({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.nano);
 }
 
+Node? getNanoDefaultPowNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == nanoDefaultPowNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => (node.type == WalletType.nano && node.isPowNode == true));
+}
+
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
   final timeZone = DateTime.now().timeZoneOffset.inHours;
   var nodeUri = '';
@@ -431,6 +436,7 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+  final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -443,6 +449,8 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
+  final currentNanoPowNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -479,8 +487,14 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
   if (currentNanoNodeServer == null) {
     final node = Node(uri: nanoDefaultNodeUri, type: WalletType.nano);
     await nodeSource.add(node);
-    await sharedPreferences.setInt(
-        PreferencesKey.currentNanoNodeIdKey, node.key as int);
+    await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
+  }
+
+  if (currentNanoPowNodeServer == null) {
+    final node = Node(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
+    node.isPowNode = true;
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
   }
 }
 
@@ -521,8 +535,8 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
     return;
   }
 
-  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled
-      ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
+  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey,
+      isExchangeDisabled ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
 
   await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
 }
@@ -537,8 +551,7 @@ Future<void> addEthereumNodeList({required Box<Node> nodes}) async {
 }
 
 Future<void> changeEthereumCurrentNodeToDefault(
-    {required SharedPreferences sharedPreferences,
-      required Box<Node> nodes}) async {
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final node = getEthereumDefaultNode(nodes: nodes);
   final nodeId = node?.key as int? ?? 0;
 

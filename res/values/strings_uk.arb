@@ -683,5 +683,6 @@
   "support_description_guides": "Документація та підтримка загальних питань",
   "support_title_other_links": "Інші посилання на підтримку",
   "support_description_other_links": "Приєднуйтесь до наших спільнот або досягайте нас нашими партнерами іншими методами",
-  "choose_derivation": "Виберіть деривацію гаманця"
+  "choose_derivation": "Виберіть деривацію гаманця",
+  "new_first_wallet_text": "Легко зберігайте свою криптовалюту в безпеці"
 }

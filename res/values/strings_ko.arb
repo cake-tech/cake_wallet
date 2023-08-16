@@ -681,5 +681,6 @@
   "support_description_guides": "일반적인 문제에 대한 문서화 및 지원",
   "support_title_other_links": "다른 지원 링크",
   "support_description_other_links": "다른 방법을 통해 커뮤니티에 가입하거나 파트너에게 연락하십시오.",
-  "choose_derivation": "지갑 파생을 선택하십시오"
+  "choose_derivation": "지갑 파생을 선택하십시오",
+  "new_first_wallet_text": "cryptocurrency를 쉽게 안전하게 유지하십시오"
 }
