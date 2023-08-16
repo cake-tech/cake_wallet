@@ -232,25 +232,26 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
-    throw UnimplementedError("restoreFromKeys");
+    if (credentials.seedKey.contains(' ')) {
+      throw Exception("Invalid key!");
+    } else {
+      if (credentials.seedKey.length != 64 && credentials.seedKey.length != 128) {
+        throw Exception("Invalid key length!");
+      }
+    }
 
-    // TODO: mnemonic can't be derived from the seedKey in the nano standard derivation
-    // which complicates things
 
-    // DerivationType derivationType = credentials.derivationType ?? await compareDerivationMethods(seedKey: credentials.seedKey);
-    // String? mnemonic;
-    // final nanoWalletInfo = NanoWalletInfo(
-    //   walletInfo: credentials.walletInfo!,
-    //   derivationType: derivationType,
-    // );
-    // final wallet = await NanoWallet(
-    //   password: credentials.password!,
-    //   mnemonic: mnemonic ?? "", // we can't derive the mnemonic from the key in all cases
-    //   walletInfo: nanoWalletInfo,
-    // );
-    // await wallet.init();
-    // await wallet.save();
-    // return wallet;
+    DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;
+    credentials.walletInfo!.derivationType = derivationType;
+
+    final wallet = await NanoWallet(
+      password: credentials.password!,
+      mnemonic: credentials.seedKey,// we can't derive the mnemonic from the key in all cases
+      walletInfo: credentials.walletInfo!,
+    );
+    await wallet.init();
+    await wallet.save();
+    return wallet;
   }
 
   @override

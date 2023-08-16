@@ -38,7 +38,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Text('No derivations available');
+            return Text('Error! No derivations available!');
           } else {
             return ListView.separated(
               shrinkWrap: true,

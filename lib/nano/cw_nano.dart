@@ -128,6 +128,31 @@ class CWNano extends Nano {
   }
 
   @override
+  WalletCredentials createNanoRestoreWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required String seedKey,
+    DerivationType? derivationType,
+  }) {
+
+    if (derivationType == null) {
+      // figure out the derivation type as best we can, otherwise set it to "unknown"
+      if (seedKey.length == 64) {
+        derivationType = DerivationType.nano;
+      } else {
+        derivationType = DerivationType.unknown;
+      }
+    }
+
+    return NanoRestoreWalletFromKeysCredentials(
+      name: name,
+      password: password,
+      seedKey: seedKey,
+      derivationType: derivationType,
+    );
+  }
+
+  @override
   TransactionHistoryBase getTransactionHistory(Object wallet) {
     throw UnimplementedError();
   }

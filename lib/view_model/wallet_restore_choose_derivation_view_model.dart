@@ -33,33 +33,43 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
 
   Future<List<Derivation>> get derivations async {
     var list = <Derivation>[];
-
     switch ((await getIt.get<AppStore>().wallet!.type)) {
       case WalletType.nano:
-        var seed = credentials['seed'] as String;
-        var bip39Info =
-            await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39, mnemonic: seed);
-        var standardInfo =
-            await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.nano, mnemonic: seed);
-
-        list.add(Derivation(
-          NanoUtil.getRawAsUsableString(standardInfo["balance"] as String, NanoUtil.rawPerNano),
-          standardInfo["address"] as String,
-          DerivationType.nano,
-          int.parse(
-            standardInfo["confirmation_height"] as String,
-          ),
-        ));
-        
-        list.add(Derivation(
-          NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
-          bip39Info["address"] as String,
+        String? mnemonic = credentials['seed'] as String?;
+        String? seedKey = credentials['seedKey'] as String?;
+        var bip39Info = await NanoWalletService.getInfoFromSeedOrMnemonic(
           DerivationType.bip39,
-          int.parse(
-            bip39Info["confirmation_height"] as String,
-          ),
-        ));
+          mnemonic: mnemonic,
+          seedKey: seedKey,
+        );
+        var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
+          DerivationType.nano,
+          mnemonic: mnemonic,
+          seedKey: seedKey,
+        );
 
+        if (standardInfo["address"] != null) {
+          list.add(Derivation(
+            NanoUtil.getRawAsUsableString(standardInfo["balance"] as String, NanoUtil.rawPerNano),
+            standardInfo["address"] as String,
+            DerivationType.nano,
+            int.parse(
+              standardInfo["confirmation_height"] as String,
+            ),
+          ));
+        }
+
+        if (bip39Info["balance"] != null) {
+          list.add(Derivation(
+            NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
+            bip39Info["address"] as String,
+            DerivationType.bip39,
+            int.tryParse(
+                  bip39Info["confirmation_height"] as String? ?? "",
+                ) ??
+                0,
+          ));
+        }
 
         break;
       default:

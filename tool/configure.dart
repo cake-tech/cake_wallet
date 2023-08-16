@@ -592,9 +592,6 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_nano/api/wallet.dart' as nano_wallet_api;
-import 'package:cw_nano/nano_balance.dart';
-import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 """;
   const nanoCwPart = "part 'cw_nano.dart';";
@@ -619,6 +616,13 @@ abstract class Nano {
     required String name,
     required String password,
     required String mnemonic,
+    DerivationType? derivationType,
+  });
+
+  WalletCredentials createNanoRestoreWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required String seedKey,
     DerivationType? derivationType,
   });
 
