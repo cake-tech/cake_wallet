@@ -80,7 +80,7 @@ class CWBitcoin extends Bitcoin {
 					isParsedAddress: out.isParsedAddress,
 					formattedCryptoAmount: out.formattedCryptoAmount))
 			.toList(),
-			priority: priority != null ? priority as BitcoinTransactionPriority : null,
+			priority: priority as BitcoinTransactionPriority,
 			feeRate: feeRate);
 
 	@override

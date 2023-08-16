@@ -66,52 +66,66 @@ class ElectrumClient {
     socket!.listen((Uint8List event) {
       try {
         final msg = utf8.decode(event.toList());
-        final response =
-            json.decode(msg) as Map<String, dynamic>;
-        _handleResponse(response);
-      } on FormatException catch (e) {
-        final msg = e.message.toLowerCase();
-
-        if (e.source is String) {
-          unterminatedString += e.source as String;
-        }
-
-        if (msg.contains("not a subtype of type")) {
-          unterminatedString += e.source as String;
-          return;
-        }
-
-        if (isJSONStringCorrect(unterminatedString)) {
-          final response =
-              json.decode(unterminatedString) as Map<String, dynamic>;
-          _handleResponse(response);
-          unterminatedString = '';
-        }
-      } on TypeError catch (e) {
-        if (!e.toString().contains('Map<String, Object>') && !e.toString().contains('Map<String, dynamic>')) {
-          return;
-        }
-
-        final source = utf8.decode(event.toList());
-        unterminatedString += source;
-
-        if (isJSONStringCorrect(unterminatedString)) {
-          final response =
-              json.decode(unterminatedString) as Map<String, dynamic>;
-          _handleResponse(response);
-          // unterminatedString = null;
-          unterminatedString = '';
+        final messagesList = msg.split("\n");
+        for (var message in messagesList) {
+          if (message.isEmpty) {
+            continue;
+          }
+          _parseResponse(message);
         }
       } catch (e) {
         print(e.toString());
       }
     }, onError: (Object error) {
       print(error.toString());
+      unterminatedString = '';
       _setIsConnected(false);
     }, onDone: () {
+      unterminatedString = '';
       _setIsConnected(false);
     });
     keepAlive();
+  }
+
+  void _parseResponse(String message) {
+    try {
+      final response = json.decode(message) as Map<String, dynamic>;
+      _handleResponse(response);
+    } on FormatException catch (e) {
+      final msg = e.message.toLowerCase();
+
+      if (e.source is String) {
+        unterminatedString += e.source as String;
+      }
+
+      if (msg.contains("not a subtype of type")) {
+        unterminatedString += e.source as String;
+        return;
+      }
+
+      if (isJSONStringCorrect(unterminatedString)) {
+        final response =
+        json.decode(unterminatedString) as Map<String, dynamic>;
+        _handleResponse(response);
+        unterminatedString = '';
+      }
+    } on TypeError catch (e) {
+      if (!e.toString().contains('Map<String, Object>') && !e.toString().contains('Map<String, dynamic>')) {
+        return;
+      }
+
+      unterminatedString += message;
+
+      if (isJSONStringCorrect(unterminatedString)) {
+        final response =
+        json.decode(unterminatedString) as Map<String, dynamic>;
+        _handleResponse(response);
+        // unterminatedString = null;
+        unterminatedString = '';
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   void keepAlive() {
@@ -217,7 +231,7 @@ class ElectrumClient {
 
   Future<Map<String, dynamic>> getTransactionRaw(
           {required String hash}) async =>
-      call(method: 'blockchain.transaction.get', params: [hash, true])
+      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, true], timeout: 10000)
           .then((dynamic result) {
         if (result is Map<String, dynamic>) {
           return result;
@@ -228,7 +242,7 @@ class ElectrumClient {
 
   Future<String> getTransactionHex(
           {required String hash}) async =>
-      call(method: 'blockchain.transaction.get', params: [hash, false])
+      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, false], timeout: 10000)
           .then((dynamic result) {
         if (result is String) {
           return result;

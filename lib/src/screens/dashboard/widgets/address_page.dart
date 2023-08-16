@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -33,15 +34,15 @@ class AddressPage extends BasePage {
     required this.addressListViewModel,
     required this.dashboardViewModel,
     required this.receiveOptionViewModel,
-  }) : _cryptoAmountFocus = FocusNode(),
-      _formKey = GlobalKey<FormState>(),
-      _amountController = TextEditingController(){
-      _amountController.addListener(() {
-        if (_formKey.currentState!.validate()) {
-          addressListViewModel.changeAmount(
-            _amountController.text,
-          );
-        }
+  })  : _cryptoAmountFocus = FocusNode(),
+        _formKey = GlobalKey<FormState>(),
+        _amountController = TextEditingController() {
+    _amountController.addListener(() {
+      if (_formKey.currentState!.validate()) {
+        addressListViewModel.changeAmount(
+          _amountController.text,
+        );
+      }
     });
   }
 
@@ -63,6 +64,14 @@ class AddressPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+      size: 16,
+    );
+    final _closeButton =
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
@@ -72,13 +81,10 @@ class AddressPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView
-                ? S.of(context).close
-                : S.of(context).seed_alert_back,
+            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith(
-                    (states) => Colors.transparent),
+                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? closeButton(context) : backButton(context),
@@ -91,13 +97,11 @@ class AddressPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(
-      color: titleColor(context),
-      receiveOptionViewModel: receiveOptionViewModel);
+      color: titleColor(context), receiveOptionViewModel: receiveOptionViewModel);
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget? trailing(BuildContext context) {
@@ -115,7 +119,11 @@ class AddressPage extends BasePage {
             context: context,
           );
         },
-        icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+        icon: Icon(
+          Icons.share,
+          size: 20,
+          color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+        ),
       ),
     );
   }
@@ -155,7 +163,7 @@ class AddressPage extends BasePage {
         tapOutsideToDismiss: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -177,47 +185,56 @@ class AddressPage extends BasePage {
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
               Observer(builder: (_) {
-                return addressListViewModel.hasAddressList
-                    ? GestureDetector(
-                        onTap: () => Navigator.of(context).pushNamed(Routes.receive),
-                        child: Container(
-                          height: 50,
-                          padding: EdgeInsets.only(left: 24, right: 12),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(25)),
-                              border: Border.all(
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.addressButtonBorderColor,
-                                  width: 1),
-                              color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Observer(
-                                  builder: (_) => Text(
-                                        addressListViewModel.hasAccounts
-                                            ? S.of(context).accounts_subaddresses
-                                            : S.of(context).addresses,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
-                                      )),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 14,
-                                color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
-                              )
-                            ],
-                          ),
-                        ),
-                      )
-                    : Text(S.of(context).electrum_address_disclaimer,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor));
+                if (addressListViewModel.hasAddressList) {
+                  return GestureDetector(
+                    onTap: () => Navigator.of(context).pushNamed(Routes.receive),
+                    child: Container(
+                      height: 50,
+                      padding: EdgeInsets.only(left: 24, right: 12),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
+                          border: Border.all(
+                              color: Theme.of(context)
+                                  .extension<ReceivePageTheme>()!
+                                  .iconsBackgroundColor,
+                              width: 1),
+                          color: Theme.of(context)
+                              .extension<SyncIndicatorTheme>()!
+                              .syncedBackgroundColor),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Observer(
+                              builder: (_) => Text(
+                                    addressListViewModel.hasAccounts
+                                        ? S.of(context).accounts_subaddresses
+                                        : S.of(context).addresses,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                                  )),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 14,
+                            color:
+                                Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                } else if (addressListViewModel.showElectrumAddressDisclaimer) {
+                  return Text(S.of(context).electrum_address_disclaimer,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor));
+                } else {
+                  return const SizedBox();
+                }
               })
             ],
           ),

@@ -1,3 +1,4 @@
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'transaction_description.g.dart';
@@ -6,7 +7,7 @@ part 'transaction_description.g.dart';
 class TransactionDescription extends HiveObject {
   TransactionDescription({required this.id, this.recipientAddress, this.transactionNote});
 
-  static const typeId = 2;
+  static const typeId = TRANSACTION_TYPE_ID;
   static const boxName = 'TransactionDescriptions';
   static const boxKey = 'transactionDescriptionsBoxKey';
 

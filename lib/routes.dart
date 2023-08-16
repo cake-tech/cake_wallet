@@ -11,6 +11,7 @@ class Routes {
   static const transactionDetails = '/transaction_info';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
+  static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
   static const seedLanguage = '/seed_language';
@@ -47,6 +48,8 @@ class Routes {
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
   static const support = '/support';
+  static const supportLiveChat = '/support/live_chat';
+  static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
   static const preOrder = '/pre_order';
   static const buyWebView = '/buy_web_view';
@@ -87,4 +90,7 @@ class Routes {
   static const setup_2faQRPage = '/setup_2fa_qr_page';
   static const totpAuthCodePage = '/totp_auth_code_page';
   static const modify2FAPage = '/modify_2fa_page';
+  static const homeSettings = '/home_settings';
+  static const editToken = '/edit_token';
+  static const manageNodes = '/manage_nodes';
 }

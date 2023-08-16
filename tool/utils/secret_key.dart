@@ -31,6 +31,11 @@ class SecretKey {
     SecretKey('anonPayReferralCode', () => ''),
     SecretKey('fiatApiKey', () => ''),
     SecretKey('payfuraApiKey', () => ''),
+    SecretKey('chatwootWebsiteToken', () => ''),
+  ];
+
+  static final ethereumSecrets = [
+    SecretKey('etherScanApiKey', () => ''),
   ];
 
   final String name;

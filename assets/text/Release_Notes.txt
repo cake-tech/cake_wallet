@@ -1,4 +1,2 @@
-Enable iPad/Tablet separate layout from mobile UI
-SideShift update and fixes
-Add MoonPay sell
-Bug Fixes
+Bug fixes
+Fiat Onramp improvements

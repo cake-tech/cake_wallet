@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_monero/monero_transaction_creation_exception.dart';
@@ -6,7 +8,6 @@ import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/api/transaction_history.dart'
     as monero_transaction_history;
@@ -137,7 +138,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           login: node.login,
           password: node.password,
           useSSL: node.isSSL,
-          isLightWallet: false); // FIXME: hardcoded value
+          isLightWallet: false, // FIXME: hardcoded value
+          socksProxyAddress: node.socksProxyAddress);
 
       monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
@@ -265,6 +267,63 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
     await monero_wallet.store();
+  }
+
+  @override
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+
+    try {
+      // -- rename the waller folder --
+      final currentWalletDir =
+          Directory(await pathForWalletDir(name: name, type: type));
+      final newWalletDirPath =
+          await pathForWalletDir(name: newWalletName, type: type);
+      await currentWalletDir.rename(newWalletDirPath);
+
+      // -- use new waller folder to rename files with old names still --
+      final renamedWalletPath = newWalletDirPath + '/$name';
+
+      final currentCacheFile = File(renamedWalletPath);
+      final currentKeysFile = File('$renamedWalletPath.keys');
+      final currentAddressListFile = File('$renamedWalletPath.address.txt');
+
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type);
+
+      if (currentCacheFile.existsSync()) {
+        await currentCacheFile.rename(newWalletPath);
+      }
+      if (currentKeysFile.existsSync()) {
+        await currentKeysFile.rename('$newWalletPath.keys');
+      }
+      if (currentAddressListFile.existsSync()) {
+        await currentAddressListFile.rename('$newWalletPath.address.txt');
+      }
+    } catch (e) {
+      final currentWalletPath = await pathForWallet(name: name, type: type);
+
+      final currentCacheFile = File(currentWalletPath);
+      final currentKeysFile = File('$currentWalletPath.keys');
+      final currentAddressListFile = File('$currentWalletPath.address.txt');
+
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type);
+
+      // Copies current wallet files into new wallet name's dir and files
+      if (currentCacheFile.existsSync()) {
+        await currentCacheFile.copy(newWalletPath);
+      }
+      if (currentKeysFile.existsSync()) {
+        await currentKeysFile.copy('$newWalletPath.keys');
+      }
+      if (currentAddressListFile.existsSync()) {
+        await currentAddressListFile.copy('$newWalletPath.address.txt');
+      }
+
+      // Delete old name's dir and files
+      await Directory(currentWalletDirPath).delete(recursive: true);
+    }
   }
 
   @override

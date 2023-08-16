@@ -5,11 +5,13 @@ import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
-  StandardListRow({required this.title, required this.isSelected, this.onTap});
+  StandardListRow(
+      {required this.title, required this.isSelected, this.onTap, this.decoration});
 
   final String title;
   final bool isSelected;
   final void Function(BuildContext context)? onTap;
+  final Decoration? decoration;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +21,11 @@ class StandardListRow extends StatelessWidget {
     return InkWell(
         onTap: () => onTap?.call(context),
         child: Container(
-            color: Theme.of(context).colorScheme.background,
             height: 56,
             padding: EdgeInsets.only(left: 24, right: 24),
+            decoration: decoration ?? BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+            ),
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -54,8 +58,12 @@ class StandardListRow extends StatelessWidget {
   Widget? buildTrailing(BuildContext context) => null;
 
   Color titleColor(BuildContext context) => isSelected
-      ? Theme.of(context).primaryColor
-      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+      ? Palette.blueCraiola
+      : Theme.of(context).primaryTextTheme.titleLarge!.color!;
+
+  Color _backgroundColor(BuildContext context) {
+    return Theme.of(context).colorScheme.background;
+  }
 }
 
 class SectionHeaderListRow extends StatelessWidget {
@@ -71,7 +79,8 @@ class SectionHeaderListRow extends StatelessWidget {
 }
 
 class StandardListSeparator extends StatelessWidget {
-  StandardListSeparator({this.padding, this.height = 1});
+
+  const StandardListSeparator({this.padding, this.height = 1});
 
   final EdgeInsets? padding;
   final double height;
@@ -84,7 +93,10 @@ class StandardListSeparator extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         child: Container(
             height: height,
-            color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor));
+            color: Theme.of(context)
+                .primaryTextTheme
+                .titleLarge
+                ?.backgroundColor));
   }
 }
 
@@ -204,7 +216,7 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          return StandardListSeparator(padding: EdgeInsets.only(left: 24));
+          return StandardListSeparator(padding: dividerPadding);
         },
         itemCount: totalRows.length,
         itemBuilder: (_, index) => totalRows[index]);

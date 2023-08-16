@@ -23,22 +23,24 @@ abstract class SendTemplateBase with Store {
       templates.replaceRange(0, templates.length, templateSource.values.toList());
 
   @action
-  Future<void> addTemplate({
-    required  String name,
-    required  bool isCurrencySelected,
-    required  String address,
-    required  String cryptoCurrency,
-    required  String fiatCurrency,
-    required  String amount,
-    required  String amountFiat}) async {
+  Future<void> addTemplate(
+      {required String name,
+      required bool isCurrencySelected,
+      required String address,
+      required String cryptoCurrency,
+      required String fiatCurrency,
+      required String amount,
+      required String amountFiat,
+      required List<Template> additionalRecipients}) async {
     final template = Template(
-      nameRaw: name,
-      isCurrencySelectedRaw: isCurrencySelected,
-      addressRaw: address,
-      cryptoCurrencyRaw: cryptoCurrency,
-      fiatCurrencyRaw: fiatCurrency,
-      amountRaw: amount,
-      amountFiatRaw: amountFiat);
+        nameRaw: name,
+        isCurrencySelectedRaw: isCurrencySelected,
+        addressRaw: address,
+        cryptoCurrencyRaw: cryptoCurrency,
+        fiatCurrencyRaw: fiatCurrency,
+        amountRaw: amount,
+        amountFiatRaw: amountFiat,
+        additionalRecipientsRaw: additionalRecipients);
     await templateSource.add(template);
   }
 

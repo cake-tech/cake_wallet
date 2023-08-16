@@ -3,6 +3,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -97,8 +98,7 @@ class WalletSeedPage extends BasePage {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 ConstrainedBox(
-                  constraints:
-                      BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
+                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
                   child: AspectRatio(aspectRatio: 1, child: image),
                 ),
                 Observer(builder: (_) {
@@ -164,7 +164,7 @@ class WalletSeedPage extends BasePage {
                           child: Builder(
                               builder: (context) => PrimaryButton(
                                   onPressed: () {
-                                    Clipboard.setData(
+                                    ClipboardUtil.setSensitiveDataToClipboard(
                                         ClipboardData(text: walletSeedViewModel.seed));
                                     showBar<void>(context, S.of(context).copied_to_clipboard);
                                   },

@@ -1,6 +1,8 @@
 import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class AccountTile extends StatelessWidget {
   AccountTile(
@@ -21,20 +23,17 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context)
-            .extension<AccountListTheme>()!
-            .currentAccountBackgroundColor
-        : Theme.of(context).extension<AccountListTheme>()!.tilesBackgroundColor;
+        ? Theme.of(context).textTheme.titleSmall!.decorationColor!
+        : Theme.of(context).textTheme.displayLarge!.decorationColor!;
     final textColor = isCurrent
-        ? Theme.of(context)
-            .extension<AccountListTheme>()!
-            .currentAccountTextColor
-        : Theme.of(context).extension<AccountListTheme>()!.tilesTextColor;
+        ? Theme.of(context).textTheme.titleSmall!.color!
+        : Theme.of(context).textTheme.displayLarge!.color!;
 
     final Widget cell = GestureDetector(
       onTap: onTap,
       child: Container(
         height: 77,
+        width: double.infinity,
         padding: EdgeInsets.only(left: 24, right: 24),
         color: color,
         child: Wrap(
@@ -64,13 +63,7 @@ class AccountTile extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Lato',
-                    color: isCurrent
-                        ? Theme.of(context)
-                            .extension<AccountListTheme>()!
-                            .currentAccountAmountColor
-                        : Theme.of(context)
-                            .extension<AccountListTheme>()!
-                            .tilesAmountColor,
+                    color: Theme.of(context).textTheme.headlineMedium!.color!,
                     decoration: TextDecoration.none,
                   ),
                 ),
@@ -79,18 +72,26 @@ class AccountTile extends StatelessWidget {
         ),
       ),
     );
-    // FIX-ME: Splidable
-    return cell;
-    // return Slidable(
-    //     key: Key(accountName),
-    //     child: cell,
-    //     actionPane: SlidableDrawerActionPane(),
-    //     secondaryActions: <Widget>[
-    //       IconSlideAction(
-    //           caption: S.of(context).edit,
-    //           color: Colors.blue,
-    //           icon: Icons.edit,
-    //           onTap: () => onEdit?.call())
-    //     ]);
+
+    // return cell;
+    return Slidable(
+        key: Key(accountName),
+        child: cell,
+        endActionPane: _actionPane(context)
+    );
   }
+
+  ActionPane _actionPane(BuildContext context) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.3,
+    children: [
+      SlidableAction(
+        onPressed: (_) => onEdit.call(),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        icon: Icons.edit,
+        label: S.of(context).edit,
+      ),
+    ],
+  );
 }

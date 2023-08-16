@@ -23,7 +23,7 @@ CONFIG_ARGS=""
 
 case $APP_MACOS_TYPE in
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin";; #--haven
+		CONFIG_ARGS="--monero --bitcoin --ethereum";; #--haven
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml

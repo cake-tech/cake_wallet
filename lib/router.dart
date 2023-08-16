@@ -10,6 +10,8 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
@@ -17,6 +19,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashbo
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -38,6 +41,8 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
+import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
+import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -63,6 +68,7 @@ import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
@@ -260,6 +266,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
 
+    case Routes.walletEdit:
+      return MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<WalletEditPage>(
+              param1: settings.arguments as List<dynamic>));
+
     case Routes.auth:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
@@ -305,7 +317,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<SecurityBackupPage>());
-    
+
      case Routes.privacyPage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
@@ -320,7 +332,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<OtherSettingsPage>());
-    
+
     case Routes.newNode:
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
@@ -328,7 +340,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
             param1: args?['editingNode'] as Node?,
             param2: args?['isSelected'] as bool?));
 
- 
+
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
@@ -431,8 +443,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.support:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<SupportPage>());
+
+    case Routes.supportLiveChat:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SupportChatPage>());
+
+    case Routes.supportOtherLinks:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<SupportOtherLinksPage>());
 
     case Routes.unspentCoinsList:
       return MaterialPageRoute<void>(
@@ -458,7 +478,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         fullscreenDialog: true,
         builder: (_) => getIt.get<IoniaWelcomePage>(),
       );
-    
+
     case Routes.ioniaLoginPage:
       return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaLoginPage>());
 
@@ -472,7 +492,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaBuyGiftCardPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardPage>(param1: args));
-    
+
     case Routes.ioniaBuyGiftCardDetailPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardDetailPage>(param1: args));
@@ -489,7 +509,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.ioniaAccountPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountPage>());
-    
+
     case Routes.ioniaAccountCardsPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());
 
@@ -500,11 +520,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaGiftCardDetailPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
-    
+
     case Routes.ioniaCustomRedeemPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCustomRedeemPage>(param1: args));
- 
+
     case Routes.ioniaMoreOptionsPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaMoreOptionsPage>(param1: args));
@@ -575,6 +595,28 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.modify2FAPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
+
+    case Routes.homeSettings:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<HomeSettingsPage>(param1: settings.arguments),
+      );
+
+    case Routes.editToken:
+      final args = settings.arguments as Map<String, dynamic>;
+
+      return CupertinoPageRoute<void>(
+        settings: RouteSettings(name: Routes.editToken),
+        builder: (_) => getIt.get<EditTokenPage>(
+          param1: args['homeSettingsViewModel'],
+          param2: {
+            'token': args['token'],
+            'contractAddress': args['contractAddress'],
+          },
+        ),
+      );
+
+    case Routes.manageNodes:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>());
 
     default:
       return MaterialPageRoute<void>(
