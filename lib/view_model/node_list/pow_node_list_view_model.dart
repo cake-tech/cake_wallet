@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -16,7 +17,7 @@ class PowNodeListViewModel = PowNodeListViewModelBase with _$PowNodeListViewMode
 
 abstract class PowNodeListViewModelBase with Store {
   PowNodeListViewModelBase(this._nodeSource, this._appStore)
-      : nodes = ObservableList<Node>(),
+      : nodes = ObservableList<PowNode>(),
         settingsStore = _appStore.settingsStore {
     _bindNodes();
 
@@ -26,7 +27,7 @@ abstract class PowNodeListViewModelBase with Store {
   }
 
   @computed
-  Node get currentNode {
+  PowNode get currentNode {
     final node = settingsStore.powNodes[_appStore.wallet!.type];
 
     if (node == null) {
@@ -40,15 +41,15 @@ abstract class PowNodeListViewModelBase with Store {
       S.current.change_current_node(uri) +
       '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
 
-  final ObservableList<Node> nodes;
+  final ObservableList<PowNode> nodes;
   final SettingsStore settingsStore;
-  final Box<Node> _nodeSource;
+  final Box<PowNode> _nodeSource;
   final AppStore _appStore;
 
   Future<void> reset() async {
-    await resetToDefault(_nodeSource);
+    await resetPowToDefault(_nodeSource);
 
-    Node node;
+    PowNode node;
 
     switch (_appStore.wallet!.type) {
       case WalletType.nano:
@@ -62,9 +63,9 @@ abstract class PowNodeListViewModelBase with Store {
   }
 
   @action
-  Future<void> delete(Node node) async => node.delete();
+  Future<void> delete(PowNode node) async => node.delete();
 
-  Future<void> setAsCurrent(Node node) async =>
+  Future<void> setAsCurrent(PowNode node) async =>
       settingsStore.powNodes[_appStore.wallet!.type] = node;
 
   @action
@@ -74,7 +75,7 @@ abstract class PowNodeListViewModelBase with Store {
     });
     _nodeSource.bindToList(
       nodes,
-      filter: (val) => (val.type == _appStore.wallet!.type && val.isPowNode == true),
+      filter: (val) => val.type == _appStore.wallet!.type,
       initialFire: true,
     );
   }

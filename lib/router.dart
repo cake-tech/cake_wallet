@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
@@ -56,6 +57,7 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/nano_account.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -329,6 +331,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NodeCreateOrEditPage>(
               param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
+
+    case Routes.newPowNode:
+      final args = settings.arguments as Map<String, dynamic>?;
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<PowNodeCreateOrEditPage>(
+              param1: args?['editingNode'] as PowNode?, param2: args?['isSelected'] as bool?));
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(

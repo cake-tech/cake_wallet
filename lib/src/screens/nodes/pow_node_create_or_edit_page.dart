@@ -17,8 +17,8 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 
-class NodeCreateOrEditPage extends BasePage {
-  NodeCreateOrEditPage({required this.nodeCreateOrEditViewModel,this.editingNode, this.isSelected})
+class PowNodeCreateOrEditPage extends BasePage {
+  PowNodeCreateOrEditPage({required this.nodeCreateOrEditViewModel,this.editingNode, this.isSelected})
       : _formKey = GlobalKey<FormState>(),
         _addressController = TextEditingController(),
         _portController = TextEditingController(),
@@ -82,8 +82,8 @@ class NodeCreateOrEditPage extends BasePage {
         ),
       );
       
-  final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
-  final Node? editingNode;
+  final PowNodeCreateOrEditViewModel nodeCreateOrEditViewModel;
+  final PowNode? editingNode;
   final bool? isSelected;
 
   @override
@@ -125,7 +125,7 @@ class NodeCreateOrEditPage extends BasePage {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24.0),
-          content: NodeForm(
+          content: PowNodeForm(
             formKey: _formKey,
             nodeViewModel: nodeCreateOrEditViewModel,
             editingNode: editingNode,

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/node.dart';
@@ -13,7 +14,8 @@ class PowNodeCreateOrEditViewModel = PowNodeCreateOrEditViewModelBase
     with _$PowNodeCreateOrEditViewModel;
 
 abstract class PowNodeCreateOrEditViewModelBase with Store {
-  PowNodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
+  PowNodeCreateOrEditViewModelBase(
+      this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -72,7 +74,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
   }
 
   final WalletType _walletType;
-  final Box<Node> _nodeSource;
+  final Box<PowNode> _nodeSource;
   final SettingsStore _settingsStore;
 
   @action
@@ -112,8 +114,8 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
   void setSocksProxyAddress(String val) => socksProxyAddress = val;
 
   @action
-  Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
-    final node = Node(
+  Future<void> save({PowNode? editingNode, bool saveAsCurrent = false}) async {
+    final node = PowNode(
         uri: uri,
         type: _walletType,
         login: login,
@@ -121,7 +123,6 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
         useSSL: useSSL,
         trusted: trusted,
         socksProxyAddress: socksProxyAddress);
-    node.isPowNode = true;
     try {
       state = IsExecutingState();
       if (editingNode != null) {
@@ -144,7 +145,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> connect() async {
-    final node = Node(
+    final node = PowNode(
         uri: uri,
         type: _walletType,
         login: login,
@@ -161,7 +162,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
     }
   }
 
-  Node? _existingNode(Node node) {
+  PowNode? _existingNode(PowNode node) {
     final nodes = _nodeSource.values.toList();
     nodes.forEach((item) {
       item.login ??= '';
@@ -172,7 +173,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  void setAsCurrent(Node node) => _settingsStore.powNodes[_walletType] = node;
+  void setAsCurrent(PowNode node) => _settingsStore.powNodes[_walletType] = node;
 
   @action
   Future<void> scanQRCodeForNewNode() async {
@@ -190,7 +191,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
       }
 
       final userInfo = uri.userInfo.split(':');
-
+   
       if (userInfo.length < 2) {
         throw Exception('Unexpected scan QR code value: Value is invalid');
       }

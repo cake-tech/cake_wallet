@@ -1,3 +1,4 @@
+import 'package:cw_core/pow_node.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import "package:yaml/yaml.dart";
@@ -97,21 +98,20 @@ Future<List<Node>> loadDefaultNanoNodes() async {
     }
   }
 
+  return nodes;
+}
+
+Future<List<PowNode>> loadDefaultNanoPowNodes() async {
   final powNodesRaw = await rootBundle.loadString('assets/nano_pow_node_list.yml');
-  print(powNodesRaw);
   final loadedPowNodes = loadYaml(powNodesRaw) as YamlList;
+  final nodes = <PowNode>[];
 
   for (final raw in loadedPowNodes) {
     if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
+      final node = PowNode.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.nano;
-      node.isPowNode = true;
       nodes.add(node);
     }
-  }
-
-  for (var node in nodes) {
-    print(node.uriRaw + " " + node.isPowNode.toString());
   }
 
   return nodes;
@@ -134,4 +134,11 @@ Future resetToDefault(Box<Node> nodeSource) async {
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);
+}
+
+Future resetPowToDefault(Box<PowNode> powNodeSource) async {
+  final nanoPowNodes = await loadDefaultNanoPowNodes();
+  final nodes = nanoPowNodes;
+  await powNodeSource.clear();
+  await powNodeSource.addAll(nodes);
 }

@@ -7,13 +7,13 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
 
-part 'node.g.dart';
+part 'pow_node.g.dart';
 
 Uri createUriFromElectrumAddress(String address) => Uri.tryParse('tcp://$address')!;
 
-@HiveType(typeId: Node.typeId)
-class Node extends HiveObject with Keyable {
-  Node({
+@HiveType(typeId: PowNode.typeId)
+class PowNode extends HiveObject with Keyable {
+  PowNode({
     this.login,
     this.password,
     this.useSSL,
@@ -30,7 +30,7 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Node.fromMap(Map<String, Object?> map)
+  PowNode.fromMap(Map<String, Object?> map)
       : uriRaw = map['uri'] as String? ?? '',
         login = map['login'] as String?,
         password = map['password'] as String?,
@@ -92,7 +92,7 @@ class Node extends HiveObject with Keyable {
 
   @override
   bool operator ==(other) =>
-      other is Node &&
+      other is PowNode &&
       (other.uriRaw == uriRaw &&
           other.login == login &&
           other.password == password &&

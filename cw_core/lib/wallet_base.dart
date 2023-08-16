@@ -1,3 +1,4 @@
+import 'package:cw_core/pow_node.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -53,7 +54,7 @@ abstract class WalletBase<
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
-  Future<void> connectToPowNode({required Node node}) async {}
+  Future<void> connectToPowNode({required PowNode node}) async {}
 
   Future<void> startSync();
 

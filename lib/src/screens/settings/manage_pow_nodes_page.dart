@@ -2,11 +2,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_list_row.dart';
+import 'package:cake_wallet/src/screens/nodes/widgets/pow_node_list_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
+import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -26,9 +28,9 @@ class ManagePowNodesPage extends BasePage {
         children: [
           Semantics(
             button: true,
-            child: NodeHeaderListRow(
+            child: PowNodeHeaderListRow(
               title: S.of(context).add_new_node,
-              onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newNode),
+              onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newPowNode),
             ),
           ),
           const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
@@ -45,12 +47,8 @@ class ManagePowNodesPage extends BasePage {
                   },
                   itemBuilder: (_, sectionIndex, index) {
                     final node = nodeListViewModel.nodes[index];
-                    // technically not correct but the node doesn't
-                    // have any potentially unique attributes (keyIndex -> hashCode)
-                    // and it fixes the bug where the default (pow) node is not highlighted until
-                    // after making a selection
-                    final isSelected = node.hashCode == nodeListViewModel.currentNode.hashCode;
-                    final nodeListRow = NodeListRow(
+                    final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
+                    final nodeListRow = PowNodeListRow(
                       title: node.uriRaw,
                       node: node,
                       isSelected: isSelected,

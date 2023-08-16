@@ -25,6 +25,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
+import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
@@ -91,6 +92,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/nano_account.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -225,6 +227,7 @@ final getIt = GetIt.instance;
 var _isSetupFinished = false;
 late Box<WalletInfo> _walletInfoSource;
 late Box<Node> _nodeSource;
+late Box<PowNode> _powNodeSource;
 late Box<Contact> _contactSource;
 late Box<Trade> _tradesSource;
 late Box<Template> _templates;
@@ -237,6 +240,7 @@ late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future setup({
   required Box<WalletInfo> walletInfoSource,
   required Box<Node> nodeSource,
+  required Box<PowNode> powNodeSource,
   required Box<Contact> contactSource,
   required Box<Trade> tradesSource,
   required Box<Template> templates,
@@ -248,6 +252,7 @@ Future setup({
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
+  _powNodeSource = powNodeSource;
   _contactSource = contactSource;
   _tradesSource = tradesSource;
   _templates = templates;
@@ -271,7 +276,7 @@ Future setup({
 
   final settingsStore = await SettingsStoreBase.load(
     nodeSource: _nodeSource,
-    powNodeSource: _nodeSource,
+    powNodeSource: _powNodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
     // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
     initialTheme: ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile
@@ -284,6 +289,7 @@ Future setup({
   }
 
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
+  getIt.registerFactory<Box<PowNode>>(() => _powNodeSource);
 
   getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
   getIt.registerSingleton(AuthenticationStore());
@@ -742,7 +748,7 @@ Future setup({
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return PowNodeListViewModel(_nodeSource, appStore);
+    return PowNodeListViewModel(_powNodeSource, appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
@@ -764,11 +770,17 @@ Future setup({
 
   getIt.registerFactoryParam<PowNodeCreateOrEditViewModel, WalletType?, void>(
       (WalletType? type, _) => PowNodeCreateOrEditViewModel(
-          _nodeSource, type ?? getIt.get<AppStore>().wallet!.type, getIt.get<SettingsStore>()));
+          _powNodeSource, type ?? getIt.get<AppStore>().wallet!.type, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(),
+          editingNode: editingNode,
+          isSelected: isSelected));
+
+  getIt.registerFactoryParam<PowNodeCreateOrEditPage, PowNode?, bool?>(
+      (PowNode? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
+          nodeCreateOrEditViewModel: getIt.get<PowNodeCreateOrEditViewModel>(),
           editingNode: editingNode,
           isSelected: isSelected));
 

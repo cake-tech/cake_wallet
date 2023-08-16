@@ -20,6 +20,7 @@ class Routes {
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
   static const newNode = '/new_node_list';
+  static const newPowNode = '/new_pow_node_list';
   static const login = '/login';
   static const splash = '/splash';
   static const accountCreation = '/account_new';

@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:cw_nano/nano_util.dart';
@@ -20,7 +21,7 @@ class NanoClient {
 
   StreamSubscription<Transfer>? subscription;
   Node? _node;
-  Node? _powNode;
+  PowNode? _powNode;
 
   bool connect(Node node) {
     try {
@@ -31,7 +32,7 @@ class NanoClient {
     }
   }
 
-  bool connectPow(Node node) {
+  bool connectPow(PowNode node) {
     try {
       _powNode = node;
       return true;

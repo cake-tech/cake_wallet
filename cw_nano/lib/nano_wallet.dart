@@ -6,6 +6,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -152,7 +153,7 @@ abstract class NanoWalletBase
   }
 
   @override
-  Future<void> connectToPowNode({required Node node}) async {
+  Future<void> connectToPowNode({required PowNode node}) async {
     _client.connectPow(node);
   }
 

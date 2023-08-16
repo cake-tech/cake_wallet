@@ -3,6 +3,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
@@ -35,6 +36,7 @@ Future defaultSettingsMigration(
     required SharedPreferences sharedPreferences,
     required FlutterSecureStorage secureStorage,
     required Box<Node> nodes,
+    required Box<PowNode> powNodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Trade> tradeSource,
     required Box<Contact> contactSource}) async {
@@ -43,7 +45,7 @@ Future defaultSettingsMigration(
   }
 
   // check current nodes for nullability regardless of the version
-  await checkCurrentNodes(nodes, sharedPreferences);
+  await checkCurrentNodes(nodes, powNodes, sharedPreferences);
 
   final isNewInstall =
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
@@ -118,7 +120,7 @@ Future defaultSettingsMigration(
           break;
 
         case 12:
-          await checkCurrentNodes(nodes, sharedPreferences);
+          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
           break;
 
         case 13:
@@ -129,13 +131,13 @@ Future defaultSettingsMigration(
           await addLitecoinElectrumServerList(nodes: nodes);
           await changeLitecoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
-          await checkCurrentNodes(nodes, sharedPreferences);
+          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
           break;
 
         case 16:
           await addHavenNodeList(nodes: nodes);
           await changeHavenCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
-          await checkCurrentNodes(nodes, sharedPreferences);
+          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
           break;
 
         case 17:
@@ -160,7 +162,9 @@ Future defaultSettingsMigration(
         case 22:
           await addNanoNodeList(nodes: nodes);
           await changeNanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
-          await changeNanoCurrentPowNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeNanoCurrentPowNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: powNodes);
+          await resetPowToDefault(powNodes);
           break;
 
         default:
@@ -254,9 +258,10 @@ Node? getNanoDefaultNode({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.nano);
 }
 
-Node? getNanoDefaultPowNode({required Box<Node> nodes}) {
-  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == nanoDefaultPowNodeUri) ??
-      nodes.values.firstWhereOrNull((node) => (node.type == WalletType.nano && node.isPowNode == true));
+PowNode? getNanoDefaultPowNode({required Box<PowNode> nodes}) {
+  return nodes.values.firstWhereOrNull((PowNode node) => node.uriRaw == nanoDefaultPowNodeUri) ??
+      nodes.values
+          .firstWhereOrNull((node) => (node.type == WalletType.nano));
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -428,7 +433,7 @@ Future<void> changeDefaultMoneroNode(
   }
 }
 
-Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+Future<void> checkCurrentNodes(Box<Node> nodeSource, Box<PowNode> powNodeSource, SharedPreferences sharedPreferences) async {
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentBitcoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -492,9 +497,8 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
   }
 
   if (currentNanoPowNodeServer == null) {
-    final node = Node(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
-    node.isPowNode = true;
-    await nodeSource.add(node);
+    final node = PowNode(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
+    await powNodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
   }
 }
@@ -577,7 +581,7 @@ Future<void> changeNanoCurrentNodeToDefault(
 }
 
 Future<void> changeNanoCurrentPowNodeToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+    {required SharedPreferences sharedPreferences, required Box<PowNode> nodes}) async {
   final node = getNanoDefaultPowNode(nodes: nodes);
   final nodeId = node?.key as int? ?? 0;
   await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, nodeId);

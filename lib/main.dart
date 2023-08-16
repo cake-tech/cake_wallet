@@ -8,6 +8,7 @@ import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/pow_node.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -81,6 +82,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(NodeAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(PowNode.typeId)) {
+    CakeHive.registerAdapter(PowNodeAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
   }
@@ -128,6 +133,7 @@ Future<void> initializeAppConfigs() async {
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final nodes = await CakeHive.openBox<Node>(Node.boxName);
+  final powNodes = await CakeHive.openBox<PowNode>(PowNode.boxName);
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
@@ -146,6 +152,7 @@ Future<void> initializeAppConfigs() async {
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
       nodes: nodes,
+      powNodes: powNodes,
       walletInfoSource: walletInfoSource,
       contactSource: contacts,
       tradesSource: trades,
@@ -163,6 +170,7 @@ Future<void> initializeAppConfigs() async {
 Future<void> initialSetup(
     {required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
+    required Box<PowNode> powNodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Contact> contactSource,
     required Box<Trade> tradesSource,
@@ -183,10 +191,12 @@ Future<void> initialSetup(
       walletInfoSource: walletInfoSource,
       contactSource: contactSource,
       tradeSource: tradesSource,
-      nodes: nodes);
+      nodes: nodes,
+      powNodes: powNodes);
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
+      powNodeSource: powNodes,
       contactSource: contactSource,
       tradesSource: tradesSource,
       templates: templates,
