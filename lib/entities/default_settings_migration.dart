@@ -27,7 +27,7 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
-const nanoDefaultNodeUri = 'rpc.nano.to';
+const nanoDefaultNodeUri = 'rpc.nano.to:443';
 
 Future defaultSettingsMigration(
     {required int version,
