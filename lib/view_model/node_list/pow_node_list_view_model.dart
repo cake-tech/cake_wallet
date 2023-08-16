@@ -27,7 +27,7 @@ abstract class PowNodeListViewModelBase with Store {
 
   @computed
   Node get currentNode {
-    final node = settingsStore.nodes[_appStore.wallet!.type];
+    final node = settingsStore.powNodes[_appStore.wallet!.type];
 
     if (node == null) {
       throw Exception('No node for wallet type: ${_appStore.wallet!.type}');
@@ -79,14 +79,14 @@ abstract class PowNodeListViewModelBase with Store {
   @action
   Future<void> delete(Node node) async => node.delete();
 
-  Future<void> setAsCurrent(Node node) async => settingsStore.nodes[_appStore.wallet!.type] = node;
+  Future<void> setAsCurrent(Node node) async => settingsStore.powNodes[_appStore.wallet!.type] = node;
 
   @action
   void _bindNodes() {
     nodes.clear();
     _nodeSource.bindToList(
       nodes,
-      filter: (val) => val.type == _appStore.wallet!.type,
+      filter: (val) => (val.type == _appStore.wallet!.type && val.isPowNode == true),
       initialFire: true,
     );
   }

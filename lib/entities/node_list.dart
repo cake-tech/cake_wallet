@@ -109,6 +109,7 @@ Future<List<Node>> loadDefaultNanoPowNodes() async {
     if (raw is Map) {
       final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.nano;
+      node.isPowNode = true;
       nodes.add(node);
     }
   }
@@ -123,12 +124,14 @@ Future resetToDefault(Box<Node> nodeSource) async {
   final havenNodes = await loadDefaultHavenNodes();
   final ethereumNodes = await loadDefaultEthereumNodes();
   final nanoNodes = await loadDefaultNanoNodes();
+  final nanoPowNodes = await loadDefaultNanoPowNodes();
+
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
       litecoinElectrumServerList +
       havenNodes +
       ethereumNodes +
-      nanoNodes;
+      nanoNodes + nanoPowNodes;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);

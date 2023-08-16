@@ -13,8 +13,7 @@ class PowNodeCreateOrEditViewModel = PowNodeCreateOrEditViewModelBase
     with _$PowNodeCreateOrEditViewModel;
 
 abstract class PowNodeCreateOrEditViewModelBase with Store {
-  PowNodeCreateOrEditViewModelBase(
-      this._nodeSource, this._walletType, this._settingsStore)
+  PowNodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -122,6 +121,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
         useSSL: useSSL,
         trusted: trusted,
         socksProxyAddress: socksProxyAddress);
+    node.isPowNode = true;
     try {
       state = IsExecutingState();
       if (editingNode != null) {
@@ -172,7 +172,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  void setAsCurrent(Node node) => _settingsStore.nodes[_walletType] = node;
+  void setAsCurrent(Node node) => _settingsStore.powNodes[_walletType] = node;
 
   @action
   Future<void> scanQRCodeForNewNode() async {
@@ -190,7 +190,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
       }
 
       final userInfo = uri.userInfo.split(':');
-   
+
       if (userInfo.length < 2) {
         throw Exception('Unexpected scan QR code value: Value is invalid');
       }

@@ -13,14 +13,15 @@ Uri createUriFromElectrumAddress(String address) => Uri.tryParse('tcp://$address
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
-  Node(
-      {this.login,
-      this.password,
-      this.useSSL,
-      this.trusted = false,
-      this.socksProxyAddress,
-      String? uri,
-      WalletType? type,}) {
+  Node({
+    this.login,
+    this.password,
+    this.useSSL,
+    this.trusted = false,
+    this.socksProxyAddress,
+    String? uri,
+    WalletType? type,
+  }) {
     if (uri != null) {
       uriRaw = uri;
     }
@@ -61,6 +62,8 @@ class Node extends HiveObject with Keyable {
   @HiveField(6)
   String? socksProxyAddress;
 
+  bool isPowNode = false;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -92,13 +95,13 @@ class Node extends HiveObject with Keyable {
   @override
   bool operator ==(other) =>
       other is Node &&
-          (other.uriRaw == uriRaw &&
-              other.login == login &&
-              other.password == password &&
-              other.typeRaw == typeRaw &&
-              other.useSSL == useSSL &&
-              other.trusted == trusted &&
-              other.socksProxyAddress == socksProxyAddress);
+      (other.uriRaw == uriRaw &&
+          other.login == login &&
+          other.password == password &&
+          other.typeRaw == typeRaw &&
+          other.useSSL == useSSL &&
+          other.trusted == trusted &&
+          other.socksProxyAddress == socksProxyAddress);
 
   @override
   int get hashCode =>
@@ -126,7 +129,9 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return useSocksProxy ? requestNodeWithProxy(socksProxyAddress ?? '') : requestMoneroNode();
+          return useSocksProxy
+              ? requestNodeWithProxy(socksProxyAddress ?? '')
+              : requestMoneroNode();
         case WalletType.bitcoin:
           return requestElectrumServer();
         case WalletType.litecoin:
@@ -176,7 +181,6 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy(String proxy) async {
-
     if (proxy.isEmpty || !proxy.contains(':')) {
       return false;
     }

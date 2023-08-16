@@ -86,7 +86,7 @@ abstract class NodeListViewModelBase with Store {
     nodes.clear();
     _nodeSource.bindToList(
       nodes,
-      filter: (val) => val.type == _appStore.wallet!.type,
+      filter: (val) => (val.type == _appStore.wallet!.type && val.isPowNode == false),
       initialFire: true,
     );
   }
