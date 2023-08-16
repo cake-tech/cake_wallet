@@ -335,6 +335,12 @@ abstract class SettingsStoreBase with Store {
         _saveCurrentNode(change.newValue!, change.key!);
       }
     });
+
+    this.powNodes.observe((change) {
+      if (change.newValue != null && change.key != null) {
+        _saveCurrentPowNode(change.newValue!, change.key!);
+      }
+    });
   }
 
   static const defaultPinLength = 4;
@@ -650,8 +656,6 @@ abstract class SettingsStoreBase with Store {
     if (nanoPowNode != null) {
       powNodes[WalletType.nano] = nanoPowNode;
     }
-    print(nanoPowNode);
-    print("@@@@@@@@@@@@");
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
       return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
@@ -819,6 +823,7 @@ abstract class SettingsStoreBase with Store {
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -878,6 +883,18 @@ abstract class SettingsStoreBase with Store {
     }
 
     nodes[walletType] = node;
+  }
+
+  Future<void> _saveCurrentPowNode(PowNode node, WalletType walletType) async {
+    switch (walletType) {
+      case WalletType.nano:
+        await _sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
+        break;
+      default:
+        break;
+    }
+
+    powNodes[walletType] = node;
   }
 
   static Future<String?> _getDeviceName() async {
