@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_nano/nano_wallet.dart';
@@ -121,11 +122,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       } else {
         if (type == WalletType.nano) {
           return nano!.createNanoRestoreWalletFromKeysCredentials(
-              name: name,
-              password: password,
-              seedKey: options['seedKey'] as String,
-              derivationType: options["derivationType"] as DerivationType,
-            );
+            name: name,
+            password: password,
+            seedKey: options['seedKey'] as String,
+            derivationType: options["derivationType"] as DerivationType,
+          );
         }
       }
     }
@@ -137,6 +138,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   Future<List<DerivationType>> getDerivationType(dynamic options) async {
     final seedKey = options['seedKey'] as String?;
     final mnemonic = options['seed'] as String?;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
 
     switch (type) {
       // case WalletType.bitcoin:
@@ -147,7 +150,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       //       name: name, mnemonic: seed, password: password);
       case WalletType.nano:
         return await NanoWalletService.compareDerivationMethods(
-            mnemonic: mnemonic, seedKey: seedKey);
+          mnemonic: mnemonic,
+          seedKey: seedKey,
+          node: node,
+        );
       default:
         break;
     }

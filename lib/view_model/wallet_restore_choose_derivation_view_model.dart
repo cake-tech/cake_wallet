@@ -33,19 +33,21 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
 
   Future<List<Derivation>> get derivations async {
     var list = <Derivation>[];
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
     switch ((await getIt.get<AppStore>().wallet!.type)) {
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['seedKey'] as String?;
-        var bip39Info = await NanoWalletService.getInfoFromSeedOrMnemonic(
-          DerivationType.bip39,
-          mnemonic: mnemonic,
-          seedKey: seedKey,
-        );
+        var bip39Info = await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
+            mnemonic: mnemonic,
+            seedKey: seedKey,
+            node: node);
         var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
           DerivationType.nano,
           mnemonic: mnemonic,
           seedKey: seedKey,
+          node: node,
         );
 
         if (standardInfo["address"] != null) {

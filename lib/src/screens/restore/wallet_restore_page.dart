@@ -331,14 +331,8 @@ class WalletRestorePage extends BasePage {
     }
 
     walletRestoreViewModel.state = InitialExecutionState();
-
-    // todo: re-enable
-    try {
-      walletRestoreViewModel.create(options: _credentials());
-    } catch (e) {
-      print(e);
-      rethrow;
-    }
+    
+    walletRestoreViewModel.create(options: _credentials());
   }
 
   Future<void> showNameExistsAlert(BuildContext context) {

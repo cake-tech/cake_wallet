@@ -121,14 +121,14 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
-  static Future<dynamic> getInfoFromSeedOrMnemonic(DerivationType derivationType,
-      {String? seedKey, String? mnemonic}) async {
+  static Future<dynamic> getInfoFromSeedOrMnemonic(
+    DerivationType derivationType, {
+    String? seedKey,
+    String? mnemonic,
+    required Node node,
+  }) async {
     NanoClient nanoClient = NanoClient();
-    // TODO: figure out how to load the current node uri in this context:
-    nanoClient.connect(Node(
-      uri: NanoClient.BACKUP_NODE_URI,
-      type: WalletType.nano,
-    ));
+    nanoClient.connect(node);
     late String publicAddress;
 
     if (seedKey != null) {
@@ -159,7 +159,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   static Future<List<DerivationType>> compareDerivationMethods(
-      {String? mnemonic, String? seedKey}) async {
+      {String? mnemonic, String? seedKey, required Node node}) async {
     if (mnemonic?.split(' ').length == 12) {
       return [DerivationType.bip39];
     }
@@ -174,11 +174,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
     try {
       NanoClient nanoClient = NanoClient();
-      // TODO: figure out how to load the current node uri in this context:
-      nanoClient.connect(Node(
-        uri: NanoClient.BACKUP_NODE_URI,
-        type: WalletType.nano,
-      ));
+      nanoClient.connect(node);
 
       if (mnemonic != null) {
         seedKey = await NanoUtil.hdMnemonicListToSeed(mnemonic.split(' '));
@@ -240,13 +236,12 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       }
     }
 
-
     DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;
     credentials.walletInfo!.derivationType = derivationType;
 
     final wallet = await NanoWallet(
       password: credentials.password!,
-      mnemonic: credentials.seedKey,// we can't derive the mnemonic from the key in all cases
+      mnemonic: credentials.seedKey, // we can't derive the mnemonic from the key in all cases
       walletInfo: credentials.walletInfo!,
     );
     await wallet.init();
