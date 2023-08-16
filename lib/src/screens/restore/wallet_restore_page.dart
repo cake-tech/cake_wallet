@@ -281,6 +281,7 @@ class WalletRestorePage extends BasePage {
     }
 
     credentials['derivationType'] = this.derivationType;
+    credentials['walletType'] = walletRestoreViewModel.type;
 
     return credentials;
   }

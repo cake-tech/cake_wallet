@@ -250,7 +250,7 @@ Node? getEthereumDefaultNode({required Box<Node> nodes}) {
 
 Node? getNanoDefaultNode({required Box<Node> nodes}) {
   return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == nanoDefaultNodeUri) ??
-      nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.nano);
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -430,6 +430,7 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
       sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -440,6 +441,8 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
       nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
   final currentEthereumNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
+  final currentNanoNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -473,11 +476,11 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPre
     await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
   }
 
-  if (currentEthereumNodeServer == null) {
-    final node = Node(uri: ethereumDefaultNodeUri, type: WalletType.ethereum);
+  if (currentNanoNodeServer == null) {
+    final node = Node(uri: nanoDefaultNodeUri, type: WalletType.nano);
     await nodeSource.add(node);
     await sharedPreferences.setInt(
-        PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+        PreferencesKey.currentNanoNodeIdKey, node.key as int);
   }
 }
 

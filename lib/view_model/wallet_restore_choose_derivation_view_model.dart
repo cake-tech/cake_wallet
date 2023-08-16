@@ -33,16 +33,15 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
 
   Future<List<Derivation>> get derivations async {
     var list = <Derivation>[];
+    var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
-    switch ((await getIt.get<AppStore>().wallet!.type)) {
+    var node = appStore.settingsStore.getCurrentNode(walletType);
+    switch (walletType) {
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['seedKey'] as String?;
         var bip39Info = await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
-            mnemonic: mnemonic,
-            seedKey: seedKey,
-            node: node);
+            mnemonic: mnemonic, seedKey: seedKey, node: node);
         var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
           DerivationType.nano,
           mnemonic: mnemonic,
@@ -50,7 +49,7 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
           node: node,
         );
 
-        if (standardInfo["address"] != null) {
+        if (standardInfo["balance"] != null) {
           list.add(Derivation(
             NanoUtil.getRawAsUsableString(standardInfo["balance"] as String, NanoUtil.rawPerNano),
             standardInfo["address"] as String,
@@ -77,6 +76,7 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
       default:
         break;
     }
+
     return list;
   }
 }

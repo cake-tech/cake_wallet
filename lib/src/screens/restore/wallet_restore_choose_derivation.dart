@@ -36,9 +36,9 @@ class WalletRestoreChooseDerivationPage extends BasePage {
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Text('Error! No derivations available!');
+            return Center(child: Text('Error! No derivations available!'));
           } else {
             return ListView.separated(
               shrinkWrap: true,
@@ -62,8 +62,10 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                       title: Center(
                         child: Text(
                           "${derivation.derivationType.toString().split('.').last}",
-                          style:
-                              Theme.of(context).primaryTextTheme.labelMedium!.copyWith(fontSize: 18),
+                          style: Theme.of(context)
+                              .primaryTextTheme
+                              .labelMedium!
+                              .copyWith(fontSize: 18),
                         ),
                       ),
                       subtitle: Column(
