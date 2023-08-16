@@ -160,6 +160,7 @@ Future defaultSettingsMigration(
         case 22:
           await addNanoNodeList(nodes: nodes);
           await changeNanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeNanoCurrentPowNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
 
         default:
@@ -573,4 +574,11 @@ Future<void> changeNanoCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, nodeId);
+}
+
+Future<void> changeNanoCurrentPowNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getNanoDefaultPowNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+  await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, nodeId);
 }

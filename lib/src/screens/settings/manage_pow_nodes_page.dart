@@ -45,7 +45,11 @@ class ManagePowNodesPage extends BasePage {
                   },
                   itemBuilder: (_, sectionIndex, index) {
                     final node = nodeListViewModel.nodes[index];
-                    final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
+                    // technically not correct but the node doesn't
+                    // have any potentially unique attributes (keyIndex -> hashCode)
+                    // and it fixes the bug where the default (pow) node is not highlighted until
+                    // after making a selection
+                    final isSelected = node.hashCode == nodeListViewModel.currentNode.hashCode;
                     final nodeListRow = NodeListRow(
                       title: node.uriRaw,
                       node: node,
