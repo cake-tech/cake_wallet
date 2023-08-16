@@ -12,12 +12,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.4
+  http: ^1.1.0
   file: ^6.1.4
   path_provider: ^2.0.11
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
-  intl: ^0.17.0
+  intl: ^0.18.0
   encrypt: ^5.0.1
 
 dev_dependencies:
