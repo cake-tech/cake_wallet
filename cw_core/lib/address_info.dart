@@ -1,12 +1,13 @@
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'address_info.g.dart';
 
-@HiveType(typeId: AddressInfo.typeId)
+@HiveType(typeId: ADDRESS_INFO_TYPE_ID)
 class AddressInfo extends HiveObject {
   AddressInfo({required this.address, this.accountIndex, required this.label});
 
-  static const typeId = 11;
+  static const typeId = ADDRESS_INFO_TYPE_ID;
   static const boxName = 'AddressInfo';
 
   @HiveField(0)
