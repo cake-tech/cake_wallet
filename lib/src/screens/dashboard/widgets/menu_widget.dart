@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -115,7 +116,7 @@ class MenuWidgetState extends State<MenuWidget> {
                     topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
                 child: Container(
                   color:
-                      Theme.of(context).textTheme!.bodyLarge!.decorationColor!,
+                      Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
                   child: ListView.separated(
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
@@ -124,14 +125,8 @@ class MenuWidgetState extends State<MenuWidget> {
                             height: headerHeight,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [
-                                Theme.of(context)
-                                    .accentTextTheme!
-                                    .headlineMedium!
-                                    .color!,
-                                Theme.of(context)
-                                    .accentTextTheme!
-                                    .headlineMedium!
-                                    .decorationColor!,                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                Theme.of(context).extension<CakeMenuTheme>()!.headerFirstGradientColor,
+                                Theme.of(context).extension<CakeMenuTheme>()!.headerSecondGradientColor,                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                             ),
                             padding: EdgeInsets.only(
                                 left: 24, top: fromTopEdge, right: 24, bottom: fromBottomEdge),
@@ -160,10 +155,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                             builder: (_) => Text(
                                                   widget.dashboardViewModel.subname,
                                                   style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .accentTextTheme!
-                                                          .labelSmall!
-                                                          .decorationColor!,
+                                                      color: Theme.of(context).extension<CakeMenuTheme>()!.subnameTextColor,
                                                       fontWeight: FontWeight.w500,
                                                       fontSize: 12),
                                                 ))
@@ -194,10 +186,7 @@ class MenuWidgetState extends State<MenuWidget> {
                       },
                       separatorBuilder: (_, index) => Container(
                             height: 1,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .bodySmall!
-                                .decorationColor!,
+                            color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
                           ),
                       itemCount: itemCount + 1),
                 )))

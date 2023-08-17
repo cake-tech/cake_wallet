@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -81,7 +82,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
                   color:
-                      Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                      Theme.of(context).extension<CakeTextTheme>()!.titleColor),
             ),
           ),
           Row(

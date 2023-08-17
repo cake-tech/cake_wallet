@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/generated/i18n.dart';

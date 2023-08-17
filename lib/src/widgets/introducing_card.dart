@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class IntroducingCard extends StatelessWidget {
@@ -27,7 +29,7 @@ class IntroducingCard extends StatelessWidget {
               color: borderColor,
               width: 1,
             ),
-            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!),
+            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,10 +47,7 @@ class IntroducingCard extends StatelessWidget {
                               fontSize: 24,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context)
-                                  .accentTextTheme!
-                                  .displayMedium!
-                                  .backgroundColor!,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                               height: 1),
                           maxLines: 1,
                           textAlign: TextAlign.center),
@@ -58,10 +57,7 @@ class IntroducingCard extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 12,
                               fontFamily: 'Lato',
-                              color: Theme.of(context)
-                                  .accentTextTheme!
-                                  .displayMedium!
-                                  .backgroundColor!,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                               height: 1)),
                     ],
                   ),

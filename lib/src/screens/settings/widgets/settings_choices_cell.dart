@@ -1,5 +1,7 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
 
 class SettingsChoicesCell extends StatelessWidget {
   const SettingsChoicesCell(this.choicesListItem, {Key? key}) : super(key: key);

@@ -1,5 +1,7 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -15,6 +17,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class WalletListPage extends BasePage {
   WalletListPage({required this.walletListViewModel, required this.authService});
@@ -56,7 +59,9 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage =
         Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).primaryTextTheme.titleLarge!.color!);
+        height: 12,
+        width: 12,
+        color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor);
 
     return Container(
       padding: EdgeInsets.only(top: 16),
@@ -73,7 +78,9 @@ class WalletListBodyState extends State<WalletListBody> {
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
-                        ? Theme.of(context).accentTextTheme.titleSmall!.decorationColor!
+                        ? Theme.of(context)
+                            .extension<WalletListTheme>()!
+                            .createNewWalletButtonBackgroundColor
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
                         onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
@@ -98,29 +105,25 @@ class WalletListBodyState extends State<WalletListBody> {
                                   color: Theme.of(context).colorScheme.background,
                                   alignment: Alignment.centerLeft,
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      wallet.isEnabled
-                                          ? _imageFor(type: wallet.type)
-                                          : nonWalletTypeIcon,
-                                      SizedBox(width: 10),
-                                      Flexible(
-                                        child: Text(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        wallet.isEnabled
+                                            ? _imageFor(type: wallet.type)
+                                            : nonWalletTypeIcon,
+                                        SizedBox(width: 10),
+                                        Flexible(
+                                            child: Text(
                                           wallet.name,
                                           maxLines: null,
                                           softWrap: true,
                                           style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .titleLarge!
-                                                .color!,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context)
+                                                  .extension<CakeTextTheme>()!
+                                                  .titleColor),
+                                        ))
+                                      ]),
                                 ),
                               ),
                             ],
@@ -144,13 +147,14 @@ class WalletListBodyState extends State<WalletListBody> {
                                     decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Theme.of(context)
-                                            .textTheme
-                                            .headlineMedium!
-                                            .decorationColor!),
+                                            .extension<ReceivePageTheme>()!
+                                            .iconsBackgroundColor),
                                     child: Icon(
                                       Icons.edit,
                                       size: 14,
-                                      color: Theme.of(context).textTheme.headlineMedium!.color!,
+                                      color: Theme.of(context)
+                                          .extension<ReceivePageTheme>()!
+                                          .iconsColor,
                                     ),
                                   ),
                                 ),

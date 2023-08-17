@@ -1,3 +1,6 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -19,6 +22,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class ReceivePage extends BasePage {
   ReceivePage({required this.addressListViewModel})
@@ -41,20 +45,12 @@ class ReceivePage extends BasePage {
   String get title => S.current.receive;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
 
   final FocusNode _cryptoAmountFocus;
-
-  @override
-  Color? get titleColor =>
-      currentTheme.type == ThemeType.bright ? Colors.white : null;
 
   @override
   Widget middle(BuildContext context) {
@@ -64,23 +60,14 @@ class ReceivePage extends BasePage {
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: Theme.of(context)
-              .accentTextTheme!
-              .displayMedium!
-              .backgroundColor!),
+          color: pageIconColor(context)),
     );
   }
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.secondary,
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).primaryColor,
-          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
-          child: scaffold);
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold);
 
   @override
   Widget trailing(BuildContext context) {
@@ -103,10 +90,7 @@ class ReceivePage extends BasePage {
             icon: Icon(
               Icons.share,
               size: 20,
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayMedium!
-                  .backgroundColor!,
+              color: pageIconColor(context),
             ),
           ),
         ));
@@ -119,10 +103,7 @@ class ReceivePage extends BasePage {
         ? KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-                keyboardBarColor: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .backgroundColor!,
+                keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
                 nextFocus: false,
                 actions: [
                   KeyboardActionsItem(
@@ -146,7 +127,7 @@ class ReceivePage extends BasePage {
                   Observer(
                       builder: (_) => ListView.separated(
                           padding: EdgeInsets.all(0),
-                          separatorBuilder: (context, _) => const SectionDivider(),
+                          separatorBuilder: (context, _) => const HorizontalSectionDivider(),
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: addressListViewModel.items.length,
@@ -163,10 +144,7 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.arrow_forward_ios,
                                     size: 14,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .headlineMedium!
-                                        .color!,
+                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
                                   ));
                             }
 
@@ -178,10 +156,7 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.add,
                                     size: 20,
-                                    color: Theme.of(context)
-                                        .textTheme!
-                                        .headlineMedium!
-                                        .color!,
+                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
                                   ));
                             }
 
@@ -190,23 +165,11 @@ class ReceivePage extends BasePage {
                                 final isCurrent =
                                     item.address == addressListViewModel.address.address;
                                 final backgroundColor = isCurrent
-                                    ? Theme.of(context)
-                                        .textTheme!
-                                        .displayMedium!
-                                        .decorationColor!
-                                    : Theme.of(context)
-                                        .textTheme!
-                                        .displaySmall!
-                                        .decorationColor!;
+                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
+                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor;
                                 final textColor = isCurrent
-                                    ? Theme.of(context)
-                                        .textTheme!
-                                        .displayMedium!
-                                        .color!
-                                    : Theme.of(context)
-                                        .textTheme!
-                                        .displaySmall!
-                                        .color!;
+                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileTextColor
+                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
 
                                 return AddressCell.fromItem(item,
                                     isCurrent: isCurrent,
@@ -252,10 +215,7 @@ class ReceivePage extends BasePage {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .displaySmall!
-                            .backgroundColor!)),
+                        color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
               ],
             ),
           );

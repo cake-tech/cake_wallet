@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/core/sync_status_title.dart';
@@ -32,7 +33,7 @@ class SyncIndicator extends StatelessWidget {
           child: Container(
             height: 30,
             width: syncIndicatorWidth,
-            color: Theme.of(context).textTheme!.titleLarge!.decorationColor!,
+            color: Theme.of(context).extension<SyncIndicatorTheme>()!.notSyncedBackgroundColor,
             child: Stack(
               alignment: Alignment.center,
               children: <Widget>[
@@ -44,7 +45,7 @@ class SyncIndicator extends StatelessWidget {
                     child: Container(
                       width: indicatorWidth,
                       height: 30,
-                      color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+                      color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     )
                 )
                 : Offstage(),
@@ -66,7 +67,7 @@ class SyncIndicator extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme!.titleLarge!.color!
+                            color: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor
                           ),
                         ),
                       )

@@ -1,5 +1,5 @@
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardCheckbox extends StatelessWidget {
@@ -21,12 +21,12 @@ class StandardCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-      Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+      Theme.of(context).extension<FilterTheme>()!.checkboxFirstGradientColor,
+      Theme.of(context).extension<FilterTheme>()!.checkboxSecondGradientColor,
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(
-        color: borderColor ?? Theme.of(context).primaryTextTheme!.bodySmall!.color!, width: 1.0);
+        color: borderColor ?? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor, width: 1.0);
 
     final checkedBoxDecoration = BoxDecoration(
         gradient: gradientBackground ? baseGradient : null,
@@ -49,7 +49,7 @@ class StandardCheckbox extends StatelessWidget {
             child: value
                 ? Icon(
                     Icons.check,
-                    color: iconColor ?? Colors.blue,
+                    color: iconColor ?? Theme.of(context).primaryColor,
                     size: 20.0,
                   )
                 : Offstage(),
@@ -60,7 +60,7 @@ class StandardCheckbox extends StatelessWidget {
                 child: Text(
                   caption,
                   style: TextStyle(
-                      fontSize: 16.0, color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                      fontSize: 16.0, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                 ))
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_link_provider_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
@@ -21,23 +22,20 @@ class SupportOtherLinksPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final iconColor =
-        Theme.of(context).accentTextTheme.displayLarge!.backgroundColor!;
+    final iconColor = Theme.of(context).extension<SupportPageTheme>()!.iconColor;
 
     return Container(
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 500),
           child: SectionStandardList(
-              context: context,
               sectionCount: 1,
               itemCounter: (int _) => supportViewModel.items.length,
-              itemBuilder: (_, __, index) {
+              itemBuilder: (_, index) {
                 final item = supportViewModel.items[index];
 
                 if (item is RegularListItem) {
-                  return SettingsCellWithArrow(
-                      title: item.title, handler: item.handler);
+                  return SettingsCellWithArrow(title: item.title, handler: item.handler);
                 }
 
                 if (item is LinkListItem) {

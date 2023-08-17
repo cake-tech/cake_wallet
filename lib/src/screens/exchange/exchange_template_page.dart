@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -29,10 +31,10 @@ class ExchangeTemplatePage extends BasePage {
   var _isReactionsSet = false;
 
   @override
-  String get title => S.current.exchange_new_template;
+  bool get gradientAll => true;
 
   @override
-  Color get titleColor => Colors.white;
+  String get title => S.current.exchange_new_template;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -73,10 +75,7 @@ class ExchangeTemplatePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context)
-                .accentTextTheme!
-                .bodyLarge!
-                .backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -101,8 +100,8 @@ class ExchangeTemplatePage extends BasePage {
                   ),
                   gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).primaryTextTheme!.bodyMedium!.color!,
-                        Theme.of(context).primaryTextTheme!.bodyMedium!.decorationColor!,
+                        Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
+                        Theme.of(context).extension<ExchangePageTheme>()!.secondGradientBottomPanelColor,
                       ],
                       stops: [0.35, 1.0],
                       begin: Alignment.topLeft,
@@ -120,12 +119,8 @@ class ExchangeTemplatePage extends BasePage {
                           ),
                           gradient: LinearGradient(
                               colors: [
-                                Theme.of(context)
-                                    .primaryTextTheme!.titleSmall!
-                                    .color!,
-                                Theme.of(context)
-                                    .primaryTextTheme!.titleSmall!
-                                    .decorationColor!,
+                                Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
+                                Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight),
@@ -157,10 +152,8 @@ class ExchangeTemplatePage extends BasePage {
                             imageArrow: arrowBottomPurple,
                             currencyButtonColor: Colors.transparent,
                             addressButtonsColor:
-                            Theme.of(context).focusColor,
-                            borderColor: Theme.of(context)
-                                .primaryTextTheme!.bodyLarge!
-                                .color!,
+                            Theme.of(context).extension<ExchangePageTheme>()!.textFieldButtonColor,
+                            borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
                             currencyValueValidator: AmountValidator(
                                 currency: exchangeViewModel.depositCurrency),
                             //addressTextFieldValidator: AddressValidator(
@@ -197,10 +190,8 @@ class ExchangeTemplatePage extends BasePage {
                               imageArrow: arrowBottomCakeGreen,
                               currencyButtonColor: Colors.transparent,
                               addressButtonsColor:
-                              Theme.of(context).focusColor,
-                              borderColor: Theme.of(context)
-                                  .primaryTextTheme!.bodyLarge!
-                                  .decorationColor!,
+                              Theme.of(context).extension<ExchangePageTheme>()!.textFieldButtonColor,
+                              borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
                               currencyValueValidator: AmountValidator(
                                   currency: exchangeViewModel.receiveCurrency),
                               //addressTextFieldValidator: AddressValidator(
@@ -226,9 +217,7 @@ class ExchangeTemplatePage extends BasePage {
                         description,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Theme.of(context)
-                                .primaryTextTheme!.displayLarge!
-                                .decorationColor!,
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
                             fontWeight: FontWeight.w500,
                             fontSize: 12),
                       ),
@@ -256,7 +245,7 @@ class ExchangeTemplatePage extends BasePage {
                       }
                     },
                     text: S.of(context).save,
-                    color: Colors.green,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white),
               ]),
             ))

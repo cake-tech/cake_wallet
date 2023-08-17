@@ -53,7 +53,7 @@ class Setup2FAQRPage extends BasePage {
               decoration: BoxDecoration(
                 border: Border.all(
                   width: 3,
-                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                 ),
               ),
               child: Container(
@@ -137,7 +137,7 @@ class Setup2FAQRPage extends BasePage {
               );
             },
             text: S.current.continue_text,
-            color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),
           SizedBox(height: 24),

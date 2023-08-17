@@ -7,6 +7,9 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class Picker<Item> extends StatefulWidget {
   Picker({
@@ -40,8 +43,7 @@ class Picker<Item> extends StatefulWidget {
   final bool Function(Item, String)? matchingCriteria;
 
   @override
-  _PickerState<Item> createState() =>
-      _PickerState<Item>(items, images, onItemSelected);
+  _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
 }
 
 class _PickerState<Item> extends State<Picker<Item>> {
@@ -90,8 +92,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       setState(() {
         filteredItems = List.from(items.where((element) {
           if (widget.selectedAtIndex != items.indexOf(element) &&
-              (widget.matchingCriteria?.call(element, searchController.text) ??
-                  true)) {
+              (widget.matchingCriteria?.call(element, searchController.text) ?? true)) {
             if (images.isNotEmpty) {
               filteredImages.add(images[items.indexOf(element)]);
             }
@@ -168,8 +169,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           .backgroundColor!,
                       height: 1,
                     ),
-                    if (widget.selectedAtIndex != -1)
-                      buildSelectedItem(widget.selectedAtIndex),
+                    if (widget.selectedAtIndex != -1) buildSelectedItem(widget.selectedAtIndex),
                     Flexible(
                       child: Stack(
                         alignment: Alignment.center,
@@ -193,9 +193,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                       fontWeight: FontWeight.w500,
                                       fontFamily: 'Lato',
                                       decoration: TextDecoration.none,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme.titleLarge!
-                                          .color!,
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ),
                                   ),
                                 )
@@ -307,8 +306,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
                                   color: Theme.of(context)
-                                      .textTheme.bodyMedium!
-                                      .color!),
+                                      .extension<CakeScrollbarTheme>()!
+                                      .thumbColor),
                             ),
                           ),
                           decoration: BoxDecoration(
@@ -387,8 +386,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
                                   color: Theme.of(context)
-                                      .textTheme.bodyMedium!
-                                      .color!),
+                                      .extension<CakeScrollbarTheme>()!
+                                      .thumbColor),
                             ),
                           ),
                           decoration: BoxDecoration(
@@ -404,10 +403,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 ),
               ),
             ),
-            Icon(Icons.check_circle,
-                color: Theme.of(context)
-                    .accentTextTheme.bodyLarge!
-                    .color!),
+            Icon(Icons.check_circle, color: Theme.of(context).primaryColor),
           ],
         ),
       ),

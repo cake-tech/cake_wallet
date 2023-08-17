@@ -31,7 +31,7 @@ class MoneroAccountListPage extends StatelessWidget {
             child: ListView.separated(
               padding: EdgeInsets.zero,
               controller: controller,
-              separatorBuilder: (context, index) => const SectionDivider(),
+              separatorBuilder: (context, index) => const VerticalSectionDivider(),
               itemCount: accounts.length,
               itemBuilder: (context, index) {
                 final account = accounts[index];
@@ -59,7 +59,7 @@ class MoneroAccountListPage extends StatelessWidget {
                 await Navigator.of(context).pushNamed(Routes.accountCreation),
             child: Container(
               height: buttonHeight,
-              color: Theme.of(context).cardColor,
+              color: Theme.of(context).primaryColor,
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Center(
                 child: Row(
