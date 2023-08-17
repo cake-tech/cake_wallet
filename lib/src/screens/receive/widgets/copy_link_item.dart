@@ -5,6 +5,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class CopyLinkItem extends StatelessWidget {
   const CopyLinkItem({super.key, required this.url, required this.title});
@@ -14,10 +15,7 @@ class CopyLinkItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayMedium!
-            .backgroundColor!);
+        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -25,10 +23,7 @@ class CopyLinkItem extends StatelessWidget {
         Text(
           title,
           style: textMedium(
-            color: Theme.of(context)
-                .accentTextTheme!
-                .displayMedium!
-                .backgroundColor!,
+            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
           ),
         ),
         SizedBox(width: 50),
@@ -51,10 +46,7 @@ class CopyLinkItem extends StatelessWidget {
               onPressed: () => Share.share(url),
               icon: Icon(
                 Icons.share,
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .displayMedium!
-                    .backgroundColor!,
+                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               ),
             )
           ],

@@ -1,8 +1,11 @@
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -78,7 +81,10 @@ class ExchangePage extends BasePage {
   String get title => S.current.exchange;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get gradientBackground => true;
+
+  @override
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -115,7 +121,7 @@ class ExchangePage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor,
+      color: titleColor(context),
       size: 16,
     );
     final _closeButton =
@@ -152,7 +158,7 @@ class ExchangePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -205,8 +211,8 @@ class ExchangePage extends BasePage {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Theme.of(context)
-                                  .primaryTextTheme.displayLarge!
-                                  .decorationColor!,
+                                  .extension<ExchangePageTheme>()!
+                                  .receiveAmountColor,
                               fontWeight: FontWeight.w500,
                               fontSize: 12),
                         ),
@@ -625,7 +631,7 @@ class ExchangePage extends BasePage {
               imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor: Theme.of(context).focusColor,
-              borderColor: Theme.of(context).primaryTextTheme.bodyLarge!.color!,
+              borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
               currencyValueValidator: (value) {
                 return !exchangeViewModel.isFixedRateMode
                     ? AmountValidator(
@@ -673,7 +679,7 @@ class ExchangePage extends BasePage {
               imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor: Theme.of(context).focusColor,
-              borderColor: Theme.of(context).primaryTextTheme.bodyLarge!.decorationColor!,
+              borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
               currencyValueValidator: (value) {
                 return exchangeViewModel.isFixedRateMode
                     ? AmountValidator(

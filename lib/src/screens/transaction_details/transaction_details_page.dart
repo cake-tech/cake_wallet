@@ -10,11 +10,6 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/utils/date_formatter.dart';
-
-import 'package:url_launcher/url_launcher.dart';
-
-import 'package:hive/hive.dart';
 
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage({required this.transactionDetailsViewModel});
@@ -28,10 +23,9 @@ class TransactionDetailsPage extends BasePage {
   Widget body(BuildContext context) {
     // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
-        context: context,
         sectionCount: 1,
         itemCounter: (int _) => transactionDetailsViewModel.items.length,
-        itemBuilder: (_, __, index) {
+        itemBuilder: (__, index) {
           final item = transactionDetailsViewModel.items[index];
 
           if (item is StandartListItem) {

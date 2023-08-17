@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:flutter/material.dart';
 
 class SettingActionButton extends StatelessWidget {
@@ -29,15 +30,15 @@ class SettingActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color? color = isSelected
-        ? Theme.of(context).textTheme!.displaySmall!.color
+        ? Theme.of(context).extension<CakeMenuTheme>()!.settingTitleColor
         : selectionActive
             ? Palette.darkBlue
-            : Theme.of(context).textTheme!.displaySmall!.color;
+            : Theme.of(context).extension<CakeMenuTheme>()!.settingTitleColor;
     return InkWell(
       onTap: onTap,
       hoverColor: Colors.transparent,
       child: Container(
-        height:  tileHeight,
+        height: tileHeight,
         padding: isLastTile
             ? EdgeInsets.only(
                 left: 24,
@@ -54,7 +55,9 @@ class SettingActionButton extends StatelessWidget {
               image,
               height: 16,
               width: 16,
-              color: Palette.darkBlue,
+              color: Theme.of(context)
+                  .extension<CakeMenuTheme>()!
+                  .settingActionsIconColor,
             ),
             SizedBox(width: 16),
             Expanded(

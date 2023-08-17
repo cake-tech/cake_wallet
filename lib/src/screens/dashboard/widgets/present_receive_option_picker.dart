@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -10,22 +11,16 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class PresentReceiveOptionPicker extends StatelessWidget {
   PresentReceiveOptionPicker(
-      {required this.receiveOptionViewModel, this.hasWhiteBackground = false});
+      {required this.receiveOptionViewModel, required this.color});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
-  final bool hasWhiteBackground;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final textIconTheme = hasWhiteBackground
-        ? Theme.of(context)
-            .accentTextTheme!
-            .displayMedium!
-            .backgroundColor!
-        : Colors.white;
     final arrowBottom = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
-      color: textIconTheme,
+      color: color,
       height: 6,
     );
 
@@ -51,14 +46,14 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
-                    color: textIconTheme),
+                    color: color),
               ),
               Observer(
                   builder: (_) => Text(receiveOptionViewModel.selectedReceiveOption.toString(),
                       style: TextStyle(
                           fontSize: 10.0,
                           fontWeight: FontWeight.w500,
-                          color: textIconTheme)))
+                          color: color)))
             ],
           ),
           SizedBox(width: 5),
@@ -113,10 +108,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                                 Text(option.toString(),
                                     textAlign: TextAlign.left,
                                     style: textSmall(
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .titleLarge!
-                                          .color!,
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ).copyWith(
                                       fontWeight:
                                           value == option ? FontWeight.w800 : FontWeight.w500,

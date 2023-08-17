@@ -182,10 +182,7 @@ class NodeCreateOrEditPage extends BasePage {
                             Navigator.of(context).pop();
                           },
                           text: S.of(context).save,
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: (!nodeCreateOrEditViewModel.isReady)||
                               (nodeCreateOrEditViewModel

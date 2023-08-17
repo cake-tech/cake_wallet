@@ -1,6 +1,9 @@
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
@@ -31,19 +34,13 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context)
-                      .primaryTextTheme!
-                      .displayLarge!
-                      .decorationColor!,
+                  color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
                 ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .displaySmall!
-                      .color!,
+                  color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -58,10 +55,7 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                     Text(
                       invoiceInfo.status ?? '',
                       style: textSmallSemiBold(
-                        color: Theme.of(context)
-                            .primaryTextTheme!
-                            .titleLarge!
-                            .color,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     )
                   ],
@@ -78,16 +72,13 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context)
-                      .primaryTextTheme!
-                      .displayLarge!
-                      .decorationColor!,
+                  color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
                 ),
               ),
               Text(
                 invoiceInfo.invoiceId ?? '',
                 style: textSmallSemiBold(
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
             ],
