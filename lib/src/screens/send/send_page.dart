@@ -63,7 +63,7 @@ class SendPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor,
+      color: titleColor(context),
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark

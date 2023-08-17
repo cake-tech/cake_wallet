@@ -20,18 +20,18 @@ class MenuWidget extends StatefulWidget {
 
 class MenuWidgetState extends State<MenuWidget> {
   MenuWidgetState()
-    : this.menuWidth = 0,
-      this.screenWidth = 0,
-      this.screenHeight = 0,
-      this.headerHeight = 120,
-      this.tileHeight = 60,
-      this.fromTopEdge = 50,
-      this.fromBottomEdge = 25,
-      this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
-      this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
-      this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
-      this.havenIcon = Image.asset('assets/images/haven_menu.png'),
-      this.ethereumIcon = Image.asset('assets/images/eth_icon.png');
+      : this.menuWidth = 0,
+        this.screenWidth = 0,
+        this.screenHeight = 0,
+        this.headerHeight = 120,
+        this.tileHeight = 60,
+        this.fromTopEdge = 50,
+        this.fromBottomEdge = 25,
+        this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
+        this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
+        this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
+        this.havenIcon = Image.asset('assets/images/haven_menu.png'),
+        this.ethereumIcon = Image.asset('assets/images/eth_icon.png');
 
   final largeScreen = 731;
 
@@ -87,15 +87,11 @@ class MenuWidgetState extends State<MenuWidget> {
     final itemCount = SettingActions.all.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
-        color: Theme.of(context)
-            .accentTextTheme
-            .labelSmall!
-            .decorationColor!);
+        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
-        color: Theme.of(context)
-            .accentTextTheme
-            .labelSmall!
-            .decorationColor!);
+        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
+    litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
+    havenIcon = Image.asset('assets/images/haven_menu.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -115,8 +111,7 @@ class MenuWidgetState extends State<MenuWidget> {
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
                 child: Container(
-                  color:
-                      Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
+                  color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
                   child: ListView.separated(
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
@@ -125,8 +120,13 @@ class MenuWidgetState extends State<MenuWidget> {
                             height: headerHeight,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [
-                                Theme.of(context).extension<CakeMenuTheme>()!.headerFirstGradientColor,
-                                Theme.of(context).extension<CakeMenuTheme>()!.headerSecondGradientColor,                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                Theme.of(context)
+                                    .extension<CakeMenuTheme>()!
+                                    .headerFirstGradientColor,
+                                Theme.of(context)
+                                    .extension<CakeMenuTheme>()!
+                                    .headerSecondGradientColor,
+                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                             ),
                             padding: EdgeInsets.only(
                                 left: 24, top: fromTopEdge, right: 24, bottom: fromBottomEdge),
@@ -155,7 +155,9 @@ class MenuWidgetState extends State<MenuWidget> {
                                             builder: (_) => Text(
                                                   widget.dashboardViewModel.subname,
                                                   style: TextStyle(
-                                                      color: Theme.of(context).extension<CakeMenuTheme>()!.subnameTextColor,
+                                                      color: Theme.of(context)
+                                                          .extension<CakeMenuTheme>()!
+                                                          .subnameTextColor,
                                                       fontWeight: FontWeight.w500,
                                                       fontSize: 12),
                                                 ))

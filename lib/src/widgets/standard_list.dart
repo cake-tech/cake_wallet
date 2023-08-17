@@ -5,8 +5,7 @@ import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
-  StandardListRow(
-      {required this.title, required this.isSelected, this.onTap, this.decoration});
+  StandardListRow({required this.title, required this.isSelected, this.onTap, this.decoration});
 
   final String title;
   final bool isSelected;
@@ -23,16 +22,15 @@ class StandardListRow extends StatelessWidget {
         child: Container(
             height: 56,
             padding: EdgeInsets.only(left: 24, right: 24),
-            decoration: decoration ?? BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-            ),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  if (leading != null) leading,
-                  buildCenter(context, hasLeftOffset: leading != null),
-                  if (trailing != null) trailing
-                ])));
+            decoration: decoration ??
+                BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+              if (leading != null) leading,
+              buildCenter(context, hasLeftOffset: leading != null),
+              if (trailing != null) trailing
+            ])));
   }
 
   Widget? buildLeading(BuildContext context) => null;
@@ -58,8 +56,8 @@ class StandardListRow extends StatelessWidget {
   Widget? buildTrailing(BuildContext context) => null;
 
   Color titleColor(BuildContext context) => isSelected
-      ? Palette.blueCraiola
-      : Theme.of(context).primaryTextTheme.titleLarge!.color!;
+      ? Theme.of(context).primaryColor
+      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
 
   Color _backgroundColor(BuildContext context) {
     return Theme.of(context).colorScheme.background;
@@ -71,15 +69,12 @@ class SectionHeaderListRow extends StatelessWidget {
   Widget build(BuildContext context) => Column(children: [
         StandardListSeparator(padding: EdgeInsets.only(left: 24)),
         Container(
-            width: double.infinity,
-            height: 40,
-            color: Theme.of(context).colorScheme.background),
+            width: double.infinity, height: 40, color: Theme.of(context).colorScheme.background),
         //StandardListSeparator(padding: EdgeInsets.only(left: 24))
       ]);
 }
 
 class StandardListSeparator extends StatelessWidget {
-
   const StandardListSeparator({this.padding, this.height = 1});
 
   final EdgeInsets? padding;
@@ -92,11 +87,7 @@ class StandardListSeparator extends StatelessWidget {
         padding: padding,
         color: Theme.of(context).colorScheme.background,
         child: Container(
-            height: height,
-            color: Theme.of(context)
-                .primaryTextTheme
-                .titleLarge
-                ?.backgroundColor));
+            height: height, color: Theme.of(context).primaryTextTheme.titleLarge?.backgroundColor));
   }
 }
 
@@ -109,8 +100,7 @@ class StandardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-        separatorBuilder: (_, __) =>
-            StandardListSeparator(padding: EdgeInsets.only(left: 24)),
+        separatorBuilder: (_, __) => StandardListSeparator(padding: EdgeInsets.only(left: 24)),
         itemCount: itemCount,
         itemBuilder: itemBuilder);
   }
@@ -178,8 +168,7 @@ class SectionStandardList extends StatelessWidget {
     return sectionTitleBuilder!.call(sectionIndex);
   }
 
-  List<Widget> buildSection(
-      int itemCount, List<Widget> items, int sectionIndex) {
+  List<Widget> buildSection(int itemCount, List<Widget> items, int sectionIndex) {
     final List<Widget> section = [];
 
     for (var itemIndex = 0; itemIndex < itemCount; itemIndex++) {
@@ -192,8 +181,8 @@ class SectionStandardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    totalRows.addAll(transform(hasTopSeparator, sectionCount, itemCounter,
-        itemBuilder, sectionTitleBuilder));
+    totalRows.addAll(
+        transform(hasTopSeparator, sectionCount, itemCounter, itemBuilder, sectionTitleBuilder));
 
     return ListView.separated(
         separatorBuilder: (_, index) {
@@ -203,16 +192,14 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          if (row is StandardListStatusRow ||
-              row is TradeDetailsStandardListCard) {
+          if (row is StandardListStatusRow || row is TradeDetailsStandardListCard) {
             return Container();
           }
 
           final nextRow = totalRows[index + 1];
 
           // If current row is pre last and last row is separator.
-          if (nextRow is StandardListSeparator ||
-              nextRow is SectionHeaderListRow) {
+          if (nextRow is StandardListSeparator || nextRow is SectionHeaderListRow) {
             return Container();
           }
 

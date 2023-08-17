@@ -32,8 +32,6 @@ class AnonPayReceivePage extends BasePage {
   @override
   void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
 
-  void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
-
   @override
   Widget middle(BuildContext context) {
     return Column(

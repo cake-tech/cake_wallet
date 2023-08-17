@@ -144,7 +144,7 @@ class BalancePage extends StatelessWidget {
               : Colors.transparent,
           width: 1,
         ),
-        color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
+        color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
       ),
       child: Container(
         margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
@@ -212,7 +212,7 @@ class BalancePage extends StatelessWidget {
                         fontSize: 28,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w800,
-                        color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
                         height: 1)),
               ],
             ),

@@ -77,12 +77,8 @@ class ContactListPage extends BasePage {
           final contacts = contactListViewModel.contactsToShow;
           final walletContacts = contactListViewModel.walletContactsToShow;
           return CollapsibleSectionList(
-            context: context,
             sectionCount: 2,
-            themeColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
-            dividerThemeColor:
-                Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!,
-            sectionTitleBuilder: (_, int sectionIndex) {
+            sectionTitleBuilder: (int sectionIndex) {
               var title = S.current.contact_list_contacts;
 
               if (sectionIndex == 0) {

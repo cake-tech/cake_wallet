@@ -87,7 +87,7 @@ class WalletKeysPage extends BasePage {
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
                       color: Theme.of(context).accentTextTheme.titleLarge!.backgroundColor!,
-                      child: const SectionDivider(),
+                      child: const HorizontalSectionDivider(),
                     ),
                 itemCount: walletKeysViewModel.items.length,
                 itemBuilder: (BuildContext context, int index) {
