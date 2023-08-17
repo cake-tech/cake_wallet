@@ -26,6 +26,24 @@ class CWEthereum extends Ethereum {
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override
+  String getPrivateKey(WalletBase wallet) {
+    final privateKeyHolder = (wallet as EthereumWallet).privateKey;
+    print(privateKeyHolder.address.hex);
+    String stringKey = bytesToHex(privateKeyHolder.privateKey);
+    print(stringKey);
+    return stringKey;
+  }
+
+  @override
+  String getPublicKey(WalletBase wallet) {
+    final privateKeyInUnitInt = (wallet as EthereumWallet).privateKey;
+    final publicKey = privateKeyInUnitInt.encodedPublicKey;
+
+    String stringPublicKey = bytesToHex(publicKey);
+    return stringPublicKey;
+  }
+
+  @override
   TransactionPriority getDefaultTransactionPriority() => EthereumTransactionPriority.medium;
 
   @override

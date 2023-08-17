@@ -73,6 +73,8 @@ abstract class EthereumWalletBase
 
   late final EthPrivateKey _privateKey;
 
+  EthPrivateKey get privateKey => _privateKey;
+
   late EthereumClient _client;
 
   int? _gasPrice;

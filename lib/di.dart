@@ -78,6 +78,10 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/wallet_connect/services/evm_chain_service.dart';
+import 'package:cake_wallet/wallet_connect/services/key_service.dart';
+import 'package:cake_wallet/wallet_connect/services/web3wallet_service.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
@@ -871,9 +875,8 @@ Future setup({
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() =>
-      SupportChatPage(
-          getIt.get<SupportViewModel>(), secureStorage: getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory(() => SupportChatPage(getIt.get<SupportViewModel>(),
+      secureStorage: getIt.get<FlutterSecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
@@ -1069,6 +1072,31 @@ Future setup({
   );
 
   getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
+
+  getIt.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
+  // getIt.registerFactory<WalletConnectKeyService>(() {
+  //   final wallet = getIt.get<AppStore>().wallet;
+  //   print("Wallet is here: $wallet");
+  //   return WalletConnectKeyService(wallet: wallet!);
+  // });
+
+  // final Web3WalletService web3WalletService = Web3WalletService();
+  // web3WalletService.create();
+  // getIt.registerFactory<Web3WalletService>(() => web3WalletService);
+
+  // for (final chainId in EVMChainId.values) {
+  //   getIt.registerFactory<EvmChainService>(
+  //     () => EvmChainService(
+  //       reference: chainId,
+  //       bottomSheetService: getIt.get<BottomSheetServiceImpl>(),
+  //       keyService: getIt.get<WalletConnectKeyService>(),
+  //       web3WalletService: getIt.get<Web3WalletService>(),
+  //     ),
+  //     instanceName: chainId.chain(),
+  //   );
+  // }
+
+  // await web3WalletService.init();
 
   _isSetupFinished = true;
 }

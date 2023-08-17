@@ -28,6 +28,10 @@ class EthereumClient {
     }
   }
 
+  Web3Client? getWeb3Client() {
+    return _client;
+  }
+
   void setListeners(EthereumAddress userAddress, Function() onNewTransaction) async {
     // _client?.pendingTransactions().listen((transactionHash) async {
     //   final transaction = await _client!.getTransactionByHash(transactionHash);
