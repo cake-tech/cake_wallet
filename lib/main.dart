@@ -90,11 +90,11 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(TradeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(AddressInfo.typeId)) {
-      Hive.registerAdapter(AddressInfoAdapter());
-    }
+  if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
+    CakeHive.registerAdapter(AddressInfoAdapter());
+  }
 
-    if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
+  if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
     CakeHive.registerAdapter(WalletInfoAdapter());
   }
 
