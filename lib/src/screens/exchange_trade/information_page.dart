@@ -1,9 +1,13 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 class InformationPage extends StatelessWidget {
   InformationPage({required this.information});
@@ -21,7 +25,7 @@ class InformationPage extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(30)),
-            color: Theme.of(context).textTheme!.bodyLarge!.decorationColor!
+            color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -36,7 +40,7 @@ class InformationPage extends StatelessWidget {
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Lato',
                     decoration: TextDecoration.none,
-                    color: Theme.of(context).accentTextTheme!.bodySmall!.decorationColor!
+                    color: Theme.of(context).extension<InfoTheme>()!.textColor
                   ),
                 ),
               ),
@@ -45,8 +49,8 @@ class InformationPage extends StatelessWidget {
                 child: PrimaryButton(
                   onPressed: () => Navigator.of(context).pop(),
                   text: S.of(context).got_it,
-                  color: Theme.of(context).accentTextTheme!.bodySmall!.backgroundColor!,
-                  textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!
+                  color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
+                  textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                 ),
               )
             ],

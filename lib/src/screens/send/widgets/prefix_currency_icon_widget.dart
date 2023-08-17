@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class PrefixCurrencyIcon extends StatelessWidget {
@@ -23,7 +24,11 @@ class PrefixCurrencyIcon extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(26),
-                color: isSelected ? Colors.green : Colors.transparent,
+                color: isSelected
+                    ? Theme.of(context)
+                        .extension<SendPageTheme>()!
+                        .templateSelectedCurrencyBackgroundColor
+                    : Colors.transparent,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -42,7 +47,11 @@ class PrefixCurrencyIcon extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: isSelected
+                          ? Theme.of(context)
+                              .extension<SendPageTheme>()!
+                              .templateSelectedCurrencyTitleColor
+                          : Colors.white,
                     ),
                   ),
                 ],

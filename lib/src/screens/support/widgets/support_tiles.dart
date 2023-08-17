@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 class SupportTile extends StatelessWidget {
@@ -22,7 +23,7 @@ class SupportTile extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
-          color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+          color: Theme.of(context).cardColor,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -43,7 +44,7 @@ class SupportTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                        color: Theme.of(context).dialogTheme.backgroundColor,
                       ),
                     ),
                     Padding(
@@ -53,7 +54,7 @@ class SupportTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
-                          color: Theme.of(context).primaryTextTheme.labelSmall!.color!,
+                          color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
                         ),
                       ),
                     )

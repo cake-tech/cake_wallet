@@ -7,6 +7,8 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -34,7 +36,7 @@ class HomeSettingsPage extends BasePage {
               onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
             ),
           ),
-          Divider(color: Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!),
+          Divider(color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor),
           Observer(
             builder: (_) => SettingsSwitcherCell(
               title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
@@ -44,7 +46,7 @@ class HomeSettingsPage extends BasePage {
               },
             ),
           ),
-          Divider(color: Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!),
+          Divider(color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -53,12 +55,12 @@ class HomeSettingsPage extends BasePage {
                   padding: const EdgeInsetsDirectional.only(start: 16),
                   child: TextFormField(
                     controller: _searchController,
-                    style: TextStyle(color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+                    style: TextStyle(color: Theme.of(context).dialogTheme.backgroundColor),
                     decoration: InputDecoration(
                       hintText: S.of(context).search_add_token,
                       prefixIcon: Image.asset("assets/images/search_icon.png"),
                       filled: true,
-                      fillColor: Theme.of(context).accentTextTheme.displaySmall!.color!,
+                      fillColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                       alignLabelWithHint: false,
                       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                       enabledBorder: OutlineInputBorder(
@@ -84,15 +86,15 @@ class HomeSettingsPage extends BasePage {
                   });
                 },
                 elevation: 0,
-                fillColor: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                fillColor: Theme.of(context).cardColor,
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                  color: Theme.of(context).dialogTheme.backgroundColor,
                   size: 22.0,
                 ),
                 padding: EdgeInsets.all(12),
                 shape: CircleBorder(),
-                splashColor: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                splashColor: Theme.of(context).cardColor,
               ),
             ],
           ),
@@ -146,7 +148,7 @@ class HomeSettingsPage extends BasePage {
                                   ),
                                 ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(30),
                           ),
                         );

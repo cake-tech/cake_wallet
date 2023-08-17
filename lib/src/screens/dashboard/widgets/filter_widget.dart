@@ -1,12 +1,15 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 //import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class FilterWidget extends StatelessWidget {
   FilterWidget({required this.dashboardViewModel});
@@ -15,7 +18,7 @@ class FilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const sectionDivider = const SectionDivider();
+    const sectionDivider = const HorizontalSectionDivider();
     return PickerWrapperWidget(
       children: [
         Padding(
@@ -23,7 +26,7 @@ class FilterWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(24)),
             child: Container(
-              color: Theme.of(context).textTheme!.bodyLarge!.decorationColor!,
+              color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -32,10 +35,7 @@ class FilterWidget extends StatelessWidget {
                       child: Text(
                         S.of(context).filter_by,
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .primaryTextTheme!
-                              .labelSmall!
-                              .color!,
+                          color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
                           fontSize: 16,
                           fontFamily: 'Lato',
                           decoration: TextDecoration.none,
@@ -63,10 +63,7 @@ class FilterWidget extends StatelessWidget {
                               child: Text(
                                 title,
                                 style: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme!
-                                        .titleLarge!
-                                        .color!,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     fontSize: 16,
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.bold,

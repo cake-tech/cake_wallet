@@ -672,5 +672,11 @@
   "support_title_guides": "Akara oyinbo Awọn Itọsọna Awọki oyinbo",
   "support_description_guides": "Iwe ati atilẹyin fun awọn ọran ti o wọpọ",
   "support_title_other_links": "Awọn ọna asopọ atilẹyin miiran",
-  "support_description_other_links": "Darapọ mọ awọn agbegbe wa tabi de wa awọn alabaṣepọ wa nipasẹ awọn ọna miiran"
+  "support_description_other_links": "Darapọ mọ awọn agbegbe wa tabi de wa awọn alabaṣepọ wa nipasẹ awọn ọna miiran",
+  "monero_dark_theme": "Monero Dudu Akori",
+  "bitcoin_dark_theme": "Bitcoin Dark Akori",
+  "bitcoin_light_theme": "Bitcoin Light Akori",
+  "high_contrast_theme": "Akori Iyatọ giga",
+  "matrix_green_dark_theme": "Matrix Green Dark Akori",
+  "monero_light_theme": "Monero Light Akori"
 }

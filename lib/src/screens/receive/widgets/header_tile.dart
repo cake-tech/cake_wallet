@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 
 class HeaderTile extends StatelessWidget {
   HeaderTile({
@@ -22,7 +23,7 @@ class HeaderTile extends StatelessWidget {
             top: 24,
             bottom: 24
         ),
-        color: Theme.of(context).textTheme!.displaySmall!.decorationColor!,
+        color: Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -32,17 +33,14 @@ class HeaderTile extends StatelessWidget {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context)!.textTheme.displaySmall!.color!),
+                  color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
             ),
             Container(
               height: 32,
               width: 32,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context)
-                      .textTheme!
-                      .headlineMedium!
-                      .decorationColor!),
+                  color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor),
               child: icon,
             )
           ],

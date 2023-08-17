@@ -7,6 +7,8 @@ import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
@@ -49,7 +51,7 @@ class SendPage extends BasePage {
   String get title => S.current.send;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -61,7 +63,7 @@ class SendPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor,
+      color: titleColor(context),
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark
@@ -403,7 +405,7 @@ class SendPage extends BasePage {
                       },
                       text: S.of(context).send,
                       color:
-                          Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                          Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       isLoading: sendViewModel.state is IsExecutingState ||
                           sendViewModel.state is TransactionCommitting,
