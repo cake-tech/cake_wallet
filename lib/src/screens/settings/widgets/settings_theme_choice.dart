@@ -38,79 +38,78 @@ class SettingsThemeChoicesCell extends StatelessWidget {
             ],
           ),
           SizedBox(height: cellHeight),
-          Container(
-            height: 300,
-            child: GridView.builder(
-                itemCount: items.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisExtent: 75,
-                  crossAxisSpacing: 20,
-                ),
-                itemBuilder: (context, index) {
-                  final ThemeBase e = items[index];
-                  final currentTheme = _displaySettingsViewModel.theme;
-                  final isSelected = currentTheme == e;
+          GridView.builder(
+              itemCount: items.length,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisExtent: 75,
+                crossAxisSpacing: 20,
+              ),
+              itemBuilder: (context, index) {
+                final ThemeBase e = items[index];
+                final currentTheme = _displaySettingsViewModel.theme;
+                final isSelected = currentTheme == e;
 
-                  return Padding(
-                    padding: EdgeInsets.all(5),
-                    child: GestureDetector(
-                      onTap: () {
-                        _displaySettingsViewModel.setTheme(e);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(cellRadius),
-                          border: isSelected
-                              ? Border.all(
-                                  color: Theme.of(context).primaryColor)
-                              : null,
-                          color: Theme.of(context)
-                              .extension<CakeTextTheme>()!
-                              .secondaryTextColor
-                              .withOpacity(
-                                  currentTheme.brightness == Brightness.light
-                                      ? 0.1
-                                      : 0.3),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: cellWidth, vertical: cellHeight),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(cellRadius),
-                                    bottomLeft: Radius.circular(cellRadius)),
-                                color: e.themeData.primaryColor,
-                              ),
+                return Padding(
+                  padding: EdgeInsets.all(5),
+                  child: GestureDetector(
+                    onTap: () {
+                      _displaySettingsViewModel.setTheme(e);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(cellRadius),
+                        border: isSelected
+                            ? Border.all(
+                                color: Theme.of(context).primaryColor)
+                            : null,
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .secondaryTextColor
+                            .withOpacity(
+                                currentTheme.brightness == Brightness.light
+                                    ? 0.1
+                                    : 0.3),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: cellWidth, vertical: cellHeight),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(cellRadius),
+                                  bottomLeft: Radius.circular(cellRadius)),
+                              color: e.themeData.primaryColor,
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: cellWidth, vertical: cellHeight),
-                              decoration: BoxDecoration(
-                                color: e.themeData.colorScheme.background,
-                              ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: cellWidth, vertical: cellHeight),
+                            decoration: BoxDecoration(
+                              color: e.themeData.colorScheme.background,
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: cellWidth, vertical: cellHeight),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(cellRadius),
-                                    bottomRight: Radius.circular(cellRadius)),
-                                color: e.themeData.cardColor,
-                              ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: cellWidth, vertical: cellHeight),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(cellRadius),
+                                  bottomRight: Radius.circular(cellRadius)),
+                              color: e.themeData.cardColor,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }),
-          ),
+                  ),
+                );
+              }),
         ],
       ),
     );

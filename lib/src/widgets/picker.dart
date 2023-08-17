@@ -147,7 +147,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context).accentTextTheme.titleLarge!.color!,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,
@@ -162,7 +162,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                         child: SearchBarWidget(searchController: searchController),
                       ),
                     Divider(
-                      color: Theme.of(context).accentTextTheme.titleLarge!.backgroundColor!,
+                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       height: 1,
                     ),
                     if (widget.selectedAtIndex != -1) buildSelectedItem(widget.selectedAtIndex),
@@ -210,7 +210,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context).accentTextTheme.titleLarge!.backgroundColor!,
+      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: widget.isGridView
           ? GridView.builder(
               padding: EdgeInsets.zero,
@@ -230,7 +230,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               shrinkWrap: true,
               separatorBuilder: (context, index) => widget.isSeparated
                   ? Divider(
-                      color: Theme.of(context).accentTextTheme.titleLarge!.backgroundColor!,
+                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       height: 1,
                     )
                   : const SizedBox(),
@@ -255,7 +255,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).accentTextTheme.titleLarge!.color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -276,7 +276,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontSize: 14,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -291,11 +291,11 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             child: Text(
                               tag,
                               style: TextStyle(
-                                  fontSize: 7.0,
-                                  fontFamily: 'Lato',
-                                  color: Theme.of(context)
-                                      .extension<CakeScrollbarTheme>()!
-                                      .thumbColor),
+                                fontSize: 7.0,
+                                fontFamily: 'Lato',
+                                color:
+                                    Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                              ),
                             ),
                           ),
                           decoration: BoxDecoration(
@@ -329,7 +329,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).accentTextTheme.titleLarge!.color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -350,7 +350,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontSize: 16,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -365,11 +365,11 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             child: Text(
                               tag,
                               style: TextStyle(
-                                  fontSize: 7.0,
-                                  fontFamily: 'Lato',
-                                  color: Theme.of(context)
-                                      .extension<CakeScrollbarTheme>()!
-                                      .thumbColor),
+                                fontSize: 7.0,
+                                fontFamily: 'Lato',
+                                color:
+                                    Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                              ),
                             ),
                           ),
                           decoration: BoxDecoration(

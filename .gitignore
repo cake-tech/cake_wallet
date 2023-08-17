@@ -144,8 +144,3 @@ assets/images/app_logo.png
 macos/Runner/Info.plist
 macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
-
-linux/flutter/ephemeral/.plugin_symlinks
-linux/flutter/generated_plugins.cmake
-linux/flutter/generated_plugin_registrant.h
-linux/flutter/generated_plugin_registrant.cc

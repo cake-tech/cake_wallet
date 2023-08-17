@@ -1,5 +1,4 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
@@ -18,39 +17,47 @@ class StandardListRow extends StatelessWidget {
     final trailing = buildTrailing(context);
 
     return InkWell(
-        onTap: () => onTap?.call(context),
-        child: Container(
-            height: 56,
-            padding: EdgeInsets.only(left: 24, right: 24),
-            decoration: decoration ??
-                BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-              if (leading != null) leading,
-              buildCenter(context, hasLeftOffset: leading != null),
-              if (trailing != null) trailing
-            ])));
+      onTap: () => onTap?.call(context),
+      child: Container(
+        height: 56,
+        padding: EdgeInsets.only(left: 24, right: 24),
+        decoration: decoration ??
+            BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+            ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            if (leading != null) leading,
+            buildCenter(context, hasLeftOffset: leading != null),
+            if (trailing != null) trailing,
+          ],
+        ),
+      ),
+    );
   }
 
   Widget? buildLeading(BuildContext context) => null;
 
   Widget buildCenter(BuildContext context, {required bool hasLeftOffset}) {
-    // FIXME: find better way for keep text on left side.
     return Expanded(
-        child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-      if (hasLeftOffset) SizedBox(width: 10),
-      Expanded(
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.normal,
-            color: titleColor(context),
-          ),
-        ),
-      )
-    ]));
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          if (hasLeftOffset) SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                color: titleColor(context),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   Widget? buildTrailing(BuildContext context) => null;
@@ -58,10 +65,6 @@ class StandardListRow extends StatelessWidget {
   Color titleColor(BuildContext context) => isSelected
       ? Theme.of(context).primaryColor
       : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
-
-  Color _backgroundColor(BuildContext context) {
-    return Theme.of(context).colorScheme.background;
-  }
 }
 
 class SectionHeaderListRow extends StatelessWidget {
@@ -181,31 +184,33 @@ class SectionStandardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    totalRows.clear();
     totalRows.addAll(
         transform(hasTopSeparator, sectionCount, itemCounter, itemBuilder, sectionTitleBuilder));
 
     return ListView.separated(
-        separatorBuilder: (_, index) {
-          final row = totalRows[index];
+      separatorBuilder: (_, index) {
+        final row = totalRows[index];
 
-          if (row is StandardListSeparator || row is SectionHeaderListRow) {
-            return Container();
-          }
+        if (row is StandardListSeparator || row is SectionHeaderListRow) {
+          return Container();
+        }
 
-          if (row is StandardListStatusRow || row is TradeDetailsStandardListCard) {
-            return Container();
-          }
+        if (row is StandardListStatusRow || row is TradeDetailsStandardListCard) {
+          return Container();
+        }
 
-          final nextRow = totalRows[index + 1];
+        final nextRow = totalRows[index + 1];
 
-          // If current row is pre last and last row is separator.
-          if (nextRow is StandardListSeparator || nextRow is SectionHeaderListRow) {
-            return Container();
-          }
+        // If current row is pre last and last row is separator.
+        if (nextRow is StandardListSeparator || nextRow is SectionHeaderListRow) {
+          return Container();
+        }
 
-          return StandardListSeparator(padding: dividerPadding);
-        },
-        itemCount: totalRows.length,
-        itemBuilder: (_, index) => totalRows[index]);
+        return StandardListSeparator(padding: dividerPadding);
+      },
+      itemCount: totalRows.length,
+      itemBuilder: (_, index) => totalRows[index],
+    );
   }
 }

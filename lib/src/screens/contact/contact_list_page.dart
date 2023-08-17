@@ -2,7 +2,6 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -91,11 +90,11 @@ class ContactListPage extends BasePage {
             },
             itemCounter: (int sectionIndex) =>
                 sectionIndex == 0 ? walletContacts.length : contacts.length,
-            itemBuilder: (_, index) {
-              // if (sectionIndex == 0) {
-              //   final walletInfo = walletContacts[index];
-              //   return generateRaw(context, walletInfo);
-              // }
+            itemBuilder: (int sectionIndex, index) {
+              if (sectionIndex == 0) {
+                final walletInfo = walletContacts[index];
+                return generateRaw(context, walletInfo);
+              }
 
               final contact = contacts[index];
               final content = generateRaw(context, contact);
