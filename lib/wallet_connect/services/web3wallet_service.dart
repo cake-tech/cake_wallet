@@ -123,10 +123,9 @@ class Web3WalletServiceImpl implements Web3WalletService {
       );
       DialogPopUpTest(modalWidget: modalWidget);
       // show the bottom sheet
-      final bool? isApproved = true;
-      // await _bottomSheetHandler.queueBottomSheet(
-      //   widget: modalWidget,
-      // );
+      final bool? isApproved = await _bottomSheetHandler.queueBottomSheet(
+        widget: modalWidget,
+      ) as bool?;
 
       if (isApproved != null && isApproved) {
         _web3Wallet!.approveSession(
