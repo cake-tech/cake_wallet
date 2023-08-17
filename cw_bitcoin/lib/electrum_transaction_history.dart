@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_bitcoin/file.dart';
@@ -67,7 +66,7 @@ abstract class ElectrumTransactionHistoryBase
   Future<void> _load() async {
     try {
       final content = await _read();
-      final txs = content['transactions'] as Map<String, dynamic> ?? {};
+      final txs = content['transactions'] as Map<String, dynamic>? ?? {};
 
       txs.entries.forEach((entry) {
         final val = entry.value;

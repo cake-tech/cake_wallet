@@ -46,6 +46,8 @@ class MainActions {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
+        case WalletType.ethereum:
+        case WalletType.monero:
           if (viewModel.isEnabledBuyAction) {
             final uri = getIt.get<OnRamperBuyProvider>().requestUrl();
             if (DeviceInfo.instance.isMobile) {
@@ -54,13 +56,6 @@ class MainActions {
             } else {
               await launchUrl(uri);
             }
-          }
-          break;
-        case WalletType.monero:
-          if (viewModel.isEnabledBuyAction) {
-            // final uri = getIt.get<PayfuraBuyProvider>().requestUrl();
-            final uri = Uri.parse("https://monero.com/trade");
-            await launchUrl(uri);
           }
           break;
         default:
@@ -116,6 +111,7 @@ class MainActions {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
+        case WalletType.ethereum:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
             final uri = await moonPaySellProvider.requestUrl(

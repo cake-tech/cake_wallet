@@ -6,7 +6,6 @@ class SettingsCellWithArrow extends StandardListRow {
       : super(title: title, isSelected: false, onTap: handler);
 
   @override
-  Widget buildTrailing(BuildContext context) =>
-      Image.asset('assets/images/select_arrow.png',
-          color: Theme.of(context).primaryTextTheme!.labelSmall!.color!);
+  Widget buildTrailing(BuildContext context) => Image.asset('assets/images/select_arrow.png',
+      color: Theme.of(context).primaryTextTheme.labelSmall!.color!);
 }

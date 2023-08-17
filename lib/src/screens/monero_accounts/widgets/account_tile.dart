@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class AccountTile extends StatelessWidget {
   AccountTile({
@@ -30,6 +32,7 @@ class AccountTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 77,
+        width: double.infinity,
         padding: EdgeInsets.only(left: 24, right: 24),
         color: color,
         child: Wrap(
@@ -68,18 +71,26 @@ class AccountTile extends StatelessWidget {
         ),
       ),
     );
-    // FIX-ME: Splidable
-    return cell;
-    // return Slidable(
-    //     key: Key(accountName),
-    //     child: cell,
-    //     actionPane: SlidableDrawerActionPane(),
-    //     secondaryActions: <Widget>[
-    //       IconSlideAction(
-    //           caption: S.of(context).edit,
-    //           color: Colors.blue,
-    //           icon: Icons.edit,
-    //           onTap: () => onEdit?.call())
-    //     ]);
+
+    // return cell;
+    return Slidable(
+        key: Key(accountName),
+        child: cell,
+        endActionPane: _actionPane(context)
+    );
   }
+
+  ActionPane _actionPane(BuildContext context) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.3,
+    children: [
+      SlidableAction(
+        onPressed: (_) => onEdit.call(),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        icon: Icons.edit,
+        label: S.of(context).edit,
+      ),
+    ],
+  );
 }

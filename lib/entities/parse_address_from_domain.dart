@@ -19,14 +19,19 @@ class AddressResolver {
     'crypto',
     'zil',
     'x',
-    'coin',
     'wallet',
     'bitcoin',
     '888',
     'nft',
     'dao',
     'blockchain',
-    'polygon'
+    'polygon',
+    'klever',
+    'hi',
+    'kresus',
+    'anime',
+    'manga',
+    'binanceus'
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {

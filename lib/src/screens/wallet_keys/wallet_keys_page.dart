@@ -1,16 +1,17 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/list_row.dart';
-import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class WalletKeysPage extends BasePage {
@@ -56,7 +57,7 @@ class WalletKeysPage extends BasePage {
                 width: double.infinity,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12.0),
-                  color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
+                  color: Theme.of(context).accentTextTheme.bodySmall!.color!,
                 ),
                 child: Center(
                   child: Padding(
@@ -84,7 +85,7 @@ class WalletKeysPage extends BasePage {
                 separatorBuilder: (context, index) => Container(
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
-                      color: Theme.of(context).accentTextTheme!.titleLarge!.backgroundColor!,
+                      color: Theme.of(context).accentTextTheme.titleLarge!.backgroundColor!,
                       child: const SectionDivider(),
                     ),
                 itemCount: walletKeysViewModel.items.length,
@@ -93,7 +94,7 @@ class WalletKeysPage extends BasePage {
 
                   return GestureDetector(
                     onTap: () {
-                      Clipboard.setData(ClipboardData(text: item.value));
+                      ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: item.value));
                       showBar<void>(context, S.of(context).copied_key_to_clipboard(item.title));
                     },
                     child: ListRow(

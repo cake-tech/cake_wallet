@@ -147,7 +147,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           login: node.login,
           password: node.password,
           useSSL: node.isSSL,
-          isLightWallet: false); // FIXME: hardcoded value
+          isLightWallet: false, // FIXME: hardcoded value
+          socksProxyAddress: node.socksProxyAddress);
 
       monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
@@ -285,6 +286,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await monero_wallet.store();
   }
 
+  @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
 

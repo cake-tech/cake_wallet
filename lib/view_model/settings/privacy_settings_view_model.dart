@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -17,6 +18,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
 
   final SettingsStore _settingsStore;
+  final WalletBase _wallet;
 
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
@@ -54,6 +56,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get disableSell => _settingsStore.disableSell;
 
+  @computed
+  bool get useEtherscan => _settingsStore.useEtherscan;
+
+  bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
+
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
@@ -72,4 +79,10 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableSell(bool value) => _settingsStore.disableSell = value;
+
+  @action
+  void setUseEtherscan(bool value) {
+    _settingsStore.useEtherscan = value;
+    ethereum!.updateEtherscanUsageState(_wallet, value);
+  }
 }

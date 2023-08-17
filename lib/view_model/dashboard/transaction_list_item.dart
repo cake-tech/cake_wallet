@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -83,6 +84,13 @@ class TransactionListItem extends ActionListItem with Keyable {
         amount = calculateFiatAmountRaw(
           cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
           price: price);
+        break;
+      case WalletType.ethereum:
+        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
+            price: price);
         break;
       default:
         break;

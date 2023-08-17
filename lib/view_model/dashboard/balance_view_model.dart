@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -80,6 +81,15 @@ abstract class BalanceViewModelBase with Store {
   bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
+  bool get isHomeScreenSettingsEnabled => wallet.type == WalletType.ethereum;
+
+  @computed
+  SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;
+
+  @computed
+  bool get pinNativeToken => settingsStore.pinNativeTokenAtTop;
+
+  @computed
   String get asset {
     final typeFormatted = walletTypeToString(appStore.wallet!.type);
 
@@ -109,6 +119,7 @@ abstract class BalanceViewModelBase with Store {
     switch(wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.ethereum:
         return S.current.xmr_available_balance;
       default:
         return S.current.confirmed;
@@ -120,6 +131,7 @@ abstract class BalanceViewModelBase with Store {
     switch(wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.ethereum:
         return S.current.xmr_full_balance;
       default:
         return S.current.unconfirmed;
@@ -263,31 +275,57 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
+  bool get hasAdditionalBalance => wallet.type != WalletType.ethereum;
+
+  @computed
   List<BalanceRecord> get formattedBalances {
     final balance = balances.values.toList();
 
     balance.sort((BalanceRecord a, BalanceRecord b) {
-      if (b.asset == CryptoCurrency.xhv) {
-        return 1;
-      }
-
-      if (b.asset == CryptoCurrency.xusd) {
-        if (a.asset == CryptoCurrency.xhv) {
-          return -1;
+      if (wallet.currency == CryptoCurrency.xhv) {
+        if (b.asset == CryptoCurrency.xhv) {
+          return 1;
         }
 
-        return 1;
+        if (b.asset == CryptoCurrency.xusd) {
+          if (a.asset == CryptoCurrency.xhv) {
+            return -1;
+          }
+
+          return 1;
+        }
+
+        if (b.asset == CryptoCurrency.xbtc) {
+          return 1;
+        }
+
+        if (b.asset == CryptoCurrency.xeur) {
+          return 1;
+        }
+
+        return 0;
       }
 
-      if (b.asset == CryptoCurrency.xbtc) {
-        return 1;
+      if (pinNativeToken) {
+        if (b.asset == wallet.currency) return 1;
+        if (a.asset == wallet.currency) return -1;
       }
 
-      if (b.asset == CryptoCurrency.xeur) {
-        return 1;
-      }
+      switch (sortBalanceBy) {
+        case SortBalanceBy.FiatBalance:
+          final aFiatBalance = _getFiatBalance(
+              price: fiatConvertationStore.prices[a.asset] ?? 0, cryptoAmount: a.availableBalance);
+          final bFiatBalance = _getFiatBalance(
+              price: fiatConvertationStore.prices[b.asset] ?? 0, cryptoAmount: b.availableBalance);
 
-      return 0;
+          return (double.tryParse(bFiatBalance) ?? 0)
+              .compareTo((double.tryParse(aFiatBalance)) ?? 0);
+        case SortBalanceBy.GrossBalance:
+          return (double.tryParse(b.availableBalance) ?? 0)
+              .compareTo(double.tryParse(a.availableBalance) ?? 0);
+        case SortBalanceBy.Alphabetical:
+          return a.asset.title.compareTo(b.asset.title);
+      }
     });
 
     return balance;
@@ -335,7 +373,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
-    if (cryptoAmount == null || cryptoAmount.isEmpty) {
+    if (cryptoAmount == null || cryptoAmount.isEmpty || double.tryParse(cryptoAmount) == null) {
       return '0.00';
     }
 

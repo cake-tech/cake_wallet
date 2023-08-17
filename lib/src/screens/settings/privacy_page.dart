@@ -77,6 +77,13 @@ class PrivacyPage extends BasePage {
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setDisableSell(value);
                 }),
+            if (_privacySettingsViewModel.canUseEtherscan)
+              SettingsSwitcherCell(
+                  title: S.current.etherscan_history,
+                  value: _privacySettingsViewModel.useEtherscan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseEtherscan(value);
+                  }),
           ],
         );
       }),

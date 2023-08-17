@@ -79,9 +79,7 @@ class AddressPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView
-                ? S.of(context).close
-                : S.of(context).seed_alert_back,
+            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
@@ -194,82 +192,77 @@ class AddressPage extends BasePage {
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
               Observer(builder: (_) {
-                return addressListViewModel.hasAddressList
-                    ? Column(children: [
-                        GestureDetector(
-                          onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
-                              ? await showPopUp<void>(
-                                  context: context,
-                                  builder: (_) => getIt.get<MoneroAccountListPage>())
-                              : Navigator.of(context).pushNamed(Routes.receive),
-                          child: Container(
-                            height: 50,
-                            padding: EdgeInsets.only(left: 24, right: 12),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(25)),
-                              border: Border.all(
-                                  color: Theme.of(context).textTheme.subtitle1!.color!, width: 1),
-                              color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Observer(
-                                  builder: (_) {
-                                    String label = addressListViewModel.hasAccounts
-                                        ? S.of(context).accounts_subaddresses
-                                        : S.of(context).addresses;
+                if (addressListViewModel.hasAddressList) {
+                  return GestureDetector(
+                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
+                        ? await showPopUp<void>(
+                        context: context,
+                        builder: (_) => getIt.get<MoneroAccountListPage>())
+                        : Navigator.of(context).pushNamed(Routes.receive),
+                    child: Container(
+                      height: 50,
+                      padding: EdgeInsets.only(left: 24, right: 12),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
+                          border: Border.all(
+                              color: Theme.of(context).textTheme.titleMedium!.color!, width: 1),
+                          color: Theme.of(context).textTheme.titleLarge!.backgroundColor!),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Observer(
+                              builder: (_) {
+                                String label = addressListViewModel.hasAccounts
+                                    ? S
+                                    .of(context)
+                                    .accounts_subaddresses
+                                    : S
+                                    .of(context)
+                                    .addresses;
 
-                                    if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
-                                      label = addressListViewModel.hasAccounts
-                                          ? S.of(context).accounts
-                                          : S.of(context).account;
-                                    }
-                                    return Text(
-                                      label,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context)
-                                            .accentTextTheme
-                                            .displayMedium!
-                                            .backgroundColor!,
-                                      ),
-                                    );
-                                  },
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 14,
-                                  color: Theme.of(context)
-                                      .accentTextTheme
-                                      .displayMedium!
-                                      .backgroundColor!,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) ...[
-                          SizedBox(height: 24),
-                          Text(
-                            S.of(context).electrum_address_disclaimer,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Theme.of(context).accentTextTheme.headline3!.backgroundColor!,
-                            ),
-                          ),
-                        ],
-                      ])
-                    : Text(S.of(context).electrum_address_disclaimer,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15,
+                                if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
+                                  label = addressListViewModel.hasAccounts
+                                      ? S
+                                      .of(context)
+                                      .accounts
+                                      : S
+                                      .of(context)
+                                      .account;
+                                }
+                                return Text(
+                                  label,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme
+                                          .of(context)
+                                          .accentTextTheme
+                                          .displayMedium!
+                                          .backgroundColor!
+                                  )
+                                );
+                              },),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 14,
                             color:
-                                Theme.of(context).accentTextTheme.displaySmall!.backgroundColor!));
+                                Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled || addressListViewModel.showElectrumAddressDisclaimer) {
+                  return Text(S.of(context).electrum_address_disclaimer,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context).accentTextTheme.displaySmall!.backgroundColor!));
+                } else {
+                  return const SizedBox();
+                }
               })
             ],
           ),

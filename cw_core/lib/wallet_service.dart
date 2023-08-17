@@ -18,5 +18,5 @@ abstract class WalletService<N extends WalletCredentials,
 
   Future<void> remove(String wallet);
 
-  Future<void> rename(String name, String password, String newName);
+  Future<void> rename(String currentName, String password, String newName);
 }

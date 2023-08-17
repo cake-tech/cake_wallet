@@ -97,7 +97,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive &&
+            widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
@@ -124,13 +125,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               return;
             } else {
               final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-              if (useTotp) {
+              final shouldUseTotp2FAToAccessWallets = widget.appStore
+                  .settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+              if (useTotp && shouldUseTotp2FAToAccessWallets) {
                 _reset();
                 auth.close(
                   route: Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
                     onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
+                        (bool isAuthenticatedSuccessfully,
+                            TotpAuthCodePageState totpAuth) {
                       if (!isAuthenticatedSuccessfully) {
                         return;
                       }
@@ -151,15 +155,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                   route: launchUri != null ? Routes.send : null,
                   arguments: PaymentRequest.fromUri(launchUri),
                 );
-              launchUri = null;
+                launchUri = null;
               }
             }
-
-             
-            },
-          );
-    
-       
+          },
+        );
       });
     } else if (launchUri != null) {
       widget.navigatorKey.currentState?.pushNamed(
