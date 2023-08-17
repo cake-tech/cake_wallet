@@ -8,6 +8,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class MarketPlacePage extends StatelessWidget {
   MarketPlacePage({
@@ -40,10 +41,7 @@ class MarketPlacePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .displayMedium!
-                      .backgroundColor!,
+                  color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                 ),
               ),
               Expanded(

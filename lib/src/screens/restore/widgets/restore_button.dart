@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class RestoreButton extends StatelessWidget {
   const RestoreButton(
@@ -23,7 +24,7 @@ class RestoreButton extends StatelessWidget {
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
-          color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+          color: Theme.of(context).cardColor,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,

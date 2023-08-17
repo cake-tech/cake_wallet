@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class ActionButton extends StatelessWidget {
   ActionButton(
@@ -46,10 +47,7 @@ class ActionButton extends StatelessWidget {
               style: TextStyle(
                   fontSize: 10,
                   color: textColor ??
-                      Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!),
+                      Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
             )
           ],
         ),

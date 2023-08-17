@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -21,11 +23,11 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).textTheme.titleSmall!.decorationColor!
-        : Theme.of(context).textTheme.displayLarge!.decorationColor!;
+        ? Theme.of(context).extension<AccountListTheme>()!.currentAccountBackgroundColor
+        : Theme.of(context).extension<AccountListTheme>()!.tilesBackgroundColor;
     final textColor = isCurrent
-        ? Theme.of(context).textTheme.titleSmall!.color!
-        : Theme.of(context).textTheme.displayLarge!.color!;
+        ? Theme.of(context).extension<AccountListTheme>()!.currentAccountTextColor
+        : Theme.of(context).extension<AccountListTheme>()!.tilesTextColor;
 
     final Widget cell = GestureDetector(
       onTap: onTap,
@@ -61,7 +63,9 @@ class AccountTile extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Lato',
-                    color: Theme.of(context).textTheme.headlineMedium!.color!,
+                    color: isCurrent
+                        ? Theme.of(context).extension<AccountListTheme>()!.currentAccountAmountColor
+                        : Theme.of(context).extension<AccountListTheme>()!.tilesAmountColor,
                     decoration: TextDecoration.none,
                   ),
                 ),
@@ -72,24 +76,20 @@ class AccountTile extends StatelessWidget {
     );
 
     // return cell;
-    return Slidable(
-        key: Key(accountName),
-        child: cell,
-        endActionPane: _actionPane(context)
-    );
+    return Slidable(key: Key(accountName), child: cell, endActionPane: _actionPane(context));
   }
 
   ActionPane _actionPane(BuildContext context) => ActionPane(
-    motion: const ScrollMotion(),
-    extentRatio: 0.3,
-    children: [
-      SlidableAction(
-        onPressed: (_) => onEdit.call(),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        icon: Icons.edit,
-        label: S.of(context).edit,
-      ),
-    ],
-  );
+        motion: const ScrollMotion(),
+        extentRatio: 0.3,
+        children: [
+          SlidableAction(
+            onPressed: (_) => onEdit.call(),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            icon: Icons.edit,
+            label: S.of(context).edit,
+          ),
+        ],
+      );
 }
