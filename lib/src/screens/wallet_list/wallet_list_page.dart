@@ -1,10 +1,8 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -199,7 +197,7 @@ class WalletListBodyState extends State<WalletListBody> {
               },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),
             SizedBox(height: 10.0),
@@ -219,7 +217,7 @@ class WalletListBodyState extends State<WalletListBody> {
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                color: Theme.of(context).cardColor,
                 textColor: Theme.of(context).primaryTextTheme.titleLarge!.color!)
           ])),
     );

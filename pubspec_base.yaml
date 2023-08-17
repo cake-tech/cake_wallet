@@ -52,7 +52,7 @@ dependencies:
   encrypt: ^5.0.1
   crypto: ^3.0.2
   # password: ^1.0.0
-  basic_utils: ^4.3.0
+  basic_utils: ^5.6.1
   get_it: ^7.2.0
   # connectivity: ^3.0.3
   connectivity_plus: ^2.3.5
@@ -91,7 +91,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^2.3.3
-  logging: 1.1.1
+  logging: ^1.2.0
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
   hive_generator: ^1.1.3
