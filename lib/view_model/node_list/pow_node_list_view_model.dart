@@ -71,8 +71,6 @@ abstract class PowNodeListViewModelBase with Store {
   @action
   void _bindNodes() {
     nodes.clear();
-    _nodeSource.values.forEach((node) {
-    });
     _nodeSource.bindToList(
       nodes,
       filter: (val) => val.type == _appStore.wallet!.type,

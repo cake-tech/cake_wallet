@@ -260,8 +260,7 @@ Node? getNanoDefaultNode({required Box<Node> nodes}) {
 
 PowNode? getNanoDefaultPowNode({required Box<PowNode> nodes}) {
   return nodes.values.firstWhereOrNull((PowNode node) => node.uriRaw == nanoDefaultPowNodeUri) ??
-      nodes.values
-          .firstWhereOrNull((node) => (node.type == WalletType.nano));
+      nodes.values.firstWhereOrNull((node) => (node.type == WalletType.nano));
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -433,7 +432,8 @@ Future<void> changeDefaultMoneroNode(
   }
 }
 
-Future<void> checkCurrentNodes(Box<Node> nodeSource, Box<PowNode> powNodeSource, SharedPreferences sharedPreferences) async {
+Future<void> checkCurrentNodes(
+    Box<Node> nodeSource, Box<PowNode> powNodeSource, SharedPreferences sharedPreferences) async {
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentBitcoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -497,8 +497,12 @@ Future<void> checkCurrentNodes(Box<Node> nodeSource, Box<PowNode> powNodeSource,
   }
 
   if (currentNanoPowNodeServer == null) {
-    final node = PowNode(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
-    await powNodeSource.add(node);
+    PowNode? node = powNodeSource.values
+        .firstWhereOrNull((node) => node.uri.toString() == nanoDefaultPowNodeUri);
+    if (node == null) {
+      node = PowNode(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
+      await powNodeSource.add(node);
+    }
     await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
   }
 }
