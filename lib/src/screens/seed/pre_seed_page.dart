@@ -6,8 +6,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class PreSeedPage extends BasePage {
@@ -62,7 +60,7 @@ class PreSeedPage extends BasePage {
                     onPressed: () =>
                         Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true),
                     text: S.of(context).pre_seed_button_text,
-                    color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white)
               ],
             ),

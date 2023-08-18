@@ -59,7 +59,7 @@ class SettingsChoicesCell extends StatelessWidget {
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : Theme.of(context).primaryTextTheme.bodySmall!.color!,
+                                : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                           ),
                         ),
