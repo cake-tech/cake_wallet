@@ -77,9 +77,7 @@ class BalancePage extends StatelessWidget {
                   return IntroducingCard(
                       title: S.of(context).introducing_cake_pay,
                       subTitle: S.of(context).cake_pay_learn_more,
-                      borderColor: settingsStore.currentTheme.type == ThemeType.bright
-                          ? Color.fromRGBO(255, 255, 255, 0.2)
-                          : Colors.transparent,
+                      borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                       closeCard: dashboardViewModel.balanceViewModel.disableIntroCakePayCard);
                 }
                 return Container();
@@ -139,9 +137,7 @@ class BalancePage extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         border: Border.all(
-          color: settingsStore.currentTheme.type == ThemeType.bright
-              ? Color.fromRGBO(255, 255, 255, 0.2)
-              : Colors.transparent,
+          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
           width: 1,
         ),
         color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
