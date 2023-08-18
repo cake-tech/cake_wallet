@@ -24,7 +24,6 @@ class UnspentCoinsDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
         context: context,
         sectionCount: 1,
@@ -46,6 +45,7 @@ class UnspentCoinsDetailsPage extends BasePage {
             return TextFieldListRow(
               title: item.title,
               value: item.value,
+              onTapOutside: item.onSubmitted,
               onSubmitted: item.onSubmitted,
             );
           }
