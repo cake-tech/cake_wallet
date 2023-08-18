@@ -20,13 +20,14 @@ import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
-import 'package:cw_monero/monero_transaction_history.dart';
+import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
+import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
+import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
-import 'package:cw_monero/monero_transaction_creation_exception.dart';
+import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
-import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
 
@@ -179,6 +180,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final hasMultiDestination = outputs.length > 1;
     final unlockedBalance =
     monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
+    var allInputsAmount = 0;
 
     PendingTransactionDescription pendingTransactionDescription;
 
@@ -192,8 +194,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     for (final utx in unspentCoins) {
       if (utx.isSending) {
+        allInputsAmount += utx.value;
         inputs.add(utx.keyImage);
       }
+    }
+
+    if (inputs.isEmpty) {
+      throw MoneroTransactionNoInputsException();
     }
 
     if (hasMultiDestination) {
@@ -549,6 +556,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   int _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
+
+  int _getFrozenBalance() => 0;
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     try {
