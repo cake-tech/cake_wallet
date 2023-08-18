@@ -540,11 +540,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
     final fullBalance = _getFullBalance();
+    final frozenBalance = _getFrozenBalance();
 
     if (balance[currency]!.fullBalance != fullBalance ||
-        balance[currency]!.unlockedBalance != unlockedBalance) {
+        balance[currency]!.unlockedBalance != unlockedBalance ||
+        balance[currency]!.frozenBalance != frozenBalance) {
       balance[currency] = MoneroBalance(
-          fullBalance: fullBalance, unlockedBalance: unlockedBalance);
+          fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozenBalance: frozenBalance);
     }
   }
 
@@ -557,7 +559,16 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   int _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
-  int _getFrozenBalance() => 0;
+  int _getFrozenBalance() {
+    var frozenBalance = 0;
+
+    if (unspentCoins.isEmpty) updateUnspent();
+    for (var coin in unspentCoins) {
+      frozenBalance += coin.value;
+    }
+
+    return frozenBalance;
+  }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     try {
