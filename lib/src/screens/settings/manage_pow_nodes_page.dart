@@ -42,7 +42,6 @@ class ManagePowNodesPage extends BasePage {
                   sectionCount: 1,
                   dividerPadding: EdgeInsets.symmetric(horizontal: 24),
                   itemCounter: (int sectionIndex) {
-                    print(nodeListViewModel.nodes);
                     return nodeListViewModel.nodes.length;
                   },
                   itemBuilder: (_, index) {

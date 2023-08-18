@@ -36,7 +36,6 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
     var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
-    print(node.uri);
     switch (walletType) {
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
