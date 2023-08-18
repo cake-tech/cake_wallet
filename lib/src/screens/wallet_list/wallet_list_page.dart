@@ -64,106 +64,110 @@ class WalletListBodyState extends State<WalletListBody> {
     return Container(
       padding: EdgeInsets.only(top: 16),
       child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 20),
-          content: Container(
-            child: Observer(
-              builder: (_) => ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  separatorBuilder: (_, index) =>
-                      Divider(color: Theme.of(context).colorScheme.background, height: 32),
-                  itemCount: widget.walletListViewModel.wallets.length,
-                  itemBuilder: (__, index) {
-                    final wallet = widget.walletListViewModel.wallets[index];
-                    final currentColor = wallet.isCurrent
-                        ? Theme.of(context)
-                            .extension<WalletListTheme>()!
-                            .createNewWalletButtonBackgroundColor
-                        : Theme.of(context).colorScheme.background;
-                    final row = GestureDetector(
-                        onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
-                        child: Container(
+        contentPadding: EdgeInsets.only(bottom: 20),
+        content: Container(
+          child: Observer(
+            builder: (_) => ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              separatorBuilder: (_, index) =>
+                  Divider(color: Theme.of(context).colorScheme.background, height: 32),
+              itemCount: widget.walletListViewModel.wallets.length,
+              itemBuilder: (__, index) {
+                final wallet = widget.walletListViewModel.wallets[index];
+                final currentColor = wallet.isCurrent
+                    ? Theme.of(context)
+                        .extension<WalletListTheme>()!
+                        .createNewWalletButtonBackgroundColor
+                    : Theme.of(context).colorScheme.background;
+                final row = GestureDetector(
+                  onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
+                  child: Container(
+                    height: tileHeight,
+                    width: double.infinity,
+                    child: Row(
+                      children: <Widget>[
+                        Container(
                           height: tileHeight,
-                          width: double.infinity,
-                          child: Row(
-                            children: <Widget>[
-                              Container(
-                                height: tileHeight,
-                                width: 4,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(4),
-                                        bottomRight: Radius.circular(4)),
-                                    color: currentColor),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  height: tileHeight,
-                                  padding: EdgeInsets.only(left: 20, right: 20),
-                                  color: Theme.of(context).colorScheme.background,
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: <Widget>[
-                                        wallet.isEnabled
-                                            ? _imageFor(type: wallet.type)
-                                            : nonWalletTypeIcon,
-                                        SizedBox(width: 10),
-                                        Flexible(
-                                            child: Text(
-                                          wallet.name,
-                                          maxLines: null,
-                                          softWrap: true,
-                                          style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.w500,
-                                              color: Theme.of(context)
-                                                  .extension<CakeTextTheme>()!
-                                                  .titleColor),
-                                        ))
-                                      ]),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ));
-
-                    return wallet.isCurrent
-                        ? row
-                        : Row(children: [
-                            Expanded(child: row),
-                            GestureDetector(
-                              onTap: () => Navigator.of(context).pushNamed(Routes.walletEdit,
-                                  arguments: [widget.walletListViewModel, wallet]),
-                              child: Container(
-                                padding: EdgeInsets.only(right: 20),
-                                child: Center(
-                                  child: Container(
-                                    height: 40,
-                                    width: 44,
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Theme.of(context)
-                                            .extension<ReceivePageTheme>()!
-                                            .iconsBackgroundColor),
-                                    child: Icon(
-                                      Icons.edit,
-                                      size: 14,
-                                      color: Theme.of(context)
-                                          .extension<ReceivePageTheme>()!
-                                          .iconsColor,
+                          width: 4,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(4), bottomRight: Radius.circular(4)),
+                              color: currentColor),
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: tileHeight,
+                            padding: EdgeInsets.only(left: 20, right: 20),
+                            color: Theme.of(context).colorScheme.background,
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon,
+                                SizedBox(width: 10),
+                                Flexible(
+                                  child: Text(
+                                    wallet.name,
+                                    maxLines: null,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ),
                                   ),
                                 ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+
+                return wallet.isCurrent
+                    ? row
+                    : Row(
+                        children: [
+                          Expanded(child: row),
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pushNamed(Routes.walletEdit,
+                                arguments: [widget.walletListViewModel, wallet]),
+                            child: Container(
+                              padding: EdgeInsets.only(right: 20),
+                              child: Center(
+                                child: Container(
+                                  height: 40,
+                                  width: 44,
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Theme.of(context)
+                                        .extension<ReceivePageTheme>()!
+                                        .iconsBackgroundColor,
+                                  ),
+                                  child: Icon(
+                                    Icons.edit,
+                                    size: 14,
+                                    color:
+                                        Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                                  ),
+                                ),
                               ),
-                            )
-                          ]);
-                  }),
+                            ),
+                          ),
+                        ],
+                      );
+              },
             ),
           ),
-          bottomSectionPadding: EdgeInsets.only(bottom: 24, right: 24, left: 24),
-          bottomSection: Column(children: <Widget>[
+        ),
+        bottomSectionPadding: EdgeInsets.only(bottom: 24, right: 24, left: 24),
+        bottomSection: Column(
+          children: <Widget>[
             PrimaryImageButton(
               onPressed: () {
                 //TODO(David): Find a way to optimize this
@@ -202,24 +206,27 @@ class WalletListBodyState extends State<WalletListBody> {
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
-                onPressed: () {
-                  if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
-                    widget.authService.authenticateAction(
-                      context,
-                      route: Routes.restoreOptions,
-                      arguments: false,
-                      conditionToDetermineIfToUse2FA:
-                          widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
-                    );
-                  } else {
-                    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
-                  }
-                },
-                image: restoreWalletImage,
-                text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).cardColor,
-                textColor: Theme.of(context).primaryTextTheme.titleLarge!.color!)
-          ])),
+              onPressed: () {
+                if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                  widget.authService.authenticateAction(
+                    context,
+                    route: Routes.restoreOptions,
+                    arguments: false,
+                    conditionToDetermineIfToUse2FA:
+                        widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                  );
+                } else {
+                  Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+                }
+              },
+              image: restoreWalletImage,
+              text: S.of(context).wallet_list_restore_wallet,
+              color: Theme.of(context).cardColor,
+              textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+            )
+          ],
+        ),
+      ),
     );
   }
 
