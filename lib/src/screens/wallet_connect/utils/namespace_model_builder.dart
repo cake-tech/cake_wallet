@@ -1,10 +1,9 @@
-import 'package:cake_wallet/wallet_connect/screens/widgets/connection_widget.dart';
-import 'package:cake_wallet/wallet_connect/utils/string_constants.dart';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:get_it/get_it.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 import '../models/connection_model.dart';
-import '../services/web3wallet_service.dart';
 
 class ConnectionWidgetBuilder {
   static List<ConnectionWidget> buildFromRequiredNamespaces(
@@ -18,17 +17,17 @@ class ConnectionWidgetBuilder {
       if (ns.chains != null) {
         models.add(
           ConnectionModel(
-            title: StringConstants.chains,
+            title: 'Chains',
             elements: ns.chains!,
           ),
         );
       }
       models.add(ConnectionModel(
-        title: StringConstants.methods,
+        title: 'Methods',
         elements: ns.methods,
       ));
       models.add(ConnectionModel(
-        title: StringConstants.events,
+        title: 'Events',
         elements: ns.events,
       ));
 
@@ -54,12 +53,12 @@ class ConnectionWidgetBuilder {
       // If the chains property is present, add the chain data to the models
       models.add(
         ConnectionModel(
-          title: StringConstants.chains,
+          title: 'Chains',
           elements: ns.accounts,
         ),
       );
       models.add(ConnectionModel(
-        title: StringConstants.methods,
+        title: 'Methods',
         elements: ns.methods,
       ));
 
@@ -80,7 +79,7 @@ class ConnectionWidgetBuilder {
         };
       }
       models.add(ConnectionModel(
-        title: StringConstants.events,
+        title: 'Events',
         elements: ns.events,
         elementActions: actions,
       ));

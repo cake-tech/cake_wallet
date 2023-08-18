@@ -48,7 +48,6 @@ abstract class DashboardViewModelBase with Store {
       : isOutdatedElectrumWallet = false,
         hasSellAction = false,
         hasBuyAction = false,
-        initializedWalletConnectDependencies = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
@@ -189,8 +188,9 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool isShowThirdYatIntroduction;
 
-  @observable
-  bool initializedWalletConnectDependencies;
+  @computed
+  bool get initializedWalletConnectDependencies =>
+      appStore.settingsStore.initializedWalletConnectDependencies;
 
   @computed
   String get address => wallet.walletAddresses.address;
@@ -408,7 +408,7 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void isWalletConnectDependenciesIntialized({required bool isWCDependenciesInitialized}) {
-    initializedWalletConnectDependencies = isWCDependenciesInitialized;
+    settingsStore.initializedWalletConnectDependencies = isWCDependenciesInitialized;
   }
 
   @computed

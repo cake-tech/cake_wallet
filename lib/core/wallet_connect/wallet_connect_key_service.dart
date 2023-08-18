@@ -1,6 +1,9 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
-
-import '../models/chain_key_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
 
 abstract class WalletConnectKeyService {
   /// Returns a list of all the keys.
@@ -19,18 +22,23 @@ abstract class WalletConnectKeyService {
 }
 
 class KeyServiceImpl implements WalletConnectKeyService {
-  final List<ChainKeyModel> keys = [
-    ChainKeyModel(
-      chains: [
-        'eip155:1',
-        'eip155:5',
-        'eip155:137',
-        'eip155:80001',
-      ],
-      privateKey: '415d3d81c550d9cc6794a5d842f5b819238570192254bdb7dd80885840be1963',
-      publicKey: '0xeB900400cbaD60dACB53c1a37C11FE02AC49bf1C',
-    )
-  ];
+  KeyServiceImpl(this.wallet)
+      : keys = [
+          ChainKeyModel(
+            chains: [
+              'eip155:1',
+              'eip155:5',
+              'eip155:137',
+              'eip155:80001',
+            ],
+            privateKey: ethereum!.getPrivateKey(wallet),
+            publicKey: ethereum!.getPublicKey(wallet),
+          )
+        ];
+
+  late final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+
+  late final List<ChainKeyModel> keys;
 
   @override
   List<String> getChains() {
@@ -42,9 +50,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
   }
 
   @override
-  List<ChainKeyModel> getKeys() {
-    return keys;
-  }
+  List<ChainKeyModel> getKeys() => keys;
 
   @override
   List<ChainKeyModel> getKeysForChain(String chain) {

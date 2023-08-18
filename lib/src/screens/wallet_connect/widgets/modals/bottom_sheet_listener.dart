@@ -1,17 +1,13 @@
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
-import '../../../models/bottom_sheet_queue_item_model.dart';
-import '../../../utils/constants.dart';
-import '../../../services/bottom_sheet_service.dart';
+import '../../models/bottom_sheet_queue_item_model.dart';
 
 class BottomSheetListener extends StatefulWidget {
   final Widget child;
 
-  const BottomSheetListener({
-    super.key,
-    required this.child,
-  });
+  const BottomSheetListener({required this.child, super.key});
 
   @override
   BottomSheetListenerState createState() => BottomSheetListenerState();
@@ -23,7 +19,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
   @override
   void initState() {
     super.initState();
-    _bottomSheetService = GetIt.I<BottomSheetService>();
+    _bottomSheetService = getIt.get<BottomSheetService>();
     _bottomSheetService.currentSheet.addListener(_showBottomSheet);
   }
 
@@ -38,27 +34,17 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
       BottomSheetQueueItemModel item = _bottomSheetService.currentSheet.value!;
       final value = await showModalBottomSheet(
         context: context,
-        backgroundColor: StyleConstants.clear,
+        backgroundColor: Color.fromARGB(0, 0, 0, 0),
         isScrollControlled: true,
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.9,
-        ),
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
         builder: (context) {
           return Container(
             decoration: const BoxDecoration(
-              color: StyleConstants.layerColor1,
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  StyleConstants.linear16,
-                ),
-              ),
+              color: Color.fromARGB(255, 18, 18, 19),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
             ),
-            padding: const EdgeInsets.all(
-              StyleConstants.linear16,
-            ),
-            margin: const EdgeInsets.all(
-              StyleConstants.linear16,
-            ),
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.all(16),
             child: item.widget,
           );
         },
@@ -69,7 +55,5 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  Widget build(BuildContext context) => widget.child;
 }

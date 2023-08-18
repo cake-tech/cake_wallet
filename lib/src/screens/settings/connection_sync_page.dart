@@ -1,3 +1,7 @@
+import 'package:cake_wallet/core/wallet_connect/chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -7,15 +11,9 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_connect/screens/views/connections_listing_view.dart';
-import 'package:cake_wallet/wallet_connect/screens/widgets/modals/bottom_sheet_listener.dart';
-import 'package:cake_wallet/wallet_connect/services/bottom_sheet_service.dart';
-import 'package:cake_wallet/wallet_connect/services/chain_service.dart';
-import 'package:cake_wallet/wallet_connect/services/evm_chain_service.dart';
-import 'package:cake_wallet/wallet_connect/services/web3wallet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -24,7 +22,6 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../wallet_connect/services/key_service.dart';
 
 class ConnectionSyncPage extends BasePage {
   ConnectionSyncPage(this.dashboardViewModel);
@@ -120,9 +117,9 @@ class ConnectionSyncPage extends BasePage {
 
   Future<void> initializeWalletConnectDependencies() async {
     if (dashboardViewModel.initializedWalletConnectDependencies) return;
-
-    // GetIt.I.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
-    GetIt.I.registerSingleton<WalletConnectKeyService>(KeyServiceImpl());
+    final appStore = getIt.get<AppStore>();
+    
+    GetIt.I.registerSingleton<WalletConnectKeyService>(KeyServiceImpl(appStore.wallet!));
 
     final Web3WalletService web3WalletService = Web3WalletServiceImpl();
     web3WalletService.create();
@@ -130,7 +127,7 @@ class ConnectionSyncPage extends BasePage {
 
     for (final cId in EVMChainId.values) {
       GetIt.I.registerSingleton<ChainService>(
-        EvmChainServiceImpl(reference: cId),
+        EvmChainServiceImpl(reference: cId, appStore: appStore),
         instanceName: cId.chain(),
       );
     }

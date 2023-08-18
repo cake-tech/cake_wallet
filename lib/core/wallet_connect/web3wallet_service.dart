@@ -2,19 +2,18 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:cake_wallet/wallet_connect/models/auth_request_model.dart';
-import 'package:cake_wallet/wallet_connect/models/session_request_model.dart';
-import 'package:cake_wallet/wallet_connect/screens/widgets/connection_request_widget.dart';
-import 'package:cake_wallet/wallet_connect/screens/widgets/modals/web3_request_modal.dart';
-import 'package:cake_wallet/wallet_connect/utils/constants.dart';
+import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/auth_request_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/session_request_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
-import '../models/chain_key_model.dart';
-import 'bottom_sheet_service.dart';
-import 'key_service.dart';
+import 'wc_bottom_sheet_service.dart';
 
 abstract class Web3WalletService implements Disposable {
   abstract ValueNotifier<List<PairingInfo>> pairings;
@@ -45,7 +44,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
   void create() {
     // Create the web3wallet client
     _web3Wallet = Web3Wallet(
-      core: Core(projectId: '8eaf78b8e19d71bfa435b5f34eef83e6'),
+      core: Core(projectId: '419b7919bdfe48515a1107e949ec811a'),
       metadata: const PairingMetadata(
         name: 'Example Wallet',
         description: 'Example Wallet',
@@ -88,7 +87,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
   }
 
   @override
-  FutureOr onDispose() {
+  FutureOr<void> onDispose() {
     log('web3wallet dispose');
     _web3Wallet!.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
     _web3Wallet!.pairings.onSync.unsubscribe(_onPairingsSync);
@@ -121,7 +120,6 @@ class Web3WalletServiceImpl implements Web3WalletService {
           sessionProposal: SessionRequestModel(request: args.params),
         ),
       );
-      DialogPopUpTest(modalWidget: modalWidget);
       // show the bottom sheet
       final bool? isApproved = await _bottomSheetHandler.queueBottomSheet(
         widget: modalWidget,
@@ -206,62 +204,5 @@ class Web3WalletServiceImpl implements Web3WalletService {
         );
       }
     }
-  }
-}
-
-class DialogPopUpTest extends StatefulWidget {
-  final Widget modalWidget;
-  const DialogPopUpTest({
-    Key? key,
-    required this.modalWidget,
-  }) : super(key: key);
-
-  @override
-  State<DialogPopUpTest> createState() => _DialogPopUpTestState();
-}
-
-class _DialogPopUpTestState extends State<DialogPopUpTest> {
-  @override
-  void initState() {
-    super.initState();
-    showMoaBottomSheet();
-  }
-
-  Future<bool> showMoaBottomSheet() async {
-    final value = await showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: StyleConstants.clear,
-      isScrollControlled: true,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.9,
-      ),
-      builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: StyleConstants.layerColor1,
-            borderRadius: BorderRadius.all(
-              Radius.circular(
-                StyleConstants.linear16,
-              ),
-            ),
-          ),
-          padding: const EdgeInsets.all(
-            StyleConstants.linear16,
-          ),
-          margin: const EdgeInsets.all(
-            StyleConstants.linear16,
-          ),
-          child: widget.modalWidget,
-        );
-      },
-    );
-    return value ?? false;
-    // item.completer.complete(value);
-    // _bottomSheetService.showNext();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }
