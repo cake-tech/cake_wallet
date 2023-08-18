@@ -54,7 +54,7 @@ class NanoAccountEditOrCreatePage extends BasePage {
                         text: nanoAccountCreationViewModel.isEdit
                             ? S.of(context).rename
                             : S.of(context).add,
-                        color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                        color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         isLoading: nanoAccountCreationViewModel.state is IsExecutingState,
                         isDisabled: nanoAccountCreationViewModel.label?.isEmpty ?? true,

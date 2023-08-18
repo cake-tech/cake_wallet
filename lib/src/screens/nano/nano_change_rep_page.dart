@@ -93,7 +93,7 @@ class NanoChangeRepPage extends BasePage {
                             }
                           },
                           text: S.of(context).change,
-                          color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                          color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                         ),
                       )),
