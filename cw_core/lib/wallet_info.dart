@@ -15,6 +15,8 @@ enum DerivationType {
   nano,
   @HiveField(3)
   bip39,
+  @HiveField(4)
+  StandardBIP44Legacy
 }
 
 @HiveType(typeId: WalletInfo.typeId)

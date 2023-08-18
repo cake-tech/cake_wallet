@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:hive/hive.dart';
@@ -143,9 +144,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var node = appStore.settingsStore.getCurrentNode(walletType);
     
     switch (type) {
-      // case WalletType.bitcoin:
-      //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-      //       name: name, mnemonic: seed, password: password);
+      case WalletType.bitcoin:
+        return BitcoinWalletService.compareDerivationMethods(mnemonic: mnemonic, node: node);
       // case WalletType.litecoin:
       //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
       //       name: name, mnemonic: seed, password: password);

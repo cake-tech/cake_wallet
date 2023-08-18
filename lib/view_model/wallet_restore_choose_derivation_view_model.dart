@@ -37,6 +37,29 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
     switch (walletType) {
+      case WalletType.bitcoin:
+        String? mnemonic = credentials['seed'] as String?;
+        // var bip39Info = await BitcoinWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
+        //     mnemonic: mnemonic, seedKey: seedKey, node: node);
+        // var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
+        //   DerivationType.nano,
+        //   mnemonic: mnemonic,
+        //   seedKey: seedKey,
+        //   node: node,
+        // );
+
+        // if (bip39Info["balance"] != null) {
+        //   list.add(Derivation(
+        //     NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
+        //     bip39Info["address"] as String,
+        //     DerivationType.bip39,
+        //     int.tryParse(
+        //           bip39Info["confirmation_height"] as String? ?? "",
+        //         ) ??
+        //         0,
+        //   ));
+        // }
+        break;
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['seedKey'] as String?;
