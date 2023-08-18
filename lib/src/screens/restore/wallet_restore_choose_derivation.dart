@@ -19,7 +19,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
-                color: titleColor ?? Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                color: titleColor(context)),
           ));
 
   final WalletRestoreChooseDerivationViewModel walletRestoreChooseDerivationViewModel;
