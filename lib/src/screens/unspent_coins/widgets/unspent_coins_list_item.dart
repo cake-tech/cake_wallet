@@ -1,8 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class UnspentCoinsListItem extends StatelessWidget {
@@ -15,11 +14,6 @@ class UnspentCoinsListItem extends StatelessWidget {
     this.onCheckBoxTap,
   });
 
-  static const amountColor = Palette.darkBlueCraiola;
-  static const addressColor = Palette.darkGray;
-  static const selectedItemColor = Palette.paleCornflowerBlue;
-  static const unselectedItemColor = Palette.moderateLavender;
-
   final String note;
   final String amount;
   final String address;
@@ -29,7 +23,17 @@ class UnspentCoinsListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final unselectedItemColor = Theme.of(context).cardColor;
+    final selectedItemColor = Theme.of(context).primaryColor;
     final itemColor = isSending ? selectedItemColor : unselectedItemColor;
+
+    final amountColor = isSending
+        ? Colors.white
+        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
+    final addressColor = isSending
+        ? Colors.white.withOpacity(0.5)
+        : Theme.of(context).extension<CakeTextTheme>()!.buttonSecondaryTextColor;
+
     return Container(
         height: 70,
         padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
@@ -41,6 +45,8 @@ class UnspentCoinsListItem extends StatelessWidget {
             Padding(
                 padding: EdgeInsets.only(right: 12),
                 child: StandardCheckbox(
+                    iconColor: amountColor,
+                    borderColor: addressColor,
                     value: isSending, onChanged: (value) => onCheckBoxTap?.call())),
             Expanded(
                 child: Column(

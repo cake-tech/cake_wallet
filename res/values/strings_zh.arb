@@ -683,5 +683,11 @@
   "support_title_other_links": "其他支持链接",
   "support_description_other_links": "加入我们的社区或通过其他方法与我们联系我们的合作伙伴",
   "choose_derivation": "选择钱包推导",
-  "new_first_wallet_text": "轻松确保您的加密货币安全"
+  "new_first_wallet_text": "轻松确保您的加密货币安全",
+  "monero_dark_theme": "门罗币深色主题",
+  "bitcoin_dark_theme": "比特币黑暗主题",
+  "bitcoin_light_theme": "比特币浅色主题",
+  "high_contrast_theme": "高对比度主题",
+  "matrix_green_dark_theme": "矩阵绿暗主题",
+  "monero_light_theme": "门罗币浅色主题"
 }

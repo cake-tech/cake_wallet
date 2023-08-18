@@ -1,7 +1,9 @@
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
@@ -15,10 +17,7 @@ class IoniaMoreOptionsPage extends BasePage {
     return Text(
       S.current.more_options,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -37,7 +36,7 @@ class IoniaMoreOptionsPage extends BasePage {
             child: Text(
               S.of(context).choose_from_available_options,
               style: textMedium(
-                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               ),
             ),
           ),
@@ -80,8 +79,8 @@ class _GradiantContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).colorScheme.secondary,
+            Theme.of(context).extension<DashboardPageTheme>()!.secondGradientBackgroundColor,
+            Theme.of(context).extension<DashboardPageTheme>()!.firstGradientBackgroundColor,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

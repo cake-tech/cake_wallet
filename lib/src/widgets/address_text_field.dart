@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook }
 
@@ -64,7 +66,8 @@ class AddressTextField extends StatelessWidget {
           controller: controller,
           focusNode: focusNode,
           style: textStyle ??
-              TextStyle(fontSize: 16, color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+              TextStyle(
+                  fontSize: 16, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           decoration: InputDecoration(
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
@@ -113,15 +116,14 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                        Theme.of(context).dialogTheme.backgroundColor,
                                     borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/paste_ios.png',
                                   color: iconColor ??
                                       Theme.of(context)
-                                          .primaryTextTheme
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                 )),
                           ),
                         )),
@@ -140,15 +142,14 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                        Theme.of(context).dialogTheme.backgroundColor,
                                     borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/qr_code_icon.png',
                                   color: iconColor ??
                                       Theme.of(context)
-                                          .primaryTextTheme
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                 )),
                           ),
                         ))
@@ -167,15 +168,14 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                        Theme.of(context).dialogTheme.backgroundColor,
                                     borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/open_book.png',
                                   color: iconColor ??
                                       Theme.of(context)
-                                          .primaryTextTheme
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                 )),
                           ),
                         ))

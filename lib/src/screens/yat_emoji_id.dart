@@ -6,12 +6,15 @@ import 'package:cake_wallet/src/screens/yat/widgets/yat_close_button.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class YatEmojiId extends StatelessWidget {
   YatEmojiId(this.emojiId);
@@ -39,7 +42,7 @@ class YatEmojiId extends StatelessWidget {
               child: Container(
                   height: 420,
                   color:
-                      Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+                      Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                   padding: EdgeInsets.fromLTRB(24, 15, 24, 24),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
@@ -89,7 +92,7 @@ class YatEmojiId extends StatelessWidget {
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Lato',
-                                      color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                                       decoration: TextDecoration.none,
                                     )
                                 ),
@@ -102,10 +105,7 @@ class YatEmojiId extends StatelessWidget {
                                           fontSize: 18,
                                           fontWeight: FontWeight.normal,
                                           fontFamily: 'Lato',
-                                          color: Theme.of(context)
-                                            .accentTextTheme!
-                                            .displaySmall!
-                                            .backgroundColor!,
+                                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                                           decoration: TextDecoration.none,
                                         )
                                     )

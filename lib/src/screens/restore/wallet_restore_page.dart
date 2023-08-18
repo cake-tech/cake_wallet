@@ -1,11 +1,10 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_key_form.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
@@ -20,11 +19,8 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.da
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
@@ -98,7 +94,7 @@ class WalletRestorePage extends BasePage {
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Lato',
-                color: titleColor ?? Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                color: titleColor(context)),
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
@@ -147,7 +143,7 @@ class WalletRestorePage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-        keyboardBarColor: Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
+        keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
         nextFocus: false,
         actions: [
           KeyboardActionsItem(
@@ -201,9 +197,8 @@ class WalletRestorePage extends BasePage {
                           await _confirmForm(context);
                         },
                         text: S.of(context).restore_recover,
-                        color: Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!,
-                        textColor:
-                            Theme.of(context).accentTextTheme!.headlineSmall!.decorationColor!,
+                        color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
+                        textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
                         isLoading: walletRestoreViewModel.state is IsExecutingState,
                         isDisabled: !walletRestoreViewModel.isButtonEnabled,
                       );

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -20,6 +21,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -101,7 +103,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         KeyboardActions(
           config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -126,8 +128,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryTextTheme.titleMedium!.color!,
-                      Theme.of(context).primaryTextTheme.titleMedium!.decorationColor!,
+                      Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                      Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -173,14 +175,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color:
-                                Theme.of(context).primaryTextTheme.headlineSmall!.decorationColor!),
+                                Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                         onPushPasteButton: (context) async {
                           output.resetParsedAddress();
                           await output.fetchParsedAddress(context);
                         },
                         onPushAddressBookButton: (context) async {
                           output.resetParsedAddress();
-                          await output.fetchParsedAddress(context);
                         },
                         onSelectedContact: (contact) {
                           output.loadContact(contact);
@@ -195,7 +196,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           child: BaseTextFormField(
                               controller: extractedAddressController,
                               readOnly: true,
-                              borderColor: Theme.of(context).primaryTextTheme.headlineSmall!.color!,
+                              borderColor: Theme.of(context)
+                                  .extension<SendPageTheme>()!
+                                  .textFieldBorderColor,
                               textStyle: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                               validator: sendViewModel.addressValidator)),
@@ -251,9 +254,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                               height: 32,
                                               decoration: BoxDecoration(
                                                   color: Theme.of(context)
-                                                      .primaryTextTheme
-                                                      .headlineMedium!
-                                                      .color!,
+                                                      .extension<SendPageTheme>()!
+                                                      .textFieldButtonColor,
                                                   borderRadius: BorderRadius.all(
                                                     Radius.circular(6),
                                                   )),
@@ -266,9 +268,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                         fontSize: 12,
                                                         fontWeight: FontWeight.bold,
                                                         color: Theme.of(context)
-                                                            .primaryTextTheme
-                                                            .headlineMedium!
-                                                            .decorationColor!),
+                                                            .extension<SendPageTheme>()!
+                                                            .textFieldButtonIconColor),
                                                   ),
                                                 ),
                                               ),
@@ -310,9 +311,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           color: Colors.white),
                                       placeholderTextStyle: TextStyle(
                                           color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .headlineSmall!
-                                              .decorationColor!,
+                                              .extension<SendPageTheme>()!
+                                              .textFieldHintColor,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 14),
                                       validator: output.sendAll
@@ -331,9 +331,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .headlineMedium!
-                                                    .color!,
+                                                    .extension<SendPageTheme>()!
+                                                    .textFieldButtonColor,
                                                 borderRadius: BorderRadius.all(
                                                   Radius.circular(6),
                                                 ),
@@ -346,9 +345,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                     color: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .headlineMedium!
-                                                        .decorationColor!,
+                                                        .extension<SendPageTheme>()!
+                                                        .textFieldButtonIconColor,
                                                   ),
                                                 ),
                                               ),
@@ -364,7 +362,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                     Divider(
                         height: 1,
-                        color: Theme.of(context).primaryTextTheme.headlineSmall!.decorationColor!),
+                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                     Observer(
                       builder: (_) => Padding(
                         padding: EdgeInsets.only(top: 10),
@@ -379,9 +377,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headlineSmall!
-                                        .decorationColor!),
+                                        .extension<SendPageTheme>()!
+                                        .textFieldHintColor),
                               ),
                             ),
                             Text(
@@ -390,9 +387,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .headlineSmall!
-                                      .decorationColor!),
+                                      .extension<SendPageTheme>()!
+                                      .textFieldHintColor),
                             )
                           ],
                         ),
@@ -449,7 +445,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color:
-                                Theme.of(context).primaryTextTheme.headlineSmall!.decorationColor!),
+                                Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                       ),
                     ),
                     if (sendViewModel.hasFees)
@@ -467,7 +463,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
                                       color: Colors.white),
                                 ),
                                 Container(
@@ -485,7 +480,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
-                                              //color: Theme.of(context).primaryTextTheme!.displaySmall!.color!,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -501,9 +495,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                       fontSize: 12,
                                                       fontWeight: FontWeight.w600,
                                                       color: Theme.of(context)
-                                                          .primaryTextTheme
-                                                          .headlineSmall!
-                                                          .decorationColor!,
+                                                          .extension<SendPageTheme>()!
+                                                          .textFieldHintColor,
                                                     ),
                                                   ),
                                           ),

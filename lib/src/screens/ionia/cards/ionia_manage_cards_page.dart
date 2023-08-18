@@ -2,10 +2,13 @@ import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_filter_modal.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/typography.dart';
@@ -15,6 +18,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
 class IoniaManageCardsPage extends BasePage {
   IoniaManageCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
@@ -36,29 +42,12 @@ class IoniaManageCardsPage extends BasePage {
   final _searchController = TextEditingController();
 
   @override
-  Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
+  bool get gradientBackground => true;
 
   @override
-  Color get backgroundDarkColor => Colors.transparent;
-
-  @override
-  Color get titleColor => currentTheme.type == ThemeType.bright ? Colors.white : Colors.black;
-
-  @override
-  Widget Function(BuildContext, Widget) get rootWrapper => (BuildContext context, Widget scaffold) => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.secondary,
-              Theme.of(context).scaffoldBackgroundColor,
-              Theme.of(context).primaryColor,
-            ],
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-          ),
-        ),
-        child: scaffold,
-      );
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -71,10 +60,7 @@ class IoniaManageCardsPage extends BasePage {
     return Text(
       S.of(context).gift_cards,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayMedium!
-            .backgroundColor!,
+        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       ),
     );
   }
@@ -100,7 +86,7 @@ class IoniaManageCardsPage extends BasePage {
             width: 32,
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+              color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               border: Border.all(
                 color: Colors.white.withOpacity(0.2),
               ),
@@ -108,7 +94,7 @@ class IoniaManageCardsPage extends BasePage {
             ),
             child: Image.asset(
               'assets/images/filter.png',
-              color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+              color: Theme.of(context).extension<FilterTheme>()!.iconColor,
             ),
           )),
     );
@@ -208,9 +194,9 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               },
               title: merchant.legalName,
               subTitle: merchant.avaibilityStatus,
-              backgroundColor: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
-              titleColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
-              subtitleColor: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
+              backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+              subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
               discount: merchant.discount,
             );
           },
@@ -221,8 +207,8 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
                 thumbHeight: thumbHeight,
                 rightOffset: 1,
                 width: 3,
-                backgroundColor: Theme.of(context).textTheme!.bodySmall!.decorationColor!.withOpacity(0.05),
-                thumbColor: Theme.of(context).textTheme!.bodySmall!.decorationColor!.withOpacity(0.5),
+                backgroundColor: Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.05),
+                thumbColor: Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.5),
                 fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
               )
             : Offstage()
@@ -230,8 +216,8 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
          } 
          return Center(
           child: CircularProgressIndicator(
-            backgroundColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryTextTheme!.bodyMedium!.color!),
+            backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
           ),
         );
       }
@@ -254,14 +240,14 @@ class _SearchWidget extends StatelessWidget {
         padding: EdgeInsets.all(8),
         child: Image.asset(
           'assets/images/mini_search_icon.png',
-          color: Theme.of(context).textTheme!.bodySmall!.decorationColor!,
+          color: Theme.of(context).extension<FilterTheme>()!.iconColor,
         ),
       ),
     );
 
     return TextField(
       focusNode: focusNode,
-      style: TextStyle(color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!),
+      style: TextStyle(color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
       controller: controller,
       decoration: InputDecoration(
           filled: true,
@@ -269,10 +255,10 @@ class _SearchWidget extends StatelessWidget {
             top: 10,
             left: 10,
           ),
-          fillColor: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+          fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
-            color: Theme.of(context).accentTextTheme!.displaySmall!.backgroundColor!,
+            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
           ),
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -318,8 +304,7 @@ class _TrailingIcon extends StatelessWidget {
           onPressed: onPressed,
           icon: Image.asset(
             asset,
-            color:
-                Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
           ),
         ),
       ),

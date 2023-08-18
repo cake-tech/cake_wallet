@@ -53,10 +53,9 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
     return Observer(builder: (_) {
       // FIX-ME: Added `context` it was not used here before, maby bug ?
       return SectionStandardList(
-          context: context,
           sectionCount: 1,
           itemCounter: (int _) => tradeDetailsViewModel.items.length,
-          itemBuilder: (_, __, index) {
+          itemBuilder: (__, index) {
             final item = tradeDetailsViewModel.items[index];
 
             if (item is TrackTradeListItem) {

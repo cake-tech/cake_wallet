@@ -1,3 +1,6 @@
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -52,7 +55,7 @@ class PreSeedPage extends BasePage {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
-                        color: Theme.of(context).primaryTextTheme.bodySmall!.color!),
+                        color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                   ),
                 ),
                 PrimaryButton(

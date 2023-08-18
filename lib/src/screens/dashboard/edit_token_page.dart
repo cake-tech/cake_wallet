@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +112,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               Container(
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 28),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -128,7 +129,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                              color: Theme.of(context).dialogTheme.backgroundColor,
                             ),
                           ),
                           Padding(
@@ -138,7 +139,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
-                                color: Theme.of(context).primaryTextTheme.labelSmall!.color!,
+                                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
                               ),
                             ),
                           ),
@@ -197,7 +198,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                       }
                     },
                     text: S.of(context).save,
-                    color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                   ),
                 ),

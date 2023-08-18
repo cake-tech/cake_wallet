@@ -1,4 +1,6 @@
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -6,12 +8,14 @@ import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaDebitCardPage extends BasePage {
   final IoniaGiftCardsListViewModel _cardsListViewModel;
@@ -23,10 +27,7 @@ class IoniaDebitCardPage extends BasePage {
     return Text(
       S.current.debit_card,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -55,10 +56,7 @@ class IoniaDebitCardPage extends BasePage {
                   child: Text(
                     S.of(context).billing_address_info,
                     style: textSmall(
-                        color: Theme.of(context)
-                            .textTheme!
-                            .headlineMedium!
-                            .color!),
+                        color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -67,16 +65,13 @@ class IoniaDebitCardPage extends BasePage {
                   text: S.of(context).order_physical_card,
                   onPressed: () {},
                   color: Color(0xffE9F2FC),
-                  textColor: Theme.of(context).textTheme!.displaySmall!.color!,
+                  textColor: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                 ),
                 SizedBox(height: 8),
                 PrimaryButton(
                   text: S.of(context).add_value,
                   onPressed: () {},
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
                 SizedBox(height: 16)
@@ -124,15 +119,12 @@ class IoniaDebitCardPage extends BasePage {
                     text: S.of(context).get_a,
                     style: textMedium(
                         color:
-                            Theme.of(context).textTheme!.displaySmall!.color!),
+                            Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
                     children: [
                       TextSpan(
                         text: S.of(context).digital_and_physical_card,
                         style: textMediumBold(
-                            color: Theme.of(context)
-                                .textTheme!
-                                .displaySmall!
-                                .color!),
+                            color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
                       ),
                       TextSpan(
                         text: S.of(context).get_card_note,
@@ -150,10 +142,7 @@ class IoniaDebitCardPage extends BasePage {
           bottomSection: PrimaryButton(
             text: S.of(context).activate,
             onPressed: () => _showHowToUseCard(context, activate: true),
-            color: Theme.of(context)
-                .accentTextTheme!
-                .bodyLarge!
-                .color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),
         );
@@ -185,7 +174,7 @@ class IoniaDebitCardPage extends BasePage {
                           S.of(context).how_to_use_card,
                           style: textLargeSemiBold(
                             color:
-                                Theme.of(context).textTheme!.bodyMedium!.color!,
+                                Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
                           ),
                         ),
                         SizedBox(height: 24),
@@ -194,10 +183,7 @@ class IoniaDebitCardPage extends BasePage {
                           child: Text(
                             S.of(context).signup_for_card_accept_terms,
                             style: textSmallSemiBold(
-                              color: Theme.of(context)
-                                  .textTheme!
-                                  .displaySmall!
-                                  .color!,
+                              color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                             ),
                           ),
                         ),
@@ -219,7 +205,7 @@ class IoniaDebitCardPage extends BasePage {
                           text: S.of(context).got_it,
                           color: Color.fromRGBO(233, 242, 252, 1),
                           textColor:
-                              Theme.of(context).textTheme!.displaySmall!.color!,
+                              Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                         ),
                         SizedBox(height: 21),
                       ],
@@ -283,8 +269,8 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-            Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+            Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+            Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -393,13 +379,13 @@ class _TitleSubtitleTile extends StatelessWidget {
         Text(
           title,
           style: textSmallSemiBold(
-              color: Theme.of(context).textTheme!.displaySmall!.color!),
+              color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
         ),
         SizedBox(height: 4),
         Text(
           subtitle,
           style: textSmall(
-              color: Theme.of(context).textTheme!.displaySmall!.color!),
+              color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
         ),
       ],
     );

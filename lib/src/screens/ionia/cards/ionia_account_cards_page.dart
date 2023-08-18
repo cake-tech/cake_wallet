@@ -1,14 +1,19 @@
 
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class IoniaAccountCardsPage extends BasePage {
   IoniaAccountCardsPage(this.ioniaAccountViewModel);
@@ -20,10 +25,7 @@ class IoniaAccountCardsPage extends BasePage {
     return Text(
       S.of(context).cards,
       style: textLargeSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -72,10 +74,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
             width: 230,
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayLarge!
-                  .backgroundColor!
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                   .withOpacity(0.1),
               borderRadius: BorderRadius.circular(
                 25.0,
@@ -89,17 +88,11 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   borderRadius: BorderRadius.circular(
                     25.0,
                   ),
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                 ),
-                labelColor: Theme.of(context)
-                    .primaryTextTheme!
-                    .displayLarge!
-                    .backgroundColor!,
+                labelColor: Theme.of(context).extension<OrderTheme>()!.iconColor,
                 unselectedLabelColor:
-                    Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                    Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 tabs: [
                   Tab(
                     text: S.of(context).active,
@@ -169,12 +162,9 @@ class _IoniaCardListView extends StatelessWidget {
     if(isLoading){
       return Center(
         child: CircularProgressIndicator(
-          backgroundColor: Theme.of(context)
-              .accentTextTheme!
-              .displayMedium!
-              .backgroundColor!,
+          backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
           valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).primaryTextTheme!.bodyMedium!.color!),
+              Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
         ),
       );
     }
@@ -184,7 +174,7 @@ class _IoniaCardListView extends StatelessWidget {
               emptyText,
               textAlign: TextAlign.center,
               style: textSmall(
-                color: Theme.of(context).primaryTextTheme!.labelSmall!.color!,
+                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
               ),
             ),
           )
@@ -197,18 +187,12 @@ class _IoniaCardListView extends StatelessWidget {
                 child: CardItem(
                   onTap: () => onTap?.call(merchant),
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!
+                  backgroundColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                       .withOpacity(0.1),
                   discount: 0,
                   hideBorder: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!,
+                  titleColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: '',
                   logoUrl: merchant.logoUrl,

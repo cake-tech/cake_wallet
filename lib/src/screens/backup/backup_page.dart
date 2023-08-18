@@ -80,7 +80,7 @@ class BackupPage extends BasePage {
               isLoading: backupViewModelBase.state is IsExecutingState,
               onPressed: () => onExportBackup(context),
               text: S.of(context).export_backup,
-              color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),
           ),

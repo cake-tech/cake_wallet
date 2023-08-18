@@ -1,3 +1,29 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/alert_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
+import 'package:cake_wallet/themes/extensions/info_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/order_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -8,268 +34,192 @@ class LightTheme extends ThemeBase {
 
   @override
   String get title => S.current.light_theme;
-
   @override
   ThemeType get type => ThemeType.light;
-
-  ThemeData theme = ThemeData(
-      fontFamily: 'Lato',
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: Colors.white, // second gradient color
-      primaryColor: Colors.white, // third gradient color
-      indicatorColor:
-          PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
-      hoverColor: Palette.darkBlueCraiola, // amount hint text (receive page)
-      dividerColor: Palette.paleBlue,
-      hintColor: Palette.gray,
-      textTheme: TextTheme(
-          // title -> titleLarge
-          titleLarge: TextStyle(
-            color: Palette.darkBlueCraiola, // sync_indicator text
-            backgroundColor: Palette.blueAlice, // synced sync_indicator
-            decorationColor: Palette.blueAlice.withOpacity(0.75), // not synced sync_indicator
-          ),
-          bodySmall: TextStyle(
-            color: Palette.shineOrange, // not synced light
-            decorationColor: PaletteDark.wildBlue, // filter icon
-          ),
-          labelSmall: TextStyle(
-              color: Palette.blueAlice, // filter button
-              backgroundColor: PaletteDark.darkCyanBlue, // date section row
-              decorationColor:
-                  Palette.blueAlice // icons (transaction and trade rows)
-              ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-            color: Palette.blueAlice, // address button border
-            decorationColor: PaletteDark.lightBlueGrey, // copy button (qr widget)
-          ),
-          // headline -> headlineSmall
-          headlineSmall: TextStyle(
-            color: Colors.white, // qr code
-            decorationColor: Palette.darkBlueCraiola, // bottom border of amount (receive page)
-          ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-            color: PaletteDark.lightBlueGrey, // icons color (receive page)
-            decorationColor: Palette.moderateLavender, // icons background (receive page)
-          ),
-          // display2 -> headldisplaySmalline3
-          displaySmall: TextStyle(
-              color:
-                  Palette.darkBlueCraiola, // text color of tiles (receive page)
-              decorationColor:
-                  Palette.blueAlice // background of tiles (receive page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: Colors.white, // text color of current tile (receive page),
-              //decorationColor: Palette.blueCraiola // background of current tile (receive page)
-              decorationColor: Palette
-                  .blueCraiola // background of current tile (receive page)
-              ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-              color: Palette.violetBlue, // text color of tiles (account list)
-              decorationColor:
-                  Colors.white // background of tiles (account list)
-              ),
-          // subtitle -> titleSmall
-          titleSmall: TextStyle(
-              color: Palette
-                  .protectiveBlue, // text color of current tile (account list)
-              decorationColor:
-                  Colors.white // background of current tile (account list)
-              ),
-          // body -> bodyMedium
-          bodyMedium: TextStyle(
-              color: Palette.moderatePurpleBlue, // scrollbar thumb
-              decorationColor: Palette.periwinkleCraiola // scrollbar background
-              ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(
-            color: Palette.moderateLavender, // menu header
-            decorationColor: Colors.white, // menu background
-          )
-      ),
-      scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(Palette.moderatePurpleBlue),
-        trackColor: MaterialStateProperty.all(Palette.periwinkleCraiola),
-        radius: Radius.circular(3),
-        thickness: MaterialStateProperty.all(6),
-        thumbVisibility: MaterialStateProperty.all(true),
-        crossAxisMargin: 6,
-      ),
-      primaryTextTheme: TextTheme(
-          // title -> titleLarge
-          titleLarge: TextStyle(
-              color: Palette.darkBlueCraiola, // title color
-              backgroundColor: Palette.wildPeriwinkle // textfield underline
-              ),
-          bodySmall: TextStyle(
-              color: PaletteDark.pigeonBlue, // secondary text
-              decorationColor: Palette.wildLavender // menu divider
-              ),
-          labelSmall: TextStyle(
-            color: Palette.darkGray, // transaction/trade details titles
-            decorationColor: PaletteDark.darkCyanBlue, // placeholder
-          ),
-          // subhead -> titleMedium
-          titleMedium: TextStyle(
-              color: Palette.blueCraiola, // first gradient color (send page)
-              decorationColor:
-                  Palette.blueGreyCraiola // second gradient color (send page)
-              ),
-          // headline -> headlineSmall
-          headlineSmall: TextStyle(
-            color: Colors.white
-                .withOpacity(0.5), // text field border color (send page)
-            decorationColor: Colors.white
-                .withOpacity(0.5), // text field hint color (send page)
-          ),
-          // display1 -> headlineMedium
-          headlineMedium: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.2), // text field button color (send page)
-              decorationColor:
-                  Colors.white // text field button icon color (send page)
-              ),
-          // display2 -> displaySmall
-          displaySmall: TextStyle(
-              color: Colors.white.withOpacity(0.5), // estimated fee (send page)
-              backgroundColor: PaletteDark.darkCyanBlue
-                  .withOpacity(0.67), // dot color for indicator on send page
-              decorationColor:
-                  Palette.moderateLavender // template dotted border (send page)
-              ),
-          // display3 -> displayMedium
-          displayMedium: TextStyle(
-              color: Palette.darkBlueCraiola, // template new text (send page)
-              backgroundColor: PaletteDark
-                  .darkNightBlue, // active dot color for indicator on send page
-              decorationColor:
-                  Palette.blueAlice // template background color (send page)
-              ),
-          // display4 -> displayLarge
-          displayLarge: TextStyle(
-              color: Palette.darkBlueCraiola, // template title (send page)
-              backgroundColor:
-                  Colors.black, // icon color on order row (moonpay)
-              decorationColor:
-                  Palette.niagara // receive amount text (exchange page)
-              ),
-          // subtitle -> titleSmall
-          titleSmall: TextStyle(
-              color: Palette
-                  .blueCraiola, // first gradient color top panel (exchange page)
-              decorationColor: Palette
-                  .blueGreyCraiola // second gradient color top panel (exchange page)
-              ),
-          // body -> bodyMedium
-          bodyMedium: TextStyle(
-              color: Palette.blueCraiola.withOpacity(
-                  0.7), // first gradient color bottom panel (exchange page)
-              decorationColor: Palette.blueGreyCraiola.withOpacity(
-                  0.7), // second gradient color bottom panel (exchange page)
-              backgroundColor: Palette.protectiveBlue // alert right button text
-              ),
-          // body2 -> bodyLarge
-          bodyLarge: TextStyle(
-              color: Colors.white.withOpacity(
-                  0.5), // text field border on top panel (exchange page)
-              decorationColor: Colors.white.withOpacity(
-                  0.5), // text field border on bottom panel (exchange page)
-              backgroundColor: Palette.brightOrange // alert left button text
-          )
-      ),
-      focusColor: Colors.white.withOpacity(0.2), // text field button (exchange page)
-      accentTextTheme: TextTheme(
-        // title -> headlititleLargene6
-        titleLarge: TextStyle(
-            color: Colors.white, // picker background
-            backgroundColor: Palette.periwinkleCraiola, // picker divider
-            decorationColor: Colors.white // dialog background
-            ),
-        bodySmall: TextStyle(
-          color: Palette.blueAlice, // container (confirm exchange)
-          backgroundColor: Palette.blueAlice, // button background (confirm exchange)
-          decorationColor: Palette.darkBlueCraiola, // text color (information page)
-        ),
-        // subtitle -> titleSmall
-        titleSmall: TextStyle(
-            color: Palette.darkBlueCraiola, // QR code (exchange trade page)
-            backgroundColor:
-                Palette.wildPeriwinkle, // divider (exchange trade page)
-            decorationColor: Palette
-                .protectiveBlue // crete new wallet button background (wallet list page)
-            ),
-        // headline -> headlineSmall
-        headlineSmall: TextStyle(
-            color: Palette
-                .moderateLavender, // first gradient color of wallet action buttons (wallet list page)
-            backgroundColor: Palette
-                .moderateLavender, // second gradient color of wallet action buttons (wallet list page)
-            decorationColor: Colors
-                .white // restore wallet button text color (wallet list page)
-            ),
-        // subhead -> titleMedium
-        titleMedium: TextStyle(
-            color: Palette.darkGray, // titles color (filter widget)
-            backgroundColor: Palette.periwinkle, // divider color (filter widget)
-            decorationColor: Colors.white // checkbox background (filter widget)
-            ),
-        labelSmall: TextStyle(
-          color: Palette.wildPeriwinkle, // checkbox bounds (filter widget)
-          decorationColor: Colors.white, // menu subname
-        ),
-        // display1 -> headlineMedium
-        headlineMedium: TextStyle(
-            color: Palette.blueCraiola, // first gradient color (menu header)
-            decorationColor: Palette.blueGreyCraiola, // second gradient color(menu header)
-            backgroundColor: PaletteDark.darkNightBlue // active dot color
-            ),
-        // display2 -> displaySmall
-        displaySmall: TextStyle(
-            color:
-                Palette.shadowWhite, // action button color (address text field)
-            decorationColor: Palette.darkGray, // hint text (seed widget)
-            backgroundColor: Palette.darkBlueCraiola
-                .withOpacity(0.67) // text on balance page
-            ),
-        // display3 -> displayMedium
-        displayMedium: TextStyle(
-            color: Palette.darkGray, // hint text (new wallet page)
-            decorationColor:
-                Palette.periwinkleCraiola, // underline (new wallet page)
-            backgroundColor:
-                Palette.darkBlueCraiola // menu, icons, balance (dashboard page)
-            ),
-        // display4 -> displayLarge
-        displayLarge: TextStyle(
-            color: Palette.darkGray, // switch background (settings page)
-            backgroundColor:
-                Colors.black, // icon color on support page (moonpay, github)
-            decorationColor:
-                Colors.white.withOpacity(0.4) // hint text (exchange page)
-            ),
-        // body -> bodyMedium
-        bodyMedium: TextStyle(
-            color: Palette.darkGray, // indicators (PIN code)
-            decorationColor: Palette.darkGray, // switch (PIN code)
-            backgroundColor: Colors.white // alert right button
-            ),
-        // body2 -> bodyLarge
-        bodyLarge: TextStyle(
-            color: Palette.protectiveBlue, // primary buttons
-            decorationColor: Colors.white, // alert left button,
-            backgroundColor: Palette.dullGray // keyboard bar color
-        ),
-      ),
-      cardColor: Palette.protectiveBlue // bottom button (action list)
-      );
+  @override
+  Brightness get brightness => Brightness.light;
+  @override
+  Color get backgroundColor => Colors.white;
+  @override
+  Color get primaryColor => Palette.protectiveBlue;
+  @override
+  Color get primaryTextColor => Palette.darkBlueCraiola;
+  @override
+  Color get containerColor => Palette.blueAlice;
+  @override
+  Color get dialogBackgroundColor => Colors.white;
 
   @override
-  ThemeData get themeData => theme.copyWith(
-      colorScheme: theme.colorScheme
-          .copyWith(background: Colors.white, secondary: Colors.white));
+  CakeScrollbarTheme get scrollbarTheme => CakeScrollbarTheme(
+      thumbColor: Palette.moderatePurpleBlue,
+      trackColor: Palette.periwinkleCraiola);
+
+  @override
+  SyncIndicatorTheme get syncIndicatorStyle => SyncIndicatorTheme(
+      textColor: Palette.darkBlueCraiola,
+      syncedBackgroundColor: Palette.blueAlice,
+      notSyncedIconColor: Palette.shineOrange,
+      notSyncedBackgroundColor: Palette.blueAlice.withOpacity(0.75));
+
+  @override
+  KeyboardTheme get keyboardTheme =>
+      KeyboardTheme(keyboardBarColor: Palette.dullGray);
+
+  @override
+  PinCodeTheme get pinCodeTheme => PinCodeTheme(
+      indicatorsColor: Palette.darkGray, switchColor: Palette.darkGray);
+
+  @override
+  SupportPageTheme get supportPageTheme =>
+      SupportPageTheme(iconColor: Colors.black);
+
+  @override
+  ExchangePageTheme get exchangePageTheme => ExchangePageTheme(
+      hintTextColor: Colors.white.withOpacity(0.4),
+      dividerCodeColor: Palette.wildPeriwinkle,
+      qrCodeColor: primaryTextColor,
+      buttonBackgroundColor: containerColor,
+      textFieldButtonColor: Colors.white.withOpacity(0.2),
+      textFieldBorderBottomPanelColor: Colors.white.withOpacity(0.5),
+      textFieldBorderTopPanelColor: Colors.white.withOpacity(0.5),
+      secondGradientBottomPanelColor: Palette.blueGreyCraiola.withOpacity(0.7),
+      firstGradientBottomPanelColor: Palette.blueCraiola.withOpacity(0.7),
+      secondGradientTopPanelColor: Palette.blueGreyCraiola,
+      firstGradientTopPanelColor: Palette.blueCraiola,
+      receiveAmountColor: Palette.niagara);
+
+  @override
+  NewWalletTheme get newWalletTheme => NewWalletTheme(
+      hintTextColor: Palette.darkGray,
+      underlineColor: Palette.periwinkleCraiola);
+
+  @override
+  AddressTheme get addressTheme =>
+      AddressTheme(actionButtonColor: Palette.shadowWhite);
+
+  @override
+  DashboardPageTheme get dashboardPageTheme =>
+      super.dashboardPageTheme.copyWith(
+          cardTextColor: super.dashboardPageTheme.textColor,
+          indicatorDotTheme: IndicatorDotTheme(
+              indicatorColor: PaletteDark.darkCyanBlue.withOpacity(0.67),
+              activeIndicatorColor: PaletteDark.darkNightBlue));
+
+  @override
+  BalancePageTheme get balancePageTheme => BalancePageTheme(
+      textColor: dashboardPageTheme.textColor,
+      labelTextColor: Palette.darkBlueCraiola.withOpacity(0.67));
+
+  @override
+  CakeMenuTheme get menuTheme => CakeMenuTheme(
+      headerFirstGradientColor: Palette.blueCraiola,
+      headerSecondGradientColor: Palette.blueGreyCraiola,
+      backgroundColor: Colors.white,
+      subnameTextColor: Colors.white,
+      dividerColor: Palette.wildLavender,
+      iconColor: Colors.white,
+      settingTitleColor: receivePageTheme.tilesTextColor,
+      settingActionsIconColor: Palette.gray);
+
+  @override
+  FilterTheme get filterTheme => FilterTheme(
+      checkboxFirstGradientColor: Palette.blueCraiola,
+      checkboxSecondGradientColor: Palette.blueGreyCraiola,
+      checkboxBoundsColor: Palette.wildPeriwinkle,
+      checkboxBackgroundColor: Colors.white,
+      titlesColor: Palette.darkGray,
+      buttonColor: Palette.blueAlice,
+      iconColor: PaletteDark.wildBlue);
+
+  @override
+  WalletListTheme get walletListTheme => WalletListTheme(
+      restoreWalletButtonTextColor: Colors.white,
+      createNewWalletButtonBackgroundColor: Palette.protectiveBlue);
+
+  @override
+  InfoTheme get infoTheme => InfoTheme(textColor: Palette.darkBlueCraiola);
+
+  @override
+  PickerTheme get pickerTheme => PickerTheme(
+      dividerColor: Palette.periwinkleCraiola,
+      searchTextColor: cakeTextTheme.textfieldUnderlineColor,
+      searchBackgroundFillColor: addressTheme.actionButtonColor);
+
+  @override
+  AlertTheme get alertTheme => AlertTheme(
+      backdropColor: PaletteDark.darkNightBlue.withOpacity(0.75),
+      leftButtonTextColor: Palette.brightOrange);
+
+  @override
+  OrderTheme get orderTheme => OrderTheme(iconColor: Colors.black);
+
+  @override
+  SendPageTheme get sendPageTheme => SendPageTheme(
+      templateTitleColor: Palette.darkBlueCraiola,
+      templateBackgroundColor: Palette.blueAlice,
+      templateNewTextColor: Palette.darkBlueCraiola,
+      templateDottedBorderColor: Palette.moderateLavender,
+      templateSelectedCurrencyBackgroundColor: Colors.white,
+      templateSelectedCurrencyTitleColor: primaryColor,
+      estimatedFeeColor: Colors.white.withOpacity(0.5),
+      textFieldButtonIconColor: Colors.white,
+      textFieldButtonColor: Colors.white.withOpacity(0.2),
+      textFieldHintColor: Colors.white.withOpacity(0.5),
+      textFieldBorderColor: Colors.white.withOpacity(0.5),
+      secondGradientColor: Palette.blueGreyCraiola,
+      firstGradientColor: Palette.blueCraiola,
+      indicatorDotColor: PaletteDark.darkCyanBlue.withOpacity(0.67));
+
+  @override
+  SeedWidgetTheme get seedWidgetTheme =>
+      SeedWidgetTheme(hintTextColor: Palette.darkGray);
+
+  @override
+  PlaceholderTheme get placeholderTheme =>
+      PlaceholderTheme(color: PaletteDark.darkCyanBlue);
+
+  @override
+  TransactionTradeTheme get transactionTradeTheme => TransactionTradeTheme(
+      detailsTitlesColor: Palette.darkGray, rowsColor: Palette.blueAlice);
+
+  @override
+  CakeTextTheme get cakeTextTheme => CakeTextTheme(
+      secondaryTextColor: PaletteDark.pigeonBlue,
+      textfieldUnderlineColor: Palette.wildPeriwinkle,
+      titleColor: Palette.violetBlue,
+      addressButtonBorderColor: Palette.blueAlice,
+      dateSectionRowColor: PaletteDark.darkCyanBlue);
+
+  @override
+  AccountListTheme get accountListTheme => AccountListTheme(
+      currentAccountBackgroundColor: dialogBackgroundColor,
+      currentAccountTextColor: primaryColor,
+      currentAccountAmountColor: receivePageTheme.iconsColor,
+      tilesBackgroundColor: Colors.white,
+      tilesAmountColor: receivePageTheme.iconsColor,
+      tilesTextColor: Palette.violetBlue);
+
+  @override
+  ReceivePageTheme get receivePageTheme => ReceivePageTheme(
+      currentTileBackgroundColor: Palette.blueCraiola,
+      currentTileTextColor: Colors.white,
+      tilesBackgroundColor: Palette.blueAlice,
+      tilesTextColor: Palette.darkBlueCraiola,
+      iconsBackgroundColor: Palette.moderateLavender,
+      iconsColor: PaletteDark.lightBlueGrey,
+      amountBottomBorderColor: Palette.darkBlueCraiola,
+      amountHintTextColor: Palette.darkBlueCraiola);
+
+  @override
+  QRCodeTheme get qrCodeTheme => QRCodeTheme(
+      qrCodeColor: Colors.white,
+      qrWidgetCopyButtonColor: PaletteDark.lightBlueGrey);
+
+  @override
+  ThemeData get themeData => super.themeData.copyWith(
+      dividerColor: Palette.paleBlue,
+      hintColor: Palette.gray,
+      disabledColor: Palette.darkGray,
+      dialogTheme:
+          super.themeData.dialogTheme.copyWith(backgroundColor: Colors.white));
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class MobileExchangeCardsSection extends StatelessWidget {
@@ -21,8 +22,8 @@ class MobileExchangeCardsSection extends StatelessWidget {
         ),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryTextTheme!.bodyMedium!.color!,
-            Theme.of(context).primaryTextTheme!.bodyMedium!.decorationColor!,
+            Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
+            Theme.of(context).extension<ExchangePageTheme>()!.secondGradientBottomPanelColor,
           ],
           stops: [0.35, 1.0],
           begin: Alignment.topLeft,
@@ -37,11 +38,8 @@ class MobileExchangeCardsSection extends StatelessWidget {
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).primaryTextTheme!.titleSmall!.color!,
-                  Theme.of(context)
-                      .primaryTextTheme!
-                      .titleSmall!
-                      .decorationColor!,
+                  Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
+                  Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
