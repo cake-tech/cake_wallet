@@ -11,15 +11,12 @@ import 'package:cw_nano/nano_util.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanodart/nanodart.dart';
-import 'package:web3dart/web3dart.dart';
-import 'package:web3dart/contracts/erc20.dart';
 import 'package:cw_core/node.dart';
 
 class NanoClient {
   static const String DEFAULT_REPRESENTATIVE =
       "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
-  StreamSubscription<Transfer>? subscription;
   Node? _node;
   PowNode? _powNode;
 
@@ -434,9 +431,7 @@ class NanoClient {
     throw UnimplementedError();
   }
 
-  void stop() {
-    subscription?.cancel();
-  }
+  void stop() {}
 
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {
     try {

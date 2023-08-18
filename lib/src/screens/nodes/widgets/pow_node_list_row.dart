@@ -1,6 +1,7 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cw_core/pow_node.dart';
 import 'package:flutter/material.dart';
@@ -52,8 +53,8 @@ class PowNodeHeaderListRow extends StandardListRow {
   Widget buildTrailing(BuildContext context) {
     return SizedBox(
       width: 20,
-      child:
-          Icon(Icons.add, color: Theme.of(context).accentTextTheme!.titleMedium!.color, size: 24.0),
+      child: Icon(Icons.add,
+          color: Theme.of(context).extension<FilterTheme>()!.titlesColor, size: 24.0),
     );
   }
 }
