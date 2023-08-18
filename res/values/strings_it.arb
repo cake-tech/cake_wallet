@@ -670,7 +670,19 @@
   "balance_page": "Pagina di equilibrio",
   "share": "Condividere",
   "slidable": "Scorrevole",
+  "monero_dark_theme": "Tema scuro di Monero",
+  "bitcoin_dark_theme": "Tema oscuro di Bitcoin",
+  "bitcoin_light_theme": "Tema luce Bitcoin",
+  "high_contrast_theme": "Tema ad alto contrasto",
+  "matrix_green_dark_theme": "Tema Matrix verde scuro",
+  "monero_light_theme": "Tema leggero Monero",
   "manage_nodes": "Gestisci i nodi",
   "etherscan_history": "Storia Etherscan",
-  "template_name": "Nome modello"
+  "template_name": "Nome modello",
+  "support_title_live_chat": "Supporto dal vivo",
+  "support_description_live_chat": "Gratuito e veloce! I rappresentanti di supporto qualificati sono disponibili per assistere",
+  "support_title_guides": "Guide del portafoglio per torte",
+  "support_description_guides": "Documentazione e supporto per problemi comuni",
+  "support_title_other_links": "Altri collegamenti di supporto",
+  "support_description_other_links": "Unisciti alle nostre comunità o raggiungici i nostri partner attraverso altri metodi"
 }

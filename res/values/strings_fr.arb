@@ -634,6 +634,12 @@
   "setup_totp_recommended": "Configurer TOTP (recommandé)",
   "disable_buy": "Désactiver l'action d'achat",
   "disable_sell": "Désactiver l'action de vente",
+  "monero_dark_theme": "Thème sombre Monero",
+  "bitcoin_dark_theme": "Thème sombre Bitcoin",
+  "bitcoin_light_theme": "Thème léger Bitcoin",
+  "high_contrast_theme": "Thème à contraste élevé",
+  "matrix_green_dark_theme": "Thème Matrix Green Dark",
+  "monero_light_theme": "Thème de lumière Monero",
   "cake_2fa_preset" : "Gâteau 2FA prédéfini",
   "narrow": "Étroit",
   "normal": "Normal",
@@ -672,5 +678,11 @@
   "slidable": "Glissable",
   "manage_nodes": "Gérer les nœuds",
   "etherscan_history": "Historique d'Etherscan",
-  "template_name": "Nom du modèle"
+  "template_name": "Nom du modèle",
+  "support_title_live_chat": "Support en direct",
+  "support_description_live_chat": "GRATUIT ET RAPIDE! Des représentants de soutien formé sont disponibles pour aider",
+  "support_title_guides": "Guides de portefeuille à gâteau",
+  "support_description_guides": "Documentation et soutien aux problèmes communs",
+  "support_title_other_links": "Autres liens d'assistance",
+  "support_description_other_links": "Rejoignez nos communautés ou contactez-nous nos partenaires à travers d'autres méthodes"
 }

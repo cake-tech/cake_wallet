@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
@@ -155,10 +156,7 @@ class TransactionsPage extends StatelessWidget {
                         S.of(context).placeholder_transactions,
                         style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .labelSmall!
-                                .decorationColor!),
+                            color: Theme.of(context).extension<PlaceholderTheme>()!.color),
                       ),
                     );
             }))

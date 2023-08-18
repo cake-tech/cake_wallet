@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class WalletKeysPage extends BasePage {
   WalletKeysPage(this.walletKeysViewModel);
@@ -49,61 +50,68 @@ class WalletKeysPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                  color: Theme.of(context).accentTextTheme.bodySmall!.color!,
-                ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AutoSizeText(
-                        S.of(context).do_not_share_warning_text.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        maxLines: 4,
-                        style: TextStyle(
-                          fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.red)),
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+                color: Theme.of(context).cardColor,
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AutoSizeText(
+                    S.of(context).do_not_share_warning_text.toUpperCase(),
+                    textAlign: TextAlign.center,
+                    maxLines: 4,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          Expanded(
-            flex: 7,
+        ),
+        Expanded(
+          flex: 7,
           child: Container(
-        padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-        child: Observer(
-          builder: (_) {
-            return ListView.separated(
-                separatorBuilder: (context, index) => Container(
-                      height: 1,
-                      padding: EdgeInsets.only(left: 24),
-                      color: Theme.of(context).accentTextTheme.titleLarge!.backgroundColor!,
-                      child: const SectionDivider(),
-                    ),
-                itemCount: walletKeysViewModel.items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final item = walletKeysViewModel.items[index];
+            padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+            child: Observer(
+              builder: (_) {
+                return ListView.separated(
+                  separatorBuilder: (context, index) => Container(
+                    height: 1,
+                    padding: EdgeInsets.only(left: 24),
+                    color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+                    child: const HorizontalSectionDivider(),
+                  ),
+                  itemCount: walletKeysViewModel.items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final item = walletKeysViewModel.items[index];
 
-                  return GestureDetector(
-                    onTap: () {
-                      ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: item.value));
-                      showBar<void>(context, S.of(context).copied_key_to_clipboard(item.title));
-                    },
-                    child: ListRow(
-                      title: item.title + ':',
-                      value: item.value,
-                    ),
-                  );
-                });
-          },
-        )))]);
+                    return GestureDetector(
+                      onTap: () {
+                        ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: item.value));
+                        showBar<void>(context, S.of(context).copied_key_to_clipboard(item.title));
+                      },
+                      child: ListRow(
+                        title: item.title + ':',
+                        value: item.value,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

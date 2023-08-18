@@ -658,7 +658,19 @@
   "balance_page": "Halaman Saldo",
   "share": "Membagikan",
   "slidable": "Dapat digeser",
+  "monero_dark_theme": "Tema Gelap Monero",
+  "bitcoin_dark_theme": "Tema Gelap Bitcoin",
+  "bitcoin_light_theme": "Tema Cahaya Bitcoin",
+  "high_contrast_theme": "Tema Kontras Tinggi",
+  "matrix_green_dark_theme": "Tema Matrix Green Dark",
+  "monero_light_theme": "Tema Cahaya Monero",
   "manage_nodes": "Kelola node",
   "etherscan_history": "Sejarah Etherscan",
-  "template_name": "Nama Templat"
+  "template_name": "Nama Templat",
+  "support_title_live_chat": "Dukungan langsung",
+  "support_description_live_chat": "Gratis dan Cepat! Perwakilan dukungan terlatih tersedia untuk membantu",
+  "support_title_guides": "Panduan Dompet Kue",
+  "support_description_guides": "Dokumentasi dan dukungan untuk masalah umum",
+  "support_title_other_links": "Tautan dukungan lainnya",
+  "support_description_other_links": "Bergabunglah dengan komunitas kami atau hubungi kami mitra kami melalui metode lain"
 }

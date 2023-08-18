@@ -669,7 +669,19 @@
   "balance_page": "Bakiye Sayfası",
   "share": "Paylaşmak",
   "slidable": "kaydırılabilir",
+  "monero_dark_theme": "Monero Koyu Tema",
+  "bitcoin_dark_theme": "Bitcoin Karanlık Teması",
+  "bitcoin_light_theme": "Bitcoin Hafif Tema",
+  "high_contrast_theme": "Yüksek Kontrastlı Tema",
+  "matrix_green_dark_theme": "Matrix Yeşil Koyu Tema",
+  "monero_light_theme": "Monero Hafif Tema",
   "manage_nodes": "Düğümleri yönet",
   "etherscan_history": "Etherscan geçmişi",
-  "template_name": "şablon adı"
+  "template_name": "şablon adı",
+  "support_title_live_chat": "Canlı destek",
+  "support_description_live_chat": "Ücretsiz ve hızlı! Eğitimli destek temsilcileri yardımcı olmak için mevcuttur",
+  "support_title_guides": "Kek Cüzdan Kılavuzları",
+  "support_description_guides": "Ortak sorunlara belge ve destek",
+  "support_title_other_links": "Diğer destek bağlantıları",
+  "support_description_other_links": "Topluluklarımıza katılın veya ortaklarımıza diğer yöntemlerle bize ulaşın"
 }

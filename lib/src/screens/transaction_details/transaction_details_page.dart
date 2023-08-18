@@ -22,10 +22,9 @@ class TransactionDetailsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return SectionStandardList(
-        context: context,
         sectionCount: 1,
         itemCounter: (int _) => transactionDetailsViewModel.items.length,
-        itemBuilder: (_, __, index) {
+        itemBuilder: (__, index) {
           final item = transactionDetailsViewModel.items[index];
 
           if (item is StandartListItem) {

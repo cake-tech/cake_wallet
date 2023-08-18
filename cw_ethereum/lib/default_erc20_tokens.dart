@@ -283,6 +283,13 @@ class DefaultErc20Tokens {
       decimal: 18,
       enabled: false,
     ),
+    Erc20Token(
+      name: "PayPal USD",
+      symbol: "PYUSD",
+      contractAddress: "0x6c3ea9036406852006290770bedfcaba0e23a0e8",
+      decimal: 6,
+      enabled: false,
+    ),
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {

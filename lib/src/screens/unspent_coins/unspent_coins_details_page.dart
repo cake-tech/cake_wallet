@@ -25,10 +25,9 @@ class UnspentCoinsDetailsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return SectionStandardList(
-        context: context,
         sectionCount: 1,
         itemCounter: (int _) => unspentCoinsDetailsViewModel.items.length,
-        itemBuilder: (_, __, index) {
+        itemBuilder: (__, index) {
           final item = unspentCoinsDetailsViewModel.items[index];
 
           if (item is StandartListItem) {
