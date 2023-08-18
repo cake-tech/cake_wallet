@@ -154,6 +154,7 @@ class AnonPayInvoicePage extends BasePage {
                         ? S.of(context).create_invoice
                         : S.of(context).create_donation_link,
                     onPressed: () {
+                      FocusScope.of(context).unfocus();
                       anonInvoicePageViewModel.setRequestParams(
                         inputAmount: _amountController.text,
                         inputName: _nameController.text,
