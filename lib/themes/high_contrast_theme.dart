@@ -85,10 +85,11 @@ class HighContrastTheme extends MoneroLightTheme {
 
   @override
   PickerTheme get pickerTheme => super.pickerTheme.copyWith(
-      searchIconColor: Colors.white,
-      searchHintColor: Colors.white,
-      searchTextColor: Colors.white,
-      searchBackgroundFillColor: Colors.grey);
+      searchIconColor: primaryColor,
+      searchHintColor: primaryColor,
+      searchTextColor: primaryColor,
+      searchBackgroundFillColor: Colors.white,
+      searchBorderColor: primaryColor);
 
   @override
   AccountListTheme get accountListTheme => super.accountListTheme.copyWith(
