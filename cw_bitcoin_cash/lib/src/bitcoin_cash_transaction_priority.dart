@@ -1,6 +1,6 @@
-import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 
-class BitcoinCashTransactionPriority extends TransactionPriority {
+class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
   const BitcoinCashTransactionPriority({required String title, required int raw})
       : super(title: title, raw: raw);
 

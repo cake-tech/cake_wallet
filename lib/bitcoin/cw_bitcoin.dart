@@ -44,8 +44,13 @@ class CWBitcoin extends Bitcoin {
 	List<TransactionPriority> getTransactionPriorities() 
 		=> BitcoinTransactionPriority.all;
 
+	@override
 	List<TransactionPriority> getLitecoinTransactionPriorities()
 		=> LitecoinTransactionPriority.all;
+
+	@override
+	List<TransactionPriority> getBitcoinCashTransactionPriorities()
+		=> BitcoinCashTransactionPriority.all;
 
 	@override
 	TransactionPriority deserializeBitcoinTransactionPriority(int raw)
@@ -54,6 +59,10 @@ class CWBitcoin extends Bitcoin {
 	@override
 	TransactionPriority deserializeLitecoinTransactionPriority(int raw)
 		=> LitecoinTransactionPriority.deserialize(raw: raw);
+
+	@override
+	TransactionPriority deserializeBitcoinCashTransactionPriority(int raw)
+		=> BitcoinCashTransactionPriority.deserialize(raw: raw);
 
 	@override
 	int getFeeRate(Object wallet, TransactionPriority priority) {

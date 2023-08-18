@@ -171,6 +171,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.shib:
       case CryptoCurrency.avaxc:
       case CryptoCurrency.bch:
+      return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]; //TODO: BCH: replace with correct length
       case CryptoCurrency.bnb:
         return [42];
       case CryptoCurrency.ltc:

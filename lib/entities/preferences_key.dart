@@ -34,6 +34,7 @@ class PreferencesKey {
   static const havenTransactionPriority = 'current_fee_priority_haven';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
+  static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';

@@ -323,50 +323,30 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priority;
 
   Object _credentials() {
+    final priority = _settingsStore.priority[_wallet.type];
+
+    if (priority == null) {
+      throw Exception('Priority is null for wallet type: ${_wallet.type}');
+    }
+
     switch (_wallet.type) {
       case WalletType.bitcoin:
-        final priority = _settingsStore.priority[_wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
-        }
-
-        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.litecoin:
-        final priority = _settingsStore.priority[_wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
-        }
-
+      case WalletType.bitcoinCash:
         return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
+
       case WalletType.monero:
-        final priority = _settingsStore.priority[_wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
-        }
-
         return monero!
             .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority);
+
       case WalletType.haven:
-        final priority = _settingsStore.priority[_wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
-        }
-
         return haven!.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
+
       case WalletType.ethereum:
-        final priority = _settingsStore.priority[_wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
-        }
-
         return ethereum!.createEthereumTransactionCredentials(
             outputs, priority: priority, currency: selectedCryptoCurrency);
+
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type}');
     }

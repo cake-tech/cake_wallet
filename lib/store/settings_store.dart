@@ -140,8 +140,8 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.ethereum] = initialEthereumTransactionPriority;
     }
 
-    if (initialBitcoinTransactionPriority != null) {
-      priority[WalletType.bitcoinCash] = initialBitcoinTransactionPriority;
+    if (initialBitcoinCashTransactionPriority != null) {
+      priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
 
     reaction(
@@ -173,7 +173,7 @@ abstract class SettingsStoreBase with Store {
           key = PreferencesKey.ethereumTransactionPriority;
           break;
         case WalletType.bitcoinCash:
-          key = PreferencesKey.bitcoinTransactionPriority;
+          key = PreferencesKey.bitcoinCashTransactionPriority;
           break;
         default:
           key = null;
@@ -518,9 +518,9 @@ abstract class SettingsStoreBase with Store {
       ethereumTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
-    if (sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {
+    if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       bitcoinCashTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!);
+          sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
     }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
@@ -730,9 +730,9 @@ abstract class SettingsStoreBase with Store {
               sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
           priority[WalletType.ethereum]!;
     }
-    if (sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {
-      priority[WalletType.bitcoinCash] = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!) ??
+    if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
+      priority[WalletType.bitcoinCash] = bitcoin?.deserializeBitcoinCashTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!) ??
           priority[WalletType.bitcoinCash]!;
     }
 
