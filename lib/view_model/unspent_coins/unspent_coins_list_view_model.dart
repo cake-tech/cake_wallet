@@ -29,7 +29,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       ObservableList.of(_getUnspents().map((elem) {
         final amount = formatAmountToString(elem.value) + ' ${wallet.currency.title}';
 
-        final info = getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout);
+        final info = getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
 
         return UnspentCoinsItem(
             address: elem.address,
@@ -46,7 +46,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
-      final info = getUnspentCoinInfo(item.hash, item.address, item.amountRaw, item.vout);
+      final info = getUnspentCoinInfo(item.hash, item.address, item.amountRaw, item.vout, item.keyImage);
       if (info == null) {
         final newInfo = UnspentCoinsInfo(
             walletId: wallet.id,
@@ -77,13 +77,15 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-  UnspentCoinsInfo? getUnspentCoinInfo(String hash, String address, int value, int vout) {
+  UnspentCoinsInfo? getUnspentCoinInfo(String hash, String address, int value, int vout, String? keyImage) {
     return _unspentCoinsInfo.values.firstWhereOrNull((element) =>
         element.walletId == wallet.id &&
         element.hash == hash &&
         element.address == address &&
         element.value == value &&
-        element.vout == vout);
+        element.vout == vout &&
+        element.keyImage == keyImage
+    );
   }
 
   String formatAmountToString(int fullBalance) {
