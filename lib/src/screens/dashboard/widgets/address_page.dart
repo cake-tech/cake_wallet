@@ -1,5 +1,4 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -64,14 +63,6 @@ class AddressPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-      size: 16,
-    );
-    final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
-
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
@@ -119,11 +110,7 @@ class AddressPage extends BasePage {
             context: context,
           );
         },
-        icon: Icon(
-          Icons.share,
-          size: 20,
-          color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-        ),
+        icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
       ),
     );
   }
@@ -160,10 +147,10 @@ class AddressPage extends BasePage {
     return KeyboardActions(
         autoScroll: false,
         disableScroll: true,
-        tapOutsideToDismiss: true,
+        tapOutsideBehavior: TapOutsideBehavior.translucentDismiss,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(

@@ -208,14 +208,8 @@ class SendPage extends BasePage {
                                       radius: 6.0,
                                       dotWidth: 6.0,
                                       dotHeight: 6.0,
-                                      dotColor: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .displaySmall!
-                                          .backgroundColor!,
-                                      activeDotColor: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .displayMedium!
-                                          .backgroundColor!),
+                                      dotColor: Theme.of(context).extension<SendPageTheme>()!.indicatorDotColor,
+                                      activeDotColor: Theme.of(context).extension<SendPageTheme>()!.templateBackgroundColor),
                                 )
                               : Offstage();
                         },
@@ -340,10 +334,7 @@ class SendPage extends BasePage {
                             text:
                                 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                             color: Colors.transparent,
-                            textColor: Theme.of(context)
-                                .accentTextTheme!
-                                .displaySmall!
-                                .decorationColor!,
+                            textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                           ))),
                 if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                   Padding(
@@ -358,15 +349,9 @@ class SendPage extends BasePage {
                         },
                         text: S.of(context).add_receiver,
                         color: Colors.transparent,
-                        textColor: Theme.of(context)
-                            .accentTextTheme!
-                            .displaySmall!
-                            .decorationColor!,
+                        textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                         isDottedBorder: true,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme!
-                            .displaySmall!
-                            .decorationColor!,
+                        borderColor: Theme.of(context).extension<SendPageTheme>()!.templateDottedBorderColor,
                       )),
                 Observer(
                   builder: (_) {
@@ -387,7 +372,7 @@ class SendPage extends BasePage {
                                 item.cryptoAmount.isEmpty)
                             .toList();
 
-                        if (notValidItems.isNotEmpty ?? false) {
+                        if (notValidItems.isNotEmpty) {
                           showErrorValidationAlert(context);
                           return;
                         }
