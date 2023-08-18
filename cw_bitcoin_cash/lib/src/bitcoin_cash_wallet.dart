@@ -1,5 +1,6 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
@@ -93,64 +94,64 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     Future<PendingBitcoinTransaction> createTransaction(Object credentials,
         [List<Object>? unspents, Object? wallet]) async {
 
-      // final utxoSigningData = await fetchBuildTxData(unspents as List<UnspentCash>, wallet as BitcoinCashWalletBase);
-      // final builder = bitbox.Bitbox.transactionBuilder(testnet: false);
-      // final utxosToUse = unspents as List<UnspentCash>;
-      // final _wallet = wallet as BitcoinCashWallet;
-      // print('unspents: ${unspents.first.address}');
-      //
-      // List<bitbox.Utxo> _utxos = [];
-      // for (var element in utxosToUse) {
-      //   _utxos.add(bitbox.Utxo(element.hash, element.vout,
-      //       bitbox.BitcoinCash.fromSatoshi(element.value), element.value, 0, 1));
-      // }
-      //
-      // final signatures = <Map>[];
-      // int totalBalance = 0;
-      //
-      // _utxos.forEach((bitbox.Utxo utxo) {
-      //   // add the utxo as an input for the transaction
-      //   builder.addInput(utxo.txid, utxo.vout);
-      //
-      //   final ec = utxoSigningData.firstWhere((e) => e.utxo.hash == utxo.txid).keyPair!;
-      //
-      //   final bitboxEC = bitbox.ECPair.fromWIF(ec.toWIF());
-      //
-      //   // add a signature to the list to be used later
-      //   signatures
-      //       .add({"vin": signatures.length, "key_pair": bitboxEC, "original_amount": utxo.satoshis});
-      //
-      //   totalBalance += utxo.satoshis;
-      // });
-      //
-      // // set an address to send the remaining balance to
-      // final outputAddress = "13Hvge9HRduGiXMfcJHFn6sggequmaKqsZ";
-      //
-      // // if there is an unspent balance, create a spending transaction
-      // if (totalBalance > 0 && outputAddress != "") {
-      //   // calculate the fee based on number of inputs and one expected output
-      //   final fee = bitbox.BitcoinCash.getByteCount(signatures.length, 1);
-      //
-      //   // calculate how much balance will be left over to spend after the fee
-      //   final sendAmount = totalBalance - fee;
-      //
-      //   // add the output based on the address provided in the testing data
-      //   builder.addOutput(outputAddress, sendAmount);
-      //
-      //   // sign all inputs
-      //   signatures.forEach((signature) {
-      //     builder.sign(signature["vin"], signature["key_pair"], signature["original_amount"]);
-      //   });
-      //
-      //   // build the transaction
-      //   final tx = builder.build();
-      //
-      //   // broadcast the transaction
-      //   final result = await electrumClient.broadcastTransaction(transactionRaw: tx.toHex());
-      //
-      //   // Yatta!
-      //   print("Transaction broadcasted: $result");
-      // }
+    //   final utxoSigningData = await fetchBuildTxData(unspents as List<BitcoinUnspent>, wallet as BitcoinCashWalletBase);
+    //   final builder = bitbox.Bitbox.transactionBuilder(testnet: false);
+    //   final utxosToUse = unspents as List<UnspentCash>;
+    //   final _wallet = wallet as BitcoinCashWallet;
+    //   print('unspents: ${unspents.first.address}');
+    //
+    //   List<bitbox.Utxo> _utxos = [];
+    //   for (var element in utxosToUse) {
+    //     _utxos.add(bitbox.Utxo(element.hash, element.vout,
+    //         bitbox.BitcoinCash.fromSatoshi(element.value), element.value, 0, 1));
+    //   }
+    //
+    //   final signatures = <Map>[];
+    //   int totalBalance = 0;
+    //
+    //   _utxos.forEach((bitbox.Utxo utxo) {
+    //     // add the utxo as an input for the transaction
+    //     builder.addInput(utxo.txid, utxo.vout);
+    //
+    //     final ec = utxoSigningData.firstWhere((e) => e.utxo.hash == utxo.txid).keyPair!;
+    //
+    //     final bitboxEC = bitbox.ECPair.fromWIF(ec.toWIF());
+    //
+    //     // add a signature to the list to be used later
+    //     signatures
+    //         .add({"vin": signatures.length, "key_pair": bitboxEC, "original_amount": utxo.satoshis});
+    //
+    //     totalBalance += utxo.satoshis;
+    //   });
+    //
+    //   // set an address to send the remaining balance to
+    //   final outputAddress = "13Hvge9HRduGiXMfcJHFn6sggequmaKqsZ";
+    //
+    //   // if there is an unspent balance, create a spending transaction
+    //   if (totalBalance > 0 && outputAddress != "") {
+    //     // calculate the fee based on number of inputs and one expected output
+    //     final fee = bitbox.BitcoinCash.getByteCount(signatures.length, 1);
+    //
+    //     // calculate how much balance will be left over to spend after the fee
+    //     final sendAmount = totalBalance - fee;
+    //
+    //     // add the output based on the address provided in the testing data
+    //     builder.addOutput(outputAddress, sendAmount);
+    //
+    //     // sign all inputs
+    //     signatures.forEach((signature) {
+    //       builder.sign(signature["vin"], signature["key_pair"], signature["original_amount"]);
+    //     });
+    //
+    //     // build the transaction
+    //     final tx = builder.build();
+    //
+    //     // broadcast the transaction
+    //     final result = await electrumClient.broadcastTransaction(transactionRaw: tx.toHex());
+    //
+    //     // Yatta!
+    //     print("Transaction broadcasted: $result");
+    //   }
       return PendingBitcoinTransaction(bitcoin.Transaction(), type,
           electrumClient: electrumClient, amount: 1, fee: 1);
     }

@@ -26,10 +26,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
         final amount = bitcoin!.formatterBitcoinAmountToString(amount: elem.value) +
             ' ${wallet.currency.title}';
 
-        final info = getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout);
+        final info = getUnspentCoinInfo(elem.hash, elem.address.address, elem.value, elem.vout);
 
         return UnspentCoinsItem(
-            address: elem.address,
+            address: elem.address.address,
             amount: amount,
             hash: elem.hash,
             isFrozen: info?.isFrozen ?? false,

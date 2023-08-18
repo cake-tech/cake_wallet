@@ -51,24 +51,6 @@ import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-class Unspent {
-  Unspent(this.address, this.hash, this.value, this.vout)
-      : isSending = true,
-        isFrozen = false,
-        note = '';
-
-  final String address;
-  final String hash;
-  final int value;
-  final int vout;
-  
-  bool isSending;
-  bool isFrozen;
-  String note;
-
-  bool get isP2wpkh => address.startsWith('bc') || address.startsWith('ltc');
-}
-
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
@@ -96,7 +78,7 @@ abstract class Bitcoin {
   int formatterStringDoubleToBitcoinAmount(String amount);
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
 
-  List<Unspent> getUnspents(Object wallet);
+  List<BitcoinUnspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);

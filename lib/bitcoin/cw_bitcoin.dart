@@ -130,11 +130,11 @@ class CWBitcoin extends Bitcoin {
     => (priority as BitcoinTransactionPriority).labelWithRate(rate);
 
 	@override
-	List<Unspent> getUnspents(Object wallet) {
+	List<BitcoinUnspent> getUnspents(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.unspentCoins
-			.map((BitcoinUnspent bitcoinUnspent) => Unspent(
-				bitcoinUnspent.address.address,
+			.map((BitcoinUnspent bitcoinUnspent) => BitcoinUnspent(
+				bitcoinUnspent.address,
 				bitcoinUnspent.hash,
 				bitcoinUnspent.value,
 				bitcoinUnspent.vout))
