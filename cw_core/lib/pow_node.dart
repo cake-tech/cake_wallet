@@ -38,8 +38,8 @@ class PowNode extends HiveObject with Keyable {
         trusted = map['trusted'] as bool? ?? false,
         socksProxyAddress = map['socksProxyPort'] as String?;
 
-  static const typeId = NODE_TYPE_ID;
-  static const boxName = 'Nodes';
+  static const typeId = POW_NODE_TYPE_ID;
+  static const boxName = 'PowNodes';
 
   @HiveField(0, defaultValue: '')
   late String uriRaw;
