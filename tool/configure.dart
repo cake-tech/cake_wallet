@@ -488,6 +488,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
 """;
   const ethereumCWHeaders = """
@@ -508,6 +509,8 @@ abstract class Ethereum {
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
   TransactionPriority getDefaultTransactionPriority();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
