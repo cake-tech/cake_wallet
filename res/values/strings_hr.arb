@@ -634,6 +634,12 @@
   "setup_totp_recommended": "Postavite TOTP (preporučeno)",
   "disable_buy": "Onemogući kupnju",
   "disable_sell": "Onemogući akciju prodaje",
+  "monero_dark_theme": "Monero tamna tema",
+  "bitcoin_dark_theme": "Bitcoin Tamna tema",
+  "bitcoin_light_theme": "Bitcoin Light Theme",
+  "high_contrast_theme": "Tema visokog kontrasta",
+  "matrix_green_dark_theme": "Matrix Green Dark Theme",
+  "monero_light_theme": "Monero lagana tema",
   "cake_2fa_preset" : "Cake 2FA Preset",
   "narrow": "Usko",
   "normal": "Normalno",
@@ -672,5 +678,11 @@
   "slidable": "Klizna",
   "manage_nodes": "Upravljanje čvorovima",
   "etherscan_history": "Etherscan povijest",
-  "template_name": "Naziv predloška"
+  "template_name": "Naziv predloška",
+  "support_title_live_chat": "Podrška uživo",
+  "support_description_live_chat": "Besplatno i brzo! Obučeni predstavnici podrške dostupni su za pomoć",
+  "support_title_guides": "Vodiči za torte",
+  "support_description_guides": "Dokumentacija i podrška za uobičajena pitanja",
+  "support_title_other_links": "Ostale veze za podršku",
+  "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama"
 }

@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -12,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaCustomTipPage extends BasePage {
   IoniaCustomTipPage(
@@ -28,9 +31,6 @@ class IoniaCustomTipPage extends BasePage {
 
   @override
   String get title => S.current.enter_amount;
-
-  @override
-  Color get titleColor => Colors.white;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -51,10 +51,7 @@ class IoniaCustomTipPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context)
-              .accentTextTheme!
-              .bodyLarge!
-              .backgroundColor!,
+          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -73,11 +70,8 @@ class IoniaCustomTipPage extends BasePage {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                    Theme.of(context)
-                        .primaryTextTheme!
-                        .titleMedium!
-                        .decorationColor!,
+                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -92,17 +86,11 @@ class IoniaCustomTipPage extends BasePage {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\-|\ ]'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
-                        color: Theme.of(context)
-                            .primaryTextTheme!
-                            .headlineSmall!
-                            .color!,
+                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         fontWeight: FontWeight.w500,
                         fontSize: 36,
                       ),
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme!
-                          .headlineSmall!
-                          .color!,
+                      borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                       textColor: Colors.white,
                       textStyle: TextStyle(
                         color: Colors.white,
@@ -137,10 +125,7 @@ class IoniaCustomTipPage extends BasePage {
                         text: TextSpan(
                           text: '\$${_amountController.text}',
                           style: TextStyle(
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineSmall!
-                                .color!,
+                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           ),
                           children: [
                             TextSpan(text: ' ${S.of(context).is_percentage} '),
@@ -158,16 +143,10 @@ class IoniaCustomTipPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: merchant.legalName,
-                  backgroundColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!
+                  backgroundColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                       .withOpacity(0.1),
                   discount: 0.0,
-                  titleColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!,
+                  titleColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
                   logoUrl: merchant.logoUrl,
@@ -184,10 +163,7 @@ class IoniaCustomTipPage extends BasePage {
                     Navigator.of(context).pop(customTipViewModel.customTip);
                   },
                   text: S.of(context).add_tip,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ),

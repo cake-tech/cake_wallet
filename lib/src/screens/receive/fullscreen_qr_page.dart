@@ -1,8 +1,9 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class FullscreenQRPage extends BasePage {
   FullscreenQRPage({required this.qrViewData});
@@ -10,10 +11,7 @@ class FullscreenQRPage extends BasePage {
   final QrViewData qrViewData;
 
   @override
-  Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -22,10 +20,7 @@ class FullscreenQRPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       size: 16,
     );
 
@@ -47,19 +42,9 @@ class FullscreenQRPage extends BasePage {
   }
 
   @override
-  Widget Function(BuildContext, Widget) get rootWrapper => (BuildContext context, Widget scaffold) => Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.secondary,
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).primaryColor,
-          ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
-      ),
-      child: scaffold);
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold);
 
   @override
   Widget body(BuildContext context) {
@@ -75,10 +60,7 @@ class FullscreenQRPage extends BasePage {
               decoration: BoxDecoration(
                   border: Border.all(
                       width: 3,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!)),
+                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
               child: Container(
                   decoration: BoxDecoration(
                       border: Border.all(width: 3, color: Colors.white)),

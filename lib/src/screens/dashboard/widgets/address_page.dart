@@ -1,10 +1,14 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
@@ -21,6 +25,8 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -48,11 +54,7 @@ class AddressPage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -61,14 +63,6 @@ class AddressPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-      size: 16,
-    );
-    final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
-
     bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
 
     return MergeSemantics(
@@ -84,7 +78,7 @@ class AddressPage extends BasePage {
                 overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
-              child: !isMobileView ? _closeButton : _backButton,
+              child: !isMobileView ? closeButton(context) : backButton(context),
             ),
           ),
         ),
@@ -94,20 +88,11 @@ class AddressPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(
-        receiveOptionViewModel: receiveOptionViewModel,
-        hasWhiteBackground: currentTheme.type == ThemeType.light,
-      );
+      color: titleColor(context), receiveOptionViewModel: receiveOptionViewModel);
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.secondary,
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).primaryColor,
-          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
-          child: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget? trailing(BuildContext context) {
@@ -125,11 +110,7 @@ class AddressPage extends BasePage {
             context: context,
           );
         },
-        icon: Icon(
-          Icons.share,
-          size: 20,
-          color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
-        ),
+        icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
       ),
     );
   }
@@ -166,10 +147,10 @@ class AddressPage extends BasePage {
     return KeyboardActions(
         autoScroll: false,
         disableScroll: true,
-        tapOutsideToDismiss: true,
+        tapOutsideBehavior: TapOutsideBehavior.translucentDismiss,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -201,8 +182,13 @@ class AddressPage extends BasePage {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(25)),
                           border: Border.all(
-                              color: Theme.of(context).textTheme.titleMedium!.color!, width: 1),
-                          color: Theme.of(context).textTheme.titleLarge!.backgroundColor!),
+                              color: Theme.of(context)
+                                  .extension<ReceivePageTheme>()!
+                                  .iconsBackgroundColor,
+                              width: 1),
+                          color: Theme.of(context)
+                              .extension<SyncIndicatorTheme>()!
+                              .syncedBackgroundColor),
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -215,15 +201,13 @@ class AddressPage extends BasePage {
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: Theme.of(context)
-                                            .accentTextTheme.displayMedium!
-                                            .backgroundColor!),
+                                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                                   )),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
                             color:
-                                Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                                Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                           )
                         ],
                       ),
@@ -234,8 +218,7 @@ class AddressPage extends BasePage {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 15,
-                          color:
-                              Theme.of(context).accentTextTheme.displaySmall!.backgroundColor!));
+                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor));
                 } else {
                   return const SizedBox();
                 }

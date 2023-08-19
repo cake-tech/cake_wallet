@@ -1,9 +1,2 @@
-Ethereum! Store ETH and ERC-20 tokens
-Monero background syncing! See https://guides.cakewallet.com/docs/monero/#background-syncing
-Cake 2FA access control settings! See https://guides.cakewallet.com/docs/advanced-features/authentication/#cake-2fa-presets-and-access-control-settings
-Support Monero node proxy
-UI improvements when sending to Address Book entry
-Allow renaming Monero/Haven account names
-Send templates now support multiple recipients (try using to make Monero change)
-Onramper improvements
-Scan node QR codes (for Umbrel)
+Bug fixes
+Fiat Onramp improvements

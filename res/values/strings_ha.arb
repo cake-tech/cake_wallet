@@ -612,6 +612,12 @@
   "prevent_screenshots": "Fada lambobi da jarrabobi na kayan lambobi",
   "disable_buy": "Kashe alama",
   "disable_sell": "Kashe karbuwa",
+  "monero_dark_theme": "Monero Dark Jigo",
+  "bitcoin_dark_theme": "Bitcoin Dark Jigo",
+  "bitcoin_light_theme": "Jigon Hasken Bitcoin",
+  "high_contrast_theme": "Babban Jigon Kwatance",
+  "matrix_green_dark_theme": "Matrix Green Dark Jigo",
+  "monero_light_theme": "Jigon Hasken Monero",
     "cake_2fa_preset" : "Cake 2FA saiti",
   "narrow": "kunkuntar",
   "normal": "Na al'ada",
@@ -650,5 +656,11 @@
   "slidable": "Mai iya zamewa",
   "etherscan_history": "Etherscan tarihin kowane zamani",
   "manage_nodes": "Sarrafa nodes",
-  "template_name": "Sunan Samfura"
+  "template_name": "Sunan Samfura",
+  "support_title_live_chat": "Tallafi na Live",
+  "support_description_live_chat": "Kyauta da sauri! An horar da wakilan tallafi na tallafi don taimakawa",
+  "support_title_guides": "Jagorar Cake",
+  "support_description_guides": "Tallafi da tallafi don batutuwa na yau da kullun",
+  "support_title_other_links": "Sauran hanyoyin tallafi",
+  "support_description_other_links": "Kasance tare da al'ummominmu ko kuma ka kai mu abokanmu ta hanyar wasu hanyoyi"
 }

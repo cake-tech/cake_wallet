@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
@@ -53,7 +54,7 @@ class Setup2FAQRPage extends BasePage {
               decoration: BoxDecoration(
                 border: Border.all(
                   width: 3,
-                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                 ),
               ),
               child: Container(
@@ -137,7 +138,7 @@ class Setup2FAQRPage extends BasePage {
               );
             },
             text: S.current.continue_text,
-            color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),
           SizedBox(height: 24),

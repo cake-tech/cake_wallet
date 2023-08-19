@@ -33,8 +33,7 @@ Future<void> updateSecretsConfig(List<String> args) async {
   });
 
   final fileConfig =
-      json.decode(configFile.readAsStringSync()) as Map<String, dynamic> ??
-          <String, dynamic>{};
+      json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
   fileConfig.forEach((key, dynamic value) {
     if (secrets[key] == null) {
       secrets[key] = value;

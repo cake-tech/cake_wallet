@@ -4,6 +4,8 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
@@ -11,7 +13,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
@@ -44,30 +47,31 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: LayoutBuilder(
-      builder: (context, constraints) {
-        if (DeviceInfo.instance.isDesktop) {
-          if (constraints.maxWidth > ResponsiveLayoutUtil.kDesktopMaxDashBoardWidthConstraint) {
-            return getIt.get<DesktopSidebarWrapper>();
-          } else {
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (DeviceInfo.instance.isDesktop) {
+            if (constraints.maxWidth > ResponsiveLayoutUtil.kDesktopMaxDashBoardWidthConstraint) {
+              return getIt.get<DesktopSidebarWrapper>();
+            } else {
+              return _DashboardPageView(
+                balancePage: balancePage,
+                dashboardViewModel: dashboardViewModel,
+                addressListViewModel: addressListViewModel,
+              );
+            }
+          } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
             return _DashboardPageView(
               balancePage: balancePage,
               dashboardViewModel: dashboardViewModel,
               addressListViewModel: addressListViewModel,
             );
+          } else {
+            return getIt.get<DesktopSidebarWrapper>();
           }
-        } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
-          return _DashboardPageView(
-            balancePage: balancePage,
-            dashboardViewModel: dashboardViewModel,
-            addressListViewModel: addressListViewModel,
-          );
-        } else {
-          return getIt.get<DesktopSidebarWrapper>();
-        }
-
-      },
-    ));
+        },
+      ),
+    );
   }
 }
 
@@ -81,22 +85,11 @@ class _DashboardPageView extends BasePage {
   final BalancePage balancePage;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.secondary,
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).primaryColor,
-          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
-          child: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -107,33 +100,35 @@ class _DashboardPageView extends BasePage {
   @override
   Widget middle(BuildContext context) {
     return SyncIndicator(
-        dashboardViewModel: dashboardViewModel,
-        onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync));
+      dashboardViewModel: dashboardViewModel,
+      onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync),
+    );
   }
 
   @override
   Widget trailing(BuildContext context) {
-    final menuButton = Image.asset('assets/images/menu.png',
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayMedium!
-            .backgroundColor);
+    final menuButton = Image.asset(
+      'assets/images/menu.png',
+      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+    );
 
     return Container(
-        alignment: Alignment.centerRight,
-        width: 40,
-        child: TextButton(
-            // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            //padding: EdgeInsets.all(0),
-            onPressed: () => onOpenEndDrawer(),
-            child: Semantics(
-                label: S.of(context).wallet_menu, child: menuButton)));
+      alignment: Alignment.centerRight,
+      width: 40,
+      child: TextButton(
+        // FIX-ME: Style
+        //highlightColor: Colors.transparent,
+        //splashColor: Colors.transparent,
+        //padding: EdgeInsets.all(0),
+        onPressed: () => onOpenEndDrawer(),
+        child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
+      ),
+    );
   }
 
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
+
   int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
   ObservableList<Widget> pages = ObservableList<Widget>();
   bool _isEffectsInstalled = false;
@@ -143,112 +138,125 @@ class _DashboardPageView extends BasePage {
   Widget body(BuildContext context) {
     final controller = PageController(initialPage: initialPage);
 
-    reaction((_) => dashboardViewModel.shouldShowMarketPlaceInDashboard, (bool value) {
-      if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
-        controller.jumpToPage(0);
-      }
-      pages.clear();
-      _isEffectsInstalled = false;
-      _setEffects(context);
+    reaction(
+      (_) => dashboardViewModel.shouldShowMarketPlaceInDashboard,
+      (bool value) {
+        if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
+          controller.jumpToPage(0);
+        }
+        pages.clear();
+        _isEffectsInstalled = false;
+        _setEffects(context);
 
-      if (value) {
-        controller.jumpToPage(1);
-      } else {
-        controller.jumpToPage(0);
-      }
-    });
+        if (value) {
+          controller.jumpToPage(1);
+        } else {
+          controller.jumpToPage(0);
+        }
+      },
+    );
     _setEffects(context);
 
     return SafeArea(
-        minimum: EdgeInsets.only(bottom: 24),
-        child: UpgradeAlert(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Expanded(child: Observer(builder: (context) {
+      minimum: EdgeInsets.only(bottom: 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Expanded(
+            child: Observer(
+              builder: (context) {
                 return PageView.builder(
+                  controller: controller,
+                  itemCount: pages.length,
+                  itemBuilder: (context, index) => pages[index],
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 24, top: 10),
+            child: Observer(
+              builder: (context) {
+                return ExcludeSemantics(
+                  child: SmoothPageIndicator(
                     controller: controller,
-                    itemCount: pages.length,
-                    itemBuilder: (context, index) => pages[index]);
-              })),
-              Padding(
-                  padding: EdgeInsets.only(bottom: 24, top: 10),
-                  child: Observer(builder: (context) {
-                    return ExcludeSemantics(
-                      child: SmoothPageIndicator(
-                        controller: controller,
-                        count: pages.length,
-                        effect: ColorTransitionEffect(
-                            spacing: 6.0,
-                            radius: 6.0,
-                            dotWidth: 6.0,
-                            dotHeight: 6.0,
-                            dotColor: Theme.of(context).indicatorColor,
-                            activeDotColor: Theme.of(context)
-                                .accentTextTheme!
-                                .headlineMedium!
-                                .backgroundColor!),
-                      ),
-                    );
-                  })),
-              Observer(builder: (_) {
-                return ClipRect(
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 16, right: 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50.0),
-                        border: Border.all(
-                          color: currentTheme.type == ThemeType.bright
-                              ? Color.fromRGBO(255, 255, 255, 0.2)
-                              : Colors.transparent,
-                          width: 1,
-                        ),
-                        color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.only(left: 32, right: 32),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: MainActions.all
-                              .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
-                              .map((action) => Semantics(
-                                    button: true,
-                                    enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
-                                    child: ActionButton(
-                                      image: Image.asset(action.image,
-                                          height: 24,
-                                          width: 24,
-                                          color: action.isEnabled?.call(dashboardViewModel) ?? true
-                                              ? Theme.of(context)
-                                                  .accentTextTheme!
-                                                  .displayMedium!
-                                                  .backgroundColor!
-                                              : Theme.of(context)
-                                                  .accentTextTheme!
-                                                  .displaySmall!
-                                                  .backgroundColor!),
-                                      title: action.name(context),
-                                      onClick: () async =>
-                                          await action.onTap(context, dashboardViewModel),
-                                      textColor: action.isEnabled?.call(dashboardViewModel) ?? true
-                                          ? null
-                                          : Theme.of(context)
-                                              .accentTextTheme!
-                                              .displaySmall!
-                                              .backgroundColor!,
-                                    ),
-                                  ))
-                              .toList(),
-                        ),
-                      ),
+                    count: pages.length,
+                    effect: ColorTransitionEffect(
+                      spacing: 6.0,
+                      radius: 6.0,
+                      dotWidth: 6.0,
+                      dotHeight: 6.0,
+                      dotColor: Theme.of(context).indicatorColor,
+                      activeDotColor: Theme.of(context)
+                          .extension<DashboardPageTheme>()!
+                          .indicatorDotTheme
+                          .activeIndicatorColor,
                     ),
                   ),
                 );
-              }),
-            ],
+              },
+            ),
           ),
-        ));
+          Observer(
+            builder: (_) {
+              return ClipRect(
+                child: Container(
+                  margin: const EdgeInsets.only(left: 16, right: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50.0),
+                      border: Border.all(
+                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                        width: 1,
+                      ),
+                      color:
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.only(left: 32, right: 32),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: MainActions.all
+                            .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
+                            .map(
+                              (action) => Semantics(
+                                button: true,
+                                enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
+                                child: ActionButton(
+                                  image: Image.asset(
+                                    action.image,
+                                    height: 24,
+                                    width: 24,
+                                    color: action.isEnabled?.call(dashboardViewModel) ?? true
+                                        ? Theme.of(context)
+                                            .extension<DashboardPageTheme>()!
+                                            .mainActionsIconColor
+                                        : Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .labelTextColor,
+                                  ),
+                                  title: action.name(context),
+                                  onClick: () async =>
+                                      await action.onTap(context, dashboardViewModel),
+                                  textColor: action.isEnabled?.call(dashboardViewModel) ?? true
+                                      ? null
+                                      : Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .labelTextColor,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _setEffects(BuildContext context) async {
@@ -256,7 +264,8 @@ class _DashboardPageView extends BasePage {
       return;
     }
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
-      pages.add(Semantics(
+      pages.add(
+        Semantics(
           label: S.of(context).market_place,
           child: MarketPlacePage(
             dashboardViewModel: dashboardViewModel,
@@ -266,79 +275,96 @@ class _DashboardPageView extends BasePage {
       );
     }
     pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
-    pages.add(Semantics(
+    pages.add(
+      Semantics(
         label: S.of(context).settings_transactions,
-        child: TransactionsPage(dashboardViewModel: dashboardViewModel)));
+        child: TransactionsPage(dashboardViewModel: dashboardViewModel),
+      ),
+    );
     _isEffectsInstalled = true;
 
-    autorun((_) async {
-      if (!dashboardViewModel.isOutdatedElectrumWallet) {
-        return;
-      }
+    autorun(
+      (_) async {
+        if (!dashboardViewModel.isOutdatedElectrumWallet) {
+          return;
+        }
 
-      await Future<void>.delayed(Duration(seconds: 1));
-      if (context.mounted) {
-        await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
+        await Future<void>.delayed(Duration(seconds: 1));
+        if (context.mounted) {
+          await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
                 alertTitle: S.of(context).pre_seed_title,
                 alertContent: S.of(context).outdated_electrum_wallet_description,
                 buttonText: S.of(context).understand,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-      }
-    });
+                buttonAction: () => Navigator.of(context).pop(),
+              );
+            },
+          );
+        }
+      },
+    );
 
     _showReleaseNotesPopup(context);
 
     var needToPresentYat = false;
     var isInactive = false;
 
-    _onInactiveSub = rootKey.currentState!.isInactive.listen((inactive) {
-      isInactive = inactive;
+    _onInactiveSub = rootKey.currentState!.isInactive.listen(
+      (inactive) {
+        isInactive = inactive;
 
-      if (needToPresentYat) {
-        Future<void>.delayed(Duration(milliseconds: 500)).then((_) {
-          showPopUp<void>(
-              context: navigatorKey.currentContext!,
-              builder: (_) => YatEmojiId(dashboardViewModel.yatStore.emoji));
-          needToPresentYat = false;
-        });
-      }
-    });
+        if (needToPresentYat) {
+          Future<void>.delayed(Duration(milliseconds: 500)).then(
+            (_) {
+              showPopUp<void>(
+                context: navigatorKey.currentContext!,
+                builder: (_) => YatEmojiId(dashboardViewModel.yatStore.emoji),
+              );
+              needToPresentYat = false;
+            },
+          );
+        }
+      },
+    );
 
-    dashboardViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
-      if (!_isEffectsInstalled || emoji.isEmpty) {
-        return;
-      }
+    dashboardViewModel.yatStore.emojiIncommingStream.listen(
+      (String emoji) {
+        if (!_isEffectsInstalled || emoji.isEmpty) {
+          return;
+        }
 
-      needToPresentYat = true;
-    });
+        needToPresentYat = true;
+      },
+    );
   }
 
   void _showReleaseNotesPopup(BuildContext context) async {
     final sharedPrefs = await SharedPreferences.getInstance();
     final currentAppVersion =
-          VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
     final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
     final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
 
     if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
-      Future<void>.delayed(Duration(seconds: 1), () {
-        showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return ReleaseNotesScreen(
-                title: 'Version ${dashboardViewModel.settingsStore.appVersion}');
-          });
-      });
+      Future<void>.delayed(
+        Duration(seconds: 1),
+        () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return ReleaseNotesScreen(
+                title: 'Version ${dashboardViewModel.settingsStore.appVersion}',
+              );
+            },
+          );
+        },
+      );
 
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     } else if (isNewInstall!) {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     }
   }
-
-  
 }
