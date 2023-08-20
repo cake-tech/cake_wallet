@@ -21,4 +21,8 @@ class BitcoinUnspent {
   bool isSending;
   bool isFrozen;
   String note;
+
+  void updateAddress(String newAddress) {
+    address.address = newAddress;
+  }
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -11,6 +12,7 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitbox/bitbox.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
@@ -191,7 +193,7 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  Future<PendingBitcoinTransaction> createTransaction(Object credentials) async {
+  Future<PendingTransaction> createTransaction(Object credentials) async {
     const minAmount = 546;
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
@@ -668,7 +670,8 @@ abstract class ElectrumWalletBase
     final addresses = walletAddresses.addresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
-      final addressRecord = addresses[i];
+      // walletInfo.type != WalletType.bitcoinCash ? Address :
+      final addressRecord = addresses[i] ;
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       final balanceFuture = electrumClient.getBalance(sh);
       balanceFutures.add(balanceFuture);
