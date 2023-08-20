@@ -119,13 +119,10 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    if (inputs.isEmpty) {
-      throw BitcoinTransactionNoInputsException();
-    }
+    if (inputs.isEmpty) throw BitcoinTransactionNoInputsException();
 
-    final int feeRate = transactionCredentials.feeRate != null
-        ? transactionCredentials.feeRate!
-        : BitcoinCashFeeRates.feeRate(transactionCredentials.priority!);
+    final int feeRate = transactionCredentials.feeRate ??
+        BitcoinCashFeeRates.feeRate(transactionCredentials.priority!);
 
     final int allAmountFee =
         bitbox.BitcoinCash.getByteCount(inputs.length, transactionCredentials.outputs.length) *
@@ -145,8 +142,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         return acc + value.formattedCryptoAmount!;
       });
 
-      print(credentialsAmount);
-
       if (allAmount - credentialsAmount < minAmount) {
         throw BitcoinTransactionWrongBalanceException(currency);
       }
@@ -164,9 +159,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       final output = outputs.first;
       credentialsAmount = !output.sendAll ? output.formattedCryptoAmount! : 0;
 
-      if (credentialsAmount > allAmount) {
-        throw BitcoinTransactionWrongBalanceException(currency);
-      }
+      if (credentialsAmount > allAmount) throw BitcoinTransactionWrongBalanceException(currency);
 
       amount = output.sendAll || allAmount - credentialsAmount < minAmount
           ? allAmount
@@ -181,9 +174,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    if (fee == 0) {
-      throw BitcoinTransactionWrongBalanceException(currency);
-    }
+    if (fee == 0) throw BitcoinTransactionWrongBalanceException(currency);
 
     final totalAmount = amount + fee;
 
@@ -203,15 +194,11 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         totalInputAmount += utx.value;
         inputs.add(utx);
 
-        if (leftAmount <= 0) {
-          break;
-        }
+        if (leftAmount <= 0) break;
       }
     }
 
-    if (inputs.isEmpty) {
-      throw BitcoinTransactionNoInputsException();
-    }
+    if (inputs.isEmpty) throw BitcoinTransactionNoInputsException();
 
     if (amount <= 0 || totalInputAmount < totalAmount) {
       throw BitcoinTransactionWrongBalanceException(currency);

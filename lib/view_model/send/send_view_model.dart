@@ -325,9 +325,7 @@ abstract class SendViewModelBase with Store {
   Object _credentials() {
     final priority = _settingsStore.priority[_wallet.type];
 
-    if (priority == null) {
-      throw Exception('Priority is null for wallet type: ${_wallet.type}');
-    }
+    if (priority == null) throw Exception('Priority is null for wallet type: ${_wallet.type}');
 
     switch (_wallet.type) {
       case WalletType.bitcoin:
