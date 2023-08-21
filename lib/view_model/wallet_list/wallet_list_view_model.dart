@@ -51,18 +51,18 @@ abstract class WalletListViewModelBase with Store {
   @action
   void updateList() {
     wallets.clear();
-    // wallets.addAll(
-    //   _walletInfoSource.values.map(
-    //     (info) => WalletListItem(
-    //       name: info.name,
-    //       type: info.type,
-    //       key: info.key,
-    //       isCurrent: info.name == _appStore.wallet?.name &&
-    //           info.type == _appStore.wallet?.type,
-    //       isEnabled: availableWalletTypes.contains(info.type),
-    //     ),
-    //   ),
-    // );
+    wallets.addAll(
+      _walletInfoSource.values.map(
+        (info) => WalletListItem(
+          name: info.name,
+          type: info.type,
+          key: info.key,
+          isCurrent: info.name == _appStore.wallet?.name &&
+              info.type == _appStore.wallet?.type,
+          isEnabled: availableWalletTypes.contains(info.type),
+        ),
+      ),
+    );
   }
 
   bool checkIfAuthRequired() {
