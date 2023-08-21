@@ -22,8 +22,8 @@ class ThemeList {
     highContrastTheme
   ];
 
-  static final brightTheme = BrightTheme(raw: 0);
-  static final lightTheme = LightTheme(raw: 1);
+  static final lightTheme = LightTheme(raw: 0);
+  static final brightTheme = BrightTheme(raw: 1);
   static final darkTheme = DarkTheme(raw: 2);
   static final moneroDarkTheme = MoneroDarkTheme(raw: 3);
   static final moneroLightTheme = MoneroLightTheme(raw: 4);
@@ -35,9 +35,9 @@ class ThemeList {
   static ThemeBase deserialize({required int raw}) {
     switch (raw) {
       case 0:
-        return brightTheme;
-      case 1:
         return lightTheme;
+      case 1:
+        return brightTheme;
       case 2:
         return darkTheme;
       case 3:
@@ -53,7 +53,8 @@ class ThemeList {
       case 8:
         return highContrastTheme;
       default:
-        throw Exception('Unexpected token raw: $raw for deserialization of ThemeBase');
+        throw Exception(
+            'Unexpected token raw: $raw for deserialization of ThemeBase');
     }
   }
 }
