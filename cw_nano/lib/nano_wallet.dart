@@ -177,11 +177,15 @@ abstract class NanoWalletBase
             BigInt.zero;
       }
 
+      if (balance[currency]?.currentBalance != null && amt > balance[currency]!.currentBalance) {
+        throw Exception("Trying to send more than entire balance!");
+      }
+
       runningBalance = runningBalance - amt;
 
       final block = await _client.constructSendBlock(
         amountRaw: amt.toString(),
-        destinationAddress: txOut.address,
+        destinationAddress: txOut.extractedAddress ?? txOut.address,
         privateKey: _privateKey!,
         balanceAfterTx: runningBalance,
         previousHash: previousHash,

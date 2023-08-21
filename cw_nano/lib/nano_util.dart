@@ -119,7 +119,6 @@ class NanoUtil {
 
   // static String hdSeedToAddress(String seed, int index) {
   //   // return NanoAccounts.createAccount(NanoAccountType.NANO, NanoKeys.createPublicKey(seedToPrivate(seed, index)));
-
   //   return "";
   // }
 

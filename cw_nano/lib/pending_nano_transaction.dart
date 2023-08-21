@@ -21,6 +21,11 @@ class PendingNanoTransaction with PendingTransaction {
   @override
   String get amountFormatted {
     final String amt = NanoUtil.getRawAsUsableString(amount.toString(), NanoUtil.rawPerNano);
+    return amt;
+  }
+
+  String get accurateAmountFormatted {
+    final String amt = NanoUtil.getRawAsUsableString(amount.toString(), NanoUtil.rawPerNano);
     final String acc = NanoUtil.getRawAccuracy(amount.toString(), NanoUtil.rawPerNano);
     return "$acc$amt";
   }

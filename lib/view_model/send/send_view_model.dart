@@ -96,15 +96,15 @@ abstract class SendViewModelBase with Store {
 
   @computed
   String get pendingTransactionFiatAmount {
+    if (pendingTransaction == null) {
+      return '0.00';
+    }
+
     try {
-      if (pendingTransaction != null) {
-        final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
-            cryptoAmount: pendingTransaction!.amountFormatted);
-        return fiat;
-      } else {
-        return '0.00';
-      }
+      final fiat = calculateFiatAmount(
+          price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+          cryptoAmount: pendingTransaction!.amountFormatted);
+      return fiat;
     } catch (_) {
       return '0.00';
     }
