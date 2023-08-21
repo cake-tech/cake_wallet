@@ -1,6 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -62,10 +63,11 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                       title: Center(
                         child: Text(
                           "${derivation.derivationType.toString().split('.').last}",
-                          style: Theme.of(context)
-                              .primaryTextTheme
-                              .labelMedium!
-                              .copyWith(fontSize: 18),
+                          style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              ),
                         ),
                       ),
                       subtitle: Column(
@@ -73,24 +75,33 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                         children: [
                           Text(
                             derivation.address,
-                            style: Theme.of(context)
-                                .primaryTextTheme
-                                .labelMedium!
-                                .copyWith(fontSize: 16),
+                            style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
+                                ),
                           ),
                           Text(
                             "${S.current.confirmed}: ${derivation.balance}",
-                            style: Theme.of(context)
-                                .primaryTextTheme
-                                .labelMedium!
-                                .copyWith(fontSize: 16),
+                            style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
+                                ),
                           ),
                           Text(
                             "${S.current.transactions}: ${derivation.height}",
-                            style: Theme.of(context)
-                                .primaryTextTheme
-                                .labelMedium!
-                                .copyWith(fontSize: 16),
+                            style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
+                                ),
                           ),
                         ],
                       ),
