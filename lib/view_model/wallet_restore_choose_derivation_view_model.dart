@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_util.dart';
@@ -14,12 +15,13 @@ class WalletRestoreChooseDerivationViewModel = WalletRestoreChooseDerivationView
     with _$WalletRestoreChooseDerivationViewModel;
 
 class Derivation {
-  Derivation(this.balance, this.address, this.derivationType, this.height);
+  Derivation(this.balance, this.address, this.height, this.derivationType, this.derivationPath);
 
   final String balance;
   final String address;
-  final DerivationType derivationType;
   final int height;
+  final DerivationType derivationType;
+  final String? derivationPath;
 }
 
 abstract class WalletRestoreChooseDerivationViewModelBase with Store {
@@ -39,14 +41,22 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
         String? mnemonic = credentials['seed'] as String?;
-        // var bip39Info = await BitcoinWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
-        //     mnemonic: mnemonic, seedKey: seedKey, node: node);
+        var bip39Info = await BitcoinWalletService.getInfoFromSeed(DerivationType.bip39,
+            mnemonic: mnemonic, seedKey: seedKey, node: node);
         // var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
         //   DerivationType.nano,
         //   mnemonic: mnemonic,
         //   seedKey: seedKey,
         //   node: node,
         // );
+
+        list.add(Derivation(
+          "0.00000",
+          "address",
+          0,
+          DerivationType.bip39,
+          null,
+        ));
 
         // if (bip39Info["balance"] != null) {
         //   list.add(Derivation(
@@ -76,10 +86,12 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
           list.add(Derivation(
             NanoUtil.getRawAsUsableString(standardInfo["balance"] as String, NanoUtil.rawPerNano),
             standardInfo["address"] as String,
+            int.tryParse(
+                  standardInfo["confirmation_height"] as String,
+                ) ??
+                0,
             DerivationType.nano,
-            int.parse(
-              standardInfo["confirmation_height"] as String,
-            ),
+            null,
           ));
         }
 
@@ -87,11 +99,12 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
           list.add(Derivation(
             NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
             bip39Info["address"] as String,
-            DerivationType.bip39,
             int.tryParse(
                   bip39Info["confirmation_height"] as String? ?? "",
                 ) ??
                 0,
+            DerivationType.bip39,
+            null,
           ));
         }
 
