@@ -238,6 +238,7 @@ abstract class NanoWalletBase
 
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
+      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
