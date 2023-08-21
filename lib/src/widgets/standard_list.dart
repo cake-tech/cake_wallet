@@ -72,7 +72,10 @@ class SectionHeaderListRow extends StatelessWidget {
   Widget build(BuildContext context) => Column(children: [
         StandardListSeparator(padding: EdgeInsets.only(left: 24)),
         Container(
-            width: double.infinity, height: 40, color: Theme.of(context).colorScheme.background),
+          width: double.infinity,
+          height: 40,
+          color: Theme.of(context).colorScheme.background,
+        ),
         //StandardListSeparator(padding: EdgeInsets.only(left: 24))
       ]);
 }
@@ -86,11 +89,14 @@ class StandardListSeparator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height,
+      padding: padding,
+      color: Theme.of(context).colorScheme.background,
+      child: Container(
         height: height,
-        padding: padding,
-        color: Theme.of(context).colorScheme.background,
-        child: Container(
-            height: height, color: Theme.of(context).primaryTextTheme.titleLarge?.backgroundColor));
+        color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
+      ),
+    );
   }
 }
 

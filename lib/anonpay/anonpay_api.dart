@@ -182,6 +182,8 @@ class AnonPayApi {
     switch (currency) {
       case CryptoCurrency.usdt:
         return CryptoCurrency.btc.title.toLowerCase();
+      case CryptoCurrency.eth:
+        return 'ERC20';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }

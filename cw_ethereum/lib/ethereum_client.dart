@@ -9,7 +9,7 @@ import 'package:cw_ethereum/pending_ethereum_transaction.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:web3dart/contracts/erc20.dart';
+import 'package:erc20/erc20.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/.secrets.g.dart' as secrets;
@@ -72,7 +72,7 @@ class EthereumClient {
       to: EthereumAddress.fromHex(toAddress),
       maxGas: gas,
       gasPrice: price,
-      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip),
+      maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
@@ -83,7 +83,7 @@ class EthereumClient {
     if (_isEthereum) {
       _sendTransaction = () async => await sendTransaction(signedTransaction);
     } else {
-      final erc20 = Erc20(
+      final erc20 = ERC20(
         client: _client!,
         address: EthereumAddress.fromHex(contractAddress!),
       );
@@ -153,7 +153,7 @@ I/flutter ( 4474): Gas Used: 53000
 
   Future<ERC20Balance> fetchERC20Balances(
       EthereumAddress userAddress, String contractAddress) async {
-    final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+    final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
     final balance = await erc20.balanceOf(userAddress);
 
     int exponent = (await erc20.decimals()).toInt();
@@ -163,7 +163,7 @@ I/flutter ( 4474): Gas Used: 53000
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async {
     try {
-      final erc20 = Erc20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+      final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
       final name = await erc20.name();
       final symbol = await erc20.symbol();
       final decimal = await erc20.decimals();

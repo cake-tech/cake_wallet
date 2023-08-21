@@ -13,7 +13,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +108,7 @@ class _DashboardPageView extends BasePage {
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset(
       'assets/images/menu.png',
-      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
     );
 
     return Container(
@@ -128,6 +127,7 @@ class _DashboardPageView extends BasePage {
 
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
+
   int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
   ObservableList<Widget> pages = ObservableList<Widget>();
   bool _isEffectsInstalled = false;

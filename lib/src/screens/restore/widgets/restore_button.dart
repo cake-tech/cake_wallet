@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
@@ -24,7 +25,7 @@ class RestoreButton extends StatelessWidget {
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
-          color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+          color: Theme.of(context).cardColor,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -43,24 +44,22 @@ class RestoreButton extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .titleLarge!
-                              .color!),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
                         description,
                         style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .labelSmall!
-                                .color!),
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context)
+                              .extension<TransactionTradeTheme>()!
+                              .detailsTitlesColor,
+                        ),
                       ),
                     )
                   ],
