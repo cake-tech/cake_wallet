@@ -413,6 +413,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     await _refreshUnspentCoinsInfo();
+    _askForUpdateBalance();
   }
 
   Future<void> _addCoinInfo(MoneroUnspent coin) async {
@@ -562,9 +563,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   int _getFrozenBalance() {
     var frozenBalance = 0;
 
-    if (unspentCoins.isEmpty) updateUnspent();
-    for (var coin in unspentCoins) {
-      frozenBalance += coin.value;
+    for (var coin in unspentCoinsInfo.values) {
+      if (coin.isFrozen)
+        frozenBalance += coin.value;
     }
 
     return frozenBalance;
