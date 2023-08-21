@@ -126,18 +126,8 @@ class PowNode extends HiveObject with Keyable {
   Future<bool> requestNode() async {
     try {
       switch (type) {
-        case WalletType.monero:
-          return useSocksProxy
-              ? requestNodeWithProxy(socksProxyAddress ?? '')
-              : requestMoneroNode();
-        case WalletType.bitcoin:
-          return requestElectrumServer();
-        case WalletType.litecoin:
-          return requestElectrumServer();
-        case WalletType.haven:
-          return requestMoneroNode();
-        case WalletType.ethereum:
-          return requestElectrumServer();
+        case WalletType.nano:
+          return requestNanoPowNode();
         default:
           return false;
       }
@@ -146,73 +136,24 @@ class PowNode extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestMoneroNode() async {
-    final path = '/json_rpc';
-    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
-    final realm = 'monero-rpc';
-    final body = {'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'};
-
-    try {
-      final authenticatingClient = HttpClient();
-
-      authenticatingClient.addCredentials(
-        rpcUri,
-        realm,
-        HttpClientDigestCredentials(login ?? '', password ?? ''),
-      );
-
-      final http.Client client = ioc.IOClient(authenticatingClient);
-
-      final response = await client.post(
-        rpcUri,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(body),
-      );
-
-      client.close();
-
-      final resBody = json.decode(response.body) as Map<String, dynamic>;
-      return !(resBody['result']['offline'] as bool);
-    } catch (_) {
-      return false;
-    }
-  }
-
-  Future<bool> requestNodeWithProxy(String proxy) async {
-    if (proxy.isEmpty || !proxy.contains(':')) {
-      return false;
-    }
-    final proxyAddress = proxy.split(':')[0];
-    final proxyPort = int.parse(proxy.split(':')[1]);
-    try {
-      final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
-      socket.destroy();
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  Future<bool> requestElectrumServer() async {
-    try {
-      await SecureSocket.connect(uri.host, uri.port,
-          timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  Future<bool> requestEthereumServer() async {
-    try {
-      final response = await http.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      return response.statusCode >= 200 && response.statusCode < 300;
-    } catch (_) {
-      return false;
-    }
+  Future<bool> requestNanoPowNode() async {
+    return http
+        .post(
+      uri,
+      headers: {'Content-type': 'application/json'},
+      body: json.encode(
+        {
+          "action": "work_generate",
+          "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        },
+      ),
+    )
+        .then((http.Response response) {
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
 }

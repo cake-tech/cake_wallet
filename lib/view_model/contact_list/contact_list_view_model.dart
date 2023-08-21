@@ -13,25 +13,29 @@ import 'package:cw_core/crypto_currency.dart';
 
 part 'contact_list_view_model.g.dart';
 
-class ContactListViewModel = ContactListViewModelBase
-    with _$ContactListViewModel;
+class ContactListViewModel = ContactListViewModelBase with _$ContactListViewModel;
 
 abstract class ContactListViewModelBase with Store {
-  ContactListViewModelBase(this.contactSource, this.walletInfoSource,
-      this._currency, this.settingsStore)
+  ContactListViewModelBase(
+      this.contactSource, this.walletInfoSource, this._currency, this.settingsStore)
       : contacts = ObservableList<ContactRecord>(),
         walletContacts = [] {
     walletInfoSource.values.forEach((info) {
       if (info.addresses?.isNotEmpty ?? false) {
         info.addresses?.forEach((address, label) {
           final name = label.isNotEmpty ? info.name + ' ($label)' : info.name;
-
           walletContacts.add(WalletContact(
             address,
             name,
             walletTypeToCryptoCurrency(info.type),
           ));
         });
+      } else if (info.address != null) {
+        walletContacts.add(WalletContact(
+          info.address,
+          info.name,
+          walletTypeToCryptoCurrency(info.type),
+        ));
       }
     });
 
@@ -57,14 +61,12 @@ abstract class ContactListViewModelBase with Store {
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 
   @computed
-  List<ContactRecord> get contactsToShow => contacts
-      .where((element) => _isValidForCurrency(element))
-      .toList();
+  List<ContactRecord> get contactsToShow =>
+      contacts.where((element) => _isValidForCurrency(element)).toList();
 
   @computed
-  List<WalletContact> get walletContactsToShow => walletContacts
-      .where((element) => _isValidForCurrency(element))
-      .toList();
+  List<WalletContact> get walletContactsToShow =>
+      walletContacts.where((element) => _isValidForCurrency(element)).toList();
 
   bool _isValidForCurrency(ContactBase element) {
     return _currency == null || element.type == _currency || element.type.title == _currency!.tag;

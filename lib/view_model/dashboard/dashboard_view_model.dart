@@ -312,7 +312,7 @@ abstract class DashboardViewModelBase with Store {
   bool isOutdatedElectrumWallet;
 
   @computed
-  bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type != WalletType.banano;
+  bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);

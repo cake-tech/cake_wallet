@@ -138,6 +138,8 @@ class Node extends HiveObject with Keyable {
           return requestMoneroNode();
         case WalletType.ethereum:
           return requestElectrumServer();
+        case WalletType.nano:
+          return requestNanoNode();
         default:
           return false;
       }
@@ -176,6 +178,27 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
+  }
+
+  Future<bool> requestNanoNode() async {
+    return http
+        .post(
+      uri,
+      headers: {'Content-type': 'application/json'},
+      body: json.encode(
+        {
+          "action": "account_balance",
+          "account": "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579"
+        },
+      ),
+    )
+        .then((http.Response response) {
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
 
   Future<bool> requestNodeWithProxy(String proxy) async {

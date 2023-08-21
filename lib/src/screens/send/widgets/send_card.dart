@@ -167,8 +167,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           AddressTextFieldOption.qrCode,
                           AddressTextFieldOption.addressBook
                         ],
-                        buttonColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                        borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                        buttonColor:
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                        borderColor:
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         textStyle: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                         hintStyle: TextStyle(
@@ -419,11 +421,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             ),
                           ),
                           hintText: '0.00',
-                          borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                          borderColor:
+                              Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           textStyle: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                           placeholderTextStyle: TextStyle(
-                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                              color:
+                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                               fontWeight: FontWeight.w500,
                               fontSize: 14),
                         ),
@@ -434,7 +438,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         controller: noteController,
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
-                        borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                        borderColor:
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         textStyle: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                         hintText: S.of(context).note_optional,
