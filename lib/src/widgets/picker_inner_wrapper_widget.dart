@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
@@ -44,7 +45,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(14)),
               child: Container(
-                color: Theme.of(context).textTheme.displayLarge!.decorationColor!,
+                color: Theme.of(context).dialogTheme.backgroundColor,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight:
@@ -72,7 +73,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(14)),
             child: Container(
-              color: Theme.of(context).textTheme.displayLarge!.decorationColor!,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,

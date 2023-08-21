@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class UnspentCoinsSwitchRow extends StatelessWidget {
   UnspentCoinsSwitchRow(
@@ -28,10 +29,7 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .labelSmall!
-                          .color!),
+                      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                   textAlign: TextAlign.left),
               Padding(
                 padding: EdgeInsets.only(top: 12),

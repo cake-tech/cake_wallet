@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -80,7 +81,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                   ),
                 ),
                 Padding(
@@ -112,7 +113,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     bottomSection: PrimaryButton(
                       onPressed: () => onTypeSelected(),
                       text: S.of(context).seed_language_next,
-                      color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                      color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       isDisabled: selected == null,
                     ),

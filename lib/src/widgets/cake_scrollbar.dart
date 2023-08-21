@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:flutter/material.dart';
 
 class CakeScrollbar extends StatelessWidget {
@@ -28,7 +29,7 @@ class CakeScrollbar extends StatelessWidget {
           width: width,
           decoration: BoxDecoration(
               color: backgroundColor ??
-                  Theme.of(context).textTheme!.bodyMedium!.decorationColor!,
+                  Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
               borderRadius: BorderRadius.all(Radius.circular(3))),
           child: Stack(
             children: <Widget>[
@@ -40,7 +41,7 @@ class CakeScrollbar extends StatelessWidget {
                   width: width,
                   decoration: BoxDecoration(
                       color: thumbColor ??
-                          Theme.of(context).textTheme!.bodyMedium!.color!,
+                          Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
                       borderRadius: BorderRadius.all(Radius.circular(3))),
                 ),
               )

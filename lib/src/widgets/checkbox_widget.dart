@@ -1,5 +1,7 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
 class CheckboxWidget extends StatefulWidget {
   CheckboxWidget({required this.value, required this.caption, required this.onChanged});
@@ -37,7 +39,9 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
             margin: EdgeInsets.only(right: 10.0),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).primaryTextTheme.bodySmall!.color!,
+                color: value
+                    ? Palette.blueCraiola
+                    : Theme.of(context).extension<FilterTheme>()!.checkboxBoundsColor,
                 width: 1.0,
               ),
               borderRadius: BorderRadius.all(
@@ -59,12 +63,12 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 14.0,
-                color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               ),
             ),
           )
         ],
-      ),
+      )
     );
   }
 }

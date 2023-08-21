@@ -15,7 +15,7 @@ class RoundedCheckbox extends StatelessWidget {
               width: 20.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                color: Theme.of(context).primaryColor,
               ),
               child: Icon(
                 Icons.check,

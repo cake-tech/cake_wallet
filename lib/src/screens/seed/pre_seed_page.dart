@@ -1,10 +1,11 @@
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class PreSeedPage extends BasePage {
@@ -52,14 +53,14 @@ class PreSeedPage extends BasePage {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
-                        color: Theme.of(context).primaryTextTheme.bodySmall!.color!),
+                        color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                   ),
                 ),
                 PrimaryButton(
                     onPressed: () =>
                         Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true),
                     text: S.of(context).pre_seed_button_text,
-                    color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white)
               ],
             ),

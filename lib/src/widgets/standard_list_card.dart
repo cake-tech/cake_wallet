@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 
@@ -21,8 +22,8 @@ class TradeDetailsStandardListCard extends StatelessWidget {
     final darkTheme = currentTheme == ThemeType.dark;
 
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).primaryTextTheme!.titleSmall!.color!,
-      Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
+      Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
+      Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final gradient = LinearGradient(colors: [
