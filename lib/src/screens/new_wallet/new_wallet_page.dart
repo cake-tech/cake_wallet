@@ -180,26 +180,20 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               decoration: InputDecoration(
                                 hintStyle: TextStyle(
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                                    color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
                                 hintText: S.of(context).password,
                                 focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Theme.of(context)
-                                            .accentTextTheme!
-                                            .headline2!
-                                            .decorationColor!,
+                                        color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
                                         width: 1.0)),
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline2!
-                                          .decorationColor!,
+                                      color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
                                       width: 1.0),
                                 )
                               )
@@ -212,26 +206,20 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               decoration: InputDecoration(
                                 hintStyle: TextStyle(
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                                    color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
                                 hintText: S.of(context).repeate_wallet_password,
                                 focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Theme.of(context)
-                                            .accentTextTheme!
-                                            .headline2!
-                                            .decorationColor!,
+                                        color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
                                         width: 1.0)),
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline2!
-                                          .decorationColor!,
+                                      color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
                                       width: 1.0),
                                 )
                               )
