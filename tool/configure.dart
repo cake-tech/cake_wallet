@@ -716,12 +716,6 @@ Future<void> generatePubspec({
     output += '\n$cwBitcoin';
   }
 
-  if (hasHaven && !hasMonero) {
-    output += '\n$cwSharedExternal\n$cwHaven';
-  } else if (hasHaven) {
-    output += '\n$cwHaven';
-  }
-
   if (hasEthereum) {
     output += '\n$cwEthereum';
   }
@@ -732,6 +726,12 @@ Future<void> generatePubspec({
 
   if (hasBanano) {
     output += '\n$cwBanano';
+  }
+
+  if (hasHaven && !hasMonero) {
+    output += '\n$cwSharedExternal\n$cwHaven';
+  } else if (hasHaven) {
+    output += '\n$cwHaven';
   }
 
   final outputLines = output.split('\n');

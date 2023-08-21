@@ -363,7 +363,11 @@ abstract class NanoWalletBase
   }
 
   Future<void> _updateBalance() async {
-    balance[currency] = await _client.getBalance(_publicAddress!);
+    try {
+      balance[currency] = await _client.getBalance(_publicAddress!);
+    } catch (e) {
+      throw Exception("Failed to get balance $e");
+    }
     await save();
   }
 
