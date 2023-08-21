@@ -780,16 +780,16 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.litecoin,\n';
   }
 
-  if (hasHaven) {
-    outputContent += '\tWalletType.haven,\n';
-  }
-
   if (hasNano) {
     outputContent += '\tWalletType.nano,\n';
   }
 
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';
+  }
+
+  if (hasHaven) {
+    outputContent += '\tWalletType.haven,\n';
   }
 
   outputContent += '];\n';

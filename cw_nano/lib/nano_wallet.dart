@@ -28,7 +28,6 @@ import 'dart:async';
 import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:nanodart/nanodart.dart';
-import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
 part 'nano_wallet.g.dart';
@@ -409,10 +408,6 @@ abstract class NanoWalletBase
   }
 
   Future<void>? updateBalance() async => await _updateBalance();
-
-  void _onNewTransaction(FilterEvent event) {
-    throw UnimplementedError();
-  }
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
