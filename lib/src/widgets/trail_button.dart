@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -24,10 +25,7 @@ class TrailButton extends StatelessWidget {
             caption,
             style: TextStyle(
                 color: textColor ??
-                    Theme.of(context)
-                        .accentTextTheme!
-                        .displayLarge!
-                        .decorationColor!,
+                    Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 14),
           ),

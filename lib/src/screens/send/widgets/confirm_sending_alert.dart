@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
@@ -205,8 +206,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context).primaryTextTheme!
-                                    .titleLarge!.color!,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -219,8 +219,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!
-                                        .titleLarge!.color!,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -240,10 +239,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                             fontSize: 16,
                             fontWeight: FontWeight.normal,
                             fontFamily: 'Lato',
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!,
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -256,10 +252,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .titleLarge!
-                                    .color,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -290,7 +283,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -303,7 +296,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -332,10 +325,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               fontSize: 16,
                               fontWeight: FontWeight.normal,
                               fontFamily: 'Lato',
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .titleLarge!
-                                  .color!,
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                               decoration: TextDecoration.none,
                             ),
                           ),

@@ -1,4 +1,6 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -20,6 +22,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 void showInformation(
     ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
@@ -51,7 +54,7 @@ class ExchangeTradePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
 
     return SizedBox(
       height: 20.0,
@@ -111,7 +114,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme!.labelSmall!.color!);
+        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor);
 
     _setEffects();
 
@@ -133,17 +136,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                               style: TextStyle(
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .labelSmall!
-                                      .color!),
+                                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                             ),
                             if (trade.expiredAt != null)
                               TimerWidget(trade.expiredAt!,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .titleLarge!
-                                      .color!)
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
                           ])
                     : Offstage(),
                 Padding(
@@ -160,10 +157,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           width: 3,
-                                          color: Theme.of(context)
-                                              .accentTextTheme!
-                                              .titleSmall!
-                                              .color!
+                                          color: Theme.of(context).extension<ExchangePageTheme>()!.qrCodeColor
                                       )
                                   ),
                                   child: QrImage(data: trade.inputAddress ?? fetchingLabel),
@@ -179,10 +173,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     itemCount: widget.exchangeTradeViewModel.items.length,
                     separatorBuilder: (context, index) => Container(
                       height: 1,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleSmall!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<ExchangePageTheme>()!.dividerCodeColor,
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
@@ -228,10 +219,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
                     text: S.of(context).confirm,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodyLarge!
-                        .color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white)
                 : Offstage();
           })),
@@ -321,7 +309,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               return Stack(
                 children: <Widget>[
                   Container(
-                    color: Theme.of(popupContext).backgroundColor,
+                    color: Theme.of(popupContext).colorScheme.background,
                     child: Center(
                       child: Image.asset(
                           'assets/images/birthday_cake.png'),
@@ -341,10 +329,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(popupContext)
-                              .primaryTextTheme!
-                              .titleLarge!
-                              .color,
+                          color: Theme.of(popupContext).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -360,10 +345,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             RequestReviewHandler.requestReview();
                           },  
                           text: S.of(popupContext).got_it,
-                          color: Theme.of(popupContext)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(popupContext).primaryColor,
                           textColor: Colors.white))
                 ],
               );
@@ -372,7 +354,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             return Stack(
               children: <Widget>[
                 Container(
-                  color: Theme.of(popupContext).backgroundColor,
+                  color: Theme.of(popupContext).colorScheme.background,
                   child: Center(
                     child: Image.asset(
                         'assets/images/birthday_cake.png'),
@@ -384,7 +366,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   child: Container(
                     decoration: BoxDecoration(
                         color: Theme.of(popupContext)
-                            .backgroundColor
+                            .colorScheme
+                            .background
                             .withOpacity(0.25)),
                     child: Center(
                       child: Padding(
@@ -395,10 +378,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(popupContext)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!,
+                            color: Theme.of(popupContext).extension<CakeTextTheme>()!.titleColor,
                             decoration: TextDecoration.none,
                           ),
                         ),

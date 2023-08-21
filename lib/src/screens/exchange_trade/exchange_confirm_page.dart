@@ -1,5 +1,7 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +11,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class ExchangeConfirmPage extends BasePage {
   ExchangeConfirmPage({required this.tradesStore}) : trade = tradesStore.trade!;
@@ -36,10 +39,7 @@ class ExchangeConfirmPage extends BasePage {
                   style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .color!),
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                 ),
               )),
               Container(
@@ -48,14 +48,8 @@ class ExchangeConfirmPage extends BasePage {
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     border: Border.all(
                         width: 1,
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .bodySmall!
-                            .color!),
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .titleLarge!
-                        .color!),
+                        color: Theme.of(context).cardColor),
+                    color: Theme.of(context).dialogTheme.backgroundColor),
                 child: Column(
                   children: <Widget>[
                     Expanded(
@@ -70,10 +64,7 @@ class ExchangeConfirmPage extends BasePage {
                             style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .labelSmall!
-                                    .color!),
+                                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                           ),
                           Text(
                             trade.id,
@@ -82,10 +73,7 @@ class ExchangeConfirmPage extends BasePage {
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .titleLarge!
-                                    .color!),
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                           ),
                         ],
                       ),
@@ -100,14 +88,8 @@ class ExchangeConfirmPage extends BasePage {
                                   context, S.of(context).copied_to_clipboard);
                             },
                             text: S.of(context).copy_id,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .bodySmall!
-                                .backgroundColor!,
-                            textColor: Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!),
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
+                            textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                       ),
                     )
                   ],
@@ -136,10 +118,7 @@ class ExchangeConfirmPage extends BasePage {
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .bodyLarge!
-                  .color!,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white)
         ],
       ),

@@ -12,13 +12,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  web3dart: 2.3.5
+  web3dart: ^2.7.1
+  erc20: ^1.0.1
   mobx: ^2.0.7+4
   bip39: ^1.0.6
   bip32: ^2.0.0
   ed25519_hd_key: ^2.2.0
   hex: ^0.2.0
-  http: ^0.13.4
+  http: ^1.1.0
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core

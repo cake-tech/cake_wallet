@@ -666,5 +666,11 @@
   "slidable": "Slidable",
   "manage_nodes": "Ṣakoso awọn apa",
   "etherscan_history": "Etherscan itan",
-  "template_name": "Orukọ Awoṣe"
+  "template_name": "Orukọ Awoṣe",
+  "monero_dark_theme": "Monero Dudu Akori",
+  "bitcoin_dark_theme": "Bitcoin Dark Akori",
+  "bitcoin_light_theme": "Bitcoin Light Akori",
+  "high_contrast_theme": "Akori Iyatọ giga",
+  "matrix_green_dark_theme": "Matrix Green Dark Akori",
+  "monero_light_theme": "Monero Light Akori"
 }

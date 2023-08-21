@@ -7,6 +7,8 @@ import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
@@ -49,7 +51,7 @@ class SendPage extends BasePage {
   String get title => S.current.send;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -61,7 +63,7 @@ class SendPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor,
+      color: titleColor(context),
       size: 16,
     );
     final _closeButton = currentTheme.type == ThemeType.dark
@@ -206,14 +208,8 @@ class SendPage extends BasePage {
                                       radius: 6.0,
                                       dotWidth: 6.0,
                                       dotHeight: 6.0,
-                                      dotColor: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .displaySmall!
-                                          .backgroundColor!,
-                                      activeDotColor: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .displayMedium!
-                                          .backgroundColor!),
+                                      dotColor: Theme.of(context).extension<SendPageTheme>()!.indicatorDotColor,
+                                      activeDotColor: Theme.of(context).extension<SendPageTheme>()!.templateBackgroundColor),
                                 )
                               : Offstage();
                         },
@@ -338,10 +334,7 @@ class SendPage extends BasePage {
                             text:
                                 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                             color: Colors.transparent,
-                            textColor: Theme.of(context)
-                                .accentTextTheme!
-                                .displaySmall!
-                                .decorationColor!,
+                            textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                           ))),
                 if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                   Padding(
@@ -356,15 +349,9 @@ class SendPage extends BasePage {
                         },
                         text: S.of(context).add_receiver,
                         color: Colors.transparent,
-                        textColor: Theme.of(context)
-                            .accentTextTheme!
-                            .displaySmall!
-                            .decorationColor!,
+                        textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                         isDottedBorder: true,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme!
-                            .displaySmall!
-                            .decorationColor!,
+                        borderColor: Theme.of(context).extension<SendPageTheme>()!.templateDottedBorderColor,
                       )),
                 Observer(
                   builder: (_) {
@@ -384,10 +371,10 @@ class SendPage extends BasePage {
                               item.address.isEmpty || item.cryptoAmount.isEmpty)
                           .toList();
 
-                      if (notValidItems.isNotEmpty ?? false) {
-                        showErrorValidationAlert(context);
-                        return;
-                      }
+                        if (notValidItems.isNotEmpty) {
+                          showErrorValidationAlert(context);
+                          return;
+                        }
 
                         final check = sendViewModel.shouldDisplayTotp();
                         authService.authenticateAction(
@@ -402,7 +389,7 @@ class SendPage extends BasePage {
                       },
                       text: S.of(context).send,
                       color:
-                          Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                          Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       isLoading: sendViewModel.state is IsExecutingState ||
                           sendViewModel.state is TransactionCommitting,

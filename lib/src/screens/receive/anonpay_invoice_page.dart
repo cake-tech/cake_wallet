@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
@@ -42,7 +44,7 @@ class AnonPayInvoicePage extends BasePage {
   bool effectsInstalled = false;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -57,8 +59,9 @@ class AnonPayInvoicePage extends BasePage {
   void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
 
   @override
-  Widget middle(BuildContext context) =>
-      PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
+  Widget middle(BuildContext context) => PresentReceiveOptionPicker(
+      receiveOptionViewModel: receiveOptionViewModel,
+      color: titleColor(context));
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
@@ -83,7 +86,7 @@ class AnonPayInvoicePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -102,8 +105,8 @@ class AnonPayInvoicePage extends BasePage {
                           bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                       gradient: LinearGradient(
                         colors: [
-                          Theme.of(context).primaryTextTheme!.titleSmall!.color!,
-                          Theme.of(context).primaryTextTheme!.titleSmall!.decorationColor!,
+                          Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
+                          Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -142,10 +145,9 @@ class AnonPayInvoicePage extends BasePage {
                             : S.of(context).anonpay_description("a donation link", "donate"),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color:
-                                Theme.of(context).primaryTextTheme!.displayLarge!.decorationColor!,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12),
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12),
                       ),
                     ),
                   ),
@@ -154,6 +156,7 @@ class AnonPayInvoicePage extends BasePage {
                         ? S.of(context).create_invoice
                         : S.of(context).create_donation_link,
                     onPressed: () {
+                      FocusScope.of(context).unfocus();
                       anonInvoicePageViewModel.setRequestParams(
                         inputAmount: _amountController.text,
                         inputName: _nameController.text,
@@ -171,7 +174,7 @@ class AnonPayInvoicePage extends BasePage {
                         anonInvoicePageViewModel.generateDonationLink();
                       }
                     },
-                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: anonInvoicePageViewModel.state is IsExecutingState,
                   ),

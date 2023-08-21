@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -8,6 +9,7 @@ import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaAccountPage extends BasePage {
   IoniaAccountPage(this.ioniaAccountViewModel);
@@ -19,10 +21,7 @@ class IoniaAccountPage extends BasePage {
     return Text(
       S.current.account,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -136,10 +135,7 @@ class IoniaAccountPage extends BasePage {
       bottomSection: Column(
         children: [
           PrimaryButton(
-            color: Theme.of(context)
-                .accentTextTheme!
-                .bodyLarge!
-                .color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
             text: S.of(context).logout,
             onPressed: () {
@@ -170,8 +166,8 @@ class _GradiantContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
-            Theme.of(context).primaryTextTheme!.titleMedium!.color!,
+            Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
+            Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

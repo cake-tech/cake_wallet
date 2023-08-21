@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -7,6 +8,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -39,13 +41,13 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       );
   Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       );
 
   Flushbar<void>? _progressBar;
@@ -95,8 +97,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         onChanged: (item) {
           item?.onSelected();
         },
-        dropdownColor: themeData.textTheme!.bodyLarge?.decorationColor,
-        style: TextStyle(color: themeData.primaryTextTheme!.titleLarge?.color),
+        dropdownColor: themeData.extension<CakeMenuTheme>()!.backgroundColor,
+        style: TextStyle(color: themeData.extension<CakeTextTheme>()!.titleColor),
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
         value: dropDownItems.firstWhere((element) => element.isSelected),
         underline: const SizedBox(),

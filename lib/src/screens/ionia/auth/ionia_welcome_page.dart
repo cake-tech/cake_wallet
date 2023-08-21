@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -17,10 +18,7 @@ class IoniaWelcomePage extends BasePage {
     return Text(
       S.current.welcome_to_cakepay,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -48,7 +46,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
               SizedBox(height: 20),
@@ -58,7 +56,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
             ],
@@ -69,10 +67,7 @@ class IoniaWelcomePage extends BasePage {
               PrimaryButton(
                 text: S.of(context).create_account,
                 onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaCreateAccountPage),
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .color!,
+                color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
               ),
               SizedBox(
@@ -84,7 +79,7 @@ class IoniaWelcomePage extends BasePage {
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
               SizedBox(height: 8),

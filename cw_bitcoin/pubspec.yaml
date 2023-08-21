@@ -13,16 +13,16 @@ dependencies:
   flutter:
     sdk: flutter
   path_provider: ^2.0.11
-  http: ^0.13.4
+  http: ^1.1.0
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
-  intl: ^0.17.0
+  intl: ^0.18.0
   cw_core:
     path: ../cw_core
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v2
+      ref: cake-update-v3
   rxdart: ^0.27.5
   unorm_dart: ^0.2.0
   cryptography: ^2.0.5

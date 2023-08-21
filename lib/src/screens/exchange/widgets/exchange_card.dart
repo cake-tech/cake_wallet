@@ -1,6 +1,8 @@
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -12,6 +14,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class ExchangeCard extends StatefulWidget {
   ExchangeCard(
@@ -160,7 +163,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme!.displaySmall!.color!);
+        color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor);
 
     return Container(
       width: double.infinity,
@@ -175,7 +178,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme!.headlineSmall!.color!),
+                  color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor),
             )
           ],
         ),
@@ -211,10 +214,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                     height: 32,
                     decoration: BoxDecoration(
                         color: widget.addressButtonsColor ??
-                            Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineMedium!
-                                .color!,
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                         borderRadius:
                         BorderRadius.all(Radius.circular(6))),
                     child: Center(
@@ -224,10 +224,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headlineMedium!
-                                    .decorationColor!)),
+                                color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
                       ),
                     ),
                   ),
@@ -268,10 +265,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                               placeholderTextStyle: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displayLarge!
-                                      .decorationColor!),
+                                  color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                               validator: _isAmountEditable
                                   ? widget.currencyValueValidator
                                   : null),
@@ -282,10 +276,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                           height: 32,
                           width: 32,
                           decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineMedium!
-                                  .color!,
+                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                               borderRadius:
                               BorderRadius.all(Radius.circular(6))),
                           child: InkWell(
@@ -296,10 +287,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineMedium!
-                                          .decorationColor!)),
+                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
                             ),
                           ),
                         )
@@ -310,10 +298,7 @@ class ExchangeCardState extends State<ExchangeCard> {
             )),
         Divider(
             height: 1,
-            color: Theme.of(context)
-                .primaryTextTheme!
-                .headlineSmall!
-                .decorationColor!),
+            color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
         Padding(
           padding: EdgeInsets.only(top: 5),
           child: Container(
@@ -329,10 +314,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                             style: TextStyle(
                                 fontSize: 10,
                                 height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displayLarge!
-                                    .decorationColor!),
+                                color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                           )
                         : Offstage(),
                     _min != null ? SizedBox(width: 10) : Offstage(),
@@ -344,10 +326,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                             style: TextStyle(
                                 fontSize: 10,
                                 height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displayLarge!
-                                    .decorationColor!))
+                                color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor))
                         : Offstage(),
                   ])),
         ),
@@ -359,10 +338,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayLarge!
-                          .decorationColor!),
+                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                 ))
             : Offstage(),
         _isAddressEditable
@@ -400,10 +376,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                       hintStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .displayLarge!
-                              .decorationColor!),
+                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                       buttonColor: widget.addressButtonsColor,
                       validator: widget.addressTextFieldValidator,
                       onPushPasteButton: widget.onPushPasteButton,
@@ -472,10 +445,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                                                   6))),
                                                   child: Image.asset(
                                                     'assets/images/open_book.png',
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme!
-                                                        .headlineMedium!
-                                                        .decorationColor!,
+                                                    color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                                   )),
                                             )),
                                       ),

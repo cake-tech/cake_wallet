@@ -85,7 +85,17 @@ abstract class SupportViewModelBase with Store {
       //    link: 'mailto:support@y.at')
   ];
 
-  static const url = 'https://guides.cakewallet.com';
+  final guidesUrl = 'https://guides.cakewallet.com';
+
+  String fetchUrl({String locale = "en", String authToken = ""}) {
+    var supportUrl =
+        "https://app.chatwoot.com/widget?website_token=${secrets.chatwootWebsiteToken}&locale=${locale}";
+
+    if (authToken.isNotEmpty)
+      supportUrl += "&cw_conversation=$authToken";
+
+    return supportUrl;
+  }
 
   List<SettingsListItem> items;
 }

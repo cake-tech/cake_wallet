@@ -26,10 +26,9 @@ class UnspentCoinsDetailsPage extends BasePage {
   Widget body(BuildContext context) {
     // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
-        context: context,
         sectionCount: 1,
         itemCounter: (int _) => unspentCoinsDetailsViewModel.items.length,
-        itemBuilder: (_, __, index) {
+        itemBuilder: (__, index) {
           final item = unspentCoinsDetailsViewModel.items[index];
 
           if (item is StandartListItem) {
