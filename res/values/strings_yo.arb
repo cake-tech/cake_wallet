@@ -678,5 +678,7 @@
   "bitcoin_light_theme": "Bitcoin Light Akori",
   "high_contrast_theme": "Akori Iyatọ giga",
   "matrix_green_dark_theme": "Matrix Green Dark Akori",
-  "monero_light_theme": "Monero Light Akori"
+  "monero_light_theme": "Monero Light Akori",
+  "select_destination": "Jọwọ yan ibi ti o nlo fun faili afẹyinti.",
+  "save_to_downloads": "Fipamọ si Awọn igbasilẹ"
 }
