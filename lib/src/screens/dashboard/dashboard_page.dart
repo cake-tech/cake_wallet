@@ -135,7 +135,7 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final controller = PageController(initialPage: initialPage);
+    final controller = PageController(initialPage: 0);
 
     reaction(
       (_) => dashboardViewModel.shouldShowMarketPlaceInDashboard,
@@ -262,17 +262,17 @@ class _DashboardPageView extends BasePage {
     if (_isEffectsInstalled) {
       return;
     }
-    if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
-      pages.add(
-        Semantics(
-          label: S.of(context).market_place,
-          child: MarketPlacePage(
-            dashboardViewModel: dashboardViewModel,
-            marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
-          ),
-        ),
-      );
-    }
+    // if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
+    //   pages.add(
+    //     Semantics(
+    //       label: S.of(context).market_place,
+    //       child: MarketPlacePage(
+    //         dashboardViewModel: dashboardViewModel,
+    //         marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
+    //       ),
+    //     ),
+    //   );
+    // }
     pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
     pages.add(
       Semantics(
