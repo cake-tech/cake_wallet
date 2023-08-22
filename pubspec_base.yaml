@@ -35,8 +35,8 @@ dependencies:
   hive_flutter: ^1.1.0
   local_auth: ^2.1.0
   local_auth_android: 1.0.21
-  package_info: ^2.0.0
-  #package_info_plus: ^1.4.2
+  # package_info: ^2.0.0
+  package_info_plus: ^4.0.2
   devicelocale:
     git:
       url: https://github.com/cake-tech/flutter-devicelocale
@@ -67,7 +67,8 @@ dependencies:
   device_display_brightness: ^0.0.6
   workmanager: ^0.5.1
   platform_device_id: ^1.0.1
-  wakelock: ^0.6.2
+  # wakelock: ^0.6.2
+  wakelock_plus: ^1.1.1
   flutter_mailer: ^2.0.2
   device_info_plus: 8.1.0
   base32: 2.1.3
@@ -84,7 +85,7 @@ dependencies:
   upgrader:
     git:
       url: https://github.com/cake-tech/upgrader.git
-      ref: upgrader-6.5.0
+      ref: cake-upgrader
   sensitive_clipboard: ^1.0.0
   bitcoin_flutter:
     git:

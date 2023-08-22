@@ -30,9 +30,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
-import 'package:upgrader/upgrader.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:upgrader/upgrader.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
@@ -159,102 +159,105 @@ class _DashboardPageView extends BasePage {
 
     return SafeArea(
       minimum: EdgeInsets.only(bottom: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Expanded(
-            child: Observer(
-              builder: (context) {
-                return PageView.builder(
-                  controller: controller,
-                  itemCount: pages.length,
-                  itemBuilder: (context, index) => pages[index],
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(bottom: 24, top: 10),
-            child: Observer(
-              builder: (context) {
-                return ExcludeSemantics(
-                  child: SmoothPageIndicator(
+      child: UpgradeAlert(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Expanded(
+              child: Observer(
+                builder: (context) {
+                  return PageView.builder(
                     controller: controller,
-                    count: pages.length,
-                    effect: ColorTransitionEffect(
-                      spacing: 6.0,
-                      radius: 6.0,
-                      dotWidth: 6.0,
-                      dotHeight: 6.0,
-                      dotColor: Theme.of(context).indicatorColor,
-                      activeDotColor: Theme.of(context)
-                          .extension<DashboardPageTheme>()!
-                          .indicatorDotTheme
-                          .activeIndicatorColor,
-                    ),
-                  ),
-                );
-              },
+                    itemCount: pages.length,
+                    itemBuilder: (context, index) => pages[index],
+                  );
+                },
+              ),
             ),
-          ),
-          Observer(
-            builder: (_) {
-              return ClipRect(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 16, right: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50.0),
-                      border: Border.all(
-                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                        width: 1,
+            Padding(
+              padding: EdgeInsets.only(bottom: 24, top: 10),
+              child: Observer(
+                builder: (context) {
+                  return ExcludeSemantics(
+                    child: SmoothPageIndicator(
+                      controller: controller,
+                      count: pages.length,
+                      effect: ColorTransitionEffect(
+                        spacing: 6.0,
+                        radius: 6.0,
+                        dotWidth: 6.0,
+                        dotHeight: 6.0,
+                        dotColor: Theme.of(context).indicatorColor,
+                        activeDotColor: Theme.of(context)
+                            .extension<DashboardPageTheme>()!
+                            .indicatorDotTheme
+                            .activeIndicatorColor,
                       ),
-                      color:
-                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     ),
+                  );
+                },
+              ),
+            ),
+            Observer(
+              builder: (_) {
+                return ClipRect(
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 16, right: 16),
                     child: Container(
-                      padding: EdgeInsets.only(left: 32, right: 32),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: MainActions.all
-                            .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
-                            .map(
-                              (action) => Semantics(
-                                button: true,
-                                enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
-                                child: ActionButton(
-                                  image: Image.asset(
-                                    action.image,
-                                    height: 24,
-                                    width: 24,
-                                    color: action.isEnabled?.call(dashboardViewModel) ?? true
-                                        ? Theme.of(context)
-                                            .extension<DashboardPageTheme>()!
-                                            .mainActionsIconColor
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.0),
+                        border: Border.all(
+                          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                          width: 1,
+                        ),
+                        color: Theme.of(context)
+                            .extension<SyncIndicatorTheme>()!
+                            .syncedBackgroundColor,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.only(left: 32, right: 32),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: MainActions.all
+                              .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
+                              .map(
+                                (action) => Semantics(
+                                  button: true,
+                                  enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
+                                  child: ActionButton(
+                                    image: Image.asset(
+                                      action.image,
+                                      height: 24,
+                                      width: 24,
+                                      color: action.isEnabled?.call(dashboardViewModel) ?? true
+                                          ? Theme.of(context)
+                                              .extension<DashboardPageTheme>()!
+                                              .mainActionsIconColor
+                                          : Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                    ),
+                                    title: action.name(context),
+                                    onClick: () async =>
+                                        await action.onTap(context, dashboardViewModel),
+                                    textColor: action.isEnabled?.call(dashboardViewModel) ?? true
+                                        ? null
                                         : Theme.of(context)
                                             .extension<BalancePageTheme>()!
                                             .labelTextColor,
                                   ),
-                                  title: action.name(context),
-                                  onClick: () async =>
-                                      await action.onTap(context, dashboardViewModel),
-                                  textColor: action.isEnabled?.call(dashboardViewModel) ?? true
-                                      ? null
-                                      : Theme.of(context)
-                                          .extension<BalancePageTheme>()!
-                                          .labelTextColor,
                                 ),
-                              ),
-                            )
-                            .toList(),
+                              )
+                              .toList(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
