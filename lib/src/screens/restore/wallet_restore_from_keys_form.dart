@@ -1,30 +1,29 @@
+import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:flutter/services.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
   WalletRestoreFromKeysFrom({
     required this.walletRestoreViewModel,
+    required this.displayPrivateKeyField,
+    required this.onHeightOrDateEntered,
     Key? key,
-    this.onHeightOrDateEntered,})
-      : super(key: key);
+  }) : super(key: key);
 
-  final Function(bool)? onHeightOrDateEntered;
+  final Function(bool) onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
+  final bool displayPrivateKeyField;
 
   @override
-  WalletRestoreFromKeysFromState createState() =>
-      WalletRestoreFromKeysFromState();
+  WalletRestoreFromKeysFromState createState() => WalletRestoreFromKeysFromState();
 }
 
 class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
@@ -35,6 +34,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
         addressController = TextEditingController(),
         viewKeyController = TextEditingController(),
         spendKeyController = TextEditingController(),
+        privateKeyController = TextEditingController(),
         nameTextEditingController = TextEditingController();
 
   final GlobalKey<FormState> formKey;
@@ -44,6 +44,18 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
   final TextEditingController viewKeyController;
   final TextEditingController spendKeyController;
   final TextEditingController nameTextEditingController;
+  final TextEditingController privateKeyController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    privateKeyController.addListener(() {
+      if (privateKeyController.text.isNotEmpty) {
+        widget.onHeightOrDateEntered(true);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -51,16 +63,18 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
     addressController.dispose();
     viewKeyController.dispose();
     spendKeyController.dispose();
+    privateKeyController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(left: 24, right: 24),
-        child: Form(
-          key: formKey,
-          child: Column(children: <Widget>[
+      padding: EdgeInsets.only(left: 24, right: 24),
+      child: Form(
+        key: formKey,
+        child: Column(
+          children: <Widget>[
             Stack(
               alignment: Alignment.centerRight,
               children: [
@@ -75,9 +89,8 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
 
                       setState(() {
                         nameTextEditingController.text = rName;
-                        nameTextEditingController.selection =
-                            TextSelection.fromPosition(TextPosition(
-                                offset: nameTextEditingController.text.length));
+                        nameTextEditingController.selection = TextSelection.fromPosition(
+                            TextPosition(offset: nameTextEditingController.text.length));
                       });
                     },
                     icon: Container(
@@ -90,7 +103,8 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                       height: 34,
                       child: Image.asset(
                         'assets/images/refresh_icon.png',
-                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                        color:
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                       ),
                     ),
                   ),
@@ -98,29 +112,65 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
               ],
             ),
             Container(height: 20),
-            BaseTextFormField(
-                controller: addressController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                hintText: S.of(context).restore_address),
-            Container(
-                padding: EdgeInsets.only(top: 20.0),
-                child: BaseTextFormField(
-                    controller: viewKeyController,
-                    hintText: S.of(context).restore_view_key_private,
-                    maxLines: null)),
-            Container(
-                padding: EdgeInsets.only(top: 20.0),
-                child: BaseTextFormField(
-                    controller: spendKeyController,
-                    hintText: S.of(context).restore_spend_key_private,
-                    maxLines: null)),
-            BlockchainHeightWidget(
-                key: blockchainHeightKey,
-                hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
-                onHeightChange: (_) => null,
-                onHeightOrDateEntered: widget.onHeightOrDateEntered)
-          ]),
-        ));
+            _restoreFromKeysFormFields(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _restoreFromKeysFormFields() {
+    if (widget.displayPrivateKeyField) {
+      return AddressTextField(
+        controller: privateKeyController,
+        placeholder: S.of(context).private_key,
+        options: [AddressTextFieldOption.paste],
+        buttonColor: Theme.of(context).hintColor,
+        onPushPasteButton: (_) {
+          _pasteText();
+        },
+      );
+    }
+
+    return Column(
+      children: [
+        BaseTextFormField(
+          controller: addressController,
+          keyboardType: TextInputType.multiline,
+          maxLines: null,
+          hintText: S.of(context).restore_address,
+        ),
+        Container(
+          padding: EdgeInsets.only(top: 20.0),
+          child: BaseTextFormField(
+            controller: viewKeyController,
+            hintText: S.of(context).restore_view_key_private,
+            maxLines: null,
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.only(top: 20.0),
+          child: BaseTextFormField(
+            controller: spendKeyController,
+            hintText: S.of(context).restore_spend_key_private,
+            maxLines: null,
+          ),
+        ),
+        BlockchainHeightWidget(
+          key: blockchainHeightKey,
+          hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
+          onHeightChange: (_) => null,
+          onHeightOrDateEntered: widget.onHeightOrDateEntered,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pasteText() async {
+    final value = await Clipboard.getData('text/plain');
+
+    if (value?.text?.isNotEmpty ?? false) {
+      privateKeyController.text = value!.text!;
+    }
   }
 }

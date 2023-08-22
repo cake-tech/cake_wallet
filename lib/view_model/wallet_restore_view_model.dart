@@ -1,7 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/mnemonic_length.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -19,7 +16,6 @@ import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
-
 class WalletRestoreViewModel = WalletRestoreViewModelBase
     with _$WalletRestoreViewModel;
 
@@ -27,11 +23,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
-      : availableModes = (type == WalletType.monero || type == WalletType.haven)
-            ? WalletRestoreMode.values
-            : [WalletRestoreMode.seed],
+      : availableModes =
+            (type == WalletType.monero || type == WalletType.haven || type == WalletType.ethereum)
+                ? WalletRestoreMode.values
+                : [WalletRestoreMode.seed],
         hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
+        hasRestoreFromPrivateKey = type == WalletType.ethereum,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
@@ -47,13 +45,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
   final bool hasBlockchainHeightLanguageSelector;
+  final bool hasRestoreFromPrivateKey;
 
   @observable
   WalletRestoreMode mode;
 
   @observable
   bool isButtonEnabled;
-  
+
   @override
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
@@ -97,17 +96,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
 
     if (mode == WalletRestoreMode.keys) {
-      final viewKey = options['viewKey'] as String;
-      final spendKey = options['spendKey'] as String;
-      final address = options['address'] as String;
+      final viewKey = options['viewKey'] as String?;
+      final spendKey = options['spendKey'] as String?;
+      final address = options['address'] as String?;
 
       if (type == WalletType.monero) {
         return monero!.createMoneroRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
-            spendKey: spendKey,
-            viewKey: viewKey,
-            address: address,
+            spendKey: spendKey!,
+            viewKey: viewKey!,
+            address: address!,
             password: password,
             language: 'English');
       }
@@ -116,11 +115,19 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         return haven!.createHavenRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
-            spendKey: spendKey,
-            viewKey: viewKey,
-            address: address,
+            spendKey: spendKey!,
+            viewKey: viewKey!,
+            address: address!,
             password: password,
             language: 'English');
+      }
+
+      if (type == WalletType.ethereum) {
+        return ethereum!.createEthereumRestoreWalletFromPrivateKey(
+          name: name,
+          privateKey: options['private_key'] as String,
+          password: password,
+        );
       }
     }
 
