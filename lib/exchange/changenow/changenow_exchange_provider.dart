@@ -286,7 +286,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     switch (tag) {
       case 'POLY':
         return 'matic';
-      case: 'LN':
+      case 'LN':
         return 'lightning';
       case 'AVAXC':
         return 'cchain';
