@@ -112,8 +112,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return 'https://mempool.space/tx/${txId}';
       case WalletType.litecoin:
-      case WalletType.bitcoinCash:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
+      case WalletType.bitcoinCash:
+        return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
