@@ -294,3 +294,4 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return tag.toLowerCase();
     }
   }
+}
