@@ -68,8 +68,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     final headers = {apiHeaderKey: apiKey};
-    final normalizedFrom = normalizeCryptoCurrency(from);
-    final normalizedTo = normalizeCryptoCurrency(to);
+    final normalizedFrom = from.title.toLowerCase();
+    final normalizedTo = to.title.toLowerCase();
     final flow = getFlow(isFixedRateMode);
     final params = <String, String>{
       'fromCurrency': normalizedFrom,
@@ -112,8 +112,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final flow = getFlow(isFixedRateMode);
     final type = isFixedRateMode ? 'reverse' : 'direct';
     final body = <String, dynamic>{
-      'fromCurrency': normalizeCryptoCurrency(_request.from),
-      'toCurrency': normalizeCryptoCurrency(_request.to),
+      'fromCurrency': _request.from.title.toLowerCase(),
+      'toCurrency': _request.to.title.toLowerCase(),
       'fromNetwork': networkFor(_request.from),
       'toNetwork': networkFor(_request.to),
       if (!isFixedRateMode) 'fromAmount': _request.fromAmount,
@@ -241,8 +241,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final type = isReverse ? 'reverse' : 'direct';
       final flow = getFlow(isFixedRateMode);
       final params = <String, String>{
-        'fromCurrency': normalizeCryptoCurrency(from),
-        'toCurrency': normalizeCryptoCurrency(to),
+        'fromCurrency': from.title.toLowerCase(),
+        'toCurrency': to.title.toLowerCase(),
         'fromNetwork': networkFor(from),
         'toNetwork': networkFor(to),
         'type': type,
@@ -276,22 +276,21 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   String networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.usdt:
-        return CryptoCurrency.btc.title.toLowerCase();
+        return 'btc';
       default:
-        return currency.tag != null ? currency.tag!.toLowerCase() : currency.title.toLowerCase();
+        return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title.toLowerCase();
     }
   }
-}
 
-String normalizeCryptoCurrency(CryptoCurrency currency) {
-  switch (currency) {
-    case CryptoCurrency.zec:
-      return 'zec';
-    case CryptoCurrency.usdcpoly:
-      return 'usdcmatic';
-    case CryptoCurrency.maticpoly:
-      return 'maticmainnet';
-    default:
-      return currency.title.toLowerCase();
+  String _normalizeTag(String tag) {
+    switch (tag) {
+      case 'POLY':
+        return 'matic';
+      case: 'LN':
+        return 'lightning';
+      case 'AVAXC':
+        return 'cchain';
+      default:
+        return tag.toLowerCase();
+    }
   }
-}
