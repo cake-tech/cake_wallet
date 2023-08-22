@@ -682,5 +682,7 @@
   "support_title_other_links": "Další odkazy na podporu",
   "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody",
   "choose_derivation": "Vyberte derivaci peněženky",
-  "new_first_wallet_text": "Snadno udržujte svou kryptoměnu v bezpečí"
+  "new_first_wallet_text": "Snadno udržujte svou kryptoměnu v bezpečí",
+  "select_destination": "Vyberte cíl pro záložní soubor.",
+  "save_to_downloads": "Uložit do Stažených souborů"
 }

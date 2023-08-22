@@ -690,5 +690,7 @@
   "support_title_other_links": "Andere Support-Links",
   "support_description_other_links": "Treten Sie unseren Communities bei oder erreichen Sie uns oder unsere Partner über andere Methoden",
   "choose_derivation": "Wählen Sie Brieftaschenableitung",
-  "new_first_wallet_text": "Bewahren Sie Ihre Kryptowährung einfach sicher auf"
+  "new_first_wallet_text": "Bewahren Sie Ihre Kryptowährung einfach sicher auf",
+  "select_destination": "Bitte wählen Sie das Ziel für die Sicherungsdatei aus.",
+  "save_to_downloads": "Unter „Downloads“ speichern"
 }

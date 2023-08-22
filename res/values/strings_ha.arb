@@ -668,5 +668,7 @@
   "support_title_other_links": "Sauran hanyoyin tallafi",
   "support_description_other_links": "Kasance tare da al'ummominmu ko kuma ka kai mu abokanmu ta hanyar wasu hanyoyi",
   "choose_derivation": "Zaɓi walatawa",
-  "new_first_wallet_text": "A sauƙaƙe kiyaye kuzarin ku"
+  "new_first_wallet_text": "A sauƙaƙe kiyaye kuzarin ku",
+  "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
+  "save_to_downloads": "Ajiye zuwa Zazzagewa"
 }

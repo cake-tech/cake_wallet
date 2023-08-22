@@ -690,5 +690,7 @@
   "support_title_other_links": "Altri collegamenti di supporto",
   "support_description_other_links": "Unisciti alle nostre comunità o raggiungici i nostri partner attraverso altri metodi",
   "choose_derivation": "Scegli la derivazione del portafoglio",
-  "new_first_wallet_text": "Mantieni facilmente la tua criptovaluta al sicuro"
+  "new_first_wallet_text": "Mantieni facilmente la tua criptovaluta al sicuro",
+  "select_destination": "Seleziona la destinazione per il file di backup.",
+  "save_to_downloads": "Salva in Download"
 }

@@ -690,5 +690,7 @@
   "support_title_other_links": "Inne linki wsparcia",
   "support_description_other_links": "Dołącz do naszych społeczności lub skontaktuj się z nami naszymi partnerami za pomocą innych metod",
   "choose_derivation": "Wybierz wyprowadzenie portfela",
-  "new_first_wallet_text": "Łatwo zapewnić bezpieczeństwo kryptowalut"
+  "new_first_wallet_text": "Łatwo zapewnić bezpieczeństwo kryptowalut",
+  "select_destination": "Wybierz miejsce docelowe dla pliku kopii zapasowej.",
+  "save_to_downloads": "Zapisz w Pobranych"
 }

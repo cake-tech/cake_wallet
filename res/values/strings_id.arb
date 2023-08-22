@@ -678,5 +678,7 @@
   "support_title_other_links": "Tautan dukungan lainnya",
   "support_description_other_links": "Bergabunglah dengan komunitas kami atau hubungi kami mitra kami melalui metode lain",
   "choose_derivation": "Pilih dompet dompet",
-  "new_first_wallet_text": "Dengan mudah menjaga cryptocurrency Anda aman"
+  "new_first_wallet_text": "Dengan mudah menjaga cryptocurrency Anda aman",
+  "select_destination": "Silakan pilih tujuan untuk file cadangan.",
+  "save_to_downloads": "Simpan ke Unduhan"
 }
