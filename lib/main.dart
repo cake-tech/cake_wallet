@@ -293,10 +293,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
-            //Adding this to override the app theme in this alert that
-            // upgrader shows. The app theme converts the color to white
-            // so the text is not visible, this overrides that
-            // while still keeping everything else intact
             home: _Home(),
           ));
     });
