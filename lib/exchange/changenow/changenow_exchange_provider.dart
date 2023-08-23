@@ -68,12 +68,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     final headers = {apiHeaderKey: apiKey};
-    final normalizedFrom = from.title.toLowerCase();
-    final normalizedTo = to.title.toLowerCase();
     final flow = getFlow(isFixedRateMode);
     final params = <String, String>{
-      'fromCurrency': normalizedFrom,
-      'toCurrency': normalizedTo,
+      'fromCurrency': normalizeTitle(from),
+      'toCurrency': normalizeTitle(to),
       'fromNetwork': networkFor(from),
       'toNetwork': networkFor(to),
       'flow': flow
@@ -112,8 +110,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final flow = getFlow(isFixedRateMode);
     final type = isFixedRateMode ? 'reverse' : 'direct';
     final body = <String, dynamic>{
-      'fromCurrency': _request.from.title.toLowerCase(),
-      'toCurrency': _request.to.title.toLowerCase(),
+      'fromCurrency': normalizeTitle(_request.from),
+      'toCurrency':  normalizeTitle(_request.to),
       'fromNetwork': networkFor(_request.from),
       'toNetwork': networkFor(_request.to),
       if (!isFixedRateMode) 'fromAmount': _request.fromAmount,
@@ -241,8 +239,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final type = isReverse ? 'reverse' : 'direct';
       final flow = getFlow(isFixedRateMode);
       final params = <String, String>{
-        'fromCurrency': from.title.toLowerCase(),
-        'toCurrency': to.title.toLowerCase(),
+        'fromCurrency': normalizeTitle(from),
+        'toCurrency': normalizeTitle(to),
         'fromNetwork': networkFor(from),
         'toNetwork': networkFor(to),
         'type': type,
@@ -279,6 +277,17 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return 'btc';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title.toLowerCase();
+    }
+  }
+
+  String normalizeTitle(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.zec:
+        return 'zec';
+      case CryptoCurrency.zaddr:
+        return 'zec';
+      default:
+        return currency.title.toLowerCase()
     }
   }
 
