@@ -94,7 +94,6 @@ import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
@@ -844,10 +843,6 @@ Future setup({
     return BuyViewModel(_ordersSource, getIt.get<OrdersStore>(), getIt.get<SettingsStore>(),
         getIt.get<BuyAmountViewModel>(),
         wallet: wallet!);
-  });
-
-  getIt.registerFactory(() {
-    return PreOrderPage(buyViewModel: getIt.get<BuyViewModel>());
   });
 
   getIt.registerFactoryParam<BuyWebViewPage, List, void>((List args, _) {
