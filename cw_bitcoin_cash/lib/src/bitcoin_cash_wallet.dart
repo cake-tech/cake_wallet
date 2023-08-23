@@ -10,6 +10,7 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin_cash/src/pending_bitcoin_cash_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -53,10 +54,21 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: hd,
-        //TODO: BCH: check if this is correct
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: bitcoinCashNetworkType)
+            .derivePath("m/44'/145'/0'/1"),
         networkType: networkType);
   }
+
+  static bitcoin.NetworkType bitcoinCashNetworkType = bitcoin.NetworkType(
+      messagePrefix: '\x18Bitcoin Signed Message:\n',
+      bech32: 'bc',
+      bip32: bitcoin.Bip32Type(
+        public: 0x0488b21e,
+        private: 0x0488ade4,
+      ),
+      pubKeyHash: 0x00,
+      scriptHash: 0x05,
+      wif: 0x80);
 
   static Future<BitcoinCashWallet> create(
       {required String mnemonic,
@@ -98,158 +110,219 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         initialChangeAddressIndex: snp.changeAddressIndex);
   }
 
-  @override
-  Future<PendingTransaction> createTransaction(Object credentials) async {
-    final transactionCredentials = credentials as BitcoinTransactionCredentials;
-
-    const minAmount = 546;
-    final inputs = <BitcoinUnspent>[];
-    var allInputsAmount = 0;
-    final outputs = transactionCredentials.outputs;
-    final hasMultiDestination = outputs.length > 1;
-
-    if (unspentCoins.isEmpty) {
-      await updateUnspent();
-    }
-
-    for (final utx in unspentCoins) {
-      if (utx.isSending) {
-        allInputsAmount += utx.value;
-        inputs.add(utx);
-      }
-    }
-
-    if (inputs.isEmpty) throw BitcoinTransactionNoInputsException();
-
-    final int feeRate = transactionCredentials.feeRate ??
-        BitcoinCashFeeRates.feeRate(transactionCredentials.priority!);
-
-    final int allAmountFee =
-        bitbox.BitcoinCash.getByteCount(inputs.length, transactionCredentials.outputs.length) *
-            feeRate;
-
-    final allAmount = allInputsAmount - allAmountFee;
-    var credentialsAmount = 0;
-    var amount = 0;
-    var fee = 0;
-
-    if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || item.formattedCryptoAmount! <= 0)) {
-        throw BitcoinTransactionWrongBalanceException(currency);
-      }
-
-      credentialsAmount = outputs.fold(0, (acc, value) {
-        return acc + value.formattedCryptoAmount!;
-      });
-
-      if (allAmount - credentialsAmount < minAmount) {
-        throw BitcoinTransactionWrongBalanceException(currency);
-      }
-
-      amount = credentialsAmount;
-
-      if (transactionCredentials.feeRate != null) {
-        fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount,
-            outputsCount: outputs.length + 1);
-      } else {
-        fee = calculateEstimatedFee(transactionCredentials.priority, amount,
-            outputsCount: outputs.length + 1);
-      }
-    } else {
-      final output = outputs.first;
-      credentialsAmount = !output.sendAll ? output.formattedCryptoAmount! : 0;
-
-      if (credentialsAmount > allAmount) throw BitcoinTransactionWrongBalanceException(currency);
-
-      amount = output.sendAll || allAmount - credentialsAmount < minAmount
-          ? allAmount
-          : credentialsAmount;
-
-      if (output.sendAll || amount == allAmount) {
-        fee = allAmountFee;
-      } else if (transactionCredentials.feeRate != null) {
-        fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount);
-      } else {
-        fee = calculateEstimatedFee(transactionCredentials.priority, amount);
-      }
-    }
-
-    if (fee == 0) throw BitcoinTransactionWrongBalanceException(currency);
-
-    final totalAmount = amount + fee;
-
-    if (totalAmount > balance[currency]!.confirmed || totalAmount > allInputsAmount) {
-      throw BitcoinTransactionWrongBalanceException(currency);
-    }
-
-    // final changeAddress = await walletAddresses.getChangeAddress(); TODO: BCH: implement change address
-    var leftAmount = totalAmount;
-    var totalInputAmount = 0;
-
-    inputs.clear();
-
-    for (final utx in unspentCoins) {
-      if (utx.isSending) {
-        leftAmount = leftAmount - utx.value;
-        totalInputAmount += utx.value;
-        inputs.add(utx);
-
-        if (leftAmount <= 0) break;
-      }
-    }
-
-    if (inputs.isEmpty) throw BitcoinTransactionNoInputsException();
-
-    if (amount <= 0 || totalInputAmount < totalAmount) {
-      throw BitcoinTransactionWrongBalanceException(currency);
-    }
-
-    final builder = bitbox.Bitbox.transactionBuilder(testnet: false);
-    final _wallet = hd;
-
-    final utxoSigningData = await fetchBuildTxData(inputs, _wallet);
-
-    List<bitbox.Utxo> _utxos = [];
-    for (var element in inputs) {
-      _utxos.add(bitbox.Utxo(element.hash, element.vout,
-          bitbox.BitcoinCash.fromSatoshi(element.value), element.value, 0, 1));
-    }
-
-    final signatures = <Map>[];
-    int totalBalance = 0;
-
-    _utxos.forEach((bitbox.Utxo utxo) {
-      builder.addInput(utxo.txid, utxo.vout);
-
-      final ec = utxoSigningData.firstWhere((e) => e.utxo.hash == utxo.txid).keyPair!;
-
-      final bitboxEC = bitbox.ECPair.fromWIF(ec.toWIF());
-
-      signatures
-          .add({"vin": signatures.length, "key_pair": bitboxEC, "original_amount": utxo.satoshis});
-
-      totalBalance += utxo.satoshis;
-    });
-
-    outputs.forEach((item) {
-      final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
-      final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
-      builder.addOutput(outputAddress, outputAmount!);
-    });
-
-    signatures.forEach((signature) {
-      builder.sign(signature["vin"], signature["key_pair"], signature["original_amount"]);
-    });
-
-    // build the transaction
-    final tx = builder.build();
-    return PendingBitcoinCashTransaction(tx, type,
-        electrumClient: electrumClient, amount: amount, fee: fee)
-      ..addListener((transaction) async {
-        transactionHistory.addOne(transaction);
-        await updateBalance();
-      });
-  }
+  // @override
+  // Future<PendingTransaction> createTransaction(Object credentials) async {
+  //   final transactionCredentials = credentials as BitcoinTransactionCredentials;
+  //
+  //   const minAmount = 546;
+  //   final inputs = <BitcoinUnspent>[];
+  //   var allInputsAmount = 0;
+  //   final outputs = transactionCredentials.outputs;
+  //   final hasMultiDestination = outputs.length > 1;
+  //
+  //   if (unspentCoins.isEmpty) {
+  //     await updateUnspent();
+  //   }
+  //
+  //   for (final utx in unspentCoins) {
+  //     if (utx.isSending) {
+  //       allInputsAmount += utx.value;
+  //       inputs.add(utx);
+  //     }
+  //   }
+  //
+  //   if (inputs.isEmpty) throw BitcoinTransactionNoInputsException();
+  //
+  //   final int feeRate = transactionCredentials.feeRate ??
+  //       BitcoinCashFeeRates.feeRate(transactionCredentials.priority!);
+  //
+  //   final int allAmountFee =
+  //       bitbox.BitcoinCash.getByteCount(inputs.length, transactionCredentials.outputs.length) *
+  //           feeRate;
+  //
+  //   final allAmount = allInputsAmount - allAmountFee;
+  //   var credentialsAmount = 0;
+  //   var amount = 0;
+  //   var fee = 0;
+  //
+  //   if (hasMultiDestination) {
+  //     if (outputs.any((item) => item.sendAll || item.formattedCryptoAmount! <= 0)) {
+  //       throw BitcoinTransactionWrongBalanceException(currency);
+  //     }
+  //
+  //     credentialsAmount = outputs.fold(0, (acc, value) {
+  //       return acc + value.formattedCryptoAmount!;
+  //     });
+  //
+  //     if (allAmount - credentialsAmount < minAmount) {
+  //       throw BitcoinTransactionWrongBalanceException(currency);
+  //     }
+  //
+  //     amount = credentialsAmount;
+  //
+  //     if (transactionCredentials.feeRate != null) {
+  //       fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount,
+  //           outputsCount: outputs.length + 1);
+  //     } else {
+  //       fee = calculateEstimatedFee(transactionCredentials.priority, amount,
+  //           outputsCount: outputs.length + 1);
+  //     }
+  //   } else {
+  //     final output = outputs.first;
+  //     credentialsAmount = !output.sendAll ? output.formattedCryptoAmount! : 0;
+  //
+  //     if (credentialsAmount > allAmount) throw BitcoinTransactionWrongBalanceException(currency);
+  //
+  //     amount = output.sendAll || allAmount - credentialsAmount < minAmount
+  //         ? allAmount
+  //         : credentialsAmount;
+  //
+  //     if (output.sendAll || amount == allAmount) {
+  //       fee = allAmountFee;
+  //     } else if (transactionCredentials.feeRate != null) {
+  //       fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount);
+  //     } else {
+  //       fee = calculateEstimatedFee(transactionCredentials.priority, amount);
+  //     }
+  //   }
+  //
+  //   if (fee == 0) throw BitcoinTransactionWrongBalanceException(currency);
+  //
+  //   final totalAmount = amount + fee;
+  //
+  //   if (totalAmount > balance[currency]!.confirmed || totalAmount > allInputsAmount) {
+  //     throw BitcoinTransactionWrongBalanceException(currency);
+  //   }
+  //
+  //   // final changeAddress = await walletAddresses.getChangeAddress(); TODO: BCH: implement change address
+  //   var leftAmount = totalAmount;
+  //   var totalInputAmount = 0;
+  //
+  //   inputs.clear();
+  //
+  //   for (final utx in unspentCoins) {
+  //     if (utx.isSending) {
+  //       leftAmount = leftAmount - utx.value;
+  //       totalInputAmount += utx.value;
+  //       inputs.add(utx);
+  //
+  //       if (leftAmount <= 0) break;
+  //     }
+  //   }
+  //
+  //   if (inputs.isEmpty) throw BitcoinTransactionNoInputsException();
+  //
+  //   if (amount <= 0 || totalInputAmount < totalAmount) {
+  //     throw BitcoinTransactionWrongBalanceException(currency);
+  //   }
+  //
+  //   final builder = bitbox.Bitbox.transactionBuilder(testnet: false);
+  //   final _wallet = hd;
+  //
+  //   final utxoSigningData = await fetchBuildTxData(inputs, _wallet);
+  //
+  //   List<bitbox.Utxo> _utxos = [];
+  //   for (var element in inputs) {
+  //     _utxos.add(bitbox.Utxo(element.hash, element.vout,
+  //         bitbox.BitcoinCash.fromSatoshi(element.value), element.value, 0, 1));
+  //   }
+  //
+  //   final signatures = <Map>[];
+  //   int totalBalance = 0;
+  //
+  //   _utxos.forEach((bitbox.Utxo utxo) {
+  //     builder.addInput(utxo.txid, utxo.vout);
+  //
+  //     final ec = utxoSigningData.firstWhere((e) => e.utxo.hash == utxo.txid).keyPair!;
+  //
+  //     final bitboxEC = bitbox.ECPair.fromWIF(ec.toWIF());
+  //
+  //     signatures
+  //         .add({"vin": signatures.length, "key_pair": bitboxEC, "original_amount": utxo.satoshis});
+  //
+  //     totalBalance += utxo.satoshis;
+  //   });
+  //
+  //   outputs.forEach((item) {
+  //     final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
+  //     final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
+  //     builder.addOutput(outputAddress, outputAmount!);
+  //   });
+  //
+  //   signatures.forEach((signature) {
+  //     builder.sign(signature["vin"], signature["key_pair"], signature["original_amount"]);
+  //   });
+  //
+  //   // build the transaction
+  //   final tx = builder.build();
+  //   return PendingBitcoinCashTransaction(tx, type,
+  //       electrumClient: electrumClient, amount: amount, fee: fee)
+  //     ..addListener((transaction) async {
+  //       transactionHistory.addOne(transaction);
+  //       await updateBalance();
+  //     });
+  // }
+  // @override
+  // Future<PendingBitcoinTransaction> createTransaction(Object credentials) async {
+  //   final utxosToUse = unspentCoins.where((utxo) => utxo.isSending).toList();
+  //   final utxoSigningData = await fetchBuildTxData(utxosToUse, hd);
+  //   final builder = bitbox.Bitbox.transactionBuilder(testnet: false);
+  //
+  //   List<bitbox.Utxo> _utxos = [];
+  //   for (var element in utxosToUse) {
+  //     _utxos.add(bitbox.Utxo(element.hash, element.vout,
+  //         bitbox.BitcoinCash.fromSatoshi(element.value), element.value, 0, 1));
+  //   }
+  //
+  //   final signatures = <Map>[];
+  //   int totalBalance = 0;
+  //
+  //   _utxos.forEach((bitbox.Utxo utxo) {
+  //     // add the utxo as an input for the transaction
+  //     builder.addInput(utxo.txid, utxo.vout);
+  //
+  //     final ec = utxoSigningData.firstWhere((e) => e.utxo.hash == utxo.txid).keyPair!;
+  //
+  //     final bitboxEC = bitbox.ECPair.fromWIF(ec.toWIF());
+  //
+  //     // add a signature to the list to be used later
+  //     signatures
+  //         .add({"vin": signatures.length, "key_pair": bitboxEC, "original_amount": utxo.satoshis});
+  //
+  //     totalBalance += utxo.satoshis;
+  //   });
+  //
+  //   // set an address to send the remaining balance to
+  //   final outputAddress = "13Hvge9HRduGiXMfcJHFn6sggequmaKqsZ";
+  //
+  //   // if there is an unspent balance, create a spending transaction
+  //   if (totalBalance > 0 && outputAddress != "") {
+  //     // calculate the fee based on number of inputs and one expected output
+  //     final fee = bitbox.BitcoinCash.getByteCount(signatures.length, 1);
+  //
+  //     // calculate how much balance will be left over to spend after the fee
+  //     final sendAmount = totalBalance - fee;
+  //
+  //     // add the output based on the address provided in the testing data
+  //     builder.addOutput(outputAddress, sendAmount);
+  //
+  //     // sign all inputs
+  //     signatures.forEach((signature) {
+  //       builder.sign(signature["vin"], signature["key_pair"], signature["original_amount"]);
+  //     });
+  //
+  //     // build the transaction
+  //     final tx = builder.build();
+  //
+  //     // broadcast the transaction
+  //     final result = await electrumClient.broadcastTransaction(transactionRaw: tx.toHex());
+  //
+  //     // Yatta!
+  //     print("Transaction broadcasted: $result");
+  //   }
+  //   return PendingBitcoinTransaction(Transaction(), type,
+  //       electrumClient: electrumClient, amount: 1, fee: 1);
+  // }
 
   Future<List<SigningData>> fetchBuildTxData(
       List<BitcoinUnspent> utxosToUse, HDWallet wallet) async {

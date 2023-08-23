@@ -93,7 +93,7 @@ abstract class ElectrumWalletBase
 
   static HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
       bitcoin.HDWallet.fromSeed(seedBytes, network: bitcoinCashNetworkType)
-          .derivePath("m/44'/145'/0'/0/0");
+          .derivePath("m/44'/145'/0'/0");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 146 + outputsCounts * 33 + 8;
@@ -154,9 +154,7 @@ abstract class ElectrumWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      if (walletInfo.type != WalletType.bitcoinCash) { //TODO: BCH: remove this check when supported
-        await walletAddresses.discoverAddresses();
-      }
+      await walletAddresses.discoverAddresses();
       await updateTransactions();
       _subscribeForUpdates();
       await updateUnspent();
