@@ -39,14 +39,12 @@ class HighContrastTheme extends MoneroLightTheme {
 
   @override
   CakeTextTheme get cakeTextTheme => super.cakeTextTheme.copyWith(
-      buttonTextColor: Colors.white,
-      buttonSecondaryTextColor: Colors.white.withOpacity(0.5));
+      buttonTextColor: Colors.white, buttonSecondaryTextColor: Colors.white.withOpacity(0.5));
 
   @override
-  SyncIndicatorTheme get syncIndicatorStyle =>
-      super.syncIndicatorStyle.copyWith(
-          textColor: colorScheme.background,
-          syncedBackgroundColor: containerColor);
+  SyncIndicatorTheme get syncIndicatorStyle => super
+      .syncIndicatorStyle
+      .copyWith(textColor: colorScheme.background, syncedBackgroundColor: containerColor);
 
   @override
   BalancePageTheme get balancePageTheme => super.balancePageTheme.copyWith(
@@ -56,32 +54,28 @@ class HighContrastTheme extends MoneroLightTheme {
       balanceAmountColor: Colors.white);
 
   @override
-  DashboardPageTheme get dashboardPageTheme =>
-      super.dashboardPageTheme.copyWith(
-          textColor: Colors.black,
-          cardTextColor: Colors.white,
-          mainActionsIconColor: Colors.white,
-          indicatorDotTheme: IndicatorDotTheme(
-              indicatorColor: Colors.grey, activeIndicatorColor: Colors.black));
+  DashboardPageTheme get dashboardPageTheme => super.dashboardPageTheme.copyWith(
+      textColor: Colors.black,
+      cardTextColor: Colors.white,
+      mainActionsIconColor: Colors.white,
+      indicatorDotTheme:
+          IndicatorDotTheme(indicatorColor: Colors.grey, activeIndicatorColor: Colors.black));
 
   @override
-  ExchangePageTheme get exchangePageTheme => super
-      .exchangePageTheme
-      .copyWith(firstGradientTopPanelColor: containerColor);
+  ExchangePageTheme get exchangePageTheme => super.exchangePageTheme.copyWith(
+      firstGradientTopPanelColor: primaryColor, firstGradientBottomPanelColor: containerColor);
 
   @override
   SendPageTheme get sendPageTheme => super.sendPageTheme.copyWith(
       templateTitleColor: Colors.white,
       templateBackgroundColor: Colors.black,
-      firstGradientColor: containerColor);
+      firstGradientColor: primaryColor);
 
   @override
-  AddressTheme get addressTheme =>
-      super.addressTheme.copyWith(actionButtonColor: Colors.grey);
+  AddressTheme get addressTheme => super.addressTheme.copyWith(actionButtonColor: Colors.grey);
 
   @override
-  FilterTheme get filterTheme =>
-      super.filterTheme.copyWith(iconColor: Colors.white);
+  FilterTheme get filterTheme => super.filterTheme.copyWith(iconColor: Colors.white);
 
   @override
   CakeMenuTheme get menuTheme => super.menuTheme.copyWith(
@@ -91,10 +85,11 @@ class HighContrastTheme extends MoneroLightTheme {
 
   @override
   PickerTheme get pickerTheme => super.pickerTheme.copyWith(
-      searchIconColor: Colors.white,
-      searchHintColor: Colors.white,
-      searchTextColor: Colors.white,
-      searchBackgroundFillColor: Colors.grey);
+      searchIconColor: primaryColor,
+      searchHintColor: primaryColor,
+      searchTextColor: primaryColor,
+      searchBackgroundFillColor: Colors.white,
+      searchBorderColor: primaryColor);
 
   @override
   AccountListTheme get accountListTheme => super.accountListTheme.copyWith(
@@ -106,13 +101,10 @@ class HighContrastTheme extends MoneroLightTheme {
 
   @override
   ReceivePageTheme get receivePageTheme => super.receivePageTheme.copyWith(
-      tilesTextColor: Colors.white,
-      iconsBackgroundColor: Colors.grey,
-      iconsColor: Colors.black);
+      tilesTextColor: Colors.white, iconsBackgroundColor: Colors.grey, iconsColor: Colors.black);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
       disabledColor: Colors.grey,
-      dialogTheme:
-          super.themeData.dialogTheme.copyWith(backgroundColor: Colors.white));
+      dialogTheme: super.themeData.dialogTheme.copyWith(backgroundColor: Colors.white));
 }
