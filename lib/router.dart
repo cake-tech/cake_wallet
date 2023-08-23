@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
@@ -383,6 +384,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) =>
               getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
+
+    case Routes.buy:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>());
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
