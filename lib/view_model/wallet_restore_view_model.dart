@@ -26,14 +26,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
-      : availableModes = (type == WalletType.monero || type == WalletType.haven)
-            ? [WalletRestoreMode.seed, WalletRestoreMode.keys, WalletRestoreMode.txids]
-            : (type == WalletType.nano || type == WalletType.banano)
-                ? [WalletRestoreMode.seed, WalletRestoreMode.keys]
-                : [WalletRestoreMode.seed],
+      : availableModes =
+            (type == WalletType.monero || type == WalletType.haven || type == WalletType.ethereum)
+                ? WalletRestoreMode.values
+                : (type == WalletType.nano || type == WalletType.banano)
+                    ? [WalletRestoreMode.seed, WalletRestoreMode.keys]
+                    : [WalletRestoreMode.seed],
         hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
-        hasMultipleKeys = type != WalletType.nano || type == WalletType.banano,
+        hasRestoreFromPrivateKey =
+            type == WalletType.ethereum || type == WalletType.nano || type == WalletType.banano,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
@@ -48,7 +50,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
   final bool hasBlockchainHeightLanguageSelector;
-  final bool hasMultipleKeys;
+  final bool hasRestoreFromPrivateKey;
 
   @observable
   WalletRestoreMode mode;
@@ -93,41 +95,47 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
 
     if (mode == WalletRestoreMode.keys) {
-      if (hasMultipleKeys) {
-        final viewKey = options['viewKey'] as String;
-        final spendKey = options['spendKey'] as String;
-        final address = options['address'] as String;
+      final viewKey = options['viewKey'] as String?;
+      final spendKey = options['spendKey'] as String?;
+      final address = options['address'] as String?;
 
-        if (type == WalletType.monero) {
-          return monero!.createMoneroRestoreWalletFromKeysCredentials(
-              name: name,
-              height: height,
-              spendKey: spendKey,
-              viewKey: viewKey,
-              address: address,
-              password: password,
-              language: 'English');
-        }
-
-        if (type == WalletType.haven) {
-          return haven!.createHavenRestoreWalletFromKeysCredentials(
-              name: name,
-              height: height,
-              spendKey: spendKey,
-              viewKey: viewKey,
-              address: address,
-              password: password,
-              language: 'English');
-        }
-      } else {
-        if (type == WalletType.nano) {
-          return nano!.createNanoRestoreWalletFromKeysCredentials(
+      if (type == WalletType.monero) {
+        return monero!.createMoneroRestoreWalletFromKeysCredentials(
             name: name,
+            height: height,
+            spendKey: spendKey!,
+            viewKey: viewKey!,
+            address: address!,
             password: password,
-            seedKey: options['seedKey'] as String,
-            derivationType: options["derivationType"] as DerivationType,
-          );
-        }
+            language: 'English');
+      }
+
+      if (type == WalletType.haven) {
+        return haven!.createHavenRestoreWalletFromKeysCredentials(
+            name: name,
+            height: height,
+            spendKey: spendKey!,
+            viewKey: viewKey!,
+            address: address!,
+            password: password,
+            language: 'English');
+      }
+
+      if (type == WalletType.ethereum) {
+        return ethereum!.createEthereumRestoreWalletFromPrivateKey(
+          name: name,
+          privateKey: options['private_key'] as String,
+          password: password,
+        );
+      }
+
+      if (type == WalletType.nano) {
+        return nano!.createNanoRestoreWalletFromKeysCredentials(
+          name: name,
+          password: password,
+          seedKey: options['private_key'] as String,
+          derivationType: options["derivationType"] as DerivationType,
+        );
       }
     }
 
@@ -136,13 +144,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @override
   Future<List<DerivationType>> getDerivationType(dynamic options) async {
-    final seedKey = options['seedKey'] as String?;
+    final seedKey = options['private_key'] as String?;
     final mnemonic = options['seed'] as String?;
     WalletType walletType = options['walletType'] as WalletType;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
-    
-    switch (type) {
+
+    switch (walletType) {
       // case WalletType.bitcoin:
       //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
       //       name: name, mnemonic: seed, password: password);

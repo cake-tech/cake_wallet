@@ -1,5 +1,4 @@
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_key_form.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -26,7 +25,6 @@ class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
         walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
-        walletRestoreFromSeedKeyFormKey = GlobalKey<WalletRestoreFromSeedKeyFormState>(),
         _pages = [],
         _blockHeightFocusNode = FocusNode(),
         _controller = PageController(initialPage: 0) {
@@ -73,9 +71,12 @@ class WalletRestorePage extends BasePage {
           _pages.add(WalletRestoreFromKeysFrom(
               key: walletRestoreFromKeysFormKey,
               walletRestoreViewModel: walletRestoreViewModel,
-              onSpendKeyChange: (String seed) {
-                walletRestoreViewModel.isButtonEnabled = _isValidSeedKey();
+              onPrivateKeyChange: (String seed) {
+                if (walletRestoreViewModel.type == WalletType.nano || walletRestoreViewModel.type == WalletType.banano) {
+                  walletRestoreViewModel.isButtonEnabled = _isValidSeedKey();
+                }
               },
+              displayPrivateKeyField: walletRestoreViewModel.hasRestoreFromPrivateKey,
               onHeightOrDateEntered: (value) => walletRestoreViewModel.isButtonEnabled = value));
           break;
         default:
@@ -102,7 +103,6 @@ class WalletRestorePage extends BasePage {
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
-  final GlobalKey<WalletRestoreFromSeedKeyFormState> walletRestoreFromSeedKeyFormKey;
   final FocusNode _blockHeightFocusNode;
   DerivationType derivationType = DerivationType.unknown;
 
@@ -197,8 +197,12 @@ class WalletRestorePage extends BasePage {
                           await _confirmForm(context);
                         },
                         text: S.of(context).restore_recover,
-                        color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
-                        textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+                        color: Theme.of(context)
+                            .extension<WalletListTheme>()!
+                            .createNewWalletButtonBackgroundColor,
+                        textColor: Theme.of(context)
+                            .extension<WalletListTheme>()!
+                            .restoreWalletButtonTextColor,
                         isLoading: walletRestoreViewModel.state is IsExecutingState,
                         isDisabled: !walletRestoreViewModel.isButtonEnabled,
                       );
@@ -235,7 +239,7 @@ class WalletRestorePage extends BasePage {
   }
 
   bool _isValidSeedKey() {
-    final seedKey = walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
+    final seedKey = walletRestoreFromKeysFormKey.currentState!.privateKeyController.text;
 
     if (seedKey.length != 64 && seedKey.length != 128) {
       return false;
@@ -259,10 +263,11 @@ class WalletRestorePage extends BasePage {
       credentials['name'] =
           walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;
     } else if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
-      if (!walletRestoreViewModel.hasMultipleKeys) {
+      if (walletRestoreViewModel.hasRestoreFromPrivateKey) {
+        credentials['private_key'] =
+            walletRestoreFromKeysFormKey.currentState!.privateKeyController.text;
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
-        credentials['seedKey'] = walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
       } else {
         credentials['address'] = walletRestoreFromKeysFormKey.currentState!.addressController.text;
         credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
@@ -327,7 +332,7 @@ class WalletRestorePage extends BasePage {
     }
 
     walletRestoreViewModel.state = InitialExecutionState();
-    
+
     walletRestoreViewModel.create(options: _credentials());
   }
 
