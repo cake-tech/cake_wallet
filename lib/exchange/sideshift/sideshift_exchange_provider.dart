@@ -28,7 +28,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     CryptoCurrency.xhv,
     CryptoCurrency.dcr,
     CryptoCurrency.kmd,
-    CryptoCurrency.mkr,
     CryptoCurrency.oxt,
     CryptoCurrency.pivx,
     CryptoCurrency.rune,
