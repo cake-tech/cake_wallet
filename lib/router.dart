@@ -57,7 +57,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
-import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -80,7 +79,6 @@ import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_c
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
-import 'package:cake_wallet/src/screens/restore/restore_wallet_from_seed_details.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
@@ -397,16 +395,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true,
           builder: (_) =>
               getIt.get<BuyWebViewPage>(param1: args));
-
-    case Routes.restoreWalletFromSeedDetails:
-      final args = settings.arguments as List;
-      final walletRestorationFromSeedVM =
-          getIt.get<WalletRestorationFromSeedVM>(param1: args);
-
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => RestoreWalletFromSeedDetailsPage(
-              walletRestorationFromSeedVM: walletRestorationFromSeedVM));
 
     case Routes.exchange:
       return CupertinoPageRoute<void>(
