@@ -173,7 +173,7 @@ abstract class SendViewModelBase with Store {
       .toList();
 
   @computed
-  bool get isElectrumWallet =>
+  bool get hasCoinControl =>
       _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin || _wallet.type == WalletType.monero;
 
   @observable
@@ -374,7 +374,7 @@ abstract class SendViewModelBase with Store {
     final _priority = priority as TransactionPriority;
     final wallet = _wallet;
 
-    if (isElectrumWallet) {
+    if (hasCoinControl) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
