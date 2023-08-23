@@ -54,6 +54,7 @@ jobs:
             /opt/android/cake_wallet/cw_haven/ios/External
             /opt/android/cake_wallet/cw_monero/android/.cxx
             /opt/android/cake_wallet/cw_monero/ios/External
+            /opt/android/cake_wallet/cw_monero/ios/Classes/monero_api.cpp
             /opt/android/cake_wallet/cw_shared_external/ios/External
           key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh') }}
 

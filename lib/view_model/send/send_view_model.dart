@@ -176,6 +176,10 @@ abstract class SendViewModelBase with Store {
   bool get hasCoinControl =>
       _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin || _wallet.type == WalletType.monero;
 
+  @computed
+  bool get isElectrumWallet =>
+      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
+
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
@@ -206,12 +210,12 @@ abstract class SendViewModelBase with Store {
 
   @computed
   List<ContactRecord> get contactsToShow => contactListViewModel.contacts
-      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
+      .where((element) => element.type == selectedCryptoCurrency)
       .toList();
 
   @computed
   List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
-      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
+      .where((element) => element.type == selectedCryptoCurrency)
       .toList();
 
   @action
@@ -374,7 +378,7 @@ abstract class SendViewModelBase with Store {
     final _priority = priority as TransactionPriority;
     final wallet = _wallet;
 
-    if (hasCoinControl) {
+    if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
