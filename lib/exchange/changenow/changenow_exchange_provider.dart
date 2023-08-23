@@ -287,7 +287,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.zaddr:
         return 'zec';
       default:
-        return currency.title.toLowerCase()
+        return currency.title.toLowerCase();
     }
   }
 
