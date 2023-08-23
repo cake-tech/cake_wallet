@@ -19,11 +19,21 @@ enum DerivationType {
   StandardBIP44Legacy
 }
 
+class DerivationInfo {
+  DerivationInfo(this.balance, this.address, this.height, this.derivationType, this.derivationPath);
+
+  final String balance;
+  final String address;
+  final int height;
+  final DerivationType derivationType;
+  final String? derivationPath;
+}
+
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
       this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
-        this.yatLastUsedAddressRaw, this.showIntroCakePayCard, this.derivationType)
+        this.yatLastUsedAddressRaw, this.showIntroCakePayCard, this.derivationType, this.derivationPath)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
@@ -39,10 +49,11 @@ class WalletInfo extends HiveObject {
       bool? showIntroCakePayCard,
       String yatEid = '',
       String yatLastUsedAddressRaw = '',
-      DerivationType? derivationType}) {
+      DerivationType? derivationType,
+      String? derivationPath,}) {
     return WalletInfo(id, name, type, isRecovery, restoreHeight,
         date.millisecondsSinceEpoch, dirPath, path, address,
-        yatEid, yatLastUsedAddressRaw, showIntroCakePayCard, derivationType);
+        yatEid, yatLastUsedAddressRaw, showIntroCakePayCard, derivationType, derivationPath);
   }
 
   static const typeId = WALLET_INFO_TYPE_ID;
@@ -89,6 +100,9 @@ class WalletInfo extends HiveObject {
 
   @HiveField(14)
   DerivationType? derivationType;
+
+  @HiveField(15)
+  String? derivationPath;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
