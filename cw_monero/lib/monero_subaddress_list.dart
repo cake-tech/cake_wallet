@@ -23,14 +23,7 @@ abstract class MoneroSubaddressListBase with Store {
 
   void update({required int accountIndex}) {
     refreshCoins(accountIndex);
-    final val = countOfCoins();
 
-    for (var i = 0; i < val; i++) {
-      final coin = getCoin(i);
-      print("Coin:\n\thash=${coin.getHash()},\n\tKeyImage=${coin.getKeyImage()},\n\tamount: ${coin.amount},\n\tisFrozen: ${coin.frozen},\n\tisSpent=${coin.spent},\n\tisUnlocked=${coin.unlocked}");
-    }
-
-    print(val);
     if (_isUpdating) {
       return;
     }
