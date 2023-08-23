@@ -677,5 +677,11 @@
   "slidable": "可滑动",
   "manage_nodes": "管理节点",
   "etherscan_history": "以太扫描历史",
-  "template_name": "模板名称"
+  "template_name": "模板名称",
+  "monero_dark_theme": "门罗币深色主题",
+  "bitcoin_dark_theme": "比特币黑暗主题",
+  "bitcoin_light_theme": "比特币浅色主题",
+  "high_contrast_theme": "高对比度主题",
+  "matrix_green_dark_theme": "矩阵绿暗主题",
+  "monero_light_theme": "门罗币浅色主题"
 }

@@ -4,6 +4,8 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
@@ -11,7 +13,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
@@ -81,28 +84,11 @@ class _DashboardPageView extends BasePage {
   final BalancePage balancePage;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.secondary,
-                  Theme.of(context).scaffoldBackgroundColor,
-                  Theme.of(context).primaryColor,
-                ],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-              ),
-            ),
-            child: scaffold,
-          );
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -122,7 +108,7 @@ class _DashboardPageView extends BasePage {
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset(
       'assets/images/menu.png',
-      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
     );
 
     return Container(
@@ -141,6 +127,7 @@ class _DashboardPageView extends BasePage {
 
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
+
   int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
   ObservableList<Widget> pages = ObservableList<Widget>();
   bool _isEffectsInstalled = false;
@@ -199,8 +186,10 @@ class _DashboardPageView extends BasePage {
                       dotWidth: 6.0,
                       dotHeight: 6.0,
                       dotColor: Theme.of(context).indicatorColor,
-                      activeDotColor:
-                          Theme.of(context).accentTextTheme.headlineMedium!.backgroundColor!,
+                      activeDotColor: Theme.of(context)
+                          .extension<DashboardPageTheme>()!
+                          .indicatorDotTheme
+                          .activeIndicatorColor,
                     ),
                   ),
                 );
@@ -216,12 +205,11 @@ class _DashboardPageView extends BasePage {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(50.0),
                       border: Border.all(
-                        color: currentTheme.type == ThemeType.bright
-                            ? Color.fromRGBO(255, 255, 255, 0.2)
-                            : Colors.transparent,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                         width: 1,
                       ),
-                      color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
+                      color:
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     ),
                     child: Container(
                       padding: EdgeInsets.only(left: 32, right: 32),
@@ -240,13 +228,11 @@ class _DashboardPageView extends BasePage {
                                     width: 24,
                                     color: action.isEnabled?.call(dashboardViewModel) ?? true
                                         ? Theme.of(context)
-                                            .accentTextTheme
-                                            .displayMedium!
-                                            .backgroundColor!
+                                            .extension<DashboardPageTheme>()!
+                                            .mainActionsIconColor
                                         : Theme.of(context)
-                                            .accentTextTheme
-                                            .displaySmall!
-                                            .backgroundColor!,
+                                            .extension<BalancePageTheme>()!
+                                            .labelTextColor,
                                   ),
                                   title: action.name(context),
                                   onClick: () async =>
@@ -254,9 +240,8 @@ class _DashboardPageView extends BasePage {
                                   textColor: action.isEnabled?.call(dashboardViewModel) ?? true
                                       ? null
                                       : Theme.of(context)
-                                          .accentTextTheme
-                                          .displaySmall!
-                                          .backgroundColor!,
+                                          .extension<BalancePageTheme>()!
+                                          .labelTextColor,
                                 ),
                               ),
                             )

@@ -15,6 +15,9 @@ class Palette {
   static const Color nightBlue = Color.fromRGBO(46, 57, 96, 1.0);
   static const Color moderateOrangeYellow = Color.fromRGBO(245, 134, 82, 1.0);
   static const Color moderateOrange = Color.fromRGBO(235, 117, 63, 1.0);
+  static const Color moneroOrange = Color.fromRGBO(255, 102, 0, 1.0);
+  static const Color moneroLightOrange = Color.fromRGBO(250, 240, 246, 1.0);
+  static const Color bitcoinOrange = Color.fromRGBO(242, 169, 0, 1.0);
   static const Color shineGreen = Color.fromRGBO(76, 189, 87, 1.0);
   static const Color moderateGreen = Color.fromRGBO(45, 158, 56, 1.0);
   static const Color cornflower = Color.fromRGBO(85, 147, 240, 1.0);
@@ -48,6 +51,7 @@ class Palette {
   static const Color paleCornflowerBlue = Color.fromRGBO(185, 196, 237, 1.0);
   static const Color manatee = Color.fromRGBO(153, 161, 176, 1.0);
   static const Color stateGray = Color.fromRGBO(68, 74, 89, 1.0);
+  static const Color highContrastGray = Color.fromRGBO(76, 76, 76, 1.0);
   static const Color frostySky = Color.fromRGBO(0, 184, 250, 1.0);
 }
 
@@ -90,4 +94,7 @@ class PaletteDark {
   static const Color lightPurpleBlue = Color.fromRGBO(120, 133, 170, 1.0);
   static const Color indicatorVioletBlue = Color.fromRGBO(59, 72, 119, 1.0);
   static const Color granite = Color.fromRGBO(48, 51, 60, 1.0);
+  static const Color matrixGreen = Color.fromRGBO(18, 229, 90, 1.0);
+  static const Color moneroOrange = Color.fromRGBO(255, 102, 0, 1.0);
+  static const Color moneroCard = Color.fromRGBO(20, 21, 24, 1.0);
 }

@@ -3,6 +3,10 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -59,9 +63,6 @@ class PreOrderPage extends BasePage {
   String get title => S.current.buy + ' ' + walletTypeToString(buyViewModel.wallet.type);
 
   @override
-  Color get titleColor => Colors.white;
-
-  @override
   bool get resizeToAvoidBottomInset => false;
 
   @override
@@ -80,10 +81,7 @@ class PreOrderPage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context)
-                .accentTextTheme!
-                .bodyLarge!
-                .backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -104,10 +102,8 @@ class PreOrderPage extends BasePage {
                           bottomLeft: Radius.circular(24),
                           bottomRight: Radius.circular(24)),
                       gradient: LinearGradient(colors: [
-                        Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                        Theme.of(context)
-                            .primaryTextTheme!.titleMedium!
-                            .decorationColor!,
+                        Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                        Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                       ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     ),
                   child: Padding(
@@ -162,11 +158,11 @@ class PreOrderPage extends BasePage {
                             ),
                           ),
                           hintText: '0.00',
-                          borderColor: Theme.of(context).primaryTextTheme!.bodyLarge!.decorationColor!,
+                          borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
                           borderWidth: 0.5,
                           textStyle: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.white),
                           placeholderTextStyle: TextStyle(
-                            color: Theme.of(context).primaryTextTheme!.headlineSmall!.decorationColor!,
+                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
                             fontWeight: FontWeight.w500,
                             fontSize: 36,
                           ),
@@ -181,7 +177,7 @@ class PreOrderPage extends BasePage {
                       S.of(context).buy_with + ':',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold
                       ),
@@ -248,7 +244,7 @@ class PreOrderPage extends BasePage {
                           ? S.of(context).buy
                           : S.of(context).buy_with +
                             ' ${buyViewModel.selectedProvider!.description.title}',
-                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: buyViewModel.isRunning,
                     isDisabled: (buyViewModel.selectedProvider == null) ||

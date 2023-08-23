@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -12,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class IoniaCustomRedeemPage extends BasePage {
   IoniaCustomRedeemPage(
@@ -27,9 +30,6 @@ class IoniaCustomRedeemPage extends BasePage {
 
   @override
   String get title => S.current.custom_redeem_amount;
-
-  @override
-  Color get titleColor => Colors.white;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -50,10 +50,7 @@ class IoniaCustomRedeemPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context)
-              .accentTextTheme!
-              .bodyLarge!
-              .backgroundColor!,
+          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -73,11 +70,8 @@ class IoniaCustomRedeemPage extends BasePage {
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                    Theme.of(context)
-                        .primaryTextTheme!
-                        .titleMedium!
-                        .decorationColor!,
+                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                   ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                 ),
                 child: Column(
@@ -92,17 +86,11 @@ class IoniaCustomRedeemPage extends BasePage {
                       inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\-|\ ]'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
-                        color: Theme.of(context)
-                            .primaryTextTheme!
-                            .headlineSmall!
-                            .color!,
+                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                         fontWeight: FontWeight.w500,
                         fontSize: 36,
                       ),
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme!
-                          .headlineSmall!
-                          .color!,
+                      borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                       textColor: Colors.white,
                       textStyle: TextStyle(
                         color: Colors.white,
@@ -133,10 +121,7 @@ class IoniaCustomRedeemPage extends BasePage {
                               child: Text(
                                 '\$${giftCard.remainingAmount} - \$${ioniaCustomRedeemViewModel.amount} = \$${ioniaCustomRedeemViewModel.formattedRemaining} ${S.of(context).remaining}',
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .headlineSmall!
-                                      .color!,
+                                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                                 ),
                               ),
                             )
@@ -150,18 +135,12 @@ class IoniaCustomRedeemPage extends BasePage {
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
                   title: giftCard.legalName,
-                  backgroundColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!
+                  backgroundColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
                       .withOpacity(0.1),
                   discount: giftCard.remainingAmount,
                   isAmount: true,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
-                  titleColor: Theme.of(context)
-                      .accentTextTheme!
-                      .displayLarge!
-                      .backgroundColor!,
+                  titleColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: S.of(context).online,
                   logoUrl: giftCard.logoUrl,
@@ -178,10 +157,7 @@ class IoniaCustomRedeemPage extends BasePage {
                     isLoading: ioniaCustomRedeemViewModel.redeemState is IsExecutingState,
                     isDisabled: ioniaCustomRedeemViewModel.disableRedeem,
                     text: S.of(context).add_custom_redemption,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodyLarge!
-                        .color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     onPressed: () => ioniaCustomRedeemViewModel.addCustomRedeem().then((value) {
                       Navigator.of(context).pop(ioniaCustomRedeemViewModel.remaining.toString());

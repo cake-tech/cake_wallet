@@ -35,10 +35,7 @@ class RescanPage extends BasePage {
                             _blockchainHeightWidgetKey.currentState!.height);
                     Navigator.of(context).pop();
                   },
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                   isDisabled: !_rescanViewModel.isButtonEnabled,
                 ))

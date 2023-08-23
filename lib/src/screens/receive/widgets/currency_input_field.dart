@@ -2,6 +2,9 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class CurrencyInputField extends StatelessWidget {
   const CurrencyInputField({
@@ -22,10 +25,7 @@ class CurrencyInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrowBottomPurple = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       height: 8,
     );
     final _width = MediaQuery.of(context).size.width;
@@ -42,14 +42,16 @@ class CurrencyInputField extends StatelessWidget {
               keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,8}'))],
               hintText: '0.000',
-              placeholderTextStyle: isLight ? null : TextStyle(
-                color: Theme.of(context).primaryTextTheme!.headlineSmall!.color!,
-                fontWeight: FontWeight.w600,
-              ),
-              borderColor: Theme.of(context).accentTextTheme!.titleLarge!.backgroundColor!,
-              textColor: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+              placeholderTextStyle: isLight
+                  ? null
+                  : TextStyle(
+                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+              borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+              textColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               textStyle: TextStyle(
-                color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               ),
               prefixIcon: Padding(
                 padding: EdgeInsets.only(
@@ -72,7 +74,7 @@ class CurrencyInputField extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
-                              color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                             ),
                           ),
                           if (selectedCurrency.tag != null)
@@ -80,7 +82,7 @@ class CurrencyInputField extends StatelessWidget {
                               padding: const EdgeInsets.only(right: 3.0),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryTextTheme!.headlineMedium!.color!,
+                                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                                   borderRadius: BorderRadius.all(
                                     Radius.circular(6),
                                   ),
@@ -91,10 +93,7 @@ class CurrencyInputField extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                                     ),
                                   ),
                                 ),
@@ -107,8 +106,7 @@ class CurrencyInputField extends StatelessWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 20,
-                                color:
-                                    Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                               ),
                             ),
                           ),

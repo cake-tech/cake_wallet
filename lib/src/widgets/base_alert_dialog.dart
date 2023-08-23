@@ -1,5 +1,7 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -25,7 +27,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
         decoration: TextDecoration.none,
       ),
     );
@@ -39,7 +41,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
         fontFamily: 'Lato',
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
         decoration: TextDecoration.none,
       ),
     );
@@ -57,10 +59,7 @@ class BaseAlertDialog extends StatelessWidget {
                   onPressed: actionLeft,
                   style: TextButton.styleFrom(
                       backgroundColor: leftActionButtonColor ??
-                          Theme.of(context)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .decorationColor!,
+                          Theme.of(context).dialogBackgroundColor,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.zero))),
                   child: Text(
@@ -71,24 +70,18 @@ class BaseAlertDialog extends StatelessWidget {
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
                       color: leftActionButtonTextColor ??
-                          Theme.of(context)
-                              .primaryTextTheme!
-                              .bodyLarge!
-                              .backgroundColor!,
+                          Theme.of(context).extension<AlertTheme>()!.leftButtonTextColor,
                       decoration: TextDecoration.none,
                     ),
                   )),
             ),
-            const SectionDivider(),
+            const VerticalSectionDivider(),
             Expanded(
               child: TextButton(
                   onPressed: actionRight,
                   style: TextButton.styleFrom(
                       backgroundColor: rightActionButtonColor ??
-                          Theme.of(context)
-                              .accentTextTheme!
-                              .bodyMedium!
-                              .backgroundColor!,
+                          Theme.of(context).dialogBackgroundColor,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.zero))),
                   child: Text(
@@ -99,10 +92,7 @@ class BaseAlertDialog extends StatelessWidget {
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
                       color: rightActionButtonTextColor ??
-                          Theme.of(context)
-                              .primaryTextTheme!
-                              .bodyMedium!
-                              .backgroundColor!,
+                          Theme.of(context).primaryColor,
                       decoration: TextDecoration.none,
                     ),
                   )),
@@ -120,7 +110,9 @@ class BaseAlertDialog extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
+            decoration: BoxDecoration(
+                color:
+                    Theme.of(context).extension<AlertTheme>()!.backdropColor),
             child: Center(
               child: GestureDetector(
                 onTap: () => null,
@@ -128,10 +120,7 @@ class BaseAlertDialog extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   child: Container(
                     width: 300,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .titleLarge!
-                        .decorationColor!,
+                    color: Theme.of(context).dialogBackgroundColor,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -145,7 +134,7 @@ class BaseAlertDialog extends StatelessWidget {
                             isDividerExists
                                 ? Padding(
                                     padding: EdgeInsets.only(top: 16, bottom: 8),
-                                    child: const SectionDivider(),
+                                    child: const HorizontalSectionDivider(),
                                   )
                                 : Offstage(),
                             Padding(
@@ -154,7 +143,7 @@ class BaseAlertDialog extends StatelessWidget {
                             )
                           ],
                         ),
-                        const SectionDivider(),
+                        const HorizontalSectionDivider(),
                         actionButtons(context)
                       ],
                     ),

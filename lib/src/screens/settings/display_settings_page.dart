@@ -2,13 +2,10 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -73,14 +70,7 @@ class DisplaySettingsPage extends BasePage {
               },
             ),
             if (DeviceInfo.instance.isMobile)
-              SettingsChoicesCell(
-                ChoicesListItem<ThemeBase>(
-                  title: S.current.color_theme,
-                  items: ThemeList.all,
-                  selectedItem: _displaySettingsViewModel.theme,
-                  onItemSelected: (ThemeBase theme) => _displaySettingsViewModel.setTheme(theme),
-                ),
-              ),
+              SettingsThemeChoicesCell(_displaySettingsViewModel),
           ],
         ),
       );

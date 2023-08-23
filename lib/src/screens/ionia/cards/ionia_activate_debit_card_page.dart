@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -23,10 +24,7 @@ class IoniaActivateDebitCardPage extends BasePage {
     return Text(
       S.current.debit_card,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -79,10 +77,7 @@ class IoniaActivateDebitCardPage extends BasePage {
         },
         isLoading: _cardsListViewModel.createCardState is IoniaCreateCardLoading,
         text: S.of(context).agree_and_continue,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .bodyLarge!
-            .color!,
+        color: Theme.of(context).primaryColor,
         textColor: Colors.white,
       ),
     );

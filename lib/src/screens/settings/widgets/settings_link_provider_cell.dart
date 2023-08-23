@@ -27,7 +27,7 @@ class SettingsLinkProviderCell extends StandardListRow {
       style: TextStyle(
           fontSize: 14.0,
           fontWeight: FontWeight.w500,
-          color: Palette.blueCraiola));
+          color: Theme.of(context).primaryColor));
 
   static void _launchUrl(String url) async {
     try {

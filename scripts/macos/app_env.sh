@@ -16,7 +16,7 @@ fi
 
 CAKEWALLET_NAME="Cake Wallet"
 CAKEWALLET_VERSION="1.1.1"
-CAKEWALLET_BUILD_NUMBER=29
+CAKEWALLET_BUILD_NUMBER=30
 CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_MACOS_TYPE} " ]]; then
