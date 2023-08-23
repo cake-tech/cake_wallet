@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -39,7 +40,7 @@ class ContactListPage extends BasePage {
           children: <Widget>[
             Icon(
               Icons.add,
-              color: Theme.of(context).dialogTheme.backgroundColor,
+              color: Theme.of(context).appBarTheme.titleTextStyle!.color,
               size: 22.0,
             ),
             ButtonTheme(
@@ -71,7 +72,7 @@ class ContactListPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+        padding: EdgeInsets.all(20.0),
         child: Observer(builder: (_) {
           final contacts = contactListViewModel.contactsToShow;
           final walletContacts = contactListViewModel.walletContactsToShow;
@@ -131,7 +132,6 @@ class ContactListPage extends BasePage {
         }
       },
       child: Container(
-        color: Colors.transparent,
         padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -146,7 +146,7 @@ class ContactListPage extends BasePage {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Theme.of(context).dialogTheme.backgroundColor,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
             ))
