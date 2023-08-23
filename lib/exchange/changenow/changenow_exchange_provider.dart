@@ -70,10 +70,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final headers = {apiHeaderKey: apiKey};
     final flow = getFlow(isFixedRateMode);
     final params = <String, String>{
-      'fromCurrency': normalizeTitle(from),
-      'toCurrency': normalizeTitle(to),
-      'fromNetwork': networkFor(from),
-      'toNetwork': networkFor(to),
+      'fromCurrency': _normalizeTitle(from),
+      'toCurrency': _normalizeTitle(to),
+      'fromNetwork': _networkFor(from),
+      'toNetwork': _networkFor(to),
       'flow': flow
     };
     final uri = Uri.https(apiAuthority, rangePath, params);
@@ -110,10 +110,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final flow = getFlow(isFixedRateMode);
     final type = isFixedRateMode ? 'reverse' : 'direct';
     final body = <String, dynamic>{
-      'fromCurrency': normalizeTitle(_request.from),
-      'toCurrency':  normalizeTitle(_request.to),
-      'fromNetwork': networkFor(_request.from),
-      'toNetwork': networkFor(_request.to),
+      'fromCurrency': _normalizeTitle(_request.from),
+      'toCurrency':  _normalizeTitle(_request.to),
+      'fromNetwork': _networkFor(_request.from),
+      'toNetwork': _networkFor(_request.to),
       if (!isFixedRateMode) 'fromAmount': _request.fromAmount,
       if (isFixedRateMode) 'toAmount': _request.toAmount,
       'address': _request.address,
@@ -239,10 +239,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final type = isReverse ? 'reverse' : 'direct';
       final flow = getFlow(isFixedRateMode);
       final params = <String, String>{
-        'fromCurrency': normalizeTitle(from),
-        'toCurrency': normalizeTitle(to),
-        'fromNetwork': networkFor(from),
-        'toNetwork': networkFor(to),
+        'fromCurrency': _normalizeTitle(from),
+        'toCurrency': _normalizeTitle(to),
+        'fromNetwork': _networkFor(from),
+        'toNetwork': _networkFor(to),
         'type': type,
         'flow': flow
       };
@@ -271,7 +271,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String networkFor(CryptoCurrency currency) {
+  String _networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.usdt:
         return 'btc';
@@ -280,11 +280,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String normalizeTitle(CryptoCurrency currency) {
+  String _normalizeTitle(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.zec:
-        return 'zec';
-      case CryptoCurrency.zaddr:
         return 'zec';
       default:
         return currency.title.toLowerCase();
