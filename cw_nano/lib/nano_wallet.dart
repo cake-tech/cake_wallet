@@ -117,7 +117,6 @@ abstract class NanoWalletBase
 
   @override
   Future<void> changePassword(String password) {
-    print("e");
     throw UnimplementedError("changePassword");
   }
 

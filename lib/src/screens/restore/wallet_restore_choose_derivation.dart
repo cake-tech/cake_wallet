@@ -29,7 +29,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Observer(
-      builder: (_) => FutureBuilder<List<Derivation>>(
+      builder: (_) => FutureBuilder<List<DerivationInfo>>(
         future: walletRestoreChooseDerivationViewModel.derivations,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

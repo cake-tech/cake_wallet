@@ -12,6 +12,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
+import 'package:mobx/mobx.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
@@ -104,7 +106,53 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     return [DerivationType.bip39, DerivationType.StandardBIP44Legacy];
   }
 
-  static Future<dynamic> getInfoFromSeed() {
+  static Future<List<DerivationInfo>> getDerivationsFromMnemonic(
+      {required String mnemonic, required Node node}) async {
+    // throw UnimplementedError();
+
+    var list = [];
+
+    // default derivation path:
+    var wallet =
+        bitcoin.HDWallet.fromSeed(await mnemonicToSeedBytes(mnemonic), network: bitcoin.bitcoin)
+            .derivePath("m/0'/1");
+
+    print(wallet.address);
+    print("@@@@@@@@@@@@@");
+
+    // final wallet = await BitcoinWalletBase.create(
+    //     password: "password",
+    //     mnemonic: mnemonic,
+    //     walletInfo: WalletInfo(
+    //       "id",
+    //       "test",
+    //       WalletType.bitcoin,
+    //       false,
+    //       0,
+    //       0,
+    //       "dirPath",
+    //       "path",
+    //       "",
+    //       null,
+    //       "yatLastUsedAddressRaw",
+    //       false,
+    //       DerivationType.bip39,
+    //       "derivationPath",
+    //     ),
+    //     unspentCoinsInfo: unspentCoinsInfoSource);
+
+    list.add(DerivationInfo(
+      "0.00000",
+      "address",
+      0,
+      DerivationType.bip39,
+      null,
+    ));
+
+    return [];
+  }
+
+  static Future<dynamic> getInfoFromSeed({required String seed, required Node node}) async {
     throw UnimplementedError();
   }
 }
