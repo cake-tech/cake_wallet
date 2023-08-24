@@ -13,7 +13,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:collection/collection.dart';
 
 class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
-    EthereumRestoreWalletFromSeedCredentials, EthereumRestoreWalletFromWIFCredentials> {
+    EthereumRestoreWalletFromSeedCredentials, EthereumRestoreWalletFromPrivateKey> {
   EthereumWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -66,8 +66,18 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   }
 
   @override
-  Future<EthereumWallet> restoreFromKeys(credentials) {
-    throw UnimplementedError();
+  Future<EthereumWallet> restoreFromKeys(EthereumRestoreWalletFromPrivateKey credentials) async {
+    final wallet = EthereumWallet(
+      password: credentials.password!,
+      privateKey: credentials.privateKey,
+      walletInfo: credentials.walletInfo!,
+    );
+
+    await wallet.init();
+    wallet.addInitialTokens();
+    await wallet.save();
+
+    return wallet;
   }
 
   @override
