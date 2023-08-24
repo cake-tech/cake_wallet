@@ -216,10 +216,10 @@ late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
-late Box<UnspentCoinsInfo>? _unspentCoinsInfoSource;
+late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
-Future setup({
+Future<void> setup({
   required Box<WalletInfo> walletInfoSource,
   required Box<Node> nodeSource,
   required Box<Contact> contactSource,
@@ -228,7 +228,7 @@ Future setup({
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
-  Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
 }) async {
   _walletInfoSource = walletInfoSource;
@@ -731,11 +731,11 @@ Future setup({
       case WalletType.haven:
         return haven!.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_walletInfoSource);
+        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
+        return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.litecoin:
-        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
+        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(_walletInfoSource);
       default:
