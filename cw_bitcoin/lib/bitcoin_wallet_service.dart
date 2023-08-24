@@ -2,9 +2,12 @@ import 'dart:io';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -27,6 +30,11 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
+    // default derivation type/path for bitcoin wallets:
+    // TODO: figure out what the default derivation type is
+    // credentials.walletInfo!.derivationType = DerivationType.bip39;
+    credentials.walletInfo!.derivationPath = "m/0'/1";
+
     final wallet = await BitcoinWalletBase.create(
         mnemonic: await generateMnemonic(),
         password: credentials.password!,
@@ -111,13 +119,21 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     // throw UnimplementedError();
 
     var list = [];
+    final electrumClient = ElectrumClient();
+    await electrumClient.connectToUri(node.uri);
 
     // default derivation path:
     var wallet =
         bitcoin.HDWallet.fromSeed(await mnemonicToSeedBytes(mnemonic), network: bitcoin.bitcoin)
             .derivePath("m/0'/1");
 
+    // get addresses:
+    final sh = scriptHash(wallet.address!, networkType: bitcoin.bitcoin);
+
+    final balance = await electrumClient.getBalance(sh);
+
     print(wallet.address);
+    print(balance.entries);
     print("@@@@@@@@@@@@@");
 
     // final wallet = await BitcoinWalletBase.create(
