@@ -56,7 +56,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(15),
                     onTap: () async {
-                      Navigator.pop(context, derivation.derivationType);
+                      Navigator.pop(context, derivation);
                     },
                     child: ListTile(
                       contentPadding: EdgeInsets.all(16),
@@ -73,6 +73,17 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (derivation.derivationPath != null)
+                            Text(
+                              derivation.derivationPath!,
+                              style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .extension<CakeTextTheme>()!
+                                        .secondaryTextColor,
+                                  ),
+                            ),
                           Text(
                             derivation.address,
                             style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(

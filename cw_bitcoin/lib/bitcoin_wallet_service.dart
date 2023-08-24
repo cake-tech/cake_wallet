@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
+import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -112,12 +114,12 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   static Future<List<DerivationType>> compareDerivationMethods(
       {required mnemonic, required Node node}) async {
-    return [DerivationType.bip39];
+    return [DerivationType.unknown];
   }
 
   static Future<List<DerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node}) async {
-    var list = [];
+    List<DerivationInfo> list = [];
 
     final electrumClient = ElectrumClient();
     await electrumClient.connectToUri(node.uri);
@@ -128,23 +130,44 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
       if (dType == DerivationType.bip39) {
         for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
           try {
-            print("${dInfo.derivationType.toString()} : ${dInfo.derivationPath}");
-
             var wallet = bitcoin.HDWallet.fromSeed(await mnemonicToSeedBytes(mnemonic),
                     network: bitcoin.bitcoin)
-                .derivePath("m/0'/1");
+                .derivePath(dInfo.derivationPath!);
 
-            // get addresses:
-            final sh = scriptHash(wallet.address!, networkType: bitcoin.bitcoin);
-            final balance = await electrumClient.getBalance(sh);
+            String? address;
+            switch (dInfo.script_type) {
+              case "p2wpkh":
+                address = bitcoin
+                    .P2WPKH(
+                        data: generatePaymentData(hd: wallet, index: 0), network: bitcoin.bitcoin)
+                    .data
+                    .address;
+                break;
+              case "p2pkh":
+                address = bitcoin
+                    .P2PKH(
+                        data: generatePaymentData(hd: wallet, index: 0), network: bitcoin.bitcoin)
+                    .data
+                    .address;
+                break;
+              case "p2wpkh-p2sh":
+                // address = bitcoin.P
+              default:
+                address = wallet.address;
+                break;
+            }
 
+            print(
+                "${dInfo.derivationType.toString()} : ${dInfo.derivationPath} : ${dInfo.script_type} : ${address}");
+
+            final sh = scriptHash(address!, networkType: bitcoin.bitcoin);
             final history = await electrumClient.getHistory(sh);
-            print("history:");
-            print(history);
-            print(history.length);
 
+            print(history);
+
+            final balance = await electrumClient.getBalance(sh);
             dInfo.balance = balance.entries.first.value.toString();
-            dInfo.address = wallet.address ?? "";
+            dInfo.address = address;
             dInfo.height = history.length;
 
             list.add(dInfo);
@@ -155,51 +178,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
       }
     }
 
-    // default derivation path:
-    var wallet =
-        bitcoin.HDWallet.fromSeed(await mnemonicToSeedBytes(mnemonic), network: bitcoin.bitcoin)
-            .derivePath("m/0'/1");
-
-    // get addresses:
-    final sh = scriptHash(wallet.address!, networkType: bitcoin.bitcoin);
-
-    final balance = await electrumClient.getBalance(sh);
-
-    wallet.derive(0);
-
-    print(wallet.address);
-    print(balance.entries);
-    print("@@@@@@@@@@@@@");
-
-    // final wallet = await BitcoinWalletBase.create(
-    //     password: "password",
-    //     mnemonic: mnemonic,
-    //     walletInfo: WalletInfo(
-    //       "id",
-    //       "test",
-    //       WalletType.bitcoin,
-    //       false,
-    //       0,
-    //       0,
-    //       "dirPath",
-    //       "path",
-    //       "",
-    //       null,
-    //       "yatLastUsedAddressRaw",
-    //       false,
-    //       DerivationType.bip39,
-    //       "derivationPath",
-    //     ),
-    //     unspentCoinsInfo: unspentCoinsInfoSource);
-
-    list.add(DerivationInfo(
-      derivationType: DerivationType.bip39,
-      balance: "0.00000",
-      address: "address",
-      height: 0,
-    ));
-
-    return [];
+    return list;
   }
 
   static Future<dynamic> getInfoFromSeed({required String seed, required Node node}) async {

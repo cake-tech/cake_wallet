@@ -6,7 +6,7 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
       derivationType: DerivationType.bip39,
       derivationPath: "m/0'/1",
       description: "cake default?",
-      script_type: "???",
+      script_type: "p2wpkh",// TODO: not really sure what cake uses by default
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,

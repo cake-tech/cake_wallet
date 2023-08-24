@@ -30,7 +30,7 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
         String? mnemonic = credentials['seed'] as String?;
-        await BitcoinWalletService.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
+        return await BitcoinWalletService.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
 
         // var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
         //   DerivationType.nano,
@@ -39,24 +39,12 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
         //   node: node,
         // );
 
-        list.add(DerivationInfo(
-          balance: "0.00000",
-          address: "address",
-          height: 0,
-          derivationType: DerivationType.bip39,
-        ));
-
-        // if (bip39Info["balance"] != null) {
-        //   list.add(Derivation(
-        //     NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
-        //     bip39Info["address"] as String,
-        //     DerivationType.bip39,
-        //     int.tryParse(
-        //           bip39Info["confirmation_height"] as String? ?? "",
-        //         ) ??
-        //         0,
-        //   ));
-        // }
+        // list.add(DerivationInfo(
+        //   balance: "0.00000",
+        //   address: "address",
+        //   height: 0,
+        //   derivationType: DerivationType.bip39,
+        // ));
         break;
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;

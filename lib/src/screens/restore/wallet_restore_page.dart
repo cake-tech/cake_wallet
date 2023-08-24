@@ -72,7 +72,8 @@ class WalletRestorePage extends BasePage {
               key: walletRestoreFromKeysFormKey,
               walletRestoreViewModel: walletRestoreViewModel,
               onPrivateKeyChange: (String seed) {
-                if (walletRestoreViewModel.type == WalletType.nano || walletRestoreViewModel.type == WalletType.banano) {
+                if (walletRestoreViewModel.type == WalletType.nano ||
+                    walletRestoreViewModel.type == WalletType.banano) {
                   walletRestoreViewModel.isButtonEnabled = _isValidSeedKey();
                 }
               },
@@ -105,6 +106,7 @@ class WalletRestorePage extends BasePage {
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
   DerivationType derivationType = DerivationType.unknown;
+  String? derivationPath = null;
 
   @override
   Widget body(BuildContext context) {
@@ -281,8 +283,8 @@ class WalletRestorePage extends BasePage {
     }
 
     credentials['derivationType'] = this.derivationType;
+    credentials['derivationPath'] = this.derivationPath;
     credentials['walletType'] = walletRestoreViewModel.type;
-
     return credentials;
   }
 
@@ -319,16 +321,18 @@ class WalletRestorePage extends BasePage {
 
     if (derivationTypes[0] == DerivationType.unknown || derivationTypes.length > 1) {
       // push screen to choose the derivation type:
-      var derivationType = await Navigator.of(context)
+      var derivationInfo = await Navigator.of(context)
               .pushNamed(Routes.restoreWalletChooseDerivation, arguments: _credentials())
-          as DerivationType?;
-      if (derivationType == null) {
+          as DerivationInfo?;
+      if (derivationInfo == null) {
         walletRestoreViewModel.state = InitialExecutionState();
         return;
       }
-      this.derivationType = derivationType;
+      this.derivationType = derivationInfo.derivationType;
+      this.derivationPath = derivationInfo.derivationPath;
     } else {
       this.derivationType = derivationTypes[0];
+      this.derivationPath = "m/0'/1";
     }
 
     walletRestoreViewModel.state = InitialExecutionState();

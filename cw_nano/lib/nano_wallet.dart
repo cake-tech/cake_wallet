@@ -370,7 +370,7 @@ abstract class NanoWalletBase
     try {
       balance[currency] = await _client.getBalance(_publicAddress!);
     } catch (e) {
-      throw Exception("Failed to get balance $e");
+      print("Failed to get balance $e");
     }
     await save();
   }

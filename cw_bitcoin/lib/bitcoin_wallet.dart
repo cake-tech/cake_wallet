@@ -45,7 +45,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
         sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(walletInfo.derivationPath!),// default: "m/0'/1"
+              .derivePath(walletInfo.derivationPath!),
         networkType: networkType);
   }
 
@@ -78,6 +78,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
   }) async {
     final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
+
+
+    walletInfo.derivationType = snp.derivationType;
+    walletInfo.derivationPath = snp.derivationPath;
+
+    // set the default if not present:
+    if (walletInfo.derivationPath == null) {
+      walletInfo.derivationPath = "m/0'/1";
+    }
+
     return BitcoinWallet(
         mnemonic: snp.mnemonic,
         password: password,
