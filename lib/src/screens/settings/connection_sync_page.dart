@@ -119,11 +119,11 @@ class ConnectionSyncPage extends BasePage {
     if (dashboardViewModel.initializedWalletConnectDependencies) return;
     final appStore = getIt.get<AppStore>();
     
-    GetIt.I.registerSingleton<WalletConnectKeyService>(KeyServiceImpl(appStore.wallet!));
+    getIt.registerSingleton<WalletConnectKeyService>(KeyServiceImpl(appStore.wallet!));
 
     final Web3WalletService web3WalletService = Web3WalletServiceImpl();
     web3WalletService.create();
-    GetIt.I.registerSingleton<Web3WalletService>(web3WalletService);
+    getIt.registerSingleton<Web3WalletService>(web3WalletService);
 
     for (final cId in EVMChainId.values) {
       GetIt.I.registerSingleton<ChainService>(

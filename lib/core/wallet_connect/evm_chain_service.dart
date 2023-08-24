@@ -26,6 +26,7 @@ enum EVMChainId {
   polygon,
   goerli,
   mumbai,
+  arbitrum,
 }
 
 extension KadenaChainIdX on EVMChainId {
@@ -41,6 +42,9 @@ extension KadenaChainIdX on EVMChainId {
         break;
       case EVMChainId.goerli:
         name = '5';
+        break;
+      case EVMChainId.arbitrum:
+        name = '42161';
         break;
       case EVMChainId.mumbai:
         name = '80001';
@@ -58,7 +62,7 @@ class EvmChainServiceImpl implements ChainService {
   static const pSign = 'personal_sign';
   static const eSign = 'eth_sign';
   static const eSignTransaction = 'eth_signTransaction';
-  static const eSignTypedData = 'eth_signTypedData';
+  static const eSignTypedData = 'eth_signTypedData_v4';
   static const eSendTransaction = 'eth_sendTransaction';
 
   final BottomSheetService _bottomSheetService = GetIt.I<BottomSheetService>();

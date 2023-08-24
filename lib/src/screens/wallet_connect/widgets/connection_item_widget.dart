@@ -24,7 +24,7 @@ class ConnectionItemWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              model.title!,
+              model.title ?? '',
               style: TextStyle(
                 color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 fontSize: 14,
@@ -32,6 +32,7 @@ class ConnectionItemWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+            if (model.elements != null)
             Wrap(
               spacing: 4,
               runSpacing: 4,

@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
@@ -70,38 +72,26 @@ class WCPairingsWidget extends BasePage {
   Future<void> _onScanQrCode(BuildContext context, Web3Wallet web3Wallet) async {
     final String? uri = await presentQRScanner();
 
-    if (uri == null) return _invalidUriToast(context);
+    if (uri == null) return _invalidUriToast(context, 'URI is null');
 
     try {
       log('_onFoundUri: $uri');
       final Uri uriData = Uri.parse(uri);
       await web3Wallet.pair(uri: uriData);
     } catch (e) {
-      _invalidUriToast(context);
+      await _invalidUriToast(context, e.toString());
     }
   }
-
-  void _invalidUriToast(BuildContext context) {
-    showPopUp(
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(8),
-          margin: const EdgeInsets.only(bottom: 40),
-          decoration: BoxDecoration(
-            color: Color(0xFFF25A67),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            'Invalid URI',
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-            ),
-          ),
+Future<void> _invalidUriToast(BuildContext context, String message) async {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return PopUpCancellableAlertDialog(
+          contentText: message,
+          actionButtonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
         );
       },
-      context: context,
     );
   }
 

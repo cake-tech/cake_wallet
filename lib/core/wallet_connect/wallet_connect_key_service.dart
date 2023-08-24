@@ -29,6 +29,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
               'eip155:1',
               'eip155:5',
               'eip155:137',
+              'eip155:42161',
               'eip155:80001',
             ],
             privateKey: ethereum!.getPrivateKey(wallet),
