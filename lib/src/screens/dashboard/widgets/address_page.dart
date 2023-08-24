@@ -187,9 +187,8 @@ class AddressPage extends BasePage {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(25)),
                           border: Border.all(
-                              color: Theme.of(context)
-                                  .extension<ReceivePageTheme>()!
-                                  .iconsBackgroundColor,
+                              color:
+                                  Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                               width: 1),
                           color: Theme.of(context)
                               .extension<SyncIndicatorTheme>()!
@@ -201,35 +200,28 @@ class AddressPage extends BasePage {
                           Observer(
                               builder: (_) {
                                 String label = addressListViewModel.hasAccounts
-                                    ? S
-                                    .of(context)
-                                    .accounts_subaddresses
-                                    : S
-                                    .of(context)
-                                    .addresses;
+                                    ? S.of(context).accounts_subaddresses
+                                    : S.of(context).addresses;
 
                                 if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
                                   label = addressListViewModel.hasAccounts
-                                      ? S
-                                      .of(context)
-                                      .accounts
-                                      : S
-                                      .of(context)
-                                      .account;
+                                      ? S.of(context).accounts
+                                      : S.of(context).account;
                                 }
                                 return Text(
                                   label,
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                                      color: Theme.of(context)
+                                            .extension<SyncIndicatorTheme>()!
+                                            .textColor),
                                 );
                               },),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
-                            color:
-                                Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            color: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                           )
                         ],
                       ),

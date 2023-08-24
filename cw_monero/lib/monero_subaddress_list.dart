@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_core/subaddress.dart';
 
@@ -22,6 +23,8 @@ abstract class MoneroSubaddressListBase with Store {
   bool _isUpdating;
 
   void update({required int accountIndex}) {
+    refreshCoins(accountIndex);
+
     if (_isUpdating) {
       return;
     }

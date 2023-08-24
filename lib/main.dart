@@ -138,11 +138,7 @@ Future<void> initializeAppConfigs() async {
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-  Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-
-  if (!isMoneroOnly) {
-    unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-  }
+  final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
@@ -174,7 +170,7 @@ Future<void> initialSetup(
     required Box<TransactionDescription> transactionDescriptions,
     required FlutterSecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(

@@ -96,9 +96,7 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   void _setBase32SecretKey(String value) {
-    if (_settingsStore.totpSecretKey == '') {
-      _settingsStore.totpSecretKey = value;
-    }
+    _settingsStore.totpSecretKey = value;
   }
 
   @action
