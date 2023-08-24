@@ -683,5 +683,7 @@
   "bitcoin_light_theme": "比特币浅色主题",
   "high_contrast_theme": "高对比度主题",
   "matrix_green_dark_theme": "矩阵绿暗主题",
-  "monero_light_theme": "门罗币浅色主题"
+  "monero_light_theme": "门罗币浅色主题",
+  "select_destination": "请选择备份文件的目的地。",
+  "save_to_downloads": "保存到下载"
 }

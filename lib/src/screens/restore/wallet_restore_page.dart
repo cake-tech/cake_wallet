@@ -1,10 +1,7 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
@@ -19,10 +16,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.da
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
@@ -76,6 +69,7 @@ class WalletRestorePage extends BasePage {
           _pages.add(WalletRestoreFromKeysFrom(
               key: walletRestoreFromKeysFormKey,
               walletRestoreViewModel: walletRestoreViewModel,
+              displayPrivateKeyField: walletRestoreViewModel.hasRestoreFromPrivateKey,
               onHeightOrDateEntered: (value) => walletRestoreViewModel.isButtonEnabled = value));
           break;
         default:
@@ -193,8 +187,12 @@ class WalletRestorePage extends BasePage {
                       return LoadingPrimaryButton(
                         onPressed: _confirmForm,
                         text: S.of(context).restore_recover,
-                        color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
-                        textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+                        color: Theme.of(context)
+                            .extension<WalletListTheme>()!
+                            .createNewWalletButtonBackgroundColor,
+                        textColor: Theme.of(context)
+                            .extension<WalletListTheme>()!
+                            .restoreWalletButtonTextColor,
                         isLoading: walletRestoreViewModel.state is IsExecutingState,
                         isDisabled: !walletRestoreViewModel.isButtonEnabled,
                       );
@@ -246,11 +244,18 @@ class WalletRestorePage extends BasePage {
       credentials['name'] =
           walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;
     } else {
-      credentials['address'] = walletRestoreFromKeysFormKey.currentState!.addressController.text;
-      credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
-      credentials['spendKey'] = walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
-      credentials['height'] =
-          walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
+      if (walletRestoreViewModel.hasRestoreFromPrivateKey) {
+        credentials['private_key'] =
+            walletRestoreFromKeysFormKey.currentState!.privateKeyController.text;
+      } else {
+        credentials['address'] = walletRestoreFromKeysFormKey.currentState!.addressController.text;
+        credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
+        credentials['spendKey'] =
+            walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
+        credentials['height'] =
+            walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
+      }
+
       credentials['name'] =
           walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
     }

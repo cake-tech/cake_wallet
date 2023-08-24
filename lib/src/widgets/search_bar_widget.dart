@@ -17,24 +17,21 @@ class SearchBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: searchController,
-      style: TextStyle(
-          color: Theme.of(context).extension<PickerTheme>()!.searchTextColor),
+      style: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchTextColor),
       decoration: InputDecoration(
         hintText: hintText ?? S.of(context).search_currency,
-        hintStyle: TextStyle(
-            color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
+        hintStyle: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
         prefixIcon: Image.asset("assets/images/search_icon.png",
             color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),
         filled: true,
-        fillColor: Theme.of(context)
-            .extension<PickerTheme>()!
-            .searchBackgroundFillColor,
+        fillColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
         alignLabelWithHint: false,
         contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: const BorderSide(
-              color: Colors.transparent,
+            borderSide: BorderSide(
+              color: Theme.of(context).extension<PickerTheme>()!.searchBorderColor ??
+                  Colors.transparent,
             )),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),

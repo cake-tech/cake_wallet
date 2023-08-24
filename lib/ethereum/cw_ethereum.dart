@@ -23,6 +23,14 @@ class CWEthereum extends Ethereum {
       EthereumRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
 
   @override
+  WalletCredentials createEthereumRestoreWalletFromPrivateKey({
+    required String name,
+    required String privateKey,
+    required String password,
+  }) =>
+      EthereumRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
+
+  @override
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override

@@ -177,8 +177,6 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
-import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -319,25 +317,6 @@ Future setup({
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
       getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
       type: type));
-
-  getIt.registerFactoryParam<WalletRestorationFromSeedVM, List, void>((args, _) {
-    final type = args.first as WalletType;
-    final language = args[1] as String;
-    final mnemonic = args[2] as String;
-
-    return WalletRestorationFromSeedVM(
-        getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-        type: type, language: language, seed: mnemonic);
-  });
-
-  getIt.registerFactoryParam<WalletRestorationFromKeysVM, List, void>((args, _) {
-    final type = args.first as WalletType;
-    final language = args[1] as String;
-
-    return WalletRestorationFromKeysVM(
-        getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-        type: type, language: language);
-  });
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
