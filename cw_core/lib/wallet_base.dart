@@ -42,7 +42,9 @@ abstract class WalletBase<
 
   set syncStatus(SyncStatus status);
 
-  String get seed;
+  String? get seed;
+
+  String? get privateKey => null;
 
   Object get keys;
 

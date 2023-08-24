@@ -30,7 +30,6 @@ class Routes {
   static const tradeDetails = '/trade_details';
   static const exchangeFunds = '/exchange_funds';
   static const exchangeTrade = '/exchange_trade';
-  static const restoreWalletFromSeedDetails = '/restore_from_seed_details';
   static const exchange = '/exchange';
   static const settings = '/settings';
   static const desktop_settings_page = '/desktop_settings_page';
