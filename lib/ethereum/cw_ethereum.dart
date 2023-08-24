@@ -133,13 +133,6 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  WalletCredentials createEthereumRestoreWalletFromPrivateKey(
-      {required String name, required String privateKey, required String password}) {
-    // TODO: implement createEthereumRestoreWalletFromPrivateKey
-    throw UnimplementedError();
-  }
-
-  @override
   String getPrivateKey(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
     // TODO: implement getPrivateKey
