@@ -70,7 +70,7 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
           StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
@@ -86,15 +86,23 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
           StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
     if (_appStore.wallet!.type == WalletType.bitcoin ||
-        _appStore.wallet!.type == WalletType.litecoin ||
-        _appStore.wallet!.type == WalletType.ethereum) {
+        _appStore.wallet!.type == WalletType.litecoin) {
       items.addAll([
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+      ]);
+    }
+
+    if (_appStore.wallet!.type == WalletType.ethereum) {
+      items.addAll([
+        if (_appStore.wallet!.privateKey != null)
+          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
+        if (_appStore.wallet!.seed != null)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
@@ -104,14 +112,14 @@ abstract class WalletKeysViewModelBase with Store {
       // we don't necessarily have the seed phrase for nano / banano:
       if (_appStore.wallet!.seed != "") {
         items.addAll([
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
         ]);
       }
 
       // we always have the hex version of the seed:
       items.addAll([
-        if (keys['seedKey'] != null)
-          StandartListItem(title: S.current.spend_key_private, value: keys['seedKey']!),
+        if (keys['private_key'] != null)
+          StandartListItem(title: S.current.spend_key_private, value: keys['private_key']!),
       ]);
     }
   }
@@ -161,7 +169,8 @@ abstract class WalletKeysViewModelBase with Store {
   Future<Map<String, String>> get _queryParams async {
     final restoreHeightResult = await restoreHeight;
     return {
-      'seed': _appStore.wallet!.seed,
+      if (_appStore.wallet!.seed != null) 'seed': _appStore.wallet!.seed!,
+      if (_appStore.wallet!.privateKey != null) 'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
     };
   }

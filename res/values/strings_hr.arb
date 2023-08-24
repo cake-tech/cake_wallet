@@ -688,5 +688,7 @@
   "support_title_other_links": "Ostale veze za podršku",
   "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama",
   "choose_derivation": "Odaberite izvedbu novčanika",
-  "new_first_wallet_text": "Jednostavno čuvajte svoju kripto valutu"
+  "new_first_wallet_text": "Jednostavno čuvajte svoju kripto valutu",
+  "select_destination": "Odaberite odredište za datoteku sigurnosne kopije.",
+  "save_to_downloads": "Spremi u Preuzimanja"
 }

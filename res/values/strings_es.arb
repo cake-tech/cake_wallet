@@ -690,5 +690,7 @@
   "support_title_other_links": "Otros enlaces de soporte",
   "support_description_other_links": "Únase a nuestras comunidades o comuníquese con nosotros nuestros socios a través de otros métodos",
   "choose_derivation": "Elija la derivación de la billetera",
-  "new_first_wallet_text": "Mantenga fácilmente su criptomoneda segura"
+  "new_first_wallet_text": "Mantenga fácilmente su criptomoneda segura",
+  "select_destination": "Seleccione el destino del archivo de copia de seguridad.",
+  "save_to_downloads": "Guardar en Descargas"
 }

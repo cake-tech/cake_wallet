@@ -1,16 +1,9 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
-import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/entities/mnemonic_item.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:flutter/widgets.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class SeedWidget extends StatefulWidget {

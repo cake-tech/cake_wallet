@@ -690,5 +690,7 @@
   "support_title_other_links": "Andere ondersteuningslinks",
   "support_description_other_links": "Word lid van onze gemeenschappen of bereik ons ​​onze partners via andere methoden",
   "choose_derivation": "Kies portemonnee -afleiding",
-  "new_first_wallet_text": "Houd uw cryptocurrency gemakkelijk veilig"
+  "new_first_wallet_text": "Houd uw cryptocurrency gemakkelijk veilig",
+  "select_destination": "Selecteer de bestemming voor het back-upbestand.",
+  "save_to_downloads": "Opslaan in downloads"
 }

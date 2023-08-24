@@ -686,5 +686,7 @@
   "support_title_other_links": "روابط دعم أخرى",
   "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى",
   "choose_derivation": "اختر اشتقاق المحفظة",
-  "new_first_wallet_text": "حافظ بسهولة على أمان العملة المشفرة"
+  "new_first_wallet_text": "حافظ بسهولة على أمان العملة المشفرة",
+  "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
+  "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ"
 }

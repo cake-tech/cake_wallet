@@ -66,6 +66,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
                 name: name, password: password, wif: wif);
+          case WalletType.ethereum:
+            return ethereum!.createEthereumRestoreWalletFromPrivateKey(
+                name: name, password: password, privateKey: restoreWallet.privateKey!);
           default:
             throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
         }

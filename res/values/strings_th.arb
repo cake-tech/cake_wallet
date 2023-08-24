@@ -688,5 +688,7 @@
   "support_title_other_links": "ลิงค์สนับสนุนอื่น ๆ",
   "support_description_other_links": "เข้าร่วมชุมชนของเราหรือเข้าถึงเราพันธมิตรของเราผ่านวิธีการอื่น ๆ",
   "choose_derivation": "เลือก Wallet Derivation",
-  "new_first_wallet_text": "ทำให้สกุลเงินดิจิตอลของคุณปลอดภัยได้อย่างง่ายดาย"
+  "new_first_wallet_text": "ทำให้สกุลเงินดิจิตอลของคุณปลอดภัยได้อย่างง่ายดาย",
+  "select_destination": "โปรดเลือกปลายทางสำหรับไฟล์สำรอง",
+  "save_to_downloads": "บันทึกลงดาวน์โหลด"
 }

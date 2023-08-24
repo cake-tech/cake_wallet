@@ -689,5 +689,7 @@
   "support_title_other_links": "Outros links de suporte",
   "support_description_other_links": "Junte -se às nossas comunidades ou chegue a nós nossos parceiros por meio de outros métodos",
   "choose_derivation": "Escolha a derivação da carteira",
-  "new_first_wallet_text": "Mantenha sua criptomoeda facilmente segura"
+  "new_first_wallet_text": "Mantenha sua criptomoeda facilmente segura",
+  "select_destination": "Selecione o destino para o arquivo de backup.",
+  "save_to_downloads": "Salvar em Downloads"
 }

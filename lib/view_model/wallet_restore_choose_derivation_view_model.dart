@@ -60,7 +60,7 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
         break;
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
-        String? seedKey = credentials['seedKey'] as String?;
+        String? seedKey = credentials['private_key'] as String?;
         var bip39Info = await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
             mnemonic: mnemonic, seedKey: seedKey, node: node);
         var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(

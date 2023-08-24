@@ -8,7 +8,7 @@ class WalletSeedViewModel = WalletSeedViewModelBase with _$WalletSeedViewModel;
 abstract class WalletSeedViewModelBase with Store {
   WalletSeedViewModelBase(WalletBase wallet)
       : name = wallet.name,
-        seed = wallet.seed;
+        seed = wallet.seed!;
 
   @observable
   String name;
