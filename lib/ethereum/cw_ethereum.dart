@@ -35,14 +35,14 @@ class CWEthereum extends Ethereum {
 
   @override
   String getPrivateKey(WalletBase wallet) {
-    final privateKeyHolder = (wallet as EthereumWallet).privateKey;
+    final privateKeyHolder = (wallet as EthereumWallet).ethPrivateKey;
     String stringKey = bytesToHex(privateKeyHolder.privateKey);
     return stringKey;
   }
 
   @override
   String getPublicKey(WalletBase wallet) {
-    final privateKeyInUnitInt = (wallet as EthereumWallet).privateKey;
+    final privateKeyInUnitInt = (wallet as EthereumWallet).ethPrivateKey;
     final publicKey = privateKeyInUnitInt.address.hex;
     return publicKey;
   }
