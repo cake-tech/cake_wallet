@@ -77,7 +77,7 @@ class ConnectionSyncPage extends BasePage {
           const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             SettingsCellWithArrow(
-              title: 'Wallet connect',
+              title: 'WalletConnect',
               handler: (context) async {
                 await initializeWalletConnectDependencies();
                 print('Dependencies registration done');
