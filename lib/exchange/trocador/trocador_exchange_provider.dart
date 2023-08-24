@@ -59,8 +59,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }) async {
     final params = <String, String>{
       'api_key': apiKey,
-      'ticker_from': _normalizeTitle(request.from),
-      'ticker_to': _normalizeTitle(request.to),
+      'ticker_from': _normalizeCurrency(request.from),
+      'ticker_to': _normalizeCurrency(request.to),
       'network_from': _networkFor(request.from),
       'network_to': _networkFor(request.to),
       'payment': isFixedRateMode ? 'True' : 'False',
@@ -136,7 +136,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode}) async {
     final params = <String, String>{
       'api_key': apiKey,
-      'ticker': _normalizeTitle(from),
+      'ticker': _normalizeCurrency(from),
       'name': from.name,
     };
 
@@ -176,8 +176,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       final params = <String, String>{
         'api_key': apiKey,
-        'ticker_from': _normalizeTitle(from),
-        'ticker_to': _normalizeTitle(to),
+        'ticker_from': _normalizeCurrency(from),
+        'ticker_to': _normalizeCurrency(to),
         'network_from': _networkFor(from),
         'network_to': _networkFor(to),
         if (!isFixedRateMode) 'amount_from': amount.toString(),
@@ -278,7 +278,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _normalizeTitle(CryptoCurrency currency) {
+  String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.zec:
         return 'zec';

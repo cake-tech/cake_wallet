@@ -70,8 +70,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final headers = {apiHeaderKey: apiKey};
     final flow = getFlow(isFixedRateMode);
     final params = <String, String>{
-      'fromCurrency': _normalizeTitle(from),
-      'toCurrency': _normalizeTitle(to),
+      'fromCurrency': _normalizeCurrency(from),
+      'toCurrency': _normalizeCurrency(to),
       'fromNetwork': _networkFor(from),
       'toNetwork': _networkFor(to),
       'flow': flow
@@ -110,8 +110,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final flow = getFlow(isFixedRateMode);
     final type = isFixedRateMode ? 'reverse' : 'direct';
     final body = <String, dynamic>{
-      'fromCurrency': _normalizeTitle(_request.from),
-      'toCurrency':  _normalizeTitle(_request.to),
+      'fromCurrency': _normalizeCurrency(_request.from),
+      'toCurrency':  _normalizeCurrency(_request.to),
       'fromNetwork': _networkFor(_request.from),
       'toNetwork': _networkFor(_request.to),
       if (!isFixedRateMode) 'fromAmount': _request.fromAmount,
@@ -239,8 +239,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final type = isReverse ? 'reverse' : 'direct';
       final flow = getFlow(isFixedRateMode);
       final params = <String, String>{
-        'fromCurrency': _normalizeTitle(from),
-        'toCurrency': _normalizeTitle(to),
+        'fromCurrency': _normalizeCurrency(from),
+        'toCurrency': _normalizeCurrency(to),
         'fromNetwork': _networkFor(from),
         'toNetwork': _networkFor(to),
         'type': type,
@@ -280,7 +280,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _normalizeTitle(CryptoCurrency currency) {
+  String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.zec:
         return 'zec';
