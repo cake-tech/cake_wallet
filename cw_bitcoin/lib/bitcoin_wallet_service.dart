@@ -17,6 +17,7 @@ import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
 import 'package:mobx/mobx.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:cw_bitcoin/bitcoin_derivations.dart';
 
 class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
@@ -111,16 +112,48 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   static Future<List<DerivationType>> compareDerivationMethods(
       {required mnemonic, required Node node}) async {
-    return [DerivationType.bip39, DerivationType.StandardBIP44Legacy];
+    return [DerivationType.bip39];
   }
 
   static Future<List<DerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node}) async {
-    // throw UnimplementedError();
-
     var list = [];
+
     final electrumClient = ElectrumClient();
     await electrumClient.connectToUri(node.uri);
+
+    print("@@@@@@@@@@@@@@");
+
+    for (DerivationType dType in bitcoin_derivations.keys) {
+      if (dType == DerivationType.bip39) {
+        for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
+          try {
+            print("${dInfo.derivationType.toString()} : ${dInfo.derivationPath}");
+
+            var wallet = bitcoin.HDWallet.fromSeed(await mnemonicToSeedBytes(mnemonic),
+                    network: bitcoin.bitcoin)
+                .derivePath("m/0'/1");
+
+            // get addresses:
+            final sh = scriptHash(wallet.address!, networkType: bitcoin.bitcoin);
+            final balance = await electrumClient.getBalance(sh);
+
+            final history = await electrumClient.getHistory(sh);
+            print("history:");
+            print(history);
+            print(history.length);
+
+            dInfo.balance = balance.entries.first.value.toString();
+            dInfo.address = wallet.address ?? "";
+            dInfo.height = history.length;
+
+            list.add(dInfo);
+          } catch (e) {
+            print(e);
+          }
+        }
+      }
+    }
 
     // default derivation path:
     var wallet =
@@ -131,6 +164,8 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     final sh = scriptHash(wallet.address!, networkType: bitcoin.bitcoin);
 
     final balance = await electrumClient.getBalance(sh);
+
+    wallet.derive(0);
 
     print(wallet.address);
     print(balance.entries);
@@ -158,11 +193,10 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     //     unspentCoinsInfo: unspentCoinsInfoSource);
 
     list.add(DerivationInfo(
-      "0.00000",
-      "address",
-      0,
-      DerivationType.bip39,
-      null,
+      derivationType: DerivationType.bip39,
+      balance: "0.00000",
+      address: "address",
+      height: 0,
     ));
 
     return [];

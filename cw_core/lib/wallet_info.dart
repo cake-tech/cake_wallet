@@ -10,50 +10,83 @@ enum DerivationType {
   @HiveField(0)
   unknown,
   @HiveField(1)
-  def,// default is a reserved word
+  def, // default is a reserved word
   @HiveField(2)
   nano,
   @HiveField(3)
   bip39,
-  @HiveField(4)
-  StandardBIP44Legacy
 }
 
 class DerivationInfo {
-  DerivationInfo(this.balance, this.address, this.height, this.derivationType, this.derivationPath);
+  DerivationInfo({
+    required this.derivationType,
+    this.derivationPath,
+    this.balance = "",
+    this.address = "",
+    this.height = 0,
+    this.script_type,
+    this.description,
+  });
 
-  final String balance;
-  final String address;
-  final int height;
+  String balance;
+  String address;
+  int height;
   final DerivationType derivationType;
   final String? derivationPath;
+  final String? script_type;
+  final String? description;
 }
 
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
-  WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
-      this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
-        this.yatLastUsedAddressRaw, this.showIntroCakePayCard, this.derivationType, this.derivationPath)
+  WalletInfo(
+      this.id,
+      this.name,
+      this.type,
+      this.isRecovery,
+      this.restoreHeight,
+      this.timestamp,
+      this.dirPath,
+      this.path,
+      this.address,
+      this.yatEid,
+      this.yatLastUsedAddressRaw,
+      this.showIntroCakePayCard,
+      this.derivationType,
+      this.derivationPath)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
-  factory WalletInfo.external(
-      {required String id,
-      required String name,
-      required WalletType type,
-      required bool isRecovery,
-      required int restoreHeight,
-      required DateTime date,
-      required String dirPath,
-      required String path,
-      required String address,
-      bool? showIntroCakePayCard,
-      String yatEid = '',
-      String yatLastUsedAddressRaw = '',
-      DerivationType? derivationType,
-      String? derivationPath,}) {
-    return WalletInfo(id, name, type, isRecovery, restoreHeight,
-        date.millisecondsSinceEpoch, dirPath, path, address,
-        yatEid, yatLastUsedAddressRaw, showIntroCakePayCard, derivationType, derivationPath);
+  factory WalletInfo.external({
+    required String id,
+    required String name,
+    required WalletType type,
+    required bool isRecovery,
+    required int restoreHeight,
+    required DateTime date,
+    required String dirPath,
+    required String path,
+    required String address,
+    bool? showIntroCakePayCard,
+    String yatEid = '',
+    String yatLastUsedAddressRaw = '',
+    DerivationType? derivationType,
+    String? derivationPath,
+  }) {
+    return WalletInfo(
+        id,
+        name,
+        type,
+        isRecovery,
+        restoreHeight,
+        date.millisecondsSinceEpoch,
+        dirPath,
+        path,
+        address,
+        yatEid,
+        yatLastUsedAddressRaw,
+        showIntroCakePayCard,
+        derivationType,
+        derivationPath);
   }
 
   static const typeId = WALLET_INFO_TYPE_ID;
@@ -114,7 +147,7 @@ class WalletInfo extends HiveObject {
   String get yatEmojiId => yatEid ?? '';
 
   bool get isShowIntroCakePayCard {
-    if(showIntroCakePayCard == null) {
+    if (showIntroCakePayCard == null) {
       return type != WalletType.haven;
     }
     return showIntroCakePayCard!;
