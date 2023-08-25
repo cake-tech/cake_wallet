@@ -76,10 +76,4 @@ class BuyOptionsPage extends BasePage {
       ),
     );
   }
-
-  void _launchUrl(String url) async {
-    try {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } catch (e) {}
-  }
 }
