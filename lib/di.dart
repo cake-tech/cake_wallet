@@ -1,5 +1,5 @@
-
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/core/authentication_request_data.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -7,7 +7,6 @@ import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
-import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -22,10 +21,8 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -299,8 +296,7 @@ Future setup({
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(
-      YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<SecureStorage>())
-        ..init());
+      YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<SecureStorage>())..init());
   getIt.registerSingleton<AnonpayTransactionsStore>(
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
 
@@ -382,8 +378,8 @@ Future setup({
   getIt.registerFactory<AuthViewModel>(() => AuthViewModel(getIt.get<AuthService>(),
       getIt.get<SharedPreferences>(), getIt.get<SettingsStore>(), BiometricAuth()));
 
-  getIt.registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
-      (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
+  getIt.registerFactoryParam<AuthPage, OnAuthenticationFinished, bool>((onAuthFinished, closable) =>
+      AuthPage(getIt.get<AuthViewModel>(),
           onAuthenticationFinished: onAuthFinished, closable: closable));
 
   getIt.registerFactory<Setup2FAViewModel>(
@@ -395,16 +391,12 @@ Future setup({
   );
 
   getIt.registerFactoryParam<TotpAuthCodePage, TotpAuthArgumentsModel, void>(
-    (totpAuthPageArguments, _) => TotpAuthCodePage(
-      getIt.get<Setup2FAViewModel>(),
-      totpArguments: totpAuthPageArguments,
-    ),
-  );
+      (totpAuthPageArguments, _) => TotpAuthCodePage(
+          setup2FAViewModel: getIt.get<Setup2FAViewModel>(), totpArguments: totpAuthPageArguments));
 
   getIt.registerFactory<AuthPage>(() {
-    return AuthPage(getIt.get<AuthViewModel>(),
-        onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
-      if (!isAuthenticated) {
+    return AuthPage(getIt.get<AuthViewModel>(), onAuthenticationFinished: (auth) {
+      if (!auth.success) {
         return;
       } else {
         final authStore = getIt.get<AuthenticationStore>();
@@ -413,25 +405,18 @@ Future setup({
         final shouldUseTotp2FAToAccessWallets =
             appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
         if (useTotp && shouldUseTotp2FAToAccessWallets) {
-          authPageState.close(
+          auth.close(
             route: Routes.totpAuthCodePage,
             arguments: TotpAuthArgumentsModel(
               isForSetup: false,
               isClosable: false,
-              onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
-                  TotpAuthCodePageState totpAuthPageState) async {
-                if (!isAuthenticatedSuccessfully) {
+              onTotpAuthenticationFinished: (totpAuth) async {
+                if (!totpAuth.success) {
                   return;
                 }
                 if (appStore.wallet != null) {
                   authStore.allowed();
                   return;
-                }
-
-                totpAuthPageState.changeProcessText('Loading the wallet');
-
-                if (loginError != null) {
-                  totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
                 }
 
                 ReactionDisposer? _reaction;
@@ -446,12 +431,6 @@ Future setup({
           if (appStore.wallet != null) {
             authStore.allowed();
             return;
-          }
-
-          authPageState.changeProcessText('Loading the wallet');
-
-          if (loginError != null) {
-            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
           }
 
           ReactionDisposer? _reaction;
@@ -760,17 +739,14 @@ Future setup({
       case WalletType.monero:
         return monero!.createMoneroWalletService(_walletInfoSource);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinWalletService(
-            _walletInfoSource, _unspentCoinsInfoSource!,
+        return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!,
             SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.litecoin:
-        return bitcoin!.createLitecoinWalletService(
-            _walletInfoSource, _unspentCoinsInfoSource!,
+        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!,
             SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(
-            _walletInfoSource,
-            SettingsStoreBase.walletPasswordDirectInput);
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
@@ -825,19 +801,16 @@ Future setup({
           trades: _tradesSource,
           settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory(() => BackupService(
-      getIt.get<SecureStorage>(),
-      _walletInfoSource,
-      getIt.get<KeyService>(),
-      getIt.get<SharedPreferences>()));
+  getIt.registerFactory(() => BackupService(getIt.get<SecureStorage>(), _walletInfoSource,
+      getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
   getIt.registerFactory(() => BackupViewModel(
       getIt.get<SecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupService>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
-  getIt.registerFactory(() =>
-      EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
+  getIt.registerFactory(
+      () => EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
@@ -1063,63 +1036,73 @@ Future setup({
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
-    final currentWalletName = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName) ?? '';
-    final currentWalletTypeRaw =
-      getIt.get<SharedPreferences>()
-        .getInt(PreferencesKey.currentWalletType) ?? 0;
-    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+  String currentWalletName() {
+    return getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName) ?? '';
+  }
 
-    return WalletUnlockLoadableViewModel(
-      getIt.get<AppStore>(),
-      getIt.get<WalletLoadingService>(),
-      walletName: args.walletName ?? currentWalletName,
-      walletType: args.walletType ?? currentWalletType);
-  });
+  WalletType currentWalletType() {
+    return deserializeFromInt(
+        getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0);
+  }
 
-  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>((args, _) {
-    final currentWalletName = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName) ?? '';
-    final currentWalletTypeRaw =
-      getIt.get<SharedPreferences>()
-        .getInt(PreferencesKey.currentWalletType) ?? 0;
-    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+  getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>(
+      (args, _) => WalletUnlockLoadableViewModel(
+          getIt.get<AppStore>(), getIt.get<WalletLoadingService>(),
+          useTotp: args.useTotp && getIt.get<Setup2FAViewModel>().useTOTP2FA,
+          walletName: args.walletName ?? currentWalletName(),
+          walletType: args.walletType ?? currentWalletType()));
 
-    return WalletUnlockVerifiableViewModel(
-      getIt.get<AppStore>(),
-      walletName: args.walletName ?? currentWalletName,
-      walletType: args.walletType ?? currentWalletType);
-  });
+  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>(
+      (args, _) => WalletUnlockVerifiableViewModel(getIt.get<AppStore>(),
+          useTotp: args.useTotp && getIt.get<Setup2FAViewModel>().useTOTP2FA,
+          walletName: currentWalletName(),
+          walletType: currentWalletType()));
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    final walletPasswordAuthViewModel = getIt.get<WalletUnlockLoadableViewModel>(param1: args);
     return WalletUnlockPage(
-      getIt.get<WalletUnlockLoadableViewModel>(param1: args),
-      args.callback,
-      args.authPasswordHandler,
-      closable: closable);
+        walletPasswordAuthViewModel: walletPasswordAuthViewModel,
+        onAuthenticationFinished: args.callback,
+        authPasswordHandler: (String walletName, WalletType walletType, String password) async {
+          if (args.authPasswordHandler != null) {
+            // verify password matches (load wallet)
+            final wallet = await walletPasswordAuthViewModel.load();
+            // do custom password verification (eg. renaming wallet files)
+            await args.authPasswordHandler!(walletName, walletType, password);
+
+            return wallet;
+          }
+
+          // not closable -> login auth, unlocks wallet and wait for totp for authstore.allowed
+          if (!closable) {
+            return await walletPasswordAuthViewModel.unlock();
+          } else {
+            // closable -> only load to verify match
+            return await walletPasswordAuthViewModel.load();
+          }
+        },
+        closable: closable);
   }, instanceName: 'wallet_unlock_loadable');
 
+  // Verifiable == simply uses the current loaded wallet and verifies the password matches - always used for current wallet auth methods after initial load
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    final walletPasswordAuthViewModel = getIt.get<WalletUnlockVerifiableViewModel>(param1: args);
     return WalletUnlockPage(
-      getIt.get<WalletUnlockVerifiableViewModel>(param1: args),
-      args.callback,
-      args.authPasswordHandler,
-      closable: closable);
+        walletPasswordAuthViewModel: walletPasswordAuthViewModel,
+        onAuthenticationFinished: args.callback,
+        authPasswordHandler: (_, __, ___) => walletPasswordAuthViewModel.verify(),
+        closable: closable,
+        isVerifiable: true);
   }, instanceName: 'wallet_unlock_verifiable');
 
   getIt.registerFactory<WalletUnlockPage>(
       () => getIt.get<WalletUnlockPage>(
-        param1: WalletUnlockArguments(
-          callback: (bool successful, _) {
-            if (successful) {
-              final authStore = getIt.get<AuthenticationStore>();
-              authStore.allowed();
-            }}),
-        param2: false,
-        instanceName: 'wallet_unlock_loadable'),
+          param1: WalletUnlockArguments(
+              useTotp: getIt.get<AppStore>().settingsStore.shouldRequireTOTP2FAForAccessingWallet,
+              callback: (AuthResponse auth) =>
+                  auth.success ? getIt.get<AuthenticationStore>().allowed() : null),
+          param2: false,
+          instanceName: 'wallet_unlock_loadable'),
       instanceName: 'wallet_password_login');
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>

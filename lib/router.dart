@@ -1,5 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/core/authentication_request_data.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -289,25 +290,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.auth:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_)
-            => SettingsStoreBase.walletPasswordDirectInput
-                ? getIt.get<WalletUnlockPage>(
-                    param1: WalletUnlockArguments(
-                      callback: settings.arguments as OnAuthenticationFinished),
-                      instanceName: 'wallet_unlock_verifiable',
-                    param2: true)
-                : getIt.get<AuthPage>(
-                    param1: settings.arguments as OnAuthenticationFinished,
-                    param2: true));
+          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
+              ? getIt.get<WalletUnlockPage>(
+                  param1: settings.arguments as WalletUnlockArguments,
+                  instanceName: 'wallet_unlock_verifiable',
+                  param2: true)
+              : getIt.get<AuthPage>(
+                  param1: settings.arguments as OnAuthenticationFinished, param2: true));
 
     case Routes.totpAuthCodePage:
-      final args = settings.arguments as TotpAuthArgumentsModel;
       return MaterialPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) => getIt.get<TotpAuthCodePage>(
-          param1: args,
-        ),
-      );
+          fullscreenDialog: true,
+          builder: (_) =>
+              getIt.get<TotpAuthCodePage>(param1: settings.arguments as TotpAuthArgumentsModel));
 
     case Routes.walletUnlockLoadable:
       return MaterialPageRoute<void>(
@@ -321,19 +316,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_)
-            => SettingsStoreBase.walletPasswordDirectInput
-                ? WillPopScope(
-                    child: getIt.get<WalletUnlockPage>(
-                      param1: WalletUnlockArguments(
-                        callback: settings.arguments as OnAuthenticationFinished),
+          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
+              ? WillPopScope(
+                  child: getIt.get<WalletUnlockPage>(
+                      param1: settings.arguments as WalletUnlockArguments,
                       param2: false,
                       instanceName: 'wallet_unlock_verifiable'),
-                    onWillPop: () async => false)
-                : WillPopScope(
-                    child: getIt.get<AuthPage>(
-                      param1: settings.arguments as OnAuthenticationFinished,
-                      param2: false),
+                  onWillPop: () async => false)
+              : WillPopScope(
+                  child: getIt.get<AuthPage>(
+                      param1: settings.arguments as OnAuthenticationFinished, param2: false),
                   onWillPop: () async => false));
 
     case Routes.connectionSync:

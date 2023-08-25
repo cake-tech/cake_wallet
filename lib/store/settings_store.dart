@@ -532,7 +532,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
-            Cake2FAPresetsOptions.normal.raw);
+            Cake2FAPresetsOptions.unselected.raw);
     final shouldRequireTOTP2FAForAccessingWallet =
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ?? false;
     final shouldRequireTOTP2FAForSendsToContact =
@@ -736,7 +736,7 @@ abstract class SettingsStoreBase with Store {
             allowBiometricalAuthentication;
     selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
-            Cake2FAPresetsOptions.normal.raw);
+            Cake2FAPresetsOptions.unselected.raw);
     shouldRequireTOTP2FAForAccessingWallet =
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ?? false;
     shouldRequireTOTP2FAForSendsToContact =
@@ -762,7 +762,7 @@ abstract class SettingsStoreBase with Store {
             shouldShowMarketPlaceInDashboard;
     selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
-            Cake2FAPresetsOptions.narrow.raw);
+            Cake2FAPresetsOptions.unselected.raw);
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);

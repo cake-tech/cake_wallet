@@ -148,38 +148,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    if (SettingsStoreBase.walletPasswordDirectInput) {
-      Navigator.of(context).pushNamed(
-          Routes.walletUnlockLoadable,
-          arguments: WalletUnlockArguments(
-              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-                if (isAuthenticatedSuccessfully) {
-                  auth.close();
-                  setState(() {});
-                }
-              }, walletName: wallet.name,
-              walletType: wallet.type));
-      return;
-    }
-
-    widget._authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
-
-      try {
-        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-        await widget.walletListViewModel.loadWallet(wallet);
-        hideProgressText();
-        setState(() {});
-      } catch (e) {
-        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
-      }
-      },
-      conditionToDetermineIfToUse2FA:
-          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
-    );
+    await widget.walletListViewModel.authWallet(context, wallet);
   }
 
   void _navigateToCreateWallet() {
@@ -188,17 +157,16 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         context,
         route: Routes.newWallet,
         arguments: widget.walletListViewModel.currentWalletType,
-        conditionToDetermineIfToUse2FA: widget
-            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+        conditionToDetermineIfToUse2FA:
+            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
     } else {
       widget._authService.authenticateAction(
         context,
         route: Routes.newWalletType,
-        conditionToDetermineIfToUse2FA: widget
-            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+        conditionToDetermineIfToUse2FA:
+            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
-     
     }
   }
 

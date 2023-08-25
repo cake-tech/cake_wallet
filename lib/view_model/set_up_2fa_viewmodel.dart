@@ -28,7 +28,9 @@ abstract class Setup2FAViewModelBase with Store {
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
     _getRandomBase32SecretKey();
-    selectCakePreset(selectedCake2FAPreset);
+    if (selectedCake2FAPreset == Cake2FAPresetsOptions.unselected) {
+      selectCakePreset(Cake2FAPresetsOptions.normal);
+    }
     reaction((_) => state, _saveLastAuthTime);
   }
 
@@ -92,6 +94,7 @@ abstract class Setup2FAViewModelBase with Store {
   @action
   void setUseTOTP2FA(bool value) {
     _settingsStore.useTOTP2FA = value;
+    if (!value) _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.unselected;
   }
 
   @action
@@ -134,7 +137,7 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   Future<bool> totp2FAAuth(String otpText, bool isForSetup) async {
-    state = InitialExecutionState();
+    state = IsExecutingState();
     _failureCounter = _settingsStore.numberOfFailedTokenTrials;
     final _banDuration = banDuration();
 
@@ -154,11 +157,11 @@ abstract class Setup2FAViewModelBase with Store {
     isForSetup ? setUseTOTP2FA(result) : null;
 
     if (result) {
+      state = ExecutedSuccessfullyState();
       return true;
     } else {
       final value = _settingsStore.numberOfFailedTokenTrials + 1;
       adjustTokenTrialNumber(value);
-      print(value);
       if (_failureCounter >= maxFailedTrials) {
         final banDuration = await ban();
         state = AuthenticationBanned(

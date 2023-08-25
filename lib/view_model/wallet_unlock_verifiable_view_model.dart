@@ -2,60 +2,28 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_password_auth_view_model.dart';
 
 part 'wallet_unlock_verifiable_view_model.g.dart';
 
 class WalletUnlockVerifiableViewModel = WalletUnlockVerifiableViewModelBase
     with _$WalletUnlockVerifiableViewModel;
 
-abstract class WalletUnlockVerifiableViewModelBase extends WalletUnlockViewModel
-    with Store {
-  WalletUnlockVerifiableViewModelBase(this.appStore,
-      {required this.walletName, required this.walletType})
-      : password = '',
-        state = InitialExecutionState();
+abstract class WalletUnlockVerifiableViewModelBase extends WalletPasswordAuthViewModel with Store {
+  WalletUnlockVerifiableViewModelBase(this._appStore,
+      {required this.useTotp, required this.walletName, required this.walletType})
+      : super(useTotp: useTotp, walletName: walletName, walletType: walletType);
 
   final String walletName;
-
   final WalletType walletType;
+  final AppStore _appStore;
 
-  final AppStore appStore;
-
-  @override
   @observable
-  String password;
+  bool useTotp;
 
-  @override
-  @observable
-  ExecutionState state;
-
-  @override
   @action
-  void setPassword(String password) => this.password = password;
-
-  @override
-  @action
-  Future<void> unlock() async {
-    try {
-      state = appStore.wallet!.password == password
-          ? ExecutedSuccessfullyState()
-          : FailureState(S.current.invalid_password);
-    } catch (e) {
-      failure('${S.current.invalid_password}\n${e.toString()}');
-    }
-  }
-
-  @override
-  @action
-  void success() {
-    state = ExecutedSuccessfullyState();
-  }
-
-  @override
-  @action
-  void failure(e) {
-    state = FailureState(e.toString());
+  Future<void> verify() async {
+    final valid = _appStore.wallet!.password == password;
+    if (!valid) throw Exception('${S.current.invalid_password}');
   }
 }

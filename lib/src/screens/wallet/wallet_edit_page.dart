@@ -1,9 +1,9 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/authentication_request_data.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -100,21 +100,17 @@ class WalletEditPage extends BasePage {
                                 try {
                                   bool confirmed = false;
 
-                                  if (SettingsStoreBase
-                                      .walletPasswordDirectInput) {
+                                  if (SettingsStoreBase.walletPasswordDirectInput) {
                                     await Navigator.of(context).pushNamed(
                                         Routes.walletUnlockLoadable,
                                         arguments: WalletUnlockArguments(
-                                            authPasswordHandler:
-                                                (String password) async {
-                                              await walletEditViewModel
-                                                  .changeName(editingWallet,
-                                                      password: password);
+                                            useTotp: true,
+                                            authPasswordHandler: (_, __, String password) async {
+                                              await walletEditViewModel.changeName(editingWallet,
+                                                  password: password);
                                             },
-                                            callback: (bool
-                                                    isAuthenticatedSuccessfully,
-                                                AuthPageState auth) async {
-                                              if (isAuthenticatedSuccessfully) {
+                                            callback: (AuthResponse auth) async {
+                                              if (auth.success) {
                                                 auth.close();
                                                 confirmed = true;
                                               }
@@ -122,8 +118,7 @@ class WalletEditPage extends BasePage {
                                             walletName: editingWallet.name,
                                             walletType: editingWallet.type));
                                   } else {
-                                    await walletEditViewModel
-                                        .changeName(editingWallet);
+                                    await walletEditViewModel.changeName(editingWallet);
                                     confirmed = true;
                                   }
 
@@ -150,12 +145,14 @@ class WalletEditPage extends BasePage {
   }
 
   Future<void> _removeWallet(BuildContext context) async {
-    authService.authenticateAction(context, onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
+    authService.authenticateAction(
+      context,
+      onAuthSuccess: (isAuthenticatedSuccessfully) async {
+        if (!isAuthenticatedSuccessfully) {
+          return;
+        }
 
-      _onSuccessfulAuth(context);
+        _onSuccessfulAuth(context);
       },
       conditionToDetermineIfToUse2FA: false,
     );

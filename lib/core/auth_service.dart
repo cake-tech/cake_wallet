@@ -1,6 +1,6 @@
-import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/core/authentication_request_data.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
@@ -9,8 +9,6 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-
-import '../src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class AuthService with Store {
   AuthService({
@@ -86,62 +84,55 @@ class AuthService with Store {
 
   Future<void> authenticateAction(BuildContext context,
       {Function(bool)? onAuthSuccess,
+      String? authRoute,
+      Object? authArguments,
       String? route,
       Object? arguments,
+      bool? alwaysRequireAuth,
       required bool conditionToDetermineIfToUse2FA}) async {
     assert(route != null || onAuthSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
 
     if (!conditionToDetermineIfToUse2FA) {
-      if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+      if (alwaysRequireAuth != true &&
+          !requireAuth() &&
+          !_alwaysAuthenticateRoutes.contains(route)) {
         if (onAuthSuccess != null) {
           onAuthSuccess(true);
         } else {
-          Navigator.of(context).pushNamed(
-            route ?? '',
-            arguments: arguments,
-          );
-        }
-        return;
-      }
-}
-
-
-    Navigator.of(context).pushNamed(Routes.auth,
-        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-      if (!isAuthenticatedSuccessfully) {
-        onAuthSuccess?.call(false);
-        return;
-      } else {
-        if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
-          auth.close(
-            route: Routes.totpAuthCodePage,
-            arguments: TotpAuthArgumentsModel(
-              isForSetup: !settingsStore.useTOTP2FA,
-              onTotpAuthenticationFinished:
-                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
-                if (!isAuthenticatedSuccessfully) {
-                  onAuthSuccess?.call(false);
-                  return;
-                }
-                if (onAuthSuccess != null) {
-                  totpAuth.close().then((value) => onAuthSuccess.call(true));
-                } else {
-                  totpAuth.close(route: route, arguments: arguments);
-                }
-              },
-            ),
-          );
-        } else {
-          if (onAuthSuccess != null) {
-            auth.close().then((value) => onAuthSuccess.call(true));
-          } else {
-            auth.close(route: route, arguments: arguments);
-          }
+          Navigator.of(context).pushNamed(route ?? '', arguments: arguments);
         }
       }
+    }
 
-      });
+    Navigator.of(context).pushNamed(authRoute ?? Routes.auth,
+        arguments: authArguments ??
+            (SettingsStoreBase.walletPasswordDirectInput
+                ? WalletUnlockArguments(
+                    useTotp: conditionToDetermineIfToUse2FA,
+                    callback: (AuthResponse auth) async {
+                      if (!auth.success) {
+                        onAuthSuccess?.call(false);
+                        return;
+                      }
 
+                      if (onAuthSuccess != null) {
+                        auth.close().then((value) => onAuthSuccess.call(true));
+                      } else {
+                        auth.close(route: route, arguments: arguments);
+                      }
+                    })
+                : (AuthResponse auth) {
+                    if (!auth.success) {
+                      onAuthSuccess?.call(false);
+                      return;
+                    }
+
+                    if (onAuthSuccess != null) {
+                      auth.close().then((value) => onAuthSuccess.call(true));
+                    } else {
+                      auth.close(route: route, arguments: arguments);
+                    }
+                  }));
   }
 }

@@ -252,45 +252,7 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    if (SettingsStoreBase.walletPasswordDirectInput) {
-      Navigator.of(context).pushNamed(
-          Routes.walletUnlockLoadable,
-          arguments: WalletUnlockArguments(
-              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-                if (isAuthenticatedSuccessfully) {
-                  auth.close();
-                  setState(() {});
-                }
-              }, walletName: wallet.name,
-              walletType: wallet.type));
-      return;
-    }
-
-    await widget.authService.authenticateAction(
-      context,
-      onAuthSuccess: (isAuthenticatedSuccessfully) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
-
-        try {
-          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-          await widget.walletListViewModel.loadWallet(wallet);
-          await hideProgressText();
-          // only pop the wallets route in mobile as it will go back to dashboard page
-          // in desktop platforms the navigation tree is different
-          if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop();
-            });
-          }
-        } catch (e) {
-          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
-        }
-      },
-      conditionToDetermineIfToUse2FA:
-          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
-    );
+    widget.walletListViewModel.authWallet(context, wallet);
   }
 
   void changeProcessText(String text) {
