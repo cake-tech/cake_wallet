@@ -49,14 +49,7 @@ class MainActions {
         case WalletType.ethereum:
         case WalletType.monero:
           if (viewModel.isEnabledBuyAction) {
-            final uri = getIt.get<OnRamperBuyProvider>().requestUrl(context);
-            if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context)
-                  // .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
-                  .pushNamed(Routes.buy);
-            } else {
-              await launchUrl(uri);
-            }
+            Navigator.of(context).pushNamed(Routes.buy);
           }
           break;
         default:
