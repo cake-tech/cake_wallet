@@ -139,8 +139,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     for (var i = 0; i < utxosToUse.length; i++) {
       final input = utxosToUse[i];
       final keyPair = generateKeyPair(
-          hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-          index: input.address.index,
+          hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: input.bitcoinAddressRecord.index,
           network: bitcoinCashNetworkType);
       builder.sign(i, keyPair, input.value);
     }

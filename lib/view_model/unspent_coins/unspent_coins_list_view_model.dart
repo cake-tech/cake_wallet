@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -92,7 +92,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   String formatAmountToString(int fullBalance) {
     if (wallet.type == WalletType.monero)
       return monero!.formatterMoneroAmountToString(amount: fullBalance);
-    if ([WalletType.bitcoin, WalletType.litecoin].contains(wallet.type))
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
     return '';
   }
@@ -101,7 +101,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   void _updateUnspents() {
     if (wallet.type == WalletType.monero)
       return monero!.updateUnspents(wallet);
-    if ([WalletType.bitcoin, WalletType.litecoin].contains(wallet.type))
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.updateUnspents(wallet);
   }
 

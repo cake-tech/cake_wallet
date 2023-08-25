@@ -308,8 +308,8 @@ abstract class ElectrumWalletBase
         final p2wpkh = bitcoin
             .P2WPKH(
             data: generatePaymentData(
-                hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-                index: input.address.index),
+                hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+                index: input.bitcoinAddressRecord.index),
             network: networkType)
             .data;
 
@@ -343,8 +343,8 @@ abstract class ElectrumWalletBase
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
       final keyPair = generateKeyPair(
-          hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-          index: input.address.index,
+          hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: input.bitcoinAddressRecord.index,
           network: networkType);
       final witnessValue = input.isP2wpkh ? input.value : null;
 
@@ -535,7 +535,7 @@ abstract class ElectrumWalletBase
       isFrozen: coin.isFrozen,
       isSending: coin.isSending,
       noteRaw: coin.note,
-      address: coin.address.address,
+      address: coin.bitcoinAddressRecord.address,
       value: coin.value,
       vout: coin.vout,
     );
@@ -691,7 +691,7 @@ abstract class ElectrumWalletBase
       unspentCoins.forEach((element) {
         if (element.hash == info.hash &&
             info.isFrozen &&
-            element.address.address == info.address &&
+            element.bitcoinAddressRecord.address == info.address &&
             element.value == info.value) {
           totalFrozen += element.value;
         }
