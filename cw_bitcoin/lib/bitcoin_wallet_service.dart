@@ -34,12 +34,10 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
     // default derivation type/path for bitcoin wallets:
-    // TODO: figure out what the default derivation type is
-    // credentials.walletInfo!.derivationType = DerivationType.bip39;
+    // TODO: figure out what the default derivation path is
     credentials.walletInfo!.derivationPath = "m/0'/1";
-
     final wallet = await BitcoinWalletBase.create(
-        mnemonic: await generateMnemonic(),
+        mnemonic: await generateElectrumMnemonic(strength: 132),
         password: credentials.password!,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
@@ -115,9 +113,9 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   static Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node}) async {
-        // if the mnemonic is 12 words, then it could be electrum 1.0,
-        // if the mnemonic is 24 words, then it could be electrum 2.0
-        // bip39 is possible with any number of words
+    // if the mnemonic is 12 words, then it could be electrum 1.0,
+    // if the mnemonic is 24 words, then it could be electrum 2.0
+    // bip39 is possible with any number of words
     int wordCount = mnemonic.split(" ").length;
     if (wordCount == 24) {
       return [DerivationType.bip39, DerivationType.electrum1];

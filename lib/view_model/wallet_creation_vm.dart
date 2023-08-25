@@ -50,7 +50,6 @@ abstract class WalletCreationVMBase with Store {
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
-      print("options: $options");
       final credentials = restoreWallet != null
           ? getCredentialsFromRestoredWallet(options, restoreWallet)
           : getCredentials(options);

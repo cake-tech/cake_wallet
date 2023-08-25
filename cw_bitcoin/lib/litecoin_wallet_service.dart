@@ -27,7 +27,7 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials) async {
     final wallet = await LitecoinWalletBase.create(
-        mnemonic: await generateMnemonic(),
+        mnemonic: await generateElectrumMnemonic(),
         password: credentials.password!,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
