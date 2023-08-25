@@ -548,7 +548,7 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   const bitcoinCashCommonHeaders = """
 import 'dart:typed_data';
 
-import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
