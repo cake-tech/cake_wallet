@@ -200,6 +200,21 @@ Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async 
     for (var name in walletNames) {
       final dir = Directory(await pathForWalletDir(name: name, type: type));
 
+      final walletFiles = dir.listSync();
+      final hasCacheFile = walletFiles.any((element) => element.path.contains("$name/$name"));
+
+      if (!hasCacheFile) {
+        continue;
+      }
+
+      if (type == WalletType.monero || type == WalletType.haven) {
+        final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
+
+        if (!hasKeysFile) {
+          continue;
+        }
+      }
+
       final id = prefix + '_' + name;
       final exist = walletInfoSource.values.any((el) => el.id == id);
 
@@ -209,7 +224,7 @@ Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async 
 
       final walletInfo = WalletInfo.external(
         id: id,
-        type: WalletType.monero,
+        type: type,
         name: name,
         isRecovery: true,
         restoreHeight: 0,

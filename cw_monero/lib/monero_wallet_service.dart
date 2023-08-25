@@ -131,10 +131,13 @@ class MoneroWalletService extends WalletService<
       final bool doesNotCorrespond = e.toString().contains('does not correspond') ||
           (e is WalletOpeningException && e.message.contains('does not correspond'));
 
-      final bool isMissingCacheFiles = e.toString().contains('basic_string') ||
+      final bool isMissingCacheFilesIOS = e.toString().contains('basic_string') ||
           (e is WalletOpeningException && e.message.contains('basic_string'));
 
-      if (isBadAlloc || doesNotCorrespond || isMissingCacheFiles) {
+      final bool isMissingCacheFilesAndroid = e.toString().contains('input_stream') ||
+          (e is WalletOpeningException && e.message.contains('input_stream'));
+
+      if (isBadAlloc || doesNotCorrespond || isMissingCacheFilesIOS || isMissingCacheFilesAndroid) {
         await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
