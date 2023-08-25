@@ -57,7 +57,7 @@ class MoneroWalletService extends WalletService<
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  
+
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
@@ -124,13 +124,17 @@ class MoneroWalletService extends WalletService<
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
 
-      if ((e.toString().contains('bad_alloc') ||
+      final bool isBadAlloc = e.toString().contains('bad_alloc') ||
           (e is WalletOpeningException &&
-              (e.message == 'std::bad_alloc' ||
-                  e.message.contains('bad_alloc')))) ||
-          (e.toString().contains('does not correspond') ||
-          (e is WalletOpeningException &&
-            e.message.contains('does not correspond')))) {
+              (e.message == 'std::bad_alloc' || e.message.contains('bad_alloc')));
+
+      final bool doesNotCorrespond = e.toString().contains('does not correspond') ||
+          (e is WalletOpeningException && e.message.contains('does not correspond'));
+
+      final bool isMissingCacheFiles = e.toString().contains('basic_string') ||
+          (e is WalletOpeningException && e.message.contains('basic_string'));
+
+      if (isBadAlloc || doesNotCorrespond || isMissingCacheFiles) {
         await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
