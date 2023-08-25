@@ -78,7 +78,7 @@ abstract class SupportViewModelBase with Store {
 
   String fetchUrl({String locale = "en", String authToken = ""}) {
     var supportUrl =
-        "https://support.cakewallet.com/widget?website_token=${secrets.chatwootWebsiteToken}&locale=${locale}";
+        "https://app.chatwoot.com/widget?website_token=${secrets.chatwootWebsiteToken}&locale=${locale}";
 
     if (authToken.isNotEmpty)
       supportUrl += "&cw_conversation=$authToken";

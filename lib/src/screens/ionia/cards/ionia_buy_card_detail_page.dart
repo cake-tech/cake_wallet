@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
@@ -9,6 +11,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
@@ -18,6 +21,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class IoniaBuyGiftCardDetailPage extends BasePage {
   IoniaBuyGiftCardDetailPage(this.ioniaPurchaseViewModel);
@@ -28,7 +33,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       ioniaPurchaseViewModel.ioniaMerchant.legalName,
-      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!),
+      style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
     );
   }
 
@@ -96,8 +101,8 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                      Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+                      Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                      Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -163,7 +168,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                     Text(
                       S.of(context).tip,
                       style: TextStyle(
-                        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -202,7 +207,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                       ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
                   onPressed: () => purchaseCard(context),
                   text: S.of(context).purchase_gift_card,
-                  color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 );
               }),
@@ -212,7 +217,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
               onTap: () => _showTermsAndCondition(context),
               child: Text(S.of(context).settings_terms_and_conditions,
                   style: textMediumSemiBold(
-                    color: Theme.of(context).primaryTextTheme.bodyMedium!.color!,
+                    color: Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
                   ).copyWith(fontSize: 12)),
             ),
             SizedBox(height: 16)
@@ -232,7 +237,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             child: Text(
               ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
               style: textMedium(
-                color: Theme.of(context).textTheme!.displaySmall!.color!,
+                color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
               ),
             ),
           ),
@@ -270,13 +275,13 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                             child: Text(
                               instruction.header,
                               style: textLargeSemiBold(
-                                color: Theme.of(context).textTheme!.displaySmall!.color!,
+                                color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                               ),
                             )),
                         Text(
                           instruction.body,
                           style: textMedium(
-                            color: Theme.of(context).textTheme!.displaySmall!.color!,
+                            color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                           ),
                         )
                       ];
@@ -323,7 +328,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             alertLeftActionButtonTextColor: Colors.white,
             alertRightActionButtonTextColor: Colors.white,
             alertLeftActionButtonColor: Palette.brightOrange,
-            alertRightActionButtonColor: Theme.of(context).textTheme!.titleSmall!.color,
+            alertRightActionButtonColor: Theme.of(context).primaryColor,
             actionRightButton: () async {
               Navigator.of(context).pop();
               await ioniaPurchaseViewModel.commitPaymentInvoice();
@@ -399,34 +404,34 @@ class TipButton extends StatelessWidget {
 
   Color captionTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      return Theme.of(context).extension<CakeTextTheme>()!.titleColor;
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme!.titleLarge!.color!
-      : Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      ? Theme.of(context).dialogTheme.backgroundColor!
+      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
   }
 
   Color subTitleTextColor(BuildContext context) {
     if (isDark(context)) {
-      return Theme.of(context).primaryTextTheme!.titleLarge!.color!;
+      return Theme.of(context).extension<CakeTextTheme>()!.titleColor;
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme!.titleLarge!.color!
-      : Theme.of(context).primaryTextTheme!.labelSmall!.color!;
+      ? Theme.of(context).dialogTheme.backgroundColor!
+      : Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor;
   }
 
   Color? backgroundColor(BuildContext context) {
     if (isDark(context)) {
       return isSelected
         ? null
-        : Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!.withOpacity(0.01);
+        : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.01);
     }
 
     return isSelected
         ? null
-        : Theme.of(context).accentTextTheme!.displayLarge!.backgroundColor!.withOpacity(0.1);
+        : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.1);
   }
 
   @override
@@ -459,8 +464,8 @@ class TipButton extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    Theme.of(context).primaryTextTheme!.titleMedium!.color!,
-                    Theme.of(context).primaryTextTheme!.titleMedium!.decorationColor!,
+                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

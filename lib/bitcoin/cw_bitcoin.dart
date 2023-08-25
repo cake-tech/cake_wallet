@@ -137,7 +137,8 @@ class CWBitcoin extends Bitcoin {
 				bitcoinUnspent.address,
 				bitcoinUnspent.hash,
 				bitcoinUnspent.value,
-				bitcoinUnspent.vout))
+				bitcoinUnspent.vout,
+				null))
 			.toList();
 	}
 

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget({
@@ -35,7 +37,7 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).textTheme!.titleMedium!.decorationColor!);
+        color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -51,10 +53,7 @@ class QRWidget extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .displayMedium!
-                        .backgroundColor!),
+                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
               ),
             ),
             Row(
@@ -85,10 +84,7 @@ class QRWidget extends StatelessWidget {
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 3,
-                                  color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displayMedium!
-                                      .backgroundColor!,
+                                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                                 ),
                               ),
                               child: Container(
@@ -152,10 +148,7 @@ class QRWidget extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .displayMedium!
-                                .backgroundColor!),
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                       ),
                     ),
                     Padding(

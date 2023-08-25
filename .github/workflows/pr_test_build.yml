@@ -28,7 +28,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '3.7.x'
+          flutter-version: '3.10.x'
           channel: stable
 
       - name: Install package dependencies
@@ -55,7 +55,7 @@ jobs:
             /opt/android/cake_wallet/cw_monero/android/.cxx
             /opt/android/cake_wallet/cw_monero/ios/External
             /opt/android/cake_wallet/cw_shared_external/ios/External
-          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh') }}
+          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh', '**/monero_api.cpp') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals

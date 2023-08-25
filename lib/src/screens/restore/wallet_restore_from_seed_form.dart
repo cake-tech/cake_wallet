@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm(
@@ -93,10 +94,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                     height: 34,
                     child: Image.asset(
                       'assets/images/refresh_icon.png',
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .headlineMedium!
-                          .decorationColor!,
+                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
                     ),
                   ),
                 ),

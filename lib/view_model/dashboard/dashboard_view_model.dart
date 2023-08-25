@@ -107,7 +107,7 @@ abstract class DashboardViewModelBase with Store {
     name = wallet.name;
     type = wallet.type;
     isOutdatedElectrumWallet =
-        wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
+        wallet.type == WalletType.bitcoin && wallet.seed!.split(' ').length < 24;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
@@ -327,7 +327,7 @@ abstract class DashboardViewModelBase with Store {
     type = wallet.type;
     name = wallet.name;
     isOutdatedElectrumWallet =
-        wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
+        wallet.type == WalletType.bitcoin && wallet.seed!.split(' ').length < 24;
     updateActions();
 
     if (wallet.type == WalletType.monero) {

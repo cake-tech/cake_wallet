@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -78,7 +79,7 @@ class BaseTextFormField extends StatelessWidget {
           TextStyle(
               fontSize: 16.0,
               color: textColor ??
-                  Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                  Theme.of(context).extension<CakeTextTheme>()!.titleColor),
       decoration: InputDecoration(
           prefix: prefix,
           prefixIcon: prefixIcon,
@@ -92,26 +93,17 @@ class BaseTextFormField extends StatelessWidget {
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
                   width: borderWidth)),
           disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
                   width: borderWidth)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
-                      Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
                   width: borderWidth))),
       validator: validator,
     );

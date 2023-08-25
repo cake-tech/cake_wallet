@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/email_validator.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -33,10 +34,7 @@ class IoniaLoginPage extends BasePage {
     return Text(
       S.current.login,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       ),
     );
   }
@@ -74,10 +72,7 @@ class IoniaLoginPage extends BasePage {
                   text: S.of(context).login,
                   onPressed: _login,
                   isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ),

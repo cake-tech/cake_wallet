@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -6,6 +7,7 @@ import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.da
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 class IoniaFilterModal extends StatelessWidget {
   IoniaFilterModal({required this.ioniaGiftCardsListViewModel}){
@@ -20,7 +22,7 @@ class IoniaFilterModal extends StatelessWidget {
       padding: EdgeInsets.all(10),
       child: Image.asset(
         'assets/images/mini_search_icon.png',
-        color: Theme.of(context).textTheme!.titleSmall!.color!,
+        color: Theme.of(context).primaryColor,
       ),
     );
     return Scaffold(
@@ -46,14 +48,14 @@ class IoniaFilterModal extends StatelessWidget {
                       child: TextField(
                         onChanged: ioniaGiftCardsListViewModel.onSearchFilter,
                         style: textMedium(
-                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         ),
                         decoration: InputDecoration(
                           filled: true,
                           prefixIcon: searchIcon,
                           hintText: S.of(context).search_category,
                           contentPadding: EdgeInsets.only(bottom: 5),
-                          fillColor: Theme.of(context).primaryTextTheme!.bodySmall!.decorationColor!.withOpacity(0.5),
+                          fillColor: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor.withOpacity(0.5),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(8),
@@ -84,12 +86,12 @@ class IoniaFilterModal extends StatelessWidget {
                                   children: [
                                     Image.asset(
                                       category.iconPath,
-                                      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ),
                                     SizedBox(width: 10),
                                     Text(category.title,
                                         style: textSmall(
-                                          color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                         ).copyWith(fontWeight: FontWeight.w500)),
                                   ],
                                 ),

@@ -1,4 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 
 class DesktopActionButton extends StatelessWidget {
@@ -30,7 +33,7 @@ class DesktopActionButton extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15.0),
-            color: Theme.of(context).textTheme!.titleLarge!.backgroundColor!,
+            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           ),
           child: Center(
             child: Row(
@@ -41,14 +44,8 @@ class DesktopActionButton extends StatelessWidget {
                   height: 30,
                   width: 30,
                   color: isEnabled
-                      ? Theme.of(context)
-                          .accentTextTheme!
-                          .displayMedium!
-                          .backgroundColor!
-                      : Theme.of(context)
-                          .accentTextTheme!
-                          .displaySmall!
-                          .backgroundColor!,
+                      ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
+                      : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                 ),
                 const SizedBox(width: 10),
                 AutoSizeText(
@@ -58,10 +55,7 @@ class DesktopActionButton extends StatelessWidget {
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.bold,
                     color: isEnabled
-                        ? Theme.of(context)
-                            .accentTextTheme!
-                            .displayMedium!
-                            .backgroundColor!
+                        ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
                         : null,
                     height: 1,
                   ),
