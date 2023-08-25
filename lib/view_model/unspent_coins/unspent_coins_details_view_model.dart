@@ -63,6 +63,8 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
         return 'https://ordinals.com/tx/${txId}';
       case WalletType.litecoin:
         return 'https://litecoin.earlyordies.com/tx/${txId}';
+      case WalletType.bitcoinCash:
+        return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       default:
         return '';
     }
@@ -74,6 +76,8 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'Ordinals.com';
       case WalletType.litecoin:
         return S.current.view_transaction_on + 'Earlyordies.com';
+      case WalletType.bitcoinCash:
+        return S.current.view_transaction_on + 'Blockchair.com';
       default:
         return '';
     }

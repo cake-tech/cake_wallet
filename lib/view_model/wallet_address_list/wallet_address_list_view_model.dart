@@ -277,7 +277,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   bool get showElectrumAddressDisclaimer =>
-      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
+      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
