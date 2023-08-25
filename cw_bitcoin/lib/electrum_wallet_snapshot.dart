@@ -47,8 +47,8 @@ class ElectrumWallletSnapshot {
     var regularAddressIndex = 0;
     var changeAddressIndex = 0;
 
-    final derivationType = data['derivationType'] as DerivationType;
-    final derivationPath = data['derivationPath'] as String?;
+    final derivationType = data['derivationType'] as DerivationType? ?? DerivationType.bip39;
+    final derivationPath = data['derivationPath'] as String? ?? "m/0'/1";
 
     try {
       regularAddressIndex = int.parse(data['account_index'] as String? ?? '0');

@@ -22,16 +22,20 @@ class NanoNewWalletCredentials extends WalletCredentials {
 }
 
 class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
-  NanoRestoreWalletFromSeedCredentials(
-      {required String name,
-      required this.mnemonic,
-      this.derivationType,
-      int height = 0,
-      String? password})
-      : super(name: name, password: password, height: height);
+  NanoRestoreWalletFromSeedCredentials({
+    required String name,
+    required this.mnemonic,
+    int height = 0,
+    String? password,
+    DerivationType? derivationType,
+  }) : super(
+          name: name,
+          password: password,
+          height: height,
+          derivationType: derivationType,
+        );
 
   final String mnemonic;
-  final DerivationType? derivationType;
 }
 
 class NanoWalletLoadingException implements Exception {

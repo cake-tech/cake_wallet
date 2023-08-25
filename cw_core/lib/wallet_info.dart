@@ -15,6 +15,10 @@ enum DerivationType {
   nano,
   @HiveField(3)
   bip39,
+  @HiveField(4)
+  electrum1,
+  @HiveField(5)
+  electrum2,
 }
 
 class DerivationInfo {

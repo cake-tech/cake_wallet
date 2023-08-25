@@ -90,7 +90,7 @@ class Unspent {
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, DerivationType? derivationType, String? derivationPath});
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo});
   List<String> getWordList();

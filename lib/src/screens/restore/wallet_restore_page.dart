@@ -317,7 +317,7 @@ class WalletRestorePage extends BasePage {
     walletRestoreViewModel.state = IsExecutingState();
 
     List<DerivationType> derivationTypes =
-        await walletRestoreViewModel.getDerivationType(_credentials());
+        await walletRestoreViewModel.getDerivationTypes(_credentials());
 
     if (derivationTypes[0] == DerivationType.unknown || derivationTypes.length > 1) {
       // push screen to choose the derivation type:
