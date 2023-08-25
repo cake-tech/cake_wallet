@@ -40,7 +40,7 @@ class BuyOptionsPage extends BasePage {
                 child: OptionTile(
                   image: iconRobinhood,
                   title: "Robinhood",
-                  description: S.of(context).onramper_option_description,
+                  description: S.of(context).robinhood_option_description,
                   onPressed: () {}, // ToDo: Generate ConnectId and Open Robinhood
                 ),
               ),

@@ -688,5 +688,6 @@
   "select_buy_provider_notice": "အပေါ်ကဝယ်သူတစ် ဦး ကိုရွေးချယ်ပါ။ သင်၏ default 0 ယ်သူအား app settings တွင် setting လုပ်ခြင်းဖြင့်ဤ screen ကိုကျော်သွားနိုင်သည်။",
   "onramper_option_description": "ငွေပေးချေမှုနည်းလမ်းများစွာဖြင့် Crypto ကိုလျင်မြန်စွာ 0 ယ်ပါ။ နိုင်ငံအများစုတွင်ရရှိနိုင်ပါသည်။ ဖြန့်ဖြူးနှင့်အခကြေးငွေကွဲပြားခြားနားသည်။",
   "default_buy_provider": "Default Provider ကိုဝယ်ပါ",
-  "ask_each_time": "တစ်ခုချင်းစီကိုအချိန်မေးပါ"
+  "ask_each_time": "တစ်ခုချင်းစီကိုအချိန်မေးပါ",
+  "robinhood_option_description": "သင်၏ဒက်ဘစ်ကဒ်, ဘဏ်အကောင့်, ယူအက်စ်အေသာ။"
 }

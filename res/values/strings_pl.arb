@@ -690,5 +690,6 @@
   "select_buy_provider_notice": "Wybierz powyższe dostawcę zakupu. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę zakupu w ustawieniach aplikacji.",
   "onramper_option_description": "Szybko kup kryptowaluty z wieloma metodami płatności. Dostępne w większości krajów. Spready i opłaty różnią się.",
   "default_buy_provider": "Domyślny dostawca zakupu",
-  "ask_each_time": "Zapytaj za każdym razem"
+  "ask_each_time": "Zapytaj za każdym razem",
+  "robinhood_option_description": "Kup i przenieś natychmiast za pomocą karty debetowej, konta bankowego lub salda Robinhood. Tylko USA."
 }

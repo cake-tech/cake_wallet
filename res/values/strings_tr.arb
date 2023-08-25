@@ -688,5 +688,6 @@
   "select_buy_provider_notice": "Yukarıda bir satın alma sağlayıcısı seçin. App ayarlarında varsayılan satın alma sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
   "onramper_option_description": "Birçok ödeme yöntemi ile hızlı bir şekilde kripto satın alın. Çoğu ülkede mevcuttur. Forma ve ücretler değişir.",
   "default_buy_provider": "Varsayılan Satın Alma Sağlayıcısı",
-  "ask_each_time": "Her seferinde sor"
+  "ask_each_time": "Her seferinde sor",
+  "robinhood_option_description": "Banka kartınızı, banka hesabınızı veya Robinhood bakiyenizi kullanarak anında satın alın ve aktarın. Sadece ABD."
 }
