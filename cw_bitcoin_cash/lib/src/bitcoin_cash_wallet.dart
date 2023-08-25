@@ -120,7 +120,9 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
 // Calculate the amount to send and change
     final sendAmount = transactionCredentials.outputs[0].formattedCryptoAmount!;
-    final outputAddress = transactionCredentials.outputs[0].address;
+    final outputAddress = transactionCredentials.outputs[0].isParsedAddress
+        ? transactionCredentials.outputs[0].extractedAddress
+        : transactionCredentials.outputs[0].address;
     final fee = bitbox.BitcoinCash.getByteCount(utxosToUse.length, 2);
     final changeAmount = totalBalance - sendAmount - fee;
 
