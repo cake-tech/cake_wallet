@@ -124,8 +124,6 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     final electrumClient = ElectrumClient();
     await electrumClient.connectToUri(node.uri);
 
-    print("@@@@@@@@@@@@@@");
-
     for (DerivationType dType in bitcoin_derivations.keys) {
       if (dType == DerivationType.bip39) {
         for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
@@ -151,19 +149,16 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
                     .address;
                 break;
               case "p2wpkh-p2sh":
-                // address = bitcoin.P
               default:
                 address = wallet.address;
                 break;
             }
 
-            print(
-                "${dInfo.derivationType.toString()} : ${dInfo.derivationPath} : ${dInfo.script_type} : ${address}");
+            // print(
+            //     "${dInfo.derivationType.toString()} : ${dInfo.derivationPath} : ${dInfo.script_type} : ${address}");
 
             final sh = scriptHash(address!, networkType: bitcoin.bitcoin);
             final history = await electrumClient.getHistory(sh);
-
-            print(history);
 
             final balance = await electrumClient.getBalance(sh);
             dInfo.balance = balance.entries.first.value.toString();
