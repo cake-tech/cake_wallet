@@ -131,18 +131,4 @@ class CWEthereum extends Ethereum {
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
     (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
   }
-  
-  @override
-  String getPrivateKey(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
-    // TODO: implement getPrivateKey
-    throw UnimplementedError();
-  }
-
-  @override
-  String getPublicKey(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
-    // TODO: implement getPublicKey
-    throw UnimplementedError();
-  }
 }
