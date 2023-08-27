@@ -2,8 +2,12 @@ import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
@@ -63,10 +67,28 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
 
   @override
   Widget build(BuildContext context) {
+    return WCCDetailsWidget(
+      widget.pairing,
+      expiryDate,
+      sessionWidgets,
+    );
+  }
+}
+
+class WCCDetailsWidget extends BasePage {
+  WCCDetailsWidget(
+    this.pairing,
+    this.expiryDate,
+    this.sessionWidgets,
+  );
+
+  final PairingInfo pairing;
+  final String expiryDate;
+  final List<Widget> sessionWidgets;
+
+  @override
+  Widget body(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.pairing.peerMetadata?.name ?? 'Unknown'),
-      ),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -75,30 +97,31 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
             children: [
               Flexible(
                 child: CircleAvatar(
-                  backgroundImage: (widget.pairing.peerMetadata!.icons.isNotEmpty
-                          ? NetworkImage(widget.pairing.peerMetadata!.icons[0])
+                  backgroundImage: (pairing.peerMetadata!.icons.isNotEmpty
+                          ? NetworkImage(pairing.peerMetadata!.icons[0])
                           : const AssetImage('assets/images/default_icon.png'))
                       as ImageProvider<Object>,
                 ),
               ),
               const SizedBox(height: 20.0),
               Text(
-                widget.pairing.peerMetadata!.name,
+                pairing.peerMetadata!.name,
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
                   color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 16.0),
               Text(
-                widget.pairing.peerMetadata!.url,
+                pairing.peerMetadata!.url,
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.normal,
                   color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
+              const SizedBox(height: 8.0),
               Text(
                 'Expires on: $expiryDate',
                 style: TextStyle(
@@ -115,10 +138,10 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               ),
               const SizedBox(height: 20.0),
               PrimaryButton(
-                onPressed: _onDeleteButtonPressed,
+                onPressed: () => _onDeleteButtonPressed(context, pairing.peerMetadata!.name),
                 text: 'Delete',
                 color: Theme.of(context).primaryColor,
-                textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                textColor: Colors.white,
               ),
             ],
           ),
@@ -127,21 +150,38 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
     );
   }
 
-  void _back() {
-    Navigator.of(context).pop();
-  }
+  Future<void> _onDeleteButtonPressed(BuildContext context, String dAppName) async {
+    bool confirmed = false;
 
-  Future<void> _onDeleteButtonPressed() async {
-    try {
-      await getIt
-          .get<Web3WalletService>()
-          .getWeb3Wallet()
-          .core
-          .pairing
-          .disconnect(topic: widget.pairing.topic);
-      _back();
-    } catch (e) {
-      log(e.toString());
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertWithTwoActions(
+          alertTitle: S.of(context).delete,
+          alertContent: 'Are you sure that you want to delete the connection to $dAppName?',
+          leftButtonText: S.of(context).cancel,
+          rightButtonText: S.of(context).delete,
+          actionLeftButton: () => Navigator.of(dialogContext).pop(),
+          actionRightButton: () {
+            confirmed = true;
+            Navigator.of(dialogContext).pop();
+          },
+        );
+      },
+    );
+    if (confirmed) {
+      try {
+        await getIt
+            .get<Web3WalletService>()
+            .getWeb3Wallet()
+            .core
+            .pairing
+            .disconnect(topic: pairing.topic);
+
+        Navigator.of(context).pop();
+      } catch (e) {
+        log(e.toString());
+      }
     }
   }
 }

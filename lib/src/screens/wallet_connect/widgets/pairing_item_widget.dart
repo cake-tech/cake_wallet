@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:walletconnect_flutter_v2/apis/core/pairing/utils/pairing_models.dart';
 
@@ -12,10 +13,7 @@ class PairingItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     PairingMetadata? metadata = pairing.peerMetadata;
     if (metadata == null) {
-      return const ListTile(
-        title: Text('Unknown'),
-        subtitle: Text('No metadata available'),
-      );
+      return SizedBox.shrink();
     }
 
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(pairing.expiry * 1000);
@@ -63,7 +61,20 @@ class PairingItemWidget extends StatelessWidget {
           ),
         ],
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 20.0),
+      trailing: Container(
+        height: 40,
+        width: 44,
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor,
+        ),
+        child: Icon(
+          Icons.edit,
+          size: 14,
+          color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+        ),
+      ),
       onTap: onTap,
     );
   }

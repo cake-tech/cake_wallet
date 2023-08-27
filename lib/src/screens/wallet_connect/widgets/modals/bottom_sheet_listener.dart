@@ -34,6 +34,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
       BottomSheetQueueItemModel item = _bottomSheetService.currentSheet.value!;
       final value = await showModalBottomSheet(
         context: context,
+        isDismissible: false,
         backgroundColor: Color.fromARGB(0, 0, 0, 0),
         isScrollControlled: true,
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),

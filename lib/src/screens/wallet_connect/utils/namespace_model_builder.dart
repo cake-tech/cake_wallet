@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
-import 'package:get_it/get_it.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 import '../models/connection_model.dart';
@@ -68,7 +68,7 @@ class ConnectionWidgetBuilder {
           final String chainId = NamespaceUtils.isValidChainId(key)
               ? key
               : NamespaceUtils.getChainFromAccount(ns.accounts.first);
-          await GetIt.I<Web3WalletService>().getWeb3Wallet().emitSessionEvent(
+          await getIt.get<Web3WalletService>().getWeb3Wallet().emitSessionEvent(
                 topic: topic,
                 chainId: chainId,
                 event: SessionEventParams(

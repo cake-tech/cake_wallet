@@ -1,6 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
-
 import '../models/connection_model.dart';
 
 class ConnectionItemWidget extends StatelessWidget {
@@ -10,11 +9,12 @@ class ConnectionItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(8),
       margin: const EdgeInsetsDirectional.only(top: 8),
@@ -82,8 +82,8 @@ class _ModelElementWidget extends StatelessWidget {
       onTap: model.elementActions != null ? model.elementActions![modelElement] : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).colorScheme.background,
+          borderRadius: BorderRadius.circular(6),
         ),
         padding: const EdgeInsets.all(8),
         child: Text(

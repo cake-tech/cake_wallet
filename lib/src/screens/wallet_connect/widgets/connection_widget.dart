@@ -14,8 +14,8 @@ class ConnectionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).primaryColorLight,
+        borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -23,15 +23,15 @@ class ConnectionWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(16),
+              color: Theme.of(context).colorScheme.background,
+              borderRadius: BorderRadius.circular(8),
             ),
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             child: Text(
               title,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.normal,
+                fontWeight: FontWeight.w600,
                 color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
@@ -78,6 +79,8 @@ class WCPairingsWidget extends BasePage {
       log('_onFoundUri: $uri');
       final Uri uriData = Uri.parse(uri);
       await web3Wallet.pair(uri: uriData);
+    } on WalletConnectError catch (e) {
+      await _invalidUriToast(context, e.message);
     } catch (e) {
       await _invalidUriToast(context, e.toString());
     }
@@ -86,10 +89,12 @@ Future<void> _invalidUriToast(BuildContext context, String message) async {
     await showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
-        return PopUpCancellableAlertDialog(
-          contentText: message,
-          actionButtonText: S.of(context).ok,
+        return AlertWithOneAction(
+          alertTitle: S.of(context).error,
+          alertContent: message,
+          buttonText: S.of(context).ok,
           buttonAction: Navigator.of(context).pop,
+          alertBarrierDismissible: false,
         );
       },
     );
@@ -101,7 +106,7 @@ Future<void> _invalidUriToast(BuildContext context, String message) async {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
                 SizedBox(height: 24),
@@ -117,7 +122,7 @@ Future<void> _invalidUriToast(BuildContext context, String message) async {
                 PrimaryButton(
                   text: 'New Connection',
                   color: Theme.of(context).primaryColor,
-                  textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                  textColor: Colors.white,
                   onPressed: () => _onScanQrCode(context, web3wallet),
                 ),
               ],
