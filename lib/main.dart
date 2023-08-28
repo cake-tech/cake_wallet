@@ -133,11 +133,7 @@ Future<void> initializeAppConfigs() async {
     final templates = await Hive.openBox<Template>(Template.boxName);
     final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
     final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-
-  if (!isMoneroOnly) {
-    unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-  }
+    final unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
@@ -169,7 +165,7 @@ Future<void> initialSetup(
     required Box<TransactionDescription> transactionDescriptions,
     required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(

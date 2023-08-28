@@ -28,6 +28,7 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'package:cake_wallet/entities/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -51,24 +52,6 @@ import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-class Unspent {
-  Unspent(this.address, this.hash, this.value, this.vout)
-      : isSending = true,
-        isFrozen = false,
-        note = '';
-
-  final String address;
-  final String hash;
-  final int value;
-  final int vout;
-  
-  bool isSending;
-  bool isFrozen;
-  String note;
-
-  bool get isP2wpkh => address.startsWith('bc') || address.startsWith('ltc');
-}
-
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
@@ -125,6 +108,9 @@ abstract class Bitcoin {
 Future<void> generateMonero(bool hasImplementation) async {
   final outputFile = File(moneroOutputPath);
   const moneroCommonHeaders = """
+import 'package:cake_wallet/entities/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_monero/monero_unspent.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -234,6 +220,9 @@ abstract class Monero {
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
+  
+  List<Unspent> getUnspents(Object wallet);
+  void updateUnspents(Object wallet);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
@@ -255,7 +244,7 @@ abstract class Monero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
 }
 
@@ -510,6 +499,7 @@ abstract class Ethereum {
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
   TransactionPriority getDefaultTransactionPriority();
   List<TransactionPriority> getTransactionPriorities();

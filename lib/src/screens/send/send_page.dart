@@ -100,7 +100,7 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    final double initialHeight = sendViewModel.isElectrumWallet ? 490 : 465;
+    final double initialHeight = sendViewModel.hasCoinControl ? 490 : 465;
 
     if (!ResponsiveLayoutUtil.instance.isMobile) {
       return initialHeight - 66;

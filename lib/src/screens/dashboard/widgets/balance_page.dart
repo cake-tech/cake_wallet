@@ -2,7 +2,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +11,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
@@ -77,9 +79,7 @@ class BalancePage extends StatelessWidget {
                   return IntroducingCard(
                       title: S.of(context).introducing_cake_pay,
                       subTitle: S.of(context).cake_pay_learn_more,
-                      borderColor: settingsStore.currentTheme.type == ThemeType.bright
-                          ? Color.fromRGBO(255, 255, 255, 0.2)
-                          : Colors.transparent,
+                      borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                       closeCard: dashboardViewModel.balanceViewModel.disableIntroCakePayCard);
                 }
                 return Container();
@@ -139,9 +139,7 @@ class BalancePage extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         border: Border.all(
-          color: settingsStore.currentTheme.type == ThemeType.bright
-              ? Color.fromRGBO(255, 255, 255, 0.2)
-              : Colors.transparent,
+          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
           width: 1,
         ),
         color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
@@ -282,7 +280,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 20,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
                       height: 1,
                     ),
                     maxLines: 1,
@@ -296,7 +294,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                       height: 1,
                     ),
                   ),

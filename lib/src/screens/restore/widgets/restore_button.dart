@@ -1,5 +1,4 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 

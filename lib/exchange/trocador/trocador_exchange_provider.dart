@@ -20,7 +20,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   bool useTorOnly;
 
   static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.scrt,
     CryptoCurrency.stx,
     CryptoCurrency.zaddr,
   ];
@@ -60,8 +59,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }) async {
     final params = <String, String>{
       'api_key': apiKey,
-      'ticker_from': request.from.title.toLowerCase(),
-      'ticker_to': request.to.title.toLowerCase(),
+      'ticker_from': _normalizeCurrency(request.from),
+      'ticker_to': _normalizeCurrency(request.to),
       'network_from': _networkFor(request.from),
       'network_to': _networkFor(request.to),
       'payment': isFixedRateMode ? 'True' : 'False',
@@ -137,7 +136,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode}) async {
     final params = <String, String>{
       'api_key': apiKey,
-      'ticker': from.title.toLowerCase(),
+      'ticker': _normalizeCurrency(from),
       'name': from.name,
     };
 
@@ -177,8 +176,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       final params = <String, String>{
         'api_key': apiKey,
-        'ticker_from': from.title.toLowerCase(),
-        'ticker_to': to.title.toLowerCase(),
+        'ticker_from': _normalizeCurrency(from),
+        'ticker_to': _normalizeCurrency(to),
         'network_from': _networkFor(from),
         'network_to': _networkFor(to),
         if (!isFixedRateMode) 'amount_from': amount.toString(),
@@ -276,6 +275,15 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'Mainnet';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
+    }
+  }
+
+  String _normalizeCurrency(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.zec:
+        return 'zec';
+      default:
+        return currency.title.toLowerCase();
     }
   }
 

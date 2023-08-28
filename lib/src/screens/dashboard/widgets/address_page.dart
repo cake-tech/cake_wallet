@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -6,7 +7,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -182,9 +186,8 @@ class AddressPage extends BasePage {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(25)),
                           border: Border.all(
-                              color: Theme.of(context)
-                                  .extension<ReceivePageTheme>()!
-                                  .iconsBackgroundColor,
+                              color:
+                                  Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                               width: 1),
                           color: Theme.of(context)
                               .extension<SyncIndicatorTheme>()!
@@ -201,13 +204,14 @@ class AddressPage extends BasePage {
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                                        color: Theme.of(context)
+                                            .extension<SyncIndicatorTheme>()!
+                                            .textColor),
                                   )),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
-                            color:
-                                Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            color: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                           )
                         ],
                       ),

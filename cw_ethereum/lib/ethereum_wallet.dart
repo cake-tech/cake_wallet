@@ -44,13 +44,15 @@ abstract class EthereumWalletBase
     with Store {
   EthereumWalletBase({
     required WalletInfo walletInfo,
-    required String mnemonic,
+    String? mnemonic,
+    String? privateKey,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
     ERC20Balance? initialBalance,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
+        _hexPrivateKey = privateKey,
         _isTransactionUpdating = false,
         _encryptionFileUtils = encryptionFileUtils,
         _client = EthereumClient(),
@@ -72,14 +74,15 @@ abstract class EthereumWalletBase
     _sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
-  final String _mnemonic;
+  final String? _mnemonic;
+  final String? _hexPrivateKey;
   final String _password;
 
   final EncryptionFileUtils _encryptionFileUtils;
 
   late final Box<Erc20Token> erc20TokensBox;
 
-  late final EthPrivateKey _privateKey;
+  late final EthPrivateKey _ethPrivateKey;
 
   late EthereumClient _client;
 
@@ -107,8 +110,12 @@ abstract class EthereumWalletBase
     erc20TokensBox = await Hive.openBox<Erc20Token>(Erc20Token.boxName);
     await walletAddresses.init();
     await transactionHistory.init();
-    _privateKey = await getPrivateKey(_mnemonic, _password);
-    walletAddresses.address = _privateKey.address.toString();
+    _ethPrivateKey = await getPrivateKey(
+      mnemonic: _mnemonic,
+      privateKey: _hexPrivateKey,
+      password: _password,
+    );
+    walletAddresses.address = _ethPrivateKey.address.toString();
     await save();
   }
 
@@ -116,8 +123,7 @@ abstract class EthereumWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     try {
       if (priority is EthereumTransactionPriority) {
-        final priorityFee =
-            EtherAmount.fromUnitAndValue(EtherUnit.gwei, priority.tip).getInWei.toInt();
+        final priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
         return (_gasPrice! + priorityFee) * (_estimatedGas ?? 0);
       }
 
@@ -150,7 +156,7 @@ abstract class EthereumWalletBase
         throw Exception("Ethereum Node connection failed");
       }
 
-      _client.setListeners(_privateKey.address, _onNewTransaction);
+      _client.setListeners(_ethPrivateKey.address, _onNewTransaction);
 
       _setTransactionUpdateTimer();
 
@@ -210,7 +216,7 @@ abstract class EthereumWalletBase
     }
 
     final pendingEthereumTransaction = await _client.signTransaction(
-      privateKey: _privateKey,
+      privateKey: _ethPrivateKey,
       toAddress: _credentials.outputs.first.isParsedAddress
           ? _credentials.outputs.first.extractedAddress!
           : _credentials.outputs.first.address,
@@ -248,7 +254,7 @@ abstract class EthereumWalletBase
 
   @override
   Future<Map<String, EthereumTransactionInfo>> fetchTransactions() async {
-    final address = _privateKey.address.hex;
+    final address = _ethPrivateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
 
     final List<Future<List<EthereumTransactionModel>>> erc20TokensTransactions = [];
@@ -308,7 +314,10 @@ abstract class EthereumWalletBase
   }
 
   @override
-  String get seed => _mnemonic;
+  String? get seed => _mnemonic;
+
+  @override
+  String get privateKey => HEX.encode(_ethPrivateKey.privateKey);
 
   @action
   @override
@@ -335,6 +344,7 @@ abstract class EthereumWalletBase
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
+        'private_key': privateKey,
         'balance': balance[currency]!.toJSON(),
       });
 
@@ -347,13 +357,15 @@ abstract class EthereumWalletBase
     final path = await pathForWallet(name: name, type: walletInfo.type);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String;
+    final mnemonic = data['mnemonic'] as String?;
+    final privateKey = data['private_key'] as String?;
     final balance = ERC20Balance.fromJSON(data['balance'] as String) ?? ERC20Balance(BigInt.zero);
 
     return EthereumWallet(
       walletInfo: walletInfo,
       password: password,
       mnemonic: mnemonic,
+      privateKey: privateKey,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
     );
@@ -367,7 +379,7 @@ abstract class EthereumWalletBase
   }
 
   Future<ERC20Balance> _fetchEthBalance() async {
-    final balance = await _client.getBalance(_privateKey.address);
+    final balance = await _client.getBalance(_ethPrivateKey.address);
     return ERC20Balance(balance.getInWei);
   }
 
@@ -376,7 +388,7 @@ abstract class EthereumWalletBase
       try {
         if (token.enabled) {
           balance[token] = await _client.fetchERC20Balances(
-            _privateKey.address,
+            _ethPrivateKey.address,
             token.contractAddress,
           );
         } else {
@@ -386,8 +398,15 @@ abstract class EthereumWalletBase
     }
   }
 
-  Future<EthPrivateKey> getPrivateKey(String mnemonic, String password) async {
-    final seed = bip39.mnemonicToSeed(mnemonic);
+  Future<EthPrivateKey> getPrivateKey(
+      {String? mnemonic, String? privateKey, required String password}) async {
+    assert(mnemonic != null || privateKey != null);
+
+    if (privateKey != null) {
+      return EthPrivateKey.fromHex(privateKey);
+    }
+
+    final seed = bip39.mnemonicToSeed(mnemonic!);
 
     final root = bip32.BIP32.fromSeed(seed);
 
@@ -423,7 +442,7 @@ abstract class EthereumWalletBase
 
     if (_token.enabled) {
       balance[_token] = await _client.fetchERC20Balances(
-        _privateKey.address,
+        _ethPrivateKey.address,
         _token.contractAddress,
       );
     } else {

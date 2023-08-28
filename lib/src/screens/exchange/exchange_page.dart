@@ -5,6 +5,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -629,7 +630,7 @@ class ExchangePage extends BasePage {
               },
               imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).focusColor,
+              addressButtonsColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
               borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
               currencyValueValidator: (value) {
                 return !exchangeViewModel.isFixedRateMode
@@ -677,7 +678,7 @@ class ExchangePage extends BasePage {
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
               imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).focusColor,
+              addressButtonsColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
               borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
               currencyValueValidator: (value) {
                 return exchangeViewModel.isFixedRateMode

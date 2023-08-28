@@ -682,5 +682,13 @@
   "monero_light_theme": "Monero Light အပြင်အဆင်",
   "manage_nodes": "ဆုံမှတ်များကို စီမံပါ။",
   "etherscan_history": "Etherscan သမိုင်း",
-  "template_name": "နမူနာပုံစံ"
+  "template_name": "နမူနာပုံစံ",
+  "support_title_live_chat": "တိုက်ရိုက်ပံ့ပိုးမှု",
+  "support_description_live_chat": "အခမဲ့နှင့်အစာရှောင်ခြင်း! လေ့ကျင့်ထားသောထောက်ခံသူကိုယ်စားလှယ်များသည်ကူညီနိုင်သည်",
+  "support_title_guides": "ကိတ်မုန့်ပိုက်ဆံအိတ်လမ်းညွှန်များ",
+  "support_description_guides": "ဘုံပြ issues နာများအတွက်စာရွက်စာတမ်းများနှင့်ထောက်ခံမှု",
+  "support_title_other_links": "အခြားအထောက်အပံ့လင့်များ",
+  "support_description_other_links": "ကျွန်ုပ်တို့၏လူမှုအသိုင်းအဝိုင်းများသို့ 0 င်ရောက်ပါ",
+  "select_destination": "အရန်ဖိုင်အတွက် ဦးတည်ရာကို ရွေးပါ။",
+  "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။"
 }

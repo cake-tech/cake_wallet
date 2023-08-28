@@ -68,14 +68,12 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     final headers = {apiHeaderKey: apiKey};
-    final normalizedFrom = normalizeCryptoCurrency(from);
-    final normalizedTo = normalizeCryptoCurrency(to);
     final flow = getFlow(isFixedRateMode);
     final params = <String, String>{
-      'fromCurrency': normalizedFrom,
-      'toCurrency': normalizedTo,
-      'fromNetwork': networkFor(from),
-      'toNetwork': networkFor(to),
+      'fromCurrency': _normalizeCurrency(from),
+      'toCurrency': _normalizeCurrency(to),
+      'fromNetwork': _networkFor(from),
+      'toNetwork': _networkFor(to),
       'flow': flow
     };
     final uri = Uri.https(apiAuthority, rangePath, params);
@@ -112,10 +110,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final flow = getFlow(isFixedRateMode);
     final type = isFixedRateMode ? 'reverse' : 'direct';
     final body = <String, dynamic>{
-      'fromCurrency': normalizeCryptoCurrency(_request.from),
-      'toCurrency': normalizeCryptoCurrency(_request.to),
-      'fromNetwork': networkFor(_request.from),
-      'toNetwork': networkFor(_request.to),
+      'fromCurrency': _normalizeCurrency(_request.from),
+      'toCurrency':  _normalizeCurrency(_request.to),
+      'fromNetwork': _networkFor(_request.from),
+      'toNetwork': _networkFor(_request.to),
       if (!isFixedRateMode) 'fromAmount': _request.fromAmount,
       if (isFixedRateMode) 'toAmount': _request.toAmount,
       'address': _request.address,
@@ -241,10 +239,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final type = isReverse ? 'reverse' : 'direct';
       final flow = getFlow(isFixedRateMode);
       final params = <String, String>{
-        'fromCurrency': normalizeCryptoCurrency(from),
-        'toCurrency': normalizeCryptoCurrency(to),
-        'fromNetwork': networkFor(from),
-        'toNetwork': networkFor(to),
+        'fromCurrency': _normalizeCurrency(from),
+        'toCurrency': _normalizeCurrency(to),
+        'fromNetwork': _networkFor(from),
+        'toNetwork': _networkFor(to),
         'type': type,
         'flow': flow
       };
@@ -273,25 +271,34 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String networkFor(CryptoCurrency currency) {
+  String _networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.usdt:
-        return CryptoCurrency.btc.title.toLowerCase();
+        return 'btc';
       default:
-        return currency.tag != null ? currency.tag!.toLowerCase() : currency.title.toLowerCase();
+        return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title.toLowerCase();
     }
   }
-}
 
-String normalizeCryptoCurrency(CryptoCurrency currency) {
-  switch (currency) {
-    case CryptoCurrency.zec:
-      return 'zec';
-    case CryptoCurrency.usdcpoly:
-      return 'usdcmatic';
-    case CryptoCurrency.maticpoly:
-      return 'maticmainnet';
-    default:
-      return currency.title.toLowerCase();
+  String _normalizeCurrency(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.zec:
+        return 'zec';
+      default:
+        return currency.title.toLowerCase();
+    }
+  }
+
+  String _normalizeTag(String tag) {
+    switch (tag) {
+      case 'POLY':
+        return 'matic';
+      case 'LN':
+        return 'lightning';
+      case 'AVAXC':
+        return 'cchain';
+      default:
+        return tag.toLowerCase();
+    }
   }
 }

@@ -1,15 +1,16 @@
 import 'dart:io';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
-import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
-import 'package:cw_monero/monero_wallet.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
+import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
+import 'package:cw_monero/monero_wallet.dart';
+import 'package:hive/hive.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials({required String name, required this.language, String? password})
@@ -52,9 +53,10 @@ class MoneroWalletService extends WalletService<
     MoneroNewWalletCredentials,
     MoneroRestoreWalletFromSeedCredentials,
     MoneroRestoreWalletFromKeysCredentials> {
-  MoneroWalletService(this.walletInfoSource);
+  MoneroWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
+  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
@@ -71,8 +73,9 @@ class MoneroWalletService extends WalletService<
           password: credentials.password!,
           language: credentials.language);
       final wallet = MoneroWallet(
+          
         walletInfo: credentials.walletInfo!,
-        password: credentials.password!);
+        password: credentials.password!, unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
 
       return wallet;
@@ -109,7 +112,7 @@ class MoneroWalletService extends WalletService<
       final walletInfo = walletInfoSource.values.firstWhere(
           (info) => info.id == WalletBase.idFor(name, getType()));
       final wallet = MoneroWallet(
-        walletInfo: walletInfo,
+        walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource,
         password: password);
       final isValid = wallet.walletAddresses.validate();
 
@@ -160,7 +163,8 @@ class MoneroWalletService extends WalletService<
       String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values.firstWhere(
         (info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = MoneroWallet(walletInfo: currentWalletInfo, password: password);
+    final currentWallet =
+        MoneroWallet(walletInfo: currentWalletInfo, unspentCoinsInfo: unspentCoinsInfoSource, password: password);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -185,8 +189,9 @@ class MoneroWalletService extends WalletService<
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
       final wallet = MoneroWallet(
+          
         walletInfo: credentials.walletInfo!,
-        password: credentials.password!);
+        password: credentials.password!, unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
 
       return wallet;
@@ -208,8 +213,9 @@ class MoneroWalletService extends WalletService<
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
       final wallet = MoneroWallet(
+          
         walletInfo: credentials.walletInfo!,
-        password: credentials.password!);
+        password: credentials.password!, unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
 
       return wallet;

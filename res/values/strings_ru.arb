@@ -685,5 +685,13 @@
   "monero_light_theme": "Светлая тема Monero",
   "manage_nodes": "Управление узлами",
   "etherscan_history": "История Эфириума",
-  "template_name": "Имя Шаблона"
+  "template_name": "Имя Шаблона",
+  "support_title_live_chat": "Живая поддержка",
+  "support_description_live_chat": "Бесплатно и быстро! Обученные представители поддержки доступны для оказания помощи",
+  "support_title_guides": "Корт -гиды",
+  "support_description_guides": "Документация и поддержка общих вопросов",
+  "support_title_other_links": "Другие ссылки на поддержку",
+  "support_description_other_links": "Присоединяйтесь к нашим сообществам или охватите нас наших партнеров с помощью других методов",
+  "select_destination": "Пожалуйста, выберите место для файла резервной копии.",
+  "save_to_downloads": "Сохранить в загрузках"
 }

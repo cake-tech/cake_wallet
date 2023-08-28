@@ -21,7 +21,6 @@ class TransactionDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
         sectionCount: 1,
         itemCounter: (int _) => transactionDetailsViewModel.items.length,

@@ -1,0 +1,9 @@
+version: '3.6'
+
+services:
+  build_deps:
+    image: build_monero_deps
+    environment:
+      MONERO_BRANCH: release-v0.18.2.2-android
+    volumes:
+      - ./output:/opt/android/output
