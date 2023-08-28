@@ -2,6 +2,8 @@ import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_no_inputs_exception.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
@@ -105,26 +107,41 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<PendingBitcoinCashTransaction> createTransaction(Object credentials) async {
-    final _wallet = hd;
+    const minAmount = 546;
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
-    final utxosToUse = unspentCoins.where((element) => element.isSending).toList();
+    final outputs = transactionCredentials.outputs;
+    final hasMultiDestination = outputs.length > 1;
     final builder = bitbox.Bitbox.transactionBuilder(testnet: false);
 
-    int totalBalance = 0;
+    var allInputsAmount = 0;
+    var inputs = <BitcoinUnspent>[];
 
-// Add all inputs
-    utxosToUse.forEach((BitcoinUnspent utxo) {
-      builder.addInput(utxo.hash, utxo.vout);
-      totalBalance += utxo.value;
-    });
+    if (unspentCoins.isEmpty) await updateUnspent();
+
+    inputs = unspentCoins.where((element) => element.isSending).toList();
+    allInputsAmount = inputs.fold(0, (prev, element) => prev + element.value);
+
+    if (inputs.isEmpty) throw BitcoinTransactionNoInputsException();
+
+    inputs.forEach((BitcoinUnspent utx) => builder.addInput(utx.hash, utx.vout));
+
+    final allAmountFee = transactionCredentials.feeRate != null
+        ? feeAmountWithFeeRate(transactionCredentials.feeRate!, inputs.length, outputs.length)
+        : feeAmountForPriority(transactionCredentials.priority!, inputs.length, outputs.length);
+
+    final allAmount = allInputsAmount - allAmountFee;
+
+
+    //allInputsAmount - transactionCredentials.outputs.fold(0, (prev, element) => prev + element.value);
+
 
 // Calculate the amount to send and change
     final sendAmount = transactionCredentials.outputs[0].formattedCryptoAmount!;
     final outputAddress = transactionCredentials.outputs[0].isParsedAddress
         ? transactionCredentials.outputs[0].extractedAddress
         : transactionCredentials.outputs[0].address;
-    final fee = bitbox.BitcoinCash.getByteCount(utxosToUse.length, 2);
-    final changeAmount = totalBalance - sendAmount - fee;
+    final fee = bitbox.BitcoinCash.getByteCount(inputs.length, 2);
+    final changeAmount = allInputsAmount - sendAmount - fee;
 
 // Add output for the recipient
     builder.addOutput(outputAddress, sendAmount);
@@ -136,8 +153,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     }
 
 // Sign all inputs after adding all outputs
-    for (var i = 0; i < utxosToUse.length; i++) {
-      final input = utxosToUse[i];
+    for (var i = 0; i < inputs.length; i++) {
+      final input = inputs[i];
       final keyPair = generateKeyPair(
           hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
           index: input.bitcoinAddressRecord.index,
@@ -157,4 +174,11 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           required int index,
           required bitcoin.NetworkType network}) =>
       bitbox.ECPair.fromWIF(hd.derive(index).wif!);
+
+  @override
+  int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount, int outputsCount) =>
+      feeRate(priority) * bitbox.BitcoinCash.getByteCount(inputsCount, outputsCount);
+
+  int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount) =>
+      feeRate * bitbox.BitcoinCash.getByteCount(inputsCount, outputsCount);
 }

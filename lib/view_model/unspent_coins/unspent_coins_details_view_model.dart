@@ -46,7 +46,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
           })
     ];
 
-    if ([WalletType.bitcoin, WalletType.litecoin].contains(unspentCoinsListViewModel.wallet.type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(unspentCoinsListViewModel.wallet.type)) {
       items.add(BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
         value: _explorerDescription(unspentCoinsListViewModel.wallet.type),
