@@ -117,7 +117,7 @@ class ConnectionSyncPage extends BasePage {
   }
 
   Future<void> initializeWalletConnectDependencies() async {
-    if (dashboardViewModel.initializedWalletConnectDependencies) return;
+    // if (dashboardViewModel.initializedWalletConnectDependencies) return;
     final appStore = getIt.get<AppStore>();
 
     getIt.registerSingleton<WalletConnectKeyService>(KeyServiceImpl(appStore.wallet!));

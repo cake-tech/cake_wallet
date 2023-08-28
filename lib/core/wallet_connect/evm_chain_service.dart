@@ -127,7 +127,7 @@ class EvmChainServiceImpl implements ChainService {
     return ['chainChanged', 'accountsChanged'];
   }
 
-  Future<String?> requestAuthorization(String text) async {
+  Future<String?> requestAuthorization(String? text) async {
     // Show the bottom sheet
     final bool? isApproved = await _bottomSheetService.queueBottomSheet(
       widget: Web3RequestModal(
@@ -152,11 +152,17 @@ class EvmChainServiceImpl implements ChainService {
   Future<String> personalSign(String topic, dynamic parameters) async {
     log('received personal sign request: $parameters');
 
-    final String message = (parameters[0] is String)
-        ? (parameters[0] as String).utf8Message
-        : parameters[0].toString().utf8Message;
+    final String message;
+    if (parameters[0] == null) {
+      message = '';
+    } else if (parameters[0] is String) {
+      message = (parameters[0] as String).utf8Message;
+    } else {
+      message = parameters[0].toString().utf8Message;
+    }
 
     final String? authAcquired = await requestAuthorization(message);
+
     if (authAcquired != null) {
       return authAcquired;
     }
@@ -179,16 +185,21 @@ class EvmChainServiceImpl implements ChainService {
       return '0x$signature';
     } catch (e) {
       log(e.toString());
-      return 'Failed';
+      return 'Failed: Error while getting credentials';
     }
   }
 
   Future<String> ethSign(String topic, dynamic parameters) async {
     log('received eth sign request: $parameters');
 
-    final String message = (parameters[1] is String)
-        ? (parameters[1] as String).utf8Message
-        : parameters[1].toString().utf8Message;
+    final String message;
+    if (parameters[1] == null) {
+      message = '';
+    } else if (parameters[1] is String) {
+      message = (parameters[1] as String).utf8Message;
+    } else {
+      message = parameters[1].toString().utf8Message;
+    }
 
     final String? authAcquired = await requestAuthorization(message);
     if (authAcquired != null) {
@@ -235,6 +246,7 @@ class EvmChainServiceImpl implements ChainService {
     final List<ChainKeyModel> keys = GetIt.I<WalletConnectKeyService>().getKeysForChain(
       getChainId(),
     );
+
     final Credentials credentials = EthPrivateKey.fromHex(
       '0x${keys[0].privateKey}',
     );
@@ -271,8 +283,10 @@ class EvmChainServiceImpl implements ChainService {
 
   Future<String> ethSignTypedData(String topic, dynamic parameters) async {
     log('received eth sign typed data request: $parameters');
-    final String data = parameters[1] as String;
+    final String? data = parameters[1] as String?;
+
     final String? authAcquired = await requestAuthorization(data);
+
     if (authAcquired != null) {
       return authAcquired;
     }
@@ -283,7 +297,7 @@ class EvmChainServiceImpl implements ChainService {
 
     return EthSigUtil.signTypedData(
       privateKey: keys[0].privateKey,
-      jsonData: data,
+      jsonData: data ?? '',
       version: TypedDataVersion.V4,
     );
   }
