@@ -108,7 +108,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   List<Unspent> _getUnspents() {
     if (wallet.type == WalletType.monero)
       return monero!.getUnspents(wallet);
-    if ([WalletType.bitcoin, WalletType.litecoin].contains(wallet.type))
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.getUnspents(wallet);
     return List.empty();
   }

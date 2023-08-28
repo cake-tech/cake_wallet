@@ -174,7 +174,10 @@ abstract class SendViewModelBase with Store {
 
   @computed
   bool get hasCoinControl =>
-      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin || _wallet.type == WalletType.monero;
+      _wallet.type == WalletType.bitcoin ||
+          _wallet.type == WalletType.litecoin ||
+          _wallet.type == WalletType.monero ||
+          _wallet.type == WalletType.bitcoinCash;
 
   @computed
   bool get isElectrumWallet =>
