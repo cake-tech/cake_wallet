@@ -677,7 +677,6 @@
   "monero_light_theme": "مونیرو لائٹ تھیم",
   "manage_nodes": "۔ﮟﯾﺮﮐ ﻢﻈﻧ ﺎﮐ ﺱﮈﻮﻧ",
   "etherscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﺮﮭﺘﯾﺍ",
-<<<<<<< HEAD
   "template_name": "ٹیمپلیٹ کا نام",
   "support_title_live_chat": "براہ راست مدد",
   "support_description_live_chat": "مفت اور تیز! تربیت یافتہ معاون نمائندے مدد کے لئے دستیاب ہیں",
@@ -687,7 +686,4 @@
   "support_description_other_links": "ہماری برادریوں میں شامل ہوں یا دوسرے طریقوں سے ہمارے شراکت داروں تک پہنچیں",
   "select_destination": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﻝﺰﻨﻣ ﮯﯿﻟ ﮯﮐ ﻞﺋﺎﻓ ﭖﺍ ﮏﯿﺑ ﻡﺮﮐ ﮦﺍﺮﺑ",
   "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ"
-=======
-  "template_name": "ٹیمپلیٹ کا نام"
->>>>>>> origin/linux/password-direct-input
 }

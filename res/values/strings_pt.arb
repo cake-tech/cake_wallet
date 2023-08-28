@@ -683,7 +683,6 @@
   "monero_light_theme": "Monero Light Theme",
   "manage_nodes": "Gerenciar nós",
   "etherscan_history": "história Etherscan",
-<<<<<<< HEAD
   "template_name": "Nome do modelo",
   "support_title_live_chat": "Apoio ao vivo",
   "support_description_live_chat": "Livre e rápido! Representantes de suporte treinado estão disponíveis para ajudar",
@@ -693,7 +692,4 @@
   "support_description_other_links": "Junte -se às nossas comunidades ou chegue a nós nossos parceiros por meio de outros métodos",
   "select_destination": "Selecione o destino para o arquivo de backup.",
   "save_to_downloads": "Salvar em Downloads"
-=======
-  "template_name": "Nome do modelo"
->>>>>>> origin/linux/password-direct-input
 }

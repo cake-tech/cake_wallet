@@ -673,7 +673,6 @@
   "monero_light_theme": "Tema Cahaya Monero",
   "manage_nodes": "Kelola node",
   "etherscan_history": "Sejarah Etherscan",
-<<<<<<< HEAD
   "template_name": "Nama Templat",
   "support_title_live_chat": "Dukungan langsung",
   "support_description_live_chat": "Gratis dan Cepat! Perwakilan dukungan terlatih tersedia untuk membantu",
@@ -683,7 +682,4 @@
   "support_description_other_links": "Bergabunglah dengan komunitas kami atau hubungi kami mitra kami melalui metode lain",
   "select_destination": "Silakan pilih tujuan untuk file cadangan.",
   "save_to_downloads": "Simpan ke Unduhan"
-=======
-  "template_name": "Nama Templat"
->>>>>>> origin/linux/password-direct-input
 }

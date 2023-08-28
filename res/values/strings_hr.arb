@@ -646,11 +646,7 @@
   "high_contrast_theme": "Tema visokog kontrasta",
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
   "monero_light_theme": "Monero lagana tema",
-<<<<<<< HEAD
   "cake_2fa_preset": "Cake 2FA Preset",
-=======
-  "cake_2fa_preset" : "Cake 2FA Preset",
->>>>>>> origin/linux/password-direct-input
   "narrow": "Usko",
   "normal": "Normalno",
   "aggressive": "Preterano",
@@ -688,7 +684,6 @@
   "slidable": "Klizna",
   "manage_nodes": "Upravljanje čvorovima",
   "etherscan_history": "Etherscan povijest",
-<<<<<<< HEAD
   "template_name": "Naziv predloška",
   "support_title_live_chat": "Podrška uživo",
   "support_description_live_chat": "Besplatno i brzo! Obučeni predstavnici podrške dostupni su za pomoć",
@@ -698,7 +693,4 @@
   "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama",
   "select_destination": "Odaberite odredište za datoteku sigurnosne kopije.",
   "save_to_downloads": "Spremi u Preuzimanja"
-=======
-  "template_name": "Naziv predloška"
->>>>>>> origin/linux/password-direct-input
 }

@@ -646,11 +646,7 @@
   "high_contrast_theme": "Tema de alto contraste",
   "matrix_green_dark_theme": "Matrix verde oscuro tema",
   "monero_light_theme": "Tema ligero de Monero",
-<<<<<<< HEAD
   "cake_2fa_preset": "Pastel 2FA preestablecido",
-=======
-  "cake_2fa_preset" : "Pastel 2FA preestablecido",
->>>>>>> origin/linux/password-direct-input
   "narrow": "Angosto",
   "normal": "Normal",
   "aggressive": "Demasiado entusiasta",
@@ -688,7 +684,6 @@
   "slidable": "deslizable",
   "manage_nodes": "Administrar nodos",
   "etherscan_history": "historia de etherscan",
-<<<<<<< HEAD
   "template_name": "Nombre de la plantilla",
   "support_title_live_chat": "Soporte vital",
   "support_description_live_chat": "¡GRATIS y RÁPIDO! Los representantes de apoyo capacitado están disponibles para ayudar",
@@ -698,7 +693,4 @@
   "support_description_other_links": "Únase a nuestras comunidades o comuníquese con nosotros nuestros socios a través de otros métodos",
   "select_destination": "Seleccione el destino del archivo de copia de seguridad.",
   "save_to_downloads": "Guardar en Descargas"
-=======
-  "template_name": "Nombre de la plantilla"
->>>>>>> origin/linux/password-direct-input
 }
