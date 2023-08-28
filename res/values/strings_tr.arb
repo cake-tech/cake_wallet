@@ -322,6 +322,12 @@
   "trade_state_timeout": "Zaman aşımı",
   "trade_state_created": "Oluşturuldu",
   "trade_state_finished": "Tamamlandı",
+  "invalid_password" : "Geçersiz şifre",
+  "unlock" : "Kilidini aç",
+  "enter_wallet_password" : "cüzdan şifresini girin",
+  "repeate_wallet_password" : "M-cüzdan şifresini tekrarla",
+  "wallet_password_is_empty" : "Cüzdan şifresi boş. Cüzdan şifresi boş olmamalıdır",
+  "repeated_password_is_incorrect" : "Tekrarlanan şifre yanlış. Lütfen cüzdan şifresini tekrar tekrarlayın.",
   "change_language": "Dili değiştir",
   "change_language_to": "Dili şuna değiştir: ${language}?",
   "paste": "Yapıştır",
@@ -676,6 +682,7 @@
   "monero_light_theme": "Monero Hafif Tema",
   "manage_nodes": "Düğümleri yönet",
   "etherscan_history": "Etherscan geçmişi",
+<<<<<<< HEAD
   "template_name": "şablon adı",
   "support_title_live_chat": "Canlı destek",
   "support_description_live_chat": "Ücretsiz ve hızlı! Eğitimli destek temsilcileri yardımcı olmak için mevcuttur",
@@ -685,4 +692,7 @@
   "support_description_other_links": "Topluluklarımıza katılın veya ortaklarımıza diğer yöntemlerle bize ulaşın",
   "select_destination": "Lütfen yedekleme dosyası için hedef seçin.",
   "save_to_downloads": "İndirilenlere Kaydet"
+=======
+  "template_name": "şablon adı"
+>>>>>>> origin/linux/password-direct-input
 }

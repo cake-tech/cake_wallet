@@ -47,8 +47,6 @@ class Routes {
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
   static const support = '/support';
-  static const supportLiveChat = '/support/live_chat';
-  static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
   static const preOrder = '/pre_order';
   static const buyWebView = '/buy_web_view';
@@ -80,9 +78,12 @@ class Routes {
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const sweepingWalletPage = '/sweeping_wallet_page';
+  static const walletPasswordUnlock = '/wallet_password_unlock';
+  static const walletUnlockLoadable = '/wallet_unlock_loadable';
   static const anonPayInvoicePage = '/anon_pay_invoice_page';
   static const anonPayReceivePage = '/anon_pay_receive_page';
   static const anonPayDetailsPage = '/anon_pay_details_page';
+  static const payfuraPage = '/pay_fura_page';
   static const desktop_actions = '/desktop_actions';
   static const transactionsPage = '/transactions_page';
   static const setup_2faPage = '/setup_2fa_page';

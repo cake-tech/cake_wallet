@@ -322,6 +322,12 @@
   "trade_state_timeout": "Délai dépassé",
   "trade_state_created": "Créé",
   "trade_state_finished": "Terminé",
+  "invalid_password" : "Mot de passe incorrect",
+  "unlock" : "Ouvrir",
+  "enter_wallet_password" : "Entrez le mot de passe du portefeuille",
+  "repeate_wallet_password" : "Répétez le mot de passe du portefeuille",
+  "wallet_password_is_empty" : "Le mot de passe du portefeuille est vide. Le mot de passe du portefeuille ne doit pas être vide",
+  "repeated_password_is_incorrect" : "Le mot de passe répété est incorrect. Veuillez répéter le mot de passe du portefeuille.",
   "change_language": "Changer de langue",
   "change_language_to": "Changer la langue vers ${language} ?",
   "paste": "Coller",
@@ -640,7 +646,11 @@
   "high_contrast_theme": "Thème à contraste élevé",
   "matrix_green_dark_theme": "Thème Matrix Green Dark",
   "monero_light_theme": "Thème de lumière Monero",
+<<<<<<< HEAD
   "cake_2fa_preset": "Gâteau 2FA prédéfini",
+=======
+  "cake_2fa_preset" : "Gâteau 2FA prédéfini",
+>>>>>>> origin/linux/password-direct-input
   "narrow": "Étroit",
   "normal": "Normal",
   "aggressive": "Trop zélé",
@@ -678,6 +688,7 @@
   "slidable": "Glissable",
   "manage_nodes": "Gérer les nœuds",
   "etherscan_history": "Historique d'Etherscan",
+<<<<<<< HEAD
   "template_name": "Nom du modèle",
   "support_title_live_chat": "Support en direct",
   "support_description_live_chat": "GRATUIT ET RAPIDE! Des représentants de soutien formé sont disponibles pour aider",
@@ -687,4 +698,7 @@
   "support_description_other_links": "Rejoignez nos communautés ou contactez-nous nos partenaires à travers d'autres méthodes",
   "select_destination": "Veuillez sélectionner la destination du fichier de sauvegarde.",
   "save_to_downloads": "Enregistrer dans les téléchargements"
+=======
+  "template_name": "Nom du modèle"
+>>>>>>> origin/linux/password-direct-input
 }

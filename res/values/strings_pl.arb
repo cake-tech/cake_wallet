@@ -322,6 +322,12 @@
   "trade_state_timeout": "Koniec czasu",
   "trade_state_created": "Stworzona",
   "trade_state_finished": "Zakończona",
+  "invalid_password" : "Nieprawidłowe hasło",
+  "unlock" : "Odblokować",
+  "enter_wallet_password" : "Wprowadź hasło do portfela",
+  "repeate_wallet_password" : "Powtórz hasło do portfela",
+  "wallet_password_is_empty" : "Hasło portfela jest puste. Hasło portfela nie powinno być puste",
+  "repeated_password_is_incorrect" : "Powtórzone hasło jest nieprawidłowe. Powtórz hasło do portfela jeszcze raz.",
   "change_language": "Zmień język",
   "change_language_to": "Zmień język na ${language}?",
   "paste": "Wklej",
@@ -678,6 +684,7 @@
   "monero_light_theme": "Lekki motyw Monero",
   "manage_nodes": "Zarządzaj węzłami",
   "etherscan_history": "Historia Etherscanu",
+<<<<<<< HEAD
   "template_name": "Nazwa szablonu",
   "support_title_live_chat": "Wsparcie na żywo",
   "support_description_live_chat": "Darmowe i szybkie! Do pomocy są dostępni przeszkoleni przedstawiciele wsparcia",
@@ -687,4 +694,7 @@
   "support_description_other_links": "Dołącz do naszych społeczności lub skontaktuj się z nami naszymi partnerami za pomocą innych metod",
   "select_destination": "Wybierz miejsce docelowe dla pliku kopii zapasowej.",
   "save_to_downloads": "Zapisz w Pobranych"
+=======
+  "template_name": "Nazwa szablonu"
+>>>>>>> origin/linux/password-direct-input
 }

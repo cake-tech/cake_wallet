@@ -50,7 +50,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.simpleSwap:
         _provider = SimpleSwapExchangeProvider();
         break;
-      case ExchangeProviderDescription.trocador:
+        case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
         break;
     }
@@ -118,10 +118,6 @@ abstract class ExchangeTradeViewModelBase with Store {
         updatedTrade.createdAt = trade.createdAt;
       }
 
-      if (updatedTrade.amount.isEmpty) {
-        updatedTrade.amount = trade.amount;
-      }
-
       trade = updatedTrade;
 
       _updateItems();
@@ -131,8 +127,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
-    final tagFrom =
-        tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
+    final tagFrom = tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
     final tagTo = tradesStore.trade!.to.tag != null ? '${tradesStore.trade!.to.tag}' + ' ' : '';
     items.clear();
     items.add(ExchangeTradeItem(

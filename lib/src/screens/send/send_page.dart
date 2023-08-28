@@ -363,14 +363,13 @@ class SendPage extends BasePage {
                             showErrorValidationAlert(context);
                           }
 
-                          return;
-                        }
+                        return;
+                      }
 
-                        final notValidItems = sendViewModel.outputs
-                            .where((item) =>
-                                item.address.isEmpty ||
-                                item.cryptoAmount.isEmpty)
-                            .toList();
+                      final notValidItems = sendViewModel.outputs
+                          .where((item) =>
+                              item.address.isEmpty || item.cryptoAmount.isEmpty)
+                          .toList();
 
                         if (notValidItems.isNotEmpty) {
                           showErrorValidationAlert(context);
@@ -428,54 +427,51 @@ class SendPage extends BasePage {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             showPopUp<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return ConfirmSendingAlert(
-                      alertTitle: S.of(context).confirm_sending,
-                      amount: S.of(context).send_amount,
-                      amountValue:
-                          sendViewModel.pendingTransaction!.amountFormatted,
-                      fiatAmountValue:
-                          sendViewModel.pendingTransactionFiatAmountFormatted,
-                      fee: S.of(context).send_fee,
-                      feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                      feeFiatAmount: sendViewModel
-                          .pendingTransactionFeeFiatAmountFormatted,
-                      outputs: sendViewModel.outputs,
-                      rightButtonText: S.of(context).ok,
-                      leftButtonText: S.of(context).cancel,
-                      actionRightButton: () {
-                        Navigator.of(context).pop();
-                        sendViewModel.commitTransaction();
-                        showPopUp<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return Observer(builder: (_) {
-                                final state = sendViewModel.state;
+              context: context,
+              builder: (BuildContext context) {
+                return ConfirmSendingAlert(
+                    alertTitle: S.of(context).confirm_sending,
+                    amount: S.of(context).send_amount,
+                    amountValue:
+                        sendViewModel.pendingTransaction!.amountFormatted,
+                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                    fee: S.of(context).send_fee,
+                    feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+                    feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                    outputs: sendViewModel.outputs,
+                    rightButtonText: S.of(context).ok,
+                    leftButtonText: S.of(context).cancel,
+                    actionRightButton: () {
+                      Navigator.of(context).pop();
+                      sendViewModel.commitTransaction();
+                      showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Observer(builder: (_) {
+                              final state = sendViewModel.state;
 
-                                if (state is FailureState) {
-                                  Navigator.of(context).pop();
+                              if (state is FailureState) {
+                                Navigator.of(context).pop();
+                              }
+
+                              if (state is TransactionCommitted) {
+                                return AlertWithOneAction(
+                                    alertTitle: '',
+                                    alertContent: S.of(context).send_success(
+                                        sendViewModel.selectedCryptoCurrency.toString()),
+                                    buttonText: S.of(context).ok,
+                                    buttonAction: () {
+                                      Navigator.of(context).pop();
+                                      RequestReviewHandler.requestReview();
+                                  });
                                 }
 
-                                if (state is TransactionCommitted) {
-                                  return AlertWithOneAction(
-                                      alertTitle: '',
-                                      alertContent: S.of(context).send_success(
-                                          sendViewModel.selectedCryptoCurrency
-                                              .toString()),
-                                      buttonText: S.of(context).ok,
-                                      buttonAction: () {
-                                        Navigator.of(context).pop();
-                                        RequestReviewHandler.requestReview();
-                                      });
-                                }
-
-                                return Offstage();
-                              });
+                              return Offstage();
                             });
-                      },
-                      actionLeftButton: () => Navigator.of(context).pop());
-                });
+                          });
+                    },
+                    actionLeftButton: () => Navigator.of(context).pop());
+              });
           }
         });
       }
@@ -529,18 +525,16 @@ class SendPage extends BasePage {
         });
   }
 
-  void presentCurrencyPicker(BuildContext context) async {
+   void presentCurrencyPicker(BuildContext context) async {
     await showPopUp<CryptoCurrency>(
         builder: (_) => Picker(
-              items: sendViewModel.currencies,
-              displayItem: (Object item) => item.toString(),
-              selectedAtIndex: sendViewModel.currencies
-                  .indexOf(sendViewModel.selectedCryptoCurrency),
-              title: S.of(context).please_select,
-              mainAxisAlignment: MainAxisAlignment.center,
-              onItemSelected: (CryptoCurrency cur) =>
-                  sendViewModel.selectedCryptoCurrency = cur,
-            ),
+          items: sendViewModel.currencies,
+          displayItem: (Object item) => item.toString(),
+          selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
+          title: S.of(context).please_select,
+          mainAxisAlignment: MainAxisAlignment.center,
+          onItemSelected: (CryptoCurrency cur) => sendViewModel.selectedCryptoCurrency = cur,
+        ),
         context: context);
   }
 }

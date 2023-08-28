@@ -322,6 +322,12 @@
   "trade_state_timeout": "समय समाप्त",
   "trade_state_created": "बनाया था",
   "trade_state_finished": "ख़त्म होना",
+  "invalid_password" : "अवैध पासवर्ड",
+  "unlock" : "अनलॉक",
+  "enter_wallet_password" : "वॉलेट पासवर्ड दर्ज करें",
+  "repeate_wallet_password" : "वॉलेट पासवर्ड दोहराएं",
+  "wallet_password_is_empty" : "वॉलेट पासवर्ड खाली है। वॉलेट पासवर्ड खाली नहीं होना चाहिए",
+  "repeated_password_is_incorrect" : "दोहराया गया पासवर्ड गलत है। कृपया वॉलेट पासवर्ड दोबारा दोहराएं।",
   "change_language": "भाषा बदलो",
   "change_language_to": "को भाषा बदलें ${language}?",
   "paste": "पेस्ट करें",
@@ -640,7 +646,11 @@
   "high_contrast_theme": "उच्च कंट्रास्ट थीम",
   "matrix_green_dark_theme": "मैट्रिक्स ग्रीन डार्क थीम",
   "monero_light_theme": "मोनेरो लाइट थीम",
+<<<<<<< HEAD
   "cake_2fa_preset": "केक 2एफए प्रीसेट",
+=======
+  "cake_2fa_preset" : "केक 2एफए प्रीसेट",
+>>>>>>> origin/linux/password-direct-input
   "narrow": "सँकरा",
   "normal": "सामान्य",
   "aggressive": "ज्यादा",
@@ -678,6 +688,7 @@
   "slidable": "फिसलने लायक",
   "manage_nodes": "नोड्स प्रबंधित करें",
   "etherscan_history": "इथरस्कैन इतिहास",
+<<<<<<< HEAD
   "template_name": "टेम्पलेट नाम",
   "support_title_live_chat": "लाइव सहायता",
   "support_description_live_chat": "मुक्त और तेजी से! प्रशिक्षित सहायता प्रतिनिधि सहायता के लिए उपलब्ध हैं",
@@ -687,4 +698,7 @@
   "support_description_other_links": "हमारे समुदायों में शामिल हों या अन्य तरीकों के माध्यम से हमारे साथी तक पहुंचें",
   "select_destination": "कृपया बैकअप फ़ाइल के लिए गंतव्य का चयन करें।",
   "save_to_downloads": "डाउनलोड में सहेजें"
+=======
+  "template_name": "टेम्पलेट नाम"
+>>>>>>> origin/linux/password-direct-input
 }

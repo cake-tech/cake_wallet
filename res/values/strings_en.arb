@@ -322,6 +322,12 @@
   "trade_state_timeout": "Timeout",
   "trade_state_created": "Created",
   "trade_state_finished": "Finished",
+  "invalid_password" : "Invalid password",
+  "unlock" : "Unlock",
+  "enter_wallet_password" : "Enter the wallet password",
+  "repeate_wallet_password" : "Repeat the wallet password",
+  "wallet_password_is_empty" : "Wallet password is empty. Wallet password should not be empty",
+  "repeated_password_is_incorrect" : "Repeated password is incorrect. Please repeat the wallet password again.",
   "change_language": "Change language",
   "change_language_to": "Change language to ${language}?",
   "paste": "Paste",
@@ -640,7 +646,11 @@
   "high_contrast_theme": "High Contrast Theme",
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
   "monero_light_theme": "Monero Light Theme",
+<<<<<<< HEAD
   "cake_2fa_preset": "Cake 2FA Preset",
+=======
+  "cake_2fa_preset" : "Cake 2FA Preset",
+>>>>>>> origin/linux/password-direct-input
   "narrow": "Narrow",
   "normal": "Normal",
   "aggressive": "Aggressive",
@@ -678,6 +688,7 @@
   "slidable": "Slidable",
   "manage_nodes": "Manage nodes",
   "etherscan_history": "Etherscan history",
+<<<<<<< HEAD
   "template_name": "Template Name",
   "support_title_live_chat": "Live support",
   "support_description_live_chat": "Free and fast! Trained support representatives are available to assist",
@@ -687,4 +698,7 @@
   "support_description_other_links": "Join our communities or reach us our our partners through other methods",
   "select_destination": "Please select destination for the backup file.",
   "save_to_downloads": "Save to Downloads"
+=======
+  "template_name": "Template Name"
+>>>>>>> origin/linux/password-direct-input
 }

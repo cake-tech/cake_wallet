@@ -322,6 +322,12 @@
   "trade_state_timeout": "Vypršel časový limit",
   "trade_state_created": "Vytvořeno",
   "trade_state_finished": "Hotovo",
+  "invalid_password" : "Neplatné heslo",
+  "unlock" : "Odemknout",
+  "enter_wallet_password" : "Zadejte heslo peněženky",
+  "repeate_wallet_password" : "Opakujte heslo peněženky",
+  "wallet_password_is_empty" : "Heslo peněženky je prázdné. Heslo peněženky by nemělo být prázdné",
+  "repeated_password_is_incorrect" : "Opakované heslo je nesprávné. Zopakujte prosím heslo peněženky znovu.",
   "change_language": "Změnit jazyk",
   "change_language_to": "Změnit jazyk na ${language}?",
   "paste": "Vložit",
@@ -670,6 +676,7 @@
   "monero_light_theme": "Světlé téma Monero",
   "manage_nodes": "Spravovat uzly",
   "etherscan_history": "Historie Etherscanu",
+<<<<<<< HEAD
   "template_name": "Název šablony",
   "support_title_live_chat": "Živá podpora",
   "support_description_live_chat": "Zdarma a rychle! K dispozici jsou zástupci vyškolených podpůrných podpory",
@@ -679,4 +686,7 @@
   "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody",
   "select_destination": "Vyberte cíl pro záložní soubor.",
   "save_to_downloads": "Uložit do Stažených souborů"
+=======
+  "template_name": "Název šablony"
+>>>>>>> origin/linux/password-direct-input
 }

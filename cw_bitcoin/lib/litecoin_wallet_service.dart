@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cw_bitcoin/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -12,14 +13,13 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:collection/collection.dart';
 
-class LitecoinWalletService extends WalletService<
-    BitcoinNewWalletCredentials,
-    BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials> {
-  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+class LitecoinWalletService extends WalletService<BitcoinNewWalletCredentials,
+    BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
+  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.litecoin;
@@ -30,7 +30,8 @@ class LitecoinWalletService extends WalletService<
         mnemonic: await generateMnemonic(),
         password: credentials.password!,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.save();
     await wallet.init();
 
@@ -43,33 +44,37 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
     final wallet = await LitecoinWalletBase.open(
-        password: password, name: name, walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.init();
     return wallet;
   }
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType()))
-        .delete(recursive: true);
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await LitecoinWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -96,7 +101,8 @@ class LitecoinWalletService extends WalletService<
         password: credentials.password!,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.save();
     await wallet.init();
     return wallet;

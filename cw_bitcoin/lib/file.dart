@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cw_core/key.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
+// Do not use directly, move to Salsa20EncryhptionFile
 Future<void> write(
     {required String path,
     required String password,

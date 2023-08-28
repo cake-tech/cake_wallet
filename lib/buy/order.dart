@@ -1,8 +1,7 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/hive_type_ids.dart';
-import 'package:hive/hive.dart';
 
 part 'order.g.dart';
 
@@ -27,7 +26,7 @@ class Order extends HiveObject {
       }
     }
 
-  static const typeId = ORDER_TYPE_ID;
+  static const typeId = 8;
   static const boxName = 'Orders';
   static const boxKey = 'ordersBoxKey';
 

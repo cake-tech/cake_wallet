@@ -22,7 +22,7 @@ abstract class MoneroSubaddressListBase with Store {
   bool _isUpdating;
 
   void update({required int accountIndex}) {
-    refreshCoins(accountIndex);
+    // refreshCoins(accountIndex);
 
     if (_isUpdating) {
       return;

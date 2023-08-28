@@ -20,6 +20,7 @@ class SecretKey {
     SecretKey('moonPayApiKey', () => ''),
     SecretKey('moonPaySecretKey', () => ''),
     SecretKey('sideShiftAffiliateId', () => ''),
+    SecretKey('sideShiftApiKey', () => ''),
     SecretKey('simpleSwapApiKey', () => ''),
     SecretKey('simpleSwapApiKeyDesktop', () => ''),
     SecretKey('anypayToken', () => ''),
@@ -31,7 +32,6 @@ class SecretKey {
     SecretKey('anonPayReferralCode', () => ''),
     SecretKey('fiatApiKey', () => ''),
     SecretKey('payfuraApiKey', () => ''),
-    SecretKey('chatwootWebsiteToken', () => ''),
   ];
 
   static final ethereumSecrets = [

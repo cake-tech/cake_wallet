@@ -322,6 +322,12 @@
   "trade_state_timeout": "lokacin da ya ƙare",
   "trade_state_created": "an halicci",
   "trade_state_finished": "an kammala",
+  "invalid_password" : "Mot de passe incorrect",
+  "unlock" : "Ouvrir",
+  "enter_wallet_password" : "Entrez le mot de passe du portefeuille",
+  "repeate_wallet_password" : "Répétez le mot de passe du portefeuille",
+  "wallet_password_is_empty" : "Le mot de passe du portefeuille est vide. Le mot de passe du portefeuille ne doit pas être vide",
+  "repeated_password_is_incorrect" : "Le mot de passe répété est incorrect. Veuillez répéter le mot de passe du portefeuille.",
   "change_language": "canja harshen",
   "change_language_to": "canja harshen zuwa ${language}?",
   "paste": "Manna",
@@ -618,7 +624,11 @@
   "high_contrast_theme": "Babban Jigon Kwatance",
   "matrix_green_dark_theme": "Matrix Green Dark Jigo",
   "monero_light_theme": "Jigon Hasken Monero",
+<<<<<<< HEAD
   "cake_2fa_preset": "Cake 2FA saiti",
+=======
+    "cake_2fa_preset" : "Cake 2FA saiti",
+>>>>>>> origin/linux/password-direct-input
   "narrow": "kunkuntar",
   "normal": "Na al'ada",
   "aggressive": "Mai tsananin kishi",
@@ -656,6 +666,7 @@
   "slidable": "Mai iya zamewa",
   "etherscan_history": "Etherscan tarihin kowane zamani",
   "manage_nodes": "Sarrafa nodes",
+<<<<<<< HEAD
   "template_name": "Sunan Samfura",
   "support_title_live_chat": "Tallafi na Live",
   "support_description_live_chat": "Kyauta da sauri! An horar da wakilan tallafi na tallafi don taimakawa",
@@ -665,4 +676,7 @@
   "support_description_other_links": "Kasance tare da al'ummominmu ko kuma ka kai mu abokanmu ta hanyar wasu hanyoyi",
   "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
   "save_to_downloads": "Ajiye zuwa Zazzagewa"
+=======
+  "template_name": "Sunan Samfura"
+>>>>>>> origin/linux/password-direct-input
 }

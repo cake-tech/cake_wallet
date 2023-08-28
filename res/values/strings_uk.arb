@@ -322,6 +322,12 @@
   "trade_state_timeout": "Таймаут",
   "trade_state_created": "Створена",
   "trade_state_finished": "Завершена",
+  "invalid_password" : "Невірний пароль",
+  "unlock" : "Розблокувати",
+  "enter_wallet_password" : "Введіть пароль гаманця",
+  "repeate_wallet_password" : "Повторіть пароль гаманця",
+  "wallet_password_is_empty" : "Пароль гаманця порожній. Пароль гаманця не повинен бути порожнім",
+  "repeated_password_is_incorrect" : "Повторний пароль неправильний. Будь ласка, повторіть пароль гаманця ще раз.",
   "change_language": "Змінити мову",
   "change_language_to": "Змінити мову на ${language}?",
   "paste": "Вставити",
@@ -678,6 +684,7 @@
   "monero_light_theme": "Легка тема Monero",
   "manage_nodes": "Керуйте вузлами",
   "etherscan_history": "Історія Etherscan",
+<<<<<<< HEAD
   "template_name": "Назва шаблону",
   "support_title_live_chat": "Жива підтримка",
   "support_description_live_chat": "Безкоштовно і швидко! Навчені представники підтримки доступні для надання допомоги",
@@ -687,4 +694,7 @@
   "support_description_other_links": "Приєднуйтесь до наших спільнот або досягайте нас нашими партнерами іншими методами",
   "select_destination": "Виберіть місце призначення для файлу резервної копії.",
   "save_to_downloads": "Зберегти до завантажень"
+=======
+  "template_name": "Назва шаблону"
+>>>>>>> origin/linux/password-direct-input
 }

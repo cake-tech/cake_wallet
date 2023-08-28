@@ -17,7 +17,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +29,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/set_app_secure_native.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 
 part 'settings_store.g.dart';
 
@@ -337,6 +338,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
+  static final walletPasswordDirectInput = Platform.isLinux;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -599,9 +601,14 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
-    final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
+    var appVersion = '';
+
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      appVersion = packageInfo.version;
+    } catch(_) {}
 
     final nodes = <WalletType, Node>{};
 
@@ -634,7 +641,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
-        appVersion: packageInfo.version,
+        appVersion: appVersion,
         deviceName: deviceName,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialFiatCurrency: currentFiatCurrency,
@@ -849,6 +856,7 @@ abstract class SettingsStoreBase with Store {
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfoPlugin.androidInfo;
       deviceName = '${androidInfo.brand}%20${androidInfo.manufacturer}%20${androidInfo.model}';
+      print(deviceName);
     } else if (Platform.isIOS) {
       final iosInfo = await deviceInfoPlugin.iosInfo;
       deviceName = iosInfo.model;
