@@ -1,5 +1,4 @@
 import 'package:cw_core/transaction_priority.dart';
-//import 'package:cake_wallet/generated/i18n.dart';
 
 class BitcoinTransactionPriority extends TransactionPriority {
   const BitcoinTransactionPriority({required String title, required int raw})
@@ -128,7 +127,7 @@ class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
   }
 
   @override
-  String get units => 'Latoshi';
+  String get units => 'Satoshi';
 
   @override
   String toString() {

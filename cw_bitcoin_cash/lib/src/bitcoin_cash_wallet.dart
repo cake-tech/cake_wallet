@@ -10,6 +10,7 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin_cash/src/pending_bitcoin_cash_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
@@ -181,4 +182,21 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
   int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount) =>
       feeRate * bitbox.BitcoinCash.getByteCount(inputsCount, outputsCount);
+
+  @override
+  int feeRate(TransactionPriority priority) {
+    if (priority is BitcoinCashTransactionPriority) {
+      switch (priority) {
+        case BitcoinCashTransactionPriority.slow:
+          return 1;
+        case BitcoinCashTransactionPriority.medium:
+          return 5;
+        case BitcoinCashTransactionPriority.fast:
+          return 10;
+      }
+    }
+
+    return 0;
+  }
 }
+
