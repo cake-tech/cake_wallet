@@ -731,7 +731,7 @@ abstract class SettingsStoreBase with Store {
           priority[WalletType.ethereum]!;
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
-      priority[WalletType.bitcoinCash] = bitcoin?.deserializeBitcoinCashTransactionPriority(
+      priority[WalletType.bitcoinCash] = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!) ??
           priority[WalletType.bitcoinCash]!;
     }

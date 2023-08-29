@@ -28,7 +28,6 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
-import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -61,10 +60,8 @@ abstract class Bitcoin {
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
   List<TransactionPriority> getLitecoinTransactionPriorities();
-  List<TransactionPriority> getBitcoinCashTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
-  TransactionPriority deserializeLitecoinTransactionPriority(int raw); 
-  TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
+  TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
