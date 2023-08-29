@@ -683,6 +683,8 @@
   "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى",
   "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
   "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
+  "auto_generate_subaddresses": "تلقائي توليد subddresses",
+  "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
   "select_buy_provider_notice": "حدد مزود شراء أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود شراء الافتراضي في إعدادات التطبيق.",
   "onramper_option_description": "شراء بسرعة التشفير مع العديد من طرق الدفع. متوفر في معظم البلدان. ينتشر وتختلف الرسوم.",
   "default_buy_provider": "مزود شراء الافتراضي",

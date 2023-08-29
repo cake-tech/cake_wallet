@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:collection/collection.dart';
 
 part 'contact_list_view_model.g.dart';
 
@@ -20,12 +22,26 @@ abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(this.contactSource, this.walletInfoSource,
       this._currency, this.settingsStore)
       : contacts = ObservableList<ContactRecord>(),
-        walletContacts = [] {
+        walletContacts = [],
+        isAutoGenerateEnabled =
+            settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
-      if (info.addresses?.isNotEmpty ?? false) {
-        info.addresses?.forEach((address, label) {
-          final name = label.isNotEmpty ? info.name + ' ($label)' : info.name;
-
+      if (isAutoGenerateEnabled && info.type == WalletType.monero && info.addressInfos != null) {
+        info.addressInfos!.forEach((key, value) {
+          final nextUnusedAddress = value.firstWhereOrNull(
+              (addressInfo) => !(info.usedAddresses?.contains(addressInfo.address) ?? false));
+          if (nextUnusedAddress != null) {
+            final name = _createName(info.name, nextUnusedAddress.label);
+            walletContacts.add(WalletContact(
+              nextUnusedAddress.address,
+              name,
+              walletTypeToCryptoCurrency(info.type),
+            ));
+          }
+        });
+      } else if (info.addresses?.isNotEmpty == true) {
+        info.addresses!.forEach((address, label) {
+          final name = _createName(info.name, label);
           walletContacts.add(WalletContact(
             address,
             name,
@@ -40,6 +56,11 @@ abstract class ContactListViewModelBase with Store {
         initialFire: true);
   }
 
+  String _createName(String walletName, String label) {
+    return label.isNotEmpty ? '$walletName ($label)' : walletName;
+  }
+
+  final bool isAutoGenerateEnabled;
   final Box<Contact> contactSource;
   final Box<WalletInfo> walletInfoSource;
   final ObservableList<ContactRecord> contacts;
