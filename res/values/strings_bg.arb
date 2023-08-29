@@ -626,6 +626,7 @@
   "setup_totp_recommended": "Настройка на TOTP (препоръчително)",
   "disable_buy": "Деактивирайте действието за покупка",
   "disable_sell": "Деактивирайте действието за продажба",
+  "auto_generate_subaddresses": "Автоматично генериране на подадреси",
   "cake_2fa_preset": "Торта 2FA Preset",
   "narrow": "Тесен",
   "normal": "нормално",

@@ -50,6 +50,14 @@ class PrivacyPage extends BasePage {
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
                 }),
+            if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
+              SettingsSwitcherCell(
+                title: S.current.auto_generate_subaddresses,
+                value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setAutoGenerateSubaddresses(value);
+                },
+              ),
             if (DeviceInfo.instance.isMobile)
               SettingsSwitcherCell(
                   title: S.current.prevent_screenshots,
