@@ -120,8 +120,7 @@ class AddressPage extends BasePage {
     _setEffects(context);
 
     autorun((_) async {
-      if (!dashboardViewModel.isOutdatedElectrumWallet ||
-          !dashboardViewModel.settingsStore.shouldShowReceiveWarning) {
+      if (!dashboardViewModel.settingsStore.shouldShowReceiveWarning) {
         return;
       }
 
