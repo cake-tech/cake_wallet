@@ -527,6 +527,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey:
           _sharedPreferences.getBool(PreferencesKey.syncAllKey),
+      PreferencesKey.autoGenerateSubaddressStatusKey:
+          _sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
     };
 
     return json.encode(preferences);

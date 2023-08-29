@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -19,9 +20,11 @@ class ContactListViewModel = ContactListViewModelBase
 
 abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(this.contactSource, this.walletInfoSource,
-      this._currency, this.settingsStore, this.isAutoGenerateEnabled)
+      this._currency, this.settingsStore)
       : contacts = ObservableList<ContactRecord>(),
-        walletContacts = [] {
+        walletContacts = [],
+        isAutoGenerateEnabled =
+            settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
       if (isAutoGenerateEnabled && info.type == WalletType.monero && info.addressInfos != null) {
         info.addressInfos!.forEach((key, value) {

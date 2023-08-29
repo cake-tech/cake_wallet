@@ -653,18 +653,9 @@ Future<void> setup({
   getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
 
-  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>((CryptoCurrency? cur, _) {
-    final enableAutoGenerateSubaddresses =
-        getIt.get<SettingsStore>().autoGenerateSubaddressStatus ==
-            AutoGenerateSubaddressStatus.enabled;
-    return ContactListViewModel(
-      _contactSource,
-      _walletInfoSource,
-      cur,
-      getIt.get<SettingsStore>(),
-      enableAutoGenerateSubaddresses,
-    );
-  });
+  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
+      (CryptoCurrency? cur, _) =>
+          ContactListViewModel(_contactSource, _walletInfoSource, cur, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
       ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
