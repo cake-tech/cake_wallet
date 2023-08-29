@@ -116,14 +116,15 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     // if the mnemonic is 12 words, then it could be electrum 1.0,
     // if the mnemonic is 24 words, then it could be electrum 2.0
     // bip39 is possible with any number of words
-    int wordCount = mnemonic.split(" ").length;
-    if (wordCount == 24) {
-      return [DerivationType.bip39, DerivationType.electrum1];
-    } else if (wordCount == 12) {
-      return [DerivationType.bip39, DerivationType.electrum2];
-    } else {
-      return [DerivationType.bip39];
-    }
+    // int wordCount = mnemonic.split(" ").length;
+    // if (wordCount == 24) {
+    //   return [DerivationType.bip39, DerivationType.electrum1];
+    // } else if (wordCount == 12) {
+    //   return [DerivationType.bip39, DerivationType.electrum2];
+    // } else {
+    //   return [DerivationType.bip39];
+    // }
+    return [DerivationType.bip39, DerivationType.electrum2];
   }
 
   static Future<List<DerivationInfo>> getDerivationsFromMnemonic(

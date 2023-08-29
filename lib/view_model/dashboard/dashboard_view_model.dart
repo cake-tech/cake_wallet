@@ -46,8 +46,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore})
-      : isOutdatedElectrumWallet = false,
-        hasSellAction = false,
+      : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
@@ -107,8 +106,6 @@ abstract class DashboardViewModelBase with Store {
         wallet = appStore.wallet! {
     name = wallet.name;
     type = wallet.type;
-    isOutdatedElectrumWallet =
-        wallet.type == WalletType.bitcoin && wallet.seed!.split(' ').length < 24;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
@@ -308,9 +305,6 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
-  @observable
-  bool isOutdatedElectrumWallet;
-
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
@@ -333,8 +327,6 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    isOutdatedElectrumWallet =
-        wallet.type == WalletType.bitcoin && wallet.seed!.split(' ').length < 24;
     updateActions();
 
     if (wallet.type == WalletType.monero) {
