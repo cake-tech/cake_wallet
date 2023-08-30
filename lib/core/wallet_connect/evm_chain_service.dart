@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
@@ -29,6 +31,7 @@ enum EVMChainId {
   arbitrum,
 }
 
+//TODO(David): Rename this to EthereumVMChainId
 extension KadenaChainIdX on EVMChainId {
   String chain() {
     String name = '';
@@ -155,8 +158,6 @@ class EvmChainServiceImpl implements ChainService {
     final String message;
     if (parameters[0] == null) {
       message = '';
-    } else if (parameters[0] is String) {
-      message = (parameters[0] as String).utf8Message;
     } else {
       message = parameters[0].toString().utf8Message;
     }
@@ -195,8 +196,6 @@ class EvmChainServiceImpl implements ChainService {
     final String message;
     if (parameters[1] == null) {
       message = '';
-    } else if (parameters[1] is String) {
-      message = (parameters[1] as String).utf8Message;
     } else {
       message = parameters[1].toString().utf8Message;
     }
@@ -233,35 +232,67 @@ class EvmChainServiceImpl implements ChainService {
 
   Future<String> ethSignTransaction(String topic, dynamic parameters) async {
     log('received eth sign transaction request: $parameters');
-    final String? authAcquired = await requestAuthorization(
-      jsonEncode(
-        parameters[0],
-      ),
-    );
+
+    final bodyParam = jsonEncode(parameters[0]);
+
+    // final message = (parameters[0]['data'] as String);
+
+    final String? authAcquired = await requestAuthorization(bodyParam);
     if (authAcquired != null) {
       return authAcquired;
     }
 
     // Load the private key
-    final List<ChainKeyModel> keys = GetIt.I<WalletConnectKeyService>().getKeysForChain(
-      getChainId(),
-    );
+    final List<ChainKeyModel> keys = getIt.get<WalletConnectKeyService>().getKeysForChain(
+          getChainId(),
+        );
 
-    final Credentials credentials = EthPrivateKey.fromHex(
-      '0x${keys[0].privateKey}',
-    );
+    final Credentials credentials = EthPrivateKey.fromHex('0x${keys[0].privateKey}');
 
-    EthereumTransactionModel ethTransaction = EthereumTransactionModel.fromJson(
+    WCEthereumTransactionModel ethTransaction = WCEthereumTransactionModel.fromJson(
       parameters[0] as Map<String, dynamic>,
     );
+
+    // // Construct a transaction from the EthereumTransactionModel object
+    // final transaction = Transaction(
+    //   from: EthereumAddress.fromHex(ethTransaction.from),
+    //   to: EthereumAddress.fromHex(ethTransaction.to),
+    //   value: EtherAmount.fromBigInt(EtherUnit.wei, ethTransaction.amount),
+    //   gasPrice: EtherAmount.fromBigInt(EtherUnit.gwei, ethTransaction.gasPrice),
+    //   maxGas: ethTransaction.gasUsed,
+    // );
 
     // Construct a transaction from the EthereumTransactionModel object
     final transaction = Transaction(
       from: EthereumAddress.fromHex(ethTransaction.from),
       to: EthereumAddress.fromHex(ethTransaction.to),
-      value: EtherAmount.fromBigInt(EtherUnit.wei, ethTransaction.amount),
-      gasPrice: EtherAmount.fromBigInt(EtherUnit.gwei, ethTransaction.gasPrice),
-      maxGas: ethTransaction.gasUsed,
+      value: EtherAmount.fromBigInt(
+        EtherUnit.wei,
+        BigInt.tryParse(ethTransaction.value) ?? BigInt.zero,
+      ),
+      gasPrice: ethTransaction.gasPrice != null
+          ? EtherAmount.fromBigInt(
+              EtherUnit.gwei,
+              BigInt.tryParse(ethTransaction.gasPrice!) ?? BigInt.zero,
+            )
+          : null,
+      maxFeePerGas: ethTransaction.maxFeePerGas != null
+          ? EtherAmount.fromBigInt(
+              EtherUnit.gwei,
+              BigInt.tryParse(ethTransaction.maxFeePerGas!) ?? BigInt.zero,
+            )
+          : null,
+      maxPriorityFeePerGas: ethTransaction.maxPriorityFeePerGas != null
+          ? EtherAmount.fromBigInt(
+              EtherUnit.gwei,
+              BigInt.tryParse(ethTransaction.maxPriorityFeePerGas!) ?? BigInt.zero,
+            )
+          : null,
+      maxGas: int.tryParse(ethTransaction.gasLimit ?? ''),
+      nonce: int.tryParse(ethTransaction.nonce ?? ''),
+      data: (ethTransaction.data != null && ethTransaction.data != '0x')
+          ? Uint8List.fromList(hex.decode(ethTransaction.data!))
+          : null,
     );
 
     try {

@@ -85,7 +85,8 @@ class WCPairingsWidget extends BasePage {
       await _invalidUriToast(context, e.toString());
     }
   }
-Future<void> _invalidUriToast(BuildContext context, String message) async {
+
+  Future<void> _invalidUriToast(BuildContext context, String message) async {
     await showPopUp<void>(
       context: context,
       builder: (BuildContext context) {

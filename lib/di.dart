@@ -673,7 +673,9 @@ Future<void> setup({
     return NodeListViewModel(_nodeSource, appStore);
   });
 
-  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
+  getIt.registerFactory(
+    () => ConnectionSyncPage(getIt.get<DashboardViewModel>()),
+  );
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
@@ -1053,23 +1055,28 @@ Future<void> setup({
 
   getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
 
+  // //TODO(David): Switch Singleton to Factory when appropriate
   getIt.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
-  // final appStore = getIt.get<AppStore>();
-    
-  //   GetIt.I.registerSingleton<WalletConnectKeyService>(KeyServiceImpl(appStore.wallet!));
 
+  // final appStore = getIt.get<AppStore>();
+
+  // getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
+
+  // getIt.registerLazySingleton<Web3WalletService>(() {
   //   final Web3WalletService web3WalletService = Web3WalletServiceImpl();
   //   web3WalletService.create();
-  //   GetIt.I.registerSingleton<Web3WalletService>(web3WalletService);
+  //   return web3WalletService;
+  // });
 
-  //   for (final cId in EVMChainId.values) {
-  //     GetIt.I.registerSingleton<ChainService>(
-  //       EvmChainServiceImpl(reference: cId, appStore: appStore),
-  //       instanceName: cId.chain(),
-  //     );
-  //   }
+  // for (final cId in EVMChainId.values) {
+  //   getIt.registerLazySingleton<ChainService>(
+  //     () => EvmChainServiceImpl(reference: cId, appStore: appStore),
+  //     instanceName: cId.chain(),
+  //   );
+  // }
 
-  //   await web3WalletService.init();
+  // //TODO(David): Initialize within the appropriate page
+  // // await web3WalletService.init();
 
   _isSetupFinished = true;
 }

@@ -19,6 +19,8 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
   @override
   void initState() {
     super.initState();
+    
+    //TODO(David): Switch to dependency injection
     _bottomSheetService = getIt.get<BottomSheetService>();
     _bottomSheetService.currentSheet.addListener(_showBottomSheet);
   }

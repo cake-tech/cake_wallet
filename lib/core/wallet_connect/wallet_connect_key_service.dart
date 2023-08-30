@@ -34,7 +34,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
             ],
             privateKey: ethereum!.getPrivateKey(wallet),
             publicKey: ethereum!.getPublicKey(wallet),
-          )
+          ),
+          
         ];
 
   late final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
