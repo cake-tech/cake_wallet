@@ -73,7 +73,7 @@ class RestoreOptionsPage extends BasePage {
                             await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
                             if (restoreFromQRViewModel.state is FailureState) {
                               _onWalletCreateFailure(context,
-                                  'Create wallet state: ${restoreFromQRViewModel.state.runtimeType.toString()}');
+                                  'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
                             }
                           } catch (e) {
                             _onWalletCreateFailure(context, e.toString());

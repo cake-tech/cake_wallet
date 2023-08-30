@@ -686,5 +686,6 @@
   "support_title_other_links": "Другие ссылки на поддержку",
   "support_description_other_links": "Присоединяйтесь к нашим сообществам или охватите нас наших партнеров с помощью других методов",
   "select_destination": "Пожалуйста, выберите место для файла резервной копии.",
-  "save_to_downloads": "Сохранить в загрузках"
+  "save_to_downloads": "Сохранить в загрузках",
+  "auto_generate_subaddresses": "Авто генерируйте Subaddresses"
 }

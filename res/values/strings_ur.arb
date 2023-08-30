@@ -678,5 +678,6 @@
   "support_title_other_links": "دوسرے سپورٹ لنکس",
   "support_description_other_links": "ہماری برادریوں میں شامل ہوں یا دوسرے طریقوں سے ہمارے شراکت داروں تک پہنچیں",
   "select_destination": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﻝﺰﻨﻣ ﮯﯿﻟ ﮯﮐ ﻞﺋﺎﻓ ﭖﺍ ﮏﯿﺑ ﻡﺮﮐ ﮦﺍﺮﺑ",
-  "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ"
+  "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ",
+  "auto_generate_subaddresses": "آٹو سب ایڈریس تیار کرتا ہے"
 }
