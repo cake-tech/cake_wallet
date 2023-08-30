@@ -162,6 +162,7 @@ jobs:
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
 
       - name: Send Test APK
+        continue-on-error: true
         uses: adrey/slack-file-upload-action@1.0.5
         with:
           token: ${{ secrets.SLACK_WEB_HOOK }}
