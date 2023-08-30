@@ -5,8 +5,8 @@ HAVEN_VERSION=tags/v3.0.7
 HAVEN_SRC_DIR=${WORKDIR}/haven
 
 git clone https://github.com/haven-protocol-org/haven-main.git ${HAVEN_SRC_DIR}
-git checkout ${HAVEN_VERSION}
 cd $HAVEN_SRC_DIR
+git checkout ${HAVEN_VERSION}
 git submodule init
 git submodule update
 
