@@ -5,6 +5,7 @@ import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -232,10 +233,10 @@ late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
-late Box<UnspentCoinsInfo>? _unspentCoinsInfoSource;
+late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
-Future setup({
+Future<void> setup({
   required Box<WalletInfo> walletInfoSource,
   required Box<Node> nodeSource,
   required Box<PowNode> powNodeSource,
@@ -245,7 +246,7 @@ Future setup({
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
-  Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
 }) async {
   _walletInfoSource = walletInfoSource;
@@ -263,7 +264,6 @@ Future setup({
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   }
-
   if (!_isSetupFinished) {
     getIt.registerFactory(() => BackgroundTasks());
   }
@@ -805,11 +805,11 @@ Future setup({
       case WalletType.haven:
         return haven!.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_walletInfoSource);
+        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
+        return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.litecoin:
-        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
+        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(_walletInfoSource);
       case WalletType.nano:

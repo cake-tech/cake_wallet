@@ -641,6 +641,7 @@
   "high_contrast_theme": "उच्च कंट्रास्ट थीम",
   "matrix_green_dark_theme": "मैट्रिक्स ग्रीन डार्क थीम",
   "monero_light_theme": "मोनेरो लाइट थीम",
+  "auto_generate_subaddresses": "स्वचालित रूप से उप-पते उत्पन्न करें",
   "narrow": "सँकरा",
   "normal": "सामान्य",
   "aggressive": "ज्यादा",

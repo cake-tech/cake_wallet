@@ -690,5 +690,6 @@
   "choose_derivation": "ပိုက်ဆံအိတ်ကိုရွေးချယ်ပါ",
   "new_first_wallet_text": "သင့်ရဲ့ cryptocurrencrencres ကိုအလွယ်တကူလုံခြုံစွာထားရှိပါ",
   "select_destination": "အရန်ဖိုင်အတွက် ဦးတည်ရာကို ရွေးပါ။",
-  "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။"
+  "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။",
+  "auto_generate_subaddresses": "အော်တို Generate Subaddresses"
 }

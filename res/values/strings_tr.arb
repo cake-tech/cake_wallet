@@ -632,6 +632,7 @@
   "setup_totp_recommended": "TOTP'yi kurun (Önerilir)",
   "disable_buy": "Satın alma işlemini devre dışı bırak",
   "disable_sell": "Satış işlemini devre dışı bırak",
+  "auto_generate_subaddresses": "Alt adresleri otomatik olarak oluştur",
   "cake_2fa_preset": "Kek 2FA Ön Ayarı",
   "narrow": "Dar",
   "normal": "Normal",

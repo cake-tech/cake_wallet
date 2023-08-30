@@ -692,5 +692,6 @@
   "choose_derivation": "Выберите вывод кошелька",
   "new_first_wallet_text": "Легко сохранить свою криптовалюту в безопасности",
   "select_destination": "Пожалуйста, выберите место для файла резервной копии.",
-  "save_to_downloads": "Сохранить в загрузках"
+  "save_to_downloads": "Сохранить в загрузках",
+  "auto_generate_subaddresses": "Авто генерируйте Subaddresses"
 }

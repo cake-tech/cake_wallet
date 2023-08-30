@@ -568,6 +568,7 @@
   "privacy": "Privacy",
   "display_settings": "Display settings",
   "other_settings": "Other settings",
+  "auto_generate_subaddresses": "Auto generate subaddresses",
   "require_pin_after": "Require PIN after",
   "always": "Always",
   "minutes_to_pin_code": "${minute} minutes",

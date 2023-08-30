@@ -179,6 +179,10 @@ abstract class SendViewModelBase with Store {
       .toList();
 
   @computed
+  bool get hasCoinControl =>
+      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin || _wallet.type == WalletType.monero;
+
+  @computed
   bool get isElectrumWallet =>
       _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
 
@@ -214,12 +218,12 @@ abstract class SendViewModelBase with Store {
 
   @computed
   List<ContactRecord> get contactsToShow => contactListViewModel.contacts
-      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
+      .where((element) => element.type == selectedCryptoCurrency)
       .toList();
 
   @computed
   List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
-      .where((element) => selectedCryptoCurrency == null || element.type == selectedCryptoCurrency)
+      .where((element) => element.type == selectedCryptoCurrency)
       .toList();
 
   @action

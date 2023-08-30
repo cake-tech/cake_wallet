@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/pow_node.dart';
@@ -94,6 +95,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(TradeAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
+    CakeHive.registerAdapter(AddressInfoAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
     CakeHive.registerAdapter(WalletInfoAdapter());
   }
@@ -143,11 +148,7 @@ Future<void> initializeAppConfigs() async {
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-  Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-
-  if (!isMoneroOnly) {
-    unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-  }
+  final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
@@ -181,7 +182,7 @@ Future<void> initialSetup(
     required Box<TransactionDescription> transactionDescriptions,
     required FlutterSecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(

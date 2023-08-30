@@ -690,5 +690,6 @@
   "choose_derivation": "지갑 파생을 선택하십시오",
   "new_first_wallet_text": "cryptocurrency를 쉽게 안전하게 유지하십시오",
   "select_destination": "백업 파일의 대상을 선택하십시오.",
-  "save_to_downloads": "다운로드에 저장"
+  "save_to_downloads": "다운로드에 저장",
+  "auto_generate_subaddresses": "자동 생성 서브 아드 드레스"
 }

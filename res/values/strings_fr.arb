@@ -641,6 +641,7 @@
   "high_contrast_theme": "Thème à contraste élevé",
   "matrix_green_dark_theme": "Thème Matrix Green Dark",
   "monero_light_theme": "Thème de lumière Monero",
+  "auto_generate_subaddresses": "Générer automatiquement des sous-adresses",
   "narrow": "Étroit",
   "normal": "Normal",
   "aggressive": "Trop zélé",

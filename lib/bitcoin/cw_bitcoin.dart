@@ -18,6 +18,19 @@ class CWBitcoin extends Bitcoin {
           derivationType: derivationType,
           derivationPath: derivationPath);
 
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate) =>
+      (priority as BitcoinTransactionPriority).labelWithRate(rate);
+
+  void updateUnspents(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.updateUnspent();
+  }
+
+  WalletService createLitecoinWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource);
+  }
+
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
           {required String name,
@@ -123,10 +136,6 @@ class CWBitcoin extends Bitcoin {
   int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
 
   @override
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate) =>
-      (priority as BitcoinTransactionPriority).labelWithRate(rate);
-
-  @override
   List<Unspent> getUnspents(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.unspentCoins
@@ -135,19 +144,9 @@ class CWBitcoin extends Bitcoin {
         .toList();
   }
 
-  void updateUnspents(Object wallet) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.updateUnspent();
-  }
-
   WalletService createBitcoinWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
     return BitcoinWalletService(walletInfoSource, unspentCoinSource);
-  }
-
-  WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource);
   }
 
   @override
