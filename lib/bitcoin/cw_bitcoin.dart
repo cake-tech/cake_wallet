@@ -140,7 +140,7 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.unspentCoins
         .map((BitcoinUnspent bitcoinUnspent) => Unspent(bitcoinUnspent.address.address,
-            bitcoinUnspent.hash, bitcoinUnspent.value, bitcoinUnspent.vout))
+            bitcoinUnspent.hash, bitcoinUnspent.value, bitcoinUnspent.vout, null))
         .toList();
   }
 
