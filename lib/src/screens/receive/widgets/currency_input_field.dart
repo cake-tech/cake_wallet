@@ -12,7 +12,8 @@ class CurrencyInputField extends StatelessWidget {
     required this.onTapPicker,
     required this.selectedCurrency,
     this.focusNode,
-    required this.controller, required this.isLight,
+    required this.controller,
+    required this.isLight,
   });
 
   final Function() onTapPicker;
@@ -28,96 +29,89 @@ class CurrencyInputField extends StatelessWidget {
       color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       height: 8,
     );
-    final _width = MediaQuery.of(context).size.width;
 
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: SizedBox(
-            height: 40,
-            child: BaseTextFormField(
-              focusNode: focusNode,
-              controller: controller,
-              keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,8}'))],
-              hintText: '0.000',
-              placeholderTextStyle: isLight
-                  ? null
-                  : TextStyle(
-                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                      fontWeight: FontWeight.w600,
+    return SizedBox(
+      height: 42,
+      child: Align(
+        alignment: Alignment.center,
+        child: BaseTextFormField(
+          focusNode: focusNode,
+          controller: controller,
+          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,8}'))],
+          hintText: '0.000',
+          placeholderTextStyle: isLight
+              ? null
+              : TextStyle(
+                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                  fontWeight: FontWeight.w600,
+                ),
+          borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+          textColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+          textStyle: TextStyle(
+            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+          ),
+          prefixIcon: Container(
+            padding: EdgeInsets.only(right: 8),
+            child: InkWell(
+              onTap: onTapPicker,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(right: 5),
+                      child: arrowBottomPurple,
                     ),
-              borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
-              textColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-              textStyle: TextStyle(
-                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-              ),
-              prefixIcon: Padding(
-                padding: EdgeInsets.only(
-                  left: _width / 4,
-                ),
-                child: Container(
-                  padding: EdgeInsets.only(right: 8),
-                  child: InkWell(
-                    onTap: onTapPicker,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(right: 5),
-                            child: arrowBottomPurple,
-                          ),
-                          Text(
-                            selectedCurrency.name.toUpperCase(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                    Text(
+                      selectedCurrency.name.toUpperCase(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      ),
+                    ),
+                    if (selectedCurrency.tag != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 3.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(6),
                             ),
                           ),
-                          if (selectedCurrency.tag != null)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 3.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(6),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    selectedCurrency.tag!,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 3.0),
+                          child: Center(
                             child: Text(
-                              ':',
+                              selectedCurrency.tag!,
                               style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .extension<SendPageTheme>()!
+                                    .textFieldButtonIconColor,
                               ),
                             ),
                           ),
-                        ]),
-                  ),
-                ),
-              ),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Text(
+                        ':',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        ),
+                      ),
+                    ),
+                  ]),
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
