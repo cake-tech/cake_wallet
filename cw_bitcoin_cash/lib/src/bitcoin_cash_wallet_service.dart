@@ -54,15 +54,31 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   }
 
   @override
-  Future<void> remove(String wallet) {
-    // TODO: implement remove
-    throw UnimplementedError('remove() is not implemented');
+  Future<void> remove(String wallet) async {
+    File(await pathForWalletDir(name: wallet, type: getType()))
+        .delete(recursive: true);
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+            (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    await walletInfoSource.delete(walletInfo.key);
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) {
-    // TODO: implement rename
-    throw UnimplementedError('rename() is not implemented');
+  Future<void> rename(String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
+            (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWallet = await BitcoinCashWalletBase.open(
+        password: password,
+        name: currentName,
+        walletInfo: currentWalletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
+
+    await currentWallet.renameWalletFiles(newName);
+
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
   @override
