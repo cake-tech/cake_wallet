@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -259,7 +260,10 @@ abstract class OutputBase with Store {
 
   void loadContact(ContactBase contact) {
     address = contact.name;
-    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
+    final cantactAddress = _wallet.type == WalletType.bitcoinCash
+        ? bitbox.Address.toCashAddress(contact.address)
+        : contact.address;
+    parsedAddress = ParsedAddress.fetchContactAddress(address: cantactAddress, name: contact.name);
     extractedAddress = parsedAddress.addresses.first;
     note = parsedAddress.description;
   }

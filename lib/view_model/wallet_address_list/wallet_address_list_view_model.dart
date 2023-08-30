@@ -1,4 +1,5 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
@@ -165,8 +166,13 @@ abstract class WalletAddressListViewModelBase with Store {
   WalletType get type => _wallet.type;
 
   @computed
-  WalletAddressListItem get address =>
-      WalletAddressListItem(address: _wallet.walletAddresses.address, isPrimary: false);
+  WalletAddressListItem get address {
+    final address = _wallet.type == WalletType.bitcoinCash ?
+        bitbox.Address.toCashAddress(_wallet.walletAddresses.address) :
+        _wallet.walletAddresses.address;
+    return WalletAddressListItem(address: address, isPrimary: false);
+  }
+
 
   @computed
   PaymentURI get uri {

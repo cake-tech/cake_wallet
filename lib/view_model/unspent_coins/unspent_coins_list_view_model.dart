@@ -3,7 +3,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -29,11 +29,13 @@ abstract class UnspentCoinsListViewModelBase with Store {
   ObservableList<UnspentCoinsItem> get items =>
       ObservableList.of(_getUnspents().map((elem) {
         final amount = formatAmountToString(elem.value) + ' ${wallet.currency.title}';
+        final address = wallet.type == WalletType.bitcoinCash
+            ? bitbox.Address.toCashAddress(elem.address) : elem.address;
 
-        final info = getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
+        final info = getUnspentCoinInfo(elem.hash, address, elem.value, elem.vout, elem.keyImage);
 
         return UnspentCoinsItem(
-            address: elem.address,
+            address: address,
             amount: amount,
             hash: elem.hash,
             isFrozen: info?.isFrozen ?? false,
