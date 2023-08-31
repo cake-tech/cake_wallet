@@ -584,6 +584,8 @@ abstract class BitcoinCash {
   TransactionPriority getDefaultTransactionPriority();
 
   List<TransactionPriority> getTransactionPriorities();
+  
+  TransactionPriority getBitcoinCashTransactionPrioritySlow();
 }
   """;
 
