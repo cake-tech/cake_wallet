@@ -691,6 +691,5 @@
   "select_buy_provider_notice": "Selecteer hierboven een koopprovider. U kunt dit scherm overslaan door uw standaard kopenprovider in te stellen in app -instellingen.",
   "onramper_option_description": "Koop snel crypto met veel betaalmethoden. Beschikbaar in de meeste landen. Spreads en vergoedingen variëren.",
   "default_buy_provider": "Standaard Koopprovider",
-  "ask_each_time": "Vraag het elke keer",
-  "robinhood_option_description": "Koop en zet direct over op uw bankpas, bankrekening of Robinhood -saldo. Alleen VS."
+  "ask_each_time": "Vraag het elke keer"
 }

@@ -691,6 +691,5 @@
   "select_buy_provider_notice": "在上面选择买入提供商。您可以通过在应用程序设置中设置默认的购买提供商来跳过此屏幕。",
   "onramper_option_description": "快速使用许多付款方式购买加密货币。在大多数国家 /地区可用。利差和费用各不相同。",
   "default_buy_provider": "默认购买提供商",
-  "ask_each_time": "每次问",
-  "robinhood_option_description": "使用您的借记卡，银行帐户或罗比林余额立即购买和转移。仅美国。"
+  "ask_each_time": "每次问"
 }

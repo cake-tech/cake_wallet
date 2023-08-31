@@ -691,6 +691,5 @@
   "select_buy_provider_notice": "Odaberite gornji davatelj kupnje. Ovaj zaslon možete preskočiti postavljanjem zadanog davatelja usluga kupnje u postavkama aplikacija.",
   "onramper_option_description": "Brzo kupite kriptovalute s mnogim načinima plaćanja. Dostupno u većini zemalja. Širenja i naknade variraju.",
   "default_buy_provider": "Zadani davatelj kupnje",
-  "ask_each_time": "Pitajte svaki put",
-  "robinhood_option_description": "Kupite i prebacite odmah pomoću svoje debitne kartice, bankovnog računa ili robinhood salda. Samo SAD."
+  "ask_each_time": "Pitajte svaki put"
 }

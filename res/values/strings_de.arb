@@ -691,6 +691,5 @@
   "select_buy_provider_notice": "Wählen Sie oben einen Anbieter kaufen. Sie können diese Seite überspringen, indem Sie Ihren Standard-Kaufanbieter in den App-Einstellungen festlegen.",
   "onramper_option_description": "Kaufen Sie schnell Krypto mit vielen Zahlungsmethoden. In den meisten Ländern erhältlich. Spreads und Gebühren variieren.",
   "default_buy_provider": "Standard-Kaufanbieter",
-  "ask_each_time": "Jedes Mal fragen",
-  "robinhood_option_description": "Kaufen und übertragen Sie Krypro sofort mit Ihrem Debitkarten-, Bankkonto- oder Robinhood -Guthaben. Nur USA."
+  "ask_each_time": "Jedes Mal fragen"
 }

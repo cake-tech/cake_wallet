@@ -691,6 +691,5 @@
   "select_buy_provider_notice": "Seleziona un fornitore di acquisto sopra. È possibile saltare questa schermata impostando il provider di acquisto predefinito nelle impostazioni dell'app.",
   "onramper_option_description": "Acquista rapidamente la criptovaluta con molti metodi di pagamento. Disponibile nella maggior parte dei paesi. Gli spread e le commissioni variano.",
   "default_buy_provider": "Provider di acquisto predefinito",
-  "ask_each_time": "Chiedi ogni volta",
-  "robinhood_option_description": "Acquista e trasferisci istantaneamente utilizzando la carta di debito, il conto bancario o il saldo di Robinhood. Solo USA."
+  "ask_each_time": "Chiedi ogni volta"
 }

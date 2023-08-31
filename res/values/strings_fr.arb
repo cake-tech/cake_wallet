@@ -691,6 +691,5 @@
   "select_buy_provider_notice": "Sélectionnez un fournisseur d'achat ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'achat par défaut dans les paramètres de l'application.",
   "onramper_option_description": "Achetez rapidement la crypto avec de nombreux méthodes de paiement. Disponible dans la plupart des pays. Les écarts et les frais varient.",
   "default_buy_provider": "Fournisseur d'achat par défaut",
-  "ask_each_time": "Demandez à chaque fois",
-  "robinhood_option_description": "Achetez et transférez instantanément à l'aide de votre carte de débit, de votre compte bancaire ou de votre solde Robinhood. États-Unis seulement."
+  "ask_each_time": "Demandez à chaque fois"
 }

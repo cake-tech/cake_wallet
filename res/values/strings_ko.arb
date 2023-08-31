@@ -692,6 +692,5 @@
   "select_buy_provider_notice": "위의 구매 제공자를 선택하십시오. 앱 설정에서 기본 구매 제공자를 설정 하여이 화면을 건너 뛸 수 있습니다.",
   "onramper_option_description": "많은 결제 방법으로 암호화를 신속하게 구입하십시오. 대부분의 국가에서 사용할 수 있습니다. 스프레드와 수수료는 다양합니다.",
   "default_buy_provider": "기본 구매 제공자",
-  "ask_each_time": "매번 물어보십시오",
-  "robinhood_option_description": "직불 카드, 은행 계좌 또는 Robinhood 잔액을 사용하여 즉시 구매 및 양도하십시오. 미국 만."
+  "ask_each_time": "매번 물어보십시오"
 }

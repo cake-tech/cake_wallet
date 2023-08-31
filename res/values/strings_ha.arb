@@ -669,6 +669,5 @@
   "select_buy_provider_notice": "Zaɓi mai ba da kyauta a sama. Zaka iya tsallake wannan allon ta hanyar saita mai ba da isasshen busasshen mai ba da isasshen busasshiyar saiti.",
   "onramper_option_description": "Da sauri sayi Crypto tare da hanyoyin biyan kuɗi da yawa. Akwai a yawancin ƙasashe. Yaduwa da kudade sun bambanta.",
   "default_buy_provider": "Tsohuwar Siyarwa",
-  "ask_each_time": "Tambaya kowane lokaci",
-  "robinhood_option_description": "Sayi da Canja wurin nan take amfani da katin debit, asusun banki, ko ma'aunin raraki. Amurka kawai."
+  "ask_each_time": "Tambaya kowane lokaci"
 }
