@@ -3,6 +3,7 @@ import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
+import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -688,6 +689,9 @@ Future<void> setup({
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(),
           editingNode: editingNode,
           isSelected: isSelected));
+
+  getIt.registerFactory<RobinhoodBuyProvider>(
+      () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,

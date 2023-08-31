@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -31,6 +32,7 @@ import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
@@ -502,4 +504,7 @@ abstract class EthereumWalletBase
       _transactionsUpdateTimer?.cancel();
     }
   }
+
+  String signMessage(String message) =>
+      bytesToHex(_ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 }

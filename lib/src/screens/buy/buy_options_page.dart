@@ -1,4 +1,5 @@
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -41,7 +42,9 @@ class BuyOptionsPage extends BasePage {
                   image: iconRobinhood,
                   title: "Robinhood",
                   description: S.of(context).robinhood_option_description,
-                  onPressed: () {}, // ToDo: Generate ConnectId and Open Robinhood
+                  onPressed: () {
+                    final uri = getIt.get<RobinhoodBuyProvider>().requestUrl(context);
+                  }, // ToDo: Generate ConnectId and Open Robinhood
                 ),
               ),
               Padding(
