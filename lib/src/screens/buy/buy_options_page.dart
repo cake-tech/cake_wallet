@@ -42,9 +42,10 @@ class BuyOptionsPage extends BasePage {
                   image: iconRobinhood,
                   title: "Robinhood",
                   description: S.of(context).robinhood_option_description,
-                  onPressed: () {
-                    final uri = getIt.get<RobinhoodBuyProvider>().requestUrl(context);
-                  }, // ToDo: Generate ConnectId and Open Robinhood
+                  onPressed: () async {
+                    final uri = await getIt.get<RobinhoodBuyProvider>().requestUrl(context);
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  },
                 ),
               ),
               Padding(
@@ -65,14 +66,15 @@ class BuyOptionsPage extends BasePage {
                 ),
               ),
               Spacer(),
-              Text(S.of(context).select_buy_provider_notice,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-                  ),
+              Text(
+                S.of(context).select_buy_provider_notice,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
                 ),
+              ),
             ],
           ),
         ),

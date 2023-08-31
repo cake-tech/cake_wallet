@@ -48,23 +48,22 @@ class RobinhoodBuyProvider {
 
   Future<String> getConnectId() async {
     final walletAddress = _wallet.walletAddresses.address;
-    final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 3000;
+    final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 2000;
     final message = "$_apiSecret:${valid_until}";
 
     final signature = getSignature(message);
 
     final uri = Uri.https(_cIdBaseUrl, "/api/robinhood");
 
-    var response = await http.post(uri, body: {
-      'valid_until': valid_until,
-      'wallet': walletAddress,
-      'signature': signature
-    });
+    var response = await http.post(uri,
+        headers: {'Content-Type': 'application/json'},
+        body: json
+            .encode({'valid_until': valid_until, 'wallet': walletAddress, 'signature': signature}));
 
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
-      throw Exception('Request failed with status: ${response.statusCode}.');
+      throw Exception('Request failed with status: ${response.statusCode}. ${response.body}');
     }
   }
 
