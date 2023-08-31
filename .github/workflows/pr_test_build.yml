@@ -168,6 +168,6 @@ jobs:
           token: ${{ secrets.SLACK_APP_TOKEN }}
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk
           channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          title: 'test-apk/${{github.head_ref}}.apk'
-          filename: test-apk/${{github.head_ref}}.apk
-          initial_comment: ${{ github.event.pull_request }}
+          title: 'test-apk/${GITHUB_HEAD_REF}.apk'
+          filename: test-apk/${GITHUB_HEAD_REF}.apk
+          initial_comment: ${{ github.event.head_commit.message }}
