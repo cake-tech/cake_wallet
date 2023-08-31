@@ -72,6 +72,9 @@ class WalletRestoreFromQRCode {
       case 'litecoin':
       case 'litecoin-wallet':
         return WalletType.litecoin;
+      case 'bitcoincash':
+      case 'bitcoincash-wallet':
+        return WalletType.bitcoinCash;
       case 'ethereum-wallet':
         return WalletType.ethereum;
       default:
@@ -107,6 +110,7 @@ class WalletRestoreFromQRCode {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.ethereum:
+      case WalletType.bitcoinCash:
         RegExp regex24 = RegExp(r'\b(\S+\b\s+){23}\S+\b');
         RegExp regex18 = RegExp(r'\b(\S+\b\s+){17}\S+\b');
         RegExp regex12 = RegExp(r'\b(\S+\b\s+){11}\S+\b');

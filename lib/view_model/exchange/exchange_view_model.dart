@@ -699,6 +699,10 @@ abstract class ExchangeViewModelBase with Store {
         depositCurrency = CryptoCurrency.ltc;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.bitcoinCash:
+        depositCurrency = CryptoCurrency.bch;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.haven:
         depositCurrency = CryptoCurrency.xhv;
         receiveCurrency = CryptoCurrency.btc;
