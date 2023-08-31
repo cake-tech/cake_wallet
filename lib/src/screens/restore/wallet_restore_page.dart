@@ -229,12 +229,19 @@ class WalletRestorePage extends BasePage {
       return false;
     }
 
-    if ((walletRestoreViewModel.type == WalletType.bitcoin ||
-            walletRestoreViewModel.type == WalletType.litecoin) &&
+    if ((walletRestoreViewModel.type == WalletType.litecoin) &&
         (seedWords.length != WalletRestoreViewModelBase.electrumSeedMnemonicLength &&
             seedWords.length != WalletRestoreViewModelBase.electrumShortSeedMnemonicLength)) {
       return false;
     }
+
+    // bip39:
+    const validSeedLengths = [12, 15, 18, 21, 24];
+    if (walletRestoreViewModel.type == WalletType.bitcoin &&
+        !(validSeedLengths.contains(seedWords.length))) {
+      return false;
+    }
+
     final words =
         walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.words.toSet();
     return seedWords.toSet().difference(words).toSet().isEmpty;
@@ -331,6 +338,7 @@ class WalletRestorePage extends BasePage {
       this.derivationType = derivationInfo.derivationType;
       this.derivationPath = derivationInfo.derivationPath;
     } else {
+      // electrum derivation:
       this.derivationType = derivationTypes[0];
       this.derivationPath = "m/0'/1";
     }

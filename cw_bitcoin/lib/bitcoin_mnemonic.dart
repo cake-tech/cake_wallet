@@ -108,6 +108,17 @@ Future<String> generateElectrumMnemonic({int strength = 264, String prefix = seg
   return result;
 }
 
+Future<bool> checkIfMnemonicIsElectrum2(String mnemonic) async {
+  return prefixMatches(mnemonic, [segwit]).first;
+}
+
+Future<String> getMnemonicHash(String mnemonic) async {
+  final hmacSha512 = Hmac(sha512, utf8.encode('Seed version'));
+  final digest = hmacSha512.convert(utf8.encode(normalizeText(mnemonic)));
+  final hx = digest.toString();
+  return hx;
+}
+
 Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {
   final pbkdf2 =
       cryptography.Pbkdf2(macAlgorithm: cryptography.Hmac.sha512(), iterations: 2048, bits: 512);
