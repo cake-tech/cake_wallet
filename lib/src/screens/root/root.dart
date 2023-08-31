@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
@@ -22,12 +23,14 @@ class Root extends StatefulWidget {
     required this.child,
     required this.navigatorKey,
     required this.authService,
+    required this.bottomSheetService,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
   final AppStore appStore;
   final GlobalKey<NavigatorState> navigatorKey;
   final AuthService authService;
+  final BottomSheetService bottomSheetService;
   final Widget child;
 
   @override
@@ -98,8 +101,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive &&
-            widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
@@ -126,16 +128,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               return;
             } else {
               final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-              final shouldUseTotp2FAToAccessWallets = widget.appStore
-                  .settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+              final shouldUseTotp2FAToAccessWallets =
+                  widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
               if (useTotp && shouldUseTotp2FAToAccessWallets) {
                 _reset();
                 auth.close(
                   route: Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
                     onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully,
-                            TotpAuthCodePageState totpAuth) {
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
                       if (!isAuthenticatedSuccessfully) {
                         return;
                       }
@@ -174,6 +175,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       onWillPop: () async => false,
       child: BottomSheetListener(
         child: widget.child,
+        bottomSheetService: widget.bottomSheetService,
       ),
     );
   }

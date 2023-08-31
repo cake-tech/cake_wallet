@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -15,8 +14,13 @@ import 'utils/namespace_model_builder.dart';
 
 class WalletConnectPairingDetailsPage extends StatefulWidget {
   final PairingInfo pairing;
+  final Web3WalletService web3walletService;
 
-  const WalletConnectPairingDetailsPage({required this.pairing, super.key});
+  const WalletConnectPairingDetailsPage({
+    required this.pairing,
+    super.key,
+    required this.web3walletService,
+  });
 
   @override
   WalletConnectPairingDetailsPageState createState() => WalletConnectPairingDetailsPageState();
@@ -42,8 +46,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
   }
 
   void initSessions() {
-    List<SessionData> sessions = getIt
-        .get<Web3WalletService>()
+    List<SessionData> sessions = widget.web3walletService
         .getWeb3Wallet()
         .sessions
         .getAll()
@@ -71,6 +74,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
       widget.pairing,
       expiryDate,
       sessionWidgets,
+      widget.web3walletService,
     );
   }
 }
@@ -80,11 +84,13 @@ class WCCDetailsWidget extends BasePage {
     this.pairing,
     this.expiryDate,
     this.sessionWidgets,
+    this.web3walletService,
   );
 
   final PairingInfo pairing;
   final String expiryDate;
   final List<Widget> sessionWidgets;
+  final Web3WalletService web3walletService;
 
   @override
   Widget body(BuildContext context) {
@@ -138,7 +144,8 @@ class WCCDetailsWidget extends BasePage {
               ),
               const SizedBox(height: 20.0),
               PrimaryButton(
-                onPressed: () => _onDeleteButtonPressed(context, pairing.peerMetadata!.name),
+                onPressed: () =>
+                    _onDeleteButtonPressed(context, pairing.peerMetadata!.name, web3walletService),
                 text: 'Delete',
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
@@ -150,7 +157,8 @@ class WCCDetailsWidget extends BasePage {
     );
   }
 
-  Future<void> _onDeleteButtonPressed(BuildContext context, String dAppName) async {
+  Future<void> _onDeleteButtonPressed(
+      BuildContext context, String dAppName, Web3WalletService web3walletService) async {
     bool confirmed = false;
 
     await showPopUp<void>(
@@ -171,12 +179,7 @@ class WCCDetailsWidget extends BasePage {
     );
     if (confirmed) {
       try {
-        await getIt
-            .get<Web3WalletService>()
-            .getWeb3Wallet()
-            .core
-            .pairing
-            .disconnect(topic: pairing.topic);
+        await web3walletService.getWeb3Wallet().core.pairing.disconnect(topic: pairing.topic);
 
         Navigator.of(context).pop();
       } catch (e) {

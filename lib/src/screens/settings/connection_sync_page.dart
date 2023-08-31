@@ -29,12 +29,13 @@ import 'package:get_it/get_it.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 class ConnectionSyncPage extends BasePage {
-  ConnectionSyncPage(this.dashboardViewModel);
+  ConnectionSyncPage(this.dashboardViewModel, this.web3walletService);
 
   @override
   String get title => S.current.connection_sync;
 
   final DashboardViewModel dashboardViewModel;
+  final Web3WalletService web3walletService;
 
   @override
   Widget body(BuildContext context) {
@@ -89,7 +90,7 @@ class ConnectionSyncPage extends BasePage {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return WalletConnectConnectionsView();
+                      return WalletConnectConnectionsView(web3walletService: web3walletService);
                     },
                   ),
                 );
@@ -142,6 +143,5 @@ class ConnectionSyncPage extends BasePage {
     await web3WalletService.init();
 
     dashboardViewModel.isWalletConnectDependenciesIntialized(isWCDependenciesInitialized: true);
-  
   }
 }

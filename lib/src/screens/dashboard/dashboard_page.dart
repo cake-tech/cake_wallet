@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
@@ -35,11 +36,13 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
+    required this.web3walletService,
     required this.balancePage,
     required this.dashboardViewModel,
     required this.addressListViewModel,
   });
 
+  final Web3WalletService web3walletService;
   final BalancePage balancePage;
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
@@ -55,12 +58,14 @@ class DashboardPage extends StatelessWidget {
             } else {
               return _DashboardPageView(
                 balancePage: balancePage,
+                web3WalletService: web3walletService,
                 dashboardViewModel: dashboardViewModel,
                 addressListViewModel: addressListViewModel,
               );
             }
           } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
             return _DashboardPageView(
+              web3WalletService: web3walletService,
               balancePage: balancePage,
               dashboardViewModel: dashboardViewModel,
               addressListViewModel: addressListViewModel,
@@ -79,9 +84,11 @@ class _DashboardPageView extends BasePage {
     required this.balancePage,
     required this.dashboardViewModel,
     required this.addressListViewModel,
+    required this.web3WalletService,
   });
 
   final BalancePage balancePage;
+  final Web3WalletService web3WalletService;
 
   @override
   bool get gradientBackground => true;
@@ -306,6 +313,7 @@ class _DashboardPageView extends BasePage {
     );
 
     _showReleaseNotesPopup(context);
+    await initializeWeb3WalletService(web3WalletService);
 
     var needToPresentYat = false;
     var isInactive = false;
@@ -365,5 +373,10 @@ class _DashboardPageView extends BasePage {
     } else if (isNewInstall!) {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     }
+  }
+
+  Future<void> initializeWeb3WalletService(Web3WalletService web3WalletService) async {
+    //TODO(David): Initialize within the appropriate page
+    await web3WalletService.init();
   }
 }

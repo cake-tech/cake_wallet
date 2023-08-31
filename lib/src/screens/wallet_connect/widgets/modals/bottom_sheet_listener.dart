@@ -5,35 +5,38 @@ import 'package:flutter/material.dart';
 import '../../models/bottom_sheet_queue_item_model.dart';
 
 class BottomSheetListener extends StatefulWidget {
+  final BottomSheetService bottomSheetService;
   final Widget child;
 
-  const BottomSheetListener({required this.child, super.key});
+  const BottomSheetListener({
+    required this.child,
+    super.key,
+    required this.bottomSheetService,
+  });
 
   @override
   BottomSheetListenerState createState() => BottomSheetListenerState();
 }
 
 class BottomSheetListenerState extends State<BottomSheetListener> {
-  late final BottomSheetService _bottomSheetService;
 
   @override
   void initState() {
     super.initState();
-    
-    //TODO(David): Switch to dependency injection
-    _bottomSheetService = getIt.get<BottomSheetService>();
-    _bottomSheetService.currentSheet.addListener(_showBottomSheet);
+
+
+    widget.bottomSheetService.currentSheet.addListener(_showBottomSheet);
   }
 
   @override
   void dispose() {
-    _bottomSheetService.currentSheet.removeListener(_showBottomSheet);
+    widget.bottomSheetService.currentSheet.removeListener(_showBottomSheet);
     super.dispose();
   }
 
   Future<void> _showBottomSheet() async {
-    if (_bottomSheetService.currentSheet.value != null) {
-      BottomSheetQueueItemModel item = _bottomSheetService.currentSheet.value!;
+    if (widget.bottomSheetService.currentSheet.value != null) {
+      BottomSheetQueueItemModel item = widget.bottomSheetService.currentSheet.value!;
       final value = await showModalBottomSheet(
         context: context,
         isDismissible: false,
@@ -53,7 +56,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
         },
       );
       item.completer.complete(value);
-      _bottomSheetService.showNext();
+      widget.bottomSheetService.showNext();
     }
   }
 
