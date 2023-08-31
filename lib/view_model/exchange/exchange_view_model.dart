@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:cake_wallet/core/depends_on_wallet_view_model.dart';
+import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -46,7 +46,7 @@ part 'exchange_view_model.g.dart';
 
 class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
-abstract class ExchangeViewModelBase extends DependsOnWalletViewModel with Store {
+abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with Store {
   @override
   void onWalletChange(wallet) {
     receiveCurrency = wallet.currency;

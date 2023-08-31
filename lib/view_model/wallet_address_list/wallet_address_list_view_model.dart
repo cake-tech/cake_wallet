@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/depends_on_wallet_view_model.dart';
+import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -107,7 +107,7 @@ class EthereumURI extends PaymentURI {
   }
 }
 
-abstract class WalletAddressListViewModelBase extends DependsOnWalletViewModel with Store {
+abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
     required this.yatStore,

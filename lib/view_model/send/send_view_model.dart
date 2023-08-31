@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/depends_on_wallet_view_model.dart';
+import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -35,7 +35,7 @@ part 'send_view_model.g.dart';
 
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
-abstract class SendViewModelBase extends DependsOnWalletViewModel with Store {
+abstract class SendViewModelBase extends WalletChangeListenerViewModel with Store {
   @override
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();

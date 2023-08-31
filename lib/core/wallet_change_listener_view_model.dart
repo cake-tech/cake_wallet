@@ -5,12 +5,13 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 
-part 'depends_on_wallet_view_model.g.dart';
+part 'wallet_change_listener_view_model.g.dart';
 
-class DependsOnWalletViewModel = DependsOnWalletViewModelBase with _$DependsOnWalletViewModel;
+class WalletChangeListenerViewModel = WalletChangeListenerViewModelBase
+    with _$WalletChangeListenerViewModel;
 
-abstract class DependsOnWalletViewModelBase with Store {
-  DependsOnWalletViewModelBase({
+abstract class WalletChangeListenerViewModelBase with Store {
+  WalletChangeListenerViewModelBase({
     required AppStore appStore,
   }) : _wallet = appStore.wallet! {
     reaction((_) => appStore.wallet, (WalletBase? wallet) {
