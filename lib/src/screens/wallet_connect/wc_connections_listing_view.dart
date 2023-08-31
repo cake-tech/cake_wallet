@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +19,12 @@ import 'wc_pairing_detail_page.dart';
 
 class WalletConnectConnectionsView extends StatefulWidget with GetItStatefulWidgetMixin {
   final Web3WalletService web3walletService;
+  final BottomSheetService bottomSheetService;
 
   WalletConnectConnectionsView({
     Key? key,
     required this.web3walletService,
+    required this.bottomSheetService,
   }) : super(key: key);
 
   @override
@@ -52,7 +56,12 @@ class WalletConnectConnectionsViewState extends State<WalletConnectConnectionsVi
   Widget build(BuildContext context) {
     _pairings = watch(target: widget.web3walletService.pairings);
 
-    return WCPairingsWidget(pairings: _pairings, web3wallet: web3Wallet, widget.web3walletService);
+    return WCPairingsWidget(
+      pairings: _pairings,
+      web3wallet: web3Wallet,
+      web3walletService: widget.web3walletService,
+      bottomSheetService: widget.bottomSheetService,
+    );
   }
 
   void _onPairingDelete(PairingEvent? event) {
@@ -64,15 +73,18 @@ class WalletConnectConnectionsViewState extends State<WalletConnectConnectionsVi
 
 class WCPairingsWidget extends BasePage {
   WCPairingsWidget(
-    this.web3walletService, {
+{
     required this.pairings,
     required this.web3wallet,
+    required this.web3walletService,
+    required this.bottomSheetService, 
     Key? key,
   });
 
   final List<PairingInfo> pairings;
   final Web3Wallet web3wallet;
   final Web3WalletService web3walletService;
+  final BottomSheetService bottomSheetService;
 
   @override
   String get title => 'WalletConnect';
@@ -110,71 +122,74 @@ class WCPairingsWidget extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              SizedBox(height: 24),
-              Text(
-                'Connect your wallet with WalletConnect to make transactions',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+    return BottomSheetListener(
+      bottomSheetService: bottomSheetService,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                SizedBox(height: 24),
+                Text(
+                  'Connect your wallet with WalletConnect to make transactions',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
                 ),
-              ),
-              SizedBox(height: 16),
-              PrimaryButton(
-                text: 'New Connection',
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => _onScanQrCode(context, web3wallet),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 48),
-        Expanded(
-          child: Visibility(
-            visible: pairings.isEmpty,
-            child: Center(
-              child: Text(
-                'Active connections will appear here',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                SizedBox(height: 16),
+                PrimaryButton(
+                  text: 'New Connection',
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  onPressed: () => _onScanQrCode(context, web3wallet),
                 ),
-              ),
+              ],
             ),
-            replacement: ListView.builder(
-              itemCount: pairings.length,
-              itemBuilder: (BuildContext context, int index) {
-                final pairing = pairings[index];
-                return PairingItemWidget(
-                  key: ValueKey(pairing.topic),
-                  pairing: pairing,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => WalletConnectPairingDetailsPage(
-                          pairing: pairing,
-                          web3walletService: web3walletService,
+          ),
+          SizedBox(height: 48),
+          Expanded(
+            child: Visibility(
+              visible: pairings.isEmpty,
+              child: Center(
+                child: Text(
+                  'Active connections will appear here',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
+                ),
+              ),
+              replacement: ListView.builder(
+                itemCount: pairings.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final pairing = pairings[index];
+                  return PairingItemWidget(
+                    key: ValueKey(pairing.topic),
+                    pairing: pairing,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WalletConnectPairingDetailsPage(
+                            pairing: pairing,
+                            web3walletService: web3walletService,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 48),
-      ],
+          SizedBox(height: 48),
+        ],
+      ),
     );
   }
 }

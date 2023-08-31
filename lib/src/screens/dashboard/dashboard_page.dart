@@ -36,13 +36,13 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({
-    required this.web3walletService,
+    // required this.web3walletService,
     required this.balancePage,
     required this.dashboardViewModel,
     required this.addressListViewModel,
   });
 
-  final Web3WalletService web3walletService;
+  // final Web3WalletService web3walletService;
   final BalancePage balancePage;
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
@@ -58,14 +58,14 @@ class DashboardPage extends StatelessWidget {
             } else {
               return _DashboardPageView(
                 balancePage: balancePage,
-                web3WalletService: web3walletService,
+                // web3WalletService: web3walletService,
                 dashboardViewModel: dashboardViewModel,
                 addressListViewModel: addressListViewModel,
               );
             }
           } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
             return _DashboardPageView(
-              web3WalletService: web3walletService,
+              // web3WalletService: web3walletService,
               balancePage: balancePage,
               dashboardViewModel: dashboardViewModel,
               addressListViewModel: addressListViewModel,
@@ -84,11 +84,11 @@ class _DashboardPageView extends BasePage {
     required this.balancePage,
     required this.dashboardViewModel,
     required this.addressListViewModel,
-    required this.web3WalletService,
+    // required this.web3WalletService,
   });
 
   final BalancePage balancePage;
-  final Web3WalletService web3WalletService;
+  // final Web3WalletService web3WalletService;
 
   @override
   bool get gradientBackground => true;
@@ -313,7 +313,7 @@ class _DashboardPageView extends BasePage {
     );
 
     _showReleaseNotesPopup(context);
-    await initializeWeb3WalletService(web3WalletService);
+    // await initializeWeb3WalletService(web3WalletService);
 
     var needToPresentYat = false;
     var isInactive = false;
@@ -375,8 +375,8 @@ class _DashboardPageView extends BasePage {
     }
   }
 
-  Future<void> initializeWeb3WalletService(Web3WalletService web3WalletService) async {
-    //TODO(David): Initialize within the appropriate page
-    await web3WalletService.init();
-  }
+  // Future<void> initializeWeb3WalletService(Web3WalletService web3WalletService) async {
+  //TODO(David): Explore initializing WC here
+  // await web3WalletService.init();
+  // }
 }

@@ -1,5 +1,4 @@
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bottom_sheet_queue_item_model.dart';

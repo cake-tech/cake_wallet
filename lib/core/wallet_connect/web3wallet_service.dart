@@ -26,7 +26,8 @@ abstract class Web3WalletService implements Disposable {
 }
 
 class Web3WalletServiceImpl implements Web3WalletService {
-  final BottomSheetService _bottomSheetHandler = GetIt.I<BottomSheetService>();
+  final BottomSheetService _bottomSheetHandler;
+  final WalletConnectKeyService walletKeyService;
 
   Web3Wallet? _web3Wallet;
 
@@ -39,6 +40,8 @@ class Web3WalletServiceImpl implements Web3WalletService {
   ValueNotifier<List<SessionData>> sessions = ValueNotifier<List<SessionData>>([]);
   @override
   ValueNotifier<List<StoredCacao>> auth = ValueNotifier<List<StoredCacao>>([]);
+
+  Web3WalletServiceImpl(this._bottomSheetHandler, this.walletKeyService);
 
   @override
   void create() {
@@ -54,7 +57,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
     );
 
     // Setup our accounts
-    List<ChainKeyModel> chainKeys = GetIt.I<WalletConnectKeyService>().getKeys();
+    List<ChainKeyModel> chainKeys = walletKeyService.getKeys();
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
         _web3Wallet!.registerAccount(
@@ -157,9 +160,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
 
   Future<void> _onAuthRequest(AuthRequest? args) async {
     if (args != null) {
-      List<ChainKeyModel> chainKeys = GetIt.I<WalletConnectKeyService>().getKeysForChain(
-        'eip155:1',
-      );
+      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain('eip155:1');
       // Create the message to be signed
       final String iss = 'did:pkh:eip155:1:${chainKeys.first.publicKey}';
 

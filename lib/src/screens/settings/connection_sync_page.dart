@@ -1,4 +1,5 @@
-import 'package:another_flushbar/flushbar.dart';
+import 'dart:developer';
+
 import 'package:cake_wallet/core/wallet_connect/chain_service.dart';
 import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
@@ -11,8 +12,6 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -25,17 +24,14 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:get_it/get_it.dart';
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 class ConnectionSyncPage extends BasePage {
-  ConnectionSyncPage(this.dashboardViewModel, this.web3walletService);
+  ConnectionSyncPage(this.dashboardViewModel);
 
   @override
   String get title => S.current.connection_sync;
 
   final DashboardViewModel dashboardViewModel;
-  final Web3WalletService web3walletService;
 
   @override
   Widget body(BuildContext context) {
@@ -84,13 +80,15 @@ class ConnectionSyncPage extends BasePage {
           if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             WalletConnectTile(
               onTap: () async {
-                await initializeWeb3Wallet();
-                // await initializeWalletConnectDependencies();
-                // print('Dependencies registration done');
+                await initializeWCDependencies();
+                log('All WC Dependencies done');
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return WalletConnectConnectionsView(web3walletService: web3walletService);
+                      return WalletConnectConnectionsView(
+                        bottomSheetService: getIt.get<BottomSheetService>(),
+                        web3walletService: getIt.get<Web3WalletService>(),
+                      );
                     },
                   ),
                 );
@@ -121,26 +119,34 @@ class ConnectionSyncPage extends BasePage {
     );
   }
 
-  Future<void> initializeWeb3Wallet() async {
-    //TODO(David): Switch Singleton to Factory when appropriate
-
+  Future<void> initializeWCDependencies() async {
     // if (dashboardViewModel.initializedWalletConnectDependencies) return;
+  
     final appStore = getIt.get<AppStore>();
 
     getIt.registerSingleton<WalletConnectKeyService>(KeyServiceImpl(appStore.wallet!));
 
-    final Web3WalletService web3WalletService = Web3WalletServiceImpl();
+    final Web3WalletService web3WalletService = Web3WalletServiceImpl(
+      getIt.get<BottomSheetService>(),
+      getIt.get<WalletConnectKeyService>(),
+    );
     web3WalletService.create();
     getIt.registerSingleton<Web3WalletService>(web3WalletService);
 
     for (final cId in EVMChainId.values) {
-      GetIt.I.registerSingleton<ChainService>(
-        EvmChainServiceImpl(reference: cId, appStore: appStore),
+      getIt.registerSingleton<ChainService>(
+        EvmChainServiceImpl(
+          reference: cId,
+          appStore: appStore,
+          wcKeyService: getIt.get<WalletConnectKeyService>(),
+          bottomSheetService: getIt.get<BottomSheetService>(),
+          web3WalletService: getIt.get<Web3WalletService>(),
+        ),
         instanceName: cId.chain(),
       );
     }
 
-    await web3WalletService.init();
+    await getIt.get<Web3WalletService>().init();
 
     dashboardViewModel.isWalletConnectDependenciesIntialized(isWCDependenciesInitialized: true);
   }

@@ -1,5 +1,3 @@
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
@@ -45,6 +43,7 @@ class ConnectionWidgetBuilder {
   static List<ConnectionWidget> buildFromNamespaces(
     String topic,
     Map<String, Namespace> namespaces,
+    Web3Wallet web3wallet,
   ) {
     final List<ConnectionWidget> views = [];
     for (final key in namespaces.keys) {
@@ -68,7 +67,7 @@ class ConnectionWidgetBuilder {
           final String chainId = NamespaceUtils.isValidChainId(key)
               ? key
               : NamespaceUtils.getChainFromAccount(ns.accounts.first);
-          await getIt.get<Web3WalletService>().getWeb3Wallet().emitSessionEvent(
+          await web3wallet.emitSessionEvent(
                 topic: topic,
                 chainId: chainId,
                 event: SessionEventParams(

@@ -57,6 +57,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
       List<Widget> namespaceWidget = ConnectionWidgetBuilder.buildFromNamespaces(
         session.topic,
         session.namespaces,
+        widget.web3walletService.getWeb3Wallet(),
       );
       // Loop through and add the namespace widgets, but put 20 pixels between each one
       for (int i = 0; i < namespaceWidget.length; i++) {

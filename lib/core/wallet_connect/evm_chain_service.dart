@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
@@ -14,12 +13,12 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_reque
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:convert/convert.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_ethereum/ethereum_transaction_model.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:zooper_flutter_encoding_utf16/zooper_flutter_encoding_utf16.dart';
 import 'chain_service.dart';
 import 'wallet_connect_key_service.dart';
 
@@ -31,8 +30,7 @@ enum EVMChainId {
   arbitrum,
 }
 
-//TODO(David): Rename this to EthereumVMChainId
-extension KadenaChainIdX on EVMChainId {
+extension EVMChainIdX on EVMChainId {
   String chain() {
     String name = '';
 
@@ -60,6 +58,9 @@ extension KadenaChainIdX on EVMChainId {
 
 class EvmChainServiceImpl implements ChainService {
   final AppStore appStore;
+  final BottomSheetService bottomSheetService;
+  final Web3WalletService web3WalletService;
+  final WalletConnectKeyService wcKeyService;
 
   static const namespace = 'eip155';
   static const pSign = 'personal_sign';
@@ -68,9 +69,6 @@ class EvmChainServiceImpl implements ChainService {
   static const eSignTypedData = 'eth_signTypedData_v4';
   static const eSendTransaction = 'eth_sendTransaction';
 
-  final BottomSheetService _bottomSheetService = GetIt.I<BottomSheetService>();
-  final Web3WalletService _web3WalletService = GetIt.I<Web3WalletService>();
-
   final EVMChainId reference;
 
   final Web3Client ethClient;
@@ -78,13 +76,16 @@ class EvmChainServiceImpl implements ChainService {
   EvmChainServiceImpl({
     required this.reference,
     required this.appStore,
+    required this.wcKeyService,
+    required this.bottomSheetService,
+    required this.web3WalletService,
     Web3Client? ethClient,
   }) : ethClient = ethClient ??
             Web3Client(
               appStore.settingsStore.getCurrentNode(WalletType.ethereum).uriRaw.toString(),
               http.Client(),
             ) {
-    final Web3Wallet wallet = _web3WalletService.getWeb3Wallet();
+    final Web3Wallet wallet = web3WalletService.getWeb3Wallet();
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);
     }
@@ -132,7 +133,7 @@ class EvmChainServiceImpl implements ChainService {
 
   Future<String?> requestAuthorization(String? text) async {
     // Show the bottom sheet
-    final bool? isApproved = await _bottomSheetService.queueBottomSheet(
+    final bool? isApproved = await bottomSheetService.queueBottomSheet(
       widget: Web3RequestModal(
         child: ConnectionWidget(
           title: 'Sign Transaction',
@@ -232,8 +233,11 @@ class EvmChainServiceImpl implements ChainService {
 
   Future<String> ethSignTransaction(String topic, dynamic parameters) async {
     log('received eth sign transaction request: $parameters');
+    final encoder = UTF16BE();
 
     final bodyParam = jsonEncode(parameters[0]);
+    final messahe = (parameters[0] as Map<String, dynamic>)['message'];
+    //  final decodedMessage = encoder.decode(message);
 
     // final message = (parameters[0]['data'] as String);
 
@@ -243,24 +247,13 @@ class EvmChainServiceImpl implements ChainService {
     }
 
     // Load the private key
-    final List<ChainKeyModel> keys = getIt.get<WalletConnectKeyService>().getKeysForChain(
-          getChainId(),
-        );
+    final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
 
     final Credentials credentials = EthPrivateKey.fromHex('0x${keys[0].privateKey}');
 
     WCEthereumTransactionModel ethTransaction = WCEthereumTransactionModel.fromJson(
       parameters[0] as Map<String, dynamic>,
     );
-
-    // // Construct a transaction from the EthereumTransactionModel object
-    // final transaction = Transaction(
-    //   from: EthereumAddress.fromHex(ethTransaction.from),
-    //   to: EthereumAddress.fromHex(ethTransaction.to),
-    //   value: EtherAmount.fromBigInt(EtherUnit.wei, ethTransaction.amount),
-    //   gasPrice: EtherAmount.fromBigInt(EtherUnit.gwei, ethTransaction.gasPrice),
-    //   maxGas: ethTransaction.gasUsed,
-    // );
 
     // Construct a transaction from the EthereumTransactionModel object
     final transaction = Transaction(
@@ -290,11 +283,25 @@ class EvmChainServiceImpl implements ChainService {
           : null,
       maxGas: int.tryParse(ethTransaction.gasLimit ?? ''),
       nonce: int.tryParse(ethTransaction.nonce ?? ''),
-      data: (ethTransaction.data != null && ethTransaction.data != '0x')
-          ? Uint8List.fromList(hex.decode(ethTransaction.data!))
-          : null,
+      // data: (ethTransaction.data != null && ethTransaction.data != '0x')
+      //     ? Uint8List.fromList(hex.decode(ethTransaction.data!))
+      //     : null,
     );
 
+    // // Construct a transaction from the EthereumTransactionModel object
+    // final transaction = Transaction(
+    //   from: EthereumAddress.fromHex(ethTransaction.from),
+    //   to: EthereumAddress.fromHex(ethTransaction.to),
+    //   value: EtherAmount.fromBigInt(
+    //     EtherUnit.wei,
+    //     BigInt.tryParse(ethTransaction.value)!,
+    //   ),
+    //   gasPrice: EtherAmount.fromBigInt(
+    //     EtherUnit.gwei,
+    //     BigInt.tryParse(ethTransaction.gas ?? '0')!,
+    //   ),
+    //   // maxGas: ethTransaction.gasUsed,
+    // );
     try {
       final Uint8List sig = await ethClient.signTransaction(
         credentials,
