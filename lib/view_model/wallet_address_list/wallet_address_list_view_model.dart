@@ -124,6 +124,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @override
   void onWalletChange(wallet) {
+    _init();
+
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
     hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.haven;
   }
