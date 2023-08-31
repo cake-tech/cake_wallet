@@ -1,10 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
@@ -30,10 +32,14 @@ abstract class UnspentCoinsListViewModelBase with Store {
       ObservableList.of(_getUnspents().map((elem) {
         final amount = formatAmountToString(elem.value) + ' ${wallet.currency.title}';
 
-        final info = getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
+        final address = wallet.type == WalletType.bitcoinCash
+            ? ElectrumWalletAddressesBase.toCashAddr(elem.address)
+            : elem.address;
+
+        final info = getUnspentCoinInfo(elem.hash, address, elem.value, elem.vout, elem.keyImage);
 
         return UnspentCoinsItem(
-            address: elem.address,
+            address: address,
             amount: amount,
             hash: elem.hash,
             isFrozen: info?.isFrozen ?? false,
@@ -58,8 +64,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
             isFrozen: item.isFrozen,
             isSending: item.isSending,
             noteRaw: item.note,
-            keyImage: item.keyImage
-        );
+            keyImage: item.keyImage);
 
         await _unspentCoinsInfo.add(newInfo);
         _updateUnspents();

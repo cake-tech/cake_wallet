@@ -35,4 +35,7 @@ class CWBitcoinCash extends BitcoinCash {
 
   @override
   List<TransactionPriority> getTransactionPriorities() => BitcoinCashTransactionPriority.all;
+
+  @override
+  TransactionPriority getBitcoinCashTransactionPrioritySlow() => BitcoinCashTransactionPriority.slow;
 }

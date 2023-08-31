@@ -1,4 +1,5 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
@@ -39,6 +40,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
+  static String toCashAddr(String address) => bitbox.Address.toCashAddress(address);
+
   final ObservableList<BitcoinAddressRecord> addresses;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
@@ -51,10 +54,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   String get address {
     if (receiveAddresses.isEmpty) {
-      return generateNewAddress().address;
+      final address = generateNewAddress().address;
+      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(address) : address;
     }
+    final receiveAddress = receiveAddresses.first.address;
 
-    return receiveAddresses.first.address;
+    return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
   }
 
   @override
@@ -106,7 +111,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   Future<String> getChangeAddress() async {
     updateChangeAddresses();
-    
+
     if (changeAddresses.isEmpty) {
       final newAddresses = await _createNewAddresses(gap,
         hd: sideHd,

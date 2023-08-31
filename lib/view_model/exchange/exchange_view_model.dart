@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -285,6 +286,9 @@ abstract class ExchangeViewModelBase with Store {
       case WalletType.litecoin:
         return transactionPriority ==
             bitcoin!.getLitecoinTransactionPrioritySlow();
+      case WalletType.bitcoinCash:
+        return transactionPriority ==
+            bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       default:
         return false;
     }
