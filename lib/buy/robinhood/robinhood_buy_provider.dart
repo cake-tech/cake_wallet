@@ -70,7 +70,7 @@ class RobinhoodBuyProvider {
     final connectId = await getConnectId();
     final networkName = _wallet.currency.fullName?.toUpperCase().replaceAll(" ", "_");
 
-    return Uri.https(_baseUrl, '', <String, dynamic>{
+    return Uri.https(_baseUrl, '/u/connect', <String, dynamic>{
       'applicationId': _applicationId,
       'connectId': connectId,
       'walletAddress': _wallet.walletAddresses.address,
