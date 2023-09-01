@@ -622,6 +622,7 @@
   "setup_totp_recommended": "Siapkan TOTP (Disarankan)",
   "disable_buy": "Nonaktifkan tindakan beli",
   "disable_sell": "Nonaktifkan aksi jual",
+  "auto_generate_subaddresses": "Menghasilkan subalamat secara otomatis",
   "cake_2fa_preset": "Preset Kue 2FA",
   "narrow": "Sempit",
   "normal": "Normal",
