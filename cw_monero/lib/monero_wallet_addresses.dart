@@ -41,6 +41,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.first;
+    updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
 
