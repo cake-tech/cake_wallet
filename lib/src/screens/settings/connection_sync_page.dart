@@ -120,7 +120,7 @@ class ConnectionSyncPage extends BasePage {
   }
 
   Future<void> initializeWCDependencies() async {
-    // if (dashboardViewModel.initializedWalletConnectDependencies) return;
+    if (dashboardViewModel.initializedWalletConnectDependencies) return;
   
     final appStore = getIt.get<AppStore>();
 

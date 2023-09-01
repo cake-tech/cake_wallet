@@ -49,8 +49,8 @@ class Web3WalletServiceImpl implements Web3WalletService {
     _web3Wallet = Web3Wallet(
       core: Core(projectId: '419b7919bdfe48515a1107e949ec811a'),
       metadata: const PairingMetadata(
-        name: 'Example Wallet',
-        description: 'Example Wallet',
+        name: 'Cake Wallet',
+        description: 'Cake Wallet',
         url: 'https://walletconnect.com/',
         icons: ['https://walletconnect.com/walletconnect-logo.png'],
       ),
@@ -111,7 +111,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
     }
   }
 
-  void _onSessionProposalError(SessionProposalErrorEvent? args) {
+  Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
     log(args.toString());
   }
 

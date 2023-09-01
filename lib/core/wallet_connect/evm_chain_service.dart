@@ -14,7 +14,6 @@ import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart
 import 'package:convert/convert.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
-import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:web3dart/web3dart.dart';
@@ -81,8 +80,7 @@ class EvmChainServiceImpl implements ChainService {
     Web3Client? ethClient,
   }) : ethClient = ethClient ??
             Web3Client(
-              // 'https://mainnet.infura.io/v3/51716d2096df4e73bec298680a51f0c5',
-              appStore.settingsStore.getCurrentNode(WalletType.ethereum).uriRaw.toString(),
+              appStore.settingsStore.getCurrentNode(WalletType.ethereum).uri.toString(),
               http.Client(),
             ) {
     final Web3Wallet wallet = web3WalletService.getWeb3Wallet();
@@ -163,17 +161,16 @@ class EvmChainServiceImpl implements ChainService {
       message = parameters[0].toString().utf8Message;
     }
 
-    final String? authAcquired = await requestAuthorization(message);
+    final String? authError = await requestAuthorization(message);
 
-    if (authAcquired != null) {
-      return authAcquired;
+    if (authError != null) {
+      return authError;
     }
 
     try {
       // Load the private key
-      final List<ChainKeyModel> keys = GetIt.I<WalletConnectKeyService>().getKeysForChain(
-        getChainId(),
-      );
+      final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
+
       final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
       final String signature = hex.encode(
@@ -201,24 +198,20 @@ class EvmChainServiceImpl implements ChainService {
       message = parameters[1].toString().utf8Message;
     }
 
-    final String? authAcquired = await requestAuthorization(message);
-    if (authAcquired != null) {
-      return authAcquired;
+    final String? authError = await requestAuthorization(message);
+    if (authError != null) {
+      return authError;
     }
 
     try {
       // Load the private key
-      final List<ChainKeyModel> keys = GetIt.I<WalletConnectKeyService>().getKeysForChain(
-        getChainId(),
-      );
-      final EthPrivateKey credentials = EthPrivateKey.fromHex(
-        keys[0].privateKey,
-      );
+      final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
+
+      final EthPrivateKey credentials = EthPrivateKey.fromHex(keys[0].privateKey);
+
       final String signature = hex.encode(
         credentials.signPersonalMessageToUint8List(
-          Uint8List.fromList(
-            utf8.encode(message),
-          ),
+          Uint8List.fromList(utf8.encode(message)),
         ),
       );
       log(signature);
@@ -236,19 +229,19 @@ class EvmChainServiceImpl implements ChainService {
 
     final bodyParam = jsonEncode(parameters[0]);
 
-    final String? authAcquired = await requestAuthorization(bodyParam);
-    if (authAcquired != null) {
-      return authAcquired;
+    final String? authError = await requestAuthorization(bodyParam);
+
+    if (authError != null) {
+      return authError;
     }
 
     // Load the private key
     final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
 
-    final Credentials credentials = EthPrivateKey.fromHex('${keys[0].privateKey}');
+    final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
-    WCEthereumTransactionModel ethTransaction = WCEthereumTransactionModel.fromJson(
-      parameters[0] as Map<String, dynamic>,
-    );
+    WCEthereumTransactionModel ethTransaction =
+        WCEthereumTransactionModel.fromJson(parameters[0] as Map<String, dynamic>);
 
     // Construct a transaction from the EthereumTransactionModel object
     final transaction = Transaction(
@@ -264,10 +257,7 @@ class EvmChainServiceImpl implements ChainService {
     );
 
     try {
-      final Uint8List sig = await ethClient.signTransaction(
-        credentials,
-        transaction,
-      );
+      final Uint8List sig = await ethClient.signTransaction(credentials, transaction);
 
       // Sign the transaction
       final String signedTx = hex.encode(sig);
@@ -275,7 +265,7 @@ class EvmChainServiceImpl implements ChainService {
       // Return the signed transaction as a hexadecimal string
       return '0x$signedTx';
     } catch (e) {
-      log(e.toString());
+      log('An error has occured while signing transaction: ${e.toString()}');
       return 'Failed';
     }
   }
@@ -284,15 +274,13 @@ class EvmChainServiceImpl implements ChainService {
     log('received eth sign typed data request: $parameters');
     final String? data = parameters[1] as String?;
 
-    final String? authAcquired = await requestAuthorization(data);
+    final String? authError = await requestAuthorization(data);
 
-    if (authAcquired != null) {
-      return authAcquired;
+    if (authError != null) {
+      return authError;
     }
 
-    final List<ChainKeyModel> keys = GetIt.I<WalletConnectKeyService>().getKeysForChain(
-      getChainId(),
-    );
+    final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
 
     return EthSigUtil.signTypedData(
       privateKey: keys[0].privateKey,
