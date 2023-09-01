@@ -397,6 +397,7 @@ class WalletRestorePage extends BasePage {
           derivationWithHistoryIndex = i;
         }
       }
+      
       DerivationInfo? derivationInfo;
 
       if (derivationsWithHistory > 1) {
@@ -406,6 +407,11 @@ class WalletRestorePage extends BasePage {
         derivationInfo = derivations[derivationWithHistoryIndex];
       } else if (derivationsWithHistory == 0) {
         // default derivation:
+        derivationInfo = DerivationInfo(
+          derivationType: derivationTypes[0],
+          derivationPath: "m/0'/1",
+          height: 0,
+        );
         this.derivationType = derivationTypes[0];
         this.derivationPath = "m/0'/1";
       }
