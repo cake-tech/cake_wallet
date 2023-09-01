@@ -40,7 +40,7 @@ class BuyOptionsPage extends BasePage {
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
                   image: iconRobinhood,
-                  title: "Robinhood",
+                  title: "Robinhood Connect",
                   description: S.of(context).robinhood_option_description,
                   onPressed: () async {
                     final uri = await getIt.get<RobinhoodBuyProvider>().requestUrl(context);
