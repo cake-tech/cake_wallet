@@ -6,11 +6,12 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 class TextFieldListRow extends StatelessWidget {
   TextFieldListRow(
       {required this.title,
-        required this.value,
-        this.titleFontSize = 14,
-        this.valueFontSize = 16,
-        this.onSubmitted})
-    : _textController = TextEditingController() {
+      required this.value,
+      this.titleFontSize = 14,
+      this.valueFontSize = 16,
+      this.onSubmitted,
+      this.onTapOutside})
+      : _textController = TextEditingController() {
     _textController.text = value;
   }
 
@@ -19,6 +20,7 @@ class TextFieldListRow extends StatelessWidget {
   final double titleFontSize;
   final double valueFontSize;
   final Function(String value)? onSubmitted;
+  final Function(String value)? onTapOutside;
   final TextEditingController _textController;
 
   @override
@@ -58,6 +60,7 @@ class TextFieldListRow extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                     border: InputBorder.none),
+                onTapOutside: (_) => onTapOutside?.call(_textController.text),
                 onSubmitted: (value) => onSubmitted?.call(value),
               )
             ]),

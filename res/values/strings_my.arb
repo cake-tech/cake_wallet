@@ -684,5 +684,6 @@
   "support_title_other_links": "အခြားအထောက်အပံ့လင့်များ",
   "support_description_other_links": "ကျွန်ုပ်တို့၏လူမှုအသိုင်းအဝိုင်းများသို့ 0 င်ရောက်ပါ",
   "select_destination": "အရန်ဖိုင်အတွက် ဦးတည်ရာကို ရွေးပါ။",
-  "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။"
+  "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။",
+  "auto_generate_subaddresses": "အော်တို Generate Subaddresses"
 }
