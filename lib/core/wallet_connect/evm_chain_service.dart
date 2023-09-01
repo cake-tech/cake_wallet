@@ -18,7 +18,6 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:zooper_flutter_encoding_utf16/zooper_flutter_encoding_utf16.dart';
 import 'chain_service.dart';
 import 'wallet_connect_key_service.dart';
 
@@ -82,6 +81,7 @@ class EvmChainServiceImpl implements ChainService {
     Web3Client? ethClient,
   }) : ethClient = ethClient ??
             Web3Client(
+              // 'https://mainnet.infura.io/v3/51716d2096df4e73bec298680a51f0c5',
               appStore.settingsStore.getCurrentNode(WalletType.ethereum).uriRaw.toString(),
               http.Client(),
             ) {
@@ -233,13 +233,8 @@ class EvmChainServiceImpl implements ChainService {
 
   Future<String> ethSignTransaction(String topic, dynamic parameters) async {
     log('received eth sign transaction request: $parameters');
-    final encoder = UTF16BE();
 
     final bodyParam = jsonEncode(parameters[0]);
-    final messahe = (parameters[0] as Map<String, dynamic>)['message'];
-    //  final decodedMessage = encoder.decode(message);
-
-    // final message = (parameters[0]['data'] as String);
 
     final String? authAcquired = await requestAuthorization(bodyParam);
     if (authAcquired != null) {
@@ -249,7 +244,7 @@ class EvmChainServiceImpl implements ChainService {
     // Load the private key
     final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
 
-    final Credentials credentials = EthPrivateKey.fromHex('0x${keys[0].privateKey}');
+    final Credentials credentials = EthPrivateKey.fromHex('${keys[0].privateKey}');
 
     WCEthereumTransactionModel ethTransaction = WCEthereumTransactionModel.fromJson(
       parameters[0] as Map<String, dynamic>,
@@ -263,45 +258,11 @@ class EvmChainServiceImpl implements ChainService {
         EtherUnit.wei,
         BigInt.tryParse(ethTransaction.value) ?? BigInt.zero,
       ),
-      gasPrice: ethTransaction.gasPrice != null
-          ? EtherAmount.fromBigInt(
-              EtherUnit.gwei,
-              BigInt.tryParse(ethTransaction.gasPrice!) ?? BigInt.zero,
-            )
-          : null,
-      maxFeePerGas: ethTransaction.maxFeePerGas != null
-          ? EtherAmount.fromBigInt(
-              EtherUnit.gwei,
-              BigInt.tryParse(ethTransaction.maxFeePerGas!) ?? BigInt.zero,
-            )
-          : null,
-      maxPriorityFeePerGas: ethTransaction.maxPriorityFeePerGas != null
-          ? EtherAmount.fromBigInt(
-              EtherUnit.gwei,
-              BigInt.tryParse(ethTransaction.maxPriorityFeePerGas!) ?? BigInt.zero,
-            )
-          : null,
-      maxGas: int.tryParse(ethTransaction.gasLimit ?? ''),
-      nonce: int.tryParse(ethTransaction.nonce ?? ''),
       // data: (ethTransaction.data != null && ethTransaction.data != '0x')
       //     ? Uint8List.fromList(hex.decode(ethTransaction.data!))
       //     : null,
     );
 
-    // // Construct a transaction from the EthereumTransactionModel object
-    // final transaction = Transaction(
-    //   from: EthereumAddress.fromHex(ethTransaction.from),
-    //   to: EthereumAddress.fromHex(ethTransaction.to),
-    //   value: EtherAmount.fromBigInt(
-    //     EtherUnit.wei,
-    //     BigInt.tryParse(ethTransaction.value)!,
-    //   ),
-    //   gasPrice: EtherAmount.fromBigInt(
-    //     EtherUnit.gwei,
-    //     BigInt.tryParse(ethTransaction.gas ?? '0')!,
-    //   ),
-    //   // maxGas: ethTransaction.gasUsed,
-    // );
     try {
       final Uint8List sig = await ethClient.signTransaction(
         credentials,
