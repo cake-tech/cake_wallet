@@ -640,6 +640,7 @@
   "high_contrast_theme": "Kontrastreiches Thema",
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
   "monero_light_theme": "Monero Light-Thema",
+  "auto_generate_subaddresses": "Unteradressen automatisch generieren",
   "cake_2fa_preset" : "Cake 2FA-Voreinstellung",
   "narrow": "Eng",
   "normal": "Normal",

@@ -684,5 +684,6 @@
   "support_title_other_links": "ลิงค์สนับสนุนอื่น ๆ",
   "support_description_other_links": "เข้าร่วมชุมชนของเราหรือเข้าถึงเราพันธมิตรของเราผ่านวิธีการอื่น ๆ",
   "select_destination": "โปรดเลือกปลายทางสำหรับไฟล์สำรอง",
-  "save_to_downloads": "บันทึกลงดาวน์โหลด"
+  "save_to_downloads": "บันทึกลงดาวน์โหลด",
+  "auto_generate_subaddresses": "Auto สร้าง subaddresses"
 }

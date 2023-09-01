@@ -7,6 +7,7 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cw_core/hive_type_ids.dart';
@@ -89,6 +90,10 @@ Future<void> initializeAppConfigs() async {
 
   if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
     CakeHive.registerAdapter(TradeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
+    CakeHive.registerAdapter(AddressInfoAdapter());
   }
 
   if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {

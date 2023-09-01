@@ -686,5 +686,6 @@
   "support_title_other_links": "その他のサポートリンク",
   "support_description_other_links": "私たちのコミュニティに参加するか、他の方法を通して私たちのパートナーに連絡してください",
   "select_destination": "バックアップファイルの保存先を選択してください。",
-  "save_to_downloads": "ダウンロードに保存"
+  "save_to_downloads": "ダウンロードに保存",
+  "auto_generate_subaddresses": "Autoはサブアドレスを生成します"
 }

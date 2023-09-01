@@ -634,6 +634,7 @@
   "setup_totp_recommended": "Налаштувати TOTP (рекомендовано)",
   "disable_buy": "Вимкнути дію покупки",
   "disable_sell": "Вимкнути дію продажу",
+  "auto_generate_subaddresses": "Автоматично генерувати підадреси",
   "cake_2fa_preset": "Торт 2FA Preset",
   "narrow": "вузькі",
   "normal": "нормальний",
