@@ -66,13 +66,16 @@ class BuyOptionsPage extends BasePage {
                 ),
               ),
               Spacer(),
-              Text(
-                S.of(context).select_buy_provider_notice,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: Text(
+                  S.of(context).select_buy_provider_notice,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+                  ),
                 ),
               ),
             ],
