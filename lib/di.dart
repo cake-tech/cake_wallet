@@ -841,9 +841,9 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>(
       (type, _) => WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
 
-  getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, dynamic, void>(
-      (credentials, _) =>
-          WalletRestoreChooseDerivationViewModel(credentials: credentials));
+  getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
+      (derivations, _) =>
+          WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, dynamic, void>(
       (credentials, _) =>

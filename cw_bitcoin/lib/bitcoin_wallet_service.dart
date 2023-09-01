@@ -96,9 +96,6 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials) async {
-    if (!validateMnemonic(credentials.mnemonic)) {
-      throw BitcoinMnemonicIsIncorrectException();
-    }
 
     final wallet = await BitcoinWalletBase.create(
         password: credentials.password!,
@@ -114,14 +111,10 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   static Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node}) async {
 
-    if (!validateMnemonic(mnemonic)) {
-      throw BitcoinMnemonicIsIncorrectException();
-    }
-
     if (await checkIfMnemonicIsElectrum2(mnemonic)) {
       return [DerivationType.electrum2];
     }
-    
+
     return [DerivationType.bip39, DerivationType.electrum2];
   }
 

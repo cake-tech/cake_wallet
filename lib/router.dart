@@ -58,6 +58,7 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/pow_node.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -202,7 +203,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
           builder: (_) =>
-              getIt.get<WalletRestoreChooseDerivationPage>(param1: settings.arguments as dynamic));
+              getIt.get<WalletRestoreChooseDerivationPage>(param1: settings.arguments as List<DerivationInfo>));
 
     case Routes.sweepingWalletPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
