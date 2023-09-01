@@ -30,8 +30,25 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
         String? mnemonic = credentials['seed'] as String?;
-        return await BitcoinWalletService.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
+        var derivations = await BitcoinWalletService.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
 
+        int count = 0;
+        for (int i = 0; i < derivations.length; i++) {
+          if (derivations[i].height != 0) {
+            count += 1;
+          }
+        }
+        if (count == 1) {
+          for (int i = 0; i < derivations.length; i++) {
+            if (derivations[i].height != 0) {
+              list.add(derivations[i]);
+            }
+          }
+        } else {
+          return derivations;
+        }
+        
+        
         // var standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
         //   DerivationType.nano,
         //   mnemonic: mnemonic,

@@ -114,6 +114,10 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   static Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node}) async {
 
+    if (!validateMnemonic(mnemonic)) {
+      throw BitcoinMnemonicIsIncorrectException();
+    }
+
     if (await checkIfMnemonicIsElectrum2(mnemonic)) {
       return [DerivationType.electrum2];
     }
