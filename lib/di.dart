@@ -523,8 +523,7 @@ Future<void> setup({
 
   getIt.registerFactory<SendViewModel>(
     () => SendViewModel(
-      getIt.get<AppStore>().wallet!,
-      getIt.get<AppStore>().settingsStore,
+      getIt.get<AppStore>(),
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
       getIt.get<BalanceViewModel>(),
@@ -702,7 +701,7 @@ Future<void> setup({
       ));
 
   getIt.registerFactory(() => ExchangeViewModel(
-      getIt.get<AppStore>().wallet!,
+      getIt.get<AppStore>(),
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
