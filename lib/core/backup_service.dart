@@ -246,6 +246,7 @@ class BackupService {
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
+    final autoGenerateSubaddressStatus = data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
@@ -296,6 +297,9 @@ class BackupService {
 
     if (fiatApiMode != null)
       await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
+    if (autoGenerateSubaddressStatus != null)
+      await _sharedPreferences.setInt(PreferencesKey.autoGenerateSubaddressStatusKey,
+          autoGenerateSubaddressStatus);
 
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
@@ -523,6 +527,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey:
           _sharedPreferences.getBool(PreferencesKey.syncAllKey),
+      PreferencesKey.autoGenerateSubaddressStatusKey:
+          _sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
     };
 
     return json.encode(preferences);

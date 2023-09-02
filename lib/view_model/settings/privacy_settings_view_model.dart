@@ -1,6 +1,10 @@
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -14,10 +18,26 @@ abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
 
   final SettingsStore _settingsStore;
-  final WalletBase _wallet;
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
+
+  @computed
+  bool get isAutoGenerateSubaddressesEnabled =>
+      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+
+  @action
+  void setAutoGenerateSubaddresses(bool value) {
+    _wallet.isEnabledAutoGenerateSubaddress = value;
+    if (value) {
+      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.enabled;
+    } else {
+      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
+    }
+  }
+
+  bool get isAutoGenerateSubaddressesVisible => _wallet.type == WalletType.monero;
 
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;

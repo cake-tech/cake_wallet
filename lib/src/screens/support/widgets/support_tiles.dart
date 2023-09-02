@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,7 @@ class SupportTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).dialogTheme.backgroundColor,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     ),
                     Padding(

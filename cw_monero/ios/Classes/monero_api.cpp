@@ -145,7 +145,7 @@ extern "C"
         int8_t direction;
         int8_t isPending;
         uint32_t subaddrIndex;
-        
+
         char *hash;
         char *paymentId;
 
@@ -161,7 +161,7 @@ extern "C"
             std::set<uint32_t>::iterator it = subIndex.begin();
             subaddrIndex = *it;
             confirmations = transaction->confirmations();
-            datetime = static_cast<int64_t>(transaction->timestamp());            
+            datetime = static_cast<int64_t>(transaction->timestamp());
             direction = transaction->direction();
             isPending = static_cast<int8_t>(transaction->isPending());
             std::string *hash_str = new std::string(transaction->hash());
@@ -241,7 +241,7 @@ extern "C"
         }
 
         void setUnlocked(bool unlocked);
-    
+
     };
 
     Monero::Coins *m_coins;
@@ -262,7 +262,7 @@ extern "C"
     {
         m_wallet = wallet;
         m_listener = nullptr;
-        
+
 
         if (wallet != nullptr)
         {
@@ -505,7 +505,7 @@ extern "C"
     {
         nice(19);
         Monero::Wallet *wallet = get_current_wallet();
-        
+
         std::string _login = "";
         std::string _password = "";
         std::string _socksProxyAddress = "";
@@ -601,7 +601,7 @@ extern "C"
             _preferred_inputs.insert(std::string(*preferred_inputs));
             preferred_inputs++;
         }
-        
+
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
         std::string _payment_id;
         Monero::PendingTransaction *transaction;
@@ -620,7 +620,7 @@ extern "C"
         {
             transaction = m_wallet->createTransaction(std::string(address), _payment_id, Monero::optional<uint64_t>(), m_wallet->defaultMixin(), priority, subaddr_account, {}, _preferred_inputs);
         }
-        
+
         int status = transaction->status();
 
         if (status == Monero::PendingTransaction::Status::Status_Error || status == Monero::PendingTransaction::Status::Status_Critical)

@@ -51,12 +51,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         _password = password,
-        walletAddresses = MoneroWalletAddresses(walletInfo),
+        isEnabledAutoGenerateSubaddress = false,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
         super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
+    walletAddresses = MoneroWalletAddresses(walletInfo, transactionHistory);
+
     _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
       if (account == null) {
         return;
@@ -67,7 +69,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
             unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: account.id))
       });
-      walletAddresses.updateSubaddressList(accountIndex: account.id);
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
+    });
+
+    reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
+      _updateSubAddress(enabled, account: walletAddresses.account);
     });
   }
 
@@ -76,7 +82,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Box<UnspentCoinsInfo> unspentCoinsInfo;
 
   @override
-  MoneroWalletAddresses walletAddresses;
+  late MoneroWalletAddresses walletAddresses;
+
+  @override
+  @observable
+  bool isEnabledAutoGenerateSubaddress;
 
   @override
   @observable
@@ -294,6 +304,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> save() async {
+    await walletAddresses.updateUsedSubaddress();
+
+    if (isEnabledAutoGenerateSubaddress) {
+      walletAddresses.updateUnusedSubaddress(
+          accountIndex: walletAddresses.account?.id ?? 0,
+          defaultLabel: walletAddresses.account?.label ?? '');
+    }
+
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
     await monero_wallet.store();
@@ -386,7 +404,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> updateUnspent() async {
-    // refreshCoins(walletAddresses.account!.id);
+    refreshCoins(walletAddresses.account!.id);
 
     unspentCoins.clear();
 
@@ -617,5 +635,16 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void _updateSubAddress(bool enableAutoGenerate, {Account? account}) {
+    if (enableAutoGenerate) {
+         walletAddresses.updateUnusedSubaddress(
+          accountIndex: account?.id ?? 0,
+          defaultLabel: account?.label ?? '',
+        );
+      } else {
+        walletAddresses.updateSubaddressList(accountIndex: account?.id ?? 0);
+      }
   }
 }
