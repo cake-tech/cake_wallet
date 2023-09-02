@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -11,8 +10,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:uni_links/uni_links.dart';
-
-import '../setup_2fa/setup_2fa_enter_code_page.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -98,8 +95,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive &&
-            widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
@@ -126,17 +122,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               return;
             } else {
               final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-              final shouldUseTotp2FAToAccessWallets = widget.appStore
-                  .settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+              final shouldUseTotp2FAToAccessWallets =
+                  widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
               if (useTotp && shouldUseTotp2FAToAccessWallets) {
                 _reset();
                 auth.close(
                   route: Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
-                    onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully,
-                            TotpAuthCodePageState totpAuth) {
-                      if (!isAuthenticatedSuccessfully) {
+                    onTotpAuthenticationFinished: (totpAuth) {
+                      if (!totpAuth.success) {
                         return;
                       }
                       _reset();
