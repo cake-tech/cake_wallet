@@ -531,7 +531,7 @@ abstract class SettingsStoreBase with Store {
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
-      bitcoinCashTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
+      bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
     }
 
@@ -702,6 +702,7 @@ abstract class SettingsStoreBase with Store {
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
         initialLitecoinTransactionPriority: litecoinTransactionPriority,
+        initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
         initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
         initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
         initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,

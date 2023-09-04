@@ -122,7 +122,7 @@ class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
+        throw Exception('Unexpected token: $raw for BitcoinCashTransactionPriority deserialize');
     }
   }
 
