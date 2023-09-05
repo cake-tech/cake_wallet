@@ -26,6 +26,4 @@ abstract class WalletRestoreChooseDerivationViewModelBase with Store {
 
   @observable
   WalletRestoreMode mode;
-
-
 }

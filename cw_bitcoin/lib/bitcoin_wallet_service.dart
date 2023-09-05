@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
@@ -20,6 +21,8 @@ import 'package:collection/collection.dart';
 import 'package:mobx/mobx.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_derivations.dart';
+import 'package:bip32/bip32.dart' as bip32;
+import 'package:bip39/bip39.dart' as bip39;
 
 class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
@@ -96,7 +99,6 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials) async {
-
     final wallet = await BitcoinWalletBase.create(
         password: credentials.password!,
         mnemonic: credentials.mnemonic,
@@ -110,7 +112,6 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   static Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node}) async {
-
     if (await checkIfMnemonicIsElectrum2(mnemonic)) {
       return [DerivationType.electrum2];
     }
@@ -126,53 +127,59 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     await electrumClient.connectToUri(node.uri);
 
     for (DerivationType dType in bitcoin_derivations.keys) {
-      if (dType == DerivationType.bip39) {
-        for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
-          try {
-            var wallet = bitcoin.HDWallet.fromSeed(await mnemonicToSeedBytes(mnemonic),
-                    network: bitcoin.bitcoin)
-                .derivePath(dInfo.derivationPath!);
+      late Uint8List seedBytes;
+      if (dType == DerivationType.electrum2) {
+        seedBytes = await mnemonicToSeedBytes(mnemonic);
+      } else if (dType == DerivationType.bip39) {
+        seedBytes = bip39.mnemonicToSeed(mnemonic);
+      }
 
-            String? address;
-            switch (dInfo.script_type) {
-              case "p2wpkh":
-                address = bitcoin
-                    .P2WPKH(
-                        data: generatePaymentData(hd: wallet, index: 0), network: bitcoin.bitcoin)
-                    .data
-                    .address;
-                break;
-              case "p2pkh":
-                address = bitcoin
-                    .P2PKH(
-                        data: generatePaymentData(hd: wallet, index: 0), network: bitcoin.bitcoin)
-                    .data
-                    .address;
-                break;
-              case "p2wpkh-p2sh":
-              default:
-                address = wallet.address;
-                break;
-            }
+      for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
+        try {
+          var node = bip32.BIP32.fromSeed(seedBytes);
+          node = node.derivePath(dInfo.derivationPath!);
 
-            // print(
-            //     "${dInfo.derivationType.toString()} : ${dInfo.derivationPath} : ${dInfo.script_type} : ${address}");
-
-            final sh = scriptHash(address!, networkType: bitcoin.bitcoin);
-            final history = await electrumClient.getHistory(sh);
-
-            final balance = await electrumClient.getBalance(sh);
-            dInfo.balance = balance.entries.first.value.toString();
-            dInfo.address = address;
-            dInfo.height = history.length;
-
-            list.add(dInfo);
-          } catch (e) {
-            print(e);
+          String? address;
+          switch (dInfo.script_type) {
+            case "p2wpkh":
+              address = bitcoin
+                  .P2WPKH(
+                    data: new bitcoin.PaymentData(pubkey: node.publicKey),
+                    network: bitcoin.bitcoin,
+                  )
+                  .data
+                  .address;
+              break;
+            case "p2pkh":
+            // case "p2wpkh-p2sh":// TODO
+            default:
+              address = bitcoin
+                  .P2PKH(
+                    data: new bitcoin.PaymentData(pubkey: node.publicKey),
+                    network: bitcoin.bitcoin,
+                  )
+                  .data
+                  .address;
+              break;
           }
+
+          final sh = scriptHash(address!, networkType: bitcoin.bitcoin);
+          final history = await electrumClient.getHistory(sh);
+
+          final balance = await electrumClient.getBalance(sh);
+          dInfo.balance = balance.entries.first.value.toString();
+          dInfo.address = address;
+          dInfo.height = history.length;
+
+          list.add(dInfo);
+        } catch (e) {
+          print(e);
         }
       }
     }
+
+    // sort the list such that derivations with the most transactions are first:
+    list.sort((a, b) => b.height.compareTo(a.height));
 
     return list;
   }

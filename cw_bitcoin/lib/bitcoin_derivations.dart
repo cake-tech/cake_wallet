@@ -1,12 +1,20 @@
 import 'package:cw_core/wallet_info.dart';
 
 Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
-  DerivationType.bip39: [
+  DerivationType.electrum2: [
     DerivationInfo(
       derivationType: DerivationType.bip39,
       derivationPath: "m/0'/1",
-      description: "cake default?",
-      script_type: "p2wpkh",// TODO: not really sure what cake uses by default
+      description: "Electrum 2",
+      script_type: "p2wpkh",
+    ),
+  ],
+  DerivationType.bip39: [
+    DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/44'/0'/0'/0/0",
+      description: "Standard BIP44",
+      script_type: "p2pkh",
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
@@ -19,6 +27,12 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
       derivationPath: "m/49'/0'/0'",
       description: "Standard BIP49 compatibility segwit",
       script_type: "p2wpkh-p2sh",
+    ),
+    DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/84'/0'/0'/0/0",
+      description: "Standard BIP84",
+      script_type: "p2wpkh",
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
@@ -87,5 +101,4 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
       script_type: "p2wpkh",
     ),
   ],
-
 };

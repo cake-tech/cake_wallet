@@ -62,7 +62,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                       contentPadding: EdgeInsets.all(16),
                       title: Center(
                         child: Text(
-                          "${derivation.derivationType.toString().split('.').last}",
+                          "${derivation.description ?? derivation.derivationType.toString().split('.').last}",
                           style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
