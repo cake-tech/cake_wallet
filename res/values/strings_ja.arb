@@ -670,6 +670,12 @@
   "balance_page": "残高ページ",
   "share": "共有",
   "slidable": "スライド可能",
+  "monero_dark_theme": "モネロダークテーマ",
+  "bitcoin_dark_theme": "ビットコインダークテーマ",
+  "bitcoin_light_theme": "ビットコインライトテーマ",
+  "high_contrast_theme": "ハイコントラストテーマ",
+  "matrix_green_dark_theme": "マトリックスグリーンダークテーマ",
+  "monero_light_theme": "モネロ ライト テーマ",
   "manage_nodes": "ノードの管理",
   "etherscan_history": "イーサスキャンの歴史",
   "template_name": "テンプレート名",
@@ -678,5 +684,8 @@
   "support_title_guides": "ケーキウォレットガイド",
   "support_description_guides": "一般的な問題のドキュメントとサポート",
   "support_title_other_links": "その他のサポートリンク",
-  "support_description_other_links": "私たちのコミュニティに参加するか、他の方法を通して私たちのパートナーに連絡してください"
+  "support_description_other_links": "私たちのコミュニティに参加するか、他の方法を通して私たちのパートナーに連絡してください",
+  "select_destination": "バックアップファイルの保存先を選択してください。",
+  "save_to_downloads": "ダウンロードに保存",
+  "auto_generate_subaddresses": "Autoはサブアドレスを生成します"
 }

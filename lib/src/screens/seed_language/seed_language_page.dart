@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -67,7 +68,7 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
                     fontSize: 16.0,
                     fontWeight: FontWeight.w500,
                     color:
-                        Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
               ),
             ),
             Padding(

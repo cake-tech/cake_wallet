@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +34,13 @@ class ContactListPage extends BasePage {
         height: 32.0,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context).accentTextTheme!.bodySmall!.color!),
+            color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
             Icon(
               Icons.add,
-              color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+              color: Theme.of(context).appBarTheme.titleTextStyle!.color,
               size: 22.0,
             ),
             ButtonTheme(
@@ -48,17 +50,15 @@ class ContactListPage extends BasePage {
                   // FIX-ME: Style
                   //shape: CircleBorder(),
                   onPressed: () async {
-                    if (contactListViewModel
-                        .shouldRequireTOTP2FAForAddingContacts) {
+                    if (contactListViewModel.shouldRequireTOTP2FAForAddingContacts) {
                       authService.authenticateAction(
                         context,
                         route: Routes.addressBookAddContact,
-                        conditionToDetermineIfToUse2FA: contactListViewModel
-                            .shouldRequireTOTP2FAForAddingContacts,
+                        conditionToDetermineIfToUse2FA:
+                            contactListViewModel.shouldRequireTOTP2FAForAddingContacts,
                       );
                     } else {
-                      await Navigator.of(context)
-                          .pushNamed(Routes.addressBookAddContact);
+                      await Navigator.of(context).pushNamed(Routes.addressBookAddContact);
                     }
                   },
                   child: Offstage()),
@@ -72,17 +72,13 @@ class ContactListPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+        padding: EdgeInsets.all(20.0),
         child: Observer(builder: (_) {
           final contacts = contactListViewModel.contactsToShow;
           final walletContacts = contactListViewModel.walletContactsToShow;
           return CollapsibleSectionList(
-            context: context,
             sectionCount: 2,
-            themeColor: Theme.of(context).primaryTextTheme.titleLarge!.color!,
-            dividerThemeColor:
-                Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!,
-            sectionTitleBuilder: (_, int sectionIndex) {
+            sectionTitleBuilder: (int sectionIndex) {
               var title = S.current.contact_list_contacts;
 
               if (sectionIndex == 0) {
@@ -95,7 +91,7 @@ class ContactListPage extends BasePage {
             },
             itemCounter: (int sectionIndex) =>
                 sectionIndex == 0 ? walletContacts.length : contacts.length,
-            itemBuilder: (_, sectionIndex, index) {
+            itemBuilder: (int sectionIndex, index) {
               if (sectionIndex == 0) {
                 final walletInfo = walletContacts[index];
                 return generateRaw(context, walletInfo);
@@ -128,8 +124,7 @@ class ContactListPage extends BasePage {
           return;
         }
 
-        final isCopied = await showNameAndAddressDialog(
-            context, contact.name, contact.address);
+        final isCopied = await showNameAndAddressDialog(context, contact.name, contact.address);
 
         if (isCopied) {
           await Clipboard.setData(ClipboardData(text: contact.address));
@@ -137,7 +132,6 @@ class ContactListPage extends BasePage {
         }
       },
       child: Container(
-        color: Colors.transparent,
         padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -152,7 +146,7 @@ class ContactListPage extends BasePage {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
             ))
@@ -177,8 +171,7 @@ class ContactListPage extends BasePage {
         false;
   }
 
-  Future<bool> showNameAndAddressDialog(
-      BuildContext context, String name, String address) async {
+  Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
     return await showPopUp<bool>(
             context: context,
             builder: (BuildContext context) {
@@ -193,8 +186,7 @@ class ContactListPage extends BasePage {
         false;
   }
 
-  ActionPane _actionPane(BuildContext context, ContactRecord contact) =>
-      ActionPane(
+  ActionPane _actionPane(BuildContext context, ContactRecord contact) => ActionPane(
         motion: const ScrollMotion(),
         extentRatio: 0.4,
         children: [

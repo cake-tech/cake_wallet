@@ -662,6 +662,12 @@
   "balance_page": "بیلنس صفحہ",
   "share": "بانٹیں",
   "slidable": "سلائیڈ ایبل",
+  "monero_dark_theme": "مونیرو ڈارک تھیم",
+  "bitcoin_dark_theme": "بٹ کوائن ڈارک تھیم",
+  "bitcoin_light_theme": "بٹ کوائن لائٹ تھیم",
+  "high_contrast_theme": "ہائی کنٹراسٹ تھیم",
+  "matrix_green_dark_theme": "میٹرکس گرین ڈارک تھیم",
+  "monero_light_theme": "مونیرو لائٹ تھیم",
   "manage_nodes": "۔ﮟﯾﺮﮐ ﻢﻈﻧ ﺎﮐ ﺱﮈﻮﻧ",
   "etherscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﺮﮭﺘﯾﺍ",
   "template_name": "ٹیمپلیٹ کا نام",
@@ -670,5 +676,8 @@
   "support_title_guides": "کیک پرس گائڈز",
   "support_description_guides": "عام مسائل کے لئے دستاویزات اور مدد",
   "support_title_other_links": "دوسرے سپورٹ لنکس",
-  "support_description_other_links": "ہماری برادریوں میں شامل ہوں یا دوسرے طریقوں سے ہمارے شراکت داروں تک پہنچیں"
+  "support_description_other_links": "ہماری برادریوں میں شامل ہوں یا دوسرے طریقوں سے ہمارے شراکت داروں تک پہنچیں",
+  "select_destination": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﻝﺰﻨﻣ ﮯﯿﻟ ﮯﮐ ﻞﺋﺎﻓ ﭖﺍ ﮏﯿﺑ ﻡﺮﮐ ﮦﺍﺮﺑ",
+  "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ",
+  "auto_generate_subaddresses": "آٹو سب ایڈریس تیار کرتا ہے"
 }

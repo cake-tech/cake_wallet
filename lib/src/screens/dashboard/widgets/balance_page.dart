@@ -1,7 +1,7 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +10,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class BalancePage extends StatelessWidget {
   BalancePage({required this.dashboardViewModel, required this.settingsStore});
@@ -41,7 +43,8 @@ class BalancePage extends StatelessWidget {
                           fontSize: 24,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                          color:
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                           height: 1,
                         ),
                         maxLines: 1,
@@ -55,8 +58,9 @@ class BalancePage extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Image.asset(
                               'assets/images/home_screen_settings_icon.png',
-                              color:
-                                  Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                              color: Theme.of(context)
+                                  .extension<DashboardPageTheme>()!
+                                  .pageTitleTextColor,
                             ),
                           ),
                         ),
@@ -72,9 +76,7 @@ class BalancePage extends StatelessWidget {
                   return IntroducingCard(
                       title: S.of(context).introducing_cake_pay,
                       subTitle: S.of(context).cake_pay_learn_more,
-                      borderColor: settingsStore.currentTheme.type == ThemeType.bright
-                          ? Color.fromRGBO(255, 255, 255, 0.2)
-                          : Colors.transparent,
+                      borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                       closeCard: dashboardViewModel.balanceViewModel.disableIntroCakePayCard);
                 }
                 return Container();
@@ -134,12 +136,10 @@ class BalancePage extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         border: Border.all(
-          color: settingsStore.currentTheme.type == ThemeType.bright
-              ? Color.fromRGBO(255, 255, 255, 0.2)
-              : Colors.transparent,
+          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
           width: 1,
         ),
-        color: Theme.of(context).textTheme.titleLarge!.backgroundColor!,
+        color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
       ),
       child: Container(
         margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
@@ -164,9 +164,8 @@ class BalancePage extends StatelessWidget {
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w400,
                                   color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displaySmall!
-                                      .backgroundColor!,
+                                      .extension<BalancePageTheme>()!
+                                      .labelTextColor,
                                   height: 1)),
                           if (hasAdditionalBalance)
                             Padding(
@@ -174,9 +173,8 @@ class BalancePage extends StatelessWidget {
                               child: Icon(Icons.help_outline,
                                   size: 16,
                                   color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displaySmall!
-                                      .backgroundColor!),
+                                      .extension<BalancePageTheme>()!
+                                      .labelTextColor),
                             ),
                         ],
                       ),
@@ -187,9 +185,8 @@ class BalancePage extends StatelessWidget {
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w900,
                               color: Theme.of(context)
-                                  .accentTextTheme!
-                                  .displayMedium!
-                                  .backgroundColor!,
+                                  .extension<BalancePageTheme>()!
+                                  .balanceAmountColor,
                               height: 1),
                           maxLines: 1,
                           textAlign: TextAlign.start),
@@ -200,10 +197,7 @@ class BalancePage extends StatelessWidget {
                               fontSize: 16,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .accentTextTheme!
-                                  .displayMedium!
-                                  .backgroundColor!,
+                              color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1)),
                     ],
                   ),
@@ -213,7 +207,7 @@ class BalancePage extends StatelessWidget {
                         fontSize: 28,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w800,
-                        color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
                         height: 1)),
               ],
             ),
@@ -229,7 +223,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).accentTextTheme.displaySmall!.backgroundColor!,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                       height: 1,
                     ),
                   ),
@@ -240,7 +234,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 20,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                       height: 1,
                     ),
                     maxLines: 1,
@@ -254,7 +248,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                       height: 1,
                     ),
                   ),
@@ -272,7 +266,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).accentTextTheme.displaySmall!.backgroundColor!,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                       height: 1,
                     ),
                   ),
@@ -283,7 +277,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 20,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
                       height: 1,
                     ),
                     maxLines: 1,
@@ -297,7 +291,7 @@ class BalancePage extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).accentTextTheme.displayMedium!.backgroundColor!,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                       height: 1,
                     ),
                   ),

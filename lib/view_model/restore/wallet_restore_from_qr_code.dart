@@ -33,7 +33,10 @@ class WalletRestoreFromQRCode {
         getSeedPhraseFromUrl(queryParameters.toString(), credentials['type'] as WalletType);
     if (seed != null) {
       credentials['seed'] = seed;
+    } else {
+      credentials['private_key'] = queryParameters['private_key'];
     }
+
     credentials.addAll(queryParameters);
     credentials['mode'] = getWalletRestoreMode(credentials);
 
@@ -69,6 +72,8 @@ class WalletRestoreFromQRCode {
       case 'litecoin':
       case 'litecoin-wallet':
         return WalletType.litecoin;
+      case 'ethereum-wallet':
+        return WalletType.ethereum;
       default:
         throw Exception('Unexpected wallet type: ${scheme.toString()}');
     }
@@ -101,6 +106,7 @@ class WalletRestoreFromQRCode {
         }
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.ethereum:
         RegExp regex24 = RegExp(r'\b(\S+\b\s+){23}\S+\b');
         RegExp regex18 = RegExp(r'\b(\S+\b\s+){17}\S+\b');
         RegExp regex12 = RegExp(r'\b(\S+\b\s+){11}\S+\b');
@@ -150,6 +156,14 @@ class WalletRestoreFromQRCode {
       return spendKeyValue.isNotEmpty || viewKeyValue.isNotEmpty
           ? WalletRestoreMode.keys
           : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
+    }
+
+    if (type == WalletType.ethereum && credentials.containsKey('private_key')) {
+      final privateKey = credentials['private_key'] as String;
+      if (privateKey.isEmpty) {
+        throw Exception('Unexpected restore mode: private_key');
+      }
+      return WalletRestoreMode.keys;
     }
 
     throw Exception('Unexpected restore mode: restore params are invalid');

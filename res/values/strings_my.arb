@@ -668,6 +668,12 @@
   "balance_page": "လက်ကျန်စာမျက်နှာ",
   "share": "မျှဝေပါ။",
   "slidable": "လျှောချနိုင်သည်။",
+  "monero_dark_theme": "Monero Dark အပြင်အဆင်",
+  "bitcoin_dark_theme": "Bitcoin Dark Theme",
+  "bitcoin_light_theme": "Bitcoin Light အပြင်အဆင်",
+  "high_contrast_theme": "အလင်းအမှောင် မြင့်မားသော အပြင်အဆင်",
+  "matrix_green_dark_theme": "Matrix Green Dark အပြင်အဆင်",
+  "monero_light_theme": "Monero Light အပြင်အဆင်",
   "manage_nodes": "ဆုံမှတ်များကို စီမံပါ။",
   "etherscan_history": "Etherscan သမိုင်း",
   "template_name": "နမူနာပုံစံ",
@@ -676,5 +682,8 @@
   "support_title_guides": "ကိတ်မုန့်ပိုက်ဆံအိတ်လမ်းညွှန်များ",
   "support_description_guides": "ဘုံပြ issues နာများအတွက်စာရွက်စာတမ်းများနှင့်ထောက်ခံမှု",
   "support_title_other_links": "အခြားအထောက်အပံ့လင့်များ",
-  "support_description_other_links": "ကျွန်ုပ်တို့၏လူမှုအသိုင်းအဝိုင်းများသို့ 0 င်ရောက်ပါ"
+  "support_description_other_links": "ကျွန်ုပ်တို့၏လူမှုအသိုင်းအဝိုင်းများသို့ 0 င်ရောက်ပါ",
+  "select_destination": "အရန်ဖိုင်အတွက် ဦးတည်ရာကို ရွေးပါ။",
+  "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။",
+  "auto_generate_subaddresses": "အော်တို Generate Subaddresses"
 }

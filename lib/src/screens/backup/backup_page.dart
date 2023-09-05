@@ -80,7 +80,7 @@ class BackupPage extends BasePage {
               isLoading: backupViewModelBase.state is IsExecutingState,
               onPressed: () => onExportBackup(context),
               text: S.of(context).export_backup,
-              color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),
           ),
@@ -127,9 +127,9 @@ class BackupPage extends BasePage {
         builder: (dialogContext) {
           return AlertWithTwoActions(
               alertTitle: S.of(context).export_backup,
-              alertContent: 'Please select destination for the backup file.',
-              rightButtonText: 'Save to Downloads',
-              leftButtonText: 'Share',
+              alertContent: S.of(context).select_destination,
+              rightButtonText: S.of(context).save_to_downloads,
+              leftButtonText:S.of(context).share,
               actionRightButton: () async {
                 final permission = await Permission.storage.request();
 

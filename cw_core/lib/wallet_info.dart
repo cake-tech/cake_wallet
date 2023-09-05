@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cw_core/address_info.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -71,6 +72,12 @@ class WalletInfo extends HiveObject {
 
   @HiveField(13)
   bool? showIntroCakePayCard;
+
+  @HiveField(14)
+  Map<int, List<AddressInfo>>? addressInfos;
+
+  @HiveField(15)
+  List<String>? usedAddresses;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 

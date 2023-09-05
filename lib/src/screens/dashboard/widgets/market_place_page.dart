@@ -8,6 +8,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class MarketPlacePage extends StatelessWidget {
   MarketPlacePage({
@@ -40,25 +41,22 @@ class MarketPlacePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .displayMedium!
-                      .backgroundColor!,
+                  color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                 ),
               ),
               Expanded(
                 child: ListView(
                   controller: _scrollController,
                   children: <Widget>[
-                    SizedBox(height: 20),
-                    DashBoardRoundedCardWidget(
-                      onTap: () => launchUrl(
-                        Uri.parse("https://cakelabs.com/news/cake-pay-mobile-to-shut-down/"),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                      title: S.of(context).cake_pay_title,
-                      subTitle: S.of(context).cake_pay_subtitle,
-                    ),
+                    // SizedBox(height: 20),
+                    // DashBoardRoundedCardWidget(
+                    //   onTap: () => launchUrl(
+                    //     Uri.parse("https://cakelabs.com/news/cake-pay-mobile-to-shut-down/"),
+                    //     mode: LaunchMode.externalApplication,
+                    //   ),
+                    //   title: S.of(context).cake_pay_title,
+                    //   subTitle: S.of(context).cake_pay_subtitle,
+                    // ),
                     SizedBox(height: 20),
                     DashBoardRoundedCardWidget(
                       onTap: () => launchUrl(

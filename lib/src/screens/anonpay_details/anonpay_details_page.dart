@@ -42,10 +42,9 @@ class _AnonpayDetailsPageBodyState extends State<AnonpayDetailsPageBody> {
   @override
   Widget build(BuildContext context) {
     return SectionStandardList(
-        context: context,
         sectionCount: 1,
         itemCounter: (int _) => widget.anonpayDetailsViewModel.items.length,
-        itemBuilder: (_, __, index) {
+        itemBuilder: (__, index) {
           final item = widget.anonpayDetailsViewModel.items[index];
 
           if (item is DetailsListStatusItem) {

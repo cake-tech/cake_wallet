@@ -18,7 +18,7 @@ class UnspentCoinsListPage extends BasePage {
   //@override
   //Widget trailing(BuildContext context) {
   //  final questionImage = Image.asset('assets/images/question_mark.png',
-  //      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+  //      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
 
   //  return SizedBox(
   //    height: 20.0,
