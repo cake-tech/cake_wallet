@@ -63,7 +63,7 @@ class RobinhoodBuyProvider {
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
-      throw Exception('Request failed with status: ${response.statusCode}. ${response.body}');
+      throw Exception('Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
     }
   }
 
