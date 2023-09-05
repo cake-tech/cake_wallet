@@ -480,27 +480,17 @@ abstract class ElectrumWalletBase
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   Future<void> updateUnspent() async {
-    final unspent = await Future.wait(walletAddresses.addresses.map((address) {
-      if(walletInfo.type == WalletType.bitcoinCash) { //TODO: BCH: Remove this when address format is fixed
-        final tempAddress = address.address;
-        if (bitbox.Address.detectFormat(tempAddress) == bitbox.Address.formatCashAddr) {
-          try {
-            address.address = bitbox.Address.toLegacyAddress(tempAddress);
-          } catch (_) {
-            rethrow;
-          }
-        }
+    final unspent = await Future.wait(walletAddresses
+        .addresses.map((address) => electrumClient
+        .getListUnspentWithAddress(address.address, networkType)
+        .then((unspent) => unspent
+        .map((unspent) {
+      try {
+        return BitcoinUnspent.fromJSON(address, unspent);
+      } catch(_) {
+        return null;
       }
-      return electrumClient
-          .getListUnspentWithAddress(address.address, networkType)
-          .then((unspent) => unspent.map((unspent) {
-        try {
-          return BitcoinUnspent.fromJSON(address, unspent);
-        } catch (_) {
-          return null;
-        }
-      }).whereNotNull());
-    }));
+    }).whereNotNull())));
     unspentCoins = unspent.expand((e) => e).toList();
 
     if (unspentCoinsInfo.isEmpty) {

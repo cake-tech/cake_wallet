@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
@@ -28,18 +27,14 @@ abstract class UnspentCoinsListViewModelBase with Store {
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
   @computed
-  ObservableList<UnspentCoinsItem> get items =>
-      ObservableList.of(_getUnspents().map((elem) {
+  ObservableList<UnspentCoinsItem> get items => ObservableList.of(_getUnspents().map((elem) {
         final amount = formatAmountToString(elem.value) + ' ${wallet.currency.title}';
 
-        final address = wallet.type == WalletType.bitcoinCash
-            ? ElectrumWalletAddressesBase.toCashAddr(elem.address)
-            : elem.address;
-
-        final info = getUnspentCoinInfo(elem.hash, address, elem.value, elem.vout, elem.keyImage);
+        final info =
+            getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
 
         return UnspentCoinsItem(
-            address: address,
+            address: elem.address,
             amount: amount,
             hash: elem.hash,
             isFrozen: info?.isFrozen ?? false,
@@ -47,13 +42,13 @@ abstract class UnspentCoinsListViewModelBase with Store {
             isSending: info?.isSending ?? true,
             amountRaw: elem.value,
             vout: elem.vout,
-          keyImage: elem.keyImage
-        );
+            keyImage: elem.keyImage);
       }));
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
-      final info = getUnspentCoinInfo(item.hash, item.address, item.amountRaw, item.vout, item.keyImage);
+      final info =
+          getUnspentCoinInfo(item.hash, item.address, item.amountRaw, item.vout, item.keyImage);
       if (info == null) {
         final newInfo = UnspentCoinsInfo(
             walletId: wallet.id,
@@ -83,15 +78,15 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-  UnspentCoinsInfo? getUnspentCoinInfo(String hash, String address, int value, int vout, String? keyImage) {
+  UnspentCoinsInfo? getUnspentCoinInfo(
+      String hash, String address, int value, int vout, String? keyImage) {
     return _unspentCoinsInfo.values.firstWhereOrNull((element) =>
         element.walletId == wallet.id &&
         element.hash == hash &&
         element.address == address &&
         element.value == value &&
         element.vout == vout &&
-        element.keyImage == keyImage
-    );
+        element.keyImage == keyImage);
   }
 
   String formatAmountToString(int fullBalance) {
@@ -102,17 +97,14 @@ abstract class UnspentCoinsListViewModelBase with Store {
     return '';
   }
 
-
   void _updateUnspents() {
-    if (wallet.type == WalletType.monero)
-      return monero!.updateUnspents(wallet);
+    if (wallet.type == WalletType.monero) return monero!.updateUnspents(wallet);
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.updateUnspents(wallet);
   }
 
   List<Unspent> _getUnspents() {
-    if (wallet.type == WalletType.monero)
-      return monero!.getUnspents(wallet);
+    if (wallet.type == WalletType.monero) return monero!.getUnspents(wallet);
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.getUnspents(wallet);
     return List.empty();
