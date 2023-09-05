@@ -741,5 +741,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
-  String signMessage(String message) => base64Encode(hd.sign(message));
+  String signMessage(String message, {int? index = null}) {
+    return index == null ? base64Encode(hd.sign(message)) : base64Encode(hd.derive(index).sign(message));
+  }
 }

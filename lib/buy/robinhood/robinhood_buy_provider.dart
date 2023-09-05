@@ -23,9 +23,10 @@ class RobinhoodBuyProvider {
   bool get isAvailable =>
       [WalletType.bitcoin, WalletType.litecoin, WalletType.ethereum].contains(_wallet.type);
 
-  String getElectrumSignature(String message) {
+  String getElectrumSignature(String message, String walletAddress) {
     final wallet = _wallet as ElectrumWallet;
-    return wallet.signMessage(message);
+    final addressIndex = wallet.walletAddresses.addresses.firstWhere((element) => element.address == walletAddress).index;
+    return wallet.signMessage(message, index: addressIndex);
   }
 
   String getEthereumSignature(String message) {
@@ -39,7 +40,7 @@ class RobinhoodBuyProvider {
         return getEthereumSignature(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
-        return getElectrumSignature(message);
+        return getElectrumSignature(message, _wallet.walletAddresses.address);
       default:
         throw Exception("WalletType is not available for Robinhood");
     }
