@@ -1,6 +1,4 @@
-
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
-import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
@@ -38,20 +36,22 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
+import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
@@ -863,6 +863,11 @@ Future<void> setup({
   getIt.registerFactory(() => SupportViewModel());
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
+
+  getIt.registerFactory(() =>
+      SupportChatPage(getIt.get<SupportViewModel>(), secureStorage: getIt.get<SecureStorage>()));
+
+  getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

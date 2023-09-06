@@ -693,5 +693,11 @@
   "support_description_other_links": "私たちのコミュニティに参加するか、他の方法を通して私たちのパートナーに連絡してください",
   "select_destination": "バックアップファイルの保存先を選択してください。",
   "save_to_downloads": "ダウンロードに保存",
-  "auto_generate_subaddresses": "Autoはサブアドレスを生成します"
+  "auto_generate_subaddresses": "Autoはサブアドレスを生成します",
+  "invalid_password": "無効なパスワード",
+  "unlock": "ロックを解除します",
+  "enter_wallet_password": "ウォレットパスワードを入力します",
+  "repeat_wallet_password": "ウォレットパスワードを繰り返します",
+  "wallet_password_is_empty": "ウォレットパスワードは空です。ウォレットのパスワードは空にしてはいけません",
+  "repeated_password_is_incorrect": "繰り返しパスワードが正しくありません。ウォレットのパスワードをもう一度繰り返してください。"
 }
