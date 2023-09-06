@@ -38,5 +38,5 @@ class PendingEthereumTransaction with PendingTransaction {
   String get hex => bytesToHex(signedTransaction, include0x: true);
 
   @override
-  String get id => '';
+  String get id => bytesToHex(signedTransaction, include0x: true);
 }
