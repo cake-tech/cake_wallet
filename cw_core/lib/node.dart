@@ -139,6 +139,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.ethereum:
           return requestElectrumServer();
         case WalletType.nano:
+        case WalletType.banano:
           return requestNanoNode();
         default:
           return false;
@@ -181,24 +182,20 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNanoNode() async {
-    return http
-        .post(
+    http.Response response = await http.post(
       uri,
       headers: {'Content-type': 'application/json'},
       body: json.encode(
         {
-          "action": "account_balance",
-          "account": "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579"
+          "action": "block_count",
         },
       ),
-    )
-        .then((http.Response response) {
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<bool> requestNodeWithProxy(String proxy) async {

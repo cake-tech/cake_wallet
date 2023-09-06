@@ -28,19 +28,27 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
-      : availableModes =
-            (type == WalletType.monero || type == WalletType.haven || type == WalletType.ethereum)
-                ? WalletRestoreMode.values
-                : (type == WalletType.nano || type == WalletType.banano)
-                    ? [WalletRestoreMode.seed, WalletRestoreMode.keys]
-                    : [WalletRestoreMode.seed],
-        hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
+      : hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasRestoreFromPrivateKey =
             type == WalletType.ethereum || type == WalletType.nano || type == WalletType.banano,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
+    switch (type) {
+      case WalletType.monero:
+      case WalletType.haven:
+      case WalletType.ethereum:
+        availableModes = WalletRestoreMode.values;
+        break;
+      case WalletType.nano:
+      case WalletType.banano:
+        availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
+        break;
+      default:
+        availableModes = [WalletRestoreMode.seed];
+        break;
+    }
     isButtonEnabled = !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     walletCreationService.changeWalletType(type: type);
   }
@@ -49,7 +57,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   static const electrumSeedMnemonicLength = 24;
   static const electrumShortSeedMnemonicLength = 12;
 
-  final List<WalletRestoreMode> availableModes;
+  late List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
@@ -158,7 +166,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     final mnemonic = options['seed'] as String?;
     WalletType walletType = options['walletType'] as WalletType;
     var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType) as Node;
+    var node = appStore.settingsStore.getCurrentNode(walletType);
 
     switch (type) {
       case WalletType.bitcoin:

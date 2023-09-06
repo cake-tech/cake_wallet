@@ -68,16 +68,19 @@ class ConnectionSyncPage extends BasePage {
           const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           Observer(
             builder: (context) {
-              if (!dashboardViewModel.hasPowNodes)
-                return const SizedBox();
-              
-              return SettingsCellWithArrow(
-                title: S.current.manage_pow_nodes,
-                handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
+              if (!dashboardViewModel.hasPowNodes) return const SizedBox();
+
+              return Column(
+                children: [
+                  SettingsCellWithArrow(
+                    title: S.current.manage_pow_nodes,
+                    handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
+                  ),
+                  const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+                ],
               );
             },
           ),
-          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         ],
       ),
     );

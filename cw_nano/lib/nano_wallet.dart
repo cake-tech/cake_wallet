@@ -212,7 +212,6 @@ abstract class NanoWalletBase
 
     return PendingNanoTransaction(
       amount: runningAmount,
-      fee: 0,
       id: "",
       nanoClient: _client,
       blocks: blocks,
@@ -279,6 +278,9 @@ abstract class NanoWalletBase
   NanoWalletKeys get keys {
     return NanoWalletKeys(seedKey: _seedKey!);
   }
+
+  @override
+  String? get privateKey => _seedKey!;
 
   @override
   Future<void> rescan({required int height}) async {

@@ -107,7 +107,6 @@ abstract class WalletKeysViewModelBase with Store {
     }
 
     if (_appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano) {
-      final keys = nano!.getKeys(_appStore.wallet!);
 
       // we don't necessarily have the seed phrase for nano / banano:
       if (_appStore.wallet!.seed != null) {
@@ -118,8 +117,8 @@ abstract class WalletKeysViewModelBase with Store {
 
       // we always have the hex version of the seed:
       items.addAll([
-        if (keys['private_key'] != null)
-          StandartListItem(title: S.current.spend_key_private, value: keys['private_key']!),
+        if (_appStore.wallet!.privateKey != null)
+          StandartListItem(title: S.current.spend_key_private, value: _appStore.wallet!.privateKey!),
       ]);
     }
   }

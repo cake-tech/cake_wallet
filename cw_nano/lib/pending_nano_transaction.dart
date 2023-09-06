@@ -6,14 +6,12 @@ class PendingNanoTransaction with PendingTransaction {
   PendingNanoTransaction({
     required this.nanoClient,
     required this.amount,
-    required this.fee,
     required this.id,
     required this.blocks,
   });
 
   final NanoClient nanoClient;
   final BigInt amount;
-  final int fee;
   final String id;
   final List<Map<String, String>> blocks;
   String hex = "unused";

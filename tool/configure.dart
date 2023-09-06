@@ -583,6 +583,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
+import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 """;
   const nanoCwPart = "part 'cw_nano.dart';";
   const nanoContent = """

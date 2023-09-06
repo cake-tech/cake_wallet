@@ -64,7 +64,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final priority = _settingsStore.priority[wallet.type];
     final priorities = priorityForWalletType(wallet.type);
 
-    if (!priorityForWalletType(wallet.type).contains(priority)) {
+    if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
 
