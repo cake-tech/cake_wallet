@@ -63,13 +63,19 @@ class WalletRestorePage extends BasePage {
                 } else {
                   walletRestoreViewModel.isButtonEnabled = _isValidSeed();
                 }
-              }));
+              },
+              displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
+              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
+              onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword));
           break;
         case WalletRestoreMode.keys:
           _pages.add(WalletRestoreFromKeysFrom(
               key: walletRestoreFromKeysFormKey,
               walletRestoreViewModel: walletRestoreViewModel,
               displayPrivateKeyField: walletRestoreViewModel.hasRestoreFromPrivateKey,
+              displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
+              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
+              onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword,
               onHeightOrDateEntered: (value) => walletRestoreViewModel.isButtonEnabled = value));
           break;
         default:
@@ -118,6 +124,8 @@ class WalletRestorePage extends BasePage {
 
     reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
       walletRestoreViewModel.isButtonEnabled = false;
+      walletRestoreViewModel.walletPassword = null;
+      walletRestoreViewModel.repeatedWalletPassword = null;
 
       walletRestoreFromSeedFormKey
           .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
@@ -264,8 +272,6 @@ class WalletRestorePage extends BasePage {
   }
 
   void _confirmForm() {
-    // Dismissing all visible keyboard to provide context for navigation
-    FocusManager.instance.primaryFocus?.unfocus();
     final formContext = walletRestoreViewModel.mode == WalletRestoreMode.seed
         ? walletRestoreFromSeedFormKey.currentContext
         : walletRestoreFromKeysFormKey.currentContext;

@@ -685,5 +685,11 @@
   "support_title_other_links": "Outros links de suporte",
   "support_description_other_links": "Junte -se às nossas comunidades ou chegue a nós nossos parceiros por meio de outros métodos",
   "select_destination": "Selecione o destino para o arquivo de backup.",
-  "save_to_downloads": "Salvar em Downloads"
+  "save_to_downloads": "Salvar em Downloads",
+  "invalid_password": "Senha inválida",
+  "unlock": "Desbloquear",
+  "enter_wallet_password": "Digite a senha da carteira",
+  "repeat_wallet_password": "Repita a senha da carteira",
+  "wallet_password_is_empty": "A senha da carteira está vazia. A senha da carteira não deve estar vazia",
+  "repeated_password_is_incorrect": "A senha repetida está incorreta. Repita a senha da carteira novamente."
 }

@@ -674,5 +674,11 @@
   "support_title_other_links": "Tautan dukungan lainnya",
   "support_description_other_links": "Bergabunglah dengan komunitas kami atau hubungi kami mitra kami melalui metode lain",
   "select_destination": "Silakan pilih tujuan untuk file cadangan.",
-  "save_to_downloads": "Simpan ke Unduhan"
+  "save_to_downloads": "Simpan ke Unduhan",
+  "invalid_password": "Kata sandi salah",
+  "unlock": "Membuka kunci",
+  "enter_wallet_password": "Masukkan Kata Sandi Dompet",
+  "repeat_wallet_password": "Ulangi Kata Sandi Dompet",
+  "wallet_password_is_empty": "Kata sandi dompet kosong. Kata sandi dompet tidak boleh kosong",
+  "repeated_password_is_incorrect": "Kata sandi yang diulang tidak benar. Harap ulangi kata sandi dompet lagi."
 }

@@ -680,5 +680,11 @@
   "matrix_green_dark_theme": "Matrix Green Dark Akori",
   "monero_light_theme": "Monero Light Akori",
   "select_destination": "Jọwọ yan ibi ti o nlo fun faili afẹyinti.",
-  "save_to_downloads": "Fipamọ si Awọn igbasilẹ"
+  "save_to_downloads": "Fipamọ si Awọn igbasilẹ",
+  "invalid_password": "Ọrọ igbaniwọle ti ko wulo",
+  "unlock": "Sisalẹ",
+  "enter_wallet_password": "Tẹ ọrọ igbaniwọle apamọwọ",
+  "repeat_wallet_password": "Tun ọrọ igbaniwọle apamọwọ naa",
+  "wallet_password_is_empty": "Ọrọ igbaniwọle apamọwọ ti ṣofo. Ọrọ igbaniwọle apamọwọ ko yẹ ki o ṣofo",
+  "repeated_password_is_incorrect": "Ọrọ igbaniwọle tun jẹ aṣiṣe. Jọwọ tun ọrọigbaniwọle apamọwọ lẹẹkansi."
 }

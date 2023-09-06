@@ -682,5 +682,11 @@
   "support_title_other_links": "روابط دعم أخرى",
   "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى",
   "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
-  "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ"
+  "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
+  "invalid_password": "رمز مرور خاطئ",
+  "unlock": "الغاء القفل",
+  "enter_wallet_password": "أدخل كلمة مرور المحفظة",
+  "repeat_wallet_password": "كرر كلمة مرور المحفظة",
+  "wallet_password_is_empty": "كلمة مرور المحفظة فارغة. يجب ألا تكون كلمة مرور المحفظة فارغة",
+  "repeated_password_is_incorrect": "كلمة المرور المتكررة غير صحيحة. يرجى تكرار كلمة مرور المحفظة مرة أخرى."
 }

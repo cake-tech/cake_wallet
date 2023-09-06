@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class RestoreButton extends StatelessWidget {
-  const RestoreButton(
-      {required this.onPressed,
-      required this.image,
-      required this.title,
-      required this.description});
+  const RestoreButton({
+    required this.onPressed,
+    required this.image,
+    required this.title,
+    required this.description});
 
   final VoidCallback onPressed;
   final Image image;

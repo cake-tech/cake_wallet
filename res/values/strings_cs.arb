@@ -678,5 +678,11 @@
   "support_title_other_links": "Další odkazy na podporu",
   "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody",
   "select_destination": "Vyberte cíl pro záložní soubor.",
-  "save_to_downloads": "Uložit do Stažených souborů"
+  "save_to_downloads": "Uložit do Stažených souborů",
+  "invalid_password": "Neplatné heslo",
+  "unlock": "Odemknout",
+  "enter_wallet_password": "Zadejte heslo peněženky",
+  "repeat_wallet_password": "Opakujte heslo peněženky",
+  "wallet_password_is_empty": "Heslo peněženky je prázdné. Heslo peněženky by nemělo být prázdné",
+  "repeated_password_is_incorrect": "Opakované heslo je nesprávné. Znovu opakujte heslo peněženky."
 }

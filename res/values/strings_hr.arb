@@ -686,5 +686,11 @@
   "support_title_other_links": "Ostale veze za podršku",
   "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama",
   "select_destination": "Odaberite odredište za datoteku sigurnosne kopije.",
-  "save_to_downloads": "Spremi u Preuzimanja"
+  "save_to_downloads": "Spremi u Preuzimanja",
+  "invalid_password": "Netočna zaporka",
+  "unlock": "Otključati",
+  "enter_wallet_password": "Unesite lozinku za novčanik",
+  "repeat_wallet_password": "Ponovite lozinku za novčanik",
+  "wallet_password_is_empty": "Lozinka za novčanik je prazna. Lozinka za novčanik ne bi trebala biti prazna",
+  "repeated_password_is_incorrect": "Ponovljena lozinka je netočna. Molimo ponovite lozinku za novčanik."
 }

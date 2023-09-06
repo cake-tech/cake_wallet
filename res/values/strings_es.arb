@@ -686,5 +686,11 @@
   "support_title_other_links": "Otros enlaces de soporte",
   "support_description_other_links": "Únase a nuestras comunidades o comuníquese con nosotros nuestros socios a través de otros métodos",
   "select_destination": "Seleccione el destino del archivo de copia de seguridad.",
-  "save_to_downloads": "Guardar en Descargas"
+  "save_to_downloads": "Guardar en Descargas",
+  "invalid_password": "Contraseña invalida",
+  "unlock": "desbloquear",
+  "enter_wallet_password": "Ingrese la contraseña de la billetera",
+  "repeat_wallet_password": "Repita la contraseña de billetera",
+  "wallet_password_is_empty": "La contraseña de billetera está vacía. La contraseña de la billetera no debe estar vacía",
+  "repeated_password_is_incorrect": "La contraseña repetida es incorrecta. Repita la contraseña de la billetera nuevamente."
 }

@@ -686,5 +686,11 @@
   "support_title_other_links": "Autres liens d'assistance",
   "support_description_other_links": "Rejoignez nos communautés ou contactez-nous nos partenaires à travers d'autres méthodes",
   "select_destination": "Veuillez sélectionner la destination du fichier de sauvegarde.",
-  "save_to_downloads": "Enregistrer dans les téléchargements"
+  "save_to_downloads": "Enregistrer dans les téléchargements",
+  "invalid_password": "Mot de passe incorrect",
+  "unlock": "Ouvrir",
+  "enter_wallet_password": "Entrez le mot de passe du portefeuille",
+  "repeat_wallet_password": "Répétez le mot de passe du portefeuille",
+  "wallet_password_is_empty": "Le mot de passe du portefeuille est vide. Le mot de passe du portefeuille ne doit pas être vide",
+  "repeated_password_is_incorrect": "Le mot de passe répété est incorrect. Veuillez répéter le mot de passe du portefeuille."
 }

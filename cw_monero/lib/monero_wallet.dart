@@ -39,8 +39,10 @@ class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
 abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     MoneroTransactionHistory, MoneroTransactionInfo> with Store {
-  MoneroWalletBase({required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo})
+  MoneroWalletBase({
+      required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
               fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
@@ -48,6 +50,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
+        _password = password,
         walletAddresses = MoneroWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
@@ -87,6 +90,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String get seed => monero_wallet.getSeed();
 
   @override
+  String get password => _password;
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
@@ -99,6 +105,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
   List<MoneroUnspent> unspentCoins;
+  String _password;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -352,6 +359,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<void> changePassword(String password) async {
     monero_wallet.setPasswordSync(password);
+    _password = password;
   }
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
@@ -378,7 +386,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> updateUnspent() async {
-    refreshCoins(walletAddresses.account!.id);
+    // refreshCoins(walletAddresses.account!.id);
 
     unspentCoins.clear();
 

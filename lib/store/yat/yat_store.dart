@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:cake_wallet/store/yat/yat_exception.dart';
 import 'package:http/http.dart';
 import 'dart:async';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 
 part 'yat_store.g.dart';
 
@@ -193,7 +193,7 @@ abstract class YatStoreBase with Store {
 
   AppStore appStore;
 
-  FlutterSecureStorage secureStorage;
+  SecureStorage secureStorage;
 
   @observable
   String emoji;

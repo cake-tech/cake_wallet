@@ -678,5 +678,11 @@
   "support_title_other_links": "دوسرے سپورٹ لنکس",
   "support_description_other_links": "ہماری برادریوں میں شامل ہوں یا دوسرے طریقوں سے ہمارے شراکت داروں تک پہنچیں",
   "select_destination": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﻝﺰﻨﻣ ﮯﯿﻟ ﮯﮐ ﻞﺋﺎﻓ ﭖﺍ ﮏﯿﺑ ﻡﺮﮐ ﮦﺍﺮﺑ",
-  "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ"
+  "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ",
+  "invalid_password": "غلط پاسورڈ",
+  "unlock": "غیر مقفل",
+  "enter_wallet_password": "پرس کا پاس ورڈ درج کریں",
+  "repeat_wallet_password": "بٹوے کا پاس ورڈ دہرائیں",
+  "wallet_password_is_empty": "پرس کا پاس ورڈ خالی ہے۔ پرس کا پاس ورڈ خالی نہیں ہونا چاہئے",
+  "repeated_password_is_incorrect": "بار بار پاس ورڈ غلط ہے۔ براہ کرم دوبارہ پرس کا پاس ورڈ دہرائیں۔"
 }

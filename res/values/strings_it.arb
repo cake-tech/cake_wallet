@@ -686,5 +686,11 @@
   "support_title_other_links": "Altri collegamenti di supporto",
   "support_description_other_links": "Unisciti alle nostre comunità o raggiungici i nostri partner attraverso altri metodi",
   "select_destination": "Seleziona la destinazione per il file di backup.",
-  "save_to_downloads": "Salva in Download"
+  "save_to_downloads": "Salva in Download",
+  "invalid_password": "Password non valida",
+  "unlock": "Sbloccare",
+  "enter_wallet_password": "Immettere la password del portafoglio",
+  "repeat_wallet_password": "Ripeti la password del portafoglio",
+  "wallet_password_is_empty": "La password del portafoglio è vuota. La password del portafoglio non dovrebbe essere vuota",
+  "repeated_password_is_incorrect": "La password ripetuta non è corretta. Si prega di ripetere di nuovo la password del portafoglio."
 }

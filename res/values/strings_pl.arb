@@ -686,5 +686,11 @@
   "support_title_other_links": "Inne linki wsparcia",
   "support_description_other_links": "Dołącz do naszych społeczności lub skontaktuj się z nami naszymi partnerami za pomocą innych metod",
   "select_destination": "Wybierz miejsce docelowe dla pliku kopii zapasowej.",
-  "save_to_downloads": "Zapisz w Pobranych"
+  "save_to_downloads": "Zapisz w Pobranych",
+  "invalid_password": "Nieprawidłowe hasło",
+  "unlock": "Odblokować",
+  "enter_wallet_password": "Wprowadź hasło portfela",
+  "repeat_wallet_password": "Powtórz hasło portfela",
+  "wallet_password_is_empty": "Hasło portfela jest puste. Hasło portfela nie powinno być puste",
+  "repeated_password_is_incorrect": "Powtarzane hasło jest nieprawidłowe. Powtórz ponownie hasło portfela."
 }
