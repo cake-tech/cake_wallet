@@ -6,7 +6,9 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/foundation.dart';
@@ -40,6 +42,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/cake_hive.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -58,7 +61,8 @@ Future<void> main() async {
 
       return true;
     };
-    await Hive.close();
+
+    await CakeHive.close();
 
     await initializeAppConfigs();
 
@@ -71,69 +75,73 @@ Future<void> main() async {
 Future<void> initializeAppConfigs() async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
-  Hive.init(appDir.path);
+  CakeHive.init(appDir.path);
 
-  if (!Hive.isAdapterRegistered(Contact.typeId)) {
-    Hive.registerAdapter(ContactAdapter());
+  if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
+    CakeHive.registerAdapter(ContactAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Node.typeId)) {
-    Hive.registerAdapter(NodeAdapter());
+  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
+    CakeHive.registerAdapter(NodeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(TransactionDescription.typeId)) {
-    Hive.registerAdapter(TransactionDescriptionAdapter());
+  if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
+    CakeHive.registerAdapter(TransactionDescriptionAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Trade.typeId)) {
-    Hive.registerAdapter(TradeAdapter());
+  if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
+    CakeHive.registerAdapter(TradeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
-    Hive.registerAdapter(WalletInfoAdapter());
+  if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
+    CakeHive.registerAdapter(AddressInfoAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
-    Hive.registerAdapter(WalletTypeAdapter());
+  if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
+    CakeHive.registerAdapter(WalletInfoAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Template.typeId)) {
-    Hive.registerAdapter(TemplateAdapter());
+  if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(WalletTypeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(ExchangeTemplate.typeId)) {
-    Hive.registerAdapter(ExchangeTemplateAdapter());
+  if (!CakeHive.isAdapterRegistered(Template.typeId)) {
+    CakeHive.registerAdapter(TemplateAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Order.typeId)) {
-    Hive.registerAdapter(OrderAdapter());
+  if (!CakeHive.isAdapterRegistered(ExchangeTemplate.typeId)) {
+    CakeHive.registerAdapter(ExchangeTemplateAdapter());
   }
 
-  if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
-    Hive.registerAdapter(UnspentCoinsInfoAdapter());
+  if (!CakeHive.isAdapterRegistered(Order.typeId)) {
+    CakeHive.registerAdapter(OrderAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
-    Hive.registerAdapter(AnonpayInvoiceInfoAdapter());
+  if (!isMoneroOnly && !CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+    CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
   }
 
-    final secureStorage = secureStorageShared;
-    final transactionDescriptionsBoxKey =
-        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
-    final contacts = await Hive.openBox<Contact>(Contact.boxName);
-    final nodes = await Hive.openBox<Node>(Node.boxName);
-    final transactionDescriptions = await Hive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-    final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-    final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
-    final templates = await Hive.openBox<Template>(Template.boxName);
-    final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-    final unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+  if (!CakeHive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
+    CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
+  }
+
+  final secureStorage = secureStorageShared;
+  final transactionDescriptionsBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
+  final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
+  final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
+  final nodes = await CakeHive.openBox<Node>(Node.boxName);
+  final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
+      TransactionDescription.boxName,
+      encryptionKey: transactionDescriptionsBoxKey);
+  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  final templates = await CakeHive.openBox<Template>(Template.boxName);
+  final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+  final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),

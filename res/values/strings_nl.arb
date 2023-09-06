@@ -634,6 +634,7 @@
   "setup_totp_recommended": "TOTP instellen (aanbevolen)",
   "disable_buy": "Koopactie uitschakelen",
   "disable_sell": "Verkoopactie uitschakelen",
+  "auto_generate_subaddresses": "Automatisch subadressen genereren",
   "cake_2fa_preset": "Taart 2FA Voorinstelling",
   "narrow": "Smal",
   "normal": "Normaal",

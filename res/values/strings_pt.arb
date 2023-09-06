@@ -633,6 +633,7 @@
   "setup_totp_recommended": "Configurar TOTP (recomendado)",
   "disable_buy": "Desativar ação de compra",
   "disable_sell": "Desativar ação de venda",
+  "auto_generate_subaddresses": "Gerar subendereços automaticamente",
   "cake_2fa_preset": "Predefinição de bolo 2FA",
   "narrow": "Estreito",
   "normal": "Normal",

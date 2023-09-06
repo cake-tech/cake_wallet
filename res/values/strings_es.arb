@@ -640,6 +640,7 @@
   "high_contrast_theme": "Tema de alto contraste",
   "matrix_green_dark_theme": "Matrix verde oscuro tema",
   "monero_light_theme": "Tema ligero de Monero",
+  "auto_generate_subaddresses": "Generar subdirecciones automáticamente",
   "cake_2fa_preset": "Pastel 2FA preestablecido",
   "narrow": "Angosto",
   "normal": "Normal",

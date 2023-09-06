@@ -75,6 +75,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();

@@ -73,12 +73,12 @@ class DesktopDashboardActions extends StatelessWidget {
                   ),
                 ],
               ),
-              Expanded(
-                child: MarketPlacePage(
-                  dashboardViewModel: dashboardViewModel,
-                  marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
-                ),
+            Expanded(
+              child: MarketPlacePage(
+                dashboardViewModel: dashboardViewModel,
+                marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
               ),
+            ),
             ],
           );
         }

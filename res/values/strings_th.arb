@@ -685,6 +685,7 @@
   "support_description_other_links": "เข้าร่วมชุมชนของเราหรือเข้าถึงเราพันธมิตรของเราผ่านวิธีการอื่น ๆ",
   "select_destination": "โปรดเลือกปลายทางสำหรับไฟล์สำรอง",
   "save_to_downloads": "บันทึกลงดาวน์โหลด",
+  "auto_generate_subaddresses": "Auto สร้าง subaddresses",
   "invalid_password": "รหัสผ่านไม่ถูกต้อง",
   "unlock": "ปลดล็อค",
   "enter_wallet_password": "ป้อนรหัสผ่านกระเป๋าเงิน",

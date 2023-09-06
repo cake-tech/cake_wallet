@@ -163,7 +163,11 @@ jobs:
 
       - name: Send Test APK
         continue-on-error: true
-        run: |
-          cd /opt/android/cake_wallet
-          var=$(curl --upload-file build/app/outputs/apk/release/app-release.apk https://transfer.sh/$GITHUB_HEAD_REF.apk -H "Max-Days: 10")
-          curl ${{ secrets.SLACK_WEB_HOOK }} -H "Content-Type: application/json" -d '{"apk_link": "'"$var"'","ticket": "'"$GITHUB_HEAD_REF"'"}'
+        uses: adrey/slack-file-upload-action@1.0.5
+        with:
+          token: ${{ secrets.SLACK_APP_TOKEN }}
+          path: /opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk
+          channel: ${{ secrets.SLACK_APK_CHANNEL }}
+          title: '${{github.head_ref}}.apk'
+          filename: ${{github.head_ref}}.apk
+          initial_comment: ${{ github.event.head_commit.message }}

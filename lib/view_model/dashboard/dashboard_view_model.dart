@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
@@ -234,6 +235,10 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   double get price => balanceViewModel.price;
+
+  @computed
+  bool get isAutoGenerateSubaddressesEnabled =>
+      settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
   @computed
   List<ActionListItem> get items {
