@@ -3,12 +3,8 @@ import 'package:cw_core/currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_nano/nano_util.dart';
 
-String rawToFormattedAmount(BigInt amount, Currency currency) {
-  return "";
-}
-
 BigInt stringAmountToBigInt(String amount) {
-  return BigInt.zero;
+  return BigInt.parse(NanoUtil.getAmountAsRaw(amount, NanoUtil.rawPerNano));
 }
 
 class NanoBalance extends Balance {

@@ -1,4 +1,4 @@
-library cw_ethereum;
+library cw_nano;
 
 /// A Calculator.
 class Calculator {

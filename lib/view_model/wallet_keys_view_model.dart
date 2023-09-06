@@ -110,7 +110,7 @@ abstract class WalletKeysViewModelBase with Store {
       final keys = nano!.getKeys(_appStore.wallet!);
 
       // we don't necessarily have the seed phrase for nano / banano:
-      if (_appStore.wallet!.seed != "") {
+      if (_appStore.wallet!.seed != null) {
         items.addAll([
           StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
         ]);

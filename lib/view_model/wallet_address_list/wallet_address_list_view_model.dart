@@ -133,9 +133,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts =
             appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
-        /* ||
-            appStore.wallet!.type == WalletType.nano ||
-            appStore.wallet!.type == WalletType.banano,*/ // TODO: nano additional accounts disabled for now
         amount = '',
         super(appStore: appStore) {
     _init();
