@@ -21,7 +21,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     'key': secrets.fiatApiKey,
   };
 
-  double price = 0.0;
+  num price = 0.0;
 
   try {
     late final Uri uri;
@@ -41,12 +41,12 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     final results = responseJSON['results'] as Map<String, dynamic>;
 
     if (results.isNotEmpty) {
-      price = results.values.first as double;
+      price = results.values.first as num;
     }
 
-    return price;
+    return price.toDouble();
   } catch (e) {
-    return price;
+    return price.toDouble();
   }
 }
 

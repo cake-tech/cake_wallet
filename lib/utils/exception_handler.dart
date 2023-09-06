@@ -148,6 +148,7 @@ class ExceptionHandler {
     "CERTIFICATE_VERIFY_FAILED",
     "Handshake error in client",
     "Error while launching http",
+    "OS Error: Network is unreachable",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

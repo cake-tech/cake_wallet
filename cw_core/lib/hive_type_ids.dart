@@ -9,5 +9,5 @@ const EXCHANGE_TEMPLATE_TYPE_ID     = 7;
 const ORDER_TYPE_ID                 = 8;
 const UNSPENT_COINS_INFO_TYPE_ID    = 9;
 const ANONPAY_INVOICE_INFO_TYPE_ID  = 10;
-
+const ADDRESS_INFO_TYPE_ID          = 11;
 const ERC20_TOKEN_TYPE_ID           = 12;

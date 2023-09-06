@@ -3,8 +3,10 @@
 #include <chrono>
 #include <functional>
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <mutex>
+#include <list>
 #include "thread"
 #include "CwWalletListener.h"
 #if __APPLE__
@@ -137,7 +139,7 @@ extern "C"
         int8_t direction;
         int8_t isPending;
         uint32_t subaddrIndex;
-        
+
         char *hash;
         char *paymentId;
 
@@ -152,7 +154,7 @@ extern "C"
             std::set<uint32_t>::iterator it = transaction->subaddrIndex().begin();
             subaddrIndex = *it;
             confirmations = transaction->confirmations();
-            datetime = static_cast<int64_t>(transaction->timestamp());            
+            datetime = static_cast<int64_t>(transaction->timestamp());
             direction = transaction->direction();
             isPending = static_cast<int8_t>(transaction->isPending());
             std::string *hash_str = new std::string(transaction->hash());
@@ -181,6 +183,62 @@ extern "C"
         }
     };
 
+    struct CoinsInfoRow
+    {
+        uint64_t blockHeight;
+        char *hash;
+        uint64_t internalOutputIndex;
+        uint64_t globalOutputIndex;
+        bool spent;
+        bool frozen;
+        uint64_t spentHeight;
+        uint64_t amount;
+        bool rct;
+        bool keyImageKnown;
+        uint64_t pkIndex;
+        uint32_t subaddrIndex;
+        uint32_t subaddrAccount;
+        char *address;
+        char *addressLabel;
+        char *keyImage;
+        uint64_t unlockTime;
+        bool unlocked;
+        char *pubKey;
+        bool coinbase;
+        char *description;
+
+        CoinsInfoRow(Monero::CoinsInfo *coinsInfo)
+        {
+            blockHeight = coinsInfo->blockHeight();
+             std::string *hash_str = new std::string(coinsInfo->hash());
+            hash = strdup(hash_str->c_str());
+            internalOutputIndex = coinsInfo->internalOutputIndex();
+            globalOutputIndex = coinsInfo->globalOutputIndex();
+            spent = coinsInfo->spent();
+            frozen = coinsInfo->frozen();
+            spentHeight = coinsInfo->spentHeight();
+            amount = coinsInfo->amount();
+            rct = coinsInfo->rct();
+            keyImageKnown = coinsInfo->keyImageKnown();
+            pkIndex = coinsInfo->pkIndex();
+            subaddrIndex = coinsInfo->subaddrIndex();
+            subaddrAccount = coinsInfo->subaddrAccount();
+            address =  strdup(coinsInfo->address().c_str()) ;
+            addressLabel = strdup(coinsInfo->addressLabel().c_str());
+            keyImage = strdup(coinsInfo->keyImage().c_str());
+            unlockTime = coinsInfo->unlockTime();
+            unlocked = coinsInfo->unlocked();
+            pubKey = strdup(coinsInfo->pubKey().c_str());
+            coinbase = coinsInfo->coinbase();
+            description = strdup(coinsInfo->description().c_str());
+        }
+
+        void setUnlocked(bool unlocked);
+
+    };
+
+    Monero::Coins *m_coins;
+
     Monero::Wallet *m_wallet;
     Monero::TransactionHistory *m_transaction_history;
     MoneroWalletListener *m_listener;
@@ -188,6 +246,7 @@ extern "C"
     Monero::SubaddressAccount *m_account;
     uint64_t m_last_known_wallet_height;
     uint64_t m_cached_syncing_blockchain_height = 0;
+    std::list<Monero::CoinsInfo*> m_coins_info;
     std::mutex store_lock;
     bool is_storing = false;
 
@@ -195,7 +254,7 @@ extern "C"
     {
         m_wallet = wallet;
         m_listener = nullptr;
-        
+
 
         if (wallet != nullptr)
         {
@@ -222,6 +281,17 @@ extern "C"
         else
         {
             m_subaddress = nullptr;
+        }
+
+        m_coins_info = std::list<Monero::CoinsInfo*>();
+
+        if (wallet != nullptr)
+        {
+            m_coins = wallet->coins();
+        }
+        else
+        {
+            m_coins = nullptr;
         }
     }
 
@@ -405,13 +475,14 @@ extern "C"
         return is_connected;
     }
 
-    bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
+    bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *socksProxyAddress, char *error)
     {
         nice(19);
         Monero::Wallet *wallet = get_current_wallet();
-        
+
         std::string _login = "";
         std::string _password = "";
+        std::string _socksProxyAddress = "";
 
         if (login != nullptr)
         {
@@ -423,7 +494,12 @@ extern "C"
             _password = std::string(password);
         }
 
-        bool inited = wallet->init(std::string(address), 0, _login, _password, use_ssl, is_light_wallet);
+        if (socksProxyAddress != nullptr)
+                {
+                    _socksProxyAddress = std::string(socksProxyAddress);
+                }
+
+        bool inited = wallet->init(std::string(address), 0, _login, _password, use_ssl, is_light_wallet, _socksProxyAddress);
 
         if (!inited)
         {
@@ -480,10 +556,19 @@ extern "C"
     }
 
     bool transaction_create(char *address, char *payment_id, char *amount,
-                                              uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
+                            uint8_t priority_raw, uint32_t subaddr_account,
+                            char **preferred_inputs, uint32_t preferred_inputs_size,
+                            Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         nice(19);
-        
+
+        std::set<std::string> _preferred_inputs;
+
+        for (int i = 0; i < preferred_inputs_size; i++) {
+            _preferred_inputs.insert(std::string(*preferred_inputs));
+            preferred_inputs++;
+        }
+
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
         std::string _payment_id;
         Monero::PendingTransaction *transaction;
@@ -496,13 +581,13 @@ extern "C"
         if (amount != nullptr)
         {
             uint64_t _amount = Monero::Wallet::amountFromString(std::string(amount));
-            transaction = m_wallet->createTransaction(std::string(address), _payment_id, _amount, m_wallet->defaultMixin(), priority, subaddr_account);
+            transaction = m_wallet->createTransaction(std::string(address), _payment_id, _amount, m_wallet->defaultMixin(), priority, subaddr_account, {}, _preferred_inputs);
         }
         else
         {
-            transaction = m_wallet->createTransaction(std::string(address), _payment_id, Monero::optional<uint64_t>(), m_wallet->defaultMixin(), priority, subaddr_account);
+            transaction = m_wallet->createTransaction(std::string(address), _payment_id, Monero::optional<uint64_t>(), m_wallet->defaultMixin(), priority, subaddr_account, {}, _preferred_inputs);
         }
-        
+
         int status = transaction->status();
 
         if (status == Monero::PendingTransaction::Status::Status_Error || status == Monero::PendingTransaction::Status::Status_Critical)
@@ -520,7 +605,9 @@ extern "C"
     }
 
     bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
-                                                  uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
+                                      uint8_t priority_raw, uint32_t subaddr_account,
+                                      char **preferred_inputs, uint32_t preferred_inputs_size,
+                                      Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
         nice(19);
 
@@ -532,6 +619,13 @@ extern "C"
             _amounts.push_back(Monero::Wallet::amountFromString(std::string(*amounts)));
             addresses++;
             amounts++;
+        }
+
+        std::set<std::string> _preferred_inputs;
+
+        for (int i = 0; i < preferred_inputs_size; i++) {
+            _preferred_inputs.insert(std::string(*preferred_inputs));
+            preferred_inputs++;
         }
 
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
@@ -792,6 +886,91 @@ extern "C"
     {
         return m_wallet->trustedDaemon();
     }
+
+    CoinsInfoRow* coin(int index)
+    {
+        if (index >= 0 && index < m_coins_info.size()) {
+            std::list<Monero::CoinsInfo*>::iterator it = m_coins_info.begin();
+            std::advance(it, index);
+            Monero::CoinsInfo* element = *it;
+            std::cout << "Element at index " << index << ": " << element << std::endl;
+            return new CoinsInfoRow(element);
+        } else {
+            std::cout << "Invalid index." << std::endl;
+            return nullptr; // Return a default value (nullptr) for invalid index
+        }
+    }
+
+    void refresh_coins(uint32_t accountIndex)
+    {
+        m_coins_info.clear();
+
+        m_coins->refresh();
+        for (const auto i : m_coins->getAll()) {
+            if (i->subaddrAccount() == accountIndex && !(i->spent())) {
+                m_coins_info.push_back(i);
+            }
+        }
+    }
+
+    uint64_t coins_count()
+    {
+        return m_coins_info.size();
+    }
+
+    CoinsInfoRow** coins_from_account(uint32_t accountIndex)
+    {
+        std::vector<CoinsInfoRow*> matchingCoins;
+
+        for (int i = 0; i < coins_count(); i++) {
+            CoinsInfoRow* coinInfo = coin(i);
+            if (coinInfo->subaddrAccount == accountIndex) {
+                matchingCoins.push_back(coinInfo);
+            }
+        }
+
+        CoinsInfoRow** result = new CoinsInfoRow*[matchingCoins.size()];
+        std::copy(matchingCoins.begin(), matchingCoins.end(), result);
+        return result;
+    }
+
+    CoinsInfoRow** coins_from_txid(const char* txid, size_t* count)
+    {
+        std::vector<CoinsInfoRow*> matchingCoins;
+
+        for (int i = 0; i < coins_count(); i++) {
+            CoinsInfoRow* coinInfo = coin(i);
+            if (std::string(coinInfo->hash) == txid) {
+                matchingCoins.push_back(coinInfo);
+            }
+        }
+
+        *count = matchingCoins.size();
+        CoinsInfoRow** result = new CoinsInfoRow*[*count];
+        std::copy(matchingCoins.begin(), matchingCoins.end(), result);
+        return result;
+    }
+
+    CoinsInfoRow** coins_from_key_image(const char** keyimages, size_t keyimageCount, size_t* count)
+    {
+        std::vector<CoinsInfoRow*> matchingCoins;
+
+        for (int i = 0; i < coins_count(); i++) {
+            CoinsInfoRow* coinsInfoRow = coin(i);
+            for (size_t j = 0; j < keyimageCount; j++) {
+                if (coinsInfoRow->keyImageKnown && std::string(coinsInfoRow->keyImage) == keyimages[j]) {
+                    matchingCoins.push_back(coinsInfoRow);
+                    break;
+                }
+            }
+        }
+
+        *count = matchingCoins.size();
+        CoinsInfoRow** result = new CoinsInfoRow*[*count];
+        std::copy(matchingCoins.begin(), matchingCoins.end(), result);
+        return result;
+    }
+
 
 #ifdef __cplusplus
 }
