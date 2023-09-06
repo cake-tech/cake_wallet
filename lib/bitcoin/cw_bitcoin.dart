@@ -1,6 +1,7 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
+
   @override
   TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 
