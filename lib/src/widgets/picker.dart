@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
@@ -383,7 +384,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 ),
               ),
             ),
-            Icon(Icons.check_circle, color: Theme.of(context).primaryColor),
+            StandardCheckbox(
+              value: true,
+              gradientBackground: true,
+              borderColor: Theme.of(context).dividerColor,
+              iconColor: Colors.white,
+              onChanged: (value) {},
+            )
           ],
         ),
       ),
