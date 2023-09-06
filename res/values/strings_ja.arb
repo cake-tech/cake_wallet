@@ -692,5 +692,6 @@
   "choose_derivation": "ウォレット派生を選択します",
   "new_first_wallet_text": "暗号通貨を簡単に安全に保ちます",
   "select_destination": "バックアップファイルの保存先を選択してください。",
-  "save_to_downloads": "ダウンロードに保存"
+  "save_to_downloads": "ダウンロードに保存",
+  "auto_generate_subaddresses": "Autoはサブアドレスを生成します"
 }

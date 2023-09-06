@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -57,13 +58,17 @@ void startCurrentWalletChangeReaction(
       }
 
       final node = settingsStore.getCurrentNode(wallet.type);
-      
+
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
       await getIt
           .get<SharedPreferences>()
           .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+
+      if (wallet.type == WalletType.monero) {
+        _setAutoGenerateSubaddressStatus(wallet, settingsStore);
+      }
 
       await wallet.connectToNode(node: node);
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
@@ -118,4 +123,18 @@ void startCurrentWalletChangeReaction(
       print(e.toString());
     }
   });
+}
+
+void _setAutoGenerateSubaddressStatus(
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+  SettingsStore settingsStore,
+) async {
+  final walletHasAddresses = await wallet.walletAddresses.addressesMap.length > 1;
+  if (settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized &&
+      walletHasAddresses) {
+    settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
+  }
+  wallet.isEnabledAutoGenerateSubaddress =
+      settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled ||
+          settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized;
 }

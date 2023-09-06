@@ -684,5 +684,6 @@
   "choose_derivation": "پرس سے ماخوذ منتخب کریں",
   "new_first_wallet_text": "آسانی سے اپنے cryptocurrency محفوظ رکھیں",
   "select_destination": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﻝﺰﻨﻣ ﮯﯿﻟ ﮯﮐ ﻞﺋﺎﻓ ﭖﺍ ﮏﯿﺑ ﻡﺮﮐ ﮦﺍﺮﺑ",
-  "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ"
+  "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ",
+  "auto_generate_subaddresses": "آٹو سب ایڈریس تیار کرتا ہے"
 }

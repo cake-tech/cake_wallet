@@ -117,7 +117,6 @@ abstract class NanoWalletBase
 
   @override
   Future<void> changePassword(String password) {
-    print("e");
     throw UnimplementedError("changePassword");
   }
 
@@ -213,7 +212,6 @@ abstract class NanoWalletBase
 
     return PendingNanoTransaction(
       amount: runningAmount,
-      fee: 0,
       id: "",
       nanoClient: _client,
       blocks: blocks,
@@ -280,6 +278,9 @@ abstract class NanoWalletBase
   NanoWalletKeys get keys {
     return NanoWalletKeys(seedKey: _seedKey!);
   }
+
+  @override
+  String? get privateKey => _seedKey!;
 
   @override
   Future<void> rescan({required int height}) async {
@@ -371,7 +372,7 @@ abstract class NanoWalletBase
     try {
       balance[currency] = await _client.getBalance(_publicAddress!);
     } catch (e) {
-      throw Exception("Failed to get balance $e");
+      print("Failed to get balance $e");
     }
     await save();
   }

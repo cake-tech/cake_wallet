@@ -29,7 +29,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Observer(
-      builder: (_) => FutureBuilder<List<Derivation>>(
+      builder: (_) => FutureBuilder<List<DerivationInfo>>(
         future: walletRestoreChooseDerivationViewModel.derivations,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -56,13 +56,13 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(15),
                     onTap: () async {
-                      Navigator.pop(context, derivation.derivationType);
+                      Navigator.pop(context, derivation);
                     },
                     child: ListTile(
                       contentPadding: EdgeInsets.all(16),
                       title: Center(
                         child: Text(
-                          "${derivation.derivationType.toString().split('.').last}",
+                          "${derivation.description ?? derivation.derivationType.toString().split('.').last}",
                           style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
@@ -73,6 +73,17 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (derivation.derivationPath != null)
+                            Text(
+                              derivation.derivationPath!,
+                              style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .extension<CakeTextTheme>()!
+                                        .secondaryTextColor,
+                                  ),
+                            ),
                           Text(
                             derivation.address,
                             style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -5,16 +6,12 @@ import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cw_core/currency.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
@@ -126,23 +123,27 @@ class NanoURI extends PaymentURI {
   }
 }
 
-abstract class WalletAddressListViewModelBase with Store {
+abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
     required this.yatStore,
     required this.fiatConversionStore,
-  })  : _appStore = appStore,
-        _baseItems = <ListItem>[],
-        _wallet = appStore.wallet!,
+  })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts =
             appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
-        /* ||
-            appStore.wallet!.type == WalletType.nano ||
-            appStore.wallet!.type == WalletType.banano,*/ // TODO: nano additional accounts disabled for now
-        amount = '' {
+        amount = '',
+        super(appStore: appStore) {
     _init();
+  }
+
+  @override
+  void onWalletChange(wallet) {
+    _init();
+
+    selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
+    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.haven;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -151,7 +152,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
   final FiatConversionStore fiatConversionStore;
 
-  List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
+  List<Currency> get currencies => [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
 
   @observable
   Currency selectedCurrency;
@@ -163,35 +164,35 @@ abstract class WalletAddressListViewModelBase with Store {
   String amount;
 
   @computed
-  WalletType get type => _wallet.type;
+  WalletType get type => wallet.type;
 
   @computed
   WalletAddressListItem get address =>
-      WalletAddressListItem(address: _wallet.walletAddresses.address, isPrimary: false);
+      WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
 
   @computed
   PaymentURI get uri {
-    if (_wallet.type == WalletType.monero) {
+    if (wallet.type == WalletType.monero) {
       return MoneroURI(amount: amount, address: address.address);
     }
 
-    if (_wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.haven) {
       return HavenURI(amount: amount, address: address.address);
     }
 
-    if (_wallet.type == WalletType.bitcoin) {
+    if (wallet.type == WalletType.bitcoin) {
       return BitcoinURI(amount: amount, address: address.address);
     }
 
-    if (_wallet.type == WalletType.litecoin) {
+    if (wallet.type == WalletType.litecoin) {
       return LitecoinURI(amount: amount, address: address.address);
     }
 
-    if (_wallet.type == WalletType.ethereum) {
+    if (wallet.type == WalletType.ethereum) {
       return EthereumURI(amount: amount, address: address.address);
     }
 
-    if (_wallet.type == WalletType.nano) {
+    if (wallet.type == WalletType.nano) {
       return NanoURI(amount: amount, address: address.address);
     }
 
@@ -205,7 +206,6 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   ObservableList<ListItem> get addressList {
-    final wallet = _wallet;
     final addressList = ObservableList<ListItem>();
 
     if (wallet.type == WalletType.monero) {
@@ -260,8 +260,6 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   String get accountLabel {
-    final wallet = _wallet;
-
     if (wallet.type == WalletType.monero) {
       return monero!.getCurrentAccount(wallet).label;
     }
@@ -275,39 +273,34 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   bool get hasAddressList =>
-      _wallet.type == WalletType.monero ||
-      _wallet.type == WalletType.haven;/* ||
-      _wallet.type == WalletType.nano ||
-      _wallet.type == WalletType.banano;*/// TODO: nano accounts are disabled for now
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven;/* ||
+      wallet.type == WalletType.nano ||
+      wallet.type == WalletType.banano;*/// TODO: nano accounts are disabled for now
 
   @computed
   bool get showElectrumAddressDisclaimer =>
-      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
-
-  @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+      wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin;
 
   List<ListItem> _baseItems;
-
-  AppStore _appStore;
 
   final YatStore yatStore;
 
   @action
   void setAddress(WalletAddressListItem address) =>
-      _wallet.walletAddresses.address = address.address;
+      wallet.walletAddresses.address = address.address;
 
   void _init() {
     _baseItems = [];
 
-    if (_wallet.type == WalletType.monero ||
-        _wallet.type == WalletType.haven ||
-        _wallet.type == WalletType.nano ||
-        _wallet.type == WalletType.banano) {
+    if (wallet.type == WalletType.monero ||
+        wallet.type == WalletType.haven ||
+        wallet.type == WalletType.nano ||
+        wallet.type == WalletType.banano) {
       _baseItems.add(WalletAccountListHeader());
     }
 
-    if (_wallet.type != WalletType.nano && _wallet.type != WalletType.banano) {
+    if (wallet.type != WalletType.nano && wallet.type != WalletType.banano) {
       _baseItems.add(WalletAddressListHeader());
     }
   }
@@ -326,7 +319,7 @@ abstract class WalletAddressListViewModelBase with Store {
   }
 
   void _convertAmountToCrypto() {
-    final cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
+    final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
     try {
       final crypto =
           double.parse(amount.replaceAll(',', '.')) / fiatConversionStore.prices[cryptoCurrency]!;

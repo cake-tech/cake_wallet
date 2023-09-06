@@ -37,28 +37,33 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.btc) {
-    walletAddresses = BitcoinWalletAddresses(
-        walletInfo,
+    walletAddresses = BitcoinWalletAddresses(walletInfo,
         electrumClient: electrumClient,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
         sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath("m/0'/1"),
+            .derivePath(walletInfo.derivationPath!),
         networkType: networkType);
   }
 
-  static Future<BitcoinWallet> create({
-    required String mnemonic,
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
-    int initialRegularAddressIndex = 0,
-    int initialChangeAddressIndex = 0
-  }) async {
+  static Future<BitcoinWallet> create(
+      {required String mnemonic,
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0}) async {
+    late Uint8List seedBytes;
+    if (walletInfo.derivationType == DerivationType.electrum2) {
+      seedBytes = await mnemonicToSeedBytes(mnemonic);
+    } else {
+      // TODO: add bip39 seed
+      seedBytes = await mnemonicToSeedBytes(mnemonic);
+    }
     return BitcoinWallet(
         mnemonic: mnemonic,
         password: password,
@@ -66,7 +71,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: initialAddresses,
         initialBalance: initialBalance,
-        seedBytes: await mnemonicToSeedBytes(mnemonic),
+        seedBytes: seedBytes,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex);
   }
@@ -78,6 +83,26 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
   }) async {
     final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
+
+    walletInfo.derivationType = snp.derivationType;
+    walletInfo.derivationPath = snp.derivationPath;
+
+    // set the default if not present:
+    if (walletInfo.derivationPath == null) {
+      walletInfo.derivationPath = "m/0'/1";
+    }
+    if (walletInfo.derivationType == null) {
+      walletInfo.derivationType = DerivationType.electrum2;
+    }
+
+    late Uint8List seedBytes;
+    if (walletInfo.derivationType == DerivationType.electrum2) {
+      seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
+    } else {
+      // TODO: add bip39 seed
+      seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
+    }
+
     return BitcoinWallet(
         mnemonic: snp.mnemonic,
         password: password,
@@ -85,7 +110,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: snp.addresses,
         initialBalance: snp.balance,
-        seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+        seedBytes: seedBytes,
         initialRegularAddressIndex: snp.regularAddressIndex,
         initialChangeAddressIndex: snp.changeAddressIndex);
   }

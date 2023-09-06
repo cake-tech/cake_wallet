@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -46,8 +47,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore})
-      : isOutdatedElectrumWallet = false,
-        hasSellAction = false,
+      : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
@@ -107,8 +107,6 @@ abstract class DashboardViewModelBase with Store {
         wallet = appStore.wallet! {
     name = wallet.name;
     type = wallet.type;
-    isOutdatedElectrumWallet =
-        wallet.type == WalletType.bitcoin && wallet.seed!.split(' ').length < 24;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
@@ -240,6 +238,10 @@ abstract class DashboardViewModelBase with Store {
   double get price => balanceViewModel.price;
 
   @computed
+  bool get isAutoGenerateSubaddressesEnabled =>
+      settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+
+  @computed
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
@@ -308,9 +310,6 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
-  @observable
-  bool isOutdatedElectrumWallet;
-
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
@@ -333,8 +332,6 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    isOutdatedElectrumWallet =
-        wallet.type == WalletType.bitcoin && wallet.seed!.split(' ').length < 24;
     updateActions();
 
     if (wallet.type == WalletType.monero) {

@@ -3,53 +3,17 @@ import 'dart:io';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart' as nm;
 import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet.dart';
+import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:nanodart/nanodart.dart';
-
-class NanoNewWalletCredentials extends WalletCredentials {
-  NanoNewWalletCredentials({required String name, String? password})
-      : super(name: name, password: password);
-}
-
-class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
-  NanoRestoreWalletFromSeedCredentials(
-      {required String name,
-      required this.mnemonic,
-      this.derivationType,
-      int height = 0,
-      String? password})
-      : super(name: name, password: password, height: height);
-
-  final String mnemonic;
-  final DerivationType? derivationType;
-}
-
-class NanoWalletLoadingException implements Exception {
-  @override
-  String toString() => 'Failure to load the wallet.';
-}
-
-class NanoRestoreWalletFromKeysCredentials extends WalletCredentials {
-  NanoRestoreWalletFromKeysCredentials({
-    required String name,
-    required String password,
-    required this.seedKey,
-    this.derivationType,
-  }) : super(name: name, password: password);
-
-  final String seedKey;
-  final DerivationType? derivationType;
-}
 
 class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     NanoRestoreWalletFromSeedCredentials, NanoRestoreWalletFromKeysCredentials> {
