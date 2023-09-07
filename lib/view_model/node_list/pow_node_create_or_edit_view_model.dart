@@ -74,7 +74,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
   }
 
   final WalletType _walletType;
-  final Box<PowNode> _nodeSource;
+  final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
 
   @action
@@ -114,8 +114,8 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
   void setSocksProxyAddress(String val) => socksProxyAddress = val;
 
   @action
-  Future<void> save({PowNode? editingNode, bool saveAsCurrent = false}) async {
-    final node = PowNode(
+  Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
+    final node = Node(
         uri: uri,
         type: _walletType,
         login: login,
@@ -145,7 +145,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> connect() async {
-    final node = PowNode(
+    final node = Node(
         uri: uri,
         type: _walletType,
         login: login,
@@ -162,7 +162,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
     }
   }
 
-  PowNode? _existingNode(PowNode node) {
+  Node? _existingNode(Node node) {
     final nodes = _nodeSource.values.toList();
     nodes.forEach((item) {
       item.login ??= '';
@@ -173,7 +173,7 @@ abstract class PowNodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  void setAsCurrent(PowNode node) => _settingsStore.powNodes[_walletType] = node;
+  void setAsCurrent(Node node) => _settingsStore.powNodes[_walletType] = node;
 
   @action
   Future<void> scanQRCodeForNewNode() async {

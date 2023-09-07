@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_create_or_edit_view_model.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/pow_node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -66,7 +67,7 @@ class PowNodeForm extends StatelessWidget {
 
   final PowNodeCreateOrEditViewModel nodeViewModel;
   final GlobalKey<FormState> formKey;
-  final PowNode? editingNode;
+  final Node? editingNode;
 
   final TextEditingController _addressController;
   final TextEditingController _portController;

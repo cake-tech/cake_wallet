@@ -18,7 +18,7 @@ class NanoClient {
       "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
   Node? _node;
-  PowNode? _powNode;
+  Node? _powNode;
 
   bool connect(Node node) {
     try {
@@ -29,7 +29,7 @@ class NanoClient {
     }
   }
 
-  bool connectPow(PowNode node) {
+  bool connectPow(Node node) {
     try {
       _powNode = node;
       return true;

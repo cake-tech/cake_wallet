@@ -151,7 +151,7 @@ abstract class NanoWalletBase
   }
 
   @override
-  Future<void> connectToPowNode({required PowNode node}) async {
+  Future<void> connectToPowNode({required Node node}) async {
     _client.connectPow(node);
   }
 

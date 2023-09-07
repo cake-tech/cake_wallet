@@ -83,7 +83,7 @@ class PowNodeCreateOrEditPage extends BasePage {
       );
       
   final PowNodeCreateOrEditViewModel nodeCreateOrEditViewModel;
-  final PowNode? editingNode;
+  final Node? editingNode;
   final bool? isSelected;
 
   @override

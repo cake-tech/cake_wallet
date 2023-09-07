@@ -335,7 +335,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<PowNodeCreateOrEditPage>(
-              param1: args?['editingNode'] as PowNode?, param2: args?['isSelected'] as bool?));
+              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(

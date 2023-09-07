@@ -101,14 +101,14 @@ Future<List<Node>> loadDefaultNanoNodes() async {
   return nodes;
 }
 
-Future<List<PowNode>> loadDefaultNanoPowNodes() async {
+Future<List<Node>> loadDefaultNanoPowNodes() async {
   final powNodesRaw = await rootBundle.loadString('assets/nano_pow_node_list.yml');
   final loadedPowNodes = loadYaml(powNodesRaw) as YamlList;
-  final nodes = <PowNode>[];
+  final nodes = <Node>[];
 
   for (final raw in loadedPowNodes) {
     if (raw is Map) {
-      final node = PowNode.fromMap(Map<String, Object>.from(raw));
+      final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.nano;
       nodes.add(node);
     }
@@ -136,7 +136,7 @@ Future resetToDefault(Box<Node> nodeSource) async {
   await nodeSource.addAll(nodes);
 }
 
-Future resetPowToDefault(Box<PowNode> powNodeSource) async {
+Future resetPowToDefault(Box<Node> powNodeSource) async {
   final nanoPowNodes = await loadDefaultNanoPowNodes();
   final nodes = nanoPowNodes;
   await powNodeSource.clear();

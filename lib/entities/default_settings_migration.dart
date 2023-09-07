@@ -36,7 +36,7 @@ Future<void> defaultSettingsMigration(
     required SharedPreferences sharedPreferences,
     required FlutterSecureStorage secureStorage,
     required Box<Node> nodes,
-    required Box<PowNode> powNodes,
+    required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Trade> tradeSource,
     required Box<Contact> contactSource}) async {
@@ -320,8 +320,8 @@ Node? getNanoDefaultNode({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.nano);
 }
 
-PowNode? getNanoDefaultPowNode({required Box<PowNode> nodes}) {
-  return nodes.values.firstWhereOrNull((PowNode node) => node.uriRaw == nanoDefaultPowNodeUri) ??
+Node? getNanoDefaultPowNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == nanoDefaultPowNodeUri) ??
       nodes.values.firstWhereOrNull((node) => (node.type == WalletType.nano));
 }
 
@@ -495,7 +495,7 @@ Future<void> changeDefaultMoneroNode(
 }
 
 Future<void> checkCurrentNodes(
-    Box<Node> nodeSource, Box<PowNode> powNodeSource, SharedPreferences sharedPreferences) async {
+    Box<Node> nodeSource, Box<Node> powNodeSource, SharedPreferences sharedPreferences) async {
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentBitcoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -559,10 +559,10 @@ Future<void> checkCurrentNodes(
   }
 
   if (currentNanoPowNodeServer == null) {
-    PowNode? node = powNodeSource.values
+    Node? node = powNodeSource.values
         .firstWhereOrNull((node) => node.uri.toString() == nanoDefaultPowNodeUri);
     if (node == null) {
-      node = PowNode(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
+      node = Node(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
       await powNodeSource.add(node);
     }
     await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
@@ -647,7 +647,7 @@ Future<void> changeNanoCurrentNodeToDefault(
 }
 
 Future<void> changeNanoCurrentPowNodeToDefault(
-    {required SharedPreferences sharedPreferences, required Box<PowNode> nodes}) async {
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final node = getNanoDefaultPowNode(nodes: nodes);
   final nodeId = node?.key as int? ?? 0;
   await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, nodeId);

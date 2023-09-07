@@ -17,7 +17,7 @@ class PowNodeListViewModel = PowNodeListViewModelBase with _$PowNodeListViewMode
 
 abstract class PowNodeListViewModelBase with Store {
   PowNodeListViewModelBase(this._nodeSource, this._appStore)
-      : nodes = ObservableList<PowNode>(),
+      : nodes = ObservableList<Node>(),
         settingsStore = _appStore.settingsStore {
     _bindNodes();
 
@@ -27,7 +27,7 @@ abstract class PowNodeListViewModelBase with Store {
   }
 
   @computed
-  PowNode get currentNode {
+  Node get currentNode {
     final node = settingsStore.powNodes[_appStore.wallet!.type];
 
     if (node == null) {
@@ -41,15 +41,15 @@ abstract class PowNodeListViewModelBase with Store {
       S.current.change_current_node(uri) +
       '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
 
-  final ObservableList<PowNode> nodes;
+  final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
-  final Box<PowNode> _nodeSource;
+  final Box<Node> _nodeSource;
   final AppStore _appStore;
 
   Future<void> reset() async {
     await resetPowToDefault(_nodeSource);
 
-    PowNode node;
+    Node node;
 
     switch (_appStore.wallet!.type) {
       case WalletType.nano:
@@ -63,9 +63,9 @@ abstract class PowNodeListViewModelBase with Store {
   }
 
   @action
-  Future<void> delete(PowNode node) async => node.delete();
+  Future<void> delete(Node node) async => node.delete();
 
-  Future<void> setAsCurrent(PowNode node) async =>
+  Future<void> setAsCurrent(Node node) async =>
       settingsStore.powNodes[_appStore.wallet!.type] = node;
 
   @action
