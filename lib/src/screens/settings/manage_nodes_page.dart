@@ -42,6 +42,9 @@ class ManageNodesPage extends BasePage {
                     return nodeListViewModel.nodes.length;
                   },
                   itemBuilder: (_, index) {
+                    if (index > nodeListViewModel.nodes.length - 1) {
+                      return SizedBox();
+                    }
                     return Observer(
                       builder: (context) {
                         final node = nodeListViewModel.nodes[index];
