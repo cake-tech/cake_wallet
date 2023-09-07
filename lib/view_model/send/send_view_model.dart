@@ -1,6 +1,10 @@
-import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -12,7 +16,7 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cake_wallet/core/validator.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_core/sync_status.dart';
@@ -31,27 +35,38 @@ part 'send_view_model.g.dart';
 
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
-abstract class SendViewModelBase with Store {
-  SendViewModelBase(
-      this._wallet,
-      this._settingsStore,
-      this.sendTemplateViewModel,
-      this._fiatConversationStore,
-      this.balanceViewModel,
-      this.transactionDescriptionBox)
-      : state = InitialExecutionState(),
-        currencies = _wallet.balance.keys.toList(),
-        selectedCryptoCurrency = _wallet.currency,
-        outputs = ObservableList<Output>(),
-        fiatFromSettings = _settingsStore.fiatCurrency {
-    final priority = _settingsStore.priority[_wallet.type];
-    final priorities = priorityForWalletType(_wallet.type);
+abstract class SendViewModelBase extends WalletChangeListenerViewModel with Store {
+  @override
+  void onWalletChange(wallet) {
+    currencies = wallet.balance.keys.toList();
+    selectedCryptoCurrency = wallet.currency;
+    hasMultipleTokens = wallet.type == WalletType.ethereum;
+  }
 
-    if (!priorityForWalletType(_wallet.type).contains(priority)) {
-      _settingsStore.priority[_wallet.type] = priorities.first;
+  SendViewModelBase(
+    AppStore appStore,
+    this.sendTemplateViewModel,
+    this._fiatConversationStore,
+    this.balanceViewModel,
+    this.contactListViewModel,
+    this.transactionDescriptionBox,
+  )   : state = InitialExecutionState(),
+        currencies = appStore.wallet!.balance.keys.toList(),
+        selectedCryptoCurrency = appStore.wallet!.currency,
+        hasMultipleTokens = appStore.wallet!.type == WalletType.ethereum,
+        outputs = ObservableList<Output>(),
+        _settingsStore = appStore.settingsStore,
+        fiatFromSettings = appStore.settingsStore.fiatCurrency,
+        super(appStore: appStore) {
+    final priority = _settingsStore.priority[wallet.type];
+    final priorities = priorityForWalletType(wallet.type);
+
+    if (!priorityForWalletType(wallet.type).contains(priority)) {
+      _settingsStore.priority[wallet.type] = priorities.first;
     }
-    
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+
+    outputs
+        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @observable
@@ -61,7 +76,8 @@ abstract class SendViewModelBase with Store {
 
   @action
   void addOutput() {
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs
+        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @action
@@ -100,8 +116,10 @@ abstract class SendViewModelBase with Store {
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
+        final currency =
+            walletType == WalletType.ethereum ? wallet.currency : selectedCryptoCurrency;
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+            price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
         return fiat;
       } else {
@@ -115,25 +133,25 @@ abstract class SendViewModelBase with Store {
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[_wallet.type];
+    final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null) {
-      throw Exception('Unexpected type ${_wallet.type}');
+      throw Exception('Unexpected type ${wallet.type}');
     }
 
     return priority;
   }
 
-  CryptoCurrency get currency => _wallet.currency;
+  CryptoCurrency get currency => wallet.currency;
 
-  Validator get amountValidator =>
-      AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
+  Validator<String> get amountValidator =>
+      AmountValidator(currency: walletTypeToCryptoCurrency(wallet.type));
 
-  Validator get allAmountValidator => AllAmountValidator();
+  Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator get addressValidator => AddressValidator(type: selectedCryptoCurrency);
+  Validator<String> get addressValidator => AddressValidator(type: selectedCryptoCurrency);
 
-  Validator get textValidator => TextValidator();
+  Validator<String> get textValidator => TextValidator();
 
   final FiatCurrency fiatFromSettings;
 
@@ -141,23 +159,21 @@ abstract class SendViewModelBase with Store {
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => balanceViewModel.availableBalance;
+  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFiatAmount +
-          ' ' + fiat.title;
+      isFiatDisabled ? '' : pendingTransactionFiatAmount + ' ' + fiat.title;
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount +
-          ' ' + fiat.title;
+      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
 
   @computed
-  bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
+  bool get isReadyForSend => wallet.syncStatus is SyncedSyncStatus;
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -165,42 +181,110 @@ abstract class SendViewModelBase with Store {
       .toList();
 
   @computed
+  bool get hasCoinControl =>
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.monero;
+
+  @computed
   bool get isElectrumWallet =>
-      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
+      wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin;
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
   List<CryptoCurrency> currencies;
 
-  bool get hasMultiRecipient => _wallet.type != WalletType.haven;
+  bool get hasYat => outputs
+      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
-  bool get hasYat => outputs.any((out) =>
-      out.isParsedAddress &&
-      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  WalletType get walletType => wallet.type;
 
-  WalletType get walletType => _wallet.type;
-
-  String? get walletCurrencyName =>
-      _wallet.currency.fullName?.toLowerCase() ?? _wallet.currency.name;
+  String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
-  final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
+  final ContactListViewModel contactListViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
+
+  @observable
+  bool hasMultipleTokens;
+
+  @computed
+  List<ContactRecord> get contactsToShow => contactListViewModel.contacts
+      .where((element) => element.type == selectedCryptoCurrency)
+      .toList();
+
+  @computed
+  List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
+      .where((element) => element.type == selectedCryptoCurrency)
+      .toList();
+
+  @action
+  bool checkIfAddressIsAContact(String address) {
+    final contactList = contactsToShow.where((element) => element.address == address).toList();
+
+    return contactList.isNotEmpty;
+  }
+
+  @action
+  bool checkIfWalletIsAnInternalWallet(String address) {
+    final walletContactList =
+        walletContactsToShow.where((element) => element.address == address).toList();
+
+    return walletContactList.isNotEmpty;
+  }
+
+  @computed
+  bool get shouldDisplayTOTP2FAForContact => _settingsStore.shouldRequireTOTP2FAForSendsToContact;
+
+  @computed
+  bool get shouldDisplayTOTP2FAForNonContact =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToNonContact;
+
+  @computed
+  bool get shouldDisplayTOTP2FAForSendsToInternalWallet =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
+
+  //* Still open to further optimize these checks
+  //* It works but can be made better
+  @action
+  bool checkThroughChecksToDisplayTOTP(String address) {
+    final isContact = checkIfAddressIsAContact(address);
+    final isInternalWallet = checkIfWalletIsAnInternalWallet(address);
+
+    if (isContact) {
+      return shouldDisplayTOTP2FAForContact;
+    } else if (isInternalWallet) {
+      return shouldDisplayTOTP2FAForSendsToInternalWallet;
+    } else {
+      return shouldDisplayTOTP2FAForNonContact;
+    }
+  }
+
+  bool shouldDisplayTotp() {
+    List<bool> conditionsList = [];
+
+    for (var output in outputs) {
+      final show = checkThroughChecksToDisplayTOTP(output.address);
+      conditionsList.add(show);
+    }
+
+    return conditionsList.contains(true);
+  }
 
   @action
   Future<void> createTransaction() async {
     try {
       state = IsExecutingState();
-      pendingTransaction = await _wallet.createTransaction(_credentials());
+      pendingTransaction = await wallet.createTransaction(_credentials());
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
@@ -234,11 +318,9 @@ abstract class SendViewModelBase with Store {
       if (pendingTransaction!.id.isNotEmpty) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id,
-                recipientAddress: address,
-                transactionNote: note))
-            : await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id, transactionNote: note));
+                id: pendingTransaction!.id, recipientAddress: address, transactionNote: note))
+            : await transactionDescriptionBox
+                .add(TransactionDescription(id: pendingTransaction!.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -249,52 +331,60 @@ abstract class SendViewModelBase with Store {
 
   @action
   void setTransactionPriority(TransactionPriority priority) =>
-      _settingsStore.priority[_wallet.type] = priority;
+      _settingsStore.priority[wallet.type] = priority;
 
   Object _credentials() {
-    switch (_wallet.type) {
+    switch (wallet.type) {
       case WalletType.bitcoin:
-        final priority = _settingsStore.priority[_wallet.type];
+        final priority = _settingsStore.priority[wallet.type];
 
         if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+          throw Exception('Priority is null for wallet type: ${wallet.type}');
         }
 
         return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.litecoin:
-        final priority = _settingsStore.priority[_wallet.type];
+        final priority = _settingsStore.priority[wallet.type];
 
         if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+          throw Exception('Priority is null for wallet type: ${wallet.type}');
         }
 
         return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.monero:
-        final priority = _settingsStore.priority[_wallet.type];
+        final priority = _settingsStore.priority[wallet.type];
 
         if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+          throw Exception('Priority is null for wallet type: ${wallet.type}');
         }
 
-        return monero!.createMoneroTransactionCreationCredentials(
-            outputs: outputs, priority: priority);
+        return monero!
+            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority);
       case WalletType.haven:
-        final priority = _settingsStore.priority[_wallet.type];
+        final priority = _settingsStore.priority[wallet.type];
 
         if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${_wallet.type}');
+          throw Exception('Priority is null for wallet type: ${wallet.type}');
         }
-        
+
         return haven!.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
+      case WalletType.ethereum:
+        final priority = _settingsStore.priority[wallet.type];
+
+        if (priority == null) {
+          throw Exception('Priority is null for wallet type: ${wallet.type}');
+        }
+
+        return ethereum!.createEthereumTransactionCredentials(outputs,
+            priority: priority, currency: selectedCryptoCurrency);
       default:
-        throw Exception('Unexpected wallet type: ${_wallet.type}');
+        throw Exception('Unexpected wallet type: ${wallet.type}');
     }
   }
 
   String displayFeeRate(dynamic priority) {
     final _priority = priority as TransactionPriority;
-    final wallet = _wallet;
 
     if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
@@ -304,14 +394,22 @@ abstract class SendViewModelBase with Store {
     return priority.toString();
   }
 
-  bool _isEqualCurrency(String currency) => 
-      currency.toLowerCase() == _wallet.currency.title.toLowerCase();
+  bool _isEqualCurrency(String currency) =>
+      wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
   @action
-  void onClose() =>
-      _settingsStore.fiatCurrency = fiatFromSettings;
+  void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
 
   @action
-  void setFiatCurrency(FiatCurrency fiat) =>
-      _settingsStore.fiatCurrency = fiat;
+  void setFiatCurrency(FiatCurrency fiat) => _settingsStore.fiatCurrency = fiat;
+
+  @action
+  void setSelectedCryptoCurrency(String cryptoCurrency) {
+    try {
+      selectedCryptoCurrency = wallet.balance.keys
+          .firstWhere((e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
+    } catch (e) {
+      selectedCryptoCurrency = wallet.currency;
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cake_wallet/routes.dart';
@@ -33,7 +34,7 @@ class Setup2FAPage extends BasePage {
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                     height: 1.571,
-                    color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                 ),
                 SizedBox(height: 16),
@@ -43,7 +44,7 @@ class Setup2FAPage extends BasePage {
                     fontWeight: FontWeight.w400,
                     fontSize: 14,
                     height: 1.571,
-                    color: Theme.of(context).primaryTextTheme.headline6!.color!,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                 ),
               ],
@@ -52,7 +53,8 @@ class Setup2FAPage extends BasePage {
           SizedBox(height: 86),
           SettingsCellWithArrow(
             title: S.current.setup_totp_recommended,
-            handler: (_) => Navigator.of(context).pushNamed(Routes.setup_2faQRPage),
+            handler: (_) => Navigator.of(context)
+                .pushReplacementNamed(Routes.setup_2faQRPage),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         ],

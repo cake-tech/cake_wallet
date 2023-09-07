@@ -13,8 +13,10 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:collection/collection.dart';
 
-class LitecoinWalletService extends WalletService<BitcoinNewWalletCredentials,
-    BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
+class LitecoinWalletService extends WalletService<
+    BitcoinNewWalletCredentials,
+    BitcoinRestoreWalletFromSeedCredentials,
+    BitcoinRestoreWalletFromWIFCredentials> {
   LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -44,8 +46,8 @@ class LitecoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(name, getType()))!;
     final wallet = await LitecoinWalletBase.open(
         password: password,
         name: name,
@@ -58,23 +60,23 @@ class LitecoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    File(await pathForWalletDir(name: wallet, type: getType()))
+        .delete(recursive: true);
+    final walletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await LitecoinWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
+        password: password,
+        name: currentName,
+        walletInfo: currentWalletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
 
     await currentWallet.renameWalletFiles(newName);
 

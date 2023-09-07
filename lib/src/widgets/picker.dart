@@ -1,9 +1,15 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:math';
+
+import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class Picker<Item> extends StatefulWidget {
   Picker({
@@ -37,8 +43,7 @@ class Picker<Item> extends StatefulWidget {
   final bool Function(Item, String)? matchingCriteria;
 
   @override
-  _PickerState<Item> createState() =>
-      _PickerState<Item>(items, images, onItemSelected);
+  _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
 }
 
 class _PickerState<Item> extends State<Picker<Item>> {
@@ -87,8 +92,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       setState(() {
         filteredItems = List.from(items.where((element) {
           if (widget.selectedAtIndex != items.indexOf(element) &&
-              (widget.matchingCriteria?.call(element, searchController.text) ??
-                  true)) {
+              (widget.matchingCriteria?.call(element, searchController.text) ?? true)) {
             if (images.isNotEmpty) {
               filteredImages.add(images[items.indexOf(element)]);
             }
@@ -143,10 +147,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .titleLarge!
-                  .color!,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,
@@ -158,47 +159,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
                     if (widget.hintText != null)
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: TextFormField(
-                          controller: searchController,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .titleLarge!
-                                  .color!),
-                          decoration: InputDecoration(
-                            hintText: widget.hintText,
-                            prefixIcon:
-                                Image.asset("assets/images/search_icon.png"),
-                            filled: true,
-                            fillColor: Theme.of(context)
-                                .accentTextTheme!
-                                .displaySmall!
-                                .color!,
-                            alignLabelWithHint: false,
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 16),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                )),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                )),
-                          ),
-                        ),
+                        child: SearchBarWidget(searchController: searchController),
                       ),
                     Divider(
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       height: 1,
                     ),
-                    if (widget.selectedAtIndex != -1)
-                      buildSelectedItem(widget.selectedAtIndex),
+                    if (widget.selectedAtIndex != -1) buildSelectedItem(widget.selectedAtIndex),
                     Flexible(
                       child: Stack(
                         alignment: Alignment.center,
@@ -222,10 +189,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                       fontWeight: FontWeight.w500,
                                       fontFamily: 'Lato',
                                       decoration: TextDecoration.none,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .titleLarge!
-                                          .color!,
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     ),
                                   ),
                                 )
@@ -245,10 +210,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context)
-          .accentTextTheme!
-          .titleLarge!
-          .backgroundColor!,
+      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: widget.isGridView
           ? GridView.builder(
               padding: EdgeInsets.zero,
@@ -268,10 +230,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               shrinkWrap: true,
               separatorBuilder: (context, index) => widget.isSeparated
                   ? Divider(
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleLarge!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       height: 1,
                     )
                   : const SizedBox(),
@@ -283,15 +242,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   Widget buildItem(int index) {
     final item = filteredItems[index];
-    final tag = item is Currency ? item.tag : null;
 
-    final icon = item is Currency && item.iconPath != null
-        ? Image.asset(
-            item.iconPath!,
-            height: 20.0,
-            width: 20.0,
-          )
-        : null;
+    final tag = item is Currency ? item.tag : null;
+    final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? filteredImages[index] : icon;
 
@@ -302,10 +255,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -326,10 +276,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontSize: 14,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .primaryTextTheme!
-                              .titleLarge!
-                              .color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -344,21 +291,17 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             child: Text(
                               tag,
                               style: TextStyle(
-                                  fontSize: 7.0,
-                                  fontFamily: 'Lato',
-                                  color: Theme.of(context)
-                                      .textTheme!
-                                      .bodyMedium!
-                                      .color!),
+                                fontSize: 7.0,
+                                fontFamily: 'Lato',
+                                color:
+                                    Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                              ),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context)
-                                .textTheme!
-                                .bodyMedium!
-                                .decorationColor!,
+                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
                           ),
                         ),
                       ),
@@ -374,15 +317,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   Widget buildSelectedItem(int index) {
     final item = items[index];
-    final tag = item is Currency ? item.tag : null;
 
-    final icon = item is Currency && item.iconPath != null
-        ? Image.asset(
-            item.iconPath!,
-            height: 20.0,
-            width: 20.0,
-          )
-        : null;
+    final tag = item is Currency ? item.tag : null;
+    final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? images[index] : icon;
 
@@ -392,10 +329,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -416,10 +350,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           fontSize: 16,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w700,
-                          color: Theme.of(context)
-                              .primaryTextTheme!
-                              .titleLarge!
-                              .color!,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -434,21 +365,17 @@ class _PickerState<Item> extends State<Picker<Item>> {
                             child: Text(
                               tag,
                               style: TextStyle(
-                                  fontSize: 7.0,
-                                  fontFamily: 'Lato',
-                                  color: Theme.of(context)
-                                      .textTheme!
-                                      .bodyMedium!
-                                      .color!),
+                                fontSize: 7.0,
+                                fontFamily: 'Lato',
+                                color:
+                                    Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                              ),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context)
-                                .textTheme!
-                                .bodyMedium!
-                                .decorationColor!,
+                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
                           ),
                         ),
                       ),
@@ -456,14 +383,39 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 ),
               ),
             ),
-            Icon(Icons.check_circle,
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .bodyLarge!
-                    .color!),
+            Icon(Icons.check_circle, color: Theme.of(context).primaryColor),
           ],
         ),
       ),
     );
+  }
+
+  Widget? _getItemIcon(Item item) {
+    if (item is Currency) {
+      if (item.iconPath != null) {
+        return Image.asset(
+          item.iconPath!,
+          height: 20.0,
+          width: 20.0,
+        );
+      } else {
+        return Container(
+          height: 20.0,
+          width: 20.0,
+          child: Center(
+            child: Text(
+              item.name.substring(0, min(item.name.length, 2)).toUpperCase(),
+              style: TextStyle(fontSize: 11),
+            ),
+          ),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.grey.shade400,
+          ),
+        );
+      }
+    }
+
+    return null;
   }
 }

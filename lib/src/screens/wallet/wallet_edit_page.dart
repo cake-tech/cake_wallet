@@ -2,6 +2,8 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
@@ -109,10 +111,10 @@ class WalletEditPage extends BasePage {
                                                 (String password) async {
                                               await walletEditViewModel
                                                   .changeName(editingWallet,
-                                                      password: password);
+                                                  password: password);
                                             },
                                             callback: (bool
-                                                    isAuthenticatedSuccessfully,
+                                            isAuthenticatedSuccessfully,
                                                 AuthPageState auth) async {
                                               if (isAuthenticatedSuccessfully) {
                                                 auth.close();
@@ -122,18 +124,20 @@ class WalletEditPage extends BasePage {
                                             walletName: editingWallet.name,
                                             walletType: editingWallet.type));
                                   } else {
-                                    await walletEditViewModel
-                                        .changeName(editingWallet);
+                                    await walletEditViewModel.changeName(editingWallet);
                                     confirmed = true;
                                   }
 
-                                  if (confirmed) Navigator.of(context).pop();
+                                  if (confirmed) {
+                                    Navigator.of(context).pop();
+                                    walletEditViewModel.resetState();
+                                  }
                                 } catch (e) {}
                               }
                             }
                           },
                           text: S.of(context).save,
-                          color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                          color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: walletEditViewModel.newName.isEmpty || isLoading,
                         ),
@@ -151,12 +155,14 @@ class WalletEditPage extends BasePage {
 
   Future<void> _removeWallet(BuildContext context) async {
     authService.authenticateAction(context, onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
+        if (!isAuthenticatedSuccessfully) {
+          return;
+        }
 
-      _onSuccessfulAuth(context);
-    });
+        _onSuccessfulAuth(context);
+      },
+      conditionToDetermineIfToUse2FA: false,
+    );
   }
 
   void _onSuccessfulAuth(BuildContext context) async {

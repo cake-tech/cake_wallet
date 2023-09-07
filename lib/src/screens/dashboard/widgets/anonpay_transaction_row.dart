@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class AnonpayTransactionRow extends StatelessWidget {
   AnonpayTransactionRow({
@@ -37,19 +39,19 @@ class AnonpayTransactionRow extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!)),
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
                     Text(amount + ' ' + currency,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme!.displayMedium!.backgroundColor!))
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor))
                   ]),
                   SizedBox(height: 5),
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                     Text(createdAt,
                         style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context).textTheme!.labelSmall!.backgroundColor!))
+                            color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
                   ])
                 ],
               ))

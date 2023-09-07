@@ -1,12 +1,11 @@
-import 'dart:io' show File, Platform;
+import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:hive/hive.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -26,8 +25,9 @@ const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
+const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 
-Future defaultSettingsMigration(
+Future<void> defaultSettingsMigration(
     {required int version,
     required SharedPreferences sharedPreferences,
     required SecureStorage secureStorage,
@@ -41,6 +41,8 @@ Future defaultSettingsMigration(
 
   // check current nodes for nullability regardless of the version
   await checkCurrentNodes(nodes, sharedPreferences);
+
+  await _validateWalletInfoBoxData(walletInfoSource);
 
   final isNewInstall = sharedPreferences
       .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
@@ -157,6 +159,12 @@ Future defaultSettingsMigration(
         case 20:
           await migrateExchangeStatus(sharedPreferences);
           break;
+        case 21:
+          await addEthereumNodeList(nodes: nodes);
+          await changeEthereumCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+
         default:
           break;
       }
@@ -170,6 +178,66 @@ Future defaultSettingsMigration(
 
   await sharedPreferences.setInt(
       PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
+  final root = await getApplicationDocumentsDirectory();
+
+  for (var type in WalletType.values) {
+    if (type == WalletType.none) {
+      continue;
+    }
+
+    String prefix = walletTypeToString(type).toLowerCase();
+    Directory walletsDir = Directory('${root.path}/wallets/$prefix/');
+
+    if (!walletsDir.existsSync()) {
+      continue;
+    }
+
+    List<String> walletNames = walletsDir.listSync().map((e) => e.path.split("/").last).toList();
+
+    for (var name in walletNames) {
+      final dir = Directory(await pathForWalletDir(name: name, type: type));
+
+      final walletFiles = dir.listSync();
+      final hasCacheFile = walletFiles.any((element) => element.path.contains("$name/$name"));
+
+      if (!hasCacheFile) {
+        continue;
+      }
+
+      if (type == WalletType.monero || type == WalletType.haven) {
+        final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
+
+        if (!hasKeysFile) {
+          continue;
+        }
+      }
+
+      final id = prefix + '_' + name;
+      final exist = walletInfoSource.values.any((el) => el.id == id);
+
+      if (exist) {
+        continue;
+      }
+
+      final walletInfo = WalletInfo.external(
+        id: id,
+        type: type,
+        name: name,
+        isRecovery: true,
+        restoreHeight: 0,
+        date: DateTime.now(),
+        dirPath: dir.path,
+        path: '${dir.path}/$name',
+        address: '',
+        showIntroCakePayCard: false,
+      );
+
+      walletInfoSource.add(walletInfo);
+    }
+  }
 }
 
 Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPreferences) async {
@@ -219,7 +287,7 @@ Future<void> changeMoneroCurrentNodeToDefault(
     {required SharedPreferences sharedPreferences,
     required Box<Node> nodes}) async {
   final node = getMoneroDefaultNode(nodes: nodes);
-  final nodeId = node?.key as int ?? 0; // 0 - England
+  final nodeId = node.key as int? ?? 0; // 0 - England
 
   await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, nodeId);
 }
@@ -240,6 +308,12 @@ Node? getHavenDefaultNode({required Box<Node> nodes}) {
     return nodes.values.firstWhereOrNull(
           (Node node) => node.uriRaw == havenDefaultNodeUri)
           ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.haven);
+}
+
+Node? getEthereumDefaultNode({required Box<Node> nodes}) {
+    return nodes.values.firstWhereOrNull(
+          (Node node) => node.uriRaw == ethereumDefaultNodeUri)
+          ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -266,7 +340,7 @@ Future<void> changeBitcoinCurrentElectrumServerToDefault(
     {required SharedPreferences sharedPreferences,
     required Box<Node> nodes}) async {
   final server = getBitcoinDefaultElectrumServer(nodes: nodes);
-  final serverId = server?.key as int ?? 0;
+  final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, serverId);
 }
@@ -275,7 +349,7 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
     {required SharedPreferences sharedPreferences,
     required Box<Node> nodes}) async {
   final server = getLitecoinDefaultElectrumServer(nodes: nodes);
-  final serverId = server?.key as int ?? 0;
+  final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentLitecoinElectrumSererIdKey, serverId);
 }
@@ -284,7 +358,7 @@ Future<void> changeHavenCurrentNodeToDefault(
     {required SharedPreferences sharedPreferences,
     required Box<Node> nodes}) async {
   final node = getHavenDefaultNode(nodes: nodes);
-  final nodeId = node?.key as int ?? 0;
+  final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, nodeId);
 }
@@ -438,6 +512,8 @@ Future<void> checkCurrentNodes(
       .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
   final currentHavenNodeId = sharedPreferences
       .getInt(PreferencesKey.currentHavenNodeIdKey);
+  final currentEthereumNodeId = sharedPreferences
+      .getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
@@ -446,6 +522,8 @@ Future<void> checkCurrentNodes(
       (node) => node.key == currentLitecoinElectrumSeverId);
   final currentHavenNodeServer = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentHavenNodeId);
+  final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
+      (node) => node.key == currentEthereumNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode =
@@ -478,6 +556,13 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(
         PreferencesKey.currentHavenNodeIdKey, node.key as int);
+  }
+
+  if (currentEthereumNodeServer == null) {
+    final node = Node(uri: ethereumDefaultNodeUri, type: WalletType.ethereum);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(
+        PreferencesKey.currentEthereumNodeIdKey, node.key as int);
   }
 }
 
@@ -522,8 +607,26 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
     return;
   }
 
-  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled 
+  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled
       ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
-      
+
   await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
+}
+
+Future<void> addEthereumNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultEthereumNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeEthereumCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences,
+      required Box<Node> nodes}) async {
+  final node = getEthereumDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, nodeId);
 }

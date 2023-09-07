@@ -20,26 +20,32 @@ class OtherSettingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Observer(builder: (_) {
-      return Container(
-        padding: EdgeInsets.only(top: 10),
-        child: Column(children: [
-          SettingsPickerCell(
-            title: S.current.settings_fee_priority,
-            items: priorityForWalletType(_otherSettingsViewModel.walletType),
-            displayItem: _otherSettingsViewModel.getDisplayPriority,
-            selectedItem: _otherSettingsViewModel.transactionPriority,
-            onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+    return Observer(
+      builder: (_) {
+        return Container(
+          padding: EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              SettingsPickerCell(
+                title: S.current.settings_fee_priority,
+                items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                displayItem: _otherSettingsViewModel.getDisplayPriority,
+                selectedItem: _otherSettingsViewModel.transactionPriority,
+                onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+              ),
+              SettingsCellWithArrow(
+                title: S.current.settings_terms_and_conditions,
+                handler: (BuildContext context) =>
+                    Navigator.of(context).pushNamed(Routes.readDisclaimer),
+              ),
+              StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+              Spacer(),
+              SettingsVersionCell(
+                  title: S.of(context).version(_otherSettingsViewModel.currentVersion))
+            ],
           ),
-          SettingsCellWithArrow(
-            title: S.current.settings_terms_and_conditions,
-            handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.readDisclaimer),
-          ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          Spacer(),
-          SettingsVersionCell(title: S.of(context).version(_otherSettingsViewModel.currentVersion))
-        ]),
-      );
-    });
+        );
+      },
+    );
   }
 }

@@ -1,3 +1,2 @@
-Enable iPad/Tablet separate layout from mobile UI
-SideShift update and fixes
-Bug Fixes
+Bug fixes
+Fiat Onramp improvements

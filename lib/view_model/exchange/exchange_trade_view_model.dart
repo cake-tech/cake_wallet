@@ -29,14 +29,17 @@ abstract class ExchangeTradeViewModelBase with Store {
       required this.sendViewModel})
       : trade = tradesStore.trade!,
         isSendable = tradesStore.trade!.from == wallet.currency ||
-            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto,
+            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
+            (wallet.currency == CryptoCurrency.eth &&
+                tradesStore.trade!.from.tag == CryptoCurrency.eth.title),
         items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider();
         break;
       case ExchangeProviderDescription.changeNow:
-        _provider = ChangeNowExchangeProvider();
+        _provider =
+            ChangeNowExchangeProvider(settingsStore: sendViewModel.balanceViewModel.settingsStore);
         break;
       case ExchangeProviderDescription.morphToken:
         _provider = MorphTokenExchangeProvider(trades: trades);
@@ -102,6 +105,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     final output = sendViewModel.outputs.first;
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
+    sendViewModel.selectedCryptoCurrency = trade.from;
     await sendViewModel.createTransaction();
   }
 

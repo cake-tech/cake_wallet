@@ -1,16 +1,19 @@
 import 'package:cake_wallet/core/totp_request_details.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
-import '../../../palette.dart';
-import '../../widgets/primary_button.dart';
-import '../../widgets/standard_list.dart';
+
 
 class Setup2FAQRPage extends BasePage {
   Setup2FAQRPage({required this.setup2FAViewModel});
@@ -51,7 +54,7 @@ class Setup2FAQRPage extends BasePage {
               decoration: BoxDecoration(
                 border: Border.all(
                   width: 3,
-                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
+                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                 ),
               ),
               child: Container(
@@ -106,7 +109,8 @@ class Setup2FAQRPage extends BasePage {
                 height: 32,
                 child: InkWell(
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: '${setup2FAViewModel.secretKey}'));
+                    ClipboardUtil.setSensitiveDataToClipboard(
+                        ClipboardData(text: '${setup2FAViewModel.secretKey}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(
@@ -134,7 +138,7 @@ class Setup2FAQRPage extends BasePage {
               );
             },
             text: S.current.continue_text,
-            color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),
           SizedBox(height: 24),

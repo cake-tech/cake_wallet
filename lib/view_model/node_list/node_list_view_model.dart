@@ -63,6 +63,9 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.haven:
         node = getHavenDefaultNode(nodes: _nodeSource)!;
         break;
+      case WalletType.ethereum:
+        node = getEthereumDefaultNode(nodes: _nodeSource)!;
+        break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
     }
@@ -73,6 +76,7 @@ abstract class NodeListViewModelBase with Store {
   @action
   Future<void> delete(Node node) async => node.delete();
 
+  @action
   Future<void> setAsCurrent(Node node) async => settingsStore.nodes[_appStore.wallet!.type] = node;
 
   @action

@@ -66,6 +66,7 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
         leading: leading,
         automaticallyImplyLeading: false,
         automaticallyImplyMiddle: false,
+        transitionBetweenRoutes: false,
         middle: middle,
         trailing: trailing,
         backgroundColor: backgroundColor,

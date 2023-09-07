@@ -1,12 +1,11 @@
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
-// FIXME: terrible design.
 
 class MenuWidget extends StatefulWidget {
   MenuWidget(this.dashboardViewModel);
@@ -29,7 +28,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
         this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
         this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
-        this.havenIcon = Image.asset('assets/images/haven_menu.png');
+        this.havenIcon = Image.asset('assets/images/haven_menu.png'),
+        this.ethereumIcon = Image.asset('assets/images/eth_icon.png');
 
   final largeScreen = 731;
 
@@ -46,6 +46,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image bitcoinIcon;
   Image litecoinIcon;
   Image havenIcon;
+  Image ethereumIcon;
 
   @override
   void initState() {
@@ -84,123 +85,111 @@ class MenuWidgetState extends State<MenuWidget> {
     final itemCount = SettingActions.all.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
-        color: Theme.of(context)
-            .accentTextTheme!
-            .labelSmall!
-            .decorationColor!);
+        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
-        color: Theme.of(context)
-            .accentTextTheme!
-            .labelSmall!
-            .decorationColor!);
-    litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
-    havenIcon = Image.asset('assets/images/haven_menu.png');
+        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
 
     return Row(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Padding(
-            padding: EdgeInsets.only(left: 24),
-            child: Container(
-              height: 60,
-              width: 4,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(2)), color: PaletteDark.gray),
-            )),
+          padding: EdgeInsets.only(left: 24),
+          child: Container(
+            height: 60,
+            width: 4,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(2)), color: PaletteDark.gray),
+          ),
+        ),
         SizedBox(width: 12),
         Expanded(
-            child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-                child: Container(
-                  color:
-                      Theme.of(context).textTheme!.bodyLarge!.decorationColor!,
-                  child: ListView.separated(
-                      padding: EdgeInsets.only(top: 0),
-                      itemBuilder: (_, index) {
-                        if (index == 0) {
-                          return Container(
-                            height: headerHeight,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: [
-                                Theme.of(context)
-                                    .accentTextTheme!
-                                    .headlineMedium!
-                                    .color!,
-                                Theme.of(context)
-                                    .accentTextTheme!
-                                    .headlineMedium!
-                                    .decorationColor!,                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                            ),
-                            padding: EdgeInsets.only(
-                                left: 24, top: fromTopEdge, right: 24, bottom: fromBottomEdge),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                _iconFor(type: widget.dashboardViewModel.type),
-                                SizedBox(width: 12),
-                                SingleChildScrollView(
-                                    child: Container(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: widget.dashboardViewModel.subname.isNotEmpty
-                                        ? MainAxisAlignment.spaceBetween
-                                        : MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text(
-                                        widget.dashboardViewModel.name,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      if (widget.dashboardViewModel.subname.isNotEmpty)
-                                        Observer(
-                                            builder: (_) => Text(
-                                                  widget.dashboardViewModel.subname,
-                                                  style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .accentTextTheme!
-                                                          .labelSmall!
-                                                          .decorationColor!,
-                                                      fontWeight: FontWeight.w500,
-                                                      fontSize: 12),
-                                                ))
-                                    ],
+          child: ClipRRect(
+            borderRadius:
+                BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+            child: Container(
+              color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
+              child: ListView.separated(
+                padding: EdgeInsets.only(top: 0),
+                itemBuilder: (_, index) {
+                  if (index == 0) {
+                    return Container(
+                      height: headerHeight,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [
+                          Theme.of(context).extension<CakeMenuTheme>()!.headerFirstGradientColor,
+                          Theme.of(context).extension<CakeMenuTheme>()!.headerSecondGradientColor,
+                        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                      ),
+                      padding: EdgeInsets.only(
+                          left: 24, top: fromTopEdge, right: 24, bottom: fromBottomEdge),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          _iconFor(type: widget.dashboardViewModel.type),
+                          SizedBox(width: 12),
+                          SingleChildScrollView(
+                            child: Container(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: widget.dashboardViewModel.subname.isNotEmpty
+                                    ? MainAxisAlignment.spaceBetween
+                                    : MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    widget.dashboardViewModel.name,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
-                                ))
-                              ],
+                                  if (widget.dashboardViewModel.subname.isNotEmpty)
+                                    Observer(
+                                      builder: (_) => Text(
+                                        widget.dashboardViewModel.subname,
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .extension<CakeMenuTheme>()!
+                                                .subnameTextColor,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          );
-                        }
-
-                        index--;
-
-                        final item = SettingActions.all[index];
-                       
-                        final isLastTile = index == itemCount - 1;
-
-                        return SettingActionButton(
-                          isLastTile: isLastTile,
-                          tileHeight: tileHeight,
-                          selectionActive: false,
-                          fromBottomEdge: fromBottomEdge,
-                          fromTopEdge: fromTopEdge,
-                          onTap: () => item.onTap.call(context),
-                          image: item.image,
-                          title: item.name.call(context),
-                        );
-                      },
-                      separatorBuilder: (_, index) => Container(
-                            height: 1,
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .bodySmall!
-                                .decorationColor!,
                           ),
-                      itemCount: itemCount + 1),
-                )))
+                        ],
+                      ),
+                    );
+                  }
+
+                  index--;
+
+                  final item = SettingActions.all[index];
+
+                  final isLastTile = index == itemCount - 1;
+
+                  return SettingActionButton(
+                    isLastTile: isLastTile,
+                    tileHeight: tileHeight,
+                    selectionActive: false,
+                    fromBottomEdge: fromBottomEdge,
+                    fromTopEdge: fromTopEdge,
+                    onTap: () => item.onTap.call(context),
+                    image: item.image,
+                    title: item.name.call(context),
+                  );
+                },
+                separatorBuilder: (_, index) => Container(
+                  height: 1,
+                  color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
+                ),
+                itemCount: itemCount + 1,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -215,6 +204,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return litecoinIcon;
       case WalletType.haven:
         return havenIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

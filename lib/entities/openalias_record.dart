@@ -37,7 +37,7 @@ class OpenaliasRecord {
     required String ticker,
     required List<RRecord> txtRecord,
   })  {
-    String address = formattedName;
+    String address = '';
     String name = formattedName;
     String note = '';
 

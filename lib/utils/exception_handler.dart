@@ -133,9 +133,9 @@ class ExceptionHandler {
   static const List<String> _ignoredErrors = const [
     "Bad file descriptor",
     "No space left on device",
-    "Write failed (OS Error: Broken pipe)",
+    "OS Error: Broken pipe",
     "Can't assign requested address",
-    "Read failed (OS Error: Socket is not connected)",
+    "OS Error: Socket is not connected",
     "Operation timed out",
     "No route to host",
     "Software caused connection abort",
@@ -145,6 +145,11 @@ class ExceptionHandler {
     "Connection closed before full header was received",
     "Connection terminated during handshake",
     "PERMISSION_NOT_GRANTED",
+    "Failed host lookup:",
+    "CERTIFICATE_VERIFY_FAILED",
+    "Handshake error in client",
+    "Error while launching http",
+    "OS Error: Network is unreachable",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

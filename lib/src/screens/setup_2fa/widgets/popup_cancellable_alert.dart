@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
         fontFamily: 'Lato',
-        color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
         decoration: TextDecoration.none,
       ),
     );
@@ -55,7 +56,7 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
                       child: Container(
                         width: 340,
                         padding: EdgeInsets.all(10),
-                        color: Theme.of(context).accentTextTheme.titleLarge!.decorationColor!,
+                        color: Theme.of(context).dialogBackgroundColor,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[

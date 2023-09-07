@@ -48,10 +48,9 @@ class OrderDetailsPageBodyState extends State<OrderDetailsPageBody> {
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
       return SectionStandardList(
-          context: context,
           sectionCount: 1,
           itemCounter: (int _) => orderDetailsViewModel.items.length,
-          itemBuilder: (_, __, index) {
+          itemBuilder: (__, index) {
             final item = orderDetailsViewModel.items[index];
 
             if (item is TrackTradeListItem) {
