@@ -9,6 +9,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -183,8 +184,6 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
-import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -225,10 +224,10 @@ late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
-late Box<UnspentCoinsInfo>? _unspentCoinsInfoSource;
+late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
-Future setup({
+Future<void> setup({
   required Box<WalletInfo> walletInfoSource,
   required Box<Node> nodeSource,
   required Box<Contact> contactSource,
@@ -237,7 +236,7 @@ Future setup({
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
-  Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
 }) async {
   _walletInfoSource = walletInfoSource;
@@ -254,7 +253,6 @@ Future setup({
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   }
-
   if (!_isSetupFinished) {
     getIt.registerFactory(() => BackgroundTasks());
   }
@@ -325,25 +323,6 @@ Future setup({
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
       getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
       type: type));
-
-  getIt.registerFactoryParam<WalletRestorationFromSeedVM, List, void>((args, _) {
-    final type = args.first as WalletType;
-    final language = args[1] as String;
-    final mnemonic = args[2] as String;
-
-    return WalletRestorationFromSeedVM(
-        getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-        type: type, language: language, seed: mnemonic);
-  });
-
-  getIt.registerFactoryParam<WalletRestorationFromKeysVM, List, void>((args, _) {
-    final type = args.first as WalletType;
-    final language = args[1] as String;
-
-    return WalletRestorationFromKeysVM(
-        getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-        type: type, language: language);
-  });
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -550,8 +529,7 @@ Future setup({
 
   getIt.registerFactory<SendViewModel>(
     () => SendViewModel(
-      getIt.get<AppStore>().wallet!,
-      getIt.get<AppStore>().settingsStore,
+      getIt.get<AppStore>(),
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
       getIt.get<BalanceViewModel>(),
@@ -729,7 +707,7 @@ Future setup({
       ));
 
   getIt.registerFactory(() => ExchangeViewModel(
-      getIt.get<AppStore>().wallet!,
+      getIt.get<AppStore>(),
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
@@ -758,7 +736,7 @@ Future setup({
       case WalletType.haven:
         return haven!.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_walletInfoSource);
+        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(
             _walletInfoSource, _unspentCoinsInfoSource!,

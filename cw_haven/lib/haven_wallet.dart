@@ -12,8 +12,7 @@ import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_haven/api/structs/pending_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_haven/api/transaction_history.dart'
-    as haven_transaction_history;
+import 'package:cw_haven/api/transaction_history.dart' as haven_transaction_history;
 //import 'package:cw_haven/wallet.dart';
 import 'package:cw_haven/api/wallet.dart' as haven_wallet;
 import 'package:cw_haven/api/transaction_history.dart' as transaction_history;
@@ -37,8 +36,8 @@ const moneroBlockSize = 1000;
 
 class HavenWallet = HavenWalletBase with _$HavenWallet;
 
-abstract class HavenWalletBase extends WalletBase<MoneroBalance,
-    HavenTransactionHistory, HavenTransactionInfo> with Store {
+abstract class HavenWalletBase
+    extends WalletBase<MoneroBalance, HavenTransactionHistory, HavenTransactionInfo> with Store {
   HavenWalletBase({required WalletInfo walletInfo})
       : balance = ObservableMap.of(getHavenBalance(accountIndex: 0)),
         _isTransactionUpdating = false,
@@ -47,8 +46,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo) {
     transactionHistory = HavenTransactionHistory();
-    _onAccountChangeReaction = reaction((_) => walletAddresses.account,
-            (Account? account) {
+    _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
       if (account == null) {
         return;
       }
@@ -96,14 +94,12 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       haven_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
       if (haven_wallet.getCurrentHeight() <= 1) {
-        haven_wallet.setRefreshFromBlockHeight(
-            height: walletInfo.restoreHeight);
+        haven_wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
       }
     }
 
-    _autoSaveTimer = Timer.periodic(
-       Duration(seconds: _autoSaveInterval),
-       (_) async => await save());
+    _autoSaveTimer =
+        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
   }
 
   @override
@@ -115,7 +111,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
-
+  
   @override
   Future<void> connectToNode({required Node node}) async {
     try {
@@ -170,26 +166,25 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     }
 
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll
-          || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw HavenTransactionCreationException('You do not have enough coins to send this amount.');
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        throw HavenTransactionCreationException(
+            'You do not have enough coins to send this amount.');
       }
 
-      final int totalAmount = outputs.fold(0, (acc, value) =>
-          acc + (value.formattedCryptoAmount ?? 0));
+      final int totalAmount =
+          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
       if (unlockedBalance < totalAmount) {
-        throw HavenTransactionCreationException('You do not have enough coins to send this amount.');
+        throw HavenTransactionCreationException(
+            'You do not have enough coins to send this amount.');
       }
 
-      final moneroOutputs = outputs.map((output) =>
-          MoneroOutput(
-              address: output.address,
-              amount: output.cryptoAmount!.replaceAll(',', '.')))
+      final moneroOutputs = outputs
+          .map((output) => MoneroOutput(
+              address: output.address, amount: output.cryptoAmount!.replaceAll(',', '.')))
           .toList();
 
-      pendingTransactionDescription =
-      await transaction_history.createTransactionMultDest(
+      pendingTransactionDescription = await transaction_history.createTransactionMultDest(
           outputs: moneroOutputs,
           priorityRaw: _credentials.priority.serialize(),
           accountIndex: walletAddresses.account!.id);
@@ -198,12 +193,8 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
       final address = output.isParsedAddress && (output.extractedAddress?.isNotEmpty ?? false)
           ? output.extractedAddress!
           : output.address;
-      final amount = output.sendAll
-          ? null
-          : output.cryptoAmount!.replaceAll(',', '.');
-      final int? formattedAmount = output.sendAll
-          ? null
-          : output.formattedCryptoAmount;
+      final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+      final int? formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
 
       if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
           (formattedAmount == null && unlockedBalance <= 0)) {
@@ -213,8 +204,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
-      pendingTransactionDescription =
-      await transaction_history.createTransaction(
+      pendingTransactionDescription = await transaction_history.createTransaction(
           address: address,
           assetType: _credentials.assetType,
           amount: amount,
@@ -307,16 +297,14 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   String getTransactionAddress(int accountIndex, int addressIndex) =>
-      haven_wallet.getAddress(
-          accountIndex: accountIndex,
-          addressIndex: addressIndex);
+      haven_wallet.getAddress(accountIndex: accountIndex, addressIndex: addressIndex);
 
   @override
   Future<Map<String, HavenTransactionInfo>> fetchTransactions() async {
     haven_transaction_history.refreshTransactions();
-    return _getAllTransactions(null).fold<Map<String, HavenTransactionInfo>>(
-        <String, HavenTransactionInfo>{},
-        (Map<String, HavenTransactionInfo> acc, HavenTransactionInfo tx) {
+    return _getAllTransactions(null)
+        .fold<Map<String, HavenTransactionInfo>>(<String, HavenTransactionInfo>{},
+            (Map<String, HavenTransactionInfo> acc, HavenTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
@@ -340,9 +328,9 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   List<HavenTransactionInfo> _getAllTransactions(dynamic _) => haven_transaction_history
-          .getAllTransations()
-          .map((row) => HavenTransactionInfo.fromRow(row))
-          .toList();
+      .getAllTransations()
+      .map((row) => HavenTransactionInfo.fromRow(row))
+      .toList();
 
   void _setListeners() {
     _listener?.stop();
@@ -364,8 +352,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   }
 
   int _getHeightDistance(DateTime date) {
-    final distance =
-        DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
+    final distance = DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
     final daysTmp = (distance / 86400).round();
     final days = daysTmp < 1 ? 1 : daysTmp;
 
@@ -386,8 +373,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
   void _askForUpdateBalance() =>
       balance.addAll(getHavenBalance(accountIndex: walletAddresses.account!.id));
 
-  Future<void> _askForUpdateTransactionHistory() async =>
-      await updateTransactions();
+  Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     try {
@@ -404,9 +390,9 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
         syncStatus = SyncedSyncStatus();
 
         if (!_hasSyncAfterStartup) {
-           _hasSyncAfterStartup = true;
-           await save();
-         }
+          _hasSyncAfterStartup = true;
+          await save();
+        }
 
         if (walletInfo.isRecovery) {
           await setAsRecovered();

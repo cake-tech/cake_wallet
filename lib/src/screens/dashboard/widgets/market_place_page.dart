@@ -48,15 +48,15 @@ class MarketPlacePage extends StatelessWidget {
                 child: ListView(
                   controller: _scrollController,
                   children: <Widget>[
-                    SizedBox(height: 20),
-                    DashBoardRoundedCardWidget(
-                      onTap: () => launchUrl(
-                        Uri.parse("https://cakelabs.com/news/cake-pay-mobile-to-shut-down/"),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                      title: S.of(context).cake_pay_title,
-                      subTitle: S.of(context).cake_pay_subtitle,
-                    ),
+                    // SizedBox(height: 20),
+                    // DashBoardRoundedCardWidget(
+                    //   onTap: () => launchUrl(
+                    //     Uri.parse("https://cakelabs.com/news/cake-pay-mobile-to-shut-down/"),
+                    //     mode: LaunchMode.externalApplication,
+                    //   ),
+                    //   title: S.of(context).cake_pay_title,
+                    //   subTitle: S.of(context).cake_pay_subtitle,
+                    // ),
                     SizedBox(height: 20),
                     DashBoardRoundedCardWidget(
                       onTap: () => launchUrl(

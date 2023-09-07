@@ -1,8 +1,10 @@
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -174,7 +176,11 @@ class AddressPage extends BasePage {
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return GestureDetector(
-                    onTap: () => Navigator.of(context).pushNamed(Routes.receive),
+                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
+                        ? await showPopUp<void>(
+                        context: context,
+                        builder: (_) => getIt.get<MoneroAccountListPage>())
+                        : Navigator.of(context).pushNamed(Routes.receive),
                     child: Container(
                       height: 50,
                       padding: EdgeInsets.only(left: 24, right: 12),
@@ -182,9 +188,8 @@ class AddressPage extends BasePage {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(25)),
                           border: Border.all(
-                              color: Theme.of(context)
-                                  .extension<ReceivePageTheme>()!
-                                  .iconsBackgroundColor,
+                              color:
+                                  Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                               width: 1),
                           color: Theme.of(context)
                               .extension<SyncIndicatorTheme>()!
@@ -194,26 +199,36 @@ class AddressPage extends BasePage {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Observer(
-                              builder: (_) => Text(
-                                    addressListViewModel.hasAccounts
-                                        ? S.of(context).accounts_subaddresses
-                                        : S.of(context).addresses,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-                                  )),
+                              builder: (_) {
+                                String label = addressListViewModel.hasAccounts
+                                    ? S.of(context).accounts_subaddresses
+                                    : S.of(context).addresses;
+
+                                if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
+                                  label = addressListViewModel.hasAccounts
+                                      ? S.of(context).accounts
+                                      : S.of(context).account;
+                                }
+                                return Text(
+                                  label,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                            .extension<SyncIndicatorTheme>()!
+                                            .textColor),
+                                );
+                              },),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
-                            color:
-                                Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            color: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                           )
                         ],
                       ),
                     ),
                   );
-                } else if (addressListViewModel.showElectrumAddressDisclaimer) {
+                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled || addressListViewModel.showElectrumAddressDisclaimer) {
                   return Text(S.of(context).electrum_address_disclaimer,
                       textAlign: TextAlign.center,
                       style: TextStyle(

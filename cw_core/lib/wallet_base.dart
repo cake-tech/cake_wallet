@@ -42,13 +42,19 @@ abstract class WalletBase<
 
   set syncStatus(SyncStatus status);
 
-  String get seed;
+  String? get seed;
+
+  String? get privateKey => null;
 
   Object get keys;
 
   WalletAddresses get walletAddresses;
 
   late HistoryType transactionHistory;
+
+  set isEnabledAutoGenerateSubaddress(bool value) {}
+
+  bool get isEnabledAutoGenerateSubaddress => false;
 
   Future<void> connectToNode({required Node node});
 

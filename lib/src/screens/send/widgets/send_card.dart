@@ -496,7 +496,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         ),
                       ),
                     ),
-                    if (sendViewModel.isElectrumWallet)
+                    if (sendViewModel.hasCoinControl)
                       Padding(
                         padding: EdgeInsets.only(top: 6),
                         child: GestureDetector(

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -43,6 +44,7 @@ abstract class SettingsStoreBase with Store {
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
+      required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
@@ -88,6 +90,7 @@ abstract class SettingsStoreBase with Store {
         fiatCurrency = initialFiatCurrency,
         balanceDisplayMode = initialBalanceDisplayMode,
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
+        autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
@@ -197,6 +200,11 @@ abstract class SettingsStoreBase with Store {
         (_) => disableSell,
         (bool disableSell) =>
             sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
+
+    reaction(
+        (_) => autoGenerateSubaddressStatus,
+        (AutoGenerateSubaddressStatus autoGenerateSubaddressStatus) => sharedPreferences.setInt(
+            PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus.value));
 
     reaction(
         (_) => fiatApiMode,
@@ -339,6 +347,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
   static final walletPasswordDirectInput = Platform.isLinux;
+  static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -360,6 +369,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldSaveRecipientAddress;
+
+  @observable
+  AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
 
   @observable
   bool isAppSecure;
@@ -601,14 +613,15 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
+    final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
-    var appVersion = '';
+    final generateSubaddresses =
+        sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
 
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      appVersion = packageInfo.version;
-    } catch(_) {}
+    final autoGenerateSubaddressStatus = generateSubaddresses != null
+        ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
+        : defaultAutoGenerateSubaddressStatus;
 
     final nodes = <WalletType, Node>{};
 
@@ -641,12 +654,13 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
-        appVersion: appVersion,
+        appVersion: packageInfo.version,
         deviceName: deviceName,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
         initialAppSecure: isAppSecure,
         initialDisableBuy: disableBuy,
         initialDisableSell: disableSell,
@@ -716,6 +730,13 @@ abstract class SettingsStoreBase with Store {
           priority[WalletType.ethereum]!;
     }
 
+    final generateSubaddresses =
+        sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
+
+    autoGenerateSubaddressStatus = generateSubaddresses != null
+        ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
+        : defaultAutoGenerateSubaddressStatus;
+
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =
@@ -726,8 +747,6 @@ abstract class SettingsStoreBase with Store {
 
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
-    sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
-        shouldSaveRecipientAddress;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;

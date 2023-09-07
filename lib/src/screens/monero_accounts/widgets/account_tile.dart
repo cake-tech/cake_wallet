@@ -5,13 +5,14 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class AccountTile extends StatelessWidget {
-  AccountTile(
-      {required this.isCurrent,
-      required this.accountName,
-      this.accountBalance,
-      required this.currency,
-      required this.onTap,
-      required this.onEdit});
+  AccountTile({
+    required this.isCurrent,
+    required this.accountName,
+    this.accountBalance,
+    required this.currency,
+    required this.onTap,
+    required this.onEdit,
+  });
 
   final bool isCurrent;
   final String accountName;

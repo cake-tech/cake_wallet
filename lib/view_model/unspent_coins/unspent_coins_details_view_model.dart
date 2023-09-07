@@ -23,6 +23,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
         note = unspentCoinsItem.note {
     items = [
       StandartListItem(title: S.current.transaction_details_amount, value: unspentCoinsItem.amount),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: unspentCoinsItem.hash),
       StandartListItem(title: S.current.widgets_address, value: unspentCoinsItem.address),
       TextFieldListItem(
           title: S.current.note_tap_to_change,
@@ -42,19 +43,22 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
               unspentCoinsItem.isSending = !value;
             }
             await unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
-          }),
-      BlockExplorerListItem(
-          title: S.current.view_in_block_explorer,
-          value: _explorerDescription(unspentCoinsListViewModel.wallet.type),
-          onTap: () {
-            try {
-              final url = Uri.parse(
-                  _explorerUrl(unspentCoinsListViewModel.wallet.type, unspentCoinsItem.hash));
-              return launchUrl(url);
-            } catch (e) {}
-
           })
     ];
+
+    if ([WalletType.bitcoin, WalletType.litecoin].contains(unspentCoinsListViewModel.wallet.type)) {
+      items.add(BlockExplorerListItem(
+        title: S.current.view_in_block_explorer,
+        value: _explorerDescription(unspentCoinsListViewModel.wallet.type),
+        onTap: () {
+          try {
+            final url = Uri.parse(
+                _explorerUrl(unspentCoinsListViewModel.wallet.type, unspentCoinsItem.hash));
+            return launchUrl(url);
+          } catch (e) {}
+        },
+      ));
+    }
   }
 
   String _explorerUrl(WalletType type, String txId) {

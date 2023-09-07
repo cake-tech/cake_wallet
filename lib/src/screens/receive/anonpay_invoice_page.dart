@@ -87,32 +87,30 @@ class AnonPayInvoicePage extends BasePage {
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _amountFocusNode,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
+          nextFocus: false,
+          actions: [
+            KeyboardActionsItem(
+              focusNode: _amountFocusNode,
+              toolbarButtons: [(_) => KeyboardDoneButton()],
+            ),
+          ]),
+      child: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.only(bottom: 24),
+          content: Container(
+            decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
+                  Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ]),
-        child: Container(
-          color: Theme.of(context).colorScheme.background,
-          child: ScrollableWithBottomSection(
-            contentPadding: EdgeInsets.only(bottom: 24),
-            content: Container(
-              decoration: ResponsiveLayoutUtil.instance.isMobile
-                  ? BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
-                          Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    )
-                  : null,
+              ) : null,
               child: Observer(builder: (_) {
                 return Padding(
                   padding: EdgeInsets.fromLTRB(24, 120, 24, 0),

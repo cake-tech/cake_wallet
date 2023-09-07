@@ -37,12 +37,14 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
+
   Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       );
+
   Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
