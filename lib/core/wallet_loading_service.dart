@@ -16,14 +16,13 @@ class WalletLoadingService {
 	final KeyService keyService;
 	final WalletService Function(WalletType type) walletServiceFactory;
 
-  Future<void> renameWallet(
-      WalletType type, String name, String newName) async {
+  Future<void> renameWallet(WalletType type, String name, String newName,
+      {String? password}) async {
     final walletService = walletServiceFactory.call(type);
-    final password = await keyService.getWalletPassword(walletName: name);
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
 
     // Save the current wallet's password to the new wallet name's key
-    await keyService.saveWalletPassword(
-        walletName: newName, password: password);
+    await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
     // Delete previous wallet name from keyService to keep only new wallet's name
     // otherwise keeps duplicate (old and new names)
     await keyService.deleteWalletPassword(walletName: name);
@@ -85,11 +84,9 @@ class WalletLoadingService {
     // Save new generated password with backup key for case where
     // wallet will change password, but it will fail to update in secure storage
     final bakWalletName = '#__${wallet.name}_bak__#';
-    await keyService.saveWalletPassword(
-        walletName: bakWalletName, password: password);
+    await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
     await wallet.changePassword(password);
-    await keyService.saveWalletPassword(
-        walletName: wallet.name, password: password);
+    await keyService.saveWalletPassword(walletName: wallet.name, password: password);
     isPasswordUpdated = true;
     await sharedPreferences.setBool(key, isPasswordUpdated);
   }

@@ -133,10 +133,10 @@ class ExceptionHandler {
   static const List<String> _ignoredErrors = const [
     "errno = 9", // SocketException: Bad file descriptor
     "errno = 28", // OS Error: No space left on device
-    "errno = 32", // SocketException: OS Error: Broken pipe
+    "errno = 32", // SocketException: Write failed (OS Error: Broken pipe)
     "errno = 49", // SocketException: Can't assign requested address
     "errno = 54", // SocketException: Connection reset by peer
-    "errno = 57", // SocketException: OS Error: Socket is not connected
+    "errno = 57", // SocketException: Read failed (OS Error: Socket is not connected)
     "errno = 60", // SocketException: Operation timed out
     "errno = 65", // SocketException: No route to host
     "errno = 103", // SocketException: Software caused connection abort

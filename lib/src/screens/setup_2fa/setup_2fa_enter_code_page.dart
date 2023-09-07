@@ -48,14 +48,16 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
       _reaction ??= reaction((_) => widget.setup2FAViewModel.state,
           (ExecutionState state) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (state is ExecutedSuccessfullyState) {
-            widget.totpArguments.onTotpAuthenticationFinished!(true, this);
-          }
+          widget.totpArguments.onTotpAuthenticationFinished!(true, this);
+        });
+      }
 
-          if (state is FailureState) {
-            print(state.error);
-            widget.totpArguments.onTotpAuthenticationFinished!(false, this);
-          }
+      if (state is FailureState) {
+        print(state.error);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.totpArguments.onTotpAuthenticationFinished!(false, this);
+        });
+      }
 
           if (state is AuthenticationBanned) {
             widget.totpArguments.onTotpAuthenticationFinished!(false, this);

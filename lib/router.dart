@@ -368,7 +368,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
             param1: args?['editingNode'] as Node?,
             param2: args?['isSelected'] as bool?));
 
-   case Routes.login:
+    case Routes.login:
       return CupertinoPageRoute<void>(
           builder: (context) => WillPopScope(
               child: SettingsStoreBase.walletPasswordDirectInput
