@@ -3,6 +3,8 @@ import 'package:cw_core/address_info.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'dart:async';
 
 part 'wallet_info.g.dart';
 
@@ -31,7 +33,7 @@ class WalletInfo extends HiveObject {
         yatEid, yatLastUsedAddressRaw, showIntroCakePayCard);
   }
 
-  static const typeId = WALLET_INFO_TYPE_ID;
+  static const typeId = 4;
   static const boxName = 'WalletInfo';
 
   @HiveField(0, defaultValue: '')

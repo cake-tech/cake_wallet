@@ -521,9 +521,9 @@ extern "C"
         }
 
         if (socksProxyAddress != nullptr)
-                {
-                    _socksProxyAddress = std::string(socksProxyAddress);
-                }
+        {
+            _socksProxyAddress = std::string(socksProxyAddress);
+        }
 
         bool inited = wallet->init(std::string(address), 0, _login, _password, use_ssl, is_light_wallet, _socksProxyAddress);
 

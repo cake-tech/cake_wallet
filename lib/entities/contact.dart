@@ -1,7 +1,8 @@
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/hive_type_ids.dart';
-import 'package:cw_core/keyable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cw_core/keyable.dart';
 
 part 'contact.g.dart';
 
@@ -13,7 +14,7 @@ class Contact extends HiveObject with Keyable {
     }
   }
 
-  static const typeId = CONTACT_TYPE_ID;
+  static const typeId = 0;
   static const boxName = 'Contacts';
 
   @HiveField(0, defaultValue: '')

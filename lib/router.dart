@@ -41,8 +41,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
-import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
-import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
@@ -470,16 +468,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.support:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportPage>());
-
-    case Routes.supportLiveChat:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportChatPage>());
-
-    case Routes.supportOtherLinks:
-      return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<SupportOtherLinksPage>());
+          builder: (_) => getIt.get<SupportPage>());
 
     case Routes.unspentCoinsList:
       return MaterialPageRoute<void>(

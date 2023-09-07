@@ -23,13 +23,13 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
 
   final Function(bool) onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
-  final bool displayPrivateKeyField;
   final bool displayWalletPassword;
   final void Function(String)? onPasswordChange;
   final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromKeysFromState createState() => WalletRestoreFromKeysFromState(displayWalletPassword: displayWalletPassword);
+  WalletRestoreFromKeysFromState createState() =>
+      WalletRestoreFromKeysFromState(displayWalletPassword: displayWalletPassword);
 }
 
 class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {

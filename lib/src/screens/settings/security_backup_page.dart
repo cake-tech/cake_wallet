@@ -27,15 +27,17 @@ class SecurityBackupPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(top: 10),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
+      padding: EdgeInsets.only(top: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           SettingsCellWithArrow(
             title: S.current.show_keys,
             handler: (_) => _authService.authenticateAction(
               context,
               route: Routes.showKeys,
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              conditionToDetermineIfToUse2FA:
+                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
@@ -58,8 +60,8 @@ class SecurityBackupPage extends BasePage {
               arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
                 setupPinContext.close();
               },
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              conditionToDetermineIfToUse2FA:
+                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
@@ -70,17 +72,18 @@ class SecurityBackupPage extends BasePage {
                   value: _securitySettingsViewModel.allowBiometricalAuthentication,
                   onValueChange: (BuildContext context, bool value) {
                     if (value) {
-                      _authService.authenticateAction(context,
-                          onAuthSuccess: (isAuthenticatedSuccessfully) async {
-                        if (isAuthenticatedSuccessfully) {
-                          if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                      _authService.authenticateAction(
+                        context,
+                        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                          if (isAuthenticatedSuccessfully) {
+                            if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                              _securitySettingsViewModel
+                                  .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                            }
+                          } else {
                             _securitySettingsViewModel
                                 .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                           }
-                        } else {
-                          _securitySettingsViewModel
-                              .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
-                        }
                         },
                         conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                             .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
@@ -106,11 +109,11 @@ class SecurityBackupPage extends BasePage {
                 title: _securitySettingsViewModel.useTotp2FA
                     ? S.current.modify_2fa
                     : S.current.setup_2fa,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: _securitySettingsViewModel.useTotp2FA
-                  ? Routes.modify2FAPage
-                  : Routes.setup_2faPage,
+                handler: (_) => _authService.authenticateAction(
+                  context,
+                  route: _securitySettingsViewModel.useTotp2FA
+                      ? Routes.modify2FAPage
+                      : Routes.setup_2faPage,
                   conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                       .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                 ),

@@ -496,9 +496,9 @@ import 'package:cw_ethereum/ethereum_transaction_priority.dart';
   const ethereumContent = """
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
   WalletCredentials createEthereumNewWalletCredentials({
-  required String name, WalletInfo? walletInfo});
+  required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
@@ -549,9 +549,12 @@ abstract class Ethereum {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasMonero,
+Future<void> generatePubspec({
+  required bool hasMonero,
   required bool hasBitcoin,
-  required bool hasHaven, required bool hasEthereum,
+  required bool hasHaven,
+  required bool hasEthereum,
+  required bool hasFlutterSecureStorage,
   required bool hasFlutterSecureStorage}) async {
   const cwCore =  """
   cw_core:

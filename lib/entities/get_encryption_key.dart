@@ -7,11 +7,15 @@ Future<List<int>> getEncryptionKey(
   List<int> key;
 
   if (stringifiedKey == null) {
-    key = CakeHive.generateSecureKey();
+    key = Hive.generateSecureKey();
     final keyStringified = key.join(',');
-    await secureStorage.write(key: 'transactionDescriptionsBoxKey', value: keyStringified);
+    await secureStorage.write(
+        key: 'transactionDescriptionsBoxKey', value: keyStringified);
   } else {
-    key = stringifiedKey.split(',').map((i) => int.parse(i)).toList();
+    key = stringifiedKey
+        .split(',')
+        .map((i) => int.parse(i))
+        .toList();
   }
 
   return key;

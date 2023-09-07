@@ -202,7 +202,7 @@ class TOTPEnterCode extends BasePage {
                     Navigator.pushReplacementNamed(
                         context, Routes.modify2FAPage);
                   }
-               
+
                 },
                 text: S.of(context).continue_text,
                 color: Theme.of(context).primaryColor,

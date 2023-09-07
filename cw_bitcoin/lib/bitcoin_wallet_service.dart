@@ -23,7 +23,6 @@ class BitcoinWalletService extends WalletService<
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
-  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.bitcoin;

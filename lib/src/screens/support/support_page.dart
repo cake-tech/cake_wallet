@@ -1,78 +1,55 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/support/widgets/support_tiles.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_link_provider_cell.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/settings/link_list_item.dart';
+import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class SupportPage extends BasePage {
   SupportPage(this.supportViewModel);
 
   final SupportViewModel supportViewModel;
 
-  final imageLiveSupport = Image.asset('assets/images/live_support.png');
-  final imageWalletGuides = Image.asset('assets/images/wallet_guides.png');
-  final imageMoreLinks = Image.asset('assets/images/more_links.png');
-
   @override
   String get title => S.current.settings_support;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.regular;
-
-  @override
   Widget body(BuildContext context) {
-    return Container(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 330),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: SupportTile(
-                  image: imageLiveSupport,
-                  title: S.of(context).support_title_live_chat,
-                  description: S.of(context).support_description_live_chat,
-                  onPressed: () {
-                    if (DeviceInfo.instance.isDesktop) {
-                      _launchUrl(supportViewModel.fetchUrl());
-                    } else {
-                      Navigator.pushNamed(context, Routes.supportLiveChat);
-                    }
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: SupportTile(
-                  image: imageWalletGuides,
-                  title: S.of(context).support_title_guides,
-                  description: S.of(context).support_description_guides,
-                  onPressed: () => _launchUrl(supportViewModel.guidesUrl),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: SupportTile(
-                  image: imageMoreLinks,
-                  title: S.of(context).support_title_other_links,
-                  description: S.of(context).support_description_other_links,
-                  onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
-                ),
-              ),
-            ],
-          ),
-        ),
+    final iconColor = Theme.of(context)
+        .accentTextTheme!
+        .displayLarge!
+        .backgroundColor!;
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 500),
+        child: SectionStandardList(
+            context: context,
+            sectionCount: 1,
+            itemCounter: (int _) => supportViewModel.items.length,
+            itemBuilder: (_, __, index) {
+              final item = supportViewModel.items[index];
+
+              if (item is RegularListItem) {
+                return SettingsCellWithArrow(title: item.title, handler: item.handler);
+              }
+
+              if (item is LinkListItem) {
+                return SettingsLinkProviderCell(
+                    title: item.title,
+                    icon: item.icon,
+                    iconColor: item.hasIconColor ? iconColor : null,
+                    link: item.link,
+                    linkTitle: item.linkTitle);
+              }
+
+              return Container();
+            }),
       ),
     );
-  }
-
-  void _launchUrl(String url) async {
-    try {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } catch (e) {}
   }
 }

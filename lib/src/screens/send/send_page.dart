@@ -371,10 +371,10 @@ class SendPage extends BasePage {
                               item.address.isEmpty || item.cryptoAmount.isEmpty)
                           .toList();
 
-                        if (notValidItems.isNotEmpty) {
-                          showErrorValidationAlert(context);
-                          return;
-                        }
+                      if (notValidItems.isNotEmpty ?? false) {
+                        showErrorValidationAlert(context);
+                        return;
+                      }
 
                         final check = sendViewModel.shouldDisplayTotp();
                         authService.authenticateAction(

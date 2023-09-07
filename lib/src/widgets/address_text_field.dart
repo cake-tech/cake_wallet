@@ -16,7 +16,10 @@ class AddressTextField extends StatelessWidget {
       {required this.controller,
       this.isActive = true,
       this.placeholder,
-      this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
+      this.options = const [
+        AddressTextFieldOption.qrCode,
+        AddressTextFieldOption.addressBook
+      ],
       this.onURIScanned,
       this.focusNode,
       this.isBorderExist = true,
