@@ -51,8 +51,7 @@ class MainActions {
           if (viewModel.isEnabledBuyAction) {
             final uri = getIt.get<OnRamperBuyProvider>().requestUrl(context);
             if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context)
-                  .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
+              Navigator.of(context).pushNamed(Routes.onramperPage);
             } else {
               await launchUrl(uri);
             }
@@ -117,16 +116,9 @@ class MainActions {
             final uri = await moonPaySellProvider.requestUrl(
               currency: viewModel.wallet.currency,
               refundWalletAddress: viewModel.wallet.walletAddresses.address,
-              settingsStore: viewModel.settingsStore,
             );
-            if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.webViewPage,
-                  arguments: [S.of(context).sell, uri]);
-            } else {
-              await launchUrl(uri);
-            }
+            await launchUrl(uri);
           }
-
           break;
         default:
           await showPopUp<void>(

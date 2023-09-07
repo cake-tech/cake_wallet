@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -29,6 +29,8 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -59,7 +61,7 @@ class DashboardPage extends StatelessWidget {
                 addressListViewModel: addressListViewModel,
               );
             }
-          } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
+          } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {(context)
             return _DashboardPageView(
               balancePage: balancePage,
               dashboardViewModel: dashboardViewModel,

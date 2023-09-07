@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cw_bitcoin/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -16,10 +17,11 @@ class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials> {
-  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.litecoin;
@@ -30,7 +32,8 @@ class LitecoinWalletService extends WalletService<
         mnemonic: await generateMnemonic(),
         password: credentials.password!,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.save();
     await wallet.init();
 
@@ -47,7 +50,8 @@ class LitecoinWalletService extends WalletService<
         (info) => info.id == WalletBase.idFor(name, getType()))!;
     final wallet = await LitecoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.init();
     return wallet;
   }
@@ -96,7 +100,8 @@ class LitecoinWalletService extends WalletService<
         password: credentials.password!,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.save();
     await wallet.init();
     return wallet;

@@ -1,9 +1,9 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -11,13 +11,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class MarketPlacePage extends StatelessWidget {
-  MarketPlacePage({
-    required this.dashboardViewModel,
-    required this.marketPlaceViewModel,
-  });
+
+  MarketPlacePage({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
-  final MarketPlaceViewModel marketPlaceViewModel;
   final _scrollController = ScrollController();
 
   @override
@@ -75,14 +72,13 @@ class MarketPlacePage extends StatelessWidget {
       ),
     );
   }
-
   // TODO: Remove ionia flow/files if we will discard it
   void _navigatorToGiftCardsPage(BuildContext context) {
     final walletType = dashboardViewModel.type;
 
     switch (walletType) {
       case WalletType.haven:
-        showPopUp<void>(
+         showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
               return AlertWithOneAction(
@@ -92,14 +88,9 @@ class MarketPlacePage extends StatelessWidget {
                   buttonAction: () => Navigator.of(context).pop());
             });
         break;
-      default:
-        marketPlaceViewModel.isIoniaUserAuthenticated().then((value) {
-          if (value) {
-            Navigator.pushNamed(context, Routes.ioniaManageCardsPage);
-            return;
-          }
-          Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
-        });
+        default:
+         Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
     }
   }
+
 }

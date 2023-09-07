@@ -22,8 +22,6 @@ using namespace std::chrono_literals;
 extern "C"
 {
 #endif
-    const uint64_t MONERO_BLOCK_SIZE = 1000;
-
     struct Utf8Box
     {
         char *value;
@@ -151,7 +149,8 @@ extern "C"
             fee = transaction->fee();
             blockHeight = transaction->blockHeight();
             subaddrAccount = transaction->subaddrAccount();
-            std::set<uint32_t>::iterator it = transaction->subaddrIndex().begin();
+            std::set<uint32_t> subIndex = transaction->subaddrIndex();
+            std::set<uint32_t>::iterator it = subIndex.begin();
             subaddrIndex = *it;
             confirmations = transaction->confirmations();
             datetime = static_cast<int64_t>(transaction->timestamp());

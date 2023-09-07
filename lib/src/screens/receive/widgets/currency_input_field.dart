@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,8 +12,7 @@ class CurrencyInputField extends StatelessWidget {
     required this.onTapPicker,
     required this.selectedCurrency,
     this.focusNode,
-    required this.controller,
-    required this.isLight,
+    required this.controller, required this.isLight,
   });
 
   final Function() onTapPicker;
@@ -30,9 +28,7 @@ class CurrencyInputField extends StatelessWidget {
       color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       height: 8,
     );
-    // This magic number for wider screen sets the text input focus at center of the inputfield
-    final _width =
-        ResponsiveLayoutUtil.instance.isMobile ? MediaQuery.of(context).size.width : 500;
+    final _width = MediaQuery.of(context).size.width;
 
     return Column(
       children: [
@@ -46,12 +42,10 @@ class CurrencyInputField extends StatelessWidget {
               keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.|\,)?\d{0,8}'))],
               hintText: '0.000',
-              placeholderTextStyle: isLight
-                  ? null
-                  : TextStyle(
-                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+              placeholderTextStyle: isLight ? null : TextStyle(
+                color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                fontWeight: FontWeight.w600,
+              ),
               borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
               textColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               textStyle: TextStyle(

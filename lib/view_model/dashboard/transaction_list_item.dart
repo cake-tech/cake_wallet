@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
 
+
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
       {required this.transaction,
@@ -28,7 +29,7 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
 
-  BalanceDisplayMode get displayMode => balanceViewModel.displayMode;
+  BalanceDisplayMode get displayMode => settingsStore.balanceDisplayMode;
 
   @override
   dynamic get keyIndex => transaction.id;

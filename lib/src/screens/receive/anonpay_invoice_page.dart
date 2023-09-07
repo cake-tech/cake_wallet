@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +28,8 @@ class AnonPayInvoicePage extends BasePage {
   AnonPayInvoicePage(
     this.anonInvoicePageViewModel,
     this.receiveOptionViewModel,
-  ) : _amountFocusNode = FocusNode() {}
+  ) : _amountFocusNode = FocusNode() {
+  }
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -71,22 +71,15 @@ class AnonPayInvoicePage extends BasePage {
         anonInvoicePageViewModel.reset();
       });
 
-  Future<bool> _onNavigateBack(BuildContext context) async {
-    onClose(context);
-    return false;
-  }
-
   @override
   Widget body(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context));
 
-    return WillPopScope(
-      onWillPop: () => _onNavigateBack(context),
-      child: KeyboardActions(
-        disableScroll: true,
-        config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+    return KeyboardActions(
+      disableScroll: true,
+      config: KeyboardActionsConfig(
+          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -99,7 +92,7 @@ class AnonPayInvoicePage extends BasePage {
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
-            decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
+            decoration: DeviceInfo.instance.isMobile ? BoxDecoration(
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(
@@ -110,76 +103,74 @@ class AnonPayInvoicePage extends BasePage {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              ) : null,
-              child: Observer(builder: (_) {
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
-                  child: AnonInvoiceForm(
-                    nameController: _nameController,
-                    descriptionController: _descriptionController,
-                    amountController: _amountController,
-                    emailController: _emailController,
-                    depositAmountFocus: _amountFocusNode,
-                    formKey: _formKey,
-                    isInvoice: receiveOptionViewModel.selectedReceiveOption ==
-                        ReceivePageOption.anonPayInvoice,
-                    anonInvoicePageViewModel: anonInvoicePageViewModel,
-                  ),
-                );
-              }),
-            ),
-            bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-            bottomSection: Observer(builder: (_) {
-              final isInvoice =
-                  receiveOptionViewModel.selectedReceiveOption == ReceivePageOption.anonPayInvoice;
-              return Column(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 15),
-                    child: Center(
-                      child: Text(
-                        isInvoice
-                            ? S.of(context).anonpay_description("an invoice", "pay")
-                            : S.of(context).anonpay_description("a donation link", "donate"),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12),
-                      ),
-                    ),
-                  ),
-                  LoadingPrimaryButton(
-                    text: isInvoice
-                        ? S.of(context).create_invoice
-                        : S.of(context).create_donation_link,
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      anonInvoicePageViewModel.setRequestParams(
-                        inputAmount: _amountController.text,
-                        inputName: _nameController.text,
-                        inputEmail: _emailController.text,
-                        inputDescription: _descriptionController.text,
-                      );
-                      if (anonInvoicePageViewModel.receipientEmail.isNotEmpty &&
-                          _formKey.currentState != null &&
-                          !_formKey.currentState!.validate()) {
-                        return;
-                      }
-                      if (isInvoice) {
-                        anonInvoicePageViewModel.createInvoice();
-                      } else {
-                        anonInvoicePageViewModel.generateDonationLink();
-                      }
-                    },
-                     color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                    isLoading: anonInvoicePageViewModel.state is IsExecutingState,
-                  ),
-                ],
+            ) : null,
+            child: Observer(builder: (_) {
+              return Padding(
+                padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
+                child: AnonInvoiceForm(
+                  nameController: _nameController,
+                  descriptionController: _descriptionController,
+                  amountController: _amountController,
+                  emailController: _emailController,
+                  depositAmountFocus: _amountFocusNode,
+                  formKey: _formKey,
+                  isInvoice: receiveOptionViewModel.selectedReceiveOption ==
+                      ReceivePageOption.anonPayInvoice,
+                  anonInvoicePageViewModel: anonInvoicePageViewModel,
+                ),
               );
             }),
           ),
+          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          bottomSection: Observer(builder: (_) {
+            final isInvoice =
+                receiveOptionViewModel.selectedReceiveOption == ReceivePageOption.anonPayInvoice;
+            return Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 15),
+                  child: Center(
+                    child: Text(
+                      isInvoice
+                          ? S.of(context).anonpay_description("an invoice", "pay")
+                          : S.of(context).anonpay_description("a donation link", "donate"),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12),
+                    ),
+                  ),
+                ),
+                LoadingPrimaryButton(
+                  text:
+                      isInvoice ? S.of(context).create_invoice : S.of(context).create_donation_link,
+                  onPressed: () {
+                      FocusScope.of(context).unfocus();
+                    anonInvoicePageViewModel.setRequestParams(
+                      inputAmount: _amountController.text,
+                      inputName: _nameController.text,
+                      inputEmail: _emailController.text,
+                      inputDescription: _descriptionController.text,
+                    );
+                    if (anonInvoicePageViewModel.receipientEmail.isNotEmpty &&
+                        _formKey.currentState != null &&
+                        !_formKey.currentState!.validate()) {
+                      return;
+                    }
+                    if (isInvoice) {
+                      anonInvoicePageViewModel.createInvoice();
+                    } else {
+                      anonInvoicePageViewModel.generateDonationLink();
+                    }
+                  },
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  isLoading: anonInvoicePageViewModel.state is IsExecutingState,
+                ),
+              ],
+            );
+          }),
         ),
       ),
     );

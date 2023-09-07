@@ -73,7 +73,9 @@ class MoneroWalletService extends WalletService<
           password: credentials.password!,
           language: credentials.language);
       final wallet = MoneroWallet(
-          walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -109,7 +111,10 @@ class MoneroWalletService extends WalletService<
           .openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values.firstWhere(
           (info) => info.id == WalletBase.idFor(name, getType()));
-      final wallet = MoneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+      final wallet = MoneroWallet(
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password);
       final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
@@ -192,7 +197,9 @@ class MoneroWalletService extends WalletService<
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
       final wallet = MoneroWallet(
-          walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
+        walletInfo: credentials.walletInfo
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -214,7 +221,9 @@ class MoneroWalletService extends WalletService<
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
       final wallet = MoneroWallet(
-          walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;

@@ -139,9 +139,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               24,
-              ResponsiveLayoutUtil.instance.isMobile ? 100 : 55,
+              ResponsiveLayoutUtil.instance.isMobile(context) ? 100 : 55,
               24,
-              ResponsiveLayoutUtil.instance.isMobile ? 32 : 0,
+              ResponsiveLayoutUtil.instance.isMobile(context) ? 32 : 0,
             ),
             child: SingleChildScrollView(
               child: Observer(

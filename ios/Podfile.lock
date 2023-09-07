@@ -4,10 +4,10 @@ PODS:
     - MTBBarcodeScanner
     - SwiftProtobuf
   - BigInt (5.2.0)
-  - connectivity_plus (0.0.1):
+  - connectivity (0.0.1):
     - Flutter
-    - ReachabilitySwift
-  - CryptoSwift (1.7.1)
+    - Reachability
+  - CryptoSwift (1.6.0)
   - cw_haven (0.0.1):
     - cw_haven/Boost (= 0.0.1)
     - cw_haven/Haven (= 0.0.1)
@@ -130,10 +130,10 @@ PODS:
     - Flutter
   - platform_device_id (0.0.1):
     - Flutter
-  - ReachabilitySwift (5.0.0)
-  - SDWebImage (5.16.0):
-    - SDWebImage/Core (= 5.16.0)
-  - SDWebImage/Core (5.16.0)
+  - Reachability (3.2)
+  - SDWebImage (5.15.5):
+    - SDWebImage/Core (= 5.15.5)
+  - SDWebImage/Core (5.15.5)
   - sensitive_clipboard (0.0.1):
     - Flutter
   - share_plus (0.0.1):
@@ -141,7 +141,7 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - SwiftProtobuf (1.22.0)
+  - SwiftProtobuf (1.21.0)
   - SwiftyGif (5.4.4)
   - uni_links (0.0.1):
     - Flutter
@@ -157,7 +157,7 @@ PODS:
 
 DEPENDENCIES:
   - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
-  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - connectivity (from `.symlinks/plugins/connectivity/ios`)
   - CryptoSwift
   - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
@@ -194,7 +194,7 @@ SPEC REPOS:
     - DKPhotoGallery
     - MTBBarcodeScanner
     - OrderedSet
-    - ReachabilitySwift
+    - Reachability
     - SDWebImage
     - SwiftProtobuf
     - SwiftyGif
@@ -203,8 +203,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   barcode_scan2:
     :path: ".symlinks/plugins/barcode_scan2/ios"
-  connectivity_plus:
-    :path: ".symlinks/plugins/connectivity_plus/ios"
+  connectivity:
+    :path: ".symlinks/plugins/connectivity/ios"
   cw_haven:
     :path: ".symlinks/plugins/cw_haven/ios"
   cw_monero:
@@ -259,8 +259,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
-  CryptoSwift: d3d18dc357932f7e6d580689e065cf1f176007c1
+  connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
+  CryptoSwift: 562f8eceb40e80796fffc668b0cad9313284cfa6
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
@@ -283,12 +283,12 @@ SPEC CHECKSUMS:
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   platform_device_id: 81b3e2993881f87d0c82ef151dc274df4869aef5
-  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  SDWebImage: fd7e1a22f00303e058058278639bf6196ee431fe
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
-  SwiftProtobuf: 40bd808372cb8706108f22d28f8ab4a6b9bc6989
+  SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
@@ -296,6 +296,6 @@ SPEC CHECKSUMS:
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
   workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6
 
-PODFILE CHECKSUM: 09df1114e7c360f55770d35a79356bf5446e0100
+PODFILE CHECKSUM: ae71bdf0eb731a1ffc399c122f6aa4dea0cb5f6f
 
 COCOAPODS: 1.12.1

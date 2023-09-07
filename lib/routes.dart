@@ -72,7 +72,7 @@ class Routes {
   static const ioniaPaymentStatusPage = '/ionia_payment_status_page';
   static const ioniaMoreOptionsPage = '/ionia_more_options_page';
   static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
-  static const webViewPage = '/web_view_page';
+  static const onramperPage = '/onramper';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -80,6 +80,8 @@ class Routes {
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const sweepingWalletPage = '/sweeping_wallet_page';
+  static const walletPasswordUnlock = '/wallet_password_unlock';
+  static const walletUnlockLoadable = '/wallet_unlock_loadable';
   static const anonPayInvoicePage = '/anon_pay_invoice_page';
   static const anonPayReceivePage = '/anon_pay_receive_page';
   static const anonPayDetailsPage = '/anon_pay_details_page';

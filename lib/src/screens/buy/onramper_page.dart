@@ -5,32 +5,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class WebViewPage extends BasePage {
-  WebViewPage(this._title, this._url);
+class OnRamperPage extends BasePage {
+  OnRamperPage(this._onRamperBuyProvider);
 
-  final String _title;
-  final Uri _url;
+  final OnRamperBuyProvider _onRamperBuyProvider;
 
   @override
-  String get title => _title;
+  String get title => S.current.buy;
 
   @override
   Widget body(BuildContext context) {
-    return WebViewPageBody(_url);
+    return OnRamperPageBody(_onRamperBuyProvider);
   }
 }
 
-class WebViewPageBody extends StatefulWidget {
-  WebViewPageBody(this.uri);
+class OnRamperPageBody extends StatefulWidget {
+  OnRamperPageBody(this.onRamperBuyProvider);
 
-  final Uri uri;
+  final OnRamperBuyProvider onRamperBuyProvider;
+
+  Uri get uri => onRamperBuyProvider.requestUrl();
 
   @override
-  WebViewPageBodyState createState() => WebViewPageBodyState();
+  OnRamperPageBodyState createState() => OnRamperPageBodyState();
 }
 
-class WebViewPageBodyState extends State<WebViewPageBody> {
-  WebViewPageBodyState();
+class OnRamperPageBodyState extends State<OnRamperPageBody> {
+  OnRamperPageBodyState();
 
   @override
   Widget build(BuildContext context) {

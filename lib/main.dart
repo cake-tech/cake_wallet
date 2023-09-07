@@ -7,7 +7,7 @@ import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/address_info.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +16,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/router.dart' as Router;
@@ -71,7 +71,8 @@ Future<void> main() async {
 }
 
 Future<void> initializeAppConfigs() async {
-  final appDir = await getApplicationDocumentsDirectory();
+  setRootDirFromEnv();
+  final appDir = await getAppDir();
   CakeHive.init(appDir.path);
 
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
@@ -122,7 +123,7 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
-  final secureStorage = FlutterSecureStorage();
+  final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -168,7 +169,7 @@ Future<void> initialSetup(
     required Box<Template> templates,
     required Box<ExchangeTemplate> exchangeTemplates,
     required Box<TransactionDescription> transactionDescriptions,
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
@@ -202,7 +203,10 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
-  AppState() : yatStore = getIt.get<YatStore>();
+  AppState() : yatStore = getIt.get<YatStore>() {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  }
 
   YatStore yatStore;
   StreamSubscription? stream;

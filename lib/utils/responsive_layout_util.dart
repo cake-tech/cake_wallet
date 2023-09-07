@@ -33,13 +33,14 @@ class ResponsiveLayoutUtil {
   ///
   /// If screen size is mobile, it returns 66% ([scale]) of the [originalValue].
   double getDynamicSize(
+    BuildContext context,
     double originalValue, {
     double? mobileSize,
     double? scale,
   }) {
     scale ??= 2 / 3;
     mobileSize ??= originalValue * scale;
-    final value = isMobile ? mobileSize : originalValue;
+    final value = isMobile(context) ? mobileSize : originalValue;
 
     return value.roundToDouble();
   }
