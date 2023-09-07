@@ -11,6 +11,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 part 'bitcoin_wallet.g.dart';
 
@@ -57,13 +58,19 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ElectrumBalance? initialBalance,
       int initialRegularAddressIndex = 0,
       int initialChangeAddressIndex = 0}) async {
+
     late Uint8List seedBytes;
-    if (walletInfo.derivationType == DerivationType.electrum2) {
-      seedBytes = await mnemonicToSeedBytes(mnemonic);
-    } else {
-      // TODO: add bip39 seed
-      seedBytes = await mnemonicToSeedBytes(mnemonic);
+
+    switch (walletInfo.derivationType) {
+      case DerivationType.electrum2:
+        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        break;
+      case DerivationType.bip39:
+      default:
+        seedBytes = await bip39.mnemonicToSeed(mnemonic);
+        break;
     }
+
     return BitcoinWallet(
         mnemonic: mnemonic,
         password: password,
@@ -96,11 +103,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     late Uint8List seedBytes;
-    if (walletInfo.derivationType == DerivationType.electrum2) {
-      seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
-    } else {
-      // TODO: add bip39 seed
-      seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
+
+    switch (walletInfo.derivationType) {
+      case DerivationType.electrum2:
+        seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
+        break;
+      case DerivationType.bip39:
+      default:
+        seedBytes = await bip39.mnemonicToSeed(snp.mnemonic);
+        break;
     }
 
     return BitcoinWallet(
