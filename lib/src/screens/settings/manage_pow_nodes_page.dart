@@ -34,19 +34,17 @@ class ManagePowNodesPage extends BasePage {
           SizedBox(height: 20),
           Observer(
             builder: (BuildContext context) {
+              int nodesLength = nodeListViewModel.nodes.length;
               return Flexible(
                 child: SectionStandardList(
                   sectionCount: 1,
                   dividerPadding: EdgeInsets.symmetric(horizontal: 24),
                   itemCounter: (int sectionIndex) {
-                    return nodeListViewModel.nodes.length;
+                    return nodesLength;
                   },
                   itemBuilder: (_, index) {
                     return Observer(
                       builder: (context) {
-                        if (index > nodeListViewModel.nodes.length - 1) {
-                          return SizedBox();
-                        }
                         final node = nodeListViewModel.nodes[index];
                         final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
                         final nodeListRow = PowNodeListRow(
