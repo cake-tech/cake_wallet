@@ -1,9 +1,10 @@
 import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:cw_core/cake_hive.dart';
+import 'package:hive/hive.dart';
 
 Future<List<int>> getEncryptionKey(
     {required String forKey, required SecureStorage secureStorage}) async {
-  final stringifiedKey = await secureStorage.read(key: 'transactionDescriptionsBoxKey');
+  final stringifiedKey =
+      await secureStorage.read(key: 'transactionDescriptionsBoxKey');
   List<int> key;
 
   if (stringifiedKey == null) {

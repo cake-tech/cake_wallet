@@ -148,7 +148,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               obscureText: true),
             BaseTextFormField(
               controller: repeatedPasswordTextEditingController,
-              hintText: S.of(context).repeate_wallet_password,
+              hintText: S.of(context).repeat_wallet_password,
               obscureText: true)],
           if (widget.displayLanguageSelector)
             GestureDetector(

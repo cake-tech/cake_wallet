@@ -50,7 +50,9 @@ class LitecoinWalletService extends WalletService<
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
     final wallet = await LitecoinWalletBase.open(
-        password: password, name: name, walletInfo: walletInfo,
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.init();

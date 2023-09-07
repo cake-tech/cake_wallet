@@ -471,6 +471,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true,
           builder: (_) => getIt.get<SupportPage>());
 
+    case Routes.supportLiveChat:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SupportChatPage>());
+
+    case Routes.supportOtherLinks:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<SupportOtherLinksPage>());
+
     case Routes.unspentCoinsList:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<UnspentCoinsListPage>());

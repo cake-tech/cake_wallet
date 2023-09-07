@@ -691,5 +691,11 @@
   "support_description_other_links": "เข้าร่วมชุมชนของเราหรือเข้าถึงเราพันธมิตรของเราผ่านวิธีการอื่น ๆ",
   "select_destination": "โปรดเลือกปลายทางสำหรับไฟล์สำรอง",
   "save_to_downloads": "บันทึกลงดาวน์โหลด",
-  "auto_generate_subaddresses": "Auto สร้าง subaddresses"
+  "auto_generate_subaddresses": "Auto สร้าง subaddresses",
+  "invalid_password": "รหัสผ่านไม่ถูกต้อง",
+  "unlock": "ปลดล็อค",
+  "enter_wallet_password": "ป้อนรหัสผ่านกระเป๋าเงิน",
+  "repeat_wallet_password": "ทำซ้ำรหัสผ่านกระเป๋าเงิน",
+  "wallet_password_is_empty": "รหัสผ่านกระเป๋าเงินว่างเปล่า รหัสผ่านกระเป๋าเงินไม่ควรว่างเปล่า",
+  "repeated_password_is_incorrect": "รหัสผ่านซ้ำไม่ถูกต้อง โปรดทำซ้ำรหัสผ่านกระเป๋าเงินอีกครั้ง"
 }

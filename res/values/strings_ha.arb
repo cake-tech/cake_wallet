@@ -671,5 +671,11 @@
   "support_title_other_links": "Sauran hanyoyin tallafi",
   "support_description_other_links": "Kasance tare da al'ummominmu ko kuma ka kai mu abokanmu ta hanyar wasu hanyoyi",
   "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
-  "save_to_downloads": "Ajiye zuwa Zazzagewa"
+  "save_to_downloads": "Ajiye zuwa Zazzagewa",
+  "invalid_password": "Kalmar sirri mara inganci",
+  "unlock": "Buɗe",
+  "enter_wallet_password": "Shigar da kalmar sirri ta walat",
+  "repeat_wallet_password": "Maimaita kalmar sirri",
+  "wallet_password_is_empty": "Alamar Wallet babu komai. Al'adun Wallet bai zama komai ba",
+  "repeated_password_is_incorrect": "Maimaita kalmar sirri ba daidai ba ce. Da fatan za a sake maimaita kalmar sirri."
 }

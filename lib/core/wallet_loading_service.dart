@@ -7,14 +7,11 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletLoadingService {
-	WalletLoadingService(
-		this.sharedPreferences,
-		this.keyService,
-		this.walletServiceFactory);
-	
-	final SharedPreferences sharedPreferences;
-	final KeyService keyService;
-	final WalletService Function(WalletType type) walletServiceFactory;
+  WalletLoadingService(this.sharedPreferences, this.keyService, this.walletServiceFactory);
+
+  final SharedPreferences sharedPreferences;
+  final KeyService keyService;
+  final WalletService Function(WalletType type) walletServiceFactory;
 
   Future<void> renameWallet(WalletType type, String name, String newName,
       {String? password}) async {
@@ -38,10 +35,10 @@ class WalletLoadingService {
     }
   }
 
-	Future<WalletBase> load(WalletType type, String name, {String? password}) async {
-		final walletService = walletServiceFactory.call(type);
-		final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
-  	final wallet = await walletService.openWallet(name, password);
+  Future<WalletBase> load(WalletType type, String name, {String? password}) async {
+    final walletService = walletServiceFactory.call(type);
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+    final wallet = await walletService.openWallet(name, walletPassword);
 
     if (type == WalletType.monero) {
       await updateMoneroWalletPassword(wallet);

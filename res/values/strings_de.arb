@@ -647,7 +647,7 @@
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
   "monero_light_theme": "Monero Light-Thema",
   "auto_generate_subaddresses": "Unteradressen automatisch generieren",
-  "cake_2fa_preset" : "Cake 2FA-Voreinstellung",
+  "cake_2fa_preset": "Cake 2FA-Voreinstellung",
   "narrow": "Eng",
   "normal": "Normal",
   "aggressive": "Übereifrig",
@@ -693,5 +693,11 @@
   "support_title_other_links": "Andere Support-Links",
   "support_description_other_links": "Treten Sie unseren Communities bei oder erreichen Sie uns oder unsere Partner über andere Methoden",
   "select_destination": "Bitte wählen Sie das Ziel für die Sicherungsdatei aus.",
-  "save_to_downloads": "Unter „Downloads“ speichern"
+  "save_to_downloads": "Unter „Downloads“ speichern",
+  "invalid_password": "Ungültiges Passwort",
+  "unlock": "Freischalten",
+  "enter_wallet_password": "Geben Sie das Brieftaschenkennwort ein",
+  "repeat_wallet_password": "Wiederholen Sie das Brieftaschenkennwort",
+  "wallet_password_is_empty": "Brieftaschenkennwort ist leer. Brieftaschenkennwort sollte nicht leer sein",
+  "repeated_password_is_incorrect": "Wiederholtes Passwort ist falsch. Bitte wiederholen Sie das Brieftaschenkennwort erneut."
 }

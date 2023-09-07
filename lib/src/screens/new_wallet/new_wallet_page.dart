@@ -212,7 +212,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.w500,
                                     color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
-                                hintText: S.of(context).repeate_wallet_password,
+                                hintText: S.of(context).repeat_wallet_password,
                                 focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
                                         color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,

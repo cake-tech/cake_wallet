@@ -49,7 +49,9 @@ class BitcoinWalletService extends WalletService<
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
     final wallet = await BitcoinWalletBase.open(
-        password: password, name: name, walletInfo: walletInfo,
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.init();

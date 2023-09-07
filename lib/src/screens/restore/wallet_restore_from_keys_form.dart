@@ -23,13 +23,13 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
 
   final Function(bool) onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
+  final bool displayPrivateKeyField;
   final bool displayWalletPassword;
   final void Function(String)? onPasswordChange;
   final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromKeysFromState createState() =>
-      WalletRestoreFromKeysFromState(displayWalletPassword: displayWalletPassword);
+  WalletRestoreFromKeysFromState createState() => WalletRestoreFromKeysFromState(displayWalletPassword: displayWalletPassword);
 }
 
 class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
@@ -152,7 +152,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                   padding: EdgeInsets.only(top: 20.0),
                   child: BaseTextFormField(
                     controller: repeatedPasswordTextEditingController,
-                    hintText: S.of(context).repeate_wallet_password,
+                    hintText: S.of(context).repeat_wallet_password,
                     obscureText: true))],
             Container(height: 20),
             _restoreFromKeysFormFields(),

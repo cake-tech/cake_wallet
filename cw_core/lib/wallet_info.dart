@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/hive_type_ids.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'dart:async';

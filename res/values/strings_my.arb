@@ -691,5 +691,11 @@
   "support_description_other_links": "ကျွန်ုပ်တို့၏လူမှုအသိုင်းအဝိုင်းများသို့ 0 င်ရောက်ပါ",
   "select_destination": "အရန်ဖိုင်အတွက် ဦးတည်ရာကို ရွေးပါ။",
   "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။",
-  "auto_generate_subaddresses": "အော်တို Generate Subaddresses"
+  "auto_generate_subaddresses": "အော်တို Generate Subaddresses",
+  "invalid_password": "မမှန်ကန်သောစကားဝှက်",
+  "unlock": "သော့ဖွင့်",
+  "enter_wallet_password": "ပိုက်ဆံအိတ်စကားဝှက်ကိုရိုက်ထည့်ပါ",
+  "repeat_wallet_password": "ပိုက်ဆံအိတ်စကားဝှက်ကိုပြန်လုပ်ပါ",
+  "wallet_password_is_empty": "ပိုက်ဆံအိတ်စကားဝှက်သည်ဗလာဖြစ်သည်။ ပိုက်ဆံအိတ်စကားဝှက်သည်အချည်းနှီးဖြစ်သင့်သည်",
+  "repeated_password_is_incorrect": "ထပ်ခါတလဲလဲစကားဝှက်မမှန်ကန်ပါ ကျေးဇူးပြုပြီးပိုက်ဆံအိတ်စကားဝှက်ကိုပြန်လုပ်ပါ။"
 }

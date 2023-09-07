@@ -1,6 +1,5 @@
-Opt-in to Cake 2FA for security. More info: https://guides.cakewallet.com/docs/advanced-features/authentication/#cake-2fa
-Auto generate restore height for Monero restore QR codes
-Hausa and Yoruba languages
-Additional privacy settings
-Update Monero to 0.18.2.2
-Refactoring and bug fixes
+Ability to Auto generate new Monero subaddress when used
+Coin Control for Monero
+In-app Live Chat support
+Additional themes
+Bug Fixes and performance enhancements

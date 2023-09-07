@@ -691,5 +691,11 @@
   "support_title_other_links": "Diğer destek bağlantıları",
   "support_description_other_links": "Topluluklarımıza katılın veya ortaklarımıza diğer yöntemlerle bize ulaşın",
   "select_destination": "Lütfen yedekleme dosyası için hedef seçin.",
-  "save_to_downloads": "İndirilenlere Kaydet"
+  "save_to_downloads": "İndirilenlere Kaydet",
+  "invalid_password": "Geçersiz şifre",
+  "unlock": "Kilidini aç",
+  "enter_wallet_password": "Cüzdan şifresini girin",
+  "repeat_wallet_password": "Cüzdan şifresini tekrarlayın",
+  "wallet_password_is_empty": "Cüzdan şifresi boş. Cüzdan şifresi boş olmamalı",
+  "repeated_password_is_incorrect": "Tekrarlanan şifre yanlış. Lütfen cüzdan şifresini tekrarlayın."
 }

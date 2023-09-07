@@ -17,7 +17,7 @@ class SearchBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: searchController,
-      style: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchTextColor),
+      style: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
       decoration: InputDecoration(
         hintText: hintText ?? S.of(context).search_currency,
         hintStyle: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),

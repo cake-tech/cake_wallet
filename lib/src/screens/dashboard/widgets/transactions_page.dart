@@ -71,70 +71,70 @@ class TransactionsPage extends StatelessWidget {
                       if (item is TransactionListItem) {
                         final transaction = item.transaction;
 
-                        return Observer(
-                            builder: (_) => TransactionRow(
-                                onTap: () => Navigator.of(context)
-                                    .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                direction: transaction.direction,
-                                formattedDate: DateFormat('HH:mm').format(transaction.date),
-                                formattedAmount: item.formattedCryptoAmount,
-                                formattedFiatAmount:
-                                    dashboardViewModel.balanceViewModel.isFiatDisabled
-                                        ? ''
-                                        : item.formattedFiatAmount,
-                                isPending: transaction.isPending,
-                                title: item.formattedTitle + item.formattedStatus));
-                      }
+                          return Observer(
+                              builder: (_) => TransactionRow(
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                  direction: transaction.direction,
+                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
+                                  formattedAmount: item.formattedCryptoAmount,
+                                  formattedFiatAmount:
+                                      dashboardViewModel.balanceViewModel.isFiatDisabled
+                                          ? ''
+                                          : item.formattedFiatAmount,
+                                  isPending: transaction.isPending,
+                                  title: item.formattedTitle + item.formattedStatus));
+                        }
 
                       if (item is AnonpayTransactionListItem) {
                         final transactionInfo = item.transaction;
 
-                        return AnonpayTransactionRow(
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(Routes.anonPayDetailsPage, arguments: transactionInfo),
-                          currency: transactionInfo.fiatAmount != null
-                              ? transactionInfo.fiatEquiv ?? ''
-                              : CryptoCurrency.fromFullName(transactionInfo.coinTo)
-                                  .name
-                                  .toUpperCase(),
-                          provider: transactionInfo.provider,
-                          amount: transactionInfo.fiatAmount?.toString() ??
-                              (transactionInfo.amountTo?.toString() ?? ''),
-                          createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
-                        );
-                      }
+                          return AnonpayTransactionRow(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed(Routes.anonPayDetailsPage, arguments: transactionInfo),
+                            currency: transactionInfo.fiatAmount != null
+                                ? transactionInfo.fiatEquiv ?? ''
+                                : CryptoCurrency.fromFullName(transactionInfo.coinTo)
+                                    .name
+                                    .toUpperCase(),
+                            provider: transactionInfo.provider,
+                            amount: transactionInfo.fiatAmount?.toString() ??
+                                (transactionInfo.amountTo?.toString() ?? ''),
+                            createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                          );
+                        }
 
                       if (item is TradeListItem) {
                         final trade = item.trade;
 
-                        return Observer(
-                            builder: (_) => TradeRow(
-                                onTap: () => Navigator.of(context)
-                                    .pushNamed(Routes.tradeDetails, arguments: trade),
-                                provider: trade.provider,
-                                from: trade.from,
-                                to: trade.to,
-                                createdAtFormattedDate: trade.createdAt != null
-                                    ? DateFormat('HH:mm').format(trade.createdAt!)
-                                    : null,
-                                formattedAmount: item.tradeFormattedAmount));
-                      }
+                          return Observer(
+                              builder: (_) => TradeRow(
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.tradeDetails, arguments: trade),
+                                  provider: trade.provider,
+                                  from: trade.from,
+                                  to: trade.to,
+                                  createdAtFormattedDate: trade.createdAt != null
+                                      ? DateFormat('HH:mm').format(trade.createdAt!)
+                                      : null,
+                                  formattedAmount: item.tradeFormattedAmount));
+                        }
 
                       if (item is OrderListItem) {
                         final order = item.order;
 
-                        return Observer(
-                            builder: (_) => OrderRow(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.orderDetails, arguments: order),
-                                  provider: order.provider,
-                                  from: order.from!,
-                                  to: order.to!,
-                                  createdAtFormattedDate:
-                                      DateFormat('HH:mm').format(order.createdAt),
-                                  formattedAmount: item.orderFormattedAmount,
-                                ));
-                      }
+                          return Observer(
+                              builder: (_) => OrderRow(
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.orderDetails, arguments: order),
+                                    provider: order.provider,
+                                    from: order.from!,
+                                    to: order.to!,
+                                    createdAtFormattedDate:
+                                        DateFormat('HH:mm').format(order.createdAt),
+                                    formattedAmount: item.orderFormattedAmount,
+                                  ));
+                        }
 
                         return Container(color: Colors.transparent, height: 1);
                       })

@@ -20,6 +20,7 @@ import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/buy/onramper_page.dart';
+import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
@@ -873,6 +874,11 @@ Future<void> setup({
   getIt.registerFactory(() => SupportViewModel());
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
+
+  getIt.registerFactory(() =>
+      SupportChatPage(getIt.get<SupportViewModel>(), secureStorage: getIt.get<SecureStorage>()));
+
+  getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
