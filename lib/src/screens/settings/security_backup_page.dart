@@ -41,17 +41,18 @@ class SecurityBackupPage extends BasePage {
             ),
           ),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          if (!SettingsStoreBase.walletPasswordDirectInput)
-            ...[SettingsCellWithArrow(
-            title: S.current.create_backup,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: Routes.backup,
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          if (!SettingsStoreBase.walletPasswordDirectInput) ...[
+            SettingsCellWithArrow(
+              title: S.current.create_backup,
+              handler: (_) => _authService.authenticateAction(
+                context,
+                route: Routes.backup,
+                conditionToDetermineIfToUse2FA:
+                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              ),
             ),
-          ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24))],
+            StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          ],
           SettingsCellWithArrow(
             title: S.current.settings_change_pin,
             handler: (_) => _authService.authenticateAction(

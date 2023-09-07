@@ -405,7 +405,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> updateUnspent() async {
-    refreshCoins(walletAddresses.account!.id);
+    // refreshCoins(walletAddresses.account!.id);
 
     unspentCoins.clear();
 

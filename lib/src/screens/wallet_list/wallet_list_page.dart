@@ -1,3 +1,6 @@
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';

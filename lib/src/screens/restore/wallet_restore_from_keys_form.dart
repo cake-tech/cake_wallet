@@ -69,7 +69,6 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
       repeatedPasswordListener = () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
       repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
     }
-
     super.initState();
 
     privateKeyController.addListener(() {

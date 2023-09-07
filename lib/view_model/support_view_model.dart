@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'support_view_model.g.dart';
 
@@ -19,7 +20,7 @@ abstract class SupportViewModelBase with Store {
         title: S.current.faq,
         handler: (BuildContext context) async {
           try {
-            await launch(url);
+            await launchUrl(url);
           } catch (e) {}
         },
       ),
@@ -86,6 +87,8 @@ abstract class SupportViewModelBase with Store {
   ];
 
   final guidesUrl = 'https://guides.cakewallet.com';
+
+  static final url = Uri(scheme: "https", host: "guides.cakewallet.com");
 
   String fetchUrl({String locale = "en", String authToken = ""}) {
     var supportUrl =

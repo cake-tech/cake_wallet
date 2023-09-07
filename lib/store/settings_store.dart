@@ -618,7 +618,7 @@ abstract class SettingsStoreBase with Store {
     final generateSubaddresses =
         sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
     var appVersion = '';
-
+    
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       appVersion = packageInfo.version;

@@ -178,7 +178,7 @@ class MoneroWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values.firstWhere(
         (info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet =
-        MoneroWallet(walletInfo: currentWalletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+        MoneroWallet(walletInfo: currentWalletInfo, unspentCoinsInfo: unspentCoinsInfoSource, password: password);
 
     await currentWallet.renameWalletFiles(newName);
 
