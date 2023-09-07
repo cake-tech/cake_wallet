@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/monero_wallet.dart';
+import 'package:hive/hive.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials({required String name, required this.language, String? password})
