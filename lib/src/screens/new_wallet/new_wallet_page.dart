@@ -54,7 +54,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
         _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
         _nameController = TextEditingController(),
         _passwordController = _walletNewVM.hasWalletPassword ? TextEditingController() : null,
-        _repeatedPasswordController = _walletNewVM.hasWalletPassword ? TextEditingController() : null;
+        _repeatedPasswordController =
+            _walletNewVM.hasWalletPassword ? TextEditingController() : null;
 
   static const aspectRatioImage = 1.22;
 
@@ -128,15 +129,20 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               hintStyle: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
                               hintText: S.of(context).wallet_name,
                               focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                      color: Theme.of(context)
+                                          .extension<NewWalletTheme>()!
+                                          .underlineColor,
                                       width: 1.0)),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
                                     width: 1.0),
                               ),
                               suffixIcon: Semantics(
@@ -163,7 +169,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     height: 34,
                                     child: Image.asset(
                                       'assets/images/refresh_icon.png',
-                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                                      color: Theme.of(context)
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                     ),
                                   ),
                                 ),
@@ -171,38 +179,42 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             ),
                             validator: WalletNameValidator(),
                           ),
-                          if (_walletNewVM.hasWalletPassword)
-                            ...[TextFormField(
+                          if (_walletNewVM.hasWalletPassword) ...[
+                            TextFormField(
                               onChanged: (value) => _walletNewVM.walletPassword = value,
                               controller: _passwordController,
                               textAlign: TextAlign.center,
                               obscureText: true,
                               style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              ),
                               decoration: InputDecoration(
                                 hintStyle: TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                ),
                                 hintText: S.of(context).password,
                                 focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context)
-                                            .accentTextTheme!
-                                            .headline2!
-                                            .decorationColor!,
-                                        width: 1.0)),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline2!
-                                          .decorationColor!,
-                                      width: 1.0),
-                                )
-                              )
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
                             ),
                             TextFormField(
                               onChanged: (value) => _walletNewVM.repeatedWalletPassword = value,
@@ -210,32 +222,37 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               textAlign: TextAlign.center,
                               obscureText: true,
                               style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              ),
                               decoration: InputDecoration(
                                 hintStyle: TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme!.headline2!.color!),
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                ),
                                 hintText: S.of(context).repeate_wallet_password,
                                 focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context)
-                                            .accentTextTheme!
-                                            .headline2!
-                                            .decorationColor!,
-                                        width: 1.0)),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .accentTextTheme!
-                                          .headline2!
-                                          .decorationColor!,
-                                      width: 1.0),
-                                )
-                              )
-                            )],
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

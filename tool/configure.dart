@@ -20,8 +20,8 @@ Future<void> main(List<String> args) async {
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
   await generateEthereum(hasEthereum);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasFlutterSecureStorage: !excludeFlutterSecureStorage);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
+  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum, hasFlutterSecureStorage: !excludeFlutterSecureStorage);
+  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
 
@@ -579,8 +579,8 @@ Future<void> generatePubspec({
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-6.0.0
-      version: 6.0.0
+      ref: cake-8.0.0
+      version: 8.0.0
   """;
   const cwEthereum = """
   cw_ethereum:

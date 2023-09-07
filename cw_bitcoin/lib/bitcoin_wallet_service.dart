@@ -17,7 +17,7 @@ class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials> {
-  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
@@ -74,7 +74,8 @@ class BitcoinWalletService extends WalletService<
         password: password,
         name: currentName,
         walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
 
     await currentWallet.renameWalletFiles(newName);
 

@@ -26,7 +26,6 @@ import 'package:cw_ethereum/ethereum_transaction_info.dart';
 import 'package:cw_ethereum/ethereum_transaction_model.dart';
 import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
-import 'package:cw_ethereum/file.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
