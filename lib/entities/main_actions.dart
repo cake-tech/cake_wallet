@@ -45,14 +45,6 @@ class MainActions {
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       final defaultBuyProvider = viewModel.defaultBuyProvider;
       final walletType = viewModel.type;
-      final openOnRamper = () async {
-        final uri = getIt.get<OnRamperBuyProvider>().requestUrl(context);
-        if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
-        } else {
-          await launchUrl(uri);
-        }
-      };
 
       if (!viewModel.isEnabledBuyAction) return;
 
@@ -65,16 +57,15 @@ class MainActions {
               Navigator.pushNamed(context, Routes.buy);
               break;
             case BuyProviderType.Onramper:
-              openOnRamper();
+              await getIt.get<OnRamperBuyProvider>().launchProvider(context);
               break;
             case BuyProviderType.Robinhood:
-              final uri = await getIt.get<RobinhoodBuyProvider>().requestUrl(context);
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
+              await getIt.get<RobinhoodBuyProvider>().launchProvider(context);
               break;
           }
           break;
         case WalletType.monero:
-          openOnRamper();
+          await getIt.get<OnRamperBuyProvider>().launchProvider(context);
           break;
         default:
           await showPopUp<void>(

@@ -2,13 +2,10 @@ import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class BuyOptionsPage extends BasePage {
   final iconDarkRobinhood = 'assets/images/robinhood_dark.png';
@@ -42,10 +39,8 @@ class BuyOptionsPage extends BasePage {
                   image: iconRobinhood,
                   title: "Robinhood Connect",
                   description: S.of(context).robinhood_option_description,
-                  onPressed: () async {
-                    final uri = await getIt.get<RobinhoodBuyProvider>().requestUrl(context);
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  },
+                  onPressed: () async =>
+                      await getIt.get<RobinhoodBuyProvider>().launchProvider(context),
                 ),
               ),
               Padding(
@@ -54,15 +49,8 @@ class BuyOptionsPage extends BasePage {
                   image: iconOnramper,
                   title: "Onramper",
                   description: S.of(context).onramper_option_description,
-                  onPressed: () async {
-                    final uri = getIt.get<OnRamperBuyProvider>().requestUrl(context);
-                    if (DeviceInfo.instance.isMobile) {
-                      Navigator.of(context)
-                          .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
-                    } else {
-                      await launchUrl(uri);
-                    }
-                  },
+                  onPressed: () async =>
+                      await getIt.get<OnRamperBuyProvider>().launchProvider(context),
                 ),
               ),
               Spacer(),

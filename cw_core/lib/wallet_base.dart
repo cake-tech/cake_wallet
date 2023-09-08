@@ -83,4 +83,6 @@ abstract class WalletBase<
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
   Future<void> renameWalletFiles(String newWalletName);
+
+  String signMessage(String message, {String? address = null}) => throw UnimplementedError();
 }

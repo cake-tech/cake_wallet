@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -505,6 +504,7 @@ abstract class EthereumWalletBase
     }
   }
 
-  String signMessage(String message) =>
+  @override
+  String signMessage(String message, {String? address = null}) =>
       bytesToHex(_ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 }

@@ -1,12 +1,14 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class RobinhoodBuyProvider {
   RobinhoodBuyProvider({required WalletBase wallet})
@@ -23,24 +25,13 @@ class RobinhoodBuyProvider {
   bool get isAvailable =>
       [WalletType.bitcoin, WalletType.litecoin, WalletType.ethereum].contains(_wallet.type);
 
-  String getElectrumSignature(String message, String walletAddress) {
-    final wallet = _wallet as ElectrumWallet;
-    final addressIndex = wallet.walletAddresses.addresses.firstWhere((element) => element.address == walletAddress).index;
-    return wallet.signMessage(message, index: addressIndex);
-  }
-
-  String getEthereumSignature(String message) {
-    final wallet = _wallet as EthereumWallet;
-    return wallet.signMessage(message);
-  }
-
   String getSignature(String message) {
     switch (_wallet.type) {
       case WalletType.ethereum:
-        return getEthereumSignature(message);
+        return _wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
-        return getElectrumSignature(message, _wallet.walletAddresses.address);
+        return _wallet.signMessage(message, address: _wallet.walletAddresses.address);
       default:
         throw Exception("WalletType is not available for Robinhood");
     }
@@ -48,7 +39,7 @@ class RobinhoodBuyProvider {
 
   Future<String> getConnectId() async {
     final walletAddress = _wallet.walletAddresses.address;
-    final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 2000;
+    final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 10;
     final message = "$_apiSecret:${valid_until}";
 
     final signature = getSignature(message);
@@ -67,7 +58,7 @@ class RobinhoodBuyProvider {
     }
   }
 
-  Future<Uri> requestUrl(BuildContext context) async {
+  Future<Uri> requestUrl() async {
     final connectId = await getConnectId();
     final networkName = _wallet.currency.fullName?.toUpperCase().replaceAll(" ", "_");
 
@@ -78,5 +69,22 @@ class RobinhoodBuyProvider {
       'userIdentifier': _wallet.walletAddresses.address,
       'supportedNetworks': networkName
     });
+  }
+
+  Future<void> launchProvider(BuildContext context) async {
+    try {
+      final uri = await requestUrl();
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: "Robinhood Connect",
+                alertContent: S.of(context).buy_provider_unavailable,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    }
   }
 }

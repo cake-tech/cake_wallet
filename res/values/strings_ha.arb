@@ -669,5 +669,6 @@
   "select_buy_provider_notice": "Zaɓi mai ba da kyauta a sama. Zaka iya tsallake wannan allon ta hanyar saita mai ba da isasshen busasshen mai ba da isasshen busasshiyar saiti.",
   "onramper_option_description": "Da sauri sayi Crypto tare da hanyoyin biyan kuɗi da yawa. Akwai a yawancin ƙasashe. Yaduwa da kudade sun bambanta.",
   "default_buy_provider": "Tsohuwar Siyarwa",
-  "ask_each_time": "Tambaya kowane lokaci"
+  "ask_each_time": "Tambaya kowane lokaci",
+  "buy_provider_unavailable": "Mai ba da kyauta a halin yanzu babu."
 }
