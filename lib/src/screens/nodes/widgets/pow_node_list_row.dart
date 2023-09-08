@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:flutter/material.dart';
 
 class PowNodeListRow extends StandardListRow {

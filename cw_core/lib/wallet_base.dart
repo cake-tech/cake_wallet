@@ -1,4 +1,3 @@
-import 'package:cw_core/pow_node.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';

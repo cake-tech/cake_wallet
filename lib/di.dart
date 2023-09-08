@@ -93,7 +93,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/nano_account.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';

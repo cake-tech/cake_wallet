@@ -1,4 +1,3 @@
-import 'package:cw_core/pow_node.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import "package:yaml/yaml.dart";

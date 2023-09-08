@@ -57,7 +57,6 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/nano_account.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

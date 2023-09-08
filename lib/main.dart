@@ -9,7 +9,6 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/hive_type_ids.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -1,14 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:cw_nano/nano_util.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
