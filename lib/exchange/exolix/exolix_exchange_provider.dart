@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
