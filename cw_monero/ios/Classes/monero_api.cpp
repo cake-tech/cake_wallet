@@ -947,6 +947,7 @@ extern "C"
         return m_wallet->trustedDaemon();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     CoinsInfoRow* coin(int index)
     {
         if (index >= 0 && index < m_coins_info.size()) {
@@ -974,6 +975,7 @@ extern "C"
         }
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t coins_count()
     {
         return m_coins_info.size();
