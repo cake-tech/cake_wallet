@@ -6,6 +6,7 @@ class Routes {
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
+  static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
