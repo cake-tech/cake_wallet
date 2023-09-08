@@ -80,7 +80,7 @@ class Node extends HiveObject with Keyable {
         return Uri.https(uriRaw, '');
       case WalletType.nano:
       case WalletType.banano:
-        if (uriRaw.contains("https") || uriRaw.endsWith("443") || isSSL) {
+        if (isSSL) {
           return Uri.https(uriRaw, '');
         } else {
           return Uri.http(uriRaw, '');
