@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -75,7 +76,8 @@ class RobinhoodBuyProvider {
     try {
       final uri = await requestUrl();
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
+    } catch (e, s) {
+      ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s));
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
