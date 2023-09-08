@@ -37,8 +37,9 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
     // default derivation type/path for bitcoin wallets:
-    // TODO: figure out what the default derivation path is
-    credentials.walletInfo!.derivationPath = "m/0'/1";
+    if (credentials.walletInfo!.derivationPath == null) {
+      credentials.walletInfo!.derivationPath = "m/0'/1";
+    }
     final wallet = await BitcoinWalletBase.create(
         mnemonic: await generateElectrumMnemonic(strength: 132),
         password: credentials.password!,
