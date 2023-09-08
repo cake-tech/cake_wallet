@@ -1,2 +1,5 @@
-Bug fixes
-Fiat Onramp improvements
+Ability to Auto generate new Monero subaddress when used
+Coin Control for Monero
+In-app Live Chat support
+Additional themes
+Bug Fixes and performance enhancements
