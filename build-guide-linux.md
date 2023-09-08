@@ -6,7 +6,7 @@ The following are the system requirements to build CakeWallet for your Linux dev
 
 ```
 Ubuntu >= 16.04
-Flutter 3 or above
+Flutter 3.10.x
 ```
 
 ## Building CakeWallet on Linux
@@ -63,7 +63,7 @@ The output of this command will appear like this, indicating successful installa
 
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.7.x, on Linux, locale en_US.UTF-8)
+[✓] Flutter (Channel stable, 3.10.x, on Linux, locale en_US.UTF-8)
 ```
 
 ### 4. Acquiring the CakeWallet Source Code
@@ -112,41 +112,6 @@ Install Flutter package dependencies with this command:
 > ```
 >
 > Then re-configure Linux project again. For this open `scripts/linux` (`$cd scripts/linux`) directory and run:
-> `$ ./cakewallet.sh`
-> and back to project root directory:
-> `$ cd ../..`
-> and fetch dependecies again
-> `$ flutter pub get`
-
-> ### If you get the error like:
->
-> ```
-> The lower bound of "sdk: '>=2.0.0-dev.68.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
-> ```
->
-> #### Downgrade Flutter to version 3.7.x
->
-> Make sure that Flutter is reverted back to version 3.7.x (which would automatically revert Dart to 2.18 or 2.19)
->
-> In your Linux terminal, find where your Flutter SDK is installed with:
->
-> ```
-> $ which flutter
-> ```
->
-> Proceed to the Flutter SDK path:
->
-> ```
-> $ cd user/snap/flutter/common/flutter
-> ```
->
-> In the Flutter SDK directory, revert to a 3.7.x version (I used 3.7.12):
->
-> ```
-> $ git checkout 3.7.12
-> ```
->
-> Then re-configure Cake Wallet's Linux project again. For this open `scripts/linux` (`$cd scripts/linux`) directory and run:
 > `$ ./cakewallet.sh`
 > and back to project root directory:
 > `$ cd ../..`
