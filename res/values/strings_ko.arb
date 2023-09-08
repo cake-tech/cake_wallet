@@ -687,5 +687,11 @@
   "support_description_other_links": "다른 방법을 통해 커뮤니티에 가입하거나 파트너에게 연락하십시오.",
   "select_destination": "백업 파일의 대상을 선택하십시오.",
   "save_to_downloads": "다운로드에 저장",
-  "auto_generate_subaddresses": "자동 생성 서브 아드 드레스"
+  "auto_generate_subaddresses": "자동 생성 서브 아드 드레스",
+  "invalid_password": "유효하지 않은 비밀번호",
+  "unlock": "터놓다",
+  "enter_wallet_password": "지갑 암호를 입력하십시오",
+  "repeat_wallet_password": "지갑 암호를 반복하십시오",
+  "wallet_password_is_empty": "지갑 암호는 비어 있습니다. 지갑 암호는 비어 있지 않아야합니다",
+  "repeated_password_is_incorrect": "반복 된 비밀번호가 올바르지 않습니다. 지갑 암호를 다시 반복하십시오."
 }

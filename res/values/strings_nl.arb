@@ -687,5 +687,11 @@
   "support_title_other_links": "Andere ondersteuningslinks",
   "support_description_other_links": "Word lid van onze gemeenschappen of bereik ons ​​onze partners via andere methoden",
   "select_destination": "Selecteer de bestemming voor het back-upbestand.",
-  "save_to_downloads": "Opslaan in downloads"
+  "save_to_downloads": "Opslaan in downloads",
+  "invalid_password": "Ongeldig wachtwoord",
+  "unlock": "Ontgrendelen",
+  "enter_wallet_password": "Voer het Wallet -wachtwoord in",
+  "repeat_wallet_password": "Herhaal het Wallet -wachtwoord",
+  "wallet_password_is_empty": "Wallet -wachtwoord is leeg. Wallet -wachtwoord mag niet leeg zijn",
+  "repeated_password_is_incorrect": "Herhaald wachtwoord is onjuist. Herhaal het Wallet -wachtwoord opnieuw."
 }

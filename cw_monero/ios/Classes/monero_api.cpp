@@ -29,8 +29,6 @@ using namespace std::chrono_literals;
 extern "C"
 {
 #endif
-    const uint64_t MONERO_BLOCK_SIZE = 1000;
-
     struct Utf8Box
     {
         char *value;
@@ -963,6 +961,7 @@ extern "C"
         }
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void refresh_coins(uint32_t accountIndex)
     {
         m_coins_info.clear();

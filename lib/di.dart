@@ -195,7 +195,6 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -875,7 +874,7 @@ Future<void> setup({
 
   getIt.registerFactory(() =>
       SupportChatPage(
-          getIt.get<SupportViewModel>(), secureStorage: getIt.get<FlutterSecureStorage>()));
+          getIt.get<SupportViewModel>(), secureStorage: getIt.get<SecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
