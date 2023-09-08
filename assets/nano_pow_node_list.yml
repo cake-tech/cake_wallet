@@ -1,5 +1,7 @@
 -
-  uri: rpc.nano.to:443
+  uri: rpc.nano.to
+  useSSL: true
+  is_default: true
 -
   uri: workers.perish.co
 -

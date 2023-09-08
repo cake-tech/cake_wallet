@@ -11,7 +11,6 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -63,7 +62,7 @@ abstract class SettingsStoreBase with Store {
       required this.appVersion,
       required this.deviceName,
       required Map<WalletType, Node> nodes,
-      required Map<WalletType, PowNode> powNodes,
+      required Map<WalletType, Node> powNodes,
       required this.shouldShowYatPopup,
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
@@ -86,7 +85,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
-        powNodes = ObservableMap<WalletType, PowNode>.of(powNodes),
+        powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _sharedPreferences = sharedPreferences,
         _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
@@ -477,7 +476,7 @@ abstract class SettingsStoreBase with Store {
   final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
-  ObservableMap<WalletType, PowNode> powNodes;
+  ObservableMap<WalletType, Node> powNodes;
 
   Node getCurrentNode(WalletType walletType) {
     final node = nodes[walletType];
@@ -489,7 +488,7 @@ abstract class SettingsStoreBase with Store {
     return node;
   }
 
-  PowNode getCurrentPowNode(WalletType walletType) {
+  Node getCurrentPowNode(WalletType walletType) {
     final node = powNodes[walletType];
 
     if (node == null) {
@@ -509,7 +508,7 @@ abstract class SettingsStoreBase with Store {
 
   static Future<SettingsStore> load(
       {required Box<Node> nodeSource,
-      required Box<PowNode> powNodeSource,
+      required Box<Node> powNodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
@@ -645,7 +644,7 @@ abstract class SettingsStoreBase with Store {
         ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
         : defaultAutoGenerateSubaddressStatus;
     final nodes = <WalletType, Node>{};
-    final powNodes = <WalletType, PowNode>{};
+    final powNodes = <WalletType, Node>{};
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -908,7 +907,7 @@ abstract class SettingsStoreBase with Store {
     nodes[walletType] = node;
   }
 
-  Future<void> _saveCurrentPowNode(PowNode node, WalletType walletType) async {
+  Future<void> _saveCurrentPowNode(Node node, WalletType walletType) async {
     switch (walletType) {
       case WalletType.nano:
         await _sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);

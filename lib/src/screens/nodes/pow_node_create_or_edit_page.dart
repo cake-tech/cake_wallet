@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_create_or_edit_view_model.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -83,7 +82,7 @@ class PowNodeCreateOrEditPage extends BasePage {
       );
       
   final PowNodeCreateOrEditViewModel nodeCreateOrEditViewModel;
-  final PowNode? editingNode;
+  final Node? editingNode;
   final bool? isSelected;
 
   @override

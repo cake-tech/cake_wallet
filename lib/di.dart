@@ -93,7 +93,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/nano_account.dart';
-import 'package:cw_core/pow_node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -226,7 +225,7 @@ final getIt = GetIt.instance;
 var _isSetupFinished = false;
 late Box<WalletInfo> _walletInfoSource;
 late Box<Node> _nodeSource;
-late Box<PowNode> _powNodeSource;
+late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
 late Box<Trade> _tradesSource;
 late Box<Template> _templates;
@@ -239,7 +238,7 @@ late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future<void> setup({
   required Box<WalletInfo> walletInfoSource,
   required Box<Node> nodeSource,
-  required Box<PowNode> powNodeSource,
+  required Box<Node> powNodeSource,
   required Box<Contact> contactSource,
   required Box<Trade> tradesSource,
   required Box<Template> templates,
@@ -287,7 +286,7 @@ Future<void> setup({
   }
 
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
-  getIt.registerFactory<Box<PowNode>>(() => _powNodeSource);
+  getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
   getIt.registerSingleton(AuthenticationStore());
@@ -756,8 +755,8 @@ Future<void> setup({
           editingNode: editingNode,
           isSelected: isSelected));
 
-  getIt.registerFactoryParam<PowNodeCreateOrEditPage, PowNode?, bool?>(
-      (PowNode? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
+  getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
+      (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
           nodeCreateOrEditViewModel: getIt.get<PowNodeCreateOrEditViewModel>(),
           editingNode: editingNode,
           isSelected: isSelected));
