@@ -118,7 +118,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
       'refundAddress': _request.refundAddress,
       'rateType': getRateType(isFixedRateMode),
       'apiToken': apiKey,
-      'isMobileApp': DeviceInfo.instance.isMobile,
     };
 
     if (isFixedRateMode) {
