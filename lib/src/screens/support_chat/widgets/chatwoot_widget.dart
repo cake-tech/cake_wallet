@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 
 const COOKIE_KEY = 'chatwootCookie';
 
 class ChatwootWidget extends StatefulWidget {
   ChatwootWidget(this.secureStorage, {required this.supportUrl});
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final String supportUrl;
 
   @override

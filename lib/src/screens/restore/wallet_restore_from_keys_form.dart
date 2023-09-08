@@ -153,7 +153,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                   padding: EdgeInsets.only(top: 20.0),
                   child: BaseTextFormField(
                     controller: repeatedPasswordTextEditingController,
-                    hintText: S.of(context).repeate_wallet_password,
+                    hintText: S.of(context).repeat_wallet_password,
                     obscureText: true))],
             Container(height: 20),
             _restoreFromKeysFormFields(),

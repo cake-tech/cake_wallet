@@ -233,7 +233,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   color:
                                       Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                                 ),
-                                hintText: S.of(context).repeate_wallet_password,
+                                hintText: S.of(context).repeat_wallet_password,
                                 focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Theme.of(context)

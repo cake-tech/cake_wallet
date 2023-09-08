@@ -469,6 +469,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.support:
       return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<SupportPage>());
 
     case Routes.supportLiveChat:

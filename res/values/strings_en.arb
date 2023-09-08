@@ -687,5 +687,11 @@
   "support_title_other_links": "Other support links",
   "support_description_other_links": "Join our communities or reach us our our partners through other methods",
   "select_destination": "Please select destination for the backup file.",
-  "save_to_downloads": "Save to Downloads"
+  "save_to_downloads": "Save to Downloads",
+  "invalid_password": "Invalid password",
+  "unlock": "Unlock",
+  "enter_wallet_password": "Enter the wallet password",
+  "repeat_wallet_password": "Repeat the wallet password",
+  "wallet_password_is_empty": "Wallet password is empty. Wallet password should not be empty",
+  "repeated_password_is_incorrect": "Repeated password is incorrect. Please repeat the wallet password again."
 }

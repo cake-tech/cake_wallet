@@ -5,7 +5,7 @@
 The following are the system requirements to build CakeWallet for your Linux device.
 
 ```
-Ubuntu >= 16.04 
+Ubuntu >= 16.04
 Flutter 3 or above
 ```
 
@@ -19,26 +19,39 @@ CakeWallet requires some packages to be install on your build system. You may ea
 
 `$ sudo apt install build-essential cmake pkg-config git curl autoconf libtool`
 
+> [!WARNING]
+>
 > ### Check gcc version
-> Need to use gcc 10 or 9 for successfully link dependecnies with flutter.\
-> Check what gcc version is using:\
-> ```
+>
+> It is needed to use gcc 10 or 9 to successfully link dependencies with flutter.\
+> To check what gcc version you are using:
+>
+> ```bash
 > $ gcc --version
 > $ g++ --version
 > ```
-> If you are using gcc version newer than 10, then need to downgrade to version 10.4.0.\
-> ```
+>
+> If you are using gcc version newer than 10, then you need to downgrade to version 10.4.0:
+>
+> ```bash
 > $ sudo apt install gcc-10 g++-10
 > $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
 > $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
 > ```
 
+> [!NOTE]
+>
+> Alternatively, you can use the [nix-shell](https://nixos.org/) with the `gcc10.nix` file\
+> present on `scripts/linux` like so:
+> ```bash
+> $ nix-shell gcc10.nix
+> ```
+> This will get you in a nix environment with all the required dependencies that you can use to build the software from,\
+> and it works in any linux distro.
+
 ### 2. Installing Flutter
 
 Need to install flutter. For this please check section [How to install flutter on Linux](https://docs.flutter.dev/get-started/install/linux).
-
-
-
 
 ### 3. Verify Installations
 
@@ -47,6 +60,7 @@ Verify that the Flutter have been correctly installed on your system with the fo
 `$ flutter doctor`
 
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
+
 ```
 Doctor summary (to see all details, run flutter doctor -v):
 [✓] Flutter (Channel stable, 3.7.x, on Linux, locale en_US.UTF-8)
@@ -82,19 +96,21 @@ Install Flutter package dependencies with this command:
 
 `$ flutter pub get`
 
-
-
 > #### If you will get an error like:
+>
 > ```
 > The plugin `cw_shared_external` requires your app to be migrated to the Android embedding v2. Follow the steps on the migration doc above and re-run
 > this command.
 > ```
+>
 > Then need to config Android project settings. For this open `scripts/android` (`$ cd scripts/android`) directory and run followed commands:
+>
 > ```
 > $ source ./app_env.sh cakewallet
 > $ ./app_config.sh
 > $ cd ../..
 > ```
+>
 > Then re-configure Linux project again. For this open `scripts/linux` (`$cd scripts/linux`) directory and run:
 > `$ ./cakewallet.sh`
 > and back to project root directory:
@@ -102,33 +118,34 @@ Install Flutter package dependencies with this command:
 > and fetch dependecies again
 > `$ flutter pub get`
 
-
 > ### If you get the error like:
+>
 > ```
 > The lower bound of "sdk: '>=2.0.0-dev.68.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
 > ```
 >
 > #### Downgrade Flutter to version 3.7.x
+>
 > Make sure that Flutter is reverted back to version 3.7.x (which would automatically revert Dart to 2.18 or 2.19)
-> 
+>
 > In your Linux terminal, find where your Flutter SDK is installed with:
-> 
+>
 > ```
 > $ which flutter
 > ```
-> 
+>
 > Proceed to the Flutter SDK path:
-> 
+>
 > ```
 > $ cd user/snap/flutter/common/flutter
 > ```
-> 
+>
 > In the Flutter SDK directory, revert to a 3.7.x version (I used 3.7.12):
-> 
-> 
+>
 > ```
 > $ git checkout 3.7.12
 > ```
+>
 > Then re-configure Cake Wallet's Linux project again. For this open `scripts/linux` (`$cd scripts/linux`) directory and run:
 > `$ ./cakewallet.sh`
 > and back to project root directory:
@@ -180,7 +197,6 @@ And then export bundle:
 `$ flatpak build-export export flatpak-build`
 
 `$ flatpak build-bundle export cake_wallet.flatpak com.cakewallet.CakeWallet`
-
 
 Result file: `cake_wallet.flatpak` should be generated in current directory.
 
