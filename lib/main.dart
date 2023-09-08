@@ -82,10 +82,6 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(NodeAdapter());
   }
 
-  // if (!CakeHive.isAdapterRegistered(PowNode.typeId)) {
-  //   CakeHive.registerAdapter(PowNodeAdapter());
-  // }
-
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
   }
