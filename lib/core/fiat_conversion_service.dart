@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
@@ -34,6 +35,10 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     final response = await get(uri);
 
     if (response.statusCode != 200) {
+      ExceptionHandler.onError(FlutterErrorDetails(
+        exception: "Fiat API issue:\nStatusCode: ${response.statusCode}\nBody:${response.body}",
+        silent: true,
+      ));
       return 0.0;
     }
 
@@ -45,7 +50,8 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     }
 
     return price.toDouble();
-  } catch (e) {
+  } catch (e, s) {
+    ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s, silent: true));
     return price.toDouble();
   }
 }

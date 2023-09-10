@@ -83,6 +83,10 @@ class ExceptionHandler {
       library: errorDetails.library,
     );
 
+    if (errorDetails.silent) {
+      return;
+    }
+
     final sharedPrefs = await SharedPreferences.getInstance();
 
     final lastPopupDate =
