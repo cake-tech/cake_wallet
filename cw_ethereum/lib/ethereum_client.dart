@@ -72,7 +72,7 @@ class EthereumClient {
       to: EthereumAddress.fromHex(toAddress),
       maxGas: gas,
       gasPrice: price,
-      maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
+      // maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
