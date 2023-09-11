@@ -17,7 +17,8 @@ void appendStringToArbFile(String fileName, String name, String text) {
       .replaceAll('","', '",\n  "')
       .replaceAll('{"', '{\n  "')
       .replaceAll('"}', '"\n}')
-      .replaceAll('":"', '": "');
+      .replaceAll('":"', '": "')
+      .replaceAll('\$ {', '\${');
 
   file.writeAsStringSync(outputContent);
 }
@@ -33,9 +34,11 @@ void appendStringsToArbFile(String fileName, Map<String, String> strings) {
       .replaceAll('","', '",\n  "')
       .replaceAll('{"', '{\n  "')
       .replaceAll('"}', '"\n}')
-      .replaceAll('":"', '": "');
+      .replaceAll('":"', '": "')
+      .replaceAll('\$ {', '\${');
 
-  file.writeAsStringSync(outputContent);
+  print(outputContent);
+  // file.writeAsStringSync(outputContent);
 }
 
 Map<String, dynamic> readArbFile(File file) {
