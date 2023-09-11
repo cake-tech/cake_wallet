@@ -30,15 +30,16 @@ Future<String> getTranslation(String text, String lang) async {
   if (lang == defaultLang) return text;
 
   final regExp = RegExp(r'{(.*?)}');
-  final placeholder = regExp.allMatches(text).map((e) => text.substring(e.start, e.end)).toList();
+  final placeholder =
+      regExp.allMatches(text).map((e) => text.substring(e.start, e.end)).toList().asMap();
 
   var translation = (await translator.translate(text, from: defaultLang, to: lang)).text;
-  final translatedPlaceholders = regExp.allMatches(translation).toList();
 
-  translatedPlaceholders.asMap().forEach((index, value) {
-    translation = translation.replaceRange(value.start, value.end, placeholder[index]);
+  placeholder.forEach((index, value) {
+    final translatedPlaceholder = regExp.allMatches(translation).toList()[index];
+    translation =
+        translation.replaceRange(translatedPlaceholder.start, translatedPlaceholder.end, value);
   });
 
   return translation;
 }
-

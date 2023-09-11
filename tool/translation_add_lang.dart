@@ -19,6 +19,10 @@ void main(List<String> args) async {
   final targetFileName = getArbFileName(targetLang);
   final targetKeys = arbObj.keys;
 
+  final targetFile = File(targetFileName);
+  targetFile.createSync(exclusive: true);
+  targetFile.writeAsStringSync("{}");
+
   final translations = Map<String, String>();
   for (var targetKey in targetKeys) {
     final srcString = arbObj[targetKey] as String;
@@ -28,4 +32,5 @@ void main(List<String> args) async {
   }
 
   appendStringsToArbFile(targetFileName, translations);
+  print("Success! Please add your Language Code to lib/entities/language_service.dart");
 }

@@ -37,8 +37,7 @@ void appendStringsToArbFile(String fileName, Map<String, String> strings) {
       .replaceAll('":"', '": "')
       .replaceAll('\$ {', '\${');
 
-  print(outputContent);
-  // file.writeAsStringSync(outputContent);
+  file.writeAsStringSync(outputContent);
 }
 
 Map<String, dynamic> readArbFile(File file) {
