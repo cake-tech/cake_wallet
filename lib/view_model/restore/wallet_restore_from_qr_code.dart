@@ -9,11 +9,12 @@ import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:collection/collection.dart';
 
 class WalletRestoreFromQRCode {
   WalletRestoreFromQRCode();
 
-  static const Map<String, WalletType> _walletSchemeMap = {
+  static const Map<String, WalletType> _walletTypeMap = {
     'monero': WalletType.monero,
     'monero-wallet': WalletType.monero,
     'monero_wallet': WalletType.monero,
@@ -26,42 +27,32 @@ class WalletRestoreFromQRCode {
     'ethereum-wallet': WalletType.ethereum,
   };
 
-  static bool _containsAssetSpecifier(String code) =>
-      code.contains(':') && _startWithValidWalletAsset(code);
+  static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
 
-  static bool _startWithValidWalletAsset(String code) {
-    return _walletSchemeMap.keys.any((scheme) => code.startsWith(scheme));
+  static WalletType? _extractWalletType(String code) {
+    final extracted =
+        _walletTypeMap.keys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+    return _walletTypeMap[extracted];
   }
 
-  static WalletType _getWalletTypeFromUrlScheme(String scheme) {
-    final walletType = _walletSchemeMap[scheme];
-    if (walletType != null) {
-      return walletType;
-    }
-    throw Exception('Unexpected wallet type: $scheme');
-  }
-
-  static String? _extractAddressFromUrl(WalletType type, String rawString) {
+  static String? _extractAddressFromUrl(String rawString, WalletType type) {
     return AddressResolver.extractAddressByType(
         raw: rawString, type: walletTypeToCryptoCurrency(type));
   }
 
   static String? _extractSeedPhraseFromUrl(String rawString, WalletType walletType) {
     RegExp _getPattern(int wordCount) =>
-        RegExp(r'\b(\S+\b\s+){' + (wordCount - 1).toString() + r'}\S+\b');
-    String? _matchPattern(int wordCount) {
-      final pattern = _getPattern(wordCount);
-      final match = pattern.firstMatch(rawString);
-      return match?.group(0);
-    }
+        RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
 
     List<int> patternCounts = walletType == WalletType.monero ? [25, 14, 13] : [24, 18, 12];
 
     for (final count in patternCounts) {
-      final result = _matchPattern(count);
-      if (result != null) return result;
+      final pattern = _getPattern(count);
+      final match = pattern.firstMatch(rawString);
+      if (match != null) {
+        return match.group(1)?.trim();
+      }
     }
-
     return null;
   }
 
@@ -78,24 +69,29 @@ class WalletRestoreFromQRCode {
           await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletType?;
       if (walletType == null) throw Exception("Failed to determine wallet type.");
 
-      formattedUri = _extractSeedPhraseFromUrl(code, walletType) != null
-          ? '$walletType:?$code'
+      final seedPhrase = _extractSeedPhraseFromUrl(code, walletType);
+
+      formattedUri = seedPhrase != null
+          ? '$walletType:?seed=$seedPhrase'
           : throw Exception('Failed to determine valid seed phrase');
     } else {
+      walletType = _extractWalletType(code);
       final index = code.indexOf(':');
-      final scheme = code.substring(0, index).replaceAll('_', '-');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = '$scheme:?$query';
-      walletType = _getWalletTypeFromUrlScheme(scheme);
+      formattedUri = '$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
-    final queryParameters = uri.queryParameters;
+    Map<String, dynamic> queryParameters = {...uri.queryParameters};
+
+    if (queryParameters['seed'] == null) {
+      queryParameters['seed'] = _extractSeedPhraseFromUrl(code, walletType!);
+    }
+    if (queryParameters['address'] == null) {
+      queryParameters['address'] = _extractAddressFromUrl(code, walletType!);
+    }
 
     Map<String, dynamic> credentials = {'type': walletType, ...queryParameters};
-    credentials['address'] = _extractAddressFromUrl(walletType!, queryParameters.toString());
-    credentials['seed'] = _extractSeedPhraseFromUrl(queryParameters.toString(), walletType);
-    if (credentials['seed'] == null) credentials['private_key'] = queryParameters['private_key'];
 
     credentials['mode'] = _determineWalletRestoreMode(credentials);
 
@@ -119,22 +115,23 @@ class WalletRestoreFromQRCode {
       throw Exception('Unexpected restore mode: tx_payment_id is invalid');
     }
 
-    if (credentials.containsKey('seed')) {
-      final seedValue = credentials['seed'] as String;
+    if (credentials['seed'] != null) {
+      final seedValue = credentials['seed'];
       final words = SeedValidator.getWordList(type: type, language: 'english');
       seedValue.split(' ').forEach((element) {
         if (!words.contains(element)) {
-          throw Exception('Unexpected restore mode: mnemonic_seed is invalid or does\'t match wallet type');
+          throw Exception(
+              'Unexpected restore mode: mnemonic_seed is invalid or does\'t match wallet type');
         }
       });
       return WalletRestoreMode.seed;
     }
 
-    if (credentials.containsKey('spend_key') || credentials.containsKey('view_key')) {
+    if (credentials.containsKey('spend_key') && credentials.containsKey('view_key')) {
       final spendKeyValue = credentials['spend_key'] as String? ?? '';
       final viewKeyValue = credentials['view_key'] as String? ?? '';
 
-      return spendKeyValue.isNotEmpty || viewKeyValue.isNotEmpty
+      return spendKeyValue.isNotEmpty && viewKeyValue.isNotEmpty
           ? WalletRestoreMode.keys
           : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
     }
