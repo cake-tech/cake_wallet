@@ -72,7 +72,7 @@ class EthereumClient {
       to: EthereumAddress.fromHex(toAddress),
       maxGas: gas,
       gasPrice: price,
-      // maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
+      maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
@@ -107,7 +107,7 @@ class EthereumClient {
   }
 
   Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(signedTransaction);
+      await _client!.sendRawTransaction(prependTransactionType(0x02, signedTransaction));
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available
