@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/exolix/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
@@ -53,6 +54,8 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
+      case ExchangeProviderDescription.exolix:
+        _provider = ExolixExchangeProvider();
         break;
     }
 
@@ -156,6 +159,12 @@ abstract class TradeDetailsViewModelBase with Store {
       if (trade.password != null && trade.password!.isNotEmpty)
         items.add(StandartListItem(
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
+    }
+
+    if (trade.provider == ExchangeProviderDescription.exolix) {
+      final buildURL = 'https://exolix.com/api/v2/transactions/${trade.id.toString()}';
+      items.add(
+        TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
     }
   }
 

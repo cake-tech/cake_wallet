@@ -32,6 +32,7 @@ class SecretKey {
     SecretKey('fiatApiKey', () => ''),
     SecretKey('payfuraApiKey', () => ''),
     SecretKey('chatwootWebsiteToken', () => ''),
+    SecretKey('exolixApiKey', () => ''),
   ];
 
   static final ethereumSecrets = [
