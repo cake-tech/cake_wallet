@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cw_core/account.dart';
+import 'package:cw_core/checkpoints.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_balance.dart';
@@ -530,6 +531,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final currentHeight = monero_wallet.getCurrentHeight();
 
     if (currentHeight <= 1) {
+      Checkpoints.createCheckpoint("setInitialHeight-monero-534");
       final height = _getHeightByDate(walletInfo.date);
       monero_wallet.setRecoveringFromSeed(isRecovery: true);
       monero_wallet.setRefreshFromBlockHeight(height: height);

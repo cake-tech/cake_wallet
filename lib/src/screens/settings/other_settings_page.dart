@@ -5,8 +5,11 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
+import 'package:cw_core/checkpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -32,6 +35,21 @@ class OtherSettingsPage extends BasePage {
                 displayItem: _otherSettingsViewModel.getDisplayPriority,
                 selectedItem: _otherSettingsViewModel.transactionPriority,
                 onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+              ),
+              SettingsCellWithArrow(
+                title: 'Checkpoints',
+                handler: (BuildContext context) async {
+                  final checkpoints = await Checkpoints.getCheckpoints();
+                  showPopUp<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertWithOneAction(
+                            alertTitle: 'Checkpoints',
+                            alertContent: checkpoints.join("\n"),
+                            buttonText: S.of(context).ok,
+                            buttonAction: () => Navigator.of(context).pop());
+                      });
+                },
               ),
               SettingsCellWithArrow(
                 title: S.current.settings_terms_and_conditions,
