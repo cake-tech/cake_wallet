@@ -226,6 +226,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
+      if (allInputsAmount < totalAmount) {
+        throw MoneroTransactionNoInputsException();
+      }
+
       final moneroOutputs = outputs.map((output) {
       final outputAddress = output.isParsedAddress
           ? output.extractedAddress
