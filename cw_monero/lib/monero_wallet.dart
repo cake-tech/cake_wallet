@@ -266,6 +266,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
+      if ((formattedAmount != null && allInputsAmount < formattedAmount) ||
+          (formattedAmount == null && allInputsAmount != unlockedBalance)) {
+        throw MoneroTransactionNoInputsException();
+      }
+
       pendingTransactionDescription = await transaction_history.createTransaction(
           address: address!,
           amount: amount,
