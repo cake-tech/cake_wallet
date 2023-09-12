@@ -130,7 +130,7 @@ jobs:
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
-        run: echo -e "id=com.cakewallet.test\nname=$GITHUB_HEAD_REF" > /opt/android/cake_wallet/android/app.properties
+        run: echo -e "id=com.cakewallet.debug\nname=$GITHUB_HEAD_REF" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
@@ -168,6 +168,6 @@ jobs:
           token: ${{ secrets.SLACK_APP_TOKEN }}
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk
           channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          title: '${{github.head_ref}}.apk'
+          title: 'DEBUG ${{github.head_ref}}.apk'
           filename: ${{github.head_ref}}.apk
           initial_comment: ${{ github.event.head_commit.message }}
