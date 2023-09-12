@@ -25,9 +25,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     CryptoCurrency.xhv,
     CryptoCurrency.btt,
     CryptoCurrency.firo,
-    CryptoCurrency.usdcsol,
     CryptoCurrency.zaddr,
-    CryptoCurrency.zec,
     CryptoCurrency.xvg,
     CryptoCurrency.kmd,
     CryptoCurrency.paxg,
@@ -277,6 +275,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         return 'XNO';
       case CryptoCurrency.bttc:
         return 'BTT';
+      case CryptoCurrency.zec:
+        return 'ZEC';
       default:
         return currency.title;
     }
