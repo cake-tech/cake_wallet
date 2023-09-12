@@ -93,6 +93,7 @@ class EthereumClient {
           EthereumAddress.fromHex(toAddress),
           BigInt.parse(amount),
           credentials: privateKey,
+          transaction: transaction,
         );
       };
     }
