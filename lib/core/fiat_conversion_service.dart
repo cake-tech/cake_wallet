@@ -36,7 +36,8 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 
     if (response.statusCode != 200) {
       ExceptionHandler.onError(FlutterErrorDetails(
-        exception: "Fiat API issue:\nStatusCode: ${response.statusCode}\nBody:${response.body}",
+        exception:
+            "Fiat API issue:\nStatusCode: ${response.statusCode}\nBody: ${response.body}\nUrl: ${response.request?.url}",
         silent: true,
       ));
       return 0.0;

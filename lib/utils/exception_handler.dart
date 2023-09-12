@@ -32,6 +32,12 @@ class ExceptionHandler {
     const String separator = '''\n\n==========================================================
       ==========================================================\n\n''';
 
+    /// don't save existing errors
+    final String fileContent = await file.readAsString();
+    if (fileContent.contains("${exception.values.first}")) {
+      return;
+    }
+
     file.writeAsStringSync(
       "$exception $separator",
       mode: FileMode.append,
