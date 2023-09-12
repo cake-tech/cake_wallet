@@ -12,14 +12,8 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
   DerivationType.bip39: [
     DerivationInfo(
       derivationType: DerivationType.bip39,
-      derivationPath: "m/44'/0'/0'/0/0",
-      description: "Standard BIP44",
-      script_type: "p2pkh",
-    ),
-    DerivationInfo(
-      derivationType: DerivationType.bip39,
       derivationPath: "m/44'/0'/0'",
-      description: "Standard BIP44 legacy",
+      description: "Standard BIP44",
       script_type: "p2pkh",
     ),
     DerivationInfo(
@@ -27,12 +21,6 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
       derivationPath: "m/49'/0'/0'",
       description: "Standard BIP49 compatibility segwit",
       script_type: "p2wpkh-p2sh",
-    ),
-    DerivationInfo(
-      derivationType: DerivationType.bip39,
-      derivationPath: "m/84'/0'/0'/0/0",
-      description: "Standard BIP84",
-      script_type: "p2wpkh",
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,

@@ -17,8 +17,6 @@ enum DerivationType {
   @HiveField(3)
   bip39,
   @HiveField(4)
-  electrum1,
-  @HiveField(5)
   electrum2,
 }
 
@@ -36,8 +34,8 @@ class DerivationInfo {
   String balance;
   String address;
   int height;
-  final DerivationType derivationType;
-  final String? derivationPath;
+  DerivationType derivationType;
+  String? derivationPath;
   final String? script_type;
   final String? description;
 }

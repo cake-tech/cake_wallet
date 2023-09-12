@@ -24,6 +24,16 @@ import 'package:cw_bitcoin/bitcoin_derivations.dart';
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 
+int countOccurrences(String str, String charToCount) {
+  int count = 0;
+  for (int i = 0; i < str.length; i++) {
+    if (str[i] == charToCount) {
+      count++;
+    }
+  }
+  return count;
+}
+
 class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
   BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
@@ -141,7 +151,14 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
       for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
         try {
           var node = bip32.BIP32.fromSeed(seedBytes);
-          node = node.derivePath(dInfo.derivationPath!);
+
+          String derivationPath = dInfo.derivationPath!;
+          int derivationDepth = countOccurrences(derivationPath, "/");
+          if (derivationDepth == 3) {
+            derivationPath += "/0/0";
+            dInfo.derivationPath = dInfo.derivationPath! + "/0";
+          }
+          node = node.derivePath(derivationPath);
 
           String? address;
           switch (dInfo.script_type) {
