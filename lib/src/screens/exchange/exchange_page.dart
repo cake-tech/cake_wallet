@@ -183,9 +183,6 @@ class ExchangePage extends BasePage {
                             children: [
                               StandardCheckbox(
                                 value: exchangeViewModel.isFixedRateMode,
-                                gradientBackground: true,
-                                borderColor: Theme.of(context).dividerColor,
-                                iconColor: Colors.white,
                                 caption: S.of(context).fixed_rate,
                                 onChanged: (value) => exchangeViewModel.isFixedRateMode = value,
                               ),

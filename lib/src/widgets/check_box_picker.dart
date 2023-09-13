@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -118,35 +119,38 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
         height: 55,
         color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.only(left: 24, right: 24),
-        child: CheckboxListTile(
-          value: item.value,
-          activeColor: item.value
-              ? Palette.blueCraiola
-              : Theme.of(context).extension<FilterTheme>()!.checkboxBackgroundColor,
-          checkColor: Colors.white,
-          title: widget.displayItem?.call(item) ??
-              Text(
-                item.title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w600,
-                  color: item.isDisabled
-                      ? Colors.grey.withOpacity(0.5)
-                      : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-          onChanged: (bool? value) {
-            if (value == null) {
-              return;
-            }
+        child: Row(
+          children: [
+            StandardCheckbox(
+              value: item.value,
+              gradientBackground: true,
+              borderColor: Theme.of(context).dividerColor,
+              iconColor: Colors.white,
+              onChanged: (bool? value) {
+                if (value == null) {
+                  return;
+                }
 
-            item.value = value;
-            widget.onChanged(index, value);
-            setState(() {});
-          },
-          controlAffinity: ListTileControlAffinity.leading,
+                item.value = value;
+                widget.onChanged(index, value);
+                setState(() {});
+              },
+            ),
+            SizedBox(width: 16),
+            widget.displayItem?.call(item) ??
+                Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: item.isDisabled
+                        ? Colors.grey.withOpacity(0.5)
+                        : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    decoration: TextDecoration.none,
+                  ),
+                )
+          ],
         ),
       ),
     );
