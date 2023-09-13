@@ -87,8 +87,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationType,
-            derivationPath: derivationPath,
           );
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -169,11 +167,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var node = appStore.settingsStore.getCurrentNode(walletType);
 
     switch (type) {
-      case WalletType.bitcoin:
-        return BitcoinWalletService.compareDerivationMethods(mnemonic: mnemonic!, node: node);
-      // case WalletType.litecoin:
-      //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-      //       name: name, mnemonic: seed, password: password);
       case WalletType.nano:
         return await NanoWalletService.compareDerivationMethods(
           mnemonic: mnemonic,

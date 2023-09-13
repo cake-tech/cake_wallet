@@ -3,7 +3,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/file.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWallletSnapshot {
@@ -15,10 +14,7 @@ class ElectrumWallletSnapshot {
     required this.addresses,
     required this.balance,
     required this.regularAddressIndex,
-    required this.changeAddressIndex,
-    this.derivationType,
-    this.derivationPath,
-  });
+    required this.changeAddressIndex});
 
   final String name;
   final String password;
@@ -29,8 +25,6 @@ class ElectrumWallletSnapshot {
   ElectrumBalance balance;
   int regularAddressIndex;
   int changeAddressIndex;
-  DerivationType? derivationType;
-  String? derivationPath;
 
   static Future<ElectrumWallletSnapshot> load(String name, WalletType type, String password) async {
     final path = await pathForWallet(name: name, type: type);
@@ -47,24 +41,19 @@ class ElectrumWallletSnapshot {
     var regularAddressIndex = 0;
     var changeAddressIndex = 0;
 
-    final derivationType = data['derivationType'] as DerivationType? ?? DerivationType.bip39;
-    final derivationPath = data['derivationPath'] as String? ?? "m/0'/1";
-
     try {
       regularAddressIndex = int.parse(data['account_index'] as String? ?? '0');
       changeAddressIndex = int.parse(data['change_address_index'] as String? ?? '0');
     } catch (_) {}
 
     return ElectrumWallletSnapshot(
-        name: name,
-        type: type,
-        password: password,
-        mnemonic: mnemonic,
-        addresses: addresses,
-        balance: balance,
-        regularAddressIndex: regularAddressIndex,
-        changeAddressIndex: changeAddressIndex,
-        derivationType: derivationType,
-        derivationPath: derivationPath);
+      name: name,
+      type: type,
+      password: password,
+      mnemonic: mnemonic,
+      addresses: addresses,
+      balance: balance,
+      regularAddressIndex: regularAddressIndex,
+      changeAddressIndex: changeAddressIndex);
   }
 }

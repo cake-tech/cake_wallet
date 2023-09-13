@@ -65,8 +65,7 @@ String bufferToBin(Uint8List data) {
   return q2;
 }
 
-String encode(Uint8List originalData) {
-  final data = Uint8List.fromList(originalData); // Create a modifiable copy
+String encode(Uint8List data) {
   final dataBitLen = data.length * 8;
   final wordBitLen = logBase(wordlist.length, 2).ceil();
   final wordCount = (dataBitLen / wordBitLen).floor();
@@ -91,16 +90,15 @@ List<bool> prefixMatches(String source, List<String> prefixes) {
   return prefixes.map((prefix) => hx.startsWith(prefix.toLowerCase())).toList();
 }
 
-Future<String> generateElectrumMnemonic({int strength = 264, String prefix = segwit}) async {
+Future<String> generateMnemonic(
+    {int strength = 264, String prefix = segwit}) async {
   final wordBitlen = logBase(wordlist.length, 2).ceil();
   final wordCount = strength / wordBitlen;
   final byteCount = ((wordCount * wordBitlen).ceil() / 8).ceil();
   var result = '';
 
   do {
-    final originalBytes = await secRandom(byteCount);
-    // create a modifiable copy, however I'm not sure why this is necessary
-    final bytes = Uint8List.fromList(originalBytes);
+    final bytes = await secRandom(byteCount);
     maskBytes(bytes, strength);
     result = encode(bytes);
   } while (!prefixMatches(result, [prefix]).first);
@@ -108,29 +106,22 @@ Future<String> generateElectrumMnemonic({int strength = 264, String prefix = seg
   return result;
 }
 
-Future<bool> checkIfMnemonicIsElectrum2(String mnemonic) async {
-  return prefixMatches(mnemonic, [segwit]).first;
-}
-
-Future<String> getMnemonicHash(String mnemonic) async {
-  final hmacSha512 = Hmac(sha512, utf8.encode('Seed version'));
-  final digest = hmacSha512.convert(utf8.encode(normalizeText(mnemonic)));
-  final hx = digest.toString();
-  return hx;
-}
-
 Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {
-  final pbkdf2 =
-      cryptography.Pbkdf2(macAlgorithm: cryptography.Hmac.sha512(), iterations: 2048, bits: 512);
+  final pbkdf2 = cryptography.Pbkdf2(
+      macAlgorithm: cryptography.Hmac.sha512(),
+      iterations: 2048,
+      bits: 512);
   final text = normalizeText(mnemonic);
   // pbkdf2.deriveKey(secretKey: secretKey, nonce: nonce)
   final key = await pbkdf2.deriveKey(
-      secretKey: cryptography.SecretKey(text.codeUnits), nonce: 'electrum'.codeUnits);
+      secretKey: cryptography.SecretKey(text.codeUnits),
+      nonce: 'electrum'.codeUnits);
   final bytes = await key.extractBytes();
   return Uint8List.fromList(bytes);
 }
 
-bool matchesAnyPrefix(String mnemonic) => prefixMatches(mnemonic, [segwit]).any((el) => el);
+bool matchesAnyPrefix(String mnemonic) =>
+    prefixMatches(mnemonic, [segwit]).any((el) => el);
 
 bool validateMnemonic(String mnemonic, {String prefix = segwit}) {
   try {
@@ -217,8 +208,10 @@ String removeCJKSpaces(String source) {
 }
 
 String normalizeText(String source) {
-  final res =
-      removeCombiningCharacters(unorm.nfkd(source).toLowerCase()).trim().split('/\s+/').join(' ');
+  final res = removeCombiningCharacters(unorm.nfkd(source).toLowerCase())
+      .trim()
+      .split('/\s+/')
+      .join(' ');
 
   return removeCJKSpaces(res);
 }

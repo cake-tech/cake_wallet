@@ -11,7 +11,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 part 'bitcoin_wallet.g.dart';
 
@@ -38,40 +37,28 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.btc) {
-    walletAddresses = BitcoinWalletAddresses(walletInfo,
+    walletAddresses = BitcoinWalletAddresses(
+        walletInfo,
         electrumClient: electrumClient,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
-        mainHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-            .derivePath(walletInfo.derivationPath!),
+        mainHd: hd,
         sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-            .derivePath(walletInfo.derivationPath!),
+              .derivePath("m/0'/1"),
         networkType: networkType);
   }
 
-  static Future<BitcoinWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0}) async {
-
-    late Uint8List seedBytes;
-
-    switch (walletInfo.derivationType) {
-      case DerivationType.electrum2:
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
-        break;
-      case DerivationType.bip39:
-      default:
-        seedBytes = await bip39.mnemonicToSeed(mnemonic);
-        break;
-    }
-
+  static Future<BitcoinWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    int initialRegularAddressIndex = 0,
+    int initialChangeAddressIndex = 0
+  }) async {
     return BitcoinWallet(
         mnemonic: mnemonic,
         password: password,
@@ -79,7 +66,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: initialAddresses,
         initialBalance: initialBalance,
-        seedBytes: seedBytes,
+        seedBytes: await mnemonicToSeedBytes(mnemonic),
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex);
   }
@@ -91,30 +78,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
   }) async {
     final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
-
-    walletInfo.derivationType = snp.derivationType;
-    walletInfo.derivationPath = snp.derivationPath;
-
-    // set the default if not present:
-    if (walletInfo.derivationPath == null) {
-      walletInfo.derivationPath = "m/0'/1";
-    }
-    if (walletInfo.derivationType == null) {
-      walletInfo.derivationType = DerivationType.electrum2;
-    }
-
-    late Uint8List seedBytes;
-
-    switch (walletInfo.derivationType) {
-      case DerivationType.electrum2:
-        seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
-        break;
-      case DerivationType.bip39:
-      default:
-        seedBytes = await bip39.mnemonicToSeed(snp.mnemonic);
-        break;
-    }
-
     return BitcoinWallet(
         mnemonic: snp.mnemonic,
         password: password,
@@ -122,7 +85,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: snp.addresses,
         initialBalance: snp.balance,
-        seedBytes: seedBytes,
+        seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
         initialRegularAddressIndex: snp.regularAddressIndex,
         initialChangeAddressIndex: snp.changeAddressIndex);
   }

@@ -306,10 +306,6 @@ class WalletRestorePage extends BasePage {
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
     switch (walletType) {
-      case WalletType.bitcoin:
-        String? mnemonic = credentials['seed'] as String?;
-        return await BitcoinWalletService.getDerivationsFromMnemonic(
-            mnemonic: mnemonic!, node: node);
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
