@@ -3,11 +3,9 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/unspent_transaction_output.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
