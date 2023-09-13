@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_nano/nano_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -14,14 +13,11 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class NanoChangeRepPage extends BasePage {
-
   NanoChangeRepPage()
       : _formKey = GlobalKey<FormState>(),
         _addressController = TextEditingController() {
-    var wallet = getIt.get<AppStore>().wallet!;
-    if (wallet is NanoWallet /*|| wallet is BananoWallet*/) {
-      _addressController.text = wallet.representative;
-    }
+    dynamic wallet = getIt.get<AppStore>().wallet!;
+    _addressController.text = wallet.representative as String;
   }
 
   final GlobalKey<FormState> _formKey;
@@ -80,10 +76,8 @@ class NanoChangeRepPage extends BasePage {
 
                             if (confirmed) {
                               try {
-                                final wallet = getIt.get<AppStore>().wallet!;
-                                if (wallet is NanoWallet) {
-                                  await wallet.changeRep(_addressController.text);
-                                }
+                                dynamic wallet = getIt.get<AppStore>().wallet!;
+                                await wallet.changeRep(_addressController.text);
                                 // TODO: show message saying success:
 
                                 Navigator.of(context).pop();

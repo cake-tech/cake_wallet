@@ -58,6 +58,7 @@ abstract class Nano {
   Object createNanoTransactionCredentials(List<Output> outputs);
 
   dynamic getNanoUtil();
+  dynamic getNanoWalletService();
 }
 
 abstract class NanoAccountList {

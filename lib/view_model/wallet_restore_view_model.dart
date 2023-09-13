@@ -2,10 +2,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_nano/nano_wallet.dart';
-import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -168,11 +164,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
     switch (type) {
       case WalletType.nano:
-        return await NanoWalletService.compareDerivationMethods(
+        dynamic WalletService = nano!.getNanoWalletService();
+        return await WalletService.compareDerivationMethods(
           mnemonic: mnemonic,
           seedKey: seedKey,
           node: node,
-        );
+        ) as Future<List<DerivationType>>;
       default:
         break;
     }

@@ -109,7 +109,6 @@ class CWNano extends Nano {
     required String mnemonic,
     DerivationType? derivationType,
   }) {
-
     if (derivationType == null) {
       // figure out the derivation type as best we can, otherwise set it to "unknown"
       if (mnemonic.split(" ").length == 12) {
@@ -134,7 +133,6 @@ class CWNano extends Nano {
     required String seedKey,
     DerivationType? derivationType,
   }) {
-
     if (derivationType == null) {
       // figure out the derivation type as best we can, otherwise set it to "unknown"
       if (seedKey.length == 64) {
@@ -186,9 +184,13 @@ class CWNano extends Nano {
         .setLabelAccount(accountIndex: accountIndex, label: label);
   }
 
-
   @override
   dynamic getNanoUtil() {
     return NanoUtil;
+  }
+
+  @override
+  dynamic getNanoWalletService() {
+    return NanoWalletService;
   }
 }

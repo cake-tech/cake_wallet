@@ -635,6 +635,7 @@ abstract class NanoAccountList {
   Future<void> addAccount(Object wallet, {required String label});
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
   dynamic getNanoUtil();
+  dynamic getNanoWalletService();
 }
   """;
 

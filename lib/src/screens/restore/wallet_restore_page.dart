@@ -1,14 +1,12 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_nano/nano_util.dart';
-import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
@@ -305,13 +303,16 @@ class WalletRestorePage extends BasePage {
     var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
+
     switch (walletType) {
       case WalletType.nano:
+        dynamic NanoUtil = nano!.getNanoUtil();
+        dynamic WalletService = nano!.getNanoWalletService();
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
-        dynamic bip39Info = await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
+        dynamic bip39Info = await WalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
             mnemonic: mnemonic, seedKey: seedKey, node: node);
-        dynamic standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
+        dynamic standardInfo = await WalletService.getInfoFromSeedOrMnemonic(
           DerivationType.nano,
           mnemonic: mnemonic,
           seedKey: seedKey,
@@ -322,7 +323,7 @@ class WalletRestorePage extends BasePage {
           list.add(DerivationInfo(
             derivationType: DerivationType.nano,
             balance: NanoUtil.getRawAsUsableString(
-                standardInfo["balance"] as String, NanoUtil.rawPerNano),
+                standardInfo["balance"] as String, NanoUtil.rawPerNano) as String,
             address: standardInfo["address"] as String,
             height: int.tryParse(
                   standardInfo["confirmation_height"] as String,
@@ -335,7 +336,8 @@ class WalletRestorePage extends BasePage {
           list.add(DerivationInfo(
             derivationType: DerivationType.bip39,
             balance:
-                NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
+                NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano)
+                    as String,
             address: bip39Info["address"] as String,
             height: int.tryParse(
                   bip39Info["confirmation_height"] as String? ?? "",
@@ -393,7 +395,7 @@ class WalletRestorePage extends BasePage {
           derivationWithHistoryIndex = i;
         }
       }
-      
+
       DerivationInfo? derivationInfo;
 
       if (derivationsWithHistory > 1) {
