@@ -185,4 +185,10 @@ class CWNano extends Nano {
     await nanoWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
   }
+
+
+  @override
+  dynamic getNanoUtil() {
+    return NanoUtil;
+  }
 }

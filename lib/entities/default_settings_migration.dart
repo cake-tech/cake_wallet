@@ -49,7 +49,7 @@ Future<void> defaultSettingsMigration(
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
 
   await _validateWalletInfoBoxData(walletInfoSource);
-  
+
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
   final currentVersion =
@@ -164,7 +164,6 @@ Future<void> defaultSettingsMigration(
           await changeNanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await changeNanoCurrentPowNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: powNodes);
-          await resetPowToDefault(powNodes);
           break;
 
         default:

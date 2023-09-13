@@ -567,23 +567,24 @@ abstract class Ethereum {
 Future<void> generateNano(bool hasImplementation) async {
   final outputFile = File(nanoOutputPath);
   const nanoCommonHeaders = """
-""";
-  const nanoCWHeaders = """
 import 'package:cw_core/nano_account.dart';
-import 'package:cw_nano/nano_mnemonic.dart';
-import 'package:cw_nano/nano_wallet.dart';
-import 'package:cw_nano/nano_wallet_service.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/account.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+""";
+  const nanoCWHeaders = """
+import 'package:cw_nano/nano_mnemonic.dart';
+import 'package:cw_nano/nano_wallet.dart';
+import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
+import 'package:cw_nano/nano_util.dart';
 """;
   const nanoCwPart = "part 'cw_nano.dart';";
   const nanoContent = """
@@ -633,6 +634,7 @@ abstract class NanoAccountList {
   Future<List<NanoAccount>> getAll(Object wallet);
   Future<void> addAccount(Object wallet, {required String label});
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+  dynamic getNanoUtil();
 }
   """;
 
