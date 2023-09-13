@@ -625,6 +625,8 @@ abstract class Nano {
   List<String> getNanoWordList(String language);
   Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
+  dynamic getNanoUtil();
+  dynamic getNanoWalletService();
 }
 
 abstract class NanoAccountList {
@@ -634,8 +636,6 @@ abstract class NanoAccountList {
   Future<List<NanoAccount>> getAll(Object wallet);
   Future<void> addAccount(Object wallet, {required String label});
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
-  dynamic getNanoUtil();
-  dynamic getNanoWalletService();
 }
   """;
 
