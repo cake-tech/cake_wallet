@@ -602,21 +602,6 @@ Future<void> setup({
         editingWallet: editingWallet);
   });
 
-  // getIt.registerFactory(() {
-  //   final wallet = getIt.get<AppStore>().wallet!;
-
-  //   if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
-  //     return MoneroAccountListViewModel(wallet);
-  //   }
-
-  //   if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
-  //     return NanoAccountListViewModel(wallet);
-  //   }
-
-  //   throw Exception(
-  //       'Unexpected wallet type: ${wallet.type} for generate Nano/Monero AccountListViewModel');
-  // });
-
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {

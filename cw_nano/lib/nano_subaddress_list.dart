@@ -48,16 +48,6 @@ abstract class NanoSubaddressListBase with Store {
     }
 
     return [];
-
-    // return subaddresses
-    //     .map((subaddressRow) => Subaddress(
-    //       id: subaddressRow.getId(),
-    //       address: subaddressRow.getAddress(),
-    //       label: subaddressRow.getId() == 0 &&
-    //             subaddressRow.getLabel().toLowerCase() == 'Primary account'.toLowerCase()
-    //         ? 'Primary address'
-    //         : subaddressRow.getLabel()))
-    //     .toList();
   }
 
   Future<void> addSubaddress({required int accountIndex, required String label}) async {

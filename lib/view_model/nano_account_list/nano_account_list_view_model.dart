@@ -36,17 +36,6 @@ abstract class NanoAccountListViewModelBase with Store {
           .toList();
     }
 
-    // if (_wallet.type == WalletType.banano) {
-    //   return banano
-    //     !.getAccountList(_wallet)
-    //     .accounts.map((acc) => AccountListItem(
-    //         label: acc.label,
-    //         id: acc.id,
-    //         balance: acc.balance,
-    //         isSelected: acc.id == banano!.getCurrentAccount(_wallet).id))
-    //     .toList();
-    // }
-
     throw Exception('Unexpected wallet type: ${_wallet.type}');
   }
 
@@ -61,13 +50,5 @@ abstract class NanoAccountListViewModelBase with Store {
         item.balance,
       );
     }
-
-    // if (_wallet.type == WalletType.banano) {
-    //   banano!.setCurrentAccount(
-    //     _wallet,
-    //     item.id,
-    //     item.label,
-    //   );
-    // }
   }
 }
