@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -9,6 +10,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
@@ -20,6 +22,8 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 import 'package:web3dart/web3dart.dart';
+
+import '../../themes/extensions/cake_text_theme.dart';
 
 part 'wallet_connect_service.g.dart';
 
@@ -121,7 +125,6 @@ abstract class WalletConnectServiceBase with Store {
     } else {
       if (isConnected) {
         _isInitiated = true;
-
         _refreshSessions();
       }
     }
@@ -131,9 +134,11 @@ abstract class WalletConnectServiceBase with Store {
     if (proposal.namespaces.length != 1 ||
         !proposal.namespaces.containsKey('eip155') ||
         proposal.namespaces['eip155']?.chains == null) {
-      // _showDialog(child: const Text('Please choose Ethereum networks only to do test!'));
-      log('Please choose Ethereum networks only to do test!');
-      _walletConnectV2Plugin.rejectSession(proposalId: proposal.id);
+      await _walletConnectV2Plugin.rejectSession(proposalId: proposal.id);
+      await _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(errorText: 'Please choose Ethereum networks only to do test!'),
+      );
       return;
     }
 
@@ -176,15 +181,19 @@ abstract class WalletConnectServiceBase with Store {
 
         _walletConnectV2Plugin.approveSession(approval: approval);
       } catch (e) {
-        // _showDialog(child: Text('Approve session error: ${e.toString()}'));
-        log('Approve session error: ${e.toString()}');
+        _bottomSheetHandler.queueBottomSheet(
+          isModalDismissible: true,
+          widget: ErrorWidgetDisplay(errorText: 'Approve session error: ${e.toString()}'),
+        );
       }
     } else {
       try {
         _walletConnectV2Plugin.rejectSession(proposalId: proposal.id);
       } catch (e) {
-        // _showDialog(child: Text('Reject session error: ${e.toString()}'));
-        log('Reject session error: ${e.toString()}');
+        _bottomSheetHandler.queueBottomSheet(
+          isModalDismissible: true,
+          widget: ErrorWidgetDisplay(errorText: 'Reject session error: ${e.toString()}'),
+        );
       }
     }
   }
@@ -200,13 +209,11 @@ abstract class WalletConnectServiceBase with Store {
   }
 
   Future<void> onSessionResponseEvent(SessionResponse response) async {
-    // _showDialog(
-    //   child: Text(
-    //     'Message: $_exampleMessage\n\n${response.results is String ? 'Signature' : 'Error'}: ${response.results}',
-    //   ),
-    // );
-
-    log('${response.results is String ? 'Signature' : 'Error'}: ${response.results}');
+    _bottomSheetHandler.queueBottomSheet(
+      isModalDismissible: true,
+      widget: ErrorWidgetDisplay(
+          errorText: '${response.results is String ? 'Signature' : 'Error'}: ${response.results}'),
+    );
   }
 
   void onSessionUpdateEvent(String _) {
@@ -218,11 +225,10 @@ abstract class WalletConnectServiceBase with Store {
   }
 
   void onEventError(code, message) {
-    // _showDialog(
-    //   child: Text('code: $code | message: $message'),
-    // );
-
-    log('code: $code | message: $message');
+    _bottomSheetHandler.queueBottomSheet(
+      isModalDismissible: true,
+      widget: ErrorWidgetDisplay(errorText: 'code: $code | message: $message'),
+    );
   }
 
 //! Subscription related methods
@@ -233,10 +239,12 @@ abstract class WalletConnectServiceBase with Store {
       final gasLimit =
           object['gasLimit'] != null ? BigInt.tryParse(object['gasLimit'] as String) : null;
       final gasPrice = object['gasPrice'] != null
-          ? EtherAmount.fromUnitAndValue(EtherUnit.wei, object['gasPrice'])
+          ? EtherAmount.fromBigInt(
+              EtherUnit.wei, (BigInt.tryParse(object['gasPrice'] as String) ?? BigInt.zero))
           : null;
       final value = object['value'] != null
-          ? EtherAmount.fromUnitAndValue(EtherUnit.wei, object['value'])
+          ? EtherAmount.fromBigInt(
+              EtherUnit.wei, (BigInt.tryParse(object['value'] as String) ?? BigInt.zero))
           : null;
       final from =
           object['from'] != null ? EthereumAddress.fromHex(object['from'] as String) : null;
@@ -250,21 +258,21 @@ abstract class WalletConnectServiceBase with Store {
         to: to,
         gasPrice: gasPrice,
       );
-      final client = Web3Client('https://rpc.ankr.com/eth_goerli', Client());
-      final signature = await client.signTransaction(
-        EthPrivateKey.fromHex(
-          '0x4edce51a99bd59caa057f76bbb8a95bf802c75a0b01551396624ad1474ca79eb',
-        ),
-        tx,
-      );
+      final client =
+          Web3Client('https://mainnet.infura.io/v3/51716d2096df4e73bec298680a51f0c5', Client());
+
+      final signature = await client.signTransaction(EthPrivateKey.fromHex(_privateKey ?? ''), tx);
+
       await _walletConnectV2Plugin.approveRequest(
         topic: request.topic,
         requestId: request.id,
         result: bytesToHex(signature, include0x: true),
       );
     } catch (e) {
-      // _showDialog(child: Text('Sign error: ${e.toString()}'));
-      log('Sign error: ${e.toString()}');
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(errorText: 'Sign error: ${e.toString()}'),
+      );
     }
   }
 
@@ -277,8 +285,10 @@ abstract class WalletConnectServiceBase with Store {
       await _walletConnectV2Plugin.approveRequest(
           topic: request.topic, requestId: request.id, result: signature);
     } catch (e) {
-      // _showDialog(child: Text('Approve error: ${e.toString()}'));
-      log('Approve error: ${e.toString()}');
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(errorText: 'Approve error: ${e.toString()}'),
+      );
     }
   }
 
@@ -295,16 +305,20 @@ abstract class WalletConnectServiceBase with Store {
       await _walletConnectV2Plugin.approveRequest(
           topic: request.topic, requestId: request.id, result: signature);
     } catch (e) {
-      // _showDialog(child: Text('Approve request error: ${e.toString()}'));
-      log('Approve request error: ${e.toString()}');
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(errorText: 'Approve request error: ${e.toString()}'),
+      );
     }
   }
 
   @action
   Future<void> onUnsupportedMethodEvent(SessionRequest request) async {
     _walletConnectV2Plugin.rejectRequest(topic: request.topic, requestId: request.id);
-    // _showDialog(child: Text('Unhandled method ${request.method}'));
-    log('Unhandled method ${request.method}');
+    _bottomSheetHandler.queueBottomSheet(
+      isModalDismissible: true,
+      widget: ErrorWidgetDisplay(errorText: 'Unhandled method ${request.method}'),
+    );
   }
 
   @action
@@ -329,8 +343,10 @@ abstract class WalletConnectServiceBase with Store {
     try {
       await _walletConnectV2Plugin.rejectRequest(topic: request.topic, requestId: request.id);
     } catch (e) {
-      // _showDialog(child: Text('Reject request error: ${e.toString()}'));
-      log('Reject request error: ${e.toString()}');
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(errorText: 'Reject request error: ${e.toString()}'),
+      );
     }
   }
 
@@ -364,8 +380,10 @@ abstract class WalletConnectServiceBase with Store {
       sessions.clear();
       sessions.addAll(newSessions);
     } catch (e) {
-      // _showDialog(child: Text('Refresh sessions error: ${e.toString()}'));
-      log('Refresh sessions error: ${e.toString()}');
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(errorText: 'Refresh sessions error: ${e.toString()}'),
+      );
     }
   }
 
@@ -376,27 +394,6 @@ abstract class WalletConnectServiceBase with Store {
     );
     _refreshSessions();
   }
-
-  // Future<bool?> showDialogg({required Widget child}) {
-  //   return showDialog<bool>(
-  //     context: context,
-  //     builder: (context) {
-  //       return Dialog(
-  //         insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-  //         backgroundColor: Colors.transparent,
-  //         child: Card(
-  //           clipBehavior: Clip.antiAlias,
-  //           color: Colors.white,
-  //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  //           child: Container(
-  //             padding: const EdgeInsets.all(16),
-  //             child: child,
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   @action
   Future<void> _initWallet() async {
@@ -422,5 +419,38 @@ abstract class WalletConnectServiceBase with Store {
   @action
   Future<void> dispose() async {
     await _walletConnectV2Plugin.dispose();
+  }
+}
+
+class ErrorWidgetDisplay extends StatelessWidget {
+  final String errorText;
+
+  const ErrorWidgetDisplay({super.key, required this.errorText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          S.current.error,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          errorText,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
   }
 }
