@@ -4,7 +4,6 @@ import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -173,10 +172,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     return WillPopScope(
       onWillPop: () async => false,
-      child: BottomSheetListener(
-        child: widget.child,
-        bottomSheetService: widget.bottomSheetService,
-      ),
+      child: widget.child,
     );
   }
 

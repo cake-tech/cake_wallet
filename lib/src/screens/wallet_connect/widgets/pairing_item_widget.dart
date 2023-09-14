@@ -1,22 +1,25 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:walletconnect_flutter_v2/apis/core/pairing/utils/pairing_models.dart';
+import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
-class PairingItemWidget extends StatelessWidget {
-  const PairingItemWidget({required this.pairing, required this.onTap, super.key});
+class SessionItemWidget extends StatelessWidget {
+  const SessionItemWidget({required this.session, required this.onTap, super.key});
 
-  final PairingInfo pairing;
+  final Session session;
   final void Function() onTap;
 
   @override
   Widget build(BuildContext context) {
-    PairingMetadata? metadata = pairing.peerMetadata;
-    if (metadata == null) {
-      return SizedBox.shrink();
-    }
+    AppMetadata? metadata = session.peer;
 
-    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(pairing.expiry * 1000);
+    // if (metadata == null) {
+    //   return SizedBox.shrink();
+    // }
+
+    // DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(session.expiry * 1000);
+    DateTime dateTime = session.expiration;
+
     int year = dateTime.year;
     int month = dateTime.month;
     int day = dateTime.day;

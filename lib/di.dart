@@ -3,11 +3,8 @@ import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
-import 'package:cake_wallet/core/wallet_connect/chain_service.dart';
-import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
-import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
+import 'package:cake_wallet/core/wallet_connect/wallet_connect_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -442,10 +439,20 @@ Future<void> setup({
     }, closable: false);
   }, instanceName: 'login');
 
-  //TODO(David): Continue working on the approach in the commented code and
-  //TODO Switch Singleton to Factory when appropriate
   getIt.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
 
+  final appStore = getIt.get<AppStore>();
+  getIt.registerLazySingleton<WalletConnectService>(() {
+    final walletConnectService = WalletConnectService(
+      appStore.wallet!,
+      getIt.get<BottomSheetService>(),
+    );
+    walletConnectService.createAndInitialize();
+    return walletConnectService;
+  });
+
+  //TODO(David): Continue working on the approach in the commented code and
+  //TODO Switch Singleton to Factory when appropriate
   // final appStore = getIt.get<AppStore>();
 
   // getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
@@ -704,7 +711,11 @@ Future<void> setup({
   });
 
   getIt.registerFactory(
-    () => ConnectionSyncPage(getIt.get<DashboardViewModel>()),
+    () => ConnectionSyncPage(
+      getIt.get<DashboardViewModel>(),
+      getIt.get<BottomSheetService>(),
+      getIt.get<WalletConnectService>(),
+    ),
   );
 
   getIt.registerFactory(

@@ -1,10 +1,12 @@
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
+import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
 class SessionRequestModel {
-  final ProposalData request;
+  final SessionProposal? request;
+  final SessionRequest? sessionRequest;
 
   SessionRequestModel({
-    required this.request,
+    this.request,
+    this.sessionRequest,
   });
 
   @override

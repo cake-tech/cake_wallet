@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/core/wallet_connect/wallet_connect_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -8,18 +8,18 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
+import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
 import 'utils/namespace_model_builder.dart';
 
 class WalletConnectPairingDetailsPage extends StatefulWidget {
-  final PairingInfo pairing;
-  final Web3WalletService web3walletService;
+  final Session session;
+  final WalletConnectService walletConnectService;
 
   const WalletConnectPairingDetailsPage({
-    required this.pairing,
+    required this.session,
+    required this.walletConnectService,
     super.key,
-    required this.web3walletService,
   });
 
   @override
@@ -37,7 +37,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
   }
 
   void initDateTime() {
-    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(widget.pairing.expiry * 1000);
+    DateTime dateTime = widget.session.expiration;
     int year = dateTime.year;
     int month = dateTime.month;
     int day = dateTime.day;
@@ -46,25 +46,14 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
   }
 
   void initSessions() {
-    List<SessionData> sessions = widget.web3walletService
-        .getWeb3Wallet()
-        .sessions
-        .getAll()
-        .where((element) => element.pairingTopic == widget.pairing.topic)
-        .toList();
+    List<Widget> namespaceWidget =
+        ConnectionWidgetBuilder.buildFromSessionNamespaces(widget.session.namespaces);
 
-    for (final SessionData session in sessions) {
-      List<Widget> namespaceWidget = ConnectionWidgetBuilder.buildFromNamespaces(
-        session.topic,
-        session.namespaces,
-        widget.web3walletService.getWeb3Wallet(),
-      );
-      // Loop through and add the namespace widgets, but put 20 pixels between each one
-      for (int i = 0; i < namespaceWidget.length; i++) {
-        sessionWidgets.add(namespaceWidget[i]);
-        if (i != namespaceWidget.length - 1) {
-          sessionWidgets.add(const SizedBox(height: 20.0));
-        }
+    // Loop through and add the namespace widgets, but put 20 pixels between each one
+    for (int i = 0; i < namespaceWidget.length; i++) {
+      sessionWidgets.add(namespaceWidget[i]);
+      if (i != namespaceWidget.length - 1) {
+        sessionWidgets.add(const SizedBox(height: 20.0));
       }
     }
   }
@@ -72,26 +61,26 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
   @override
   Widget build(BuildContext context) {
     return WCCDetailsWidget(
-      widget.pairing,
+      widget.session,
       expiryDate,
       sessionWidgets,
-      widget.web3walletService,
+      widget.walletConnectService,
     );
   }
 }
 
 class WCCDetailsWidget extends BasePage {
   WCCDetailsWidget(
-    this.pairing,
+    this.session,
     this.expiryDate,
     this.sessionWidgets,
-    this.web3walletService,
+    this.walletConnectService,
   );
 
-  final PairingInfo pairing;
+  final Session session;
   final String expiryDate;
   final List<Widget> sessionWidgets;
-  final Web3WalletService web3walletService;
+  final WalletConnectService walletConnectService;
 
   @override
   Widget body(BuildContext context) {
@@ -104,15 +93,15 @@ class WCCDetailsWidget extends BasePage {
             children: [
               Flexible(
                 child: CircleAvatar(
-                  backgroundImage: (pairing.peerMetadata!.icons.isNotEmpty
-                          ? NetworkImage(pairing.peerMetadata!.icons[0])
+                  backgroundImage: (session.peer.icons.isNotEmpty
+                          ? NetworkImage(session.peer.icons[0])
                           : const AssetImage('assets/images/default_icon.png'))
                       as ImageProvider<Object>,
                 ),
               ),
               const SizedBox(height: 20.0),
               Text(
-                pairing.peerMetadata!.name,
+                session.peer.name,
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
@@ -121,7 +110,7 @@ class WCCDetailsWidget extends BasePage {
               ),
               const SizedBox(height: 16.0),
               Text(
-                pairing.peerMetadata!.url,
+                session.peer.url,
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.normal,
@@ -145,8 +134,7 @@ class WCCDetailsWidget extends BasePage {
               ),
               const SizedBox(height: 20.0),
               PrimaryButton(
-                onPressed: () =>
-                    _onDeleteButtonPressed(context, pairing.peerMetadata!.name, web3walletService),
+                onPressed: () => _onDeleteButtonPressed(context, session.peer.name),
                 text: 'Delete',
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
@@ -158,8 +146,7 @@ class WCCDetailsWidget extends BasePage {
     );
   }
 
-  Future<void> _onDeleteButtonPressed(
-      BuildContext context, String dAppName, Web3WalletService web3walletService) async {
+  Future<void> _onDeleteButtonPressed(BuildContext context, String dAppName) async {
     bool confirmed = false;
 
     await showPopUp<void>(
@@ -180,8 +167,7 @@ class WCCDetailsWidget extends BasePage {
     );
     if (confirmed) {
       try {
-        await web3walletService.getWeb3Wallet().core.pairing.disconnect(topic: pairing.topic);
-
+        await walletConnectService.deleteSession(session);
         Navigator.of(context).pop();
       } catch (e) {
         log(e.toString());
