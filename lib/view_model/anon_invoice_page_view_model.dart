@@ -93,7 +93,11 @@ abstract class AnonInvoicePageViewModelBase with Store {
   Future<void> createInvoice() async {
     state = IsExecutingState();
     if (amount.isNotEmpty) {
-      final amountInCrypto = double.parse(amount);
+      final amountInCrypto = double.tryParse(amount);
+      if (amountInCrypto == null) {
+        state = FailureState('Amount is invalid');
+        return;
+      }
       if (minimum != null && amountInCrypto < minimum!) {
         state = FailureState('Amount is too small');
         return;
