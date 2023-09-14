@@ -161,7 +161,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           },
         );
       });
-    } else if (launchUri != null) {
+    } else if (_isValidPaymentUri()) {
       widget.navigatorKey.currentState?.pushNamed(
         Routes.send,
         arguments: PaymentRequest.fromUri(launchUri),
