@@ -10,7 +10,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
@@ -22,8 +21,6 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 import 'package:web3dart/web3dart.dart';
-
-import '../../themes/extensions/cake_text_theme.dart';
 
 part 'wallet_connect_service.g.dart';
 

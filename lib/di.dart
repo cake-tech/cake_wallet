@@ -451,40 +451,11 @@ Future<void> setup({
     return walletConnectService;
   });
 
-  //TODO(David): Continue working on the approach in the commented code and
-  //TODO Switch Singleton to Factory when appropriate
-  // final appStore = getIt.get<AppStore>();
-
-  // getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
-
-  // getIt.registerLazySingleton<Web3WalletService>(() {
-  //   final Web3WalletService web3WalletService = Web3WalletServiceImpl(
-  //     getIt.get<BottomSheetService>(),
-  //     getIt.get<WalletConnectKeyService>(),
-  //   );
-  //   web3WalletService.create();
-  //   return web3WalletService;
-  // });
-
-  // for (final cId in EVMChainId.values) {
-  //   getIt.registerFactory<ChainService>(
-  //     () => EvmChainServiceImpl(
-  //       reference: cId,
-  //       appStore: appStore,
-  //       wcKeyService: getIt.get<WalletConnectKeyService>(),
-  //       bottomSheetService: getIt.get<BottomSheetService>(),
-  //       web3WalletService: getIt.get<Web3WalletService>(),
-  //     ),
-  //     instanceName: cId.chain(),
-  //   );
-  // }
-
   getIt.registerFactory(() => BalancePage(
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
-        // web3walletService: getIt.get<Web3WalletService>(),
         balancePage: getIt.get<BalancePage>(),
         dashboardViewModel: getIt.get<DashboardViewModel>(),
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),

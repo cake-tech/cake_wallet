@@ -12,12 +12,7 @@ class SessionItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppMetadata? metadata = session.peer;
-
-    // if (metadata == null) {
-    //   return SizedBox.shrink();
-    // }
-
-    // DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(session.expiry * 1000);
+    
     DateTime dateTime = session.expiration;
 
     int year = dateTime.year;

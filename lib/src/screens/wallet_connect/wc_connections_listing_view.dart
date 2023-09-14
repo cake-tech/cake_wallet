@@ -13,7 +13,7 @@ import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 
-import 'widgets/pairing_item_widget.dart';
+import 'widgets/session_item_widget.dart';
 import 'wc_pairing_detail_page.dart';
 
 class WalletConnectConnectionsView extends StatefulWidget {
@@ -61,7 +61,6 @@ class WCPairingsWidget extends BasePage {
 
     try {
       log('_onFoundUri: $uri');
-      // final Uri uriData = Uri.parse(uri);
       await walletConnectService.createPairing(uri);
     } catch (e) {
       await _invalidUriToast(context, e.toString());

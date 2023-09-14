@@ -1,6 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
@@ -28,7 +25,6 @@ class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
   @override
   void initState() {
     super.initState();
-    // Get the connection metadata
     metadata = widget.sessionProposal?.request?.proposer;
   }
 
