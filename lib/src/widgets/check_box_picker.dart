@@ -1,13 +1,13 @@
+import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/store/check_box_picker_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
-class CheckBoxPicker extends StatefulWidget {
+class CheckBoxPicker extends StatelessWidget {
   CheckBoxPicker({
     required this.items,
     required this.onChanged,
@@ -22,26 +22,17 @@ class CheckBoxPicker extends StatefulWidget {
   final bool isSeparated;
   final Function(int, bool) onChanged;
 
-  @override
-  CheckBoxPickerState createState() => CheckBoxPickerState(items);
-}
-
-class CheckBoxPickerState extends State<CheckBoxPicker> {
-  CheckBoxPickerState(this.items);
-
-  final List<CheckBoxItem> items;
-
-  ScrollController controller = ScrollController();
+  final ScrollController _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return PickerWrapperWidget(
       children: [
-        if (widget.title.isNotEmpty)
+        if (title.isNotEmpty)
           Container(
             padding: EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              widget.title,
+              title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
@@ -72,10 +63,10 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                         children: <Widget>[
                           items.length > 3
                               ? Scrollbar(
-                                  controller: controller,
-                                  child: itemsList(),
+                                  controller: _controller,
+                                  child: itemsList(context),
                                 )
-                              : itemsList(),
+                              : itemsList(context),
                         ],
                       ),
                     ),
@@ -89,31 +80,32 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
     );
   }
 
-  Widget itemsList() {
+  Widget itemsList(BuildContext context) {
     return Container(
       color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: ListView.separated(
         padding: EdgeInsets.zero,
-        controller: controller,
+        controller: _controller,
         shrinkWrap: true,
-        separatorBuilder: (context, index) => widget.isSeparated
+        separatorBuilder: (context, index) => isSeparated
             ? Divider(
-                color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
-                height: 1,
-              )
+          color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+          height: 1,
+        )
             : const SizedBox(),
-        itemCount: items == null || items.isEmpty ? 0 : items.length,
-        itemBuilder: (context, index) => buildItem(index),
+        itemCount: items.isEmpty ? 0 : items.length,
+        itemBuilder: (context, index) => buildItem(context, index),
       ),
     );
   }
 
-  Widget buildItem(int index) {
+  Widget buildItem(BuildContext context, int index) {
     final item = items[index];
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pop();
+        item.value = !item.value;
+        onChanged(index, item.value);
       },
       child: Container(
         height: 55,
@@ -121,46 +113,37 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Row(
           children: [
-            StandardCheckbox(
-              value: item.value,
-              gradientBackground: true,
-              borderColor: Theme.of(context).dividerColor,
-              iconColor: Colors.white,
-              onChanged: (bool? value) {
-                if (value == null) {
-                  return;
-                }
-
-                item.value = value;
-                widget.onChanged(index, value);
-                setState(() {});
-              },
+            Observer(
+              builder: (_) => StandardCheckbox(
+                value: item.value,
+                gradientBackground: true,
+                borderColor: Theme.of(context).dividerColor,
+                iconColor: Colors.white,
+                onChanged: (value) {
+                  item.value = value;
+                  onChanged(index, value);
+                },
+              ),
             ),
             SizedBox(width: 16),
-            widget.displayItem?.call(item) ??
-                Text(
-                  item.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w600,
-                    color: item.isDisabled
-                        ? Colors.grey.withOpacity(0.5)
-                        : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                    decoration: TextDecoration.none,
+            Expanded(
+              child: displayItem?.call(item) ??
+                  Text(
+                    item.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w600,
+                      color: item.isDisabled
+                          ? Colors.grey.withOpacity(0.5)
+                          : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      decoration: TextDecoration.none,
+                    ),
                   ),
-                )
+            )
           ],
         ),
       ),
     );
   }
-}
-
-class CheckBoxItem {
-  CheckBoxItem(this.title, this.value, {this.isDisabled = false});
-
-  final String title;
-  final bool isDisabled;
-  bool value;
 }
