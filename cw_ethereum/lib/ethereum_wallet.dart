@@ -283,6 +283,7 @@ abstract class EthereumWalletBase
         ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
         exponent: transactionModel.tokenDecimal ?? 18,
         tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
+        to: transactionModel.to,
       );
     }
 
