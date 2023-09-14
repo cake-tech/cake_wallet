@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
+import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -21,11 +22,11 @@ class BuyOptionsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
     final iconRobinhood =
-        Image.asset(isDarkMode ? iconDarkRobinhood : iconLightRobinhood, height: 40, width: 40);
+        Image.asset(isLightMode ? iconLightRobinhood : iconDarkRobinhood, height: 40, width: 40);
     final iconOnramper =
-        Image.asset(isDarkMode ? iconDarkOnramper : iconLightOnramper, height: 40, width: 40);
+        Image.asset(isLightMode ? iconLightOnramper : iconDarkOnramper, height: 40, width: 40);
 
     return Container(
       child: Center(

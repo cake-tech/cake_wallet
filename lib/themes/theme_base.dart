@@ -12,6 +12,7 @@ import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
@@ -114,6 +115,8 @@ abstract class ThemeBase {
 
   QRCodeTheme get qrCodeTheme;
 
+  OptionTileTheme get optionTileTheme;
+
   ThemeData get themeData => generatedThemeData.copyWith(
       primaryColor: primaryColor,
       cardColor: containerColor,
@@ -144,6 +147,7 @@ abstract class ThemeBase {
         accountListTheme,
         receivePageTheme,
         qrCodeTheme,
+        optionTileTheme
       ],
       scrollbarTheme: generatedThemeData.scrollbarTheme.copyWith(
           thumbColor: MaterialStateProperty.all(scrollbarTheme.thumbColor),
