@@ -602,16 +602,16 @@ Future<void> setup({
         editingWallet: editingWallet);
   });
 
-  getIt.registerFactory(() {
+  getIt.registerFactory<NanoAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
       return NanoAccountListViewModel(wallet);
     }
     throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate Nano/Monero AccountListViewModel');
+        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel');
   });
 
-  getIt.registerFactory(() {
+  getIt.registerFactory<MoneroAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
