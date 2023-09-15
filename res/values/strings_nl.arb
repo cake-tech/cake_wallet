@@ -693,5 +693,10 @@
   "choose_derivation": "Kies portemonnee -afleiding",
   "new_first_wallet_text": "Houd uw cryptocurrency gemakkelijk veilig",
   "select_destination": "Selecteer de bestemming voor het back-upbestand.",
-  "save_to_downloads": "Opslaan in downloads"
+  "save_to_downloads": "Opslaan in downloads",
+  "select_buy_provider_notice": "Selecteer hierboven een koopprovider. U kunt dit scherm overslaan door uw standaard kopenprovider in te stellen in app -instellingen.",
+  "onramper_option_description": "Koop snel crypto met veel betaalmethoden. Beschikbaar in de meeste landen. Spreads en vergoedingen variëren.",
+  "default_buy_provider": "Standaard Koopprovider",
+  "ask_each_time": "Vraag het elke keer",
+  "buy_provider_unavailable": "Provider momenteel niet beschikbaar."
 }

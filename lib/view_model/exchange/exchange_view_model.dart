@@ -225,7 +225,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
-      .where((element) => receiveCurrency == null || element.type == receiveCurrency)
+      .where((element) => element.type == receiveCurrency)
       .toList();
 
   @action
@@ -550,6 +550,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
+          if (double.tryParse(amount) == null) {
+            continue;
+          }
           if (limits.max != null && double.parse(amount) < limits.min!) {
             continue;
           } else if (limits.max != null && double.parse(amount) > limits.max!) {

@@ -9,6 +9,7 @@ import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/indicator_dot_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
@@ -102,6 +103,10 @@ class HighContrastTheme extends MoneroLightTheme {
   @override
   ReceivePageTheme get receivePageTheme => super.receivePageTheme.copyWith(
       tilesTextColor: Colors.white, iconsBackgroundColor: Colors.grey, iconsColor: Colors.black);
+
+  @override
+  OptionTileTheme get optionTileTheme => OptionTileTheme(
+      titleColor: Colors.white, descriptionColor: Colors.white, useDarkImage: false);
 
   @override
   ThemeData get themeData => super.themeData.copyWith(
