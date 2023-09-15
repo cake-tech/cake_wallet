@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -163,21 +164,26 @@ abstract class WalletConnectServiceBase with Store {
         chainList.addAll(proposal.optionalNamespaces!['eip155']!.chains!);
         final chainIDs = chainList.toSet().toList();
 
-        final approval = SessionApproval(id: proposal.id, namespaces: {
-          'eip155': SessionNamespace(
+        final approval = SessionApproval(
+          id: proposal.id,
+          namespaces: {
+            'eip155': SessionNamespace(
               accounts: chainIDs.map((e) => '$e:$_address').toList(),
               methods: requiredMethods.isNotEmpty
                   ? <String>{...requiredMethods, ...optionalMethods}.toList()
                   : [],
               events: requiredEvents.isNotEmpty
                   ? <String>{...requiredEvents, ...optionalEvents}.toList()
-                  : [])
-        });
+                  : [],
+            )
+          },
+        );
 
-        print(approval.toJson());
+        log(approval.toJson().toString());
 
         _walletConnectV2Plugin.approveSession(approval: approval);
       } catch (e) {
+        log('Approve session error: ${e.toString()}');
         _bottomSheetHandler.queueBottomSheet(
           isModalDismissible: true,
           widget: ErrorWidgetDisplay(errorText: 'Approve session error: ${e.toString()}'),
@@ -187,6 +193,7 @@ abstract class WalletConnectServiceBase with Store {
       try {
         _walletConnectV2Plugin.rejectSession(proposalId: proposal.id);
       } catch (e) {
+        log('Reject session error: ${e.toString()}');
         _bottomSheetHandler.queueBottomSheet(
           isModalDismissible: true,
           widget: ErrorWidgetDisplay(errorText: 'Reject session error: ${e.toString()}'),
@@ -206,6 +213,7 @@ abstract class WalletConnectServiceBase with Store {
   }
 
   Future<void> onSessionResponseEvent(SessionResponse response) async {
+    log('${response.results is String ? 'Signature' : 'Error'}: ${response.results}');
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
       widget: ErrorWidgetDisplay(
@@ -222,6 +230,7 @@ abstract class WalletConnectServiceBase with Store {
   }
 
   void onEventError(code, message) {
+    log('code: $code | message: $message');
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
       widget: ErrorWidgetDisplay(errorText: 'code: $code | message: $message'),
@@ -231,6 +240,7 @@ abstract class WalletConnectServiceBase with Store {
 //! Subscription related methods
   @action
   Future<void> eSignTransactionEvent(SessionRequest request) async {
+    log('Received an ethSignTransaction event\n Request: ${request.toString()}');
     try {
       final object = request.params.first as Map;
       final gasLimit =
@@ -261,11 +271,12 @@ abstract class WalletConnectServiceBase with Store {
       final signature = await client.signTransaction(EthPrivateKey.fromHex(_privateKey ?? ''), tx);
 
       await _walletConnectV2Plugin.approveRequest(
-        topic: request.topic,
+        topic: _dappTopic ?? '',
         requestId: request.id,
         result: bytesToHex(signature, include0x: true),
       );
     } catch (e) {
+      log('Sign error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: ErrorWidgetDisplay(errorText: 'Sign error: ${e.toString()}'),
@@ -275,6 +286,7 @@ abstract class WalletConnectServiceBase with Store {
 
   @action
   Future<void> ethSignEvent(SessionRequest request) async {
+    log('Received ethSign event. \nRequest: ${request.toString()}');
     try {
       String message = request.params.firstWhere((element) => element != _address) as String;
       final signature =
@@ -282,6 +294,7 @@ abstract class WalletConnectServiceBase with Store {
       await _walletConnectV2Plugin.approveRequest(
           topic: request.topic, requestId: request.id, result: signature);
     } catch (e) {
+      log('Approve error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: ErrorWidgetDisplay(errorText: 'Approve error: ${e.toString()}'),
@@ -291,6 +304,7 @@ abstract class WalletConnectServiceBase with Store {
 
   @action
   Future<void> ethSignTypedDataEvent(SessionRequest request) async {
+    log('Received ethSignedTypedData event.\nRequest: ${request.toString()}');
     try {
       final message = request.params.firstWhere((element) => element != _address);
       final jsonData = message is Map ? jsonEncode(message) : message;
@@ -302,6 +316,7 @@ abstract class WalletConnectServiceBase with Store {
       await _walletConnectV2Plugin.approveRequest(
           topic: request.topic, requestId: request.id, result: signature);
     } catch (e) {
+      log('Approve request error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: ErrorWidgetDisplay(errorText: 'Approve request error: ${e.toString()}'),
@@ -311,6 +326,7 @@ abstract class WalletConnectServiceBase with Store {
 
   @action
   Future<void> onUnsupportedMethodEvent(SessionRequest request) async {
+    log('Unhandled method ${request.method}.\nRequest: ${request.toString()}');
     _walletConnectV2Plugin.rejectRequest(topic: request.topic, requestId: request.id);
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
@@ -320,6 +336,7 @@ abstract class WalletConnectServiceBase with Store {
 
   @action
   Future<void> onSessionRequestApproved(SessionRequest request) async {
+    log('Session request has been approved. \nRequest: ${request.toString()}');
     switch (request.method) {
       case eSendTransaction:
       case eSignTransaction:
@@ -337,9 +354,11 @@ abstract class WalletConnectServiceBase with Store {
 
   @action
   Future<void> onSessionRequestRejected(SessionRequest request) async {
+    log('Session request has been rejected.\nRequest: ${request.toString()}');
     try {
       await _walletConnectV2Plugin.rejectRequest(topic: request.topic, requestId: request.id);
     } catch (e) {
+      log('Reject request error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: ErrorWidgetDisplay(errorText: 'Reject request error: ${e.toString()}'),
@@ -349,10 +368,9 @@ abstract class WalletConnectServiceBase with Store {
 
   @action
   Future<void> onSessionRequestEvent(SessionRequest request) async {
+    log('Received session request event. \nRequest: ${request.toString()}');
     final Widget modalWidget = Web3RequestModal(
-      child: ConnectionRequestWidget(
-        sessionProposal: SessionRequestModel(sessionRequest: request),
-      ),
+      child: ConnectionRequestWidget(sessionProposal: SessionRequestModel(sessionRequest: request)),
     );
 
     // show the bottom sheet
@@ -377,6 +395,7 @@ abstract class WalletConnectServiceBase with Store {
       sessions.clear();
       sessions.addAll(newSessions);
     } catch (e) {
+      log('Refresh sessions error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: ErrorWidgetDisplay(errorText: 'Refresh sessions error: ${e.toString()}'),
@@ -386,6 +405,7 @@ abstract class WalletConnectServiceBase with Store {
 
   @action
   Future<void> deleteSession(Session session) async {
+    log('Delete session triggered.\nSession: ${session.toString()}');
     await _walletConnectV2Plugin.disconnectSession(
       topic: session.topic,
     );
@@ -416,38 +436,6 @@ abstract class WalletConnectServiceBase with Store {
   @action
   Future<void> dispose() async {
     await _walletConnectV2Plugin.dispose();
-  }
-}
-
-class ErrorWidgetDisplay extends StatelessWidget {
-  final String errorText;
-
-  const ErrorWidgetDisplay({super.key, required this.errorText});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          S.current.error,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.normal,
-            color: Colors.white,
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          errorText,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.normal,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    );
+    log('Wallet Connect Dispose triggered');
   }
 }

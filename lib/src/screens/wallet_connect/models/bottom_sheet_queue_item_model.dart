@@ -15,6 +15,6 @@ class BottomSheetQueueItemModel {
 
   @override
   String toString() {
-    return 'BottomSheetQueueItemModel(widget: $widget, completer: $completer)';
+    return 'BottomSheetQueueItemModel(widget: $widget, completer: $completer, isModelDismissible: $isModalDismissible)';
   }
 }

@@ -11,6 +11,6 @@ class SessionRequestModel {
 
   @override
   String toString() {
-    return 'SessionRequestModel(request: $request)';
+    return 'SessionRequestModel(request: $request, sessionRequest: $sessionRequest)';
   }
 }
