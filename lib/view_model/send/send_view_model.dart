@@ -416,7 +416,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   String translateErrorMessage(String error, WalletType walletType, CryptoCurrency currency,) {
     if (walletType == WalletType.ethereum || walletType == WalletType.haven) {
-      if (error.contains("gas required exceeds allowance (0)")) {
+      if (error.contains('gas required exceeds allowance (0)') || error.contains('insufficient funds for gas')) {
         return 'You do not have enough ${currency} to make a transaction with the current blockchain network conditions. You need more ${currency} to pay blockchain network fees, even if you are sending a different asset.';
       }
     }
