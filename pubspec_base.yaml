@@ -59,7 +59,7 @@ dependencies:
   permission_handler: ^10.0.0
   device_display_brightness:
     git:
-      url: https://github.com/ViacheslavSomin/device_display_brightness.git
+      url: https://github.com/cake-tech/device_display_brightness.git
       ref: master
   workmanager: ^0.5.1
   # platform_device_id: ^1.0.1
