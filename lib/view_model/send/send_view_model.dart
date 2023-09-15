@@ -325,7 +325,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
     } catch (e) {
-      state = FailureState(e.toString());
+      String translatedError = translateErrorMessage(e.toString(), wallet.type, wallet.currency);
+      state = FailureState(translatedError);
     }
   }
 
@@ -411,5 +412,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } catch (e) {
       selectedCryptoCurrency = wallet.currency;
     }
+  }
+
+  String translateErrorMessage(String error, WalletType walletType, CryptoCurrency currency,) {
+    if (walletType == WalletType.ethereum || walletType == WalletType.haven) {
+      if (error.contains("gas required exceeds allowance (0)")) {
+        return 'You do not have enough ${currency} to make a transaction with the current blockchain network conditions. You need more ${currency} to pay blockchain network fees, even if you are sending a different asset.';
+      }
+    }
+
+    return error;
   }
 }
