@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart
 import 'package:convert/convert.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
+import 'package:eth_sig_util/util/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:web3dart/web3dart.dart';
@@ -243,22 +244,37 @@ class EvmChainServiceImpl implements ChainService {
     WCEthereumTransactionModel ethTransaction =
         WCEthereumTransactionModel.fromJson(parameters[0] as Map<String, dynamic>);
 
+    String hexValue = "0x00";
+    String gasLimit = "0x00";
+    String data = "0x";
+    if ((parameters[0] as Map).containsKey("value")) {
+      hexValue = ethTransaction.value;
+    }
+    if ((parameters[0] as Map).containsKey("gas")) {
+      gasLimit = ethTransaction.gas ?? '';
+    }
+    if ((parameters[0] as Map).containsKey("data")) {
+      data = ethTransaction.data ?? "";
+    }
+    hexValue = hexValue.replaceAll("0x", "");
+    gasLimit = gasLimit.replaceAll("0x", "");
+    BigInt? value = BigInt.tryParse(hexValue, radix: 16);
+    BigInt gasValue = BigInt.parse(gasLimit, radix: 16);
+
     // Construct a transaction from the EthereumTransactionModel object
     final transaction = Transaction(
       from: EthereumAddress.fromHex(ethTransaction.from),
       to: EthereumAddress.fromHex(ethTransaction.to),
-      value: EtherAmount.fromBigInt(
-        EtherUnit.wei,
-        BigInt.tryParse(ethTransaction.value) ?? BigInt.zero,
-      ),
-      // data: (ethTransaction.data != null && ethTransaction.data != '0x')
-      //     ? Uint8List.fromList(hex.decode(ethTransaction.data!))
-      //     : null,
+      value: EtherAmount.fromBigInt(EtherUnit.wei, value ?? BigInt.zero),
+      data: hexToBytes(data),
     );
 
     try {
-      final Uint8List sig = await ethClient.signTransaction(credentials, transaction);
+      Uint8List sig = await ethClient.signTransaction(credentials, transaction);
 
+      if (transaction.isEIP1559) {
+        sig = prependTransactionType(0x02, sig);
+      }
       // Sign the transaction
       final String signedTx = hex.encode(sig);
 
