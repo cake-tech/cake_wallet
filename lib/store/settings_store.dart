@@ -40,7 +40,6 @@ abstract class SettingsStoreBase with Store {
       {required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
-      required bool initialInitializedWalletConnectDependencies,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -101,7 +100,6 @@ abstract class SettingsStoreBase with Store {
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
-        initializedWalletConnectDependencies = initialInitializedWalletConnectDependencies,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
@@ -287,11 +285,6 @@ abstract class SettingsStoreBase with Store {
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
 
-    reaction(
-        (_) => initializedWalletConnectDependencies,
-        (bool value) =>
-            sharedPreferences.setBool(PreferencesKey.initializedWalletConnectDependencies, value));
-
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
 
@@ -362,9 +355,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowMarketPlaceInDashboard;
-
-  @observable
-  bool initializedWalletConnectDependencies;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -578,8 +568,6 @@ abstract class SettingsStoreBase with Store {
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
-    final initializedWalletConnectDependencies =
-        sharedPreferences.getBool(PreferencesKey.initializedWalletConnectDependencies) ?? false;
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -661,7 +649,6 @@ abstract class SettingsStoreBase with Store {
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
-        initialInitializedWalletConnectDependencies: initializedWalletConnectDependencies,
         nodes: nodes,
         appVersion: packageInfo.version,
         deviceName: deviceName,
@@ -788,9 +775,6 @@ abstract class SettingsStoreBase with Store {
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
-    initializedWalletConnectDependencies =
-        sharedPreferences.getBool(PreferencesKey.initializedWalletConnectDependencies) ??
-            initializedWalletConnectDependencies;
     selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
             Cake2FAPresetsOptions.narrow.raw);

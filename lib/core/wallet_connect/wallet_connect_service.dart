@@ -1,8 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -45,6 +43,8 @@ abstract class WalletConnectServiceBase with Store {
   String? _dappTopic;
 
   bool _isInitiated = false;
+  bool get isInitiated => _isInitiated;
+  
   bool _isForeground = true;
 
   WalletConnectServiceBase(
@@ -271,7 +271,7 @@ abstract class WalletConnectServiceBase with Store {
       final signature = await client.signTransaction(EthPrivateKey.fromHex(_privateKey ?? ''), tx);
 
       await _walletConnectV2Plugin.approveRequest(
-        topic: _dappTopic ?? '',
+        topic: request.topic,
         requestId: request.id,
         result: bytesToHex(signature, include0x: true),
       );

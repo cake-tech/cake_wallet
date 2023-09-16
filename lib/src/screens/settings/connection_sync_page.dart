@@ -81,8 +81,7 @@ class ConnectionSyncPage extends BasePage {
           if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             WalletConnectTile(
               onTap: () async {
-                await initializeWCDependencies();
-                log('All WC Dependencies done');
+                await initializeWalletConnect();
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
@@ -115,16 +114,16 @@ class ConnectionSyncPage extends BasePage {
               Navigator.of(context).pop();
               await dashboardViewModel.reconnect();
             },
-            actionLeftButton: () => Navigator.of(context).pop());
+          actionLeftButton: () => Navigator.of(context).pop(),
+        );
       },
     );
   }
 
-  Future<void> initializeWCDependencies() async {
-    // if (dashboardViewModel.initializedWalletConnectDependencies) return;
-    print('A  bout to initi');
+  Future<void> initializeWalletConnect() async {
+    print('About to initialize WalletConnect');
+    if (walletConnectService.isInitiated) return;
     await walletConnectService.initWalletConnect();
-
-    dashboardViewModel.isWalletConnectDependenciesIntialized(isWCDependenciesInitialized: true);
+    log('All WC Dependencies done');
   }
 }

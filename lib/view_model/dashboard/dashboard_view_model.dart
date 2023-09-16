@@ -190,10 +190,6 @@ abstract class DashboardViewModelBase with Store {
   bool isShowThirdYatIntroduction;
 
   @computed
-  bool get initializedWalletConnectDependencies =>
-      appStore.settingsStore.initializedWalletConnectDependencies;
-
-  @computed
   String get address => wallet.walletAddresses.address;
 
   @computed
@@ -409,11 +405,6 @@ abstract class DashboardViewModelBase with Store {
     hasExchangeAction = !isHaven;
     hasBuyAction = !isHaven;
     hasSellAction = !isHaven;
-  }
-
-  @action
-  void isWalletConnectDependenciesIntialized({required bool isWCDependenciesInitialized}) {
-    settingsStore.initializedWalletConnectDependencies = isWCDependenciesInitialized;
   }
 
   @computed

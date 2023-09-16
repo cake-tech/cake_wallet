@@ -72,5 +72,4 @@ class PreferencesKey {
   static const shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
       'should_require_totp_2fa_for_all_security_and_backup_settings';
   static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
-  static const initializedWalletConnectDependencies = 'initialized_wc_dependencies';
 }
