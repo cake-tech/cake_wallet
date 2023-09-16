@@ -271,7 +271,7 @@ abstract class WalletConnectServiceBase with Store {
       final signature = await client.signTransaction(EthPrivateKey.fromHex(_privateKey ?? ''), tx);
 
       await _walletConnectV2Plugin.approveRequest(
-        topic: request.topic,
+        topic: _dappTopic ?? '',
         requestId: request.id,
         result: bytesToHex(signature, include0x: true),
       );
