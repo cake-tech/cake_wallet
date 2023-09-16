@@ -685,6 +685,11 @@
   "matrix_green_dark_theme": "矩阵绿暗主题",
   "monero_light_theme": "门罗币浅色主题",
   "select_destination": "请选择备份文件的目的地。",
+  "auto_generate_subaddresses": "自动生成子辅助",
   "save_to_downloads": "保存到下载",
-  "auto_generate_subaddresses": "自动生成子辅助"
+  "select_buy_provider_notice": "在上面选择买入提供商。您可以通过在应用程序设置中设置默认的购买提供商来跳过此屏幕。",
+  "onramper_option_description": "快速使用许多付款方式购买加密货币。在大多数国家 /地区可用。利差和费用各不相同。",
+  "default_buy_provider": "默认购买提供商",
+  "ask_each_time": "每次问",
+  "buy_provider_unavailable": "提供者目前不可用。"
 }

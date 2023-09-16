@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
@@ -9,7 +10,6 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/src/screens/restore/widgets/restore_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -35,7 +35,7 @@ class RestoreOptionsPage extends BasePage {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                RestoreButton(
+                OptionTile(
                     onPressed: () => Navigator.pushNamed(
                         context, Routes.restoreWalletFromSeedKeys,
                         arguments: isNewInstall),
@@ -45,7 +45,7 @@ class RestoreOptionsPage extends BasePage {
                 if (isNewInstall)
                   Padding(
                     padding: EdgeInsets.only(top: 24),
-                    child: RestoreButton(
+                    child: OptionTile(
                         onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
                         image: imageBackup,
                         title: S.of(context).restore_title_from_backup,
@@ -53,7 +53,7 @@ class RestoreOptionsPage extends BasePage {
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 24),
-                  child: RestoreButton(
+                  child: OptionTile(
                       onPressed: () async {
                         bool isPinSet = false;
                         if (isNewInstall) {

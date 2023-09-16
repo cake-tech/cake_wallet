@@ -686,6 +686,11 @@
   "support_title_other_links": "다른 지원 링크",
   "support_description_other_links": "다른 방법을 통해 커뮤니티에 가입하거나 파트너에게 연락하십시오.",
   "select_destination": "백업 파일의 대상을 선택하십시오.",
+  "auto_generate_subaddresses": "자동 생성 서브 아드 드레스",
   "save_to_downloads": "다운로드에 저장",
-  "auto_generate_subaddresses": "자동 생성 서브 아드 드레스"
+  "select_buy_provider_notice": "위의 구매 제공자를 선택하십시오. 앱 설정에서 기본 구매 제공자를 설정 하여이 화면을 건너 뛸 수 있습니다.",
+  "onramper_option_description": "많은 결제 방법으로 암호화를 신속하게 구입하십시오. 대부분의 국가에서 사용할 수 있습니다. 스프레드와 수수료는 다양합니다.",
+  "default_buy_provider": "기본 구매 제공자",
+  "ask_each_time": "매번 물어보십시오",
+  "buy_provider_unavailable": "제공자는 현재 사용할 수 없습니다."
 }

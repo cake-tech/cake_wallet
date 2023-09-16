@@ -682,7 +682,11 @@
   "support_title_other_links": "روابط دعم أخرى",
   "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى",
   "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
+  "auto_generate_subaddresses": "تلقائي توليد subddresses",
   "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
-  "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى",
-  "auto_generate_subaddresses": "تلقائي توليد subddresses"
+  "select_buy_provider_notice": "حدد مزود شراء أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود شراء الافتراضي في إعدادات التطبيق.",
+  "onramper_option_description": "شراء بسرعة التشفير مع العديد من طرق الدفع. متوفر في معظم البلدان. ينتشر وتختلف الرسوم.",
+  "default_buy_provider": "مزود شراء الافتراضي",
+  "ask_each_time": "اسأل في كل مرة",
+  "buy_provider_unavailable": "مزود حاليا غير متوفر."
 }

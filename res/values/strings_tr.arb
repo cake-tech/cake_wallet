@@ -685,5 +685,10 @@
   "support_title_other_links": "Diğer destek bağlantıları",
   "support_description_other_links": "Topluluklarımıza katılın veya ortaklarımıza diğer yöntemlerle bize ulaşın",
   "select_destination": "Lütfen yedekleme dosyası için hedef seçin.",
-  "save_to_downloads": "İndirilenlere Kaydet"
+  "save_to_downloads": "İndirilenlere Kaydet",
+  "select_buy_provider_notice": "Yukarıda bir satın alma sağlayıcısı seçin. App ayarlarında varsayılan satın alma sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
+  "onramper_option_description": "Birçok ödeme yöntemi ile hızlı bir şekilde kripto satın alın. Çoğu ülkede mevcuttur. Forma ve ücretler değişir.",
+  "default_buy_provider": "Varsayılan Satın Alma Sağlayıcısı",
+  "ask_each_time": "Her seferinde sor",
+  "buy_provider_unavailable": "Sağlayıcı şu anda kullanılamıyor."
 }
