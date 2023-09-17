@@ -684,12 +684,17 @@
   "support_title_other_links": "ลิงค์สนับสนุนอื่น ๆ",
   "support_description_other_links": "เข้าร่วมชุมชนของเราหรือเข้าถึงเราพันธมิตรของเราผ่านวิธีการอื่น ๆ",
   "select_destination": "โปรดเลือกปลายทางสำหรับไฟล์สำรอง",
-  "save_to_downloads": "บันทึกลงดาวน์โหลด",
   "auto_generate_subaddresses": "Auto สร้าง subaddresses",
+  "save_to_downloads": "บันทึกลงดาวน์โหลด",
   "invalid_password": "รหัสผ่านไม่ถูกต้อง",
   "unlock": "ปลดล็อค",
   "enter_wallet_password": "ป้อนรหัสผ่านกระเป๋าเงิน",
   "repeat_wallet_password": "ทำซ้ำรหัสผ่านกระเป๋าเงิน",
   "wallet_password_is_empty": "รหัสผ่านกระเป๋าเงินว่างเปล่า รหัสผ่านกระเป๋าเงินไม่ควรว่างเปล่า",
-  "repeated_password_is_incorrect": "รหัสผ่านซ้ำไม่ถูกต้อง โปรดทำซ้ำรหัสผ่านกระเป๋าเงินอีกครั้ง"
+  "repeated_password_is_incorrect": "รหัสผ่านซ้ำไม่ถูกต้อง โปรดทำซ้ำรหัสผ่านกระเป๋าเงินอีกครั้ง",
+  "select_buy_provider_notice": "เลือกผู้ให้บริการซื้อด้านบน คุณสามารถข้ามหน้าจอนี้ได้โดยการตั้งค่าผู้ให้บริการซื้อเริ่มต้นในการตั้งค่าแอป",
+  "onramper_option_description": "ซื้อ crypto อย่างรวดเร็วด้วยวิธีการชำระเงินจำนวนมาก มีให้บริการในประเทศส่วนใหญ่ สเปรดและค่าธรรมเนียมแตกต่างกันไป",
+  "default_buy_provider": "ผู้ให้บริการซื้อเริ่มต้น",
+  "ask_each_time": "ถามทุกครั้ง",
+  "buy_provider_unavailable": "ผู้ให้บริการไม่สามารถใช้งานได้ในปัจจุบัน"
 }

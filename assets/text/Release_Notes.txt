@@ -1,6 +1,5 @@
-Restore Ethereum from private key and QR
-Ability to Auto generate new Monero subaddress when used
-Coin Control for Monero
-In-app Live Chat support
-Additional themes
-Bug Fixes and performance enhancements
+New Buy Provider Robinhood
+Fix sending Ethereum issue
+Enhance Monero coin control
+Add Filipino localization
+Bug Fixes

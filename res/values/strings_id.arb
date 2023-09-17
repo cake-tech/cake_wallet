@@ -681,5 +681,10 @@
   "enter_wallet_password": "Masukkan Kata Sandi Dompet",
   "repeat_wallet_password": "Ulangi Kata Sandi Dompet",
   "wallet_password_is_empty": "Kata sandi dompet kosong. Kata sandi dompet tidak boleh kosong",
-  "repeated_password_is_incorrect": "Kata sandi yang diulang tidak benar. Harap ulangi kata sandi dompet lagi."
+  "repeated_password_is_incorrect": "Kata sandi yang diulang tidak benar. Harap ulangi kata sandi dompet lagi.",
+  "select_buy_provider_notice": "Pilih penyedia beli di atas. Anda dapat melewatkan layar ini dengan mengatur penyedia pembelian default Anda di pengaturan aplikasi.",
+  "onramper_option_description": "Beli crypto dengan cepat dengan banyak metode pembayaran. Tersedia di sebagian besar negara. Spread dan biaya bervariasi.",
+  "default_buy_provider": "Penyedia beli default",
+  "ask_each_time": "Tanyakan setiap kali",
+  "buy_provider_unavailable": "Penyedia saat ini tidak tersedia."
 }

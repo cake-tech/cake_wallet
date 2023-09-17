@@ -1,9 +1,8 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
+import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:flutter/material.dart';
 
-class SupportTile extends StatelessWidget {
-  const SupportTile(
+class OptionTile extends StatelessWidget {
+  const OptionTile(
       {required this.onPressed,
       required this.image,
       required this.title,
@@ -45,7 +44,7 @@ class SupportTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
                       ),
                     ),
                     Padding(
@@ -55,7 +54,7 @@ class SupportTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
-                          color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+                          color: Theme.of(context).extension<OptionTileTheme>()!.descriptionColor,
                         ),
                       ),
                     )

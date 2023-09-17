@@ -692,5 +692,10 @@
   "enter_wallet_password": "Digite a senha da carteira",
   "repeat_wallet_password": "Repita a senha da carteira",
   "wallet_password_is_empty": "A senha da carteira está vazia. A senha da carteira não deve estar vazia",
-  "repeated_password_is_incorrect": "A senha repetida está incorreta. Repita a senha da carteira novamente."
+  "repeated_password_is_incorrect": "A senha repetida está incorreta. Repita a senha da carteira novamente.",
+  "select_buy_provider_notice": "Selecione um provedor de compra acima. Você pode pular esta tela definindo seu provedor de compra padrão nas configurações de aplicativos.",
+  "onramper_option_description": "Compre rapidamente criptografia com muitos métodos de pagamento. Disponível na maioria dos países. Os spreads e taxas variam.",
+  "default_buy_provider": "Provedor de compra padrão",
+  "ask_each_time": "Pergunte cada vez",
+  "buy_provider_unavailable": "Provedor atualmente indisponível."
 }

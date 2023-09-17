@@ -55,7 +55,7 @@ void refreshTransactions() => transactionsRefreshNative();
 
 int countOfTransactions() => transactionsCountNative();
 
-List<TransactionInfoRow> getAllTransations() {
+List<TransactionInfoRow> getAllTransactions() {
   final size = transactionsCountNative();
   final transactionsPointer = transactionsGetAllNative();
   final transactionsAddresses = transactionsPointer.asTypedList(size);

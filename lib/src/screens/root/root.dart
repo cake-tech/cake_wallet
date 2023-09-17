@@ -141,7 +141,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                       }
                       _reset();
                       totpAuth.close(
-                        route: launchUri != null ? Routes.send : null,
+                        route: _isValidPaymentUri() ? Routes.send : null,
                         arguments: PaymentRequest.fromUri(launchUri),
                       );
                       launchUri = null;
@@ -153,7 +153,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               } else {
                 _reset();
                 auth.close(
-                  route: launchUri != null ? Routes.send : null,
+                  route: _isValidPaymentUri() ? Routes.send : null,
                   arguments: PaymentRequest.fromUri(launchUri),
                 );
                 launchUri = null;
@@ -162,7 +162,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           },
         );
       });
-    } else if (launchUri != null) {
+    } else if (_isValidPaymentUri()) {
       widget.navigatorKey.currentState?.pushNamed(
         Routes.send,
         arguments: PaymentRequest.fromUri(launchUri),
@@ -184,4 +184,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     _isInactive = value;
     _isInactiveController.add(value);
   }
+
+  bool _isValidPaymentUri() => launchUri?.path.isNotEmpty ?? false;
 }

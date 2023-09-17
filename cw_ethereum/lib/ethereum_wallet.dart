@@ -31,6 +31,7 @@ import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
@@ -291,6 +292,7 @@ abstract class EthereumWalletBase
         ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
         exponent: transactionModel.tokenDecimal ?? 18,
         tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
+        to: transactionModel.to,
       );
     }
 
@@ -515,4 +517,8 @@ abstract class EthereumWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  String signMessage(String message, {String? address = null}) =>
+      bytesToHex(_ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 }

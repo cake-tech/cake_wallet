@@ -693,5 +693,10 @@
   "enter_wallet_password": "Ingrese la contraseña de la billetera",
   "repeat_wallet_password": "Repita la contraseña de billetera",
   "wallet_password_is_empty": "La contraseña de billetera está vacía. La contraseña de la billetera no debe estar vacía",
-  "repeated_password_is_incorrect": "La contraseña repetida es incorrecta. Repita la contraseña de la billetera nuevamente."
+  "repeated_password_is_incorrect": "La contraseña repetida es incorrecta. Repita la contraseña de la billetera nuevamente.",
+  "select_buy_provider_notice": "Seleccione un proveedor de compra arriba. Puede omitir esta pantalla configurando su proveedor de compra predeterminado en la configuración de la aplicación.",
+  "onramper_option_description": "Compre rápidamente cripto con muchos métodos de pago. Disponible en la mayoría de los países. Los diferenciales y las tarifas varían.",
+  "default_buy_provider": "Proveedor de compra predeterminado",
+  "ask_each_time": "Pregunta cada vez",
+  "buy_provider_unavailable": "Proveedor actualmente no disponible."
 }

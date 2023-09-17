@@ -693,5 +693,10 @@
   "enter_wallet_password": "Immettere la password del portafoglio",
   "repeat_wallet_password": "Ripeti la password del portafoglio",
   "wallet_password_is_empty": "La password del portafoglio è vuota. La password del portafoglio non dovrebbe essere vuota",
-  "repeated_password_is_incorrect": "La password ripetuta non è corretta. Si prega di ripetere di nuovo la password del portafoglio."
+  "repeated_password_is_incorrect": "La password ripetuta non è corretta. Si prega di ripetere di nuovo la password del portafoglio.",
+  "select_buy_provider_notice": "Seleziona un fornitore di acquisto sopra. È possibile saltare questa schermata impostando il provider di acquisto predefinito nelle impostazioni dell'app.",
+  "onramper_option_description": "Acquista rapidamente la criptovaluta con molti metodi di pagamento. Disponibile nella maggior parte dei paesi. Gli spread e le commissioni variano.",
+  "default_buy_provider": "Provider di acquisto predefinito",
+  "ask_each_time": "Chiedi ogni volta",
+  "buy_provider_unavailable": "Provider attualmente non disponibile."
 }

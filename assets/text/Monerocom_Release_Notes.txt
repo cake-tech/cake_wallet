@@ -1,5 +1,3 @@
-Ability to Auto generate new Monero subaddress when used
-Coin Control for Monero
-In-app Live Chat support
-Additional themes
-Bug Fixes and performance enhancements
+Enhance Monero coin control
+Add Filipino localization
+Bug Fixes

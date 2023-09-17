@@ -682,12 +682,17 @@
   "support_title_other_links": "روابط دعم أخرى",
   "support_description_other_links": "انضم إلى مجتمعاتنا أو تصل إلينا شركائنا من خلال أساليب أخرى",
   "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
-  "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
   "auto_generate_subaddresses": "تلقائي توليد subddresses",
+  "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
   "invalid_password": "رمز مرور خاطئ",
   "unlock": "الغاء القفل",
   "enter_wallet_password": "أدخل كلمة مرور المحفظة",
   "repeat_wallet_password": "كرر كلمة مرور المحفظة",
   "wallet_password_is_empty": "كلمة مرور المحفظة فارغة. يجب ألا تكون كلمة مرور المحفظة فارغة",
-  "repeated_password_is_incorrect": "كلمة المرور المتكررة غير صحيحة. يرجى تكرار كلمة مرور المحفظة مرة أخرى."
+  "repeated_password_is_incorrect": "كلمة المرور المتكررة غير صحيحة. يرجى تكرار كلمة مرور المحفظة مرة أخرى.",
+  "select_buy_provider_notice": "حدد مزود شراء أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود شراء الافتراضي في إعدادات التطبيق.",
+  "onramper_option_description": "شراء بسرعة التشفير مع العديد من طرق الدفع. متوفر في معظم البلدان. ينتشر وتختلف الرسوم.",
+  "default_buy_provider": "مزود شراء الافتراضي",
+  "ask_each_time": "اسأل في كل مرة",
+  "buy_provider_unavailable": "مزود حاليا غير متوفر."
 }

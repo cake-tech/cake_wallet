@@ -693,5 +693,10 @@
   "enter_wallet_password": "Entrez le mot de passe du portefeuille",
   "repeat_wallet_password": "Répétez le mot de passe du portefeuille",
   "wallet_password_is_empty": "Le mot de passe du portefeuille est vide. Le mot de passe du portefeuille ne doit pas être vide",
-  "repeated_password_is_incorrect": "Le mot de passe répété est incorrect. Veuillez répéter le mot de passe du portefeuille."
+  "repeated_password_is_incorrect": "Le mot de passe répété est incorrect. Veuillez répéter le mot de passe du portefeuille.",
+  "select_buy_provider_notice": "Sélectionnez un fournisseur d'achat ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'achat par défaut dans les paramètres de l'application.",
+  "onramper_option_description": "Achetez rapidement la crypto avec de nombreux méthodes de paiement. Disponible dans la plupart des pays. Les écarts et les frais varient.",
+  "default_buy_provider": "Fournisseur d'achat par défaut",
+  "ask_each_time": "Demandez à chaque fois",
+  "buy_provider_unavailable": "Fournisseur actuellement indisponible."
 }

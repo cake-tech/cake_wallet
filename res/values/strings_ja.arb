@@ -686,12 +686,17 @@
   "support_title_other_links": "その他のサポートリンク",
   "support_description_other_links": "私たちのコミュニティに参加するか、他の方法を通して私たちのパートナーに連絡してください",
   "select_destination": "バックアップファイルの保存先を選択してください。",
-  "save_to_downloads": "ダウンロードに保存",
   "auto_generate_subaddresses": "Autoはサブアドレスを生成します",
+  "save_to_downloads": "ダウンロードに保存",
   "invalid_password": "無効なパスワード",
   "unlock": "ロックを解除します",
   "enter_wallet_password": "ウォレットパスワードを入力します",
   "repeat_wallet_password": "ウォレットパスワードを繰り返します",
   "wallet_password_is_empty": "ウォレットパスワードは空です。ウォレットのパスワードは空にしてはいけません",
-  "repeated_password_is_incorrect": "繰り返しパスワードが正しくありません。ウォレットのパスワードをもう一度繰り返してください。"
+  "repeated_password_is_incorrect": "繰り返しパスワードが正しくありません。ウォレットのパスワードをもう一度繰り返してください。",
+  "select_buy_provider_notice": "上記の購入プロバイダーを選択してください。デフォルトの購入プロバイダーをアプリ設定で設定して、この画面をスキップできます。",
+  "onramper_option_description": "多くの支払い方法で暗号をすばやく購入してください。ほとんどの国で利用可能です。スプレッドと料金は異なります。",
+  "default_buy_provider": "デフォルトの購入プロバイダー",
+  "ask_each_time": "毎回尋ねてください",
+  "buy_provider_unavailable": "現在、プロバイダーは利用できません。"
 }

@@ -693,5 +693,10 @@
   "enter_wallet_password": "Wprowadź hasło portfela",
   "repeat_wallet_password": "Powtórz hasło portfela",
   "wallet_password_is_empty": "Hasło portfela jest puste. Hasło portfela nie powinno być puste",
-  "repeated_password_is_incorrect": "Powtarzane hasło jest nieprawidłowe. Powtórz ponownie hasło portfela."
+  "repeated_password_is_incorrect": "Powtarzane hasło jest nieprawidłowe. Powtórz ponownie hasło portfela.",
+  "select_buy_provider_notice": "Wybierz powyższe dostawcę zakupu. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę zakupu w ustawieniach aplikacji.",
+  "onramper_option_description": "Szybko kup kryptowaluty z wieloma metodami płatności. Dostępne w większości krajów. Spready i opłaty różnią się.",
+  "default_buy_provider": "Domyślny dostawca zakupu",
+  "ask_each_time": "Zapytaj za każdym razem",
+  "buy_provider_unavailable": "Dostawca obecnie niedostępny."
 }
