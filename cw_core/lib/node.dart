@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
@@ -116,17 +117,17 @@ class Node extends HiveObject with Keyable {
 
   dynamic _keyIndex;
 
-  Future<bool> requestNode() async {
+  Future<bool> requestNode({BuildContext? context}) async {
     try {
       switch (type) {
         case WalletType.monero:
-          return useSocksProxy ? requestNodeWithProxy(socksProxyAddress ?? '') : requestMoneroNode();
+          return useSocksProxy ? requestNodeWithProxy(socksProxyAddress ?? '') : requestMoneroNode(context: context);
         case WalletType.bitcoin:
           return requestElectrumServer();
         case WalletType.litecoin:
           return requestElectrumServer();
         case WalletType.haven:
-          return requestMoneroNode();
+          return requestMoneroNode(context: context);
         case WalletType.ethereum:
           return requestElectrumServer();
         default:
@@ -137,7 +138,7 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestMoneroNode() async {
+  Future<bool> requestMoneroNode({BuildContext? context}) async {
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
@@ -168,7 +169,31 @@ class Node extends HiveObject with Keyable {
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
-    } catch (_) {
+    } catch (e) {
+      if (context == null) {
+        return false;
+      }
+      final errorMessage = "Error occurred while requesting Monero node.";
+      final errorUrl = rpcUri.toString();
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('$errorMessage\nURL: $errorUrl\nOriginal Error: $e'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
       return false;
     }
   }
