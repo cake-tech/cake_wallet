@@ -156,10 +156,6 @@ class Web3WalletServiceImpl implements Web3WalletService {
 
   void _onPairingCreate(PairingEvent? args) {
     log('Pairing Create Event: $args');
-    _bottomSheetHandler.queueBottomSheet(
-      isModalDismissible: true,
-      widget: ErrorWidgetDisplay(errorText: 'Pairing Create Event: $args'),
-    );
   }
 
   void _onSessionConnect(SessionConnect? args) {
