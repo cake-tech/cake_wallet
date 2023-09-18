@@ -1,6 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:developer';
+import 'package:cake_wallet/src/screens/wallet_connect/models/wc_eth_transaction_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -44,7 +44,7 @@ abstract class WalletConnectServiceBase with Store {
 
   bool _isInitiated = false;
   bool get isInitiated => _isInitiated;
-  
+
   bool _isForeground = true;
 
   WalletConnectServiceBase(
@@ -242,38 +242,36 @@ abstract class WalletConnectServiceBase with Store {
   Future<void> eSignTransactionEvent(SessionRequest request) async {
     log('Received an ethSignTransaction event\n Request: ${request.toString()}');
     try {
-      final object = request.params.first as Map;
-      final gasLimit =
-          object['gasLimit'] != null ? BigInt.tryParse(object['gasLimit'] as String) : null;
-      final gasPrice = object['gasPrice'] != null
-          ? EtherAmount.fromBigInt(
-              EtherUnit.wei, (BigInt.tryParse(object['gasPrice'] as String) ?? BigInt.zero))
-          : null;
-      final value = object['value'] != null
-          ? EtherAmount.fromBigInt(
-              EtherUnit.wei, (BigInt.tryParse(object['value'] as String) ?? BigInt.zero))
-          : null;
-      final from =
-          object['from'] != null ? EthereumAddress.fromHex(object['from'] as String) : null;
-      final to = object['to'] != null ? EthereumAddress.fromHex(object['to'] as String) : null;
-      final data = object['data'] != null ? hexToBytes(object['data'] as String) : null;
-      final tx = Transaction(
-        from: from,
-        data: data,
-        value: value,
-        maxGas: gasLimit?.toInt(),
-        to: to,
-        gasPrice: gasPrice,
-      );
+      final object = request.params.first as Map<String, dynamic>;
+
+      final ethTransaction = WCEthereumTransaction.fromJson(object);
+
       final client =
           Web3Client('https://mainnet.infura.io/v3/51716d2096df4e73bec298680a51f0c5', Client());
 
-      final signature = await client.signTransaction(EthPrivateKey.fromHex(_privateKey ?? ''), tx);
+      Credentials cred = EthPrivateKey.fromHex(_privateKey ?? '');
+
+      final transaction = Transaction(
+        from: EthereumAddress.fromHex(ethTransaction.from),
+        to: EthereumAddress.fromHex(ethTransaction.to ?? ""),
+        maxGas:
+            ethTransaction.gasLimit != null ? int.tryParse(ethTransaction.gasLimit ?? "") : null,
+        gasPrice: ethTransaction.gasPrice != null
+            ? EtherAmount.inWei(BigInt.parse(ethTransaction.gasPrice ?? ""))
+            : null,
+        value: EtherAmount.inWei(BigInt.parse(ethTransaction.value ?? '0')),
+        data: hexToBytes(ethTransaction.data ?? ""),
+        nonce: ethTransaction.nonce != null ? int.tryParse(ethTransaction.nonce ?? "") : null,
+      );
+
+      final result = await client.sendTransaction(cred, transaction);
+
+      log('Result: $result');
 
       await _walletConnectV2Plugin.approveRequest(
         topic: _dappTopic ?? '',
         requestId: request.id,
-        result: bytesToHex(signature, include0x: true),
+        result: result,
       );
     } catch (e) {
       log('Sign error: ${e.toString()}');
