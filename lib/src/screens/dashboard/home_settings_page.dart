@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.da
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -55,7 +56,8 @@ class HomeSettingsPage extends BasePage {
                   padding: const EdgeInsetsDirectional.only(start: 16),
                   child: TextFormField(
                     controller: _searchController,
-                    style: TextStyle(color: Theme.of(context).dialogTheme.backgroundColor),
+                    style: TextStyle(
+                        color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
                     decoration: InputDecoration(
                       hintText: S.of(context).search_add_token,
                       prefixIcon: Image.asset("assets/images/search_icon.png"),

@@ -32,6 +32,14 @@ class ExceptionHandler {
     const String separator = '''\n\n==========================================================
       ==========================================================\n\n''';
 
+    /// don't save existing errors
+    if (file.existsSync()) {
+      final String fileContent = await file.readAsString();
+      if (fileContent.contains("${exception.values.first}")) {
+        return;
+      }
+    }
+
     file.writeAsStringSync(
       "$exception $separator",
       mode: FileMode.append,
@@ -82,6 +90,10 @@ class ExceptionHandler {
       errorDetails.stack,
       library: errorDetails.library,
     );
+
+    if (errorDetails.silent) {
+      return;
+    }
 
     final sharedPrefs = await SharedPreferences.getInstance();
 

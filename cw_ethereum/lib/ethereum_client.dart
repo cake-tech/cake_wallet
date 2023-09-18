@@ -93,6 +93,7 @@ class EthereumClient {
           EthereumAddress.fromHex(toAddress),
           BigInt.parse(amount),
           credentials: privateKey,
+          transaction: transaction,
         );
       };
     }
@@ -107,7 +108,7 @@ class EthereumClient {
   }
 
   Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(signedTransaction);
+      await _client!.sendRawTransaction(prependTransactionType(0x02, signedTransaction));
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available

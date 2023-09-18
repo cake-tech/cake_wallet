@@ -34,14 +34,12 @@ class ManageNodesPage extends BasePage {
           SizedBox(height: 20),
           Observer(
             builder: (BuildContext context) {
-              int nodesLength = nodeListViewModel.nodes.length;
+              int itemsCount = nodeListViewModel.nodes.length;
               return Flexible(
                 child: SectionStandardList(
                   sectionCount: 1,
                   dividerPadding: EdgeInsets.symmetric(horizontal: 24),
-                  itemCounter: (int sectionIndex) {
-                    return nodesLength;
-                  },
+                  itemCounter: (int sectionIndex) => itemsCount,
                   itemBuilder: (_, index) {
                     return Observer(
                       builder: (context) {
