@@ -5,10 +5,10 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -26,19 +26,15 @@ class WalletKeysPage extends BasePage {
   @override
   Widget trailing(BuildContext context) => IconButton(
       onPressed: () async {
-        // Get the current brightness:
-        final double brightness = await DeviceDisplayBrightness.getBrightness();
         final url = await walletKeysViewModel.url;
 
-        // ignore: unawaited_futures
-        DeviceDisplayBrightness.setBrightness(1.0);
-        await Navigator.pushNamed(
-          context,
-          Routes.fullscreenQR,
-          arguments: QrViewData(data: url.toString(), version: QrVersions.auto),
-        );
-        // ignore: unawaited_futures
-        DeviceDisplayBrightness.setBrightness(brightness);
+        BrightnessUtil.changeBrightnessForFunction(() async {
+          await Navigator.pushNamed(
+            context,
+            Routes.fullscreenQR,
+            arguments: QrViewData(data: url.toString(), version: QrVersions.auto),
+          );
+        });
       },
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
