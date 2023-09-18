@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_displapy_widget.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
@@ -185,6 +186,12 @@ class EvmChainServiceImpl implements ChainService {
       return '0x$signature';
     } catch (e) {
       log(e.toString());
+      bottomSheetService.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(
+          errorText: 'Failed: Error while getting credentials ${e.toString()}',
+        ),
+      );
       return 'Failed: Error while getting credentials';
     }
   }
@@ -219,8 +226,11 @@ class EvmChainServiceImpl implements ChainService {
 
       return '0x$signature';
     } catch (e) {
-      log('error:');
-      log(e.toString());
+      log('error: ${e.toString()}');
+      bottomSheetService.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(errorText: 'Error: ${e.toString()}'),
+      );
       return 'Failed';
     }
   }
@@ -245,21 +255,15 @@ class EvmChainServiceImpl implements ChainService {
         WCEthereumTransactionModel.fromJson(parameters[0] as Map<String, dynamic>);
 
     String hexValue = "0x00";
-    String gasLimit = "0x00";
     String data = "0x";
     if ((parameters[0] as Map).containsKey("value")) {
       hexValue = ethTransaction.value;
     }
-    if ((parameters[0] as Map).containsKey("gas")) {
-      gasLimit = ethTransaction.gas ?? '';
-    }
     if ((parameters[0] as Map).containsKey("data")) {
       data = ethTransaction.data ?? "";
     }
-    hexValue = hexValue.replaceAll("0x", "");
-    gasLimit = gasLimit.replaceAll("0x", "");
+
     BigInt? value = BigInt.tryParse(hexValue, radix: 16);
-    BigInt gasValue = BigInt.parse(gasLimit, radix: 16);
 
     // Construct a transaction from the EthereumTransactionModel object
     final transaction = Transaction(
@@ -270,20 +274,19 @@ class EvmChainServiceImpl implements ChainService {
     );
 
     try {
-      // Uint8List sig = await ethClient.signTransaction(credentials, transaction);
-
       final result = await ethClient.sendTransaction(credentials, transaction);
-      log('Result: $result');
-      // if (transaction.isEIP1559) {
-      //   sig = prependTransactionType(0x02, sig);
-      // }
-      // Sign the transaction
-      // final String signedTx = hex.encode(sig);
 
-      // Return the signed transaction as a hexadecimal string
+      log('Result: $result');
+
       return result;
     } catch (e) {
       log('An error has occured while signing transaction: ${e.toString()}');
+      bottomSheetService.queueBottomSheet(
+        isModalDismissible: true,
+        widget: ErrorWidgetDisplay(
+          errorText: 'An error has occured while signing transaction: ${e.toString()}',
+        ),
+      );
       return 'Failed';
     }
   }

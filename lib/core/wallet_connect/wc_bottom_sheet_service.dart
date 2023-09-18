@@ -9,6 +9,7 @@ abstract class BottomSheetService {
 
   Future<dynamic> queueBottomSheet({
     required Widget widget,
+    bool isModalDismissible = false,
   });
 
   void showNext();
@@ -23,12 +24,14 @@ class BottomSheetServiceImpl implements BottomSheetService {
   @override
   Future<dynamic> queueBottomSheet({
     required Widget widget,
+    bool isModalDismissible = false,
   }) async {
     // Create the bottom sheet queue item
     final completer = Completer<dynamic>();
     final queueItem = BottomSheetQueueItemModel(
       widget: widget,
       completer: completer,
+      isModalDismissible: isModalDismissible,
     );
 
     // If the current sheet it null, set it to the queue item

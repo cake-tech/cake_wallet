@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/models/auth_request_model
 import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/session_request_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_displapy_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
@@ -147,10 +148,18 @@ class Web3WalletServiceImpl implements Web3WalletService {
 
   void _onPairingInvalid(PairingInvalidEvent? args) {
     log('Pairing Invalid Event: $args');
+    _bottomSheetHandler.queueBottomSheet(
+      isModalDismissible: true,
+      widget: ErrorWidgetDisplay(errorText: 'Pairing Invalid Event: $args'),
+    );
   }
 
   void _onPairingCreate(PairingEvent? args) {
     log('Pairing Create Event: $args');
+    _bottomSheetHandler.queueBottomSheet(
+      isModalDismissible: true,
+      widget: ErrorWidgetDisplay(errorText: 'Pairing Create Event: $args'),
+    );
   }
 
   void _onSessionConnect(SessionConnect? args) {
@@ -210,10 +219,9 @@ class Web3WalletServiceImpl implements Web3WalletService {
 
   @override
   Future<void> disconnectSession(String topic) async {
-    await _web3Wallet!.core.pairing.disconnect(topic: topic);
-
     final session = sessions.value.firstWhere((element) => element.pairingTopic == topic);
 
+    await _web3Wallet!.core.pairing.disconnect(topic: topic);
     await _web3Wallet!.disconnectSession(
         topic: session.topic, reason: Errors.getSdkError(Errors.USER_DISCONNECTED));
   }
