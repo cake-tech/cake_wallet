@@ -23,6 +23,7 @@ abstract class Web3WalletService implements Disposable {
   void create();
   Future<void> init();
   Web3Wallet getWeb3Wallet();
+  Future<void> disconnectSession(String topic);
 }
 
 class Web3WalletServiceImpl implements Web3WalletService {
@@ -205,5 +206,15 @@ class Web3WalletServiceImpl implements Web3WalletService {
         );
       }
     }
+  }
+
+  @override
+  Future<void> disconnectSession(String topic) async {
+    await _web3Wallet!.core.pairing.disconnect(topic: topic);
+
+    final session = sessions.value.firstWhere((element) => element.pairingTopic == topic);
+
+    await _web3Wallet!.disconnectSession(
+        topic: session.topic, reason: Errors.getSdkError(Errors.USER_DISCONNECTED));
   }
 }

@@ -270,16 +270,18 @@ class EvmChainServiceImpl implements ChainService {
     );
 
     try {
-      Uint8List sig = await ethClient.signTransaction(credentials, transaction);
+      // Uint8List sig = await ethClient.signTransaction(credentials, transaction);
 
-      if (transaction.isEIP1559) {
-        sig = prependTransactionType(0x02, sig);
-      }
+      final result = await ethClient.sendTransaction(credentials, transaction);
+      log('Result: $result');
+      // if (transaction.isEIP1559) {
+      //   sig = prependTransactionType(0x02, sig);
+      // }
       // Sign the transaction
-      final String signedTx = hex.encode(sig);
+      // final String signedTx = hex.encode(sig);
 
       // Return the signed transaction as a hexadecimal string
-      return '0x$signedTx';
+      return result;
     } catch (e) {
       log('An error has occured while signing transaction: ${e.toString()}');
       return 'Failed';
