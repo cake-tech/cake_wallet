@@ -161,6 +161,7 @@ Future<void> defaultSettingsMigration(
           break;
         case 22:
           await addNanoNodeList(nodes: nodes);
+          await addNanoPowNodeList(nodes: nodes);
           await changeNanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await changeNanoCurrentPowNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: powNodes);
@@ -515,7 +516,7 @@ Future<void> checkCurrentNodes(
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentNanoPowNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
+      powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -628,6 +629,15 @@ Future<void> changeEthereumCurrentNodeToDefault(
 
 Future<void> addNanoNodeList({required Box<Node> nodes}) async {
   final nodeList = await loadDefaultNanoNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> addNanoPowNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultNanoPowNodes();
   for (var node in nodeList) {
     if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
       await nodes.add(node);
