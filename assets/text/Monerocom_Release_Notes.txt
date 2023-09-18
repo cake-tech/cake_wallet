@@ -1,2 +1,3 @@
-Bug fixes
-Fiat Onramp improvements
+Enhance Monero coin control
+Add Filipino localization
+Bug Fixes

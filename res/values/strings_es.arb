@@ -687,5 +687,10 @@
   "support_title_other_links": "Otros enlaces de soporte",
   "support_description_other_links": "Únase a nuestras comunidades o comuníquese con nosotros nuestros socios a través de otros métodos",
   "select_destination": "Seleccione el destino del archivo de copia de seguridad.",
-  "save_to_downloads": "Guardar en Descargas"
+  "save_to_downloads": "Guardar en Descargas",
+  "select_buy_provider_notice": "Seleccione un proveedor de compra arriba. Puede omitir esta pantalla configurando su proveedor de compra predeterminado en la configuración de la aplicación.",
+  "onramper_option_description": "Compre rápidamente cripto con muchos métodos de pago. Disponible en la mayoría de los países. Los diferenciales y las tarifas varían.",
+  "default_buy_provider": "Proveedor de compra predeterminado",
+  "ask_each_time": "Pregunta cada vez",
+  "buy_provider_unavailable": "Proveedor actualmente no disponible."
 }

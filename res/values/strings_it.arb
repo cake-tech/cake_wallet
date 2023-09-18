@@ -687,5 +687,10 @@
   "support_title_other_links": "Altri collegamenti di supporto",
   "support_description_other_links": "Unisciti alle nostre comunità o raggiungici i nostri partner attraverso altri metodi",
   "select_destination": "Seleziona la destinazione per il file di backup.",
-  "save_to_downloads": "Salva in Download"
+  "save_to_downloads": "Salva in Download",
+  "select_buy_provider_notice": "Seleziona un fornitore di acquisto sopra. È possibile saltare questa schermata impostando il provider di acquisto predefinito nelle impostazioni dell'app.",
+  "onramper_option_description": "Acquista rapidamente la criptovaluta con molti metodi di pagamento. Disponibile nella maggior parte dei paesi. Gli spread e le commissioni variano.",
+  "default_buy_provider": "Provider di acquisto predefinito",
+  "ask_each_time": "Chiedi ogni volta",
+  "buy_provider_unavailable": "Provider attualmente non disponibile."
 }

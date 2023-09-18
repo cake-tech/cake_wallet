@@ -687,5 +687,10 @@
   "support_title_other_links": "Ostale veze za podršku",
   "support_description_other_links": "Pridružite se našim zajednicama ili nam dosegnu naše partnere drugim metodama",
   "select_destination": "Odaberite odredište za datoteku sigurnosne kopije.",
-  "save_to_downloads": "Spremi u Preuzimanja"
+  "save_to_downloads": "Spremi u Preuzimanja",
+  "select_buy_provider_notice": "Odaberite gornji davatelj kupnje. Ovaj zaslon možete preskočiti postavljanjem zadanog davatelja usluga kupnje u postavkama aplikacija.",
+  "onramper_option_description": "Brzo kupite kriptovalute s mnogim načinima plaćanja. Dostupno u većini zemalja. Širenja i naknade variraju.",
+  "default_buy_provider": "Zadani davatelj kupnje",
+  "ask_each_time": "Pitajte svaki put",
+  "buy_provider_unavailable": "Davatelj trenutno nije dostupan."
 }

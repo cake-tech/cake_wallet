@@ -679,5 +679,10 @@
   "support_title_other_links": "Další odkazy na podporu",
   "support_description_other_links": "Připojte se k našim komunitám nebo se k nám oslovte další metody",
   "select_destination": "Vyberte cíl pro záložní soubor.",
-  "save_to_downloads": "Uložit do Stažených souborů"
+  "save_to_downloads": "Uložit do Stažených souborů",
+  "select_buy_provider_notice": "Vyberte výše uvedeného poskytovatele nákupu. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele nákupu v nastavení aplikace.",
+  "onramper_option_description": "Rychle si koupte krypto s mnoha metodami plateb. K dispozici ve většině zemí. Rozpětí a poplatky se liší.",
+  "default_buy_provider": "Výchozí poskytovatel nákupu",
+  "ask_each_time": "Zeptejte se pokaždé",
+  "buy_provider_unavailable": "Poskytovatel aktuálně nedostupný."
 }

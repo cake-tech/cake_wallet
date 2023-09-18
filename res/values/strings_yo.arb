@@ -680,6 +680,11 @@
   "matrix_green_dark_theme": "Matrix Green Dark Akori",
   "monero_light_theme": "Monero Light Akori",
   "select_destination": "Jọwọ yan ibi ti o nlo fun faili afẹyinti.",
+  "auto_generate_subaddresses": "Aṣiṣe Ibi-Afọwọkọ",
   "save_to_downloads": "Fipamọ si Awọn igbasilẹ",
-  "auto_generate_subaddresses": "Aṣiṣe Ibi-Afọwọkọ"
+  "select_buy_provider_notice": "Yan olupese Ra loke. O le skii iboju yii nipa ṣiṣeto olupese rẹ ni awọn eto App.",
+  "onramper_option_description": "Ni kiakia Ra Crypto pẹlu ọpọlọpọ awọn ọna isanwo. Wa ni ọpọlọpọ awọn orilẹ-ede. Itankale ati awọn idiyele yatọ.",
+  "default_buy_provider": "Aiyipada Ra Olupese",
+  "ask_each_time": "Beere lọwọ kọọkan",
+  "buy_provider_unavailable": "Olupese lọwọlọwọ ko si."
 }
