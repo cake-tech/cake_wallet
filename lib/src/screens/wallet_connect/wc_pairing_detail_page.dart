@@ -180,7 +180,7 @@ class WCCDetailsWidget extends BasePage {
     );
     if (confirmed) {
       try {
-        await web3walletService.getWeb3Wallet().core.pairing.disconnect(topic: pairing.topic);
+        await web3walletService.disconnectSession(pairing.topic);
 
         Navigator.of(context).pop();
       } catch (e) {
