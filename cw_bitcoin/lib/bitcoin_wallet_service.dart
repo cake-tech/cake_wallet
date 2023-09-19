@@ -150,18 +150,24 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
       for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
         try {
+          DerivationInfo dInfoCopy = DerivationInfo(
+            derivationType: dInfo.derivationType,
+            derivationPath: dInfo.derivationPath,
+            description: dInfo.description,
+            script_type: dInfo.script_type,
+          );
           var node = bip32.BIP32.fromSeed(seedBytes);
 
-          String derivationPath = dInfo.derivationPath!;
+          String derivationPath = dInfoCopy.derivationPath!;
           int derivationDepth = countOccurrences(derivationPath, "/");
           if (derivationDepth == 3) {
             derivationPath += "/0/0";
-            dInfo.derivationPath = dInfo.derivationPath! + "/0";
+            dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
           }
           node = node.derivePath(derivationPath);
 
           String? address;
-          switch (dInfo.script_type) {
+          switch (dInfoCopy.script_type) {
             case "p2wpkh":
               address = bitcoin
                   .P2WPKH(
