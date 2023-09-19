@@ -85,6 +85,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
+      return '[0-9a-zA-Z]';
       case CryptoCurrency.bch:
         return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q[0-9a-zA-Z]{42}\$|^bitcoincash:q[0-9a-zA-Z]{41}\$|^bitcoincash:q[0-9a-zA-Z]{42}\$';
       case CryptoCurrency.bnb:
@@ -170,6 +171,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.steth:
       case CryptoCurrency.shib:
       case CryptoCurrency.avaxc:
+        return [42];
       case CryptoCurrency.bch:
         return [42, 43, 44, 54, 55];
       case CryptoCurrency.bnb:
