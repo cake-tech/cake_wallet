@@ -460,6 +460,7 @@ Future<void> setup({
         balancePage: getIt.get<BalancePage>(),
         dashboardViewModel: getIt.get<DashboardViewModel>(),
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+        bottomSheetService: getIt.get<BottomSheetService>(),
       ));
 
   getIt.registerFactory<DesktopSidebarWrapper>(() {
