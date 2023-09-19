@@ -6,6 +6,7 @@ import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_ethereum/ethereum_transaction_model.dart';
 import 'package:cw_ethereum/pending_ethereum_transaction.dart';
+import 'package:ens_dart/ens_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
@@ -207,6 +208,21 @@ I/flutter ( 4474): Gas Used: 53000
     } catch (e) {
       print(e);
       return [];
+    }
+  }
+
+  Future<String?> checkEnsName(String ensName) async {
+    if (_client == null) {
+      return null;
+    }
+    try {
+      final ens = Ens(client: _client!);
+
+      final addr = await ens.withName(ensName).getAddress();
+      return addr.hex;
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 
