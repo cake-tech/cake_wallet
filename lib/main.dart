@@ -114,7 +114,7 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(OrderAdapter());
   }
 
-  if (!isMoneroOnly && !CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+  if (!CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
     CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
   }
 

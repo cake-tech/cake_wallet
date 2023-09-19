@@ -210,7 +210,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     if (inputs.isEmpty) {
-      throw MoneroTransactionNoInputsException();
+      throw MoneroTransactionNoInputsException(0);
     }
 
     if (hasMultiDestination) {
@@ -222,8 +222,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final int totalAmount = outputs.fold(0, (acc, value) =>
           acc + (value.formattedCryptoAmount ?? 0));
 
+      final estimatedFee = calculateEstimatedFee(_credentials.priority, totalAmount);
       if (unlockedBalance < totalAmount) {
         throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
+      }
+
+      if (allInputsAmount < totalAmount + estimatedFee) {
+        throw MoneroTransactionNoInputsException(inputs.length);
       }
 
       final moneroOutputs = outputs.map((output) {
@@ -260,6 +265,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
         throw MoneroTransactionCreationException(
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      }
+
+      final estimatedFee = calculateEstimatedFee(_credentials.priority, formattedAmount);
+      if ((formattedAmount != null && allInputsAmount < (formattedAmount + estimatedFee)) ||
+          (formattedAmount == null && allInputsAmount != unlockedBalance)) {
+        throw MoneroTransactionNoInputsException(inputs.length);
       }
 
       pendingTransactionDescription = await transaction_history.createTransaction(
@@ -482,7 +493,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactions(null).fold<Map<String, MoneroTransactionInfo>>(
+    return _getAllTransactionsOfAccount(walletAddresses.account?.id).fold<Map<String, MoneroTransactionInfo>>(
         <String, MoneroTransactionInfo>{},
         (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
@@ -497,6 +508,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
 
       _isTransactionUpdating = true;
+      transactionHistory.clear();
       final transactions = await fetchTransactions();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
@@ -511,10 +523,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
   }
 
-  List<MoneroTransactionInfo> _getAllTransactions(dynamic _) =>
+  List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
       transaction_history
-          .getAllTransations()
+          .getAllTransactions()
           .map((row) => MoneroTransactionInfo.fromRow(row))
+          .where((element) => element.accountIndex == (accountIndex ?? 0))
           .toList();
 
   void _setListeners() {
