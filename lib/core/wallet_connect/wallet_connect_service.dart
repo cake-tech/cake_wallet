@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:cake_wallet/src/screens/wallet_connect/models/wc_eth_transaction_model.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottomsheet_message_diaplay_widget.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
@@ -135,7 +136,8 @@ abstract class WalletConnectServiceBase with Store {
       await _walletConnectV2Plugin.rejectSession(proposalId: proposal.id);
       await _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(errorText: 'Please choose Ethereum networks only to do test!'),
+        widget: BottomSheetMessageDisplayWidget(
+            errorText: 'Please choose Ethereum networks only to do test!'),
       );
       return;
     }
@@ -186,7 +188,8 @@ abstract class WalletConnectServiceBase with Store {
         log('Approve session error: ${e.toString()}');
         _bottomSheetHandler.queueBottomSheet(
           isModalDismissible: true,
-          widget: ErrorWidgetDisplay(errorText: 'Approve session error: ${e.toString()}'),
+          widget:
+              BottomSheetMessageDisplayWidget(errorText: 'Approve session error: ${e.toString()}'),
         );
       }
     } else {
@@ -196,7 +199,8 @@ abstract class WalletConnectServiceBase with Store {
         log('Reject session error: ${e.toString()}');
         _bottomSheetHandler.queueBottomSheet(
           isModalDismissible: true,
-          widget: ErrorWidgetDisplay(errorText: 'Reject session error: ${e.toString()}'),
+          widget:
+              BottomSheetMessageDisplayWidget(errorText: 'Reject session error: ${e.toString()}'),
         );
       }
     }
@@ -216,7 +220,7 @@ abstract class WalletConnectServiceBase with Store {
     log('${response.results is String ? 'Signature' : 'Error'}: ${response.results}');
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
-      widget: ErrorWidgetDisplay(
+      widget: BottomSheetMessageDisplayWidget(
           errorText: '${response.results is String ? 'Signature' : 'Error'}: ${response.results}'),
     );
   }
@@ -233,7 +237,7 @@ abstract class WalletConnectServiceBase with Store {
     log('code: $code | message: $message');
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
-      widget: ErrorWidgetDisplay(errorText: 'code: $code | message: $message'),
+      widget: BottomSheetMessageDisplayWidget(errorText: 'code: $code | message: $message'),
     );
   }
 
@@ -268,16 +272,25 @@ abstract class WalletConnectServiceBase with Store {
 
       log('Result: $result');
 
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(
+          errorText: 'Kindly wait for the dApp to finish processing.',
+          isError: false,
+        ),
+      );
+
       await _walletConnectV2Plugin.approveRequest(
-        topic: _dappTopic ?? '',
+        topic: request.topic,
         requestId: request.id,
         result: result,
       );
+      log('All done for Sign/Send Transaction flow');
     } catch (e) {
       log('Sign error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(errorText: 'Sign error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(errorText: 'Sign error: ${e.toString()}'),
       );
     }
   }
@@ -295,7 +308,7 @@ abstract class WalletConnectServiceBase with Store {
       log('Approve error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(errorText: 'Approve error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(errorText: 'Approve error: ${e.toString()}'),
       );
     }
   }
@@ -317,7 +330,8 @@ abstract class WalletConnectServiceBase with Store {
       log('Approve request error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(errorText: 'Approve request error: ${e.toString()}'),
+        widget:
+            BottomSheetMessageDisplayWidget(errorText: 'Approve request error: ${e.toString()}'),
       );
     }
   }
@@ -328,7 +342,7 @@ abstract class WalletConnectServiceBase with Store {
     _walletConnectV2Plugin.rejectRequest(topic: request.topic, requestId: request.id);
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
-      widget: ErrorWidgetDisplay(errorText: 'Unhandled method ${request.method}'),
+      widget: BottomSheetMessageDisplayWidget(errorText: 'Unhandled method ${request.method}'),
     );
   }
 
@@ -359,16 +373,19 @@ abstract class WalletConnectServiceBase with Store {
       log('Reject request error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(errorText: 'Reject request error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(errorText: 'Reject request error: ${e.toString()}'),
       );
     }
   }
 
   @action
   Future<void> onSessionRequestEvent(SessionRequest request) async {
-    log('Received session request event. \nRequest: ${request.toString()}');
+    log('Received session request event. \nRequest: ${request.method}');
+
+    final message = _decodeMessage(request);
+
     final Widget modalWidget = Web3RequestModal(
-      child: ConnectionRequestWidget(sessionProposal: SessionRequestModel(sessionRequest: request)),
+      child: ConnectionRequestWidget(sessionProposal: SessionRequestModel(message: message)),
     );
 
     // show the bottom sheet
@@ -381,6 +398,56 @@ abstract class WalletConnectServiceBase with Store {
     } else {
       await onSessionRequestRejected(request);
     }
+  }
+
+  String _decodeMessage(SessionRequest request) {
+    final method = request.method;
+    final parameters = request.params;
+    switch (method) {
+      case pSign:
+        final String message;
+        if (parameters[0] == null) {
+          message = '';
+        } else {
+          message = parameters[0].toString().utf8Message;
+        }
+        return message;
+      case eSign:
+        final String message;
+        if (parameters[1] == null) {
+          message = '';
+        } else {
+          message = parameters[1].toString().utf8Message;
+        }
+        return message;
+      case eSignTransaction:
+      case eSendTransaction:
+        final data = parameters[0] as Map<String, dynamic>;
+        final message = _convertToReadable(data);
+        return message;
+      case eSignTypedData:
+      case eSignTypedDataV4:
+        final String? message = parameters[1] as String?;
+        return message ?? '';
+      default:
+        return parameters.toString();
+    }
+  }
+
+  String _convertToReadable(Map<String, dynamic> data) {
+    String gas = int.parse((data['gas'] as String).substring(2), radix: 16).toString();
+    String value = data['value'] != null
+        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() + ' ETH'
+        : '0 ETH';
+    String from = data['from'] as String;
+    String to = data['to'] as String;
+
+    return '''
+Gas: $gas\n
+Value: $value\n
+From: $from\n
+To: $to
+            ''';
   }
 
   @action
@@ -396,7 +463,8 @@ abstract class WalletConnectServiceBase with Store {
       log('Refresh sessions error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(errorText: 'Refresh sessions error: ${e.toString()}'),
+        widget:
+            BottomSheetMessageDisplayWidget(errorText: 'Refresh sessions error: ${e.toString()}'),
       );
     }
   }

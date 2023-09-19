@@ -55,7 +55,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
         },
       );
       item.completer.complete(value);
-      widget.bottomSheetService.showNext();
+      widget.bottomSheetService.resetCurrentSheet();
     }
   }
 

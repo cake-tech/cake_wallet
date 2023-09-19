@@ -30,19 +30,24 @@ class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.sessionProposal?.sessionRequest != null) {
-      final request = widget.sessionProposal?.sessionRequest;
-      final params = request!.params[0] as Map<String, dynamic>;
+    if (widget.sessionProposal?.message != null) {
       return Column(
         children: [
-          const Text('Session Request'),
-          const SizedBox(height: 16),
           Text(
-            params.toString(),
+            'Session Request',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            widget.sessionProposal?.message ?? '',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
             ),
           ),
           const SizedBox(height: 16),
@@ -59,6 +64,8 @@ class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
       sessionProposal: widget.sessionProposal,
     );
   }
+
+
 }
 
 class _ConnectionMetadataDisplayWidget extends StatelessWidget {
