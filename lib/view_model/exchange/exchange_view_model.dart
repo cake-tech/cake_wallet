@@ -264,8 +264,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get hasAllAmount =>
-      (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
-      depositCurrency == wallet.currency;
+      (wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.litecoin ||
+          wallet.type == WalletType.bitcoinCash) &&
+          depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
@@ -608,7 +610,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void calculateDepositAllAmount() {
-    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
+    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash) {
       final availableBalance = wallet.balance[wallet.currency]!.available;
       final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);
@@ -777,6 +779,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.litecoin:
         _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
+        break;
+      case WalletType.bitcoinCash:
+        _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
         break;
       default:
         break;
