@@ -194,11 +194,11 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
-          dInfo.balance = balance.entries.first.value.toString();
-          dInfo.address = address;
-          dInfo.height = history.length;
+          dInfoCopy.balance = balance.entries.first.value.toString();
+          dInfoCopy.address = address;
+          dInfoCopy.height = history.length;
 
-          list.add(dInfo);
+          list.add(dInfoCopy);
         } catch (e) {
           print(e);
         }
