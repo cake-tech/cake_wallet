@@ -448,7 +448,8 @@ Future<void> setup({
       appStore.wallet!,
       getIt.get<BottomSheetService>(),
     );
-    walletConnectService.createAndInitialize();
+    walletConnectService.createWCInstanceAndSubscribeToEvents();
+    walletConnectService.setUpWalletConnect();
     return walletConnectService;
   });
 
@@ -686,7 +687,6 @@ Future<void> setup({
   getIt.registerFactory(
     () => ConnectionSyncPage(
       getIt.get<DashboardViewModel>(),
-      getIt.get<BottomSheetService>(),
       getIt.get<WalletConnectService>(),
     ),
   );

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
@@ -22,14 +21,12 @@ class Root extends StatefulWidget {
     required this.child,
     required this.navigatorKey,
     required this.authService,
-    required this.bottomSheetService,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
   final AppStore appStore;
   final GlobalKey<NavigatorState> navigatorKey;
   final AuthService authService;
-  final BottomSheetService bottomSheetService;
   final Widget child;
 
   @override
@@ -103,7 +100,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
-
         break;
       case AppLifecycleState.resumed:
         setState(() {

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
@@ -9,7 +8,6 @@ import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +39,6 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/cake_hive.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -266,7 +263,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final authService = getIt.get<AuthService>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
-      final bottomSheetService = getIt.get<BottomSheetService>();
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
           ? Routes.disclaimer
@@ -287,7 +283,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
-          bottomSheetService: bottomSheetService,
           child: MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,

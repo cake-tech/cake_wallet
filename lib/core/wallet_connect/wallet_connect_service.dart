@@ -61,7 +61,7 @@ abstract class WalletConnectServiceBase with Store {
   static const eSendTransaction = 'eth_sendTransaction';
 
   @action
-  Future<void> createAndInitialize() async {
+  Future<void> createWCInstanceAndSubscribeToEvents() async {
     _walletConnectV2Plugin = WalletConnectV2();
 
     _walletMetadata = AppMetadata(
@@ -71,11 +71,11 @@ abstract class WalletConnectServiceBase with Store {
       icons: ['https://cakewallet.com/assets/image/cake_logo.avif'],
     );
 
-    initializeConfigurations();
+    subscribeToWCEvents();
   }
 
   @action
-  void initializeConfigurations() {
+  void subscribeToWCEvents() {
     _walletConnectV2Plugin.onConnectionStatus = onConnectionStatusEvent;
 
     _walletConnectV2Plugin.onSessionProposal = onSessionProposalEvent;
@@ -96,7 +96,7 @@ abstract class WalletConnectServiceBase with Store {
   }
 
   @action
-  Future<void> initWalletConnect() async {
+  Future<void> setUpWalletConnect() async {
     await _initDapp();
     await _initWallet();
     await _walletConnectV2Plugin.init(projectId: projectId, appMetadata: _walletMetadata);
@@ -233,8 +233,17 @@ abstract class WalletConnectServiceBase with Store {
     _refreshSessions();
   }
 
-  void onEventError(code, message) {
+  void onEventError(String code, String message) {
     log('code: $code | message: $message');
+
+    final bool isInternetConnectionError =
+        code == 'init_core_error' && message.contains('please check your Internet connection');
+
+    final bool isAlreadyInitializedError =
+        code == 'init_sign_error' && message.contains('SignClient already initialized');
+
+    if (isInternetConnectionError || isAlreadyInitializedError) return;
+
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
       widget: BottomSheetMessageDisplayWidget(errorText: 'code: $code | message: $message'),
@@ -504,4 +513,26 @@ To: $to
     await _walletConnectV2Plugin.dispose();
     log('Wallet Connect Dispose triggered');
   }
+
+  // @action
+  // void reconnectWhenAppResumes() {
+  //   _isForeground = true;
+  //   debugPrint('---: CONNECT ON APP RESUME');
+  //   debugPrint('iForeground: $_isForeground');
+
+  //   if (_isInitiated) {
+  //     _walletConnectV2Plugin.connect();
+  //   }
+  // }
+
+  // @action
+  // void disconnectOnAppPause() {
+  //   _isForeground = false;
+  //   debugPrint('---: DISCONNECT ON APP PAUSE');
+  //   debugPrint('iForeground: $_isForeground');
+
+  //   if (_isInitiated) {
+  //     _walletConnectV2Plugin.disconnect();
+  //   }
+  // }
 }

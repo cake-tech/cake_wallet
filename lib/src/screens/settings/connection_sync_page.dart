@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_service.dart';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
@@ -23,7 +22,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class ConnectionSyncPage extends BasePage {
   ConnectionSyncPage(
     this.dashboardViewModel,
-    this.bottomSheetService,
     this.walletConnectService,
   );
 
@@ -31,7 +29,6 @@ class ConnectionSyncPage extends BasePage {
   String get title => S.current.connection_sync;
 
   final DashboardViewModel dashboardViewModel;
-  final BottomSheetService bottomSheetService;
   final WalletConnectService walletConnectService;
 
   @override
@@ -86,7 +83,6 @@ class ConnectionSyncPage extends BasePage {
                   MaterialPageRoute(
                     builder: (context) {
                       return WalletConnectConnectionsView(
-                        bottomSheetService: bottomSheetService,
                         walletConnectService: walletConnectService,
                       );
                     },
@@ -123,7 +119,7 @@ class ConnectionSyncPage extends BasePage {
   Future<void> initializeWalletConnect() async {
     print('About to initialize WalletConnect');
     if (walletConnectService.isInitiated) return;
-    await walletConnectService.initWalletConnect();
+    // await walletConnectService.setUpWalletConnect();
     log('All WC Dependencies done');
   }
 }
