@@ -684,5 +684,6 @@
   "onramper_option_description": "Rychle si koupte krypto s mnoha metodami plateb. K dispozici ve většině zemí. Rozpětí a poplatky se liší.",
   "default_buy_provider": "Výchozí poskytovatel nákupu",
   "ask_each_time": "Zeptejte se pokaždé",
-  "buy_provider_unavailable": "Poskytovatel aktuálně nedostupný."
+  "buy_provider_unavailable": "Poskytovatel aktuálně nedostupný.",
+  "totp_auth_url": "URL AUTH TOTP"
 }

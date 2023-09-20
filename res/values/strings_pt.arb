@@ -691,5 +691,6 @@
   "onramper_option_description": "Compre rapidamente criptografia com muitos métodos de pagamento. Disponível na maioria dos países. Os spreads e taxas variam.",
   "default_buy_provider": "Provedor de compra padrão",
   "ask_each_time": "Pergunte cada vez",
-  "buy_provider_unavailable": "Provedor atualmente indisponível."
+  "buy_provider_unavailable": "Provedor atualmente indisponível.",
+  "totp_auth_url": "URL de autenticação TOTP"
 }
