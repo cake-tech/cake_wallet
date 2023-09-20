@@ -96,7 +96,9 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   void _setBase32SecretKey(String value) {
-    _settingsStore.totpSecretKey = value;
+    if (_settingsStore.totpSecretKey == '') {
+      _settingsStore.totpSecretKey = value;
+    }
   }
 
   @action
@@ -156,7 +158,6 @@ abstract class Setup2FAViewModelBase with Store {
     } else {
       final value = _settingsStore.numberOfFailedTokenTrials + 1;
       adjustTokenTrialNumber(value);
-      print(value);
       if (_failureCounter >= maxFailedTrials) {
         final banDuration = await ban();
         state = AuthenticationBanned(
