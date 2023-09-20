@@ -80,7 +80,7 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -89,7 +89,7 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -99,7 +99,7 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
             ),
             textAlign: TextAlign.center,
           ),

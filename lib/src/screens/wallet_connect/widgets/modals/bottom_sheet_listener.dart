@@ -9,8 +9,8 @@ class BottomSheetListener extends StatefulWidget {
 
   const BottomSheetListener({
     required this.child,
-    super.key,
     required this.bottomSheetService,
+    super.key,
   });
 
   @override
@@ -22,8 +22,6 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
   @override
   void initState() {
     super.initState();
-
-
     widget.bottomSheetService.currentSheet.addListener(_showBottomSheet);
   }
 
@@ -55,7 +53,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
         },
       );
       item.completer.complete(value);
-      widget.bottomSheetService.showNext();
+      widget.bottomSheetService.resetCurrentSheet();
     }
   }
 
