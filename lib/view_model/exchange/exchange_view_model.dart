@@ -34,10 +34,6 @@ import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_trade_request.dart';
-import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
-import 'package:cake_wallet/exchange/morphtoken/morphtoken_request.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -501,18 +497,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
-        if (provider is XMRTOExchangeProvider) {
-          request = XMRTOTradeRequest(
-              from: depositCurrency,
-              to: receiveCurrency,
-              amount: depositAmount.replaceAll(',', '.'),
-              receiveAmount: receiveAmount.replaceAll(',', '.'),
-              address: receiveAddress,
-              refundAddress: depositAddress,
-              isBTCRequest: isReceiveAmountEntered);
-          amount = isFixedRateMode ? receiveAmount : depositAmount;
-        }
-
         if (provider is ChangeNowExchangeProvider) {
           request = ChangeNowRequest(
               from: depositCurrency,
@@ -522,16 +506,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               refundAddress: depositAddress,
               address: receiveAddress,
               isReverse: isFixedRateMode);
-          amount = isFixedRateMode ? receiveAmount : depositAmount;
-        }
-
-        if (provider is MorphTokenExchangeProvider) {
-          request = MorphTokenRequest(
-              from: depositCurrency,
-              to: receiveCurrency,
-              amount: depositAmount.replaceAll(',', '.'),
-              refundAddress: depositAddress,
-              address: receiveAddress);
           amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 

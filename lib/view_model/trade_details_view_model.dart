@@ -2,12 +2,10 @@ import 'dart:async';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -36,14 +34,8 @@ abstract class TradeDetailsViewModelBase with Store {
         trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
             tradeForDetails {
     switch (trade.provider) {
-      case ExchangeProviderDescription.xmrto:
-        _provider = XMRTOExchangeProvider();
-        break;
       case ExchangeProviderDescription.changeNow:
         _provider = ChangeNowExchangeProvider(settingsStore: settingsStore);
-        break;
-      case ExchangeProviderDescription.morphToken:
-        _provider = MorphTokenExchangeProvider(trades: trades);
         break;
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();

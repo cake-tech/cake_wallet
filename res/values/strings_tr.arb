@@ -339,7 +339,6 @@
   "template": "Şablon",
   "confirm_delete_template": "Bu eylem, bu şablonu silecek. Devam etmek istiyor musun?",
   "confirm_delete_wallet": "Bu eylem, bu cüzdanı silecek. Devam etmek istiyor musun?",
-  "picker_description": "ChangeNOW veya MorphToken'ı seçmek için lütfen önce işlem paritenizi değiştirin",
   "change_wallet_alert_title": "Şimdiki cüzdanı değiştir",
   "change_wallet_alert_content": "Şimdiki cüzdanı ${wallet_name} cüzdanı ile değiştirmek istediğinden emin misin?",
   "creating_new_wallet": "Cüzdan oluşturuluyor",

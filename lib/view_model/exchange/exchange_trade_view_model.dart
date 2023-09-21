@@ -7,9 +7,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:hive/hive.dart';
@@ -34,15 +32,9 @@ abstract class ExchangeTradeViewModelBase with Store {
                 tradesStore.trade!.from.tag == CryptoCurrency.eth.title),
         items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
-      case ExchangeProviderDescription.xmrto:
-        _provider = XMRTOExchangeProvider();
-        break;
       case ExchangeProviderDescription.changeNow:
         _provider =
             ChangeNowExchangeProvider(settingsStore: sendViewModel.balanceViewModel.settingsStore);
-        break;
-      case ExchangeProviderDescription.morphToken:
-        _provider = MorphTokenExchangeProvider(trades: trades);
         break;
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();

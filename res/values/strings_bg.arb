@@ -339,7 +339,6 @@
   "template": "Шаблон",
   "confirm_delete_template": "Този шаблон ще бъде изтрит. Искате ли да продължите?",
   "confirm_delete_wallet": "Този портфейл ще бъде изтрит. Искате ли да продължите?",
-  "picker_description": "За да изберете ChangeNOW или MorphToken, моля, първо променете своя trading pair",
   "change_wallet_alert_title": "Смяна на сегашния портфейл",
   "change_wallet_alert_content": "Искате ли да смените сегашния портфейл на ${wallet_name}?",
   "creating_new_wallet": "Създаване на нов портфейл",

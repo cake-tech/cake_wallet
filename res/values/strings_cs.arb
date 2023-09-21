@@ -339,7 +339,6 @@
   "template": "Šablona",
   "confirm_delete_template": "Tato akce smaže tuto šablonu. Přejete si pokračovat?",
   "confirm_delete_wallet": "Tato akce smaže tuto peněženku. Přejete si pokračovat?",
-  "picker_description": "Pro volbu ChangeNOW, nebo MorphToken si prosím vyberte nejprve pár pro obchodování",
   "change_wallet_alert_title": "Přepnout peněženku",
   "change_wallet_alert_content": "Opravdu chcete změnit aktivní peněženku na ${wallet_name}?",
   "creating_new_wallet": "Vytvářím novou peněženku",
