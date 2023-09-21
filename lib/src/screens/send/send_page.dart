@@ -99,15 +99,6 @@ class SendPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
-  double _sendCardHeight(BuildContext context) {
-    final double initialHeight = sendViewModel.hasCoinControl ? 500 : 465;
-
-    if (!ResponsiveLayoutUtil.instance.isMobile) {
-      return initialHeight - 66;
-    }
-    return initialHeight;
-  }
-
   @override
   void onClose(BuildContext context) {
     sendViewModel.onClose();
@@ -170,26 +161,11 @@ class SendPage extends BasePage {
               policy: OrderedTraversalPolicy(),
               child: Column(
                 children: <Widget>[
-                  Container(
-                      height: _sendCardHeight(context),
-                      child: Observer(
-                        builder: (_) {
-                          return PageView.builder(
-                              scrollDirection: Axis.horizontal,
-                              controller: controller,
-                              itemCount: sendViewModel.outputs.length,
-                              itemBuilder: (context, index) {
-                                final output = sendViewModel.outputs[index];
-
-                                return SendCard(
-                                  key: output.key,
-                                  output: output,
-                                  sendViewModel: sendViewModel,
-                                  initialPaymentRequest: initialPaymentRequest,
-                                );
-                              });
-                        },
-                      )),
+                  DynamicHeightPageView(
+                    sendViewModel: sendViewModel,
+                    initialPaymentRequest: initialPaymentRequest,
+                    controller: controller,
+                  ),
                   Padding(
                     padding: EdgeInsets.only(
                         top: 10, left: 24, right: 24, bottom: 10),
@@ -542,5 +518,55 @@ class SendPage extends BasePage {
                   sendViewModel.selectedCryptoCurrency = cur,
             ),
         context: context);
+  }
+}
+
+class DynamicHeightPageView extends StatefulWidget {
+  DynamicHeightPageView({
+    Key? key,
+    required this.sendViewModel,
+    this.initialPaymentRequest,
+    this.controller,
+  }) : super(key: key);
+
+  final SendViewModel sendViewModel;
+  final PaymentRequest? initialPaymentRequest;
+  final PageController? controller;
+
+  @override
+  _DynamicHeightPageViewState createState() => _DynamicHeightPageViewState();
+}
+
+class _DynamicHeightPageViewState extends State<DynamicHeightPageView> {
+  final heightNotifier = ValueNotifier<double>(1000.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<double>(
+      valueListenable: heightNotifier,
+      builder: (context, height, child) {
+        return Container(
+            height: heightNotifier.value,
+            child: Observer(
+              builder: (_) {
+                return PageView.builder(
+                    scrollDirection: Axis.horizontal,
+                    controller: widget.controller,
+                    itemCount: widget.sendViewModel.outputs.length,
+                    itemBuilder: (context, index) {
+                      final output = widget.sendViewModel.outputs[index];
+
+                      return SendCard(
+                        key: output.key,
+                        output: output,
+                        sendViewModel: widget.sendViewModel,
+                        initialPaymentRequest: widget.initialPaymentRequest,
+                        heightNotifier: heightNotifier,
+                      );
+                    });
+              },
+            ));
+      },
+    );
   }
 }

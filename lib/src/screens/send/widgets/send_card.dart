@@ -29,11 +29,13 @@ class SendCard extends StatefulWidget {
     required this.output,
     required this.sendViewModel,
     this.initialPaymentRequest,
+    required this.heightNotifier,
   }) : super(key: key);
 
   final Output output;
   final SendViewModel sendViewModel;
   final PaymentRequest? initialPaymentRequest;
+  final ValueNotifier<double> heightNotifier;
 
   @override
   SendCardState createState() => SendCardState(
@@ -60,6 +62,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final Output output;
   final SendViewModel sendViewModel;
   final PaymentRequest? initialPaymentRequest;
+  final GlobalKey _containerKey = GlobalKey();
 
   final TextEditingController addressController;
   final TextEditingController cryptoAmountController;
@@ -71,6 +74,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final FocusNode addressFocusNode;
 
   bool _effectsInstalled = false;
+  double? _containerHeight;
 
   @override
   void initState() {
@@ -91,6 +95,15 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             });
       });
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
+        _containerHeight = renderBox.size.height;
+        widget.heightNotifier.value = _containerHeight!;
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -122,6 +135,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           ),
         ),
         Container(
+          key: _containerKey,
           decoration: ResponsiveLayoutUtil.instance.isMobile
               ? BoxDecoration(
                   borderRadius: BorderRadius.only(
