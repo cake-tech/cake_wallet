@@ -211,9 +211,9 @@ I/flutter ( 4474): Gas Used: 53000
     }
   }
 
-  Future<String?> checkEnsName(String ensName) async {
+  Future<String> checkEnsName(String ensName) async {
     if (_client == null) {
-      return null;
+      return "";
     }
     try {
       final ens = Ens(client: _client!);
@@ -222,7 +222,7 @@ I/flutter ( 4474): Gas Used: 53000
       return addr.hex;
     } catch (e) {
       print(e);
-      return null;
+      return "";
     }
   }
 

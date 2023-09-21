@@ -508,4 +508,8 @@ abstract class EthereumWalletBase
   @override
   String signMessage(String message, {String? address = null}) =>
       bytesToHex(_ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
+
+  Future<String> fetchEnsAddress(String name) async {
+    return await _client.checkEnsName(name);
+  }
 }

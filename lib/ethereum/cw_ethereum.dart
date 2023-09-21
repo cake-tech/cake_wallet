@@ -131,4 +131,9 @@ class CWEthereum extends Ethereum {
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
     (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
   }
+
+  @override
+  Future<String> fetchEnsAddress(WalletBase wallet, String name) async {
+    return (wallet as EthereumWallet).fetchEnsAddress(name);
+  }
 }

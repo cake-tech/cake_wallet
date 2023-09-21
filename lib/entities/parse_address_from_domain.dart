@@ -1,13 +1,17 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
+import 'package:cw_ethereum/ethereum_wallet.dart';
 
 class AddressResolver {
   AddressResolver({required this.yatService, required this.walletType});
@@ -102,6 +106,15 @@ class AddressResolver {
           final record = await OpenaliasRecord.fetchAddressAndName(
               formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
           return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+        }
+      }
+      if (text.contains(".")) {
+        var wallet = getIt.get<AppStore>().wallet!;
+        if (wallet.type == WalletType.ethereum) {
+          final address = await ethereum!.fetchEnsAddress(wallet, text);
+          if (address.isNotEmpty) {
+            return ParsedAddress.fetchEnsAddress(name: text, address: address);
+          }
         }
       }
     } catch (e) {

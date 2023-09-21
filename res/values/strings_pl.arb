@@ -692,5 +692,6 @@
   "onramper_option_description": "Szybko kup kryptowaluty z wieloma metodami płatności. Dostępne w większości krajów. Spready i opłaty różnią się.",
   "default_buy_provider": "Domyślny dostawca zakupu",
   "ask_each_time": "Zapytaj za każdym razem",
-  "buy_provider_unavailable": "Dostawca obecnie niedostępny."
+  "buy_provider_unavailable": "Dostawca obecnie niedostępny.",
+  "address_from_ens": "Ten adres ${domain} pochodzi z end"
 }
