@@ -11,7 +11,6 @@ import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
-import 'package:cw_ethereum/ethereum_wallet.dart';
 
 class AddressResolver {
   AddressResolver({required this.yatService, required this.walletType});
