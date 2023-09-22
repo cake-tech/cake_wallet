@@ -686,6 +686,5 @@
   "onramper_option_description": "Ni kiakia Ra Crypto pẹlu ọpọlọpọ awọn ọna isanwo. Wa ni ọpọlọpọ awọn orilẹ-ede. Itankale ati awọn idiyele yatọ.",
   "default_buy_provider": "Aiyipada Ra Olupese",
   "ask_each_time": "Beere lọwọ kọọkan",
-  "buy_provider_unavailable": "Olupese lọwọlọwọ ko si.",
-  "address_from_ens": "Adirẹsi yii ti ${domain} wa ni ens"
+  "buy_provider_unavailable": "Olupese lọwọlọwọ ko si."
 }

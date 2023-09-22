@@ -690,6 +690,5 @@
   "onramper_option_description": "Birçok ödeme yöntemi ile hızlı bir şekilde kripto satın alın. Çoğu ülkede mevcuttur. Forma ve ücretler değişir.",
   "default_buy_provider": "Varsayılan Satın Alma Sağlayıcısı",
   "ask_each_time": "Her seferinde sor",
-  "buy_provider_unavailable": "Sağlayıcı şu anda kullanılamıyor.",
-  "address_from_ens": "Bu adres ${domain} ON ENS'ten"
+  "buy_provider_unavailable": "Sağlayıcı şu anda kullanılamıyor."
 }

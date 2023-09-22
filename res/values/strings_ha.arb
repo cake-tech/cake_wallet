@@ -670,6 +670,5 @@
   "onramper_option_description": "Da sauri sayi Crypto tare da hanyoyin biyan kuɗi da yawa. Akwai a yawancin ƙasashe. Yaduwa da kudade sun bambanta.",
   "default_buy_provider": "Tsohuwar Siyarwa",
   "ask_each_time": "Tambaya kowane lokaci",
-  "buy_provider_unavailable": "Mai ba da kyauta a halin yanzu babu.",
-  "address_from_ens": "Wannan adireshin ${domain} yana fitowa ne"
+  "buy_provider_unavailable": "Mai ba da kyauta a halin yanzu babu."
 }

@@ -693,6 +693,5 @@
   "default_buy_provider": "Default Buy Provider",
   "ask_each_time": "Ask each time",
   "robinhood_option_description": "Buy and transfer instantly using your debit card, bank account, or Robinhood balance. USA only.",
-  "buy_provider_unavailable": "Provider currently unavailable.",
-  "address_from_ens": "This address is from ${domain} on ENS"
+  "buy_provider_unavailable": "Provider currently unavailable."
 }

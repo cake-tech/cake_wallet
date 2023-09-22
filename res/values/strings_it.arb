@@ -692,6 +692,5 @@
   "onramper_option_description": "Acquista rapidamente la criptovaluta con molti metodi di pagamento. Disponibile nella maggior parte dei paesi. Gli spread e le commissioni variano.",
   "default_buy_provider": "Provider di acquisto predefinito",
   "ask_each_time": "Chiedi ogni volta",
-  "buy_provider_unavailable": "Provider attualmente non disponibile.",
-  "address_from_ens": "Questo indirizzo ${domain} è da On ENS"
+  "buy_provider_unavailable": "Provider attualmente non disponibile."
 }
