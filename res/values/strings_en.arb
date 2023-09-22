@@ -687,5 +687,11 @@
   "support_title_other_links": "Other support links",
   "support_description_other_links": "Join our communities or reach us our our partners through other methods",
   "select_destination": "Please select destination for the backup file.",
-  "save_to_downloads": "Save to Downloads"
+  "save_to_downloads": "Save to Downloads",
+  "select_buy_provider_notice": "Select a buy provider above. You can skip this screen by setting your default buy provider in app settings.",
+  "onramper_option_description": "Quickly buy crypto with many payment methods. Available in most countries. Spreads and fees vary.",
+  "default_buy_provider": "Default Buy Provider",
+  "ask_each_time": "Ask each time",
+  "robinhood_option_description": "Buy and transfer instantly using your debit card, bank account, or Robinhood balance. USA only.",
+  "buy_provider_unavailable": "Provider currently unavailable."
 }

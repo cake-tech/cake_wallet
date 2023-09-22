@@ -50,7 +50,7 @@ class Routes {
   static const supportLiveChat = '/support/live_chat';
   static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
-  static const preOrder = '/pre_order';
+  static const buy = '/buy';
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';

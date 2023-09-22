@@ -13,6 +13,7 @@ class PreferencesKey {
   static const isAppSecureKey = 'is_app_secure';
   static const disableBuyKey = 'disable_buy';
   static const disableSellKey = 'disable_sell';
+  static const defaultBuyProvider = 'default_buy_provider';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';

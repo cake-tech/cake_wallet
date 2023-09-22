@@ -1,2 +1,5 @@
-Bug fixes
-Fiat Onramp improvements
+New Buy Provider Robinhood
+Fix sending Ethereum issue
+Enhance Monero coin control
+Add Filipino localization
+Bug Fixes

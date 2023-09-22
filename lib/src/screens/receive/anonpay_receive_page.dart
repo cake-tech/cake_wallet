@@ -9,10 +9,10 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_status_section.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/copy_link_item.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
-import 'package:screen_brightness/screen_brightness.dart';
-import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class AnonPayReceivePage extends BasePage {
@@ -82,8 +82,7 @@ class AnonPayReceivePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget body(BuildContext context) {
@@ -101,17 +100,13 @@ class AnonPayReceivePage extends BasePage {
               ),
               child: GestureDetector(
                 onTap: () async {
-                  final double brightness = await ScreenBrightness().current;
-
-                  // ignore: unawaited_futures
-                  await ScreenBrightness().setScreenBrightness(1.0);
-                  await Navigator.pushNamed(context, Routes.fullscreenQR,
-                      arguments: QrViewData(
-                        data: invoiceInfo.clearnetUrl,
-                        version: qr.QrVersions.auto,
-                      ));
-                  // ignore: unawaited_futures
-                  await ScreenBrightness().setScreenBrightness(brightness);
+                  BrightnessUtil.changeBrightnessForFunction(() async {
+                    await Navigator.pushNamed(context, Routes.fullscreenQR,
+                        arguments: QrViewData(
+                          data: invoiceInfo.clearnetUrl,
+                          version: qr.QrVersions.auto,
+                        ));
+                  });
                 },
                 child: Hero(
                   tag: Key(invoiceInfo.clearnetUrl),

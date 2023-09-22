@@ -687,5 +687,10 @@
   "support_title_other_links": "Inne linki wsparcia",
   "support_description_other_links": "Dołącz do naszych społeczności lub skontaktuj się z nami naszymi partnerami za pomocą innych metod",
   "select_destination": "Wybierz miejsce docelowe dla pliku kopii zapasowej.",
-  "save_to_downloads": "Zapisz w Pobranych"
+  "save_to_downloads": "Zapisz w Pobranych",
+  "select_buy_provider_notice": "Wybierz powyższe dostawcę zakupu. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę zakupu w ustawieniach aplikacji.",
+  "onramper_option_description": "Szybko kup kryptowaluty z wieloma metodami płatności. Dostępne w większości krajów. Spready i opłaty różnią się.",
+  "default_buy_provider": "Domyślny dostawca zakupu",
+  "ask_each_time": "Zapytaj za każdym razem",
+  "buy_provider_unavailable": "Dostawca obecnie niedostępny."
 }
