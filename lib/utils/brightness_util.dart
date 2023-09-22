@@ -1,5 +1,5 @@
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 
 class BrightnessUtil {
   static Future<void> changeBrightnessForFunction(Future<void> Function() func) async {
@@ -10,14 +10,14 @@ class BrightnessUtil {
     }
 
     // Get the current brightness:
-    final brightness = await DeviceDisplayBrightness.getBrightness();
+    final double brightness = await ScreenBrightness().current;
 
     // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(1.0);
+    await ScreenBrightness().setScreenBrightness(1.0);
 
     await func();
 
     // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(brightness);
+    await ScreenBrightness().setScreenBrightness(brightness);
   }
 }
