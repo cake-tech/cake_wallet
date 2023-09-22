@@ -971,6 +971,17 @@ extern "C"
         return result;
     }
 
+    void freeze_coin(int index)
+    {
+        m_coins.setFrozen(index);
+        refresh_coins();
+    }
+
+    void thaw_coin(int index)
+    {
+        m_coins.setFrozen(index);
+        refresh_coins();
+    }
 
 #ifdef __cplusplus
 }
