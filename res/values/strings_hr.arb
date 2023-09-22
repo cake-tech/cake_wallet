@@ -692,5 +692,6 @@
   "onramper_option_description": "Brzo kupite kriptovalute s mnogim načinima plaćanja. Dostupno u većini zemalja. Širenja i naknade variraju.",
   "default_buy_provider": "Zadani davatelj kupnje",
   "ask_each_time": "Pitajte svaki put",
-  "buy_provider_unavailable": "Davatelj trenutno nije dostupan."
+  "buy_provider_unavailable": "Davatelj trenutno nije dostupan.",
+  "address_from_ens": "Ova je adresa od ${domain} na ens"
 }

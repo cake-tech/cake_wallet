@@ -687,5 +687,6 @@
   "support_title_other_links": "Iba pang mga link sa suporta",
   "support_description_other_links": "Sumali sa aming mga komunidad o maabot sa amin ang aming mga kasosyo sa pamamagitan ng iba pang mga pamamaraan",
   "select_destination": "Mangyaring piliin ang patutunguhan para sa backup file.",
-  "save_to_downloads": "I -save sa mga pag -download"
+  "save_to_downloads": "I -save sa mga pag -download",
+  "address_from_ens": "Ang address na ito ay mula sa ${domain} sa ens"
 }

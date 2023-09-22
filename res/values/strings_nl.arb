@@ -692,5 +692,6 @@
   "onramper_option_description": "Koop snel crypto met veel betaalmethoden. Beschikbaar in de meeste landen. Spreads en vergoedingen variëren.",
   "default_buy_provider": "Standaard Koopprovider",
   "ask_each_time": "Vraag het elke keer",
-  "buy_provider_unavailable": "Provider momenteel niet beschikbaar."
+  "buy_provider_unavailable": "Provider momenteel niet beschikbaar.",
+  "address_from_ens": "Dit adres is van ${domain} op ENS"
 }

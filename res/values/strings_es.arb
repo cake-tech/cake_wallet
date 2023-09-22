@@ -692,5 +692,6 @@
   "onramper_option_description": "Compre rápidamente cripto con muchos métodos de pago. Disponible en la mayoría de los países. Los diferenciales y las tarifas varían.",
   "default_buy_provider": "Proveedor de compra predeterminado",
   "ask_each_time": "Pregunta cada vez",
-  "buy_provider_unavailable": "Proveedor actualmente no disponible."
+  "buy_provider_unavailable": "Proveedor actualmente no disponible.",
+  "address_from_ens": "Esta dirección es de ${domain} en ENS"
 }
