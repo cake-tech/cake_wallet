@@ -102,12 +102,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
-        _containerHeight = renderBox.size.height;
-        widget.heightNotifier.value = _containerHeight!;
-        setState(() {});
-      }
+      _checkWalletCurrency();
+      _updateGenericHeight(
+        containerKey: _containerKey,
+        dynamicElementKey: _dynamicElementKey,
+      );
     });
   }
 
@@ -165,7 +164,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             child: Observer(
               builder: (_)
               {
-                WidgetsBinding.instance!.addPostFrameCallback((_) => _updateHeight());
+                WidgetsBinding.instance!.addPostFrameCallback((_) => _updateGenericHeight(
+                  containerKey: _containerKey,
+                  dynamicElementKey: _dynamicElementKey,
+                  additionalPadding: parsedAddressTopPadding,
+                ));
                 final validator = output.isParsedAddress
                     ? sendViewModel.textValidator
                     : sendViewModel.addressValidator;
@@ -192,13 +195,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
                           borderColor:
                               Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                          textStyle: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-                          hintStyle: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
+                          textStyle: genericTextStyle(fontWeight: FontWeight.w500),
+                          hintStyle: genericTextStyle(fontWeight: FontWeight.w500,
+                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                           onPushPasteButton: (context) async {
                             output.resetParsedAddress();
                             await output.fetchParsedAddress(context);
@@ -223,8 +222,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               borderColor: Theme.of(context)
                                   .extension<SendPageTheme>()!
                                   .textFieldBorderColor,
-                              textStyle: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+                              textStyle: genericTextStyle(fontWeight: FontWeight.w500),
                               validator: sendViewModel.addressValidator)),
                     Observer(
                       builder: (_) => Padding(
@@ -255,10 +253,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                   ),
                                                   Text(
                                                     sendViewModel.selectedCryptoCurrency.title,
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 16,
-                                                        color: Colors.white),
+                                                    style: genericTextStyle(fontSize: 16),
                                                   ),
                                                 ],
                                               ),
@@ -266,10 +261,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           )
                                         : Text(
                                             sendViewModel.selectedCryptoCurrency.title,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                                color: Colors.white),
+                                            style: genericTextStyle(fontSize: 16),
                                           ),
                                     sendViewModel.selectedCryptoCurrency.tag != null
                                         ? Padding(
@@ -288,9 +280,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                   padding: const EdgeInsets.all(6.0),
                                                   child: Text(
                                                     sendViewModel.selectedCryptoCurrency.tag!,
-                                                    style: TextStyle(
+                                                    style: genericTextStyle(
                                                         fontSize: 12,
-                                                        fontWeight: FontWeight.bold,
                                                         color: Theme.of(context)
                                                             .extension<SendPageTheme>()!
                                                             .textFieldButtonIconColor),
@@ -304,10 +295,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                       padding: const EdgeInsets.only(right: 10.0),
                                       child: Text(
                                         ':',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                            color: Colors.white),
+                                        style: genericTextStyle(fontSize: 16),
                                       ),
                                     ),
                                   ],
@@ -329,16 +317,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                       ),
                                       hintText: '0.0000',
                                       borderColor: Colors.transparent,
-                                      textStyle: TextStyle(
-                                          fontSize: 14,
+                                      textStyle: genericTextStyle(fontWeight: FontWeight.w500),
+                                      placeholderTextStyle: genericTextStyle(
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.white),
-                                      placeholderTextStyle: TextStyle(
                                           color: Theme.of(context)
                                               .extension<SendPageTheme>()!
-                                              .textFieldHintColor,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14),
+                                              .textFieldHintColor),
                                       validator: output.sendAll
                                           ? sendViewModel.allAmountValidator
                                           : sendViewModel.amountValidator,
@@ -365,9 +349,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                 child: Text(
                                                   S.of(context).all,
                                                   textAlign: TextAlign.center,
-                                                  style: TextStyle(
+                                                  style: genericTextStyle(
                                                     fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
                                                     color: Theme.of(context)
                                                         .extension<SendPageTheme>()!
                                                         .textFieldButtonIconColor,
@@ -397,9 +380,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             Expanded(
                               child: Text(
                                 S.of(context).available_balance + ':',
-                                style: TextStyle(
+                                style: genericTextStyle(
                                     fontSize: 12,
-                                    fontWeight: FontWeight.w600,
                                     color: Theme.of(context)
                                         .extension<SendPageTheme>()!
                                         .textFieldHintColor),
@@ -407,9 +389,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             ),
                             Text(
                               sendViewModel.balance,
-                              style: TextStyle(
+                              style: genericTextStyle(
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w600,
                                   color: Theme.of(context)
                                       .extension<SendPageTheme>()!
                                       .textFieldHintColor),
@@ -435,23 +416,16 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             padding: EdgeInsets.only(top: 9),
                             child: Text(
                               sendViewModel.fiat.title + ':',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
+                              style: genericTextStyle(fontSize: 16),
                             ),
                           ),
                           hintText: '0.00',
                           borderColor:
                               Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                          textStyle: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-                          placeholderTextStyle: TextStyle(
+                          textStyle: genericTextStyle(fontWeight: FontWeight.w500),
+                          placeholderTextStyle: genericTextStyle(fontWeight: FontWeight.w500,
                               color:
-                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14),
+                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                         ),
                       ),
                     Padding(
@@ -462,11 +436,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         maxLines: null,
                         borderColor:
                             Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                        textStyle: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+                        textStyle: genericTextStyle(fontWeight: FontWeight.w500),
                         hintText: S.of(context).note_optional,
-                        placeholderTextStyle: TextStyle(
-                            fontSize: 14,
+                        placeholderTextStyle: genericTextStyle(
                             fontWeight: FontWeight.w500,
                             color:
                                 Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
@@ -483,8 +455,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             children: <Widget>[
                               Text(
                                 S.of(context).send_estimated_fee,
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+                                style: genericTextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w500),
                               ),
                               Container(
                                 child: Row(
@@ -498,11 +470,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           output.estimatedFee.toString() +
                                               ' ' +
                                               sendViewModel.selectedCryptoCurrency.toString(),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                          ),
+                                          style: genericTextStyle(fontSize: 12),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(top: 5),
@@ -512,9 +480,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                                   output.estimatedFeeFiatAmount +
                                                       ' ' +
                                                       sendViewModel.fiat.title,
-                                                  style: TextStyle(
+                                                  style: genericTextStyle(
                                                     fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
                                                     color: Theme.of(context)
                                                         .extension<SendPageTheme>()!
                                                         .textFieldHintColor,
@@ -551,10 +518,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               children: [
                                 Text(
                                   S.of(context).coin_control,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white),
+                                  style: genericTextStyle(fontSize: 12),
                                 ),
                                 Icon(
                                   Icons.arrow_forward_ios,
@@ -715,24 +679,57 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     );
   }
 
-  void _updateHeight() {
+  void _checkWalletCurrency() {
+    if (initialPaymentRequest != null &&
+        sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
+      showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: S.of(context).error,
+                alertContent: S.of(context).unmatched_currencies,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    }
+  }
+
+  void _updateGenericHeight({
+    required GlobalKey containerKey,
+    required GlobalKey dynamicElementKey,
+    double additionalPadding = 0.0,
+  }) {
     if (mounted) {
-      final RenderBox containerBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
-      final RenderBox dynamicElementBox = _dynamicElementKey.currentContext!.findRenderObject() as RenderBox;
+      final RenderBox containerBox = containerKey.currentContext!.findRenderObject() as RenderBox;
+      final RenderBox dynamicElementBox = dynamicElementKey.currentContext!.findRenderObject() as RenderBox;
 
-      if (_previousContainerHeight != containerBox.size.height || _previousDynamicElementHeight != dynamicElementBox.size.height) {
-        _previousContainerHeight = containerBox.size.height;
-        _previousDynamicElementHeight = dynamicElementBox.size.height;
+      final newContainerHeight = containerBox.size.height;
+      final newDynamicElementHeight = dynamicElementBox.size.height;
 
-        _containerHeight = containerBox.size.height + dynamicElementBox.size.height + parsedAddressTopPadding;
+      if (_previousContainerHeight != newContainerHeight || _previousDynamicElementHeight != newDynamicElementHeight) {
+        _previousContainerHeight = newContainerHeight;
+        _previousDynamicElementHeight = newDynamicElementHeight;
+
+        _containerHeight = newContainerHeight + newDynamicElementHeight + additionalPadding;
         widget.heightNotifier.value = _containerHeight!;
         setState(() {});
       }
     }
   }
 
-
-
   @override
   bool get wantKeepAlive => true;
+}
+
+
+TextStyle genericTextStyle({
+  double fontSize = 14,
+  FontWeight fontWeight = FontWeight.w600,
+  Color color = Colors.white,
+}) {
+  return TextStyle(
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    color: color,
+  );
 }

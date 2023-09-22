@@ -258,33 +258,8 @@ class SendPage extends BasePage {
                                       }
                                     },
                                     onRemove: () {
-                                      showPopUp<void>(
-                                        context: context,
-                                        builder: (dialogContext) {
-                                          return AlertWithTwoActions(
-                                              alertTitle:
-                                                  S.of(context).template,
-                                              alertContent: S
-                                                  .of(context)
-                                                  .confirm_delete_template,
-                                              rightButtonText:
-                                                  S.of(context).delete,
-                                              leftButtonText:
-                                                  S.of(context).cancel,
-                                              actionRightButton: () {
-                                                Navigator.of(dialogContext)
-                                                    .pop();
-                                                sendViewModel
-                                                    .sendTemplateViewModel
-                                                    .removeTemplate(
-                                                        template: template);
-                                              },
-                                              actionLeftButton: () =>
-                                                  Navigator.of(dialogContext)
-                                                      .pop());
-                                        },
-                                      );
-                                    },
+                                    showDeleteTemplateAlert(context, template, sendViewModel);
+                                  },
                                   );
                                 },
                               ),
@@ -503,6 +478,25 @@ class SendPage extends BasePage {
               buttonText: S.of(context).ok,
               buttonAction: () => Navigator.of(context).pop());
         });
+  }
+
+  void showDeleteTemplateAlert(BuildContext context, Template template, SendViewModel sendViewModel) {
+    showPopUp<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertWithTwoActions(
+          alertTitle: S.of(context).template,
+          alertContent: S.of(context).confirm_delete_template,
+          rightButtonText: S.of(context).delete,
+          leftButtonText: S.of(context).cancel,
+          actionRightButton: () {
+            Navigator.of(dialogContext).pop();
+            sendViewModel.sendTemplateViewModel.removeTemplate(template: template);
+          },
+          actionLeftButton: () => Navigator.of(dialogContext).pop(),
+        );
+      },
+    );
   }
 
   void presentCurrencyPicker(BuildContext context) async {
