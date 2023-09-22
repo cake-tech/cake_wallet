@@ -388,7 +388,7 @@ extern "C"
     FUNCTION_VISABILITY_ATTRIBUTE
     bool load_wallet(char *path, char *password, int32_t nettype)
     {
-        nice(19);
+        (void) nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->openWallet(std::string(path), std::string(password), networkType);
@@ -488,7 +488,7 @@ extern "C"
     FUNCTION_VISABILITY_ATTRIBUTE
     bool connect_to_node(char *error)
     {
-        nice(19);
+        (void) nice(19);
         bool is_connected = get_current_wallet()->connectToDaemon();
 
         if (!is_connected)
@@ -502,7 +502,7 @@ extern "C"
     FUNCTION_VISABILITY_ATTRIBUTE
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *socksProxyAddress, char *error)
     {
-        nice(19);
+        (void) nice(19);
         Monero::Wallet *wallet = get_current_wallet();
 
         std::string _login = "";
@@ -592,7 +592,7 @@ extern "C"
                             char **preferred_inputs, uint32_t preferred_inputs_size,
                             Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
-        nice(19);
+        (void) nice(19);
 
         std::set<std::string> _preferred_inputs;
 
@@ -642,7 +642,7 @@ extern "C"
                                       char **preferred_inputs, uint32_t preferred_inputs_size,
                                       Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
-        nice(19);
+        (void) nice(19);
 
         std::vector<std::string> _addresses;
         std::vector<uint64_t> _amounts;
