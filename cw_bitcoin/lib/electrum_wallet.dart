@@ -740,4 +740,14 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
+
+  @override
+  String signMessage(String message, {String? address = null}) {
+    final index = address != null
+        ? walletAddresses.addresses.firstWhere((element) => element.address == address).index
+        : null;
+    return index == null
+        ? base64Encode(hd.sign(message))
+        : base64Encode(hd.derive(index).sign(message));
+  }
 }

@@ -686,5 +686,10 @@
   "support_title_other_links": "Outros links de suporte",
   "support_description_other_links": "Junte -se às nossas comunidades ou chegue a nós nossos parceiros por meio de outros métodos",
   "select_destination": "Selecione o destino para o arquivo de backup.",
-  "save_to_downloads": "Salvar em Downloads"
+  "save_to_downloads": "Salvar em Downloads",
+  "select_buy_provider_notice": "Selecione um provedor de compra acima. Você pode pular esta tela definindo seu provedor de compra padrão nas configurações de aplicativos.",
+  "onramper_option_description": "Compre rapidamente criptografia com muitos métodos de pagamento. Disponível na maioria dos países. Os spreads e taxas variam.",
+  "default_buy_provider": "Provedor de compra padrão",
+  "ask_each_time": "Pergunte cada vez",
+  "buy_provider_unavailable": "Provedor atualmente indisponível."
 }

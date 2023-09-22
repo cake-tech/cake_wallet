@@ -687,5 +687,10 @@
   "support_title_other_links": "Andere ondersteuningslinks",
   "support_description_other_links": "Word lid van onze gemeenschappen of bereik ons ​​onze partners via andere methoden",
   "select_destination": "Selecteer de bestemming voor het back-upbestand.",
-  "save_to_downloads": "Opslaan in downloads"
+  "save_to_downloads": "Opslaan in downloads",
+  "select_buy_provider_notice": "Selecteer hierboven een koopprovider. U kunt dit scherm overslaan door uw standaard kopenprovider in te stellen in app -instellingen.",
+  "onramper_option_description": "Koop snel crypto met veel betaalmethoden. Beschikbaar in de meeste landen. Spreads en vergoedingen variëren.",
+  "default_buy_provider": "Standaard Koopprovider",
+  "ask_each_time": "Vraag het elke keer",
+  "buy_provider_unavailable": "Provider momenteel niet beschikbaar."
 }

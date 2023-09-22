@@ -33,6 +33,8 @@ class SecretKey {
     SecretKey('payfuraApiKey', () => ''),
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
+    SecretKey('robinhoodApplicationId', () => ''),
+    SecretKey('robinhoodCIdApiSecret', () => ''),
   ];
 
   static final ethereumSecrets = [

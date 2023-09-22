@@ -665,5 +665,10 @@
   "support_title_other_links": "Sauran hanyoyin tallafi",
   "support_description_other_links": "Kasance tare da al'ummominmu ko kuma ka kai mu abokanmu ta hanyar wasu hanyoyi",
   "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
-  "save_to_downloads": "Ajiye zuwa Zazzagewa"
+  "save_to_downloads": "Ajiye zuwa Zazzagewa",
+  "select_buy_provider_notice": "Zaɓi mai ba da kyauta a sama. Zaka iya tsallake wannan allon ta hanyar saita mai ba da isasshen busasshen mai ba da isasshen busasshiyar saiti.",
+  "onramper_option_description": "Da sauri sayi Crypto tare da hanyoyin biyan kuɗi da yawa. Akwai a yawancin ƙasashe. Yaduwa da kudade sun bambanta.",
+  "default_buy_provider": "Tsohuwar Siyarwa",
+  "ask_each_time": "Tambaya kowane lokaci",
+  "buy_provider_unavailable": "Mai ba da kyauta a halin yanzu babu."
 }

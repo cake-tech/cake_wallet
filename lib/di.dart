@@ -3,6 +3,7 @@ import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
+import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
@@ -95,7 +97,6 @@ import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
@@ -688,6 +689,9 @@ Future<void> setup({
           editingNode: editingNode,
           isSelected: isSelected));
 
+  getIt.registerFactory<RobinhoodBuyProvider>(
+      () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
+
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
@@ -816,16 +820,14 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
+  getIt.registerFactory(() => BuyOptionsPage());
+
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
 
     return BuyViewModel(_ordersSource, getIt.get<OrdersStore>(), getIt.get<SettingsStore>(),
         getIt.get<BuyAmountViewModel>(),
         wallet: wallet!);
-  });
-
-  getIt.registerFactory(() {
-    return PreOrderPage(buyViewModel: getIt.get<BuyViewModel>());
   });
 
   getIt.registerFactoryParam<BuyWebViewPage, List, void>((List args, _) {

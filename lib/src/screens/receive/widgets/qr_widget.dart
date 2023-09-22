@@ -3,10 +3,9 @@ import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -64,7 +63,7 @@ class QRWidget extends StatelessWidget {
                     flex: 5,
                     child: GestureDetector(
                       onTap: () {
-                        changeBrightnessForRoute(
+                        BrightnessUtil.changeBrightnessForFunction(
                           () async {
                             await Navigator.pushNamed(context, Routes.fullscreenQR,
                                 arguments: QrViewData(
@@ -177,24 +176,5 @@ class QRWidget extends StatelessWidget {
     );
     // update amount if currency changed
     addressListViewModel.changeAmount(amountController.text);
-  }
-
-  Future<void> changeBrightnessForRoute(Future<void> Function() navigation) async {
-    // if not mobile, just navigate
-    if (!DeviceInfo.instance.isMobile) {
-      navigation();
-      return;
-    }
-
-    // Get the current brightness:
-    final brightness = await DeviceDisplayBrightness.getBrightness();
-
-    // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(1.0);
-
-    await navigation();
-
-    // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(brightness);
   }
 }
