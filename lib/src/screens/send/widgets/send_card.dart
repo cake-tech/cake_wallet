@@ -167,7 +167,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 WidgetsBinding.instance!.addPostFrameCallback((_) => _updateGenericHeight(
                   containerKey: _containerKey,
                   dynamicElementKey: _dynamicElementKey,
-                  additionalPadding: parsedAddressTopPadding,
                 ));
                 final validator = output.isParsedAddress
                     ? sendViewModel.textValidator
@@ -697,7 +696,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   void _updateGenericHeight({
     required GlobalKey containerKey,
     required GlobalKey dynamicElementKey,
-    double additionalPadding = 0.0,
   }) {
     if (mounted) {
       final RenderBox containerBox = containerKey.currentContext!.findRenderObject() as RenderBox;
@@ -710,7 +708,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         _previousContainerHeight = newContainerHeight;
         _previousDynamicElementHeight = newDynamicElementHeight;
 
-        _containerHeight = newContainerHeight + newDynamicElementHeight + additionalPadding;
+        _containerHeight = newContainerHeight + newDynamicElementHeight + parsedAddressTopPadding;
         widget.heightNotifier.value = _containerHeight!;
         setState(() {});
       }
