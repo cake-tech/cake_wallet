@@ -102,7 +102,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                 height: 1,
               )
             : const SizedBox(),
-        itemCount: items == null || items.isEmpty ? 0 : items.length,
+        itemCount: items.isEmpty ? 0 : items.length,
         itemBuilder: (context, index) => buildItem(index),
       ),
     );
@@ -113,7 +113,14 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pop();
+        if (item.isDisabled) {
+          return;
+        }
+
+        bool newValue = !item.value;
+        item.value = newValue;
+        widget.onChanged(index, newValue);
+        setState(() {});
       },
       child: Container(
         height: 55,
@@ -127,7 +134,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
               borderColor: Theme.of(context).dividerColor,
               iconColor: Colors.white,
               onChanged: (bool? value) {
-                if (value == null) {
+                if (value == null || item.isDisabled) {
                   return;
                 }
 
