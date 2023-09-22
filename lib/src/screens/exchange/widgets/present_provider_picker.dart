@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:cake_wallet/store/check_box_picker_store.dart';
 
 class PresentProviderPicker extends StatelessWidget {
   PresentProviderPicker({required this.exchangeViewModel});
