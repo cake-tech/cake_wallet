@@ -691,5 +691,5 @@
   "default_buy_provider": "Default Provider ကိုဝယ်ပါ",
   "ask_each_time": "တစ်ခုချင်းစီကိုအချိန်မေးပါ",
   "buy_provider_unavailable": "လက်ရှိတွင်လက်ရှိမရနိုင်ပါ။",
-  "address_from_ens": "ဒီလိပ်စာက ens အပေါ် {domain} မှဖြစ်ပါတယ်"
+  "address_from_ens": "ဒီလိပ်စာက ens အပေါ် ${domain} မှဖြစ်ပါတယ်"
 }
