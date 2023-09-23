@@ -686,5 +686,7 @@
   "onramper_option_description": "Ni kiakia Ra Crypto pẹlu ọpọlọpọ awọn ọna isanwo. Wa ni ọpọlọpọ awọn orilẹ-ede. Itankale ati awọn idiyele yatọ.",
   "default_buy_provider": "Aiyipada Ra Olupese",
   "ask_each_time": "Beere lọwọ kọọkan",
-  "buy_provider_unavailable": "Olupese lọwọlọwọ ko si."
+  "buy_provider_unavailable": "Olupese lọwọlọwọ ko si.",
+  "havenSupportNotice": "Haven ko ni atilẹyin mọ ni Akara oyinbo, ṣugbọn o le mu awọn irugbin pada ninu apamọwọ miiran",
+  "havenSupportSeedsNotice": "Ni oju-iwe atẹle, iwọ yoo rii awọn irugbin alailẹgbẹ si apamọwọ Haven rẹ. Kọ silẹ ki o si fi pamọ si aaye ailewu. Lẹhinna o le mu awọn irugbin pada ninu apamọwọ miiran."
 }

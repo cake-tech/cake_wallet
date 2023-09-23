@@ -692,5 +692,7 @@
   "onramper_option_description": "Kaufen Sie schnell Krypto mit vielen Zahlungsmethoden. In den meisten Ländern erhältlich. Spreads und Gebühren variieren.",
   "default_buy_provider": "Standard-Kaufanbieter",
   "ask_each_time": "Jedes Mal fragen",
-  "buy_provider_unavailable": "Anbieter derzeit nicht verfügbar."
+  "buy_provider_unavailable": "Anbieter derzeit nicht verfügbar.",
+  "havenSupportNotice": "Haven wird in Cake nicht mehr unterstützt, aber Sie können die Seeds in einer anderen Wallet wiederherstellen",
+  "havenSupportSeedsNotice": "Auf der nächsten Seite sehen Sie die einzigartigen Samen für Ihr Haven Wallet. Schreiben Sie es auf und bewahren Sie es an einem sicheren Ort auf. Anschließend können Sie die Seeds in einem anderen Wallet wiederherstellen."
 }

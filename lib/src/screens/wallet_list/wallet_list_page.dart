@@ -246,8 +246,12 @@ class WalletListBodyState extends State<WalletListBody> {
         return nonWalletTypeIcon;
     }
   }
-
+ 
   Future<void> _loadWallet(WalletListItem wallet) async {
+    final previousListType = widget.walletListViewModel.wallets
+        .where((element) => element.type == widget.walletListViewModel.currentWalletType)
+        .toList()[0];
+
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
@@ -263,7 +267,12 @@ class WalletListBodyState extends State<WalletListBody> {
           // in desktop platforms the navigation tree is different
           if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop();
+              if (wallet.type == WalletType.haven) {
+                _onHavenWalletSelected(previousListType);
+                return;
+              } else {
+                Navigator.of(context).pop();
+              }
             });
           }
         } catch (e) {
@@ -273,6 +282,13 @@ class WalletListBodyState extends State<WalletListBody> {
       conditionToDetermineIfToUse2FA:
           widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
     );
+  }
+
+  Future<void> _onHavenWalletSelected(WalletListItem previousWalletListItem) async {
+    await Navigator.pushNamed(context, Routes.preSeed, arguments: WalletType.haven);
+    await Navigator.pushNamed(context, Routes.seed, arguments: true);
+
+    await widget.walletListViewModel.loadWallet(previousWalletListItem);
   }
 
   void changeProcessText(String text) {

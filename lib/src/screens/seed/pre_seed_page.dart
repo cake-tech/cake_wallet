@@ -12,11 +12,13 @@ class PreSeedPage extends BasePage {
   PreSeedPage(this.type)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        wordsCount = _wordsCount(type);
+        wordsCount = _wordsCount(type),
+        isHavenRemovalFlow = type == WalletType.haven;
 
   final Image imageDark;
   final Image imageLight;
   final WalletType type;
+  final bool isHavenRemovalFlow;
   final int wordsCount;
 
   @override
@@ -30,42 +32,73 @@ class PreSeedPage extends BasePage {
     final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
     return WillPopScope(
-        onWillPop: () async => false,
-        child: Container(
-          alignment: Alignment.center,
-          padding: EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.3
+      onWillPop: () async => false,
+      child: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
+                child: AspectRatio(aspectRatio: 1, child: image),
+              ),
+              Visibility(
+                visible: isHavenRemovalFlow,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    children: [
+                      Text(
+                        S.current.havenSupportNotice,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Lato',
+                          color: titleColor(context),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        S.current.havenSupportSeedsNotice,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                        ),
+                      ),
+                    ],
                   ),
-                  child: AspectRatio(aspectRatio: 1, child: image),
                 ),
-                Padding(
+                replacement: Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
                     S.of(context).pre_seed_description(wordsCount.toString()),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                    ),
                   ),
                 ),
-                PrimaryButton(
-                    onPressed: () =>
-                        Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true),
-                    text: S.of(context).pre_seed_button_text,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white)
-              ],
-            ),
+              ),
+              PrimaryButton(
+                onPressed: () =>
+                    Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true),
+                text: S.of(context).pre_seed_button_text,
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+              )
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   static int _wordsCount(WalletType type) {

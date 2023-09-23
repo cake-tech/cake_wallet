@@ -691,5 +691,7 @@
   "onramper_option_description": "Compre rapidamente criptografia com muitos métodos de pagamento. Disponível na maioria dos países. Os spreads e taxas variam.",
   "default_buy_provider": "Provedor de compra padrão",
   "ask_each_time": "Pergunte cada vez",
-  "buy_provider_unavailable": "Provedor atualmente indisponível."
+  "buy_provider_unavailable": "Provedor atualmente indisponível.",
+  "havenSupportNotice": "Haven não é mais suportado no Cake, mas você pode restaurar as sementes em outra carteira",
+  "havenSupportSeedsNotice": "Na próxima página, você verá as sementes exclusivas da sua Carteira Haven. Anote e guarde em local seguro. Você pode então restaurar as sementes em outra carteira."
 }

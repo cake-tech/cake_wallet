@@ -693,5 +693,7 @@
   "default_buy_provider": "Default Buy Provider",
   "ask_each_time": "Ask each time",
   "robinhood_option_description": "Buy and transfer instantly using your debit card, bank account, or Robinhood balance. USA only.",
-  "buy_provider_unavailable": "Provider currently unavailable."
+  "buy_provider_unavailable": "Provider currently unavailable.",
+  "havenSupportNotice": "Haven is no longer supported in Cake, but you can restore the seeds in another wallet",
+  "havenSupportSeedsNotice": "On the next page, you will see the unique seeds to your Haven Wallet. Write it down and store it in a safe place. You can then restore the seeds in another wallet."
 }

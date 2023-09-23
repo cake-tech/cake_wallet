@@ -633,9 +633,9 @@ Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitc
     outputContent += '\tWalletType.litecoin,\n';
   }
 
-  if (hasHaven) {
-    outputContent += '\tWalletType.haven,\n';
-  }
+  // if (hasHaven) {
+  //   outputContent += '\tWalletType.haven,\n';
+  // }
 
   outputContent += '];\n';
   await walletTypesFile.writeAsString(outputContent);
