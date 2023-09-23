@@ -692,5 +692,6 @@
   "onramper_option_description": "Kaufen Sie schnell Krypto mit vielen Zahlungsmethoden. In den meisten Ländern erhältlich. Spreads und Gebühren variieren.",
   "default_buy_provider": "Standard-Kaufanbieter",
   "ask_each_time": "Jedes Mal fragen",
-  "buy_provider_unavailable": "Anbieter derzeit nicht verfügbar."
+  "buy_provider_unavailable": "Anbieter derzeit nicht verfügbar.",
+  "totp_auth_url": "TOTP-Auth-URL"
 }

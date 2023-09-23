@@ -680,5 +680,6 @@
   "onramper_option_description": "Beli crypto dengan cepat dengan banyak metode pembayaran. Tersedia di sebagian besar negara. Spread dan biaya bervariasi.",
   "default_buy_provider": "Penyedia beli default",
   "ask_each_time": "Tanyakan setiap kali",
-  "buy_provider_unavailable": "Penyedia saat ini tidak tersedia."
+  "buy_provider_unavailable": "Penyedia saat ini tidak tersedia.",
+  "totp_auth_url": "URL Otentikasi TOTP"
 }
