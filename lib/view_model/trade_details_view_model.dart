@@ -54,6 +54,7 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
+        break;
       case ExchangeProviderDescription.exolix:
         _provider = ExolixExchangeProvider();
         break;
