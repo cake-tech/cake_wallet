@@ -19,7 +19,7 @@ class NodeListRow extends StandardListRow {
   @override
   Widget buildLeading(BuildContext context) {
     return FutureBuilder(
-        future: node.requestNode(context: context),
+        future: node.requestNode(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
