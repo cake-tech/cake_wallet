@@ -509,5 +509,5 @@ abstract class EthereumWalletBase
   String signMessage(String message, {String? address = null}) =>
       bytesToHex(_ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 
-  dynamic getWeb3Client() => _client;
+  dynamic getWeb3Client() => _client.getWeb3Client();
 }
