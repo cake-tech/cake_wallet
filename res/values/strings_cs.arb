@@ -686,5 +686,6 @@
   "ask_each_time": "Zeptejte se pokaždé",
   "buy_provider_unavailable": "Poskytovatel aktuálně nedostupný.",
   "havenSupportNotice": "Haven již není v Cake podporován, ale semena můžete obnovit v jiné peněžence",
-  "havenSupportSeedsNotice": "Na další stránce uvidíte jedinečná semínka do vaší peněženky Haven. Zapište si to a uložte na bezpečném místě. Semena pak můžete obnovit v jiné peněžence."
+  "havenSupportSeedsNotice": "Na další stránce uvidíte jedinečná semínka do vaší peněženky Haven. Zapište si to a uložte na bezpečném místě. Semena pak můžete obnovit v jiné peněžence.",
+  "totp_auth_url": "URL AUTH TOTP"
 }

@@ -682,5 +682,6 @@
   "ask_each_time": "Tanyakan setiap kali",
   "buy_provider_unavailable": "Penyedia saat ini tidak tersedia.",
   "havenSupportNotice": "Haven tidak lagi didukung di Cake, namun Anda dapat memulihkan benih di dompet lain",
-  "havenSupportSeedsNotice": "Di halaman berikutnya, Anda akan melihat benih unik untuk Dompet Haven Anda. Catat dan simpan di tempat yang aman. Anda kemudian dapat mengembalikan benih di dompet lain."
+  "havenSupportSeedsNotice": "Di halaman berikutnya, Anda akan melihat benih unik untuk Dompet Haven Anda. Catat dan simpan di tempat yang aman. Anda kemudian dapat mengembalikan benih di dompet lain.",
+  "totp_auth_url": "URL Otentikasi TOTP"
 }

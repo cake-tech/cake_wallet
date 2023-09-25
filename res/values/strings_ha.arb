@@ -672,5 +672,6 @@
   "ask_each_time": "Tambaya kowane lokaci",
   "buy_provider_unavailable": "Mai ba da kyauta a halin yanzu babu.",
   "havenSupportNotice": "Haven baya tallafawa a cikin Cake, amma zaku iya dawo da tsaba a cikin wani walat ɗin",
-  "havenSupportSeedsNotice": "A shafi na gaba, zaku ga keɓaɓɓen iri zuwa Haven Wallet ɗinku. Rubuta shi kuma adana shi a wuri mai aminci. Kuna iya dawo da tsaba a cikin wani walat ɗin."
+  "havenSupportSeedsNotice": "A shafi na gaba, zaku ga keɓaɓɓen iri zuwa Haven Wallet ɗinku. Rubuta shi kuma adana shi a wuri mai aminci. Kuna iya dawo da tsaba a cikin wani walat ɗin.",
+  "totp_auth_url": "TOTP AUTH URL"
 }

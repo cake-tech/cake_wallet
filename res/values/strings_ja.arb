@@ -694,5 +694,6 @@
   "ask_each_time": "毎回尋ねてください",
   "buy_provider_unavailable": "現在、プロバイダーは利用できません。",
   "havenSupportNotice": "Haven は Cake ではサポートされなくなりましたが、シードを別のウォレットに復元することができます",
-  "havenSupportSeedsNotice": "次のページでは、Haven ウォレットの固有のシードが表示されます。書き留めて安全な場所に保管してください。その後、シードを別のウォレットに復元できます。"
+  "havenSupportSeedsNotice": "次のページでは、Haven ウォレットの固有のシードが表示されます。書き留めて安全な場所に保管してください。その後、シードを別のウォレットに復元できます。",
+  "totp_auth_url": "TOTP認証URL"
 }

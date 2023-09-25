@@ -694,5 +694,6 @@
   "ask_each_time": "Vraag het elke keer",
   "buy_provider_unavailable": "Provider momenteel niet beschikbaar.",
   "havenSupportNotice": "Haven wordt niet langer ondersteund in Cake, maar je kunt de zaden in een andere portemonnee herstellen",
-  "havenSupportSeedsNotice": "Op de volgende pagina ziet u de unieke zaden voor uw Haven Wallet. Schrijf het op en bewaar het op een veilige plaats. Je kunt de zaden vervolgens in een andere portemonnee herstellen."
+  "havenSupportSeedsNotice": "Op de volgende pagina ziet u de unieke zaden voor uw Haven Wallet. Schrijf het op en bewaar het op een veilige plaats. Je kunt de zaden vervolgens in een andere portemonnee herstellen.",
+  "totp_auth_url": "TOTP AUTH-URL"
 }

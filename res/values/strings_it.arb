@@ -694,5 +694,6 @@
   "ask_each_time": "Chiedi ogni volta",
   "buy_provider_unavailable": "Provider attualmente non disponibile.",
   "havenSupportNotice": "Haven non è più supportato in Cake, ma puoi ripristinare i seed in un altro portafoglio",
-  "havenSupportSeedsNotice": "Nella pagina successiva vedrai i semi unici del tuo Haven Wallet. Annotarlo e conservarlo in un luogo sicuro. Potrai quindi ripristinare i seed in un altro portafoglio."
+  "havenSupportSeedsNotice": "Nella pagina successiva vedrai i semi unici del tuo Haven Wallet. Annotarlo e conservarlo in un luogo sicuro. Potrai quindi ripristinare i seed in un altro portafoglio.",
+  "totp_auth_url": "URL DI AUT. TOTP"
 }

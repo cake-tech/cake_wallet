@@ -694,5 +694,6 @@
   "ask_each_time": "Pitajte svaki put",
   "buy_provider_unavailable": "Davatelj trenutno nije dostupan.",
   "havenSupportNotice": "Haven više nije podržan u Cakeu, ali možete obnoviti sjemenke u drugom novčaniku",
-  "havenSupportSeedsNotice": "Na sljedećoj stranici vidjet ćete jedinstveno sjeme za svoj novčanik Haven. Zapišite ga i pohranite na sigurno mjesto. Zatim možete vratiti sjeme u drugi novčanik."
+  "havenSupportSeedsNotice": "Na sljedećoj stranici vidjet ćete jedinstveno sjeme za svoj novčanik Haven. Zapišite ga i pohranite na sigurno mjesto. Zatim možete vratiti sjeme u drugi novčanik.",
+  "totp_auth_url": "TOTP AUTH URL"
 }

@@ -694,5 +694,6 @@
   "ask_each_time": "Demandez à chaque fois",
   "buy_provider_unavailable": "Fournisseur actuellement indisponible.",
   "havenSupportNotice": "Haven n'est plus pris en charge dans Cake, mais vous pouvez restaurer les graines dans un autre portefeuille",
-  "havenSupportSeedsNotice": "Sur la page suivante, vous verrez les graines uniques de votre Haven Wallet. Notez-le et conservez-le dans un endroit sûr. Vous pouvez ensuite restaurer les graines dans un autre portefeuille."
+  "havenSupportSeedsNotice": "Sur la page suivante, vous verrez les graines uniques de votre Haven Wallet. Notez-le et conservez-le dans un endroit sûr. Vous pouvez ensuite restaurer les graines dans un autre portefeuille.",
+  "totp_auth_url": "URL D'AUTORISATION TOTP"
 }
