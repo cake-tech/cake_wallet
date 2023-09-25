@@ -693,5 +693,7 @@
   "default_buy_provider": "Zadani davatelj kupnje",
   "ask_each_time": "Pitajte svaki put",
   "buy_provider_unavailable": "Davatelj trenutno nije dostupan.",
-  "address_from_ens": "Ova je adresa od ${domain} na ens"
+  "address_from_ens": "Ova je adresa od ${domain} na ens",
+  "do_not_have_enough_gas_asset": "Nemate dovoljno ${currency} da izvršite transakciju s trenutačnim uvjetima blockchain mreže. Trebate više ${currency} da platite naknade za blockchain mrežu, čak i ako šaljete drugu imovinu.",
+  "totp_auth_url": "TOTP AUTH URL"
 }

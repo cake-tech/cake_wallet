@@ -685,5 +685,7 @@
   "default_buy_provider": "Доставчик по подразбиране купува",
   "ask_each_time": "Питайте всеки път",
   "buy_provider_unavailable": "Понастоящем доставчик не е наличен.",
-  "address_from_ens": "Този адрес е от ${domain} на ENS"
+  "address_from_ens": "Този адрес е от ${domain} на ENS",
+  "do_not_have_enough_gas_asset": "Нямате достатъчно ${currency}, за да извършите транзакция с текущите условия на блокчейн мрежата. Имате нужда от повече ${currency}, за да платите таксите за блокчейн мрежа, дори ако изпращате различен актив.",
+  "totp_auth_url": "TOTP AUTH URL"
 }

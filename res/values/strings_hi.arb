@@ -693,5 +693,7 @@
   "default_buy_provider": "डिफ़ॉल्ट खरीद प्रदाता",
   "ask_each_time": "हर बार पूछें",
   "buy_provider_unavailable": "वर्तमान में प्रदाता अनुपलब्ध है।",
-  "address_from_ens": "यह पता ENS पर ${domain} से है"
+  "address_from_ens": "यह पता ENS पर ${domain} से है",
+  "do_not_have_enough_gas_asset": "वर्तमान ब्लॉकचेन नेटवर्क स्थितियों में लेनदेन करने के लिए आपके पास पर्याप्त ${currency} नहीं है। ब्लॉकचेन नेटवर्क शुल्क का भुगतान करने के लिए आपको अधिक ${currency} की आवश्यकता है, भले ही आप एक अलग संपत्ति भेज रहे हों।",
+  "totp_auth_url": "TOTP प्रामाणिक यूआरएल"
 }
