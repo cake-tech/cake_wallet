@@ -689,5 +689,8 @@
   "default_buy_provider": "مزود شراء الافتراضي",
   "ask_each_time": "اسأل في كل مرة",
   "buy_provider_unavailable": "مزود حاليا غير متوفر.",
+
+  "do_not_have_enough_gas_asset": "ليس لديك ما يكفي من ${currency} لإجراء معاملة وفقًا لشروط شبكة blockchain الحالية. أنت بحاجة إلى المزيد من ${currency} لدفع رسوم شبكة blockchain، حتى لو كنت ترسل أصلًا مختلفًا.",
   "totp_auth_url": "                                                    TOTP ﺔﻗﺩﺎﺼﻤﻟ URL ﻥﺍﻮﻨﻋ"
 }
+

@@ -693,5 +693,6 @@
   "default_buy_provider": "Proveedor de compra predeterminado",
   "ask_each_time": "Pregunta cada vez",
   "buy_provider_unavailable": "Proveedor actualmente no disponible.",
+  "do_not_have_enough_gas_asset": "No tienes suficiente ${currency} para realizar una transacción con las condiciones actuales de la red blockchain. Necesita más ${currency} para pagar las tarifas de la red blockchain, incluso si envía un activo diferente.",
   "totp_auth_url": "URL de autenticación TOTP"
 }

@@ -694,5 +694,6 @@
   "ask_each_time": "Ask each time",
   "robinhood_option_description": "Buy and transfer instantly using your debit card, bank account, or Robinhood balance. USA only.",
   "buy_provider_unavailable": "Provider currently unavailable.",
+  "do_not_have_enough_gas_asset": "You do not have enough ${currency} to make a transaction with the current blockchain network conditions. You need more ${currency} to pay blockchain network fees, even if you are sending a different asset.",
   "totp_auth_url": "TOTP AUTH URL"
 }

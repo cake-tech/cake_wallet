@@ -30,6 +30,7 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'send_view_model.g.dart';
 
@@ -325,7 +326,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
     } catch (e) {
-      state = FailureState(e.toString());
+      String translatedError = translateErrorMessage(e.toString(), wallet.type, wallet.currency);
+      state = FailureState(translatedError);
     }
   }
 
@@ -411,5 +413,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } catch (e) {
       selectedCryptoCurrency = wallet.currency;
     }
+  }
+
+  String translateErrorMessage(String error, WalletType walletType, CryptoCurrency currency,) {
+    if (walletType == WalletType.ethereum || walletType == WalletType.haven) {
+      if (error.contains('gas required exceeds allowance (0)') || error.contains('insufficient funds for gas')) {
+        return S.current.do_not_have_enough_gas_asset(currency.toString());
+      }
+    }
+
+    return error;
   }
 }
