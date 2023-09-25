@@ -16,9 +16,9 @@ class ExolixExchangeProvider extends ExchangeProvider {
   ExolixExchangeProvider() : super(pairList: _supportedPairs());
 
   static final apiKey = secrets.exolixApiKey;
-  static const apiBaseUrl = 'https://exolix.com/api';
-  static const transactionsPath = '/v2/transactions';
-  static const ratePath = '/v2/rate';
+  static const apiBaseUrl = 'exolix.com';
+  static const transactionsPath = '/api/v2/transactions';
+  static const ratePath = '/api/v2/rate';
 
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.usdt,
