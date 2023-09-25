@@ -82,6 +82,10 @@ dependencies:
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
   sensitive_clipboard: ^1.0.0
+  ens_dart:
+    git:
+      url: https://github.com/cake-tech/ens_dart.git
+      ref: main
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git

@@ -226,6 +226,10 @@ I/flutter ( 4474): Gas Used: 53000
     }
   }
 
+  dynamic getWeb3Client() {
+    return _client;
+  }
+
 // Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
 //     final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
 //     final contractAbi = ContractAbi.fromJson(abi, "ERC20");

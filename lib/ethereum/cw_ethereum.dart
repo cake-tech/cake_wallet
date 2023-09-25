@@ -133,7 +133,7 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  Future<String> fetchEnsAddress(WalletBase wallet, String name) async {
-    return (wallet as EthereumWallet).fetchEnsAddress(name);
+  dynamic getWeb3Client(WalletBase wallet) async {
+    return (wallet as EthereumWallet).getWeb3Client();
   }
 }

@@ -21,10 +21,6 @@ dependencies:
   hex: ^0.2.0
   http: ^1.1.0
   shared_preferences: ^2.0.15
-  ens_dart:
-    git:
-      url: https://github.com/cake-tech/ens_dart.git
-      ref: main
   cw_core:
     path: ../cw_core
 

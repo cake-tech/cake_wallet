@@ -525,7 +525,7 @@ abstract class Ethereum {
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
-  Future<String> fetchEnsAddress(WalletBase wallet, String name);
+  dynamic getWeb3Client(WalletBase wallet);
 }
   """;
 

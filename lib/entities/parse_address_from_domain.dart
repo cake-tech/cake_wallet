@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/ens_record.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
@@ -66,7 +67,7 @@ class AddressResolver {
           });
           final userTweetsText = subString.toString();
           final addressFromPinnedTweet =
-          extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
+              extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
 
           if (addressFromPinnedTweet != null) {
             return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
@@ -99,21 +100,20 @@ class AddressResolver {
         return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
       }
 
+      if (text.contains(".")) {
+        var wallet = getIt.get<AppStore>().wallet!;
+        final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
+        if (address.isNotEmpty) {
+          return ParsedAddress.fetchEnsAddress(name: text, address: address);
+        }
+      }
+
       if (formattedName.contains(".")) {
         final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
         if (txtRecord != null) {
           final record = await OpenaliasRecord.fetchAddressAndName(
               formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
           return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
-        }
-      }
-      if (text.contains(".")) {
-        var wallet = getIt.get<AppStore>().wallet!;
-        if (wallet.type == WalletType.ethereum) {
-          final address = await ethereum!.fetchEnsAddress(wallet, text);
-          if (address.isNotEmpty) {
-            return ParsedAddress.fetchEnsAddress(name: text, address: address);
-          }
         }
       }
     } catch (e) {
