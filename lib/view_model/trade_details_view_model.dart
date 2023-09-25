@@ -163,7 +163,7 @@ abstract class TradeDetailsViewModelBase with Store {
     }
 
     if (trade.provider == ExchangeProviderDescription.exolix) {
-      final buildURL = 'https://exolix.com/api/v2/transactions/${trade.id.toString()}';
+      final buildURL = 'https://exolix.com/transaction/${trade.id.toString()}';
       items.add(
         TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
     }
