@@ -140,7 +140,6 @@ class Node extends HiveObject with Keyable {
   Future<bool> requestMoneroNode() async {
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
-    final realm = 'monero-rpc';
     final body = {
         'jsonrpc': '2.0',
         'id': '0',
@@ -149,12 +148,6 @@ class Node extends HiveObject with Keyable {
 
     try {
       final authenticatingClient = HttpClient();
-
-      authenticatingClient.addCredentials(
-          rpcUri,
-          realm,
-          HttpClientDigestCredentials(login ?? '', password ?? ''),
-      );
 
       final http.Client client = ioc.IOClient(authenticatingClient);
 
