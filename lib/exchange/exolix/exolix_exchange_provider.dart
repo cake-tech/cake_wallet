@@ -133,7 +133,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       throw Exception(errorMessage);
     }
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
