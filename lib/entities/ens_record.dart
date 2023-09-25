@@ -20,6 +20,24 @@ class EnsRecord {
     try {
       final ens = Ens(client: _client);
 
+      dynamic res;
+
+      if (wallet != null) {
+        switch (wallet.type) {
+          case WalletType.monero:
+            return await ens.withName(name).getCoinAddress(CoinType.XMR);
+          case WalletType.bitcoin:
+            return await ens.withName(name).getCoinAddress(CoinType.BTC);
+          case WalletType.litecoin:
+            return await ens.withName(name).getCoinAddress(CoinType.LTC);
+          case WalletType.haven:
+            return await ens.withName(name).getCoinAddress(CoinType.XHV);
+          case WalletType.ethereum:
+          default:
+            return (await ens.withName(name).getAddress()).hex;
+        }
+      }
+
       final addr = await ens.withName(name).getAddress();
       return addr.hex;
     } catch (e) {
