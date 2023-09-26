@@ -13,7 +13,7 @@
 // Fix for randomx on ios
 void __clear_cache(void* start, void* end) { }
 #include "../External/ios/include/wallet2_api.h"
-#elif __LINUX__
+#elif __LINUX__ || __linux__
 #include "../External/linux/include/wallet2_api.h"
 #include <string.h>
 #else
