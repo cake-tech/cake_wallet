@@ -53,7 +53,6 @@ class _2FAControlsWidget extends StatelessWidget {
                   rightButtonText: S.current.disable,
                   actionLeftButton: () => Navigator.of(context).pop(),
                   actionRightButton: () {
-                    setup2FAViewModel.clearBase32SecretKey();
                     setup2FAViewModel.setUseTOTP2FA(false);
                     Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
                   },

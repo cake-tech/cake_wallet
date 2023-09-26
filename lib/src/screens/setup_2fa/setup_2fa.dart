@@ -54,7 +54,7 @@ class Setup2FAPage extends BasePage {
           SettingsCellWithArrow(
             title: S.current.setup_totp_recommended,
             handler: (_) {
-              setup2FAViewModel.clearBase32SecretKey();
+              setup2FAViewModel.generateSecretKey();
               return Navigator.of(context).pushReplacementNamed(Routes.setup_2faQRPage);
             },
           ),

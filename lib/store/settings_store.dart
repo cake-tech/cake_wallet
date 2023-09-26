@@ -51,7 +51,6 @@ abstract class SettingsStoreBase with Store {
       required BuyProviderType initialDefaultBuyProvider,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
-      required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
       required ExchangeApiMode initialExchangeStatus,
@@ -95,7 +94,6 @@ abstract class SettingsStoreBase with Store {
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
-        totpSecretKey = initialTotpSecretKey,
         useTOTP2FA = initialUseTOTP2FA,
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
@@ -285,9 +283,6 @@ abstract class SettingsStoreBase with Store {
         (int failedTokenTrail) =>
             sharedPreferences.setInt(PreferencesKey.failedTotpTokenTrials, failedTokenTrail));
 
-    reaction((_) => totpSecretKey,
-        (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
-
     reaction(
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
@@ -420,14 +415,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldRequireTOTP2FAForAllSecurityAndBackupSettings;
-
-  @observable
-  String totpSecretKey;
-
-  @computed
-  String get totpVersionOneLink {
-    return 'otpauth://totp/Cake%20Wallet:$deviceName?secret=$totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
-  }
 
   @observable
   bool useTOTP2FA;
@@ -575,7 +562,6 @@ abstract class SettingsStoreBase with Store {
     final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
             .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
         false;
-    final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
@@ -677,7 +663,6 @@ abstract class SettingsStoreBase with Store {
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
-        initialTotpSecretKey: totpSecretKey,
         initialUseTOTP2FA: useTOTP2FA,
         initialFailedTokenTrial: tokenTrialNumber,
         initialExchangeStatus: exchangeStatus,
@@ -752,7 +737,6 @@ abstract class SettingsStoreBase with Store {
     shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
             shouldSaveRecipientAddress;
-    totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
 
     numberOfFailedTokenTrials =

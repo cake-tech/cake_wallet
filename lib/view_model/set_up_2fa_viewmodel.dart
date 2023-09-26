@@ -27,7 +27,6 @@ abstract class Setup2FAViewModelBase with Store {
         unhighlightTabs = false,
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
-    _getRandomBase32SecretKey();
     selectCakePreset(selectedCake2FAPreset);
     reaction((_) => state, _saveLastAuthTime);
   }
@@ -36,9 +35,11 @@ abstract class Setup2FAViewModelBase with Store {
   static const banTimeout = 180; // 3 minutes
   final banTimeoutKey = S.current.auth_store_ban_timeout;
 
-  String get secretKey => _settingsStore.totpSecretKey;
   String get deviceName => _settingsStore.deviceName;
-  String get totpVersionOneLink => _settingsStore.totpVersionOneLink;
+
+  String totpSecretKey = '';
+
+  String totpVersionOneLink = '';
 
   @observable
   ExecutionState state;
@@ -84,26 +85,17 @@ abstract class Setup2FAViewModelBase with Store {
   bool get shouldRequireTOTP2FAForAllSecurityAndBackupSettings =>
       _settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings;
 
-  void _getRandomBase32SecretKey() {
-    final randomBase32Key = Utils.generateRandomBase32SecretKey(16);
-    _setBase32SecretKey(randomBase32Key);
+  @action
+  void generateSecretKey() {
+    totpSecretKey = Utils.generateRandomBase32SecretKey(16);
+
+    totpVersionOneLink =
+        'otpauth://totp/Cake%20Wallet:$deviceName?secret=$totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
   }
 
   @action
   void setUseTOTP2FA(bool value) {
     _settingsStore.useTOTP2FA = value;
-  }
-
-  @action
-  void _setBase32SecretKey(String value) {
-    if (_settingsStore.totpSecretKey == '') {
-      _settingsStore.totpSecretKey = value;
-    }
-  }
-
-  @action
-  void clearBase32SecretKey() {
-    _settingsStore.totpSecretKey = '';
   }
 
   Duration? banDuration() {
@@ -147,7 +139,7 @@ abstract class Setup2FAViewModelBase with Store {
     }
 
     final result = Utils.verify(
-      secretKey: secretKey,
+      secretKey: totpSecretKey,
       otp: otpText,
     );
 
