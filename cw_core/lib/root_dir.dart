@@ -13,7 +13,15 @@ Future<Directory> getAppDir({String appName = 'cake_wallet'}) async {
     dir.create(recursive: true);
   } else {
     if (Platform.isLinux) {
-      final appDirPath = '/home/${Platform.environment['USER']}/.$appName';
+      String appDirPath;
+
+      try {
+        dir = await getApplicationDocumentsDirectory();
+        appDirPath = '${dir.path}/$appName';
+      } catch (e) {
+        appDirPath = '/home/${Platform.environment['USER']}/.$appName';
+      }
+
       dir = Directory.fromUri(Uri.file(appDirPath));
       await dir.create(recursive: true);
     } else {
@@ -23,4 +31,3 @@ Future<Directory> getAppDir({String appName = 'cake_wallet'}) async {
 
   return dir;
 }
-
