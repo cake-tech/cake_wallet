@@ -445,8 +445,8 @@ Future<void> setup({
   final appStore = getIt.get<AppStore>();
   getIt.registerLazySingleton<WalletConnectService>(() {
     final walletConnectService = WalletConnectService(
-      appStore.wallet!,
       getIt.get<BottomSheetService>(),
+      appStore,
     );
     walletConnectService.createWCInstanceAndSubscribeToEvents();
     walletConnectService.setUpWalletConnect();

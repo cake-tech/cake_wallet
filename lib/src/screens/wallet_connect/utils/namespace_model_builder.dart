@@ -1,7 +1,8 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
-import '../models/connection_model.dart';
+import '../../../../core/wallet_connect/models/connection_model.dart';
 
 class ConnectionWidgetBuilder {
   static List<ConnectionWidget> buildFromSessionNamespaces(
@@ -16,17 +17,17 @@ class ConnectionWidgetBuilder {
       if (ns.chains != null) {
         models.add(
           ConnectionModel(
-            title: 'Chains',
+            title: S.current.chains,
             elements: ns.chains!,
           ),
         );
       }
       models.add(ConnectionModel(
-        title: 'Methods',
+        title: S.current.methods,
         elements: ns.methods,
       ));
       models.add(ConnectionModel(
-        title: 'Events',
+        title: S.current.events,
         elements: ns.events,
       ));
 
@@ -53,17 +54,17 @@ class ConnectionWidgetBuilder {
       if (ns.chains != null) {
         models.add(
           ConnectionModel(
-            title: 'Chains',
+            title: S.current.chains,
             elements: ns.chains!,
           ),
         );
       }
       models.add(ConnectionModel(
-        title: 'Methods',
+        title: S.current.methods,
         elements: ns.methods,
       ));
       models.add(ConnectionModel(
-        title: 'Events',
+        title: S.current.events,
         elements: ns.events,
       ));
 

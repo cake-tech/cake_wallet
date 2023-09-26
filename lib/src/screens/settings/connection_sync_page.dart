@@ -77,8 +77,7 @@ class ConnectionSyncPage extends BasePage {
           const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             WalletConnectTile(
-              onTap: () async {
-                await initializeWalletConnect();
+              onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
@@ -114,12 +113,5 @@ class ConnectionSyncPage extends BasePage {
         );
       },
     );
-  }
-
-  Future<void> initializeWalletConnect() async {
-    print('About to initialize WalletConnect');
-    if (walletConnectService.isInitiated) return;
-    // await walletConnectService.setUpWalletConnect();
-    log('All WC Dependencies done');
   }
 }

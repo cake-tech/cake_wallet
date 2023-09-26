@@ -467,7 +467,6 @@ Future<void> generateEthereum(bool hasImplementation) async {
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/output_info.dart';
@@ -477,7 +476,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:eth_sig_util/util/utils.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:hive/hive.dart';
 """;
   const ethereumCWHeaders = """

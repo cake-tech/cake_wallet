@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_service.dart';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -21,7 +20,7 @@ class WalletConnectConnectionsView extends StatefulWidget {
     required this.walletConnectService,
     Key? key,
   }) : super(key: key);
-
+ 
   @override
   WalletConnectConnectionsViewState createState() => WalletConnectConnectionsViewState();
 }
@@ -41,12 +40,12 @@ class WCPairingsWidget extends BasePage {
   final WalletConnectService walletConnectService;
 
   @override
-  String get title => 'WalletConnect';
+  String get title => S.current.walletConnect;
 
   Future<void> _onScanQrCode(BuildContext context) async {
     final String? uri = await presentQRScanner();
 
-    if (uri == null) return _invalidUriToast(context, 'URI is null');
+    if (uri == null) return _invalidUriToast(context, S.current.nullURIError);
 
     try {
       log('_onFoundUri: $uri');
@@ -82,7 +81,7 @@ class WCPairingsWidget extends BasePage {
               children: [
                 SizedBox(height: 24),
                 Text(
-                  'Connect your wallet with WalletConnect to make transactions',
+                  S.current.connectWalletPromptText,
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.normal,
@@ -91,7 +90,7 @@ class WCPairingsWidget extends BasePage {
                 ),
                 SizedBox(height: 16),
                 PrimaryButton(
-                  text: 'New Connection',
+                  text: S.current.newConnection,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                   onPressed: () => _onScanQrCode(context),
@@ -105,7 +104,7 @@ class WCPairingsWidget extends BasePage {
               visible: walletConnectService.sessions.isEmpty,
               child: Center(
                 child: Text(
-                  'Active connections will appear here',
+                  S.current.activeConnectionsDisplay,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16.0,

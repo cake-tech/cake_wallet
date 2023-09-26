@@ -119,7 +119,7 @@ class WCCDetailsWidget extends BasePage {
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Expires on: $expiryDate',
+                '${S.current.expiresOn}: $expiryDate',
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.normal,
@@ -135,7 +135,7 @@ class WCCDetailsWidget extends BasePage {
               const SizedBox(height: 20.0),
               PrimaryButton(
                 onPressed: () => _onDeleteButtonPressed(context, session.peer.name),
-                text: 'Delete',
+                text: S.current.delete,
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
               ),
@@ -154,7 +154,7 @@ class WCCDetailsWidget extends BasePage {
       builder: (BuildContext dialogContext) {
         return AlertWithTwoActions(
           alertTitle: S.of(context).delete,
-          alertContent: 'Are you sure that you want to delete the connection to $dAppName?',
+          alertContent: '${S.current.deleteWCConnectionConfirmation} $dAppName?',
           leftButtonText: S.of(context).cancel,
           rightButtonText: S.of(context).delete,
           actionLeftButton: () => Navigator.of(dialogContext).pop(),

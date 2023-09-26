@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cake_wallet/src/screens/wallet_connect/models/bottom_sheet_queue_item_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 import 'package:flutter/material.dart';
 
 abstract class BottomSheetService {

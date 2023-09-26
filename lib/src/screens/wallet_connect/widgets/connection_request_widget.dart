@@ -1,9 +1,10 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
-import '../models/session_request_model.dart';
+import '../../../../core/wallet_connect/models/session_request_model.dart';
 import '../utils/namespace_model_builder.dart';
 import 'connection_widget.dart';
 
@@ -34,7 +35,7 @@ class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
       return Column(
         children: [
           Text(
-            'Session Request',
+            S.current.sessionRequest,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
@@ -56,7 +57,14 @@ class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
     }
 
     if (metadata == null) {
-      return const Text('ERROR');
+      return Text(
+        S.current.error,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+        ),
+      );
     }
 
     return _ConnectionMetadataDisplayWidget(
@@ -90,7 +98,7 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${metadata!.name} would like to connect',
+            '${metadata!.name} ${S.current.wouldLikeToConnect}',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,

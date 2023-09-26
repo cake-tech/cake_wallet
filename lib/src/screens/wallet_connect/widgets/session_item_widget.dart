@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class SessionItemWidget extends StatelessWidget {
             ),
           ),
           Text(
-            'Expires on: $expiryDate',
+            '${S.current.expiresOn} $expiryDate',
             style: TextStyle(
               fontSize: 14.0,
               fontWeight: FontWeight.w700,

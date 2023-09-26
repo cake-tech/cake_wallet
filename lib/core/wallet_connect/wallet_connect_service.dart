@@ -1,36 +1,39 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:cake_wallet/src/screens/wallet_connect/models/wc_eth_transaction_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/wc_eth_transaction_model.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottomsheet_message_diaplay_widget.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
-import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/session_request_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:web3dart/crypto.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'wallet_connect_service.g.dart';
 
 class WalletConnectService = WalletConnectServiceBase with _$WalletConnectService;
 
 abstract class WalletConnectServiceBase with Store {
-  late final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
   final BottomSheetService _bottomSheetHandler;
-
-  static const projectId = '419b7919bdfe48515a1107e949ec811a';
+  late final AppStore _appStore;
 
   late WalletConnectV2 _walletConnectV2Plugin;
   late AppMetadata _walletMetadata;
@@ -49,8 +52,8 @@ abstract class WalletConnectServiceBase with Store {
   bool _isForeground = true;
 
   WalletConnectServiceBase(
-    this.wallet,
     this._bottomSheetHandler,
+    this._appStore,
   ) : sessions = ObservableList<Session>();
 
   static const pSign = 'personal_sign';
@@ -99,7 +102,10 @@ abstract class WalletConnectServiceBase with Store {
   Future<void> setUpWalletConnect() async {
     await _initDapp();
     await _initWallet();
-    await _walletConnectV2Plugin.init(projectId: projectId, appMetadata: _walletMetadata);
+    await _walletConnectV2Plugin.init(
+      projectId: secrets.walletConnectProjectId,
+      appMetadata: _walletMetadata,
+    );
     await _walletConnectV2Plugin.connect();
   }
 
@@ -137,7 +143,8 @@ abstract class WalletConnectServiceBase with Store {
       await _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
-            errorText: 'Please choose Ethereum networks only to do test!'),
+          message: S.current.pleaseChooseEthereumNetworks,
+        ),
       );
       return;
     }
@@ -188,8 +195,8 @@ abstract class WalletConnectServiceBase with Store {
         log('Approve session error: ${e.toString()}');
         _bottomSheetHandler.queueBottomSheet(
           isModalDismissible: true,
-          widget:
-              BottomSheetMessageDisplayWidget(errorText: 'Approve session error: ${e.toString()}'),
+          widget: BottomSheetMessageDisplayWidget(
+              message: '${S.current.approveSessionError}: ${e.toString()}'),
         );
       }
     } else {
@@ -199,8 +206,8 @@ abstract class WalletConnectServiceBase with Store {
         log('Reject session error: ${e.toString()}');
         _bottomSheetHandler.queueBottomSheet(
           isModalDismissible: true,
-          widget:
-              BottomSheetMessageDisplayWidget(errorText: 'Reject session error: ${e.toString()}'),
+          widget: BottomSheetMessageDisplayWidget(
+              message: '${S.current.rejectSessionError}: ${e.toString()}'),
         );
       }
     }
@@ -221,7 +228,9 @@ abstract class WalletConnectServiceBase with Store {
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
       widget: BottomSheetMessageDisplayWidget(
-          errorText: '${response.results is String ? 'Signature' : 'Error'}: ${response.results}'),
+        message:
+            '${response.results is String ? S.current.signature : S.current.error}: ${response.results}',
+      ),
     );
   }
 
@@ -246,7 +255,9 @@ abstract class WalletConnectServiceBase with Store {
 
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
-      widget: BottomSheetMessageDisplayWidget(errorText: 'code: $code | message: $message'),
+      widget: BottomSheetMessageDisplayWidget(
+        message: '${S.current.code} : $code | ${S.current.message}: $message',
+      ),
     );
   }
 
@@ -259,8 +270,10 @@ abstract class WalletConnectServiceBase with Store {
 
       final ethTransaction = WCEthereumTransaction.fromJson(object);
 
-      final client =
-          Web3Client('https://mainnet.infura.io/v3/51716d2096df4e73bec298680a51f0c5', Client());
+      final client = Web3Client(
+          '${_appStore.settingsStore.getCurrentNode(WalletType.ethereum).uri}',
+          // 'https://mainnet.infura.io/v3/51716d2096df4e73bec298680a51f0c5',
+          Client());
 
       Credentials cred = EthPrivateKey.fromHex(_privateKey ?? '');
 
@@ -284,7 +297,7 @@ abstract class WalletConnectServiceBase with Store {
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
-          errorText: 'Kindly wait for the dApp to finish processing.',
+          message: S.current.awaitDAppProcessing,
           isError: false,
         ),
       );
@@ -299,7 +312,7 @@ abstract class WalletConnectServiceBase with Store {
       log('Sign error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(errorText: 'Sign error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(message: '${S.current.signError}: ${e.toString()}'),
       );
     }
   }
@@ -317,7 +330,9 @@ abstract class WalletConnectServiceBase with Store {
       log('Approve error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(errorText: 'Approve error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(
+          message: '${S.current.approveError}: ${e.toString()}',
+        ),
       );
     }
   }
@@ -339,8 +354,9 @@ abstract class WalletConnectServiceBase with Store {
       log('Approve request error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget:
-            BottomSheetMessageDisplayWidget(errorText: 'Approve request error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(
+          message: '${S.current.approveRequestError}: ${e.toString()}',
+        ),
       );
     }
   }
@@ -351,7 +367,9 @@ abstract class WalletConnectServiceBase with Store {
     _walletConnectV2Plugin.rejectRequest(topic: request.topic, requestId: request.id);
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
-      widget: BottomSheetMessageDisplayWidget(errorText: 'Unhandled method ${request.method}'),
+      widget: BottomSheetMessageDisplayWidget(
+        message: '${S.current.unhandledMethod} ${request.method}',
+      ),
     );
   }
 
@@ -382,7 +400,9 @@ abstract class WalletConnectServiceBase with Store {
       log('Reject request error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(errorText: 'Reject request error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(
+          message: '${S.current.rejectRequestError}: ${e.toString()}',
+        ),
       );
     }
   }
@@ -472,8 +492,9 @@ To: $to
       log('Refresh sessions error: ${e.toString()}');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget:
-            BottomSheetMessageDisplayWidget(errorText: 'Refresh sessions error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(
+          message: '${S.current.refreshSessionsError}: ${e.toString()}',
+        ),
       );
     }
   }
@@ -489,8 +510,8 @@ To: $to
 
   @action
   Future<void> _initWallet() async {
-    _privateKey = ethereum!.getPrivateKey(wallet);
-    _address = ethereum!.getPublicKey(wallet);
+    _privateKey = ethereum!.getPrivateKey(_appStore.wallet!);
+    _address = ethereum!.getPublicKey(_appStore.wallet!);
   }
 
   @action
