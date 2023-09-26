@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
-
 class Setup2FAQRPage extends BasePage {
   Setup2FAQRPage({required this.setup2FAViewModel});
 
@@ -25,7 +24,6 @@ class Setup2FAQRPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-  
     final copyImage = Image.asset(
       'assets/images/copy_content.png',
       height: 12,
@@ -126,16 +124,69 @@ class Setup2FAQRPage extends BasePage {
           ),
           SizedBox(height: 8),
           StandardListSeparator(),
+          SizedBox(height: 13),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.current.totp_auth_url,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Palette.darkGray,
+                        height: 1.8333,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '${setup2FAViewModel.totpVersionOneLink}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        height: 1.375,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 8),
+              Container(
+                width: 32,
+                height: 32,
+                child: InkWell(
+                  onTap: () {
+                    ClipboardUtil.setSensitiveDataToClipboard(
+                        ClipboardData(text: '${setup2FAViewModel.totpVersionOneLink}'));
+                    showBar<void>(context, S.of(context).copied_to_clipboard);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      color: Color(0xFFF2F0FA),
+                    ),
+                    child: copyImage,
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 8),
+          StandardListSeparator(),
           Spacer(),
           PrimaryButton(
             onPressed: () {
-              Navigator.of(context).pushReplacementNamed(
-                Routes.totpAuthCodePage,
+              Navigator.of(context).pushReplacementNamed(Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
                     isForSetup: true,
-                  )
-                  
-              );
+                  ));
             },
             text: S.current.continue_text,
             color: Theme.of(context).primaryColor,
