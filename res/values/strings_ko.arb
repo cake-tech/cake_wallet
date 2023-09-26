@@ -720,5 +720,7 @@
   "refreshSessionsError": "세션 새로 고침 오류",
   "chains": "쇠사슬",
   "methods": "행동 양식",
-  "events": "이벤트"
+  "events": "이벤트",
+  "do_not_have_enough_gas_asset": "현재 블록체인 네트워크 조건으로 거래를 하기에는 ${currency}이(가) 충분하지 않습니다. 다른 자산을 보내더라도 블록체인 네트워크 수수료를 지불하려면 ${currency}가 더 필요합니다.",
+  "totp_auth_url": "TOTP 인증 URL"
 }

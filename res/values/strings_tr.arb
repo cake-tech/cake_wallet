@@ -718,5 +718,7 @@
   "refreshSessionsError": "Oturumları Yenileme Hatası",
   "chains": "Zincirler",
   "methods": "Yöntemler",
-  "events": "Olaylar"
+  "events": "Olaylar",
+  "do_not_have_enough_gas_asset": "Mevcut blockchain ağ koşullarıyla işlem yapmak için yeterli ${currency} paranız yok. Farklı bir varlık gönderiyor olsanız bile blockchain ağ ücretlerini ödemek için daha fazla ${currency} miktarına ihtiyacınız var.",
+  "totp_auth_url": "TOTP YETKİ URL'si"
 }

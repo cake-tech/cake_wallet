@@ -720,5 +720,7 @@
   "refreshSessionsError": "Pogreška osvježavanja sesija",
   "chains": "Lanci",
   "methods": "Metode",
-  "events": "Događaji"
+  "events": "Događaji",
+  "do_not_have_enough_gas_asset": "Nemate dovoljno ${currency} da izvršite transakciju s trenutačnim uvjetima blockchain mreže. Trebate više ${currency} da platite naknade za blockchain mrežu, čak i ako šaljete drugu imovinu.",
+  "totp_auth_url": "TOTP AUTH URL"
 }

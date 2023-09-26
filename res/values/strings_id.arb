@@ -708,5 +708,7 @@
   "refreshSessionsError": "Segarkan Kesalahan Sesi",
   "chains": "Rantai",
   "methods": "Metode",
-  "events": "Acara"
+  "events": "Acara",
+  "do_not_have_enough_gas_asset": "Anda tidak memiliki cukup ${currency} untuk melakukan transaksi dengan kondisi jaringan blockchain saat ini. Anda memerlukan lebih banyak ${currency} untuk membayar biaya jaringan blockchain, meskipun Anda mengirimkan aset yang berbeda.",
+  "totp_auth_url": "URL Otentikasi TOTP"
 }

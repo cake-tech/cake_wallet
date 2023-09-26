@@ -720,5 +720,7 @@
   "refreshSessionsError": "Błąd odświeżania sesji",
   "chains": "Więzy",
   "methods": "Metody",
-  "events": "Wydarzenia"
+  "events": "Wydarzenia",
+  "do_not_have_enough_gas_asset": "Nie masz wystarczającej ilości ${currency}, aby dokonać transakcji przy bieżących warunkach sieci blockchain. Potrzebujesz więcej ${currency}, aby uiścić opłaty za sieć blockchain, nawet jeśli wysyłasz inny zasób.",
+  "totp_auth_url": "Adres URL TOTP AUTH"
 }
