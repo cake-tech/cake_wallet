@@ -68,7 +68,6 @@ dependencies:
   # device_display_brightness: ^0.0.6
   screen_brightness: ^0.2.2
   workmanager: ^0.5.1
-  platform_device_id: ^1.0.1
   wakelock: ^0.6.2
   flutter_mailer: ^2.0.2
   device_info_plus: 8.1.0
