@@ -170,7 +170,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
     switch (type) {
       case WalletType.bitcoin:
-        return BitcoinWalletService.compareDerivationMethods(mnemonic: mnemonic!, node: node);
+        dynamic WalletService = await bitcoin!.getBitcoinWalletService();
+        return WalletService.compareDerivationMethods(mnemonic: mnemonic!, node: node) as Future<List<DerivationType>>;
       // case WalletType.litecoin:
       //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
       //       name: name, mnemonic: seed, password: password);

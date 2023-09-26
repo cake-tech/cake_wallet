@@ -161,4 +161,11 @@ class CWBitcoin extends Bitcoin {
 
   @override
   TransactionPriority getLitecoinTransactionPrioritySlow() => LitecoinTransactionPriority.slow;
+
+  @override
+  dynamic getBitcoinWalletService() async {
+    Box<WalletInfo> _walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    Box<UnspentCoinsInfo> _unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    return BitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+  }
 }
